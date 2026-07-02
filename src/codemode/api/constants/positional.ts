@@ -198,6 +198,19 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   userRoles: "user",
   getRoles: "user",
 
+  // ============ VECTOR GROUP ============
+  store: ["table", "column", "id", "vector"],
+  batchStore: ["table", "column", "items"],
+  delete: ["table", "id"],
+  get: ["table", "id"],
+  search: ["table", "column", "queryVector"],
+  rangeSearch: ["table", "column", "queryVector", "maxDistance"],
+  hybridSearch: ["table", "vectorColumn", "textColumn", "queryText"],
+  info: ["table", "column"],
+  createIndex: ["table", "column", "metric"],
+  optimize: "table",
+  stats: ["table", "column"],
+
   // ============ DOCSTORE GROUP ============
   docCreateCollection: "name",
   docDropCollection: "name",

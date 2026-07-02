@@ -94,8 +94,9 @@ export function preprocessVectorParams(input: unknown): unknown {
   if (result["maxDistance"] === undefined && result["distance"] !== undefined) {
     result["maxDistance"] = result["distance"];
   }
-  if (result["queryText"] === undefined && result["query"] !== undefined) {
-    result["queryText"] = result["query"];
+  if (result["queryText"] === undefined) {
+    if (result["query"] !== undefined) result["queryText"] = result["query"];
+    else if (result["sql"] !== undefined) result["queryText"] = result["sql"];
   }
   
   if (typeof result["metric"] === "string") {
