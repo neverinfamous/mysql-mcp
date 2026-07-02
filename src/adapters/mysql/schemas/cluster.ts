@@ -11,15 +11,18 @@ import { BaseOutputSchema } from "./output-schemas.js";
 
 export const MemberSchemaBase = z.object({
   memberId: z.string().optional().describe("Filter by specific member UUID"),
-});
+}).strict();
 
 export const MemberSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "string") {
       return { memberId: val };
     }
-    if (val !== null && typeof val === "object" && !("memberId" in val) && "id" in val) {
-      return { ...val, memberId: (val as Record<string, unknown>)["id"] };
+    if (val !== null && typeof val === "object" && !("memberId" in val)) {
+      const v = val as Record<string, unknown>;
+      if ("id" in v) return { ...val, memberId: v["id"] };
+      if ("member" in v) return { ...val, memberId: v["member"] };
+      if ("uuid" in v) return { ...val, memberId: v["uuid"] };
     }
     return val;
   },

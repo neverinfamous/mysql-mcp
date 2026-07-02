@@ -17,7 +17,6 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import {
-  MemberSchemaBase,
   MemberSchema,
   GRStatusOutputSchema,
   GRMembersOutputSchema,
@@ -47,7 +46,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get comprehensive Group Replication status including mode and member state.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict(),
     outputSchema: GRStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -136,7 +135,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all Group Replication members with detailed state information.",
     group: "cluster",
-    inputSchema: MemberSchemaBase,
+    inputSchema: MemberSchema,
     outputSchema: GRMembersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -200,7 +199,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Identify the current primary member in a single-primary GR cluster.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict(),
     outputSchema: GRPrimaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -260,7 +259,7 @@ export function createGRTransactionsTool(
     description:
       "Get Group Replication transaction statistics and pending transactions.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict(),
     outputSchema: GRTransactionsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -325,7 +324,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get Group Replication flow control statistics and throttling info.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict(),
     outputSchema: GRFlowControlOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
