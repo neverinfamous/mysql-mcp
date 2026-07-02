@@ -143,6 +143,15 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     innodb: "innodbStatus",
     health: "serverHealth",
     pool: "poolStats",
+    get: "showStatus",
+    replication: "replicationStatus",
+    mysql_innodb_status: "innodbStatus",
+    mysql_replication_status: "replicationStatus",
+    mysql_pool_stats: "poolStats",
+    mysql_show_status: "showStatus",
+    mysql_show_variables: "showVariables",
+    mysql_show_processlist: "showProcesslist",
+    mysql_server_health: "serverHealth",
   },
   // Backup: shorter aliases
   backup: {

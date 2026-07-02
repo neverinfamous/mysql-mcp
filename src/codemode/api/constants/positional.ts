@@ -114,6 +114,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   showStatus: "like",
   showVariables: "like",
   showProcesslist: "limit",
+  innodbStatus: "summary",
+  replicationStatus: "summary",
 
   // ============ BACKUP GROUP ============
   createDump: "tables",
