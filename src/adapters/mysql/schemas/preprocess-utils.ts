@@ -79,17 +79,36 @@ export function preprocessConditionalUpdateParams(input: unknown): unknown {
   const result = preprocessTableParams(input) as Record<string, unknown>;
   if (typeof result !== "object" || result === null) return result;
 
+  // Helper to normalize condition items
+  const normalizeConditionItem = (c: unknown): unknown => {
+    if (typeof c === "object" && c !== null && !Array.isArray(c)) {
+      const obj = c as Record<string, unknown>;
+      if ("column" in obj) return obj;
+      // Convert { id: 1 } to [{ column: "id", value: 1 }]
+      const keys = Object.keys(obj);
+      if (keys.length > 0) {
+        return keys.map((k) => ({ column: k, value: obj[k] }));
+      }
+    }
+    return c;
+  };
+
   const conditions = result["conditions"];
   const condition = result["condition"];
-  if (conditions === undefined && condition !== undefined) {
-    if (Array.isArray(condition)) {
-      result["conditions"] = condition;
-    } else if (typeof condition === "object" && condition !== null) {
-      result["conditions"] = [condition];
-    } else if (typeof condition === "string") {
-      result["conditions"] = [condition];
-    }
+  
+  let rawConditions: unknown[] = [];
+  
+  if (conditions !== undefined) {
+    rawConditions = Array.isArray(conditions) ? conditions : [conditions];
+  } else if (condition !== undefined) {
+    rawConditions = Array.isArray(condition) ? condition : [condition];
   }
+
+  if (rawConditions.length > 0) {
+    // Flatten in case normalizeConditionItem returned an array
+    result["conditions"] = rawConditions.flatMap(normalizeConditionItem);
+  }
+
   return result;
 }
 
@@ -202,6 +221,23 @@ export function preprocessCreateTableParams(input: unknown): unknown {
     else if (result["tableName"] !== undefined)
       result["name"] = result["tableName"];
   }
+
+  if (result["columns"] !== undefined && !Array.isArray(result["columns"])) {
+    if (typeof result["columns"] === "object" && result["columns"] !== null) {
+      const colObj = result["columns"] as Record<string, unknown>;
+      if ("name" in colObj && "type" in colObj) {
+        result["columns"] = [colObj];
+      } else {
+        result["columns"] = Object.entries(colObj).map(([k, v]) => ({
+          name: k,
+          type: typeof v === "string" ? v : String(v),
+        }));
+      }
+    } else if (typeof result["columns"] === "string") {
+      result["columns"] = [{ name: result["columns"], type: "VARCHAR(255)" }];
+    }
+  }
+
   return result;
 }
 
