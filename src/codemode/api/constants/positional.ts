@@ -410,4 +410,6 @@ export const ARRAY_WRAP_MAP: Record<string, string> = {
   exec: "statements",
   query: "statements",
   polygon: "coordinates",
+  migrationRisks: "statements",
+  risks: "statements",
 };
