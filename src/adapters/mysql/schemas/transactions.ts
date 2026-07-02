@@ -112,12 +112,12 @@ export const TransactionSavepointOutputSchema = BaseOutputSchema.extend({
 // Base schema for MCP visibility
 export const TransactionExecuteSchemaBase = z.object({
   statements: z
-    .array(z.string())
+    .array(z.union([z.string(), z.record(z.string(), z.unknown())]))
     .optional()
     .describe("SQL statements to execute atomically. Anti-Hallucination Hint: Pass an array of strings. You can also pass a single string or use the 'queries' or 'sql' alias."),
-  queries: z.array(z.string()).optional().describe("Alias for statements"),
-  query: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements"),
-  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements"),
+  queries: z.array(z.union([z.string(), z.record(z.string(), z.unknown())])).optional().describe("Alias for statements"),
+  query: z.union([z.string(), z.array(z.union([z.string(), z.record(z.string(), z.unknown())]))]).optional().describe("Alias for statements"),
+  sql: z.union([z.string(), z.array(z.union([z.string(), z.record(z.string(), z.unknown())]))]).optional().describe("Alias for statements"),
   isolationLevel: z.string().optional().describe("Transaction isolation level. Expected one of: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE"),
   isolation_level: z.string().optional().describe("Alias for isolationLevel"),
   level: z.string().optional().describe("Alias for isolationLevel"),
@@ -126,7 +126,7 @@ export const TransactionExecuteSchemaBase = z.object({
 export const TransactionExecuteSchema = z
   .preprocess(preprocessTransactionExecuteParams, TransactionExecuteSchemaBase)
   .transform((data) => ({
-    statements: data.statements ?? data.queries ?? [],
+    statements: (data.statements ?? data.queries ?? []) as string[],
     isolationLevel: data.isolationLevel,
   }))
   .refine((data) => data.statements.length > 0, {
