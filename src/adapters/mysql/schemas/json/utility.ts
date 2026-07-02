@@ -3,7 +3,7 @@ import { preprocessJsonColumnParams } from "../preprocess-utils.js";
 
 // --- JsonNormalize ---
 export const JsonNormalizeSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. Note: This tool normalizes an existing JSON column in a table, it does not normalize raw JSON strings."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
@@ -139,8 +139,10 @@ export const JsonValidateSchema = z
 export const JsonMergeSchemaBase = z.object({
   json1: z.unknown().optional().describe("First JSON document"),
   doc1: z.unknown().optional().describe("Alias for json1"),
+  target: z.unknown().optional().describe("Alias for json1"),
   json2: z.unknown().optional().describe("Second JSON document"),
   doc2: z.unknown().optional().describe("Alias for json2"),
+  source: z.unknown().optional().describe("Alias for json2"),
   mode: z
     .enum(["patch", "preserve"])
     .optional()
@@ -151,24 +153,28 @@ export const JsonMergeSchemaBase = z.object({
 export const JsonDiffSchemaBase = z.object({
   json1: z.unknown().optional().describe("First JSON document"),
   doc1: z.unknown().optional().describe("Alias for json1"),
+  target: z.unknown().optional().describe("Alias for json1"),
   json2: z.unknown().optional().describe("Second JSON document"),
   doc2: z.unknown().optional().describe("Alias for json2"),
+  source: z.unknown().optional().describe("Alias for json2"),
 });
 
 export const JsonMergeSchema = z
   .object({
     json1: z.unknown().optional().describe("First JSON document"),
     doc1: z.unknown().optional().describe("Alias for json1"),
+    target: z.unknown().optional().describe("Alias for json1"),
     json2: z.unknown().optional().describe("Second JSON document"),
     doc2: z.unknown().optional().describe("Alias for json2"),
+    source: z.unknown().optional().describe("Alias for json2"),
     mode: z
       .enum(["patch", "preserve"])
       .default("patch")
       .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
   })
   .transform((data) => {
-    const val1 = data.json1 !== undefined ? data.json1 : data.doc1;
-    const val2 = data.json2 !== undefined ? data.json2 : data.doc2;
+    const val1 = data.json1 ?? data.doc1 ?? data.target;
+    const val2 = data.json2 ?? data.doc2 ?? data.source;
     return {
       json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
       json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
@@ -188,12 +194,14 @@ export const JsonDiffSchema = z
   .object({
     json1: z.unknown().optional().describe("First JSON document"),
     doc1: z.unknown().optional().describe("Alias for json1"),
+    target: z.unknown().optional().describe("Alias for json1"),
     json2: z.unknown().optional().describe("Second JSON document"),
     doc2: z.unknown().optional().describe("Alias for json2"),
+    source: z.unknown().optional().describe("Alias for json2"),
   })
   .transform((data) => {
-    const val1 = data.json1 !== undefined ? data.json1 : data.doc1;
-    const val2 = data.json2 !== undefined ? data.json2 : data.doc2;
+    const val1 = data.json1 ?? data.doc1 ?? data.target;
+    const val2 = data.json2 ?? data.doc2 ?? data.source;
     return {
       json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
       json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
