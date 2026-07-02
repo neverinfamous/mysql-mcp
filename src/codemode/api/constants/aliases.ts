@@ -432,6 +432,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     proxysql_global_variables: "globalVariables",
     proxysql_process_list: "processList",
     proxysql_memory_stats: "memoryStats",
+    proxysqlCommands: "commands",
+    proxysqlProcessList: "processList",
     get: "status",
     rules: "queryRules",
     pool: "connectionPool",

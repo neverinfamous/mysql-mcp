@@ -337,24 +337,31 @@ export const ProxySQLCommandInputSchemaBase = z.object({
     .describe("ProxySQL admin command to execute"),
 });
 
-export const ProxySQLCommandInputSchema = z.object({
-  command: z
-    .enum([
-      "LOAD MYSQL USERS TO RUNTIME",
-      "SAVE MYSQL USERS TO DISK",
-      "LOAD MYSQL SERVERS TO RUNTIME",
-      "SAVE MYSQL SERVERS TO DISK",
-      "LOAD MYSQL QUERY RULES TO RUNTIME",
-      "SAVE MYSQL QUERY RULES TO DISK",
-      "LOAD MYSQL VARIABLES TO RUNTIME",
-      "SAVE MYSQL VARIABLES TO DISK",
-      "LOAD ADMIN VARIABLES TO RUNTIME",
-      "SAVE ADMIN VARIABLES TO DISK",
-      "PROXYSQL FLUSH QUERY CACHE",
-      "PROXYSQL FLUSH LOGS",
-    ])
-    .describe("ProxySQL admin command to execute"),
-});
+export const ProxySQLCommandInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "string") return { command: val };
+    if (typeof val !== "object" || val === null) return val ?? {};
+    return val;
+  },
+  z.object({
+    command: z
+      .enum([
+        "LOAD MYSQL USERS TO RUNTIME",
+        "SAVE MYSQL USERS TO DISK",
+        "LOAD MYSQL SERVERS TO RUNTIME",
+        "SAVE MYSQL SERVERS TO DISK",
+        "LOAD MYSQL QUERY RULES TO RUNTIME",
+        "SAVE MYSQL QUERY RULES TO DISK",
+        "LOAD MYSQL VARIABLES TO RUNTIME",
+        "SAVE MYSQL VARIABLES TO DISK",
+        "LOAD ADMIN VARIABLES TO RUNTIME",
+        "SAVE ADMIN VARIABLES TO DISK",
+        "PROXYSQL FLUSH QUERY CACHE",
+        "PROXYSQL FLUSH LOGS",
+      ])
+      .describe("ProxySQL admin command to execute"),
+  })
+);
 
 export type ProxySQLCommand = z.infer<
   typeof ProxySQLCommandInputSchema
