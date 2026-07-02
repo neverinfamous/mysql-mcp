@@ -21,9 +21,13 @@ export function defaultToEmpty(input: unknown): unknown {
 export function preprocessDocCollectionParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
-  if (result["name"] === undefined && result["collection"] !== undefined) {
-    result["name"] = result["collection"];
-  } else if (result["collection"] === undefined && result["name"] !== undefined) {
+  if (result["name"] === undefined) {
+    if (result["collection"] !== undefined) result["name"] = result["collection"];
+    else if (result["table"] !== undefined) result["name"] = result["table"];
+    else if (result["tableName"] !== undefined) result["name"] = result["tableName"];
+    else if (result["tbl"] !== undefined) result["name"] = result["tbl"];
+  }
+  if (result["collection"] === undefined && result["name"] !== undefined) {
     result["collection"] = result["name"];
   }
   if (result["schema"] === undefined && result["database"] !== undefined) {
@@ -327,6 +331,10 @@ export function preprocessDocFilterParams(val: unknown): unknown {
         typeof result["condition"] === "object" && result["condition"] !== null
           ? JSON.stringify(result["condition"])
           : result["condition"];
+    } else if (result["query"] !== undefined) {
+      result["filter"] = typeof result["query"] === "object" && result["query"] !== null
+          ? JSON.stringify(result["query"])
+          : result["query"];
     }
   }
   if (result["set"] === undefined && result["update"] !== undefined) {
@@ -352,6 +360,7 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   delete result["criteria"];
   delete result["condition"];
   delete result["update"];
+  delete result["query"];
 
   return result;
 }
