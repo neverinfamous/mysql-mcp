@@ -372,6 +372,15 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     export: "exportTable",
     import: "importTable",
   },
+  // Introspection: shorter aliases
+  introspection: {
+    get: "dependencyGraph",
+    sort: "topologicalSort",
+    cascade: "cascadeSimulator",
+    snapshot: "schemaSnapshot",
+    constraints: "constraintAnalysis",
+    risks: "migrationRisks",
+  },
   // Core: shorter aliases
   core: {
     get: "readQuery",

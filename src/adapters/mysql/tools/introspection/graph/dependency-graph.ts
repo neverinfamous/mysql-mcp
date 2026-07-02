@@ -50,7 +50,7 @@ export function createDependencyGraphTool(
         };
 
         if (!parsed.schema) {
-          throw new ValidationError("schema parameter is required");
+          throw new ValidationError("schema parameter is required (e.g., { schema: 'my_database' })");
         }
 
         // Validate schema existence when filtering by schema

@@ -212,6 +212,14 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   clusterRouterStatus: "summary",
   mysql_cluster_router_status: "summary",
 
+  // ============ INTROSPECTION GROUP ============
+  dependencyGraph: "schema",
+  topologicalSort: "schema",
+  cascadeSimulator: "table",
+  schemaSnapshot: "schema",
+  constraintAnalysis: "schema",
+  migrationRisks: "statements",
+
   // ============ SECURITY GROUP ============
   passwordValidate: "password",
   maskData: ["value", "type"],
