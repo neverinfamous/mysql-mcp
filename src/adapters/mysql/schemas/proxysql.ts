@@ -174,6 +174,7 @@ export const ProxySQLStatusInputSchemaBase = z.object({
 
 export const ProxySQLStatusInputSchema = z.preprocess(
   (val: unknown) => {
+    if (typeof val === "boolean") return { summary: val };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     if (typeof result["summary"] === "string") {
@@ -201,6 +202,7 @@ export const ProxySQLLimitInputSchemaBase = z.object({
 
 export const ProxySQLLimitInputSchema = z.preprocess(
   (val: unknown) => {
+    if (typeof val === "number") return { limit: val };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     const limit = result["limit"];
@@ -225,8 +227,13 @@ export const ProxySQLHostgroupInputSchemaBase = z.object({
 
 export const ProxySQLHostgroupInputSchema = z.preprocess(
   (val: unknown) => {
+    if (typeof val === "number") return { hostgroup_id: val };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
+    // Anti-Hallucination: map 'hostgroup' to 'hostgroup_id'
+    if (result["hostgroup"] !== undefined && result["hostgroup_id"] === undefined) {
+      result["hostgroup_id"] = result["hostgroup"];
+    }
     const hostgroupId = result["hostgroup_id"];
     if (typeof hostgroupId === "string" && hostgroupId.trim() !== "" && !isNaN(Number(hostgroupId))) {
       result["hostgroup_id"] = Number(hostgroupId);

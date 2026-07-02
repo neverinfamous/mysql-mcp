@@ -232,6 +232,19 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   maskData: ["value", "type"],
   audit: "user",
   firewallRules: "user",
+
+  // ============ PROXYSQL GROUP ============
+  proxysql_status: "summary",
+  proxysql_runtime_status: "summary",
+  proxysql_servers: "hostgroup_id",
+  proxysql_connection_pool: "hostgroup_id",
+  proxysql_query_rules: "limit",
+  proxysql_query_digest: "limit",
+  proxysql_commands: "command",
+  proxysql_users: "username",
+  proxysql_global_variables: "like",
+  proxysql_process_list: "limit",
+  proxysql_memory_stats: "limit",
 };
 
 /**

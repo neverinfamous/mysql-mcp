@@ -419,4 +419,21 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     updateConditionally: "conditionalUpdate",
     updateVersion: "conditionalUpdate",
   },
+  // ProxySQL: shorter and intuitive aliases
+  proxysql: {
+    proxysql_status: "status",
+    proxysql_runtime_status: "runtimeStatus",
+    proxysql_servers: "servers",
+    proxysql_connection_pool: "connectionPool",
+    proxysql_query_rules: "queryRules",
+    proxysql_query_digest: "queryDigest",
+    proxysql_commands: "commands",
+    proxysql_users: "users",
+    proxysql_global_variables: "globalVariables",
+    proxysql_process_list: "processList",
+    proxysql_memory_stats: "memoryStats",
+    get: "status",
+    rules: "queryRules",
+    pool: "connectionPool",
+  },
 };
