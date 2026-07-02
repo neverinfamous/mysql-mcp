@@ -105,6 +105,7 @@ export function toolNameToMethodName(
     "roles",
     "events",
     "replication",
+    "vector",
   ]);
 
   if (!keepPrefix.has(groupName) && name.startsWith(groupPrefix)) {

@@ -199,17 +199,17 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   getRoles: "user",
 
   // ============ VECTOR GROUP ============
-  store: ["table", "column", "id", "vector"],
-  batchStore: ["table", "column", "items"],
-  delete: ["table", "id"],
-  get: ["table", "id"],
-  search: ["table", "column", "queryVector"],
-  rangeSearch: ["table", "column", "queryVector", "maxDistance"],
-  hybridSearch: ["table", "vectorColumn", "textColumn", "queryText"],
-  info: ["table", "column"],
-  createIndex: ["table", "column", "metric"],
-  optimize: "table",
-  stats: ["table", "column"],
+  vectorStore: ["table", "column", "id", "vector"],
+  vectorBatchStore: ["table", "column", "items"],
+  vectorDelete: ["table", "id"],
+  vectorGet: ["table", "id"],
+  vectorSearch: ["table", "column", "queryVector"],
+  vectorRangeSearch: ["table", "column", "queryVector", "maxDistance"],
+  vectorHybridSearch: ["table", "vectorColumn", "textColumn", "queryText"],
+  vectorInfo: ["table", "column"],
+  vectorCreateIndex: ["table", "column", "metric"],
+  vectorOptimize: "table",
+  vectorStats: ["table", "column"],
 
   // ============ DOCSTORE GROUP ============
   docCreateCollection: "name",
