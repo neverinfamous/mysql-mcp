@@ -4,7 +4,8 @@ import {
 } from "../core/error-helpers.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
 import {
-  ProxySQLBaseInputSchema,
+  ProxySQLUsersInputSchema,
+  ProxySQLUsersInputSchemaBase,
   ProxySQLVariableFilterSchema,
   ProxySQLVariableFilterSchemaBase,
   ProxySQLLimitInputSchema,
@@ -22,7 +23,7 @@ export function createProxySQLUsersTool(): ToolDefinition {
     description:
       "List configured MySQL users from mysql_users table. Shows username, active status, default hostgroup, and connection limits. Passwords are redacted.",
     group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
+    inputSchema: ProxySQLUsersInputSchemaBase,
     outputSchema: ProxySQLUsersOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -32,11 +33,15 @@ export function createProxySQLUsersTool(): ToolDefinition {
       destructiveHint: false,
       sensitiveHint: false,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const rows = await proxySQLQuery(
-          "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users",
-        );
+        const { username } = ProxySQLUsersInputSchema.parse(params);
+        let sql = "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users";
+        if (username) {
+          const sanitized = username.replace(/'/g, "''");
+          sql += ` WHERE username = '${sanitized}'`;
+        }
+        const rows = await proxySQLQuery(sql);
         return withTokenEstimate({
           success: true,
           data: {

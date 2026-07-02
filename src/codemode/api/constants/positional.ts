@@ -236,15 +236,25 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ PROXYSQL GROUP ============
   proxysql_status: "summary",
   proxysql_runtime_status: "summary",
+  runtimeStatus: "summary",
   proxysql_servers: "hostgroup_id",
+  servers: "hostgroup_id",
   proxysql_connection_pool: "hostgroup_id",
+  connectionPool: "hostgroup_id",
   proxysql_query_rules: "limit",
+  queryRules: "limit",
   proxysql_query_digest: "limit",
+  queryDigest: "limit",
   proxysql_commands: "command",
+  commands: "command",
   proxysql_users: "username",
+  users: "username",
   proxysql_global_variables: "like",
+  globalVariables: "like",
   proxysql_process_list: "limit",
+  processList: "limit",
   proxysql_memory_stats: "limit",
+  memoryStats: "limit",
 };
 
 /**

@@ -163,6 +163,21 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 
 export const ProxySQLBaseInputSchema = z.object({});
 
+export const ProxySQLUsersInputSchemaBase = z.object({
+  username: z.unknown().optional().describe("Filter by username"),
+});
+
+export const ProxySQLUsersInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "string") return { username: val };
+    if (typeof val !== "object" || val === null) return val ?? {};
+    return val;
+  },
+  z.object({
+    username: z.string().optional().describe("Filter by username"),
+  })
+);
+
 export const ProxySQLStatusInputSchemaBase = z.object({
   summary: z
     .unknown()
@@ -177,6 +192,12 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     if (typeof val === "boolean") return { summary: val };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
+    // Anti-Hallucination: map 'database' to 'summary' because 'status' is heavily overloaded in POSITIONAL_PARAM_MAP
+    if (result["database"] !== undefined && result["summary"] === undefined) {
+      if (typeof result["database"] === "boolean" || typeof result["database"] === "string") {
+        result["summary"] = result["database"];
+      }
+    }
     if (typeof result["summary"] === "string") {
       if (result["summary"] === "true") result["summary"] = true;
       else if (result["summary"] === "false") result["summary"] = false;
