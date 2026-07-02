@@ -17,8 +17,8 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt.
 3. **Local Verification (NO PAUSING)**:
-   - If you or a subagent modifies the codebase, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. The coordinator will run `pnpm run check` to validate the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
-   - **Quality Gates**: Pay strict attention to ESLint and TypeScript compiler outputs. You MUST fix all `pnpm run check` validation issues prior to committing. Do NOT ignore warnings or errors. Follow strict TypeScript guidelines: NEVER use `any` (use `unknown` with type guards), avoid unsafe typecasts, and ensure explicit return types.
+   - If you or a subagent modifies the codebase, the subagent MUST validate all changes locally by ONLY running `pnpm run lint && pnpm run typecheck`. They MUST explicitly skip `pnpm run test` and `pnpm run test:e2e` to save time. The coordinator will run `pnpm run check` to validate the full suite at the end. Ensure the static checks pass cleanly and any resulting errors are fixed.
+   - **Quality Gates**: Pay strict attention to ESLint and TypeScript compiler outputs. You MUST fix all lint and typecheck validation issues prior to committing. Do NOT ignore warnings or errors. Follow strict TypeScript guidelines: NEVER use `any` (use `unknown` with type guards), avoid unsafe typecasts, and ensure explicit return types.
    - **WARNING**: Do NOT commit your code and then attempt to use `git commit --amend` to fix a lingering lint or test issue later. Amending a commit rewrites the commit SHA, which will permanently break the changelog tracking workflow.
    - DO NOT perform live server verification. DO NOT wait for a server restart. DO NOT pause or send a message asking the user to refresh the server.
    - If a subagent edits any `server-instructions/*.md` files, they MUST run `npx tsx scripts/generate-server-instructions.ts` before building.
@@ -131,5 +131,5 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
 
 Once all subagents have completed their tests:
 
-1. Run `pnpm run check` to ensure no type errors or formatting issues were introduced by the optimization layers across subagent boundaries.
+1. Run `pnpm run check` to execute the full test suite. **CRITICAL**: If `pnpm run test` or `pnpm run test:e2e` fail, you (the Coordinator agent) MUST debug and fix the broken tests before proceeding. Do NOT leave the test suite in a broken state.
 2. Message the user: "The usability test suite is complete. Fixes were applied during the run. Please manually restart the server ONCE so we can perform a final live validation sweep."
