@@ -176,8 +176,11 @@ export function preprocessVectorParams(input: unknown): unknown {
   const result = preprocessTableParams(input) as Record<string, unknown>;
   if (typeof result !== "object" || result === null) return result;
   
-  if (result["queryVector"] === undefined && result["vector"] !== undefined) {
-    result["queryVector"] = result["vector"];
+  if (result["queryVector"] === undefined) {
+    if (result["vector"] !== undefined) result["queryVector"] = result["vector"];
+    else if (result["query"] !== undefined) result["queryVector"] = result["query"];
+    else if (result["sql"] !== undefined) result["queryVector"] = result["sql"];
+    else if (result["search"] !== undefined) result["queryVector"] = result["search"];
   }
   
   if (result["vector"] === undefined && result["queryVector"] !== undefined) {
