@@ -18,6 +18,8 @@ const ListEventsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  pattern: z.string().optional().describe("Filter events by name (supports LIKE pattern)"),
+  name: z.string().optional().describe("Alias for pattern"),
   status: z
     .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
     .optional()
@@ -33,12 +35,14 @@ const ListEventsSchema = z.preprocess(
       return {
         ...obj,
         schema: obj['schema'] ?? obj['database'],
+        pattern: obj['pattern'] ?? obj['name'],
       };
     }
     return val;
   },
   z.object({
     schema: z.string().optional(),
+    pattern: z.string().optional(),
     status: z
       .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
       .optional()
@@ -74,6 +78,7 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
         const parsedParams = ListEventsSchema.parse(params);
         const targetSchema = parsedParams.schema;
         const status = parsedParams.status;
+        const pattern = parsedParams.pattern;
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {
@@ -115,6 +120,11 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
         if (status !== undefined) {
           query += " AND STATUS = ?";
           queryParams.push(status);
+        }
+
+        if (pattern !== undefined) {
+          query += " AND EVENT_NAME LIKE ?";
+          queryParams.push(pattern);
         }
 
         query += ` ORDER BY EVENT_NAME LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}`;

@@ -282,6 +282,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     events: "listEvents",
     getEvents: "listEvents",
     constraints: "listConstraints",
+    getConstraints: "listConstraints",
     schemas: "listSchemas",
     createDb: "createSchema",
     dropDb: "dropSchema",
