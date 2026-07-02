@@ -418,11 +418,14 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getHosts: "sysHostSummary",
     getStatements: "sysStatementSummary",
     getWaits: "sysWaitSummary",
+    getWaitSummary: "sysWaitSummary",
     getIo: "sysIoSummary",
     getMemory: "sysMemorySummary",
     getLocks: "sysInnodbLockWaits",
+    getInnodbLockWaits: "sysInnodbLockWaits",
     stats: "sysSchemaStats",
     info: "sysSchemaStats",
+    getSchemaStats: "sysSchemaStats",
   },
   // Router: shorter aliases
   router: {
