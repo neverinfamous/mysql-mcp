@@ -180,6 +180,9 @@ export const KillQuerySchema = z
 
 export const ShowProcesslistSchemaBase = z.object({
   full: z.boolean().optional().default(false).describe("Show full query text"),
+  all: z.boolean().optional().describe("Alias for full"),
+  verbose: z.boolean().optional().describe("Alias for full"),
+  complete: z.boolean().optional().describe("Alias for full"),
   limit: z
     .unknown()
     .optional()
@@ -217,6 +220,14 @@ export const ShowProcesslistSchema = z.preprocess(
 
 export const ShowStatusSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern (alias: pattern, search, filter)"),
+  pattern: z.string().optional().describe("Alias for like"),
+  search: z.string().optional().describe("Alias for like"),
+  filter: z.string().optional().describe("Alias for like"),
+  name: z.string().optional().describe("Alias for like"),
+  query: z.string().optional().describe("Alias for like"),
+  sql: z.string().optional().describe("Alias for like"),
+  variable: z.string().optional().describe("Alias for like"),
+  variableName: z.string().optional().describe("Alias for like"),
   global: z.boolean().optional().default(true).describe("Show global status"),
   limit: z
     .unknown()
@@ -257,6 +268,14 @@ export const ShowStatusSchema = z.preprocess(
 
 export const ShowVariablesSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern (alias: pattern, search, filter)"),
+  pattern: z.string().optional().describe("Alias for like"),
+  search: z.string().optional().describe("Alias for like"),
+  filter: z.string().optional().describe("Alias for like"),
+  name: z.string().optional().describe("Alias for like"),
+  query: z.string().optional().describe("Alias for like"),
+  sql: z.string().optional().describe("Alias for like"),
+  variable: z.string().optional().describe("Alias for like"),
+  variableName: z.string().optional().describe("Alias for like"),
   global: z
     .boolean()
     .optional()
@@ -307,6 +326,8 @@ export const InnodbStatusSchemaBase = z.object({
     .describe(
       "Return parsed summary with key metrics. Defaults to true. Set to false for raw string output.",
     ),
+  format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
+  raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
 });
 
 export const InnodbStatusSchema = z.preprocess(
@@ -335,6 +356,8 @@ export const ReplicationStatusSchemaBase = z.object({
     .describe(
       "Return key replication metrics only instead of full 50+ field output (recommended)",
     ),
+  format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
+  raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
 });
 
 export const ReplicationStatusSchema = z.preprocess(
