@@ -143,7 +143,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     innodb: "innodbStatus",
     health: "serverHealth",
     pool: "poolStats",
-    get: "showStatus",
+    get: "serverHealth",
     replication: "replicationStatus",
     mysql_innodb_status: "innodbStatus",
     mysql_replication_status: "replicationStatus",
