@@ -58,21 +58,22 @@ const NUMERIC_TYPES = new Set([
 
 export const StatsTopNSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column to sort by"),
+  column: z.string().optional().describe("Column to sort by. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
   n: z
     .unknown()
     .optional()
-    .describe("Number of rows to return (default: 10, max: 100)"),
+    .describe("Number of rows to return (default: 10, max: 100). Note: Pass n, not limit."),
+  limit: z.unknown().optional().describe("Alias for n"),
   direction: z.unknown().optional().describe("Sort direction (default: desc)"),
   selectColumns: z
     .unknown()
     .optional()
     .describe("Columns to include (defaults to all except long text/blobs)"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
 });
@@ -85,6 +86,7 @@ export const StatsTopNSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      n: obj["n"] ?? obj["limit"],
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -101,16 +103,16 @@ export const StatsTopNSchema = z.preprocess(
 
 export const StatsDistinctSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column to get distinct values for"),
+  column: z.string().optional().describe("Column to get distinct values for. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
   limit: z
     .unknown()
     .optional()
     .describe("Maximum values to return (default: 100)"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
 });
@@ -137,19 +139,19 @@ export const StatsDistinctSchema = z.preprocess(
 
 export const StatsFrequencySchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z
     .string()
     .optional()
-    .describe("Column to get frequency distribution for"),
+    .describe("Column to get frequency distribution for. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
   limit: z
     .unknown()
     .optional()
     .describe("Maximum rows to return (default: 20)"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
 });
@@ -176,7 +178,7 @@ export const StatsFrequencySchema = z.preprocess(
 
 export const StatsSummarySchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   columns: z
@@ -185,7 +187,7 @@ export const StatsSummarySchemaBase = z.object({
     .describe(
       "Specific numeric columns to summarize (defaults to all numeric columns)",
     ),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
 });

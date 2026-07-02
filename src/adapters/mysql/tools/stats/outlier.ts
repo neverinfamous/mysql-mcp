@@ -24,20 +24,20 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 export const StatsOutliersSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z
     .string()
     .optional()
-    .describe("Numeric column to check for outliers"),
+    .describe("Numeric column to check for outliers. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
   method: z.unknown().optional().describe("Detection method to use"),
   threshold: z
     .unknown()
     .optional()
     .describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
