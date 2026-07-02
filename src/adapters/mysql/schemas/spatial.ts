@@ -109,27 +109,35 @@ export const PointSchema = z
   });
 
 export const PolygonSchemaBase = z.object({
+  table: z.unknown().optional(),
+  column: z.unknown().optional(),
+  spatialColumn: z.unknown().optional(),
+  tableName: z.unknown().optional(),
   coordinates: z
     .unknown()
     .optional()
     .describe(
-      "Polygon coordinates as array of rings, each ring is array of [lon, lat] pairs",
+      "Polygon coordinates as array of rings, each ring is array of [lon, lat] pairs. Note: Pass coordinates, not points or coords.",
     ),
+  points: z.unknown().optional(),
+  coords: z.unknown().optional(),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-export const PolygonSchema = z
-  .object({
+export const PolygonSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const data = val as Record<string, unknown>;
+    return {
+      ...data,
+      coordinates: data["coordinates"] ?? data["coords"] ?? data["points"],
+    };
+  },
+  z.object({
     coordinates: z.array(z.array(z.array(z.number()).min(2).max(2))),
-    srid: z.unknown().optional(),
+    srid: z.unknown().optional().transform((v) => (v !== undefined ? Number(v) : 4326)),
   })
-  .transform((data) => ({
-    coordinates: data.coordinates,
-    srid: data.srid !== undefined ? Number(data.srid) : 4326,
-  }))
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
-  });
+);
 
 export const DistanceSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
@@ -146,7 +154,7 @@ export const DistanceSchemaBase = z.object({
       latitude: z.unknown().optional(),
     })
     .optional()
-    .describe("Reference point"),
+    .describe("Reference point. Note: Must provide valid longitude and latitude numbers."),
   maxDistance: z.unknown().optional().describe("Maximum distance in meters"),
   limit: z.unknown().optional().describe("Maximum results (default: 20)"),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),

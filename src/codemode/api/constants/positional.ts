@@ -208,7 +208,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   distance: ["table", "spatialColumn"],
   distanceSphere: ["table", "spatialColumn"],
   point: ["longitude", "latitude"],
-  polygon: "coordinates",
+  polygon: ["table", "spatialColumn", "coordinates"],
 
   // ============ SHELL GROUP ============
   // Note: exportTable omitted — conflicts with backup group's exportTable
@@ -285,4 +285,5 @@ export const ARRAY_WRAP_MAP: Record<string, string> = {
   flushTables: "tables",
   transactionExecute: "statements",
   execute: "statements",
+  polygon: "coordinates",
 };

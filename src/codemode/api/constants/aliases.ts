@@ -264,7 +264,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
 
     pointInPolygon: "contains",
     getPoint: "point",
-    get: "point",
+    get: "polygon",
+    getPolygon: "polygon",
   },
   // Security: intuitive aliases
   security: {
