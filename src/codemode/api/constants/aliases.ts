@@ -379,6 +379,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     connections: "routeConnections",
     destinations: "routeDestinations",
     blocked: "routeBlockedHosts",
+    blockedHosts: "routeBlockedHosts",
     health: "routeHealth",
     getRoutes: "routes",
     getRouteStatus: "routeStatus",
