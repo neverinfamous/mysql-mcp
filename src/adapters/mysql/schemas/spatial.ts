@@ -385,6 +385,7 @@ export const BufferSchemaBase = z.object({
   geometry: z.unknown().optional().describe("WKT geometry. Note: Pass geometry or wkt, not coords or point."),
   wkt: z.unknown().optional(),
   distance: z.unknown().optional().describe("Buffer distance in meters"),
+  dist: z.unknown().optional(),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
   segments: z
     .unknown()
@@ -400,12 +401,13 @@ export const BufferSchema = z.preprocess(
     geometry: z.string().optional(),
     wkt: z.string().optional(),
     distance: z.unknown().optional(),
+    dist: z.unknown().optional(),
     srid: z.unknown().optional(),
     segments: z.unknown().optional(),
   })
   .transform((data) => ({
     geometry: data.geometry ?? data.wkt ?? "",
-    distance: Number(data.distance),
+    distance: Number(data.distance ?? data.dist),
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
     segments: data.segments !== undefined ? Number(data.segments) : 8,
   }))
@@ -424,7 +426,7 @@ export const BufferSchema = z.preprocess(
 export const TransformSchemaBase = z.object({
   geometry: z.unknown().optional().describe("WKT geometry. Note: Pass geometry or wkt, not coords or point."),
   wkt: z.unknown().optional(),
-  fromSrid: z.unknown().optional().describe("Source SRID"),
+  fromSrid: z.unknown().optional().describe("Source SRID (default: 4326)"),
   toSrid: z.unknown().optional().describe("Target SRID"),
 });
 
@@ -438,7 +440,7 @@ export const TransformSchema = z.preprocess(
   })
   .transform((data) => ({
     geometry: data.geometry ?? data.wkt ?? "",
-    fromSrid: Number(data.fromSrid),
+    fromSrid: data.fromSrid !== undefined ? Number(data.fromSrid) : 4326,
     toSrid: Number(data.toSrid),
   }))
 )

@@ -284,7 +284,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   within: ["table", "spatialColumn", "geometry"],
   intersection: ["geometry1", "geometry2"],
   buffer: ["geometry", "distance"],
-  transform: ["geometry", "fromSrid", "toSrid"],
+  transform: ["geometry", "toSrid"],
   geojson: "geometry",
 
   // ============ SHELL GROUP ============
