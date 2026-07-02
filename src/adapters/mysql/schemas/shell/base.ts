@@ -3,12 +3,14 @@ import { z } from "zod";
 /**
  * Coerce string booleans to boolean type for MCP compatibility
  */
-export const booleanCoerce = z
-  .union([z.boolean(), z.string()])
-  .transform((val) => {
-    if (typeof val === "boolean") return val;
-    return val.toLowerCase() === "true" || val === "1";
-  });
+export const booleanCoerce = z.preprocess((val: unknown) => {
+  if (typeof val === "string") {
+    const lower = val.toLowerCase();
+    if (lower === "true" || lower === "1") return true;
+    if (lower === "false" || lower === "0") return false;
+  }
+  return val;
+}, z.boolean());
 
 /**
  * Base parameters common to shell tools
