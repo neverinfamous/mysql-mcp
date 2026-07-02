@@ -185,6 +185,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     binlog: "binlogEvents",
     gtid: "gtidStatus",
     lag: "replicationLag",
+    getLag: "replicationLag",
     get: "slaveStatus",
     info: "slaveStatus",
   },
