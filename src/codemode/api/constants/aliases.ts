@@ -116,6 +116,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     forceHint: "forceIndex",
     rewrite: "queryRewrite",
     get: "indexRecommendation",
+    mysql_force_index: "forceIndex",
+    mysql_optimizer_trace: "optimizerTrace",
   },
   // Admin: intuitive aliases
   admin: {
