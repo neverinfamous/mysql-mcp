@@ -30,8 +30,9 @@ export const SpatialColumnSchemaBase = z.object({
     .describe("Allow NULL values (default: false for spatial compatibility)"),
 });
 
-export const SpatialColumnSchema = z
-  .object({
+export const SpatialColumnSchema = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
@@ -49,6 +50,7 @@ export const SpatialColumnSchema = z
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
     nullable: data.nullable !== undefined ? Boolean(data.nullable) : false,
   }))
+)
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   });
@@ -67,8 +69,9 @@ export const SpatialIndexSchemaBase = z.object({
     .describe("Index name (auto-generated if not provided)"),
 });
 
-export const SpatialIndexSchema = z
-  .object({
+export const SpatialIndexSchema = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     table: z.string().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
@@ -82,7 +85,8 @@ export const SpatialIndexSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.columns ?? "",
     indexName: typeof data.indexName === "string" ? data.indexName : undefined,
-  }));
+  }))
+);
 
 export const PointSchemaBase = z.object({
   longitude: z.unknown().optional().describe("Longitude coordinate"),
