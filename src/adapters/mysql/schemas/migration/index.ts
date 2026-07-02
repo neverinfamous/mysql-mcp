@@ -203,8 +203,8 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
     if (typeof out["limit"] === "string" && isNaN(parseInt(out["limit"], 10))) {
       if (["applied", "recorded", "rolled_back", "failed"].includes(out["limit"])) {
         if (out["status"] === undefined) out["status"] = out["limit"];
+        delete out["limit"];
       }
-      delete out["limit"];
     }
 
     return out;
