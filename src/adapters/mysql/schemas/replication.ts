@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { BaseOutputSchema } from "./output-schemas.js";
+import { preprocessBinlogEventsParams } from "./preprocess-utils.js";
 
 // =============================================================================
 // Replication Schemas
@@ -16,23 +17,26 @@ export const BinlogEventsSchemaBase = z.object({
     ),
 });
 
-export const BinlogEventsSchema = z.object({
-  logFile: z
-    .string()
-    .min(1, "Invalid logFile: cannot be an empty string")
-    .optional()
-    .describe("Binlog file name"),
-  position: z.number().optional().describe("Starting position"),
-  limit: z
-    .number()
-    .nonnegative()
-    .max(20, "Limit capped at 20 to prevent payload exhaustion")
-    .optional()
-    .default(5)
-    .describe(
-      "Maximum events to return (default: 5, max: 20). Set higher for more events.",
-    ),
-});
+export const BinlogEventsSchema = z.preprocess(
+  preprocessBinlogEventsParams,
+  z.object({
+    logFile: z
+      .string()
+      .min(1, "Invalid logFile: cannot be an empty string")
+      .optional()
+      .describe("Binlog file name (aliases: file, filename, binlog)"),
+    position: z.number().optional().describe("Starting position (alias: pos)"),
+    limit: z
+      .number()
+      .nonnegative()
+      .max(20, "Limit capped at 20 to prevent payload exhaustion")
+      .optional()
+      .default(5)
+      .describe(
+        "Maximum events to return (default: 5, max: 20). Set higher for more events.",
+      ),
+  })
+);
 
 export const MasterStatusOutputSchema = BaseOutputSchema.extend({
   data: z.object({

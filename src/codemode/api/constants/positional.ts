@@ -145,6 +145,9 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   statsSampling: ["table", "sampleSize"],
   statsRegression: ["table", "xColumn", "yColumn"],
 
+  // ============ REPLICATION GROUP ============
+  binlogEvents: ["logFile", "position"],
+
   // ============ PARTITIONING GROUP ============
   addPartition: ["table", "partitionName", "partitionType", "value"],
   dropPartition: ["table", "partitionName"],

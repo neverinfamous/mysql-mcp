@@ -385,3 +385,23 @@ export function preprocessDocIndexParams(val: unknown): unknown {
 
   return result;
 }
+
+export function preprocessBinlogEventsParams(input: unknown): unknown {
+  const result = defaultToEmpty(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["logFile"] === undefined) {
+    if (result["file"] !== undefined) result["logFile"] = result["file"];
+    else if (result["filename"] !== undefined) result["logFile"] = result["filename"];
+    else if (result["binlog"] !== undefined) result["logFile"] = result["binlog"];
+    else if (result["log_file"] !== undefined) result["logFile"] = result["log_file"];
+    else if (result["name"] !== undefined) result["logFile"] = result["name"];
+  }
+  
+  if (result["position"] === undefined) {
+    if (result["pos"] !== undefined) result["position"] = result["pos"];
+    else if (result["start"] !== undefined) result["position"] = result["start"];
+  }
+
+  return result;
+}
