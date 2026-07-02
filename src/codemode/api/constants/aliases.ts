@@ -441,6 +441,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getSensitiveTables: "sensitiveTables",
     auditLog: "audit",
     get: "audit",
+    getAudit: "audit",
+    getFirewallStatus: "firewallStatus",
+    getFirewallRules: "firewallRules",
   },
   // Cluster: intuitive aliases
   cluster: {

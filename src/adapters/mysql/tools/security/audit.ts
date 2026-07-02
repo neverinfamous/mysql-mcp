@@ -31,21 +31,22 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // ============================================================================
 
 const AuditLogSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of records"),
-  user: z.string().optional().describe("Filter by username"),
+  limit: z.number().optional().describe("Maximum number of records (Note: Pass limit, not count)"),
+  user: z.string().optional().describe("Filter by username (Note: Pass user, not username)"),
   eventType: z
     .string()
     .optional()
     .describe(
-      'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME.',
+      'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME. (Note: Pass eventType, not event)',
     ),
-  startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
+  startTime: z.string().optional().describe("Start time filter (ISO 8601) (Note: Pass startTime, not time)"),
 });
 
 const AuditLogSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const v = val as Record<string, unknown>;
+      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
       if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
       if (v["event"] !== undefined && v["eventType"] === undefined) v["eventType"] = v["event"];
       if (v["time"] !== undefined && v["startTime"] === undefined) v["startTime"] = v["time"];
@@ -61,8 +62,8 @@ const AuditLogSchema = z.preprocess(
 );
 
 const FirewallRulesSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of records to return"),
-  user: z.string().optional().describe("Filter by username"),
+  limit: z.number().optional().describe("Maximum number of records to return (Note: Pass limit, not count)"),
+  user: z.string().optional().describe("Filter by username (Note: Pass user, not username)"),
   mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional().describe("Filter by mode"),
 });
 
@@ -70,6 +71,7 @@ const FirewallRulesSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const v = val as Record<string, unknown>;
+      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
       if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
     }
     return val;
