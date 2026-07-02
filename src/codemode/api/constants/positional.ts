@@ -119,9 +119,11 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 
   // ============ OPTIMIZATION GROUP ============
   indexRecommendation: "table",
+  mysql_index_recommendation: "table",
   forceIndex: ["table", "query", "indexName"],
   mysql_force_index: ["table", "query", "indexName"],
   queryRewrite: "query",
+  mysql_query_rewrite: "query",
   optimizerTrace: "query",
   mysql_optimizer_trace: "query",
 

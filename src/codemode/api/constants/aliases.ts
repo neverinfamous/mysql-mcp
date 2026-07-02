@@ -153,6 +153,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     forceHint: "forceIndex",
     rewrite: "queryRewrite",
     get: "indexRecommendation",
+    mysql_index_recommendation: "indexRecommendation",
+    mysql_query_rewrite: "queryRewrite",
     mysql_force_index: "forceIndex",
     mysql_optimizer_trace: "optimizerTrace",
   },
