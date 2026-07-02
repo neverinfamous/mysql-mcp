@@ -11,7 +11,7 @@ import { BaseOutputSchema } from "./output-schemas.js";
 
 export const MemberSchemaBase = z.object({
   memberId: z.string().optional().describe("Filter by specific member UUID"),
-});
+}).strict();
 
 export const MemberSchema = z.preprocess(
   (val: unknown) => {
@@ -31,14 +31,14 @@ export const MemberSchema = z.preprocess(
 
 export const LimitSchemaBase = z.object({
   limit: z.number().optional().describe("Maximum number of results"),
-});
+}).strict();
 
 export const SummarySchemaBase = z.object({
   summary: z
     .boolean()
     .optional()
     .describe("If true, return condensed output without configuration blobs"),
-});
+}).strict();
 
 // =============================================================================
 // Output Schemas

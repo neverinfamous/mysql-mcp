@@ -30,4 +30,4 @@ export const LimitSchema = z.preprocess((val) => {
     .positive("Expected positive integer")
     .optional()
     .default(100),
-}));
+}).strict());

@@ -20,7 +20,7 @@ export function createClusterTopologyTool(
     title: "MySQL Cluster Topology",
     description: "Get a visual representation of the cluster topology.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: ClusterTopologyOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
