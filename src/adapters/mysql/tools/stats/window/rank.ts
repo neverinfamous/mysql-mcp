@@ -21,7 +21,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
     name: "mysql_stats_rank",
     title: "Stats Rank",
     description:
-      "Assign rank within an ordered result set. Supports rank (gaps), dense_rank (no gaps), and percent_rank (0-1). Use partitionBy to rank within groups.",
+      "Assign rank within an ordered result set. Supports rank (gaps), dense_rank (no gaps), and percent_rank (0-1). Use partitionBy to rank within groups. Note: table and orderBy are required.",
     group: "stats",
     inputSchema: StatsRankSchemaBase,
     outputSchema: WindowFunctionOutputSchema,

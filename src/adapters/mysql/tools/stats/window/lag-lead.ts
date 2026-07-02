@@ -21,7 +21,7 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
     name: "mysql_stats_lag_lead",
     title: "Stats Lag Lead",
     description:
-      "Access data from previous (LAG) or next (LEAD) rows in an ordered set. Useful for comparisons, deltas, and change detection.",
+      "Access data from previous (LAG) or next (LEAD) rows in an ordered set. Useful for comparisons, deltas, and change detection. Note: table, column, and orderBy are required.",
     group: "stats",
     inputSchema: StatsLagLeadSchemaBase,
     outputSchema: WindowFunctionOutputSchema,

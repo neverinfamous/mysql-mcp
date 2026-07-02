@@ -23,7 +23,7 @@ export function createStatsRunningTotalTool(
     name: "mysql_stats_running_total",
     title: "Stats Running Total",
     description:
-      "Calculate cumulative running total (SUM OVER) for a numeric column. Use partitionBy to reset total per group.",
+      "Calculate cumulative running total (SUM OVER) for a numeric column. Use partitionBy to reset total per group. Note: table, column, and orderBy are required.",
     group: "stats",
     inputSchema: StatsRunningTotalSchemaBase,
     outputSchema: WindowFunctionOutputSchema,
