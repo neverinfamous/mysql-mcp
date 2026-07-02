@@ -184,6 +184,10 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   dumpTables: ["schema", "tables", "outputDir"],
   loadDump: "inputDir",
 
+  // ============ CLUSTER GROUP ============
+  grMembers: "memberId",
+  mysql_gr_members: "memberId",
+
   // ============ SECURITY GROUP ============
   passwordValidate: "password",
   maskData: ["value", "type"],
