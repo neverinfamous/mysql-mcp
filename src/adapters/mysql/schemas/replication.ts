@@ -8,7 +8,15 @@ import { preprocessBinlogEventsParams } from "./preprocess-utils.js";
 
 export const BinlogEventsSchemaBase = z.object({
   logFile: z.string().optional().describe("Binlog file name"),
+  file: z.string().optional().describe("Alias for logFile"),
+  filename: z.string().optional().describe("Alias for logFile"),
+  fileName: z.string().optional().describe("Alias for logFile"),
+  binlog: z.string().optional().describe("Alias for logFile"),
+  log_file: z.string().optional().describe("Alias for logFile"),
+  name: z.string().optional().describe("Alias for logFile"),
   position: z.number().optional().describe("Starting position"),
+  pos: z.number().optional().describe("Alias for position"),
+  start: z.number().optional().describe("Alias for position"),
   limit: z
     .number()
     .optional()
