@@ -166,4 +166,5 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 export const ARRAY_WRAP_MAP: Record<string, string> = {
   transactionExecute: "statements",
   execute: "statements",
+  flushTables: "tables",
 };

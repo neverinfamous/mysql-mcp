@@ -26,8 +26,8 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
       return arg;
     }
 
-    // String arg - use positional mapping
-    if (typeof arg === "string") {
+    // String, Number, Boolean arg - use positional mapping
+    if (typeof arg === "string" || typeof arg === "number" || typeof arg === "boolean") {
       const paramMapping = POSITIONAL_PARAM_MAP[methodName];
       if (typeof paramMapping === "string") {
         return { [paramMapping]: arg };
@@ -36,7 +36,10 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
         return { [paramMapping[0]]: arg };
       }
       // Fallback: try common parameter names
-      return { sql: arg, query: arg, table: arg, name: arg };
+      if (typeof arg === "string") {
+        return { sql: arg, query: arg, table: arg, name: arg };
+      }
+      return arg;
     }
 
     return arg;
