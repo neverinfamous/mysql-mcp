@@ -24,13 +24,19 @@ import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
 import { preprocessExecuteCodeParams } from "../../schemas/preprocess-utils.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
-// Schema for mysql_execute_code input
 export const ExecuteCodeSchemaBase = z.object({
   code: z
     .string()
+    .optional()
     .describe(
       "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations. Note: Pass code, not script, javascript, or query.",
     ),
+  script: z.string().optional().describe("Alias for code"),
+  query: z.string().optional().describe("Alias for code"),
+  sql: z.string().optional().describe("Alias for code"),
+  javascript: z.string().optional().describe("Alias for code"),
+  js: z.string().optional().describe("Alias for code"),
+  command: z.string().optional().describe("Alias for code"),
   timeout: z
     .number()
     .optional()
@@ -41,10 +47,16 @@ export const ExecuteCodeSchemaBase = z.object({
     .describe("If true, restricts to read-only operations"),
 });
 
-export const ExecuteCodeSchema = z.preprocess(
-  preprocessExecuteCodeParams,
-  ExecuteCodeSchemaBase,
-);
+export const ExecuteCodeSchema = z
+  .preprocess(preprocessExecuteCodeParams, ExecuteCodeSchemaBase)
+  .transform((data) => ({
+    code: data.code ?? "",
+    timeout: data.timeout,
+    readonly: data.readonly,
+  }))
+  .refine((data) => data.code !== "", {
+    message: "code (or alias like script/query) is required",
+  });
 
 // Schema for mysql_execute_code output
 export const ExecuteCodeOutputSchema = z
