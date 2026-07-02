@@ -38,6 +38,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     info: "stats",
     jsonArrayAppend: "arrayAppend",
     append: "arrayAppend",
+    mergePatch: "merge",
+    compare: "diff",
+    format: "normalize",
   },
   // Text: mysql_regexp_match → regexpMatch, but also regex
   text: {

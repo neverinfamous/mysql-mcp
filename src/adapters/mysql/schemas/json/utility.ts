@@ -137,12 +137,13 @@ export const JsonValidateSchema = z
 
 // --- JsonMerge ---
 export const JsonMergeSchemaBase = z.object({
-  json1: z.unknown().optional().describe("First JSON document"),
+  json1: z.unknown().optional().describe("First JSON document. Note: This tool merges two raw JSON documents in-memory. It does NOT update database tables. Use mysql_json_update or mysql_json_set to update a table."),
   doc1: z.unknown().optional().describe("Alias for json1"),
   target: z.unknown().optional().describe("Alias for json1"),
   json2: z.unknown().optional().describe("Second JSON document"),
   doc2: z.unknown().optional().describe("Alias for json2"),
   source: z.unknown().optional().describe("Alias for json2"),
+  patch: z.unknown().optional().describe("Alias for json2"),
   mode: z
     .enum(["patch", "preserve"])
     .optional()
@@ -151,7 +152,7 @@ export const JsonMergeSchemaBase = z.object({
 
 // --- JsonDiff ---
 export const JsonDiffSchemaBase = z.object({
-  json1: z.unknown().optional().describe("First JSON document"),
+  json1: z.unknown().optional().describe("First JSON document. Note: This tool compares two raw JSON documents, it does NOT compare database rows."),
   doc1: z.unknown().optional().describe("Alias for json1"),
   target: z.unknown().optional().describe("Alias for json1"),
   json2: z.unknown().optional().describe("Second JSON document"),
@@ -167,6 +168,7 @@ export const JsonMergeSchema = z
     json2: z.unknown().optional().describe("Second JSON document"),
     doc2: z.unknown().optional().describe("Alias for json2"),
     source: z.unknown().optional().describe("Alias for json2"),
+    patch: z.unknown().optional().describe("Alias for json2"),
     mode: z
       .enum(["patch", "preserve"])
       .default("patch")
@@ -174,7 +176,7 @@ export const JsonMergeSchema = z
   })
   .transform((data) => {
     const val1 = data.json1 ?? data.doc1 ?? data.target;
-    const val2 = data.json2 ?? data.doc2 ?? data.source;
+    const val2 = data.json2 ?? data.doc2 ?? data.source ?? data.patch;
     return {
       json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
       json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
