@@ -480,3 +480,40 @@ export function preprocessSpatialParams(input: unknown): unknown {
   return result;
 }
 
+export function preprocessStatsParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["column"] === undefined) {
+    if (result["columnName"] !== undefined) result["column"] = result["columnName"];
+    else if (result["col"] !== undefined) result["column"] = result["col"];
+    else if (result["fieldName"] !== undefined) result["column"] = result["fieldName"];
+  }
+
+  if (result["timeColumn"] === undefined) {
+    if (result["time"] !== undefined) result["timeColumn"] = result["time"];
+    else if (result["dateColumn"] !== undefined) result["timeColumn"] = result["dateColumn"];
+    else if (result["timestamp"] !== undefined) result["timeColumn"] = result["timestamp"];
+  }
+
+  if (result["valueColumn"] === undefined) {
+    if (result["val"] !== undefined) result["valueColumn"] = result["val"];
+    else if (result["value"] !== undefined) result["valueColumn"] = result["value"];
+    else if (result["valColumn"] !== undefined) result["valueColumn"] = result["valColumn"];
+  }
+
+  if (result["xColumn"] === undefined) {
+    if (result["columnX"] !== undefined) result["xColumn"] = result["columnX"];
+    else if (result["colX"] !== undefined) result["xColumn"] = result["colX"];
+    else if (result["x"] !== undefined) result["xColumn"] = result["x"];
+  }
+
+  if (result["yColumn"] === undefined) {
+    if (result["columnY"] !== undefined) result["yColumn"] = result["columnY"];
+    else if (result["colY"] !== undefined) result["yColumn"] = result["colY"];
+    else if (result["y"] !== undefined) result["yColumn"] = result["y"];
+  }
+
+  return result;
+}
+

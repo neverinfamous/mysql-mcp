@@ -22,8 +22,8 @@ export const CorrelationSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column1: obj["column1"] ?? obj["columnA"] ?? obj["col1"] ?? obj["columnX"],
-      column2: obj["column2"] ?? obj["columnB"] ?? obj["col2"] ?? obj["columnY"],
+      column1: obj["column1"] ?? obj["columnA"] ?? obj["col1"] ?? obj["columnX"] ?? obj["colX"] ?? obj["x"],
+      column2: obj["column2"] ?? obj["columnB"] ?? obj["col2"] ?? obj["columnY"] ?? obj["colY"] ?? obj["y"],
     };
   },
   z.object({
@@ -54,8 +54,8 @@ export const RegressionSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      xColumn: obj["xColumn"] ?? obj["columnX"] ?? obj["column1"],
-      yColumn: obj["yColumn"] ?? obj["columnY"] ?? obj["column2"],
+      xColumn: obj["xColumn"] ?? obj["columnX"] ?? obj["column1"] ?? obj["colX"] ?? obj["x"],
+      yColumn: obj["yColumn"] ?? obj["columnY"] ?? obj["column2"] ?? obj["colY"] ?? obj["y"],
     };
   },
   z.object({
@@ -88,7 +88,7 @@ export const HistogramSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
     };
   },
   z.object({

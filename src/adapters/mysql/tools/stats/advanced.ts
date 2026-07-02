@@ -82,7 +82,7 @@ export const StatsTopNSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
     };
   },
   z.object({
@@ -117,7 +117,7 @@ export const StatsDistinctSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
     };
   },
   z.object({
@@ -153,7 +153,7 @@ export const StatsFrequencySchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
     };
   },
   z.object({

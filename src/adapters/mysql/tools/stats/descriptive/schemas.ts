@@ -15,7 +15,7 @@ export const DescriptiveStatsSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
     };
   },
   z.object({
@@ -41,7 +41,7 @@ export const PercentilesSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
     };
   },
   z.object({
@@ -70,7 +70,7 @@ export const DistributionSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
     };
   },
   z.object({
@@ -100,6 +100,8 @@ export const TimeSeriesSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      valueColumn: obj["valueColumn"] ?? obj["val"] ?? obj["value"] ?? obj["valColumn"],
+      timeColumn: obj["timeColumn"] ?? obj["time"] ?? obj["dateColumn"] ?? obj["timestamp"],
     };
   },
   z.object({
