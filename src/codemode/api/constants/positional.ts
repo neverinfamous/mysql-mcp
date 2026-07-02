@@ -312,6 +312,14 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   poolStatus: "poolName",
 
   // ============ SYSSCHEMA GROUP ============
+  mysql_sys_user_summary: "user",
+  mysql_sys_host_summary: "host",
+  mysql_sys_statement_summary: "orderBy",
+  mysql_sys_wait_summary: "type",
+  mysql_sys_io_summary: "type",
+  mysql_sys_schema_stats: "schema",
+  mysql_sys_innodb_lock_waits: "limit",
+  mysql_sys_memory_summary: "limit",
   sysUserSummary: "user",
   userSummary: "user",
   sysHostSummary: "host",

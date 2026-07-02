@@ -501,6 +501,14 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // SysSchema: shorter aliases
   sysschema: {
+    mysql_sys_schema_stats: "sysSchemaStats",
+    mysql_sys_innodb_lock_waits: "sysInnodbLockWaits",
+    mysql_sys_memory_summary: "sysMemorySummary",
+    mysql_sys_statement_summary: "sysStatementSummary",
+    mysql_sys_wait_summary: "sysWaitSummary",
+    mysql_sys_io_summary: "sysIoSummary",
+    mysql_sys_user_summary: "sysUserSummary",
+    mysql_sys_host_summary: "sysHostSummary",
     schemaStats: "sysSchemaStats",
     lockWaits: "sysInnodbLockWaits",
     innodbLockWaits: "sysInnodbLockWaits",
