@@ -497,6 +497,14 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     get: "roleGrants",
     user: "userRoles",
     getRoles: "userRoles",
+    mysql_role_create: "roleCreate",
+    mysql_role_drop: "roleDrop",
+    mysql_role_list: "roleList",
+    mysql_role_assign: "roleAssign",
+    mysql_role_grant: "roleGrant",
+    mysql_role_revoke: "roleRevoke",
+    mysql_role_grants: "roleGrants",
+    mysql_user_roles: "userRoles",
   },
   // Migration: shorter aliases
   migration: {
