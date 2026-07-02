@@ -316,8 +316,12 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     assign: "roleAssign",
     grant: "roleGrant",
     revoke: "roleRevoke",
+    removeRole: "roleRevoke",
+    remove: "roleRevoke",
     grants: "roleGrants",
     get: "roleGrants",
+    user: "userRoles",
+    getRoles: "userRoles",
   },
   // Migration: shorter aliases
   migration: {

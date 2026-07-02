@@ -181,9 +181,10 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   roleGrants: "role",
   roleGrant: ["role", "privileges", "on"],
   roleAssign: ["role", "user"],
-  roleRevoke: ["role", "privileges", "on"],
+  roleRevoke: ["role", "user"],
   roleList: "role",
   userRoles: "user",
+  getRoles: "user",
 
   // ============ DOCSTORE GROUP ============
   docCreateCollection: "name",
