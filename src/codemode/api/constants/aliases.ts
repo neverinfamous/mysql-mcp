@@ -238,9 +238,12 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     drop: "eventDrop",
     alter: "eventAlter",
     list: "eventList",
+    getAll: "eventList",
     status: "eventStatus",
     get: "eventStatus",
     scheduler: "schedulerStatus",
+    getScheduler: "schedulerStatus",
+    getSchedulerStatus: "schedulerStatus",
   },
   // Stats: intuitive aliases
   stats: {

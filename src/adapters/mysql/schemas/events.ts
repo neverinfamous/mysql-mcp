@@ -8,6 +8,7 @@ import { BaseOutputSchema } from "./output-schemas.js";
 export const EventCreateSchemaBase = z.object({
   name: z.string().optional().describe("Event name. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
+  event: z.string().optional().describe("Alias for name"),
   schedule: z.string().optional().describe("Event schedule string (e.g., 'EVERY 1 DAY')"),
   body: z.string().optional().describe("SQL statement(s) to execute. Note: Can also use sql or query."),
   sql: z.string().optional().describe("Alias for body"),
@@ -29,6 +30,7 @@ export const EventCreateSchemaBase = z.object({
 export const EventCreateSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
+  event: z.string().optional(),
   schedule: z.string().optional(),
   body: z.string().optional(),
   sql: z.string().optional(),
@@ -38,7 +40,7 @@ export const EventCreateSchema = z.object({
   comment: z.string().optional(),
   ifNotExists: z.boolean().default(false),
 }).transform(data => ({
-  name: data.name ?? data.eventName ?? "",
+  name: data.name ?? data.eventName ?? data.event ?? "",
   schedule: data.schedule ?? "",
   body: data.body ?? data.sql ?? data.query ?? "",
   onCompletion: data.onCompletion,
@@ -53,6 +55,7 @@ export const EventCreateSchema = z.object({
 export const EventAlterSchemaBase = z.object({
   name: z.string().optional().describe("Event name. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
+  event: z.string().optional().describe("Alias for name"),
   newName: z.string().optional().describe("New event name (for rename)"),
   schedule: z.string().optional().describe("New schedule configuration"),
   body: z.string().optional().describe("New SQL statement(s). Note: Can also use sql or query."),
@@ -69,6 +72,7 @@ export const EventAlterSchemaBase = z.object({
 export const EventAlterSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
+  event: z.string().optional(),
   newName: z.string().optional(),
   schedule: z.string().optional(),
   body: z.string().optional(),
@@ -78,7 +82,7 @@ export const EventAlterSchema = z.object({
   status: z.enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"]).optional(),
   comment: z.string().optional(),
 }).transform(data => ({
-  name: data.name ?? data.eventName ?? "",
+  name: data.name ?? data.eventName ?? data.event ?? "",
   newName: data.newName,
   schedule: data.schedule,
   body: data.body ?? data.sql ?? data.query,
@@ -91,15 +95,17 @@ export const EventAlterSchema = z.object({
 export const EventDropSchemaBase = z.object({
   name: z.string().optional().describe("Event name to drop. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
+  event: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().optional().default(false).describe("Add IF EXISTS clause"),
 });
 
 export const EventDropSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
+  event: z.string().optional(),
   ifExists: z.boolean().default(false),
 }).transform(data => ({
-  name: data.name ?? data.eventName ?? "",
+  name: data.name ?? data.eventName ?? data.event ?? "",
   ifExists: data.ifExists,
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
@@ -110,6 +116,7 @@ export const EventListSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  pattern: z.string().optional().describe("Pattern to filter event names by (LIKE)"),
   includeDisabled: z
     .boolean()
     .optional()
@@ -120,9 +127,11 @@ export const EventListSchemaBase = z.object({
 export const EventListSchema = z.object({
   schema: z.string().optional(),
   database: z.string().optional(),
+  pattern: z.string().optional(),
   includeDisabled: z.boolean().default(true),
 }).transform(data => ({
   schema: data.schema ?? data.database,
+  pattern: data.pattern,
   includeDisabled: data.includeDisabled,
 }));
 
@@ -130,6 +139,7 @@ export const EventListSchema = z.object({
 export const EventStatusSchemaBase = z.object({
   name: z.string().optional().describe("Event name"),
   eventName: z.string().optional().describe("Alias for name"),
+  event: z.string().optional().describe("Alias for name"),
   schema: z
     .string()
     .optional()
@@ -140,10 +150,11 @@ export const EventStatusSchemaBase = z.object({
 export const EventStatusSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
+  event: z.string().optional(),
   schema: z.string().optional(),
   database: z.string().optional(),
 }).transform(data => ({
-  name: data.name ?? data.eventName ?? "",
+  name: data.name ?? data.eventName ?? data.event ?? "",
   schema: data.schema ?? data.database,
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 

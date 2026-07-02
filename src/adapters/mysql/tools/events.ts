@@ -282,7 +282,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, includeDisabled } = EventListSchema.parse(params);
+        const { schema, pattern, includeDisabled } = EventListSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -315,6 +315,11 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
             `;
 
         const queryParams: unknown[] = [schema ?? null];
+
+        if (pattern) {
+          query += " AND EVENT_NAME LIKE ?";
+          queryParams.push(pattern);
+        }
 
         if (!includeDisabled) {
           query += " AND STATUS = 'ENABLED'";
