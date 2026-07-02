@@ -97,6 +97,15 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     index: "indexUsage",
     indexes: "indexUsage",
     usage: "indexUsage",
+    detectAnomalies: "detectQueryAnomalies",
+    anomalies: "detectQueryAnomalies",
+    queryAnomalies: "detectQueryAnomalies",
+    bloatRisk: "detectBloatRisk",
+    bloat: "detectBloatRisk",
+    detectBloat: "detectBloatRisk",
+    connectionSpike: "detectConnectionSpike",
+    spikes: "detectConnectionSpike",
+    connections: "detectConnectionSpike",
   },
   // Optimization: shorter aliases
   optimization: {

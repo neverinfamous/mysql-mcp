@@ -137,7 +137,10 @@ export const IndexUsageSchema = z
 // --- BufferPoolStats ---
 export const BufferPoolStatsSchemaBase = z.object({});
 
-export const BufferPoolStatsSchema = z.object({});
+export const BufferPoolStatsSchema = z.preprocess(
+  () => ({}),
+  z.object({})
+);
 
 // --- ThreadStats ---
 export const ThreadStatsSchemaBase = z.object({

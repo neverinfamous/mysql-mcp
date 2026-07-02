@@ -86,6 +86,10 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   explainAnalyze: "sql",
   indexUsage: "table",
   tableStats: "table",
+  threadStats: "limit",
+  detectQueryAnomalies: "threshold",
+  detectBloatRisk: "table",
+  detectConnectionSpike: "warningPercent",
 
   // ============ ADMIN GROUP ============
   checkTable: "table",
