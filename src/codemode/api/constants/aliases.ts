@@ -279,6 +279,11 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getDistinct: "distinct",
     getFrequency: "frequency",
     getSummary: "summary",
+    sample: "sampling",
+    row_number: "rowNumber",
+    statsHistogram: "histogram",
+    statsRowNumber: "rowNumber",
+    statsSampling: "sampling",
   },
   // Spatial: intuitive aliases
   spatial: {
