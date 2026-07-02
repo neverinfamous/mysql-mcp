@@ -110,6 +110,11 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   appendInsight: "insight",
   auditSearch: "search",
 
+  // ============ MONITORING GROUP ============
+  showStatus: "like",
+  showVariables: "like",
+  showProcesslist: "limit",
+
   // ============ BACKUP GROUP ============
   createDump: "tables",
   exportTable: "table",

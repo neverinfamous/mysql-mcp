@@ -204,7 +204,7 @@ export const ShowProcesslistSchema = z
   );
 
 export const ShowStatusSchemaBase = z.object({
-  like: z.string().optional().describe("Filter variables by LIKE pattern"),
+  like: z.string().optional().describe("Filter variables by LIKE pattern (alias: pattern, search, filter)"),
   global: z.boolean().optional().default(true).describe("Show global status"),
   limit: z
     .unknown()
@@ -220,7 +220,7 @@ export const ShowStatusSchema = z.preprocess(
       const data = obj as Record<string, unknown>;
       return {
         ...data,
-        like: data["like"] ?? data["pattern"],
+        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"],
       };
     }
     return obj;
@@ -244,7 +244,7 @@ export const ShowStatusSchema = z.preprocess(
 );
 
 export const ShowVariablesSchemaBase = z.object({
-  like: z.string().optional().describe("Filter variables by LIKE pattern"),
+  like: z.string().optional().describe("Filter variables by LIKE pattern (alias: pattern, search, filter)"),
   global: z
     .boolean()
     .optional()
@@ -264,7 +264,7 @@ export const ShowVariablesSchema = z.preprocess(
       const data = obj as Record<string, unknown>;
       return {
         ...data,
-        like: data["like"] ?? data["pattern"],
+        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"],
       };
     }
     return obj;
