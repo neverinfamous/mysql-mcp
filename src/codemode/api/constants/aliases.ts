@@ -195,6 +195,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     mysql_show_variables: "showVariables",
     mysql_show_processlist: "showProcesslist",
     mysql_server_health: "serverHealth",
+    getProcesslist: "showProcesslist",
+    getStatus: "showStatus",
+    getVariables: "showVariables",
+    listProcesses: "showProcesslist",
   },
   // Backup: shorter aliases
   backup: {

@@ -188,9 +188,20 @@ export const ShowProcesslistSchemaBase = z.object({
     ),
 });
 
-export const ShowProcesslistSchema = z
-  .object({
-    full: z.boolean().optional().default(false),
+export const ShowProcesslistSchema = z.preprocess(
+  (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      const data = obj as Record<string, unknown>;
+      return {
+        ...data,
+        full: data["full"] ?? data["all"] ?? data["verbose"] ?? data["complete"],
+      };
+    }
+    return obj;
+  },
+  z
+    .object({
+      full: z.boolean().optional().default(false),
     limit: z.unknown().optional(),
   })
   .transform((data) => ({
@@ -201,7 +212,8 @@ export const ShowProcesslistSchema = z
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
     { message: "limit must be a positive integer" },
-  );
+  )
+);
 
 export const ShowStatusSchemaBase = z.object({
   like: z.string().optional().describe("Filter variables by LIKE pattern (alias: pattern, search, filter)"),
@@ -220,7 +232,7 @@ export const ShowStatusSchema = z.preprocess(
       const data = obj as Record<string, unknown>;
       return {
         ...data,
-        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"],
+        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"] ?? data["name"] ?? data["query"] ?? data["sql"] ?? data["variable"] ?? data["variableName"],
       };
     }
     return obj;
@@ -264,7 +276,7 @@ export const ShowVariablesSchema = z.preprocess(
       const data = obj as Record<string, unknown>;
       return {
         ...data,
-        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"],
+        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"] ?? data["name"] ?? data["query"] ?? data["sql"] ?? data["variable"] ?? data["variableName"],
       };
     }
     return obj;
