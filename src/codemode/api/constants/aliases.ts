@@ -436,5 +436,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     rules: "queryRules",
     pool: "connectionPool",
     digest: "queryDigest",
+    variables: "globalVariables",
+    stats: "memoryStats",
+    memory: "memoryStats",
+    runtime: "runtimeStatus",
   },
 };
