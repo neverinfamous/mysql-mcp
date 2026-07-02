@@ -198,6 +198,12 @@ export const ProxySQLStatusInputSchema = z.preprocess(
         result["summary"] = result["database"];
       }
     }
+    // Also map 'table' because 'get' is overloaded to 'table'
+    if (result["table"] !== undefined && result["summary"] === undefined) {
+      if (typeof result["table"] === "boolean" || typeof result["table"] === "string") {
+        result["summary"] = result["table"];
+      }
+    }
     if (typeof result["summary"] === "string") {
       if (result["summary"] === "true") result["summary"] = true;
       else if (result["summary"] === "false") result["summary"] = false;
@@ -209,7 +215,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
       .boolean()
       .default(true)
       .describe(
-        "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Set to false to get all variables.",
+        "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Anti-Hallucination Hint: pass 'summary', not 'database' or 'table'.",
       ),
   })
 );
@@ -226,6 +232,12 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     if (typeof val === "number") return { limit: val };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
+    
+    // Anti-hallucination: agents might guess 'count' instead of 'limit'
+    if (result["count"] !== undefined && result["limit"] === undefined) {
+      result["limit"] = result["count"];
+    }
+
     const limit = result["limit"];
     if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
       result["limit"] = Number(limit);
@@ -238,7 +250,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
       .int()
       .min(0)
       .optional()
-      .describe("Maximum number of results to return (default: 20)"),
+      .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
   })
 );
 
@@ -267,7 +279,7 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
       .int()
       .nonnegative()
       .optional()
-      .describe("Filter by hostgroup ID"),
+      .describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
   })
 );
 
