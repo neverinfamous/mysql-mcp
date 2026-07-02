@@ -324,7 +324,7 @@ export const IntersectionSchema = z.preprocess(
   });
 
 export const BufferSchemaBase = z.object({
-  geometry: z.unknown().optional().describe("WKT geometry"),
+  geometry: z.unknown().optional().describe("WKT geometry. Note: Pass geometry or wkt, not coords or point."),
   wkt: z.unknown().optional(),
   distance: z.unknown().optional().describe("Buffer distance in meters"),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
@@ -336,8 +336,9 @@ export const BufferSchemaBase = z.object({
     ),
 });
 
-export const BufferSchema = z
-  .object({
+export const BufferSchema = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     geometry: z.string().optional(),
     wkt: z.string().optional(),
     distance: z.unknown().optional(),
@@ -350,6 +351,7 @@ export const BufferSchema = z
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
     segments: data.segments !== undefined ? Number(data.segments) : 8,
   }))
+)
   .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.distance), {
     message: "distance must be a valid number",
@@ -362,14 +364,15 @@ export const BufferSchema = z
   });
 
 export const TransformSchemaBase = z.object({
-  geometry: z.unknown().optional().describe("WKT geometry"),
+  geometry: z.unknown().optional().describe("WKT geometry. Note: Pass geometry or wkt, not coords or point."),
   wkt: z.unknown().optional(),
   fromSrid: z.unknown().optional().describe("Source SRID"),
   toSrid: z.unknown().optional().describe("Target SRID"),
 });
 
-export const TransformSchema = z
-  .object({
+export const TransformSchema = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     geometry: z.string().optional(),
     wkt: z.string().optional(),
     fromSrid: z.unknown().optional(),
@@ -380,6 +383,7 @@ export const TransformSchema = z
     fromSrid: Number(data.fromSrid),
     toSrid: Number(data.toSrid),
   }))
+)
   .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => !Number.isNaN(data.fromSrid), {
     message: "fromSrid must be a valid number",
@@ -392,14 +396,15 @@ export const GeoJSONSchemaBase = z.object({
   geometry: z
     .unknown()
     .optional()
-    .describe("WKT geometry to convert to GeoJSON"),
+    .describe("WKT geometry to convert to GeoJSON. Note: Pass geometry or geoJson."),
   wkt: z.unknown().optional(),
   geoJson: z.unknown().optional().describe("GeoJSON to convert to WKT"),
   srid: z.unknown().optional().describe("SRID for conversion (default: 4326)"),
 });
 
-export const GeoJSONSchemaStrict = z
-  .object({
+export const GeoJSONSchemaStrict = z.preprocess(
+  preprocessSpatialParams,
+  z.object({
     geometry: z.string().optional(),
     wkt: z.string().optional(),
     geoJson: z.string().optional(),
@@ -410,6 +415,7 @@ export const GeoJSONSchemaStrict = z
     geoJson: data.geoJson,
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
+)
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   });

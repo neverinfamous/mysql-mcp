@@ -267,6 +267,12 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     get: "polygon",
     getPolygon: "polygon",
     intersect: "intersection",
+    getBuffer: "buffer",
+    createBuffer: "buffer",
+    transformGeometry: "transform",
+    convertGeojson: "geojson",
+    toGeojson: "geojson",
+    fromGeojson: "geojson",
   },
   // Security: intuitive aliases
   security: {
