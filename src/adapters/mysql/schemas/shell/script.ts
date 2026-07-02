@@ -17,7 +17,7 @@ export const ShellRunScriptInputSchemaBase = z
       .default("js")
       .describe("Script language (JavaScript, Python, or SQL)"),
     dryRun: booleanCoerce.optional().describe("If true, perform a dry run without executing"),
-    timeout: z
+    timeout: z.coerce
       .number()
       .int()
       .min(1000)
@@ -43,7 +43,7 @@ export const ShellRunScriptInputSchema = z
       .optional()
       .default("js"),
     dryRun: booleanCoerce.optional(),
-    timeout: z.number().int().optional().default(60000),
+    timeout: z.coerce.number().int().optional().default(60000),
   })
   .transform((data) => ({
     script:

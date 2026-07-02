@@ -15,6 +15,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `s
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
 - Test positional params: Try `mysql.shell.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.shell.get()`).
+- Test type coercions: Try passing strings for number fields like `timeout: "1000"` to verify coercion works.
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
