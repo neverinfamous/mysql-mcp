@@ -195,12 +195,19 @@ export class CodeModeSandbox {
 
       context.global.setSync("logRef", logRef);
       const setupScript = `
+        const stringifyArg = (a) => {
+          try {
+            return typeof a === 'object' && a !== null ? JSON.stringify(a, globalThis.__sandbox_replacer) : String(a);
+          } catch (e) {
+            return String(a);
+          }
+        };
         globalThis.console = {
-          log: (...args) => logRef.applyIgnored(undefined, ['LOG', ...args], { arguments: { copy: true } }),
-          error: (...args) => logRef.applyIgnored(undefined, ['ERROR', ...args], { arguments: { copy: true } }),
-          warn: (...args) => logRef.applyIgnored(undefined, ['WARN', ...args], { arguments: { copy: true } }),
-          info: (...args) => logRef.applyIgnored(undefined, ['INFO', ...args], { arguments: { copy: true } }),
-          debug: (...args) => logRef.applyIgnored(undefined, ['DEBUG', ...args], { arguments: { copy: true } })
+          log: (...args) => logRef.applyIgnored(undefined, ['LOG', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          error: (...args) => logRef.applyIgnored(undefined, ['ERROR', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          warn: (...args) => logRef.applyIgnored(undefined, ['WARN', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          info: (...args) => logRef.applyIgnored(undefined, ['INFO', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          debug: (...args) => logRef.applyIgnored(undefined, ['DEBUG', ...args.map(stringifyArg)], { arguments: { copy: true } })
         };
         
         globalThis.wrapResult = function(result) {

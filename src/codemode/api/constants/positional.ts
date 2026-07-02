@@ -77,6 +77,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   transactionSavepoint: ["transactionId", "name"],
   transactionRelease: ["transactionId", "name"],
   transactionRollbackTo: ["transactionId", "name"],
+  transactionExecute: ["statements", "isolationLevel"],
   // Short aliases
   begin: "isolationLevel",
   commit: "transactionId",
@@ -91,6 +92,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   rollbackTo: ["transactionId", "name"],
   rollbackToSavepoint: ["transactionId", "name"],
   revertToSavepoint: ["transactionId", "name"],
+  execute: ["statements", "isolationLevel"],
 
   // ============ PERFORMANCE GROUP ============
   explain: "sql",
@@ -193,7 +195,5 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
  * Methods where a single array arg should be wrapped in a specific key
  */
 export const ARRAY_WRAP_MAP: Record<string, string> = {
-  transactionExecute: "statements",
-  execute: "statements",
   flushTables: "tables",
 };
