@@ -109,9 +109,13 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   queryStats: "limit",
   mysql_query_stats: "limit",
   threadStats: "limit",
+  mysql_thread_stats: "limit",
   detectQueryAnomalies: "threshold",
+  mysql_detect_query_anomalies: "threshold",
   detectBloatRisk: "table",
+  mysql_detect_bloat_risk: "table",
   detectConnectionSpike: "warningPercent",
+  mysql_detect_connection_spike: "warningPercent",
 
   // ============ OPTIMIZATION GROUP ============
   indexRecommendation: "table",

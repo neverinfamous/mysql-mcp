@@ -303,6 +303,11 @@ export function buildSandboxBindings(
       "bufferPoolStats",
       "tableStats",
       "threadStats",
+      "queryStats",
+      "indexUsage",
+      "detectQueryAnomalies",
+      "detectBloatRisk",
+      "detectConnectionSpike",
     ]) {
       if (performanceApi[method] !== undefined) {
         bindings[method] = performanceApi[method];
