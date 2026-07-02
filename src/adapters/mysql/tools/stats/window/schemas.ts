@@ -15,6 +15,8 @@ export const StatsRowNumberSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -57,6 +59,8 @@ export const StatsRankSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -111,6 +115,8 @@ export const StatsLagLeadSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -159,6 +165,8 @@ export const StatsRunningTotalSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -205,6 +213,8 @@ export const StatsMovingAvgSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -249,6 +259,8 @@ export const StatsNtileSchemaBase = z.object({
   where: z.string().optional().describe("Filter condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()

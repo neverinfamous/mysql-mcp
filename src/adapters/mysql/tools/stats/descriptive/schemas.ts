@@ -6,6 +6,10 @@ export const DescriptiveStatsSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column name"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const DescriptiveStatsSchema = z.preprocess(
@@ -16,6 +20,7 @@ export const DescriptiveStatsSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
@@ -32,6 +37,10 @@ export const PercentilesSchemaBase = z.object({
   column: z.string().optional().describe("Numeric column name"),
   percentiles: z.unknown().optional().describe("Percentiles to calculate"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const PercentilesSchema = z.preprocess(
@@ -43,6 +52,7 @@ export const PercentilesSchema = z.preprocess(
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       percentiles: obj["percentiles"] ?? obj["p"] ?? obj["pct"] ?? obj["percentile"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
@@ -62,6 +72,10 @@ export const DistributionSchemaBase = z.object({
   column: z.string().optional().describe("Column to analyze"),
   buckets: z.unknown().optional().describe("Number of histogram buckets"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const DistributionSchema = z.preprocess(
@@ -72,6 +86,7 @@ export const DistributionSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
@@ -91,6 +106,10 @@ export const TimeSeriesSchemaBase = z.object({
   interval: z.string().optional().describe("Aggregation interval"),
   aggregation: z.string().optional().describe("Aggregation function"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum number of data points"),
 });
 
@@ -103,6 +122,7 @@ export const TimeSeriesSchema = z.preprocess(
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       valueColumn: obj["valueColumn"] ?? obj["val"] ?? obj["value"] ?? obj["valColumn"] ?? obj["column"] ?? obj["col"] ?? obj["columnName"],
       timeColumn: obj["timeColumn"] ?? obj["time"] ?? obj["dateColumn"] ?? obj["timestamp"] ?? obj["date"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
@@ -127,6 +147,10 @@ export const SamplingSchemaBase = z.object({
     .describe("Columns to include (all if not specified)"),
   seed: z.unknown().optional().describe("Random seed for reproducibility"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const SamplingSchema = z.preprocess(
@@ -136,6 +160,7 @@ export const SamplingSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
