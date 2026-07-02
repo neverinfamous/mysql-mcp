@@ -275,6 +275,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getFunctions: "listFunctions",
     procedures: "listStoredProcedures",
     getStoredProcedures: "listStoredProcedures",
+    getProcedures: "listStoredProcedures",
+    storedProcedures: "listStoredProcedures",
     triggers: "listTriggers",
     getTriggers: "listTriggers",
     events: "listEvents",
