@@ -11,7 +11,7 @@ import { BaseOutputSchema } from "./output-schemas.js";
 
 export const MemberSchemaBase = z.object({
   memberId: z.string().optional().describe("Filter by specific member UUID"),
-}).strict();
+});
 
 export const MemberSchema = z.preprocess(
   (val: unknown) => {

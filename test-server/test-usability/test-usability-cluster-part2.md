@@ -17,7 +17,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `c
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
 - Test positional params: Try `mysql.cluster.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.cluster.get()`).
-- Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
+- Test hallucinated properties: Try passing `{ randomProp: true }` to verify it either successfully ignores it (Frictionless Recovery) or throws a structured domain error (e.g., `VALIDATION_ERROR`).
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase
