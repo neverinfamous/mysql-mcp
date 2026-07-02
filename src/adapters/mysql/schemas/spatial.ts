@@ -59,6 +59,7 @@ export const SpatialIndexSchemaBase = z.object({
   spatialColumn: z.unknown().optional().describe("Spatial column name"),
   geometryColumn: z.unknown().optional(),
   column: z.unknown().optional().describe("Spatial column name"),
+  columns: z.unknown().optional(),
   indexName: z
     .unknown()
     .optional()
@@ -73,11 +74,12 @@ export const SpatialIndexSchema = z
     spatialColumn: z.string().optional(),
     geometryColumn: z.string().optional(),
     column: z.string().optional(),
+    columns: z.string().optional(),
     indexName: z.unknown().optional(),
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? "",
+    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.columns ?? "",
     indexName: typeof data.indexName === "string" ? data.indexName : undefined,
   }));
 

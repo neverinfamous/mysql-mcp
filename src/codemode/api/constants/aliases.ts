@@ -258,10 +258,13 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   spatial: {
     addColumn: "createColumn",
     addIndex: "createIndex",
+    create: "createColumn",
     dist: "distance",
     distSphere: "distanceSphere",
 
     pointInPolygon: "contains",
+    getPoint: "point",
+    get: "point",
   },
   // Security: intuitive aliases
   security: {

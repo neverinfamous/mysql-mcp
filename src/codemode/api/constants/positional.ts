@@ -204,6 +204,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   partitionInfo: "table",
 
   // ============ SPATIAL GROUP ============
+  createColumn: ["table", "column", "type"],
   distance: ["table", "spatialColumn"],
   distanceSphere: ["table", "spatialColumn"],
   point: ["longitude", "latitude"],
