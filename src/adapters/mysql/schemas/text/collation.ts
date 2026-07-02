@@ -3,10 +3,10 @@ import { preprocessJsonColumnParams } from "../preprocess-utils.js";
 
 // --- CollationConvert ---
 export const CollationConvertSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name"),
+  column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string)"),
   col: z.string().optional().describe("Alias for column"),
   charset: z.string().optional().describe("Target character set (e.g., utf8mb4)"),
   targetCharset: z.string().optional().describe("Alias for charset"),

@@ -62,6 +62,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     match: "regexpMatch",
     sub: "substring",
     contains: "likeSearch",
+    convert_collation: "collationConvert",
+    join: "concat",
   },
   // Fulltext: intuitive aliases
   fulltext: {
