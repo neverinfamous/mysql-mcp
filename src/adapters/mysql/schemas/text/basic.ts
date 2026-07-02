@@ -52,9 +52,6 @@ export const RegexpMatchSchema = z
   .refine((data) => data.pattern !== "", {
     message: "pattern (or query/sql alias) is required",
   })
-  .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
-  })
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
@@ -111,9 +108,6 @@ export const LikeSearchSchema = z
   })
   .refine((data) => data.pattern !== "", {
     message: "pattern (or query/sql alias) is required",
-  })
-  .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
   })
   .refine(
     (data) =>
@@ -180,9 +174,6 @@ export const SoundexSchema = z
   })
   .refine((data) => data.value !== "", {
     message: "value (or query/search alias) is required",
-  })
-  .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
   })
   .refine(
     (data) =>

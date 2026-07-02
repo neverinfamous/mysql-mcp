@@ -61,6 +61,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     find: "likeSearch",
     match: "regexpMatch",
     sub: "substring",
+    contains: "likeSearch",
   },
   // Fulltext: intuitive aliases
   fulltext: {
