@@ -7,7 +7,7 @@ import { preprocessTableParams, preprocessVectorParams } from "./preprocess-util
  */
 
 const tableAliasesBase = {
-  table: z.string().optional().describe("Target table name"),
+  table: z.string().optional().describe("Target table name (Note: Pass table, not tableName)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
 };
@@ -23,7 +23,7 @@ const filterParamBase = z
   .optional()
   .describe("Optional SQL WHERE clause fragment to filter results (e.g., 'status = \"active\"')");
 
-const tableParam = z.string().min(1, "Table name cannot be empty").describe("Target table name");
+const tableParam = z.string().min(1, "Table name cannot be empty").describe("Target table name (Note: Pass table, not tableName)");
 const columnParam = z.string().min(1, "Column name cannot be empty").optional().describe("Vector column name (optional if table has only one)");
 const idParam = z.union([z.string(), z.number()]).describe("Row identifier (primary key value)");
 const idColumnParam = z

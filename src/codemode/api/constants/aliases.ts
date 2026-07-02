@@ -313,9 +313,11 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     info: "vectorInfo",
     stat: "vectorStats",
     stats: "vectorStats",
+    getStats: "vectorStats",
     get: "vectorGet",
     fetch: "vectorGet",
     optimize: "vectorOptimize",
+    optimizeTable: "vectorOptimize",
   },
   // Spatial: intuitive aliases
   spatial: {
