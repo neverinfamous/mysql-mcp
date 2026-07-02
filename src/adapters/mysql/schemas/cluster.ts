@@ -18,6 +18,9 @@ export const MemberSchema = z.preprocess(
     if (typeof val === "string") {
       return { memberId: val };
     }
+    if (val !== null && typeof val === "object" && !("memberId" in val) && "id" in val) {
+      return { ...val, memberId: (val as Record<string, unknown>)["id"] };
+    }
     return val;
   },
   MemberSchemaBase

@@ -19,6 +19,9 @@ export const LimitSchema = z.preprocess((val) => {
     const num = parseInt(val, 10);
     if (!isNaN(num)) return { limit: num };
   }
+  if (val !== null && typeof val === "object" && !("limit" in val) && "count" in val) {
+    return { limit: (val as Record<string, unknown>)["count"] };
+  }
   return val;
 }, z.object({
   limit: z

@@ -191,6 +191,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   mysql_cluster_status: "summary",
   clusterInstances: "limit",
   mysql_cluster_instances: "limit",
+  clusterRouterStatus: "summary",
+  mysql_cluster_router_status: "summary",
 
   // ============ SECURITY GROUP ============
   passwordValidate: "password",
