@@ -207,6 +207,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     schemas: "listSchemas",
     createDb: "createSchema",
     dropDb: "dropSchema",
+    list: "listSchemas",
+    get: "listSchemas",
+    create: "createSchema",
+    drop: "dropSchema",
   },
   // Events: shorter aliases
   events: {

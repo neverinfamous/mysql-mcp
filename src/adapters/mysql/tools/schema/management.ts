@@ -38,9 +38,10 @@ const ListSchemasOutputSchema = BaseOutputSchema.extend({
 });
 
 const CreateSchemaSchemaBase = z.object({
-  name: z.string().optional().describe("Schema/database name"),
+  name: z.string().optional().describe("Schema/database name. Note: Use 'name' property."),
   schema: z.string().optional().describe("Alias for name"),
   database: z.string().optional().describe("Alias for name"),
+  schemaName: z.string().optional().describe("Alias for name"),
   charset: z.string().optional().describe("Character set"),
   collation: z.string().optional().describe("Collation"),
   ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
@@ -52,7 +53,7 @@ const CreateSchemaSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] ?? obj['schema'] ?? obj['database'],
+        name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'],
       };
     }
     return val;
@@ -82,9 +83,10 @@ const CreateSchemaOutputSchema = BaseOutputSchema.extend({
 });
 
 const DropSchemaSchemaBase = z.object({
-  name: z.string().optional().describe("Schema/database name to drop"),
+  name: z.string().optional().describe("Schema/database name to drop. Note: Use 'name' property."),
   schema: z.string().optional().describe("Alias for name"),
   database: z.string().optional().describe("Alias for name"),
+  schemaName: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
 });
 
@@ -94,7 +96,7 @@ const DropSchemaSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: obj['name'] ?? obj['schema'] ?? obj['database'],
+        name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'],
       };
     }
     return val;
