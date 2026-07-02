@@ -137,6 +137,13 @@ export const MigrationRollbackSchema = z.preprocess((input: unknown) => {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
 
+    if (out["migrationId"] !== undefined && out["id"] === undefined) out["id"] = out["migrationId"];
+    if (out["migrationVersion"] !== undefined && out["version"] === undefined) out["version"] = out["migrationVersion"];
+    if (out["migration"] !== undefined && out["version"] === undefined && out["id"] === undefined) out["version"] = out["migration"];
+    if (out["name"] !== undefined && out["version"] === undefined && out["id"] === undefined) out["version"] = out["name"];
+    if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
+    if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
+
     // Resolve positional param collision with transactionRollback
     if (out["transactionId"] !== undefined && out["id"] === undefined) {
       out["id"] = out["transactionId"];
@@ -182,8 +189,28 @@ export const MigrationHistorySchemaBase = z.object({
     .describe("Database to read the migration history from (default: active database)"),
 });
 
-export const MigrationHistorySchema = z
-  .object({
+export const MigrationHistorySchema = z.preprocess((input: unknown) => {
+  if (typeof input === "object" && input !== null) {
+    const obj = input as Record<string, unknown>;
+    const out = { ...obj };
+
+    if (out["system"] !== undefined && out["sourceSystem"] === undefined) out["sourceSystem"] = out["system"];
+    if (out["count"] !== undefined && out["limit"] === undefined) out["limit"] = out["count"];
+    if (out["max"] !== undefined && out["limit"] === undefined) out["limit"] = out["max"];
+    if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
+    if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
+
+    if (typeof out["limit"] === "string" && isNaN(parseInt(out["limit"], 10))) {
+      if (["applied", "recorded", "rolled_back", "failed"].includes(out["limit"])) {
+        if (out["status"] === undefined) out["status"] = out["limit"];
+      }
+      delete out["limit"];
+    }
+
+    return out;
+  }
+  return input;
+}, z.object({
     status: z.enum(["applied", "recorded", "rolled_back", "failed"]).optional(),
     sourceSystem: z.string().optional(),
     limit: z
@@ -200,7 +227,7 @@ export const MigrationHistorySchema = z
       .optional(),
     database: z.string().optional(),
   })
-  .default({});
+  .default({}));
 
 /**
  * mysql_migration_status input
@@ -220,6 +247,8 @@ export const MigrationStatusSchema = z.preprocess((input: unknown) => {
     if (typeof out["database"] === "boolean") {
       delete out["database"];
     }
+    if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
+    if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
     return out;
   }
   return input;
