@@ -317,6 +317,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     grant: "roleGrant",
     revoke: "roleRevoke",
     grants: "roleGrants",
+    get: "roleGrants",
   },
   // Migration: shorter aliases
   migration: {

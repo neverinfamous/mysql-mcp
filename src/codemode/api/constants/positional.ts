@@ -178,9 +178,10 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ ROLES GROUP ============
   roleCreate: "name",
   roleDrop: "name",
-  roleGrant: ["role", "privileges"],
+  roleGrants: "role",
+  roleGrant: ["role", "privileges", "on"],
   roleAssign: ["role", "user"],
-  roleRevoke: ["role", "privileges"],
+  roleRevoke: ["role", "privileges", "on"],
   roleList: "role",
   userRoles: "user",
 

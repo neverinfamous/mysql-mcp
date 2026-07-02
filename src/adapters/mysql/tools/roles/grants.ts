@@ -18,9 +18,9 @@ import {
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
 export const RoleGrantsSchemaBase = z.object({
-  role: z.string().optional(),
-  name: z.string().optional(),
-  roleName: z.string().optional(),
+  role: z.string().optional().describe("Role name (e.g. 'my_role')"),
+  name: z.string().optional().describe("Alias for role"),
+  roleName: z.string().optional().describe("Alias for role"),
 });
 
 export const RoleGrantsSchema = RoleGrantsSchemaBase.refine(
@@ -37,7 +37,7 @@ export const RoleGrantPrivilegeSchemaBase = z.object({
   role: z.string().optional().describe("Role name"),
   name: z.string().optional().describe("Alias for role"),
   roleName: z.string().optional().describe("Alias for role"),
-  privileges: z.array(z.string()).optional().describe("Array of privileges to grant"),
+  privileges: z.union([z.string(), z.array(z.string())]).optional().describe("Array of privileges to grant"),
   privilege: z.string().optional().describe("Single privilege to grant"),
   database: z.string().default("*").describe("Database name or '*'"),
   schema: z.string().optional().describe("Alias for database"),
@@ -56,7 +56,8 @@ export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
 )
   .transform((val) => {
     const role = val.role || val.name || val.roleName || "";
-    const privileges = val.privileges ?? (val.privilege ? [val.privilege] : []);
+    const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
+    const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
     let database = val.db ?? val.schema ?? val.database;
     let table = val.tableName ?? val.table;
     const targetOn = val.on ?? val.object;
