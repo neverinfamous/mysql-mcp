@@ -7,6 +7,7 @@ import {
   preprocessConditionalUpdateParams,
   preprocessIndexParams,
   preprocessCheckVersionParams,
+  preprocessDatabaseParams,
 } from "./preprocess-utils.js";
 
 // =============================================================================
@@ -118,6 +119,8 @@ export const ListTablesSchemaBase = z.object({
     .string()
     .optional()
     .describe("Database name (defaults to connected database)"),
+  db: z.string().optional().describe("Alias for database"),
+  schema: z.string().optional().describe("Alias for database"),
   limit: z
     .number()
     .optional()
@@ -125,9 +128,10 @@ export const ListTablesSchemaBase = z.object({
 });
 
 // Transformed schema for handler parsing
-export const ListTablesSchema = ListTablesSchemaBase
+export const ListTablesSchema = z
+  .preprocess(preprocessDatabaseParams, ListTablesSchemaBase)
   .transform((data) => ({
-    database: data.database,
+    database: data.database ?? data.db ?? data.schema,
     limit: data.limit ?? 50,
   }))
   .refine(

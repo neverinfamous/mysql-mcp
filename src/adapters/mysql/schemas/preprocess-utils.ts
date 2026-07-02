@@ -15,6 +15,20 @@ export function defaultToEmpty(input: unknown): unknown {
 }
 
 /**
+ * Preprocess database parameters:
+ * - Alias: db/schema → database
+ */
+export function preprocessDatabaseParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input;
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["database"] === undefined) {
+    if (result["db"] !== undefined) result["database"] = result["db"];
+    else if (result["schema"] !== undefined) result["database"] = result["schema"];
+  }
+  return result;
+}
+
+/**
  * Preprocess execute code params:
  * - Alias: script/query/sql -> code
  */
