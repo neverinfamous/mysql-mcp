@@ -67,6 +67,12 @@ export const AddPartitionSchema = z
         const obj = v as Record<string, unknown>;
         if (typeof obj["partitionType"] === "string") {
           obj["partitionType"] = obj["partitionType"].toUpperCase();
+        } else if (obj["partitionType"] === undefined && typeof obj["type"] === "string") {
+          obj["partitionType"] = obj["type"].toUpperCase();
+        }
+        
+        if (obj["partitionName"] === undefined) {
+          if (obj["partition"] !== undefined) obj["partitionName"] = obj["partition"];
         }
       }
       return v;
@@ -87,7 +93,7 @@ export const AddPartitionSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
     partitionName: data.partitionName ?? "",
-    partitionType: data.partitionType ?? "",
+    partitionType: data.partitionType ? data.partitionType : "RANGE",
     value: data.value ?? "",
   }))
   .refine((data) => data.table !== "", {
@@ -95,9 +101,6 @@ export const AddPartitionSchema = z
   })
   .refine((data) => data.partitionName !== "", {
     message: "partitionName is required",
-  })
-  .refine((data) => data.partitionType !== "", {
-    message: "partitionType is required",
   })
   .refine((data) => data.value !== "", {
     message: "value is required",
@@ -120,10 +123,10 @@ export const DropPartitionSchema = z
       if (typeof v === "object" && v !== null) {
         const obj = v as Record<string, unknown>;
         if (
-          obj["partitionName"] === undefined &&
-          obj["partition"] !== undefined
+          obj["partitionName"] === undefined
         ) {
-          obj["partitionName"] = obj["partition"];
+          if (obj["partition"] !== undefined) obj["partitionName"] = obj["partition"];
+          else if (obj["name"] !== undefined && obj["table"] !== obj["name"]) obj["partitionName"] = obj["name"];
         }
       }
       return v;
@@ -188,6 +191,29 @@ export const ReorganizePartitionSchema = z
         const obj = v as Record<string, unknown>;
         if (typeof obj["partitionType"] === "string") {
           obj["partitionType"] = obj["partitionType"].toUpperCase();
+        } else if (obj["partitionType"] === undefined && typeof obj["type"] === "string") {
+          obj["partitionType"] = obj["type"].toUpperCase();
+        }
+        
+        if (obj["fromPartitions"] === undefined) {
+          if (obj["partitions"] !== undefined) obj["fromPartitions"] = obj["partitions"];
+          else if (obj["from"] !== undefined) obj["fromPartitions"] = obj["from"];
+          else if (obj["sourcePartitions"] !== undefined) obj["fromPartitions"] = obj["sourcePartitions"];
+        }
+        
+        if (obj["toPartitions"] === undefined) {
+          if (obj["into"] !== undefined) obj["toPartitions"] = obj["into"];
+          else if (obj["intoPartitions"] !== undefined) obj["toPartitions"] = obj["intoPartitions"];
+          else if (obj["newPartitions"] !== undefined) obj["toPartitions"] = obj["newPartitions"];
+          else if (obj["to"] !== undefined) obj["toPartitions"] = obj["to"];
+        }
+        
+        if (typeof obj["toPartitions"] === "object" && obj["toPartitions"] !== null && !Array.isArray(obj["toPartitions"])) {
+          obj["toPartitions"] = [obj["toPartitions"]];
+        }
+        
+        if (typeof obj["fromPartitions"] === "string") {
+          obj["fromPartitions"] = [obj["fromPartitions"]];
         }
       }
       return v;
@@ -215,7 +241,7 @@ export const ReorganizePartitionSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
     fromPartitions: data.fromPartitions ?? [],
-    partitionType: data.partitionType ?? "",
+    partitionType: data.partitionType ? data.partitionType : "RANGE",
     toPartitions: data.toPartitions ?? [],
   }))
   .refine((data) => data.table !== "", {
@@ -223,9 +249,6 @@ export const ReorganizePartitionSchema = z
   })
   .refine((data) => data.fromPartitions.length > 0, {
     message: "fromPartitions is required",
-  })
-  .refine((data) => data.partitionType !== "", {
-    message: "partitionType is required",
   })
   .refine((data) => data.toPartitions.length > 0, {
     message: "toPartitions is required",
