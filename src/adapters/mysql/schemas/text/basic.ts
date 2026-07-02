@@ -8,7 +8,9 @@ export const RegexpMatchSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().describe("Regular expression pattern"),
+  pattern: z.string().optional().describe("Regular expression pattern"),
+  query: z.string().optional().describe("Alias for pattern"),
+  sql: z.string().optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
@@ -26,7 +28,9 @@ export const RegexpMatchSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      pattern: z.string(),
+      pattern: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       limit: z.coerce.number().optional(),
@@ -35,12 +39,18 @@ export const RegexpMatchSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    pattern: data.pattern,
+    pattern: data.pattern ?? data.query ?? data.sql ?? "",
     where: data.where ?? data.filter,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.column !== "", {
+    message: "column (or col alias) is required",
+  })
+  .refine((data) => data.pattern !== "", {
+    message: "pattern (or query/sql alias) is required",
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
@@ -58,7 +68,9 @@ export const LikeSearchSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().describe("LIKE pattern with % and _ wildcards"),
+  pattern: z.string().optional().describe("LIKE pattern with % and _ wildcards"),
+  query: z.string().optional().describe("Alias for pattern"),
+  sql: z.string().optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
@@ -76,7 +88,9 @@ export const LikeSearchSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      pattern: z.string(),
+      pattern: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       limit: z.coerce.number().optional(),
@@ -85,12 +99,18 @@ export const LikeSearchSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    pattern: data.pattern,
+    pattern: data.pattern ?? data.query ?? data.sql ?? "",
     where: data.where ?? data.filter,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.column !== "", {
+    message: "column (or col alias) is required",
+  })
+  .refine((data) => data.pattern !== "", {
+    message: "pattern (or query/sql alias) is required",
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
@@ -108,7 +128,9 @@ export const SoundexSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name"),
   col: z.string().optional().describe("Alias for column"),
-  value: z.string().describe("Value to match phonetically"),
+  value: z.string().optional().describe("Value to match phonetically"),
+  query: z.string().optional().describe("Alias for value"),
+  search: z.string().optional().describe("Alias for value"),
   where: z
     .string()
     .optional()
@@ -133,7 +155,9 @@ export const SoundexSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      value: z.string(),
+      value: z.string().optional(),
+      query: z.string().optional(),
+      search: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumn: z.boolean().optional().default(false),
@@ -143,13 +167,19 @@ export const SoundexSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    value: data.value,
+    value: data.value ?? data.query ?? data.search ?? "",
     where: data.where ?? data.filter,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.column !== "", {
+    message: "column (or col alias) is required",
+  })
+  .refine((data) => data.value !== "", {
+    message: "value (or query/search alias) is required",
   })
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",

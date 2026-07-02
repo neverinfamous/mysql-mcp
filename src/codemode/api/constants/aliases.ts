@@ -45,6 +45,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     substr: "substring",
     concatenate: "concat",
     collation: "collationConvert",
+    get: "likeSearch",
+    search: "likeSearch",
+    find: "likeSearch",
+    match: "regexpMatch",
   },
   // Fulltext: intuitive aliases
   fulltext: {
