@@ -20,7 +20,7 @@ const ListViewsSchemaBase = z.object({
   schema: z
     .string()
     .default("")
-    .describe("Schema name (database)"),
+    .describe("Schema name (database). Note: defaults to current database if omitted."),
   database: z.string().default("").describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
@@ -38,7 +38,7 @@ const ListViewsSchema = z.preprocess(
     return val;
   },
   z.object({
-    schema: z.string().min(1, "Schema is required"),
+    schema: z.string().optional(),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
@@ -55,6 +55,7 @@ const CreateViewSchemaBase = z.object({
   name: z.string().default("").describe("View name"),
   view: z.string().default("").describe("Alias for name"),
   viewName: z.string().default("").describe("Alias for name"),
+  tableName: z.string().default("").describe("Alias for name (anti-hallucination)"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   definition: z
@@ -74,7 +75,7 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'] ?? obj['tableName'],
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
         definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? obj['query'] ?? obj['sql'],
       };
@@ -109,6 +110,7 @@ const DropViewSchemaBase = z.object({
   name: z.string().default("").describe("View name"),
   view: z.string().default("").describe("Alias for name"),
   viewName: z.string().default("").describe("Alias for name"),
+  tableName: z.string().default("").describe("Alias for name (anti-hallucination)"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
@@ -120,7 +122,7 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'] ?? obj['tableName'],
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
       };
     }
@@ -182,13 +184,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                     CHECK_OPTION as checkOption,
                     IS_UPDATABLE as isUpdatable
                 FROM information_schema.VIEWS
-                WHERE TABLE_SCHEMA = ?
+                WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
                 ORDER BY TABLE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
-          targetSchema,
+          targetSchema ?? null,
         ]);
         return withTokenEstimate({
           success: true,
