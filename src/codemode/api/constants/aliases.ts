@@ -81,7 +81,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     dropIndex: "fulltextDrop",
     naturalLanguage: "fulltextSearch",
     booleanMode: "fulltextBoolean",
+    searchBoolean: "fulltextBoolean",
     queryExpansion: "fulltextExpand",
+    searchExpand: "fulltextExpand",
   },
   // Transactions: shorter aliases
   transactions: {
