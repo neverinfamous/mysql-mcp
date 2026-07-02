@@ -546,6 +546,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     query: "docFind",
     createIndex: "docCreateIndex",
     addIndex: "docCreateIndex",
+    index: "docCreateIndex",
   },
   // SysSchema: shorter aliases
   sysschema: {

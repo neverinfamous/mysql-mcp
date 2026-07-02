@@ -519,6 +519,10 @@ export function preprocessDocIndexParams(val: unknown): unknown {
     result["name"] = result["indexName"];
   }
 
+  if (typeof result["fields"] === "string") {
+    result["fields"] = [{ path: result["fields"] }];
+  }
+
   if (Array.isArray(result["fields"])) {
     result["fields"] = result["fields"].map((f: unknown) => {
       if (typeof f === "string") return { path: f };
