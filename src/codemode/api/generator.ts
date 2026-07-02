@@ -1,6 +1,5 @@
 import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition } from "../../types/index.js";
-import { ValidationError } from "../../types/index.js";
 import type { AuditInterceptor } from "../../audit/interceptor.js";
 import { METHOD_ALIASES } from "./constants/index.js";
 import { normalizeParams } from "./params.js";
@@ -44,11 +43,7 @@ export function createGroupApi(
 
       const validationResult = schema.safeParse(normalizedParams);
       if (!validationResult.success) {
-        return formatHandlerErrorResponse(
-          new ValidationError(
-            `Validation failed for ${tool.name}: ${validationResult.error.message}`
-          )
-        );
+        return formatHandlerErrorResponse(validationResult.error);
       }
 
       const context = adapter.createContext();
