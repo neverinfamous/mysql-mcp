@@ -523,6 +523,15 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   },
   // Router: shorter aliases
   router: {
+    routerStatus: "status",
+    routerRoutes: "routes",
+    routerRouteStatus: "routeStatus",
+    routerRouteHealth: "routeHealth",
+    routerRouteConnections: "routeConnections",
+    routerRouteDestinations: "routeDestinations",
+    routerRouteBlockedHosts: "routeBlockedHosts",
+    routerMetadataStatus: "metadataStatus",
+    routerPoolStatus: "poolStatus",
     metadata: "metadataStatus",
     pool: "poolStatus",
     connections: "routeConnections",
@@ -533,6 +542,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getRoutes: "routes",
     getRouteStatus: "routeStatus",
     getStatus: "status",
+    get: "status",
     getRouteHealth: "routeHealth",
     getHealth: "routeHealth",
     getRouteConnections: "routeConnections",
