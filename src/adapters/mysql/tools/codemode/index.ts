@@ -122,7 +122,7 @@ Available API groups:
 - mysql.fulltext: fulltextSearch, fulltextCreate, fulltextBoolean, fulltextExpand (5 methods)
 - mysql.performance: explain, explainAnalyze, slowQueries, bufferPoolStats, tableStats (8 methods)
 - mysql.optimization: indexRecommendation, queryRewrite, forceIndex, optimizerTrace (4 methods)
-- mysql.admin: optimizeTable, analyzeTable, checkTable, repairTable, flushTables, killQuery (6 methods)
+- mysql.admin: optimizeTable, analyzeTable, checkTable, repairTable, flushTables, killQuery, serverConfig, appendInsight, auditSearch (9 methods)
 - mysql.monitoring: showProcesslist, showStatus, showVariables, innodbStatus, poolStats (7 methods)
 - mysql.backup: createDump, exportTable, importData, restoreDump (4 methods)
 - mysql.replication: masterStatus, slaveStatus, binlogEvents, gtidStatus, replicationLag (5 methods)
