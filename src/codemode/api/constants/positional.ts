@@ -175,6 +175,15 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ REPLICATION GROUP ============
   binlogEvents: ["logFile", "position"],
 
+  // ============ ROLES GROUP ============
+  roleCreate: "name",
+  roleDrop: "name",
+  roleGrant: ["role", "privileges"],
+  roleAssign: ["role", "user"],
+  roleRevoke: ["role", "privileges"],
+  roleList: "role",
+  userRoles: "user",
+
   // ============ DOCSTORE GROUP ============
   docCreateCollection: "name",
   docDropCollection: "name",

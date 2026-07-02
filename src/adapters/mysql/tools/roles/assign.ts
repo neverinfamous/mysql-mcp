@@ -20,14 +20,14 @@ import {
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
 export const RoleAssignSchemaBase = z.object({
-  role: z.string().optional(),
-  name: z.string().optional(),
-  roleName: z.string().optional(),
-  user: z.string().optional(),
-  toUser: z.string().optional(),
-  userName: z.string().optional(),
-  host: z.string().default("%"),
-  withAdminOption: z.boolean().default(false),
+  role: z.string().optional().describe("Role name"),
+  name: z.string().optional().describe("Alias for role"),
+  roleName: z.string().optional().describe("Alias for role"),
+  user: z.string().optional().describe("User name"),
+  toUser: z.string().optional().describe("Alias for user"),
+  userName: z.string().optional().describe("Alias for user"),
+  host: z.string().default("%").describe("Host name"),
+  withAdminOption: z.boolean().default(false).describe("Grant with admin option"),
 });
 
 export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role || val.name || val.roleName, {
@@ -43,20 +43,22 @@ export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role ||
   });
 
 export const RoleRevokeSchemaBase = z.object({
-  role: z.string().optional(),
-  name: z.string().optional(),
-  roleName: z.string().optional(),
-  user: z.string().optional(),
-  fromUser: z.string().optional(),
-  userName: z.string().optional(),
-  host: z.string().default("%"),
-  privileges: z.union([z.string(), z.array(z.string())]).optional(),
-  privilege: z.string().optional(),
-  database: z.string().default("*"),
-  db: z.string().optional(),
-  table: z.string().default("*"),
-  on: z.string().optional(),
-  object: z.string().optional(),
+  role: z.string().optional().describe("Role name"),
+  name: z.string().optional().describe("Alias for role"),
+  roleName: z.string().optional().describe("Alias for role"),
+  user: z.string().optional().describe("User name"),
+  fromUser: z.string().optional().describe("Alias for user"),
+  userName: z.string().optional().describe("Alias for user"),
+  host: z.string().default("%").describe("Host name"),
+  privileges: z.union([z.string(), z.array(z.string())]).optional().describe("Privileges to revoke"),
+  privilege: z.string().optional().describe("Single privilege to revoke"),
+  database: z.string().default("*").describe("Database name or '*'"),
+  schema: z.string().optional().describe("Alias for database"),
+  db: z.string().optional().describe("Alias for database"),
+  table: z.string().default("*").describe("Table name or '*'"),
+  tableName: z.string().optional().describe("Alias for table"),
+  on: z.string().optional().describe("Target object (e.g. 'db.table')"),
+  object: z.string().optional().describe("Alias for on"),
 });
 
 export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role || val.name || val.roleName, {
@@ -78,8 +80,8 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
     const user = val.user || val.fromUser || val.userName || "";
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
     const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
-    let database = val.db ?? val.database;
-    let table = val.table;
+    let database = val.db ?? val.schema ?? val.database;
+    let table = val.tableName ?? val.table;
 
     const targetOn = val.on ?? val.object;
 

@@ -34,16 +34,18 @@ export const RoleGrantsSchema = RoleGrantsSchemaBase.refine(
 });
 
 export const RoleGrantPrivilegeSchemaBase = z.object({
-  role: z.string().optional(),
-  name: z.string().optional(),
-  roleName: z.string().optional(),
-  privileges: z.array(z.string()).optional(),
-  privilege: z.string().optional(),
-  database: z.string().default("*"),
-  db: z.string().optional(),
-  table: z.string().default("*"),
-  on: z.string().optional(),
-  object: z.string().optional(),
+  role: z.string().optional().describe("Role name"),
+  name: z.string().optional().describe("Alias for role"),
+  roleName: z.string().optional().describe("Alias for role"),
+  privileges: z.array(z.string()).optional().describe("Array of privileges to grant"),
+  privilege: z.string().optional().describe("Single privilege to grant"),
+  database: z.string().default("*").describe("Database name or '*'"),
+  schema: z.string().optional().describe("Alias for database"),
+  db: z.string().optional().describe("Alias for database"),
+  table: z.string().default("*").describe("Table name or '*'"),
+  tableName: z.string().optional().describe("Alias for table"),
+  on: z.string().optional().describe("Target object (e.g. 'db.table')"),
+  object: z.string().optional().describe("Alias for on"),
 });
 
 export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
@@ -55,8 +57,8 @@ export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
   .transform((val) => {
     const role = val.role || val.name || val.roleName || "";
     const privileges = val.privileges ?? (val.privilege ? [val.privilege] : []);
-    let database = val.db ?? val.database;
-    let table = val.table;
+    let database = val.db ?? val.schema ?? val.database;
+    let table = val.tableName ?? val.table;
     const targetOn = val.on ?? val.object;
 
     if (targetOn) {
