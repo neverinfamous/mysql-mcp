@@ -29,12 +29,12 @@ function preprocessFulltextParams(val: unknown): unknown {
 
 // --- FulltextCreate ---
 export const FulltextCreateSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   columns: z
     .array(z.string())
     .optional()
-    .describe("Columns to include in index. Note: must be an array (e.g. ['col1'])."),
+    .describe("Columns to include in index. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   indexName: z.string().optional().describe("Optional index name"),
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
@@ -68,13 +68,13 @@ export const FulltextCreateSchema = z
 
 // --- FulltextSearch ---
 export const FulltextSearchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. Note: must be an array (e.g. ['col1'])."),
+  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   col: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query. Note: must be a string, not an array."),
+  query: z.string().optional().describe("Search query. REQUIRED. Note: must be a string, not an array."),
   sql: z.string().optional().describe("Alias for query"),
   mode: z
     .enum(["NATURAL", "BOOLEAN", "EXPANSION"])
@@ -151,12 +151,12 @@ export const FulltextSearchSchema = z
 
 // --- FulltextDrop ---
 export const FulltextDropSchemaBase = z.object({
-  table: z.string().optional().describe("Table containing the index"),
+  table: z.string().optional().describe("Table containing the index. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   indexName: z
     .string()
     .optional()
-    .describe("Name of the FULLTEXT index to drop"),
+    .describe("Name of the FULLTEXT index to drop. REQUIRED."),
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
   index: z.string().optional().describe("Alias for indexName"),
@@ -187,16 +187,16 @@ export const FulltextDropSchema = z
 
 // --- FulltextBoolean ---
 export const FulltextBooleanSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. Note: must be an array (e.g. ['col1'])."),
+  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   col: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
   query: z
     .string()
     .optional()
-    .describe("Boolean search query with +, -, *, etc. Note: must be a string, not an array."),
+    .describe("Boolean search query with +, -, *, etc. REQUIRED. Note: must be a string, not an array."),
   maxLength: z
     .unknown()
     .optional()
@@ -261,13 +261,13 @@ export const FulltextBooleanSchema = z
 
 // --- FulltextExpand ---
 export const FulltextExpandSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. Note: must be an array (e.g. ['col1'])."),
+  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   col: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query to expand. Note: must be a string, not an array."),
+  query: z.string().optional().describe("Search query to expand. REQUIRED. Note: must be a string, not an array."),
   maxLength: z
     .unknown()
     .optional()
