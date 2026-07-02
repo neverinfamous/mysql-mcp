@@ -162,9 +162,11 @@ export const SchemaSnapshotSchemaBase = z.object({
   schema: z
     .string()
     .optional()
-    .describe("Schema to snapshot (REQUIRED)"),
+    .describe("Schema to snapshot (REQUIRED. Note: Pass schema, not tableName)"),
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
+  table: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use describeTable instead."),
+  tableName: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use describeTable instead."),
   includeSystem: z
     .boolean()
     .optional()
@@ -192,6 +194,8 @@ export const SchemaSnapshotSchema = z
     schema: z.string().optional(),
     database: z.string().optional(),
     db: z.string().optional(),
+    table: z.string().optional(),
+    tableName: z.string().optional(),
     includeSystem: z.boolean().optional(),
     sections: z
       .array(
@@ -301,16 +305,16 @@ export const ConstraintAnalysisSchema = z.preprocess((input: unknown) => {
  */
 export const MigrationRisksSchemaBase = z.object({
   statements: z
-    .array(z.string())
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Array of DDL statements to analyze for risks"),
   statement: z
-    .string()
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Single DDL statement (alias for statements)"),
-  sql: z.string().optional().describe("Alias for statements/statement"),
-  query: z.string().optional().describe("Alias for statements/statement"),
-  ddlQuery: z.string().optional().describe("Alias for statements/statement"),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
+  query: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
+  ddlQuery: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
   schema: z
     .string()
     .optional()
@@ -320,11 +324,11 @@ export const MigrationRisksSchemaBase = z.object({
 });
 
 export const MigrationRisksSchema = z.object({
-  statements: z.array(z.string()).optional(),
-  statement: z.string().optional(),
-  sql: z.string().optional(),
-  query: z.string().optional(),
-  ddlQuery: z.string().optional(),
+  statements: z.union([z.string(), z.array(z.string())]).optional(),
+  statement: z.union([z.string(), z.array(z.string())]).optional(),
+  sql: z.union([z.string(), z.array(z.string())]).optional(),
+  query: z.union([z.string(), z.array(z.string())]).optional(),
+  ddlQuery: z.union([z.string(), z.array(z.string())]).optional(),
   schema: z.string().optional(),
   database: z.string().optional(),
   db: z.string().optional(),
@@ -332,15 +336,31 @@ export const MigrationRisksSchema = z.object({
   if (val.database && !val.schema) val.schema = val.database;
   if (val.db && !val.schema) val.schema = val.db;
   
-  const stmts: string[] = val.statements ?? [];
-  if (val.statement && stmts.length === 0) stmts.push(val.statement);
-  if (val.sql && stmts.length === 0) stmts.push(val.sql);
-  if (val.query && stmts.length === 0) stmts.push(val.query);
-  if (val.ddlQuery && stmts.length === 0) stmts.push(val.ddlQuery);
+  let stmts: string[] = [];
+  if (Array.isArray(val.statements)) {
+    stmts = val.statements;
+  } else if (typeof val.statements === "string") {
+    stmts = [val.statements];
+  }
+
+  const addStrings = (field: string | string[] | undefined): void => {
+    if (field === undefined) return;
+    if (Array.isArray(field)) {
+      if (stmts.length === 0) stmts.push(...field);
+    } else if (typeof field === "string") {
+      if (stmts.length === 0) stmts.push(field);
+    }
+  };
+
+  addStrings(val.statement);
+  addStrings(val.sql);
+  addStrings(val.query);
+  addStrings(val.ddlQuery);
+
   val.statements = stmts;
   
   return val;
-}).refine(val => val.statements && val.statements.length > 0, {
+}).refine(val => val.statements !== undefined && val.statements.length > 0, {
   message: "statements are required",
   path: ["statements"],
 });
