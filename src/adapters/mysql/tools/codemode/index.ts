@@ -29,7 +29,7 @@ export const ExecuteCodeSchemaBase = z.object({
   code: z
     .string()
     .describe(
-      "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations.",
+      "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations. Note: Pass code, not script, javascript, or query.",
     ),
   timeout: z
     .number()
