@@ -210,6 +210,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getStoredProcedures: "listStoredProcedures",
     triggers: "listTriggers",
     getTriggers: "listTriggers",
+    events: "listEvents",
+    getEvents: "listEvents",
     constraints: "listConstraints",
     schemas: "listSchemas",
     createDb: "createSchema",

@@ -32,6 +32,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   listStoredProcedures: "database",
   listTriggers: "table",
   listConstraints: "table",
+  listEvents: "schema",
   createView: ["name", "sql"],
   dropView: "name",
 
