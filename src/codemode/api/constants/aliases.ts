@@ -142,6 +142,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     connectionSpike: "detectConnectionSpike",
     spikes: "detectConnectionSpike",
     connections: "detectConnectionSpike",
+    detectConnection: "detectConnectionSpike",
     get: "tableStats",
   },
   // Optimization: shorter aliases

@@ -317,6 +317,8 @@ export const DetectBloatRiskSchemaBase = z.object({
     .describe("Filter to a specific table"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
   minSizeMb: z
     .number()
     .optional()
@@ -332,6 +334,7 @@ export const DetectBloatRiskSchema = z
       const record = processed as Record<string, unknown>;
       return {
         ...record,
+        schema: record["schema"] ?? record["database"] ?? record["db"],
         minSizeMb: record["minSizeMb"] ?? record["minSize"],
       };
     },
@@ -340,6 +343,8 @@ export const DetectBloatRiskSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      database: z.string().optional(),
+      db: z.string().optional(),
       minSizeMb: z.coerce.number().min(0).optional().default(10),
       minSize: z.coerce.number().optional(),
     }),
@@ -359,6 +364,9 @@ export const DetectConnectionSpikeSchemaBase = z.object({
     .number()
     .optional()
     .describe("Idle time window in minutes to flag connections (default: 5)"),
+  window: z.number().optional().describe("Alias for windowMinutes"),
+  time: z.number().optional().describe("Alias for windowMinutes"),
+  duration: z.number().optional().describe("Alias for windowMinutes"),
   thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
   threshold: z.number().optional().describe("Alias for warningPercent"),
 });
@@ -371,11 +379,15 @@ export const DetectConnectionSpikeSchema = z
       return {
         ...record,
         warningPercent: record["warningPercent"] ?? record["thresholdPercent"] ?? record["threshold"],
+        windowMinutes: record["windowMinutes"] ?? record["window"] ?? record["time"] ?? record["duration"],
       };
     },
     z.object({
       warningPercent: z.coerce.number().min(0).max(100).optional().default(70),
       windowMinutes: z.coerce.number().int().min(1).max(1440).optional().default(5),
+      window: z.coerce.number().optional(),
+      time: z.coerce.number().optional(),
+      duration: z.coerce.number().optional(),
       thresholdPercent: z.coerce.number().optional(),
       threshold: z.coerce.number().optional(),
     }),
