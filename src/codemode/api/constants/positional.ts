@@ -85,6 +85,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   savepoint: ["transactionId", "name"],
   createSavepoint: ["transactionId", "name"],
   addSavepoint: ["transactionId", "name"],
+  setSavepoint: ["transactionId", "name"],
   release: ["transactionId", "name"],
   releaseSavepoint: ["transactionId", "name"],
   removeSavepoint: ["transactionId", "name"],

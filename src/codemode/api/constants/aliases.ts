@@ -99,6 +99,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     savepoint: "transactionSavepoint",
     createSavepoint: "transactionSavepoint",
     addSavepoint: "transactionSavepoint",
+    setSavepoint: "transactionSavepoint",
     release: "transactionRelease",
     releaseSavepoint: "transactionRelease",
     removeSavepoint: "transactionRelease",

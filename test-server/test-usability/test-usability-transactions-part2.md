@@ -17,7 +17,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `t
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
 - Test positional params: Try `mysql.transactions.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.transactions.get()`).
-- Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
+- Test missing properties: Try passing `{}` to verify it returns a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception. **Note:** Code Mode returns `{ success: false, error: ... }` for validation errors instead of throwing exceptions, so always check the return value during your fuzzer script.
 - Note any errors, exceptions, or unexpected behavior.
 
 ## 2. Heal Phase

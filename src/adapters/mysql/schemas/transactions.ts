@@ -92,7 +92,7 @@ export const TransactionSavepointSchema = z
   .preprocess(preprocessSavepointParams, TransactionSavepointSchemaBase)
   .transform((data) => ({
     transactionId: data.transactionId ?? data.txId ?? data.tx ?? "",
-    savepoint: data.savepoint ?? data.name ?? "",
+    savepoint: data.savepoint ?? data.name ?? data.savepointName ?? data.id ?? "",
   }))
   .refine((data) => data.transactionId !== "" && data.savepoint !== "", {
     message:
