@@ -361,7 +361,6 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   proxysqlProcessList: "limit",
   proxysql_memory_stats: "limit",
   memoryStats: "limit",
-  memory: "limit",
 };
 
 /**
