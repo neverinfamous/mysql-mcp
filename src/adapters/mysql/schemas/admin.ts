@@ -586,6 +586,8 @@ export const AuditRestoreBackupSchemaBase = z.object({
   filename: z.string().optional().describe("Snapshot filename to restore"),
   file: z.string().optional().describe("Alias for filename"),
   fileUrl: z.string().optional().describe("Alias for filename"),
+  id: z.string().optional().describe("Alias for filename"),
+  backupId: z.string().optional().describe("Alias for filename"),
   includeData: z
     .boolean()
     .default(false)
@@ -603,7 +605,7 @@ export const AuditRestoreBackupSchema = z
         const data = obj as Record<string, unknown>;
         return {
           ...data,
-          filename: data["filename"] ?? data["file"] ?? data["fileUrl"],
+          filename: data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"],
         };
       }
       return obj;
@@ -640,6 +642,8 @@ export const AuditDiffBackupSchemaBase = z.object({
     .describe("Snapshot filename to compare against current schema"),
   file: z.string().optional().describe("Alias for filename"),
   fileUrl: z.string().optional().describe("Alias for filename"),
+  id: z.string().optional().describe("Alias for filename"),
+  backupId: z.string().optional().describe("Alias for filename"),
 });
 
 export const AuditDiffBackupSchema = z
@@ -649,7 +653,7 @@ export const AuditDiffBackupSchema = z
         const data = obj as Record<string, unknown>;
         return {
           ...data,
-          filename: data["filename"] ?? data["file"] ?? data["fileUrl"],
+          filename: data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"],
         };
       }
       return obj;

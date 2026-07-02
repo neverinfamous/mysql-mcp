@@ -167,6 +167,15 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     mysqlCreateDump: "createDump",
     mysql_restore_dump: "restoreDump",
     mysqlRestoreDump: "restoreDump",
+    list: "auditListBackups",
+    auditList: "auditListBackups",
+    mysql_audit_list_backups: "auditListBackups",
+    mysqlAuditListBackups: "auditListBackups",
+    mysql_audit_restore_backup: "auditRestoreBackup",
+    mysqlAuditRestoreBackup: "auditRestoreBackup",
+    auditRestore: "auditRestoreBackup",
+    auditDiff: "auditDiffBackup",
+    diff: "auditDiffBackup",
   },
   // Replication: intuitive aliases
   replication: {
