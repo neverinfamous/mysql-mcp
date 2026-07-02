@@ -315,23 +315,33 @@ export const DetectBloatRiskSchemaBase = z.object({
     .number()
     .optional()
     .describe("Minimum table size in MB to include (default: 10)"),
+  minSize: z.number().optional().describe("Alias for minSizeMb"),
 });
 
 export const DetectBloatRiskSchema = z
   .preprocess(
-    preprocessTableParams,
+    (data: unknown) => {
+      const processed = preprocessTableParams(data);
+      if (typeof processed !== "object" || processed === null) return processed;
+      const record = processed as Record<string, unknown>;
+      return {
+        ...record,
+        minSizeMb: record["minSizeMb"] ?? record["minSize"],
+      };
+    },
     z.object({
       schema: z.string().optional(),
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
       minSizeMb: z.coerce.number().min(0).optional().default(10),
+      minSize: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
     schema: data.schema,
     table: data.table ?? data.tableName ?? data.name,
-    minSizeMb: data.minSizeMb ?? 10,
+    minSizeMb: data.minSizeMb,
   }));
 
 export const DetectConnectionSpikeSchemaBase = z.object({
@@ -344,6 +354,7 @@ export const DetectConnectionSpikeSchemaBase = z.object({
     .optional()
     .describe("Idle time window in minutes to flag connections (default: 5)"),
   thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
+  threshold: z.number().optional().describe("Alias for warningPercent"),
 });
 
 export const DetectConnectionSpikeSchema = z
@@ -353,18 +364,19 @@ export const DetectConnectionSpikeSchema = z
       const record = data as Record<string, unknown>;
       return {
         ...record,
-        warningPercent: record["warningPercent"] ?? record["thresholdPercent"],
+        warningPercent: record["warningPercent"] ?? record["thresholdPercent"] ?? record["threshold"],
       };
     },
     z.object({
       warningPercent: z.coerce.number().min(0).max(100).optional().default(70),
       windowMinutes: z.coerce.number().int().min(1).max(1440).optional().default(5),
       thresholdPercent: z.coerce.number().optional(),
+      threshold: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
-    warningPercent: data.warningPercent ?? data.thresholdPercent ?? 70,
-    windowMinutes: data.windowMinutes ?? 5,
+    warningPercent: data.warningPercent,
+    windowMinutes: data.windowMinutes,
   }));
 
 // =============================================================================
