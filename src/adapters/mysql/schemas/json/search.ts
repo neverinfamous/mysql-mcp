@@ -72,6 +72,9 @@ export const JsonSearchSchemaBase = z.object({
   col: z.string().optional().describe("Alias for column"),
   searchValue: z.unknown().optional().describe("String value to search for"),
   searchString: z.unknown().optional().describe("Alias for searchValue"),
+  searchStr: z.unknown().optional().describe("Alias for searchValue"),
+  value: z.unknown().optional().describe("Alias for searchValue"),
+  val: z.unknown().optional().describe("Alias for searchValue"),
   mode: z
     .enum(["one", "all"])
     .optional()
@@ -94,6 +97,10 @@ export const JsonSearchSchema = z
       column: z.string().optional(),
       col: z.string().optional(),
       searchValue: z.unknown().optional(),
+      searchString: z.unknown().optional(),
+      searchStr: z.unknown().optional(),
+      value: z.unknown().optional(),
+      val: z.unknown().optional(),
       mode: z.enum(["one", "all"]).optional().default("one"),
       limit: z.coerce.number().optional(),
       sql: z.string().optional(),
@@ -105,7 +112,7 @@ export const JsonSearchSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    searchValue: data.searchValue,
+    searchValue: data.searchValue ?? data.searchString ?? data.searchStr ?? data.value ?? data.val,
     mode: data.mode,
     limit: data.limit,
   }))
