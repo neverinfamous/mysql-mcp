@@ -91,9 +91,24 @@ export function preprocessVectorParams(input: unknown): unknown {
   if (result["queryVector"] === undefined && result["vector"] !== undefined) {
     result["queryVector"] = result["vector"];
   }
-  if (result["maxDistance"] === undefined && result["distance"] !== undefined) {
-    result["maxDistance"] = result["distance"];
+
+  // Coerce queryVector from string to array if agent hallucinated a stringified array
+  if (typeof result["queryVector"] === "string") {
+    try {
+      const parsed = JSON.parse(result["queryVector"]) as unknown;
+      if (Array.isArray(parsed)) {
+        result["queryVector"] = parsed;
+      }
+    } catch {
+      // Ignore parse error, let zod validation catch it
+    }
   }
+
+  if (result["maxDistance"] === undefined) {
+    if (result["distance"] !== undefined) result["maxDistance"] = result["distance"];
+    else if (result["radius"] !== undefined) result["maxDistance"] = result["radius"];
+  }
+  
   if (result["queryText"] === undefined) {
     if (result["query"] !== undefined) result["queryText"] = result["query"];
     else if (result["sql"] !== undefined) result["queryText"] = result["sql"];

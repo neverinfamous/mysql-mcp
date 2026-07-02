@@ -141,7 +141,7 @@ export const VectorSearchSchema = z
     preprocessVectorParams,
     z.object({
   table: tableParam,
-  column: columnParam,
+  column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
   queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
   k: z.number().int().positive().max(1000).optional().default(10),
   metric: metricParam,
@@ -168,7 +168,7 @@ export const VectorRangeSearchSchema = z
     preprocessVectorParams,
     z.object({
   table: tableParam,
-  column: columnParam,
+  column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
   queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
   maxDistance: z.number().nonnegative("Distance threshold must be non-negative"),
   metric: metricParam,
@@ -200,7 +200,7 @@ export const VectorHybridSearchSchema = z
     preprocessVectorParams,
     z.object({
   table: tableParam,
-  vectorColumn: z.string().min(1, "Vector column name cannot be empty"),
+  vectorColumn: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
   textColumn: z.string().min(1, "Text column name cannot be empty"),
   queryVector: z.array(z.number()).min(1).optional(),
   queryText: z.string().optional(),
@@ -248,7 +248,7 @@ export const VectorCreateIndexSchema = z
     preprocessTableParams,
     z.object({
   table: tableParam,
-  column: columnParam,
+  column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
   metric: metricParam,
   type: z.enum(["HNSW"]).optional().default("HNSW"),
 })
@@ -276,7 +276,7 @@ export const VectorStatsSchema = z
     preprocessTableParams,
     z.object({
   table: tableParam,
-  column: columnParam,
+  column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
 })
   );
 

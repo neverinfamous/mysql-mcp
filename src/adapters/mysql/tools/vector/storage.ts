@@ -17,7 +17,7 @@ import {
   VectorDeleteOutputSchema,
   VectorGetOutputSchema,
 } from "../../schemas/vector.js";
-import { ensureVectorSupport, formatVector, parseVector, sanitizeIdentifier } from "./helpers.js";
+import { ensureVectorSupport, formatVector, parseVector, sanitizeIdentifier, resolveVectorColumn } from "./helpers.js";
 
 export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -35,7 +35,8 @@ export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
         await ensureVectorSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
-        const column = sanitizeIdentifier(validated.column);
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        const column = sanitizeIdentifier(targetColumn);
         const idCol = sanitizeIdentifier(validated.idColumn);
         
         const vectorStr = formatVector(validated.vector);
@@ -80,7 +81,8 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
         await ensureVectorSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
-        const column = sanitizeIdentifier(validated.column);
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        const column = sanitizeIdentifier(targetColumn);
         const idCol = sanitizeIdentifier(validated.idColumn);
 
         const placeholders: string[] = [];
@@ -174,29 +176,7 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
         const table = sanitizeIdentifier(validated.table);
         const idCol = sanitizeIdentifier(validated.idColumn);
         
-        let targetColumn = validated.column;
-        
-        if (!targetColumn) {
-          // Pre-check table existence to satisfy P154
-          await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
-
-          const infoQuery = `
-            SELECT COLUMN_NAME 
-            FROM INFORMATION_SCHEMA.COLUMNS 
-            WHERE TABLE_NAME = ? AND DATA_TYPE = 'vector' 
-            LIMIT 1
-          `;
-          const pkResult = await adapter.executeQuery(infoQuery, [validated.table]);
-          if (!pkResult.rows || pkResult.rows.length === 0) {
-            throw new ValidationError(`No VECTOR column found in table '${validated.table}'. Please specify the 'column' parameter.`);
-          }
-          const firstRow = pkResult.rows[0];
-          const columnName = firstRow?.['COLUMN_NAME'];
-          if (typeof columnName !== 'string') {
-            throw new ValidationError(`No VECTOR column found in table '${validated.table}'. Please specify the 'column' parameter.`);
-          }
-          targetColumn = columnName;
-        }
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
         
         const col = sanitizeIdentifier(targetColumn);
 

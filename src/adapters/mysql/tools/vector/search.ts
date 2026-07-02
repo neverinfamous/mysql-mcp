@@ -14,7 +14,7 @@ import {
   VectorRangeSearchOutputSchema,
   VectorHybridSearchOutputSchema,
 } from "../../schemas/vector.js";
-import { ensureVectorSupport, formatVector, sanitizeIdentifier } from "./helpers.js";
+import { ensureVectorSupport, formatVector, sanitizeIdentifier, resolveVectorColumn } from "./helpers.js";
 import { sanitizeFulltextQuery } from "../text/fulltext-helpers.js";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
@@ -35,7 +35,8 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
         await ensureVectorSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
-        const column = sanitizeIdentifier(validated.column);
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        const column = sanitizeIdentifier(targetColumn);
         
         let selectCols = `*`;
         if (validated.select && validated.select.length > 0) {
@@ -64,7 +65,7 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
              return row;
           }
           return Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== validated.column)
+            Object.entries(row).filter(([key]) => key !== targetColumn)
           );
         });
 
@@ -123,7 +124,8 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
         await ensureVectorSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
-        const column = sanitizeIdentifier(validated.column);
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        const column = sanitizeIdentifier(targetColumn);
         
         const vectorStr = formatVector(validated.queryVector);
         
@@ -150,7 +152,7 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
              return row;
           }
           return Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== validated.column)
+            Object.entries(row).filter(([key]) => key !== targetColumn)
           );
         });
 
@@ -209,7 +211,8 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
         await ensureVectorSupport(adapter);
 
         const table = sanitizeIdentifier(validated.table);
-        const vCol = sanitizeIdentifier(validated.vectorColumn);
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.vectorColumn);
+        const vCol = sanitizeIdentifier(targetColumn);
         const tCol = sanitizeIdentifier(validated.textColumn);
         
         const hasVector = (validated.queryVector?.length ?? 0) > 0;
@@ -279,7 +282,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
              return row;
           }
           return Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== validated.vectorColumn)
+            Object.entries(row).filter(([key]) => key !== targetColumn)
           );
         });
 

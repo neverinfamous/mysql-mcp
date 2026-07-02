@@ -19,7 +19,7 @@ import {
   VectorOptimizeOutputSchema,
   VectorStatsOutputSchema,
 } from "../../schemas/vector.js";
-import { ensureVectorSupport, ensureVectorIndexSupport, sanitizeIdentifier } from "./helpers.js";
+import { ensureVectorSupport, ensureVectorIndexSupport, sanitizeIdentifier, resolveVectorColumn } from "./helpers.js";
 
 export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -105,7 +105,8 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
         const validated = VectorCreateIndexSchema.parse(params);
 
         const table = sanitizeIdentifier(validated.table);
-        const column = sanitizeIdentifier(validated.column);
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        const column = sanitizeIdentifier(targetColumn);
         
         // Pre-check table existence to satisfy P154
         await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
@@ -222,7 +223,8 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const validated = VectorStatsSchema.parse(params);
 
         const table = sanitizeIdentifier(validated.table);
-        const column = sanitizeIdentifier(validated.column);
+        const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        const column = sanitizeIdentifier(targetColumn);
 
         // Pre-check table existence to satisfy P154
         await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
@@ -234,12 +236,12 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
           SELECT DATA_TYPE 
           FROM INFORMATION_SCHEMA.COLUMNS 
           WHERE TABLE_NAME = ? AND COLUMN_NAME = ?
-        `, [validated.table, validated.column]);
+        `, [validated.table, targetColumn]);
 
         if (!colCheck.rows || colCheck.rows.length === 0) {
           return withTokenEstimate({
             success: false,
-            error: `Column '${validated.column}' not found in table '${validated.table}'`,
+            error: `Column '${targetColumn}' not found in table '${validated.table}'`,
             code: "COLUMN_NOT_FOUND",
             category: ErrorCategory.RESOURCE,
             recoverable: false,
@@ -252,7 +254,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         if (dataType !== "vector") {
           return withTokenEstimate({
             success: false,
-            error: `Column '${validated.column}' is of type '${dataType}', not 'vector'`,
+            error: `Column '${targetColumn}' is of type '${dataType}', not 'vector'`,
             code: "VALIDATION_ERROR",
             category: ErrorCategory.VALIDATION,
             recoverable: false,
@@ -304,7 +306,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
             success: true,
             data: {
               table,
-              column,
+              column: targetColumn,
               totalRows: 0,
               stats: null
             }
@@ -318,7 +320,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
           success: true,
           data: {
             table,
-            column,
+            column: targetColumn,
             totalRows,
             stats: {
               nonNullCount: Number(typeof r['non_null_count'] === "number" || typeof r['non_null_count'] === "string" ? r['non_null_count'] : 0),

@@ -87,3 +87,30 @@ export function sanitizeIdentifier(id: string): string {
     .map((part) => part.replace(/`/g, ""))
     .join(".");
 }
+
+/**
+ * Resolves the vector column if it is omitted
+ */
+export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, providedColumn?: string): Promise<string> {
+  if (providedColumn) return providedColumn;
+
+  // Pre-check table existence
+  await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(table)}\` LIMIT 0`);
+
+  const infoQuery = `
+    SELECT COLUMN_NAME 
+    FROM INFORMATION_SCHEMA.COLUMNS 
+    WHERE TABLE_NAME = ? AND DATA_TYPE = 'vector' 
+    LIMIT 1
+  `;
+  const pkResult = await adapter.executeQuery(infoQuery, [table]);
+  if (!pkResult.rows || pkResult.rows.length === 0) {
+    throw new ValidationError(`No VECTOR column found in table '${table}'. Please specify the column parameter.`);
+  }
+  const firstRow = pkResult.rows[0];
+  const columnName = firstRow?.['COLUMN_NAME'];
+  if (typeof columnName !== 'string') {
+    throw new ValidationError(`No VECTOR column found in table '${table}'. Please specify the column parameter.`);
+  }
+  return columnName;
+}
