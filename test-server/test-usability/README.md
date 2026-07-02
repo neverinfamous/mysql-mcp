@@ -17,7 +17,7 @@ Because testing and healing all tools at once exhausts an agent's context window
 1. **Pick a test file** (e.g., `test-usability-core.md`).
 2. **Spawn a subagent** (or start a new thread) and feed them the file.
 3. **Local Validation**: The subagent will ONLY run fast static checks (`pnpm run lint && pnpm run typecheck`) whenever they apply a codebase fix. They should explicitly skip `pnpm run test` and `pnpm run test:e2e` to save time.
-4. **Commit**: The subagent commits the fix. Move on to the next test file.
+4. **Commit**: The subagent commits the fix. Kill the subagent before moving on to the next test file.
 5. **Final Testing & Sweep**: Once all tests complete, the Coordinator agent will run `pnpm run check` to validate the full test suite and fix any broken unit/E2E tests. Finally, a live verification run is conducted against a fresh, restarted server.
 
 ## Test Files Available
