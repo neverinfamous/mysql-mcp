@@ -343,7 +343,7 @@ export function createConditionalUpdateTool(
           success: true,
           data: {
             rowsAffected: result.rowsAffected,
-            currentVersion: expectedVersion + 1, // Predict next version since it updated
+            currentVersion: (expectedVersion ?? 0) + 1, // Predict next version since it updated
           },
         });
       } catch (error: unknown) {

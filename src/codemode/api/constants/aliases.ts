@@ -556,6 +556,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     removeVersioning: "disableVersioning",
     getVersion: "checkVersion",
     version: "checkVersion",
+    check: "checkVersion",
     condUpdate: "conditionalUpdate",
     updateConditionally: "conditionalUpdate",
     updateVersion: "conditionalUpdate",

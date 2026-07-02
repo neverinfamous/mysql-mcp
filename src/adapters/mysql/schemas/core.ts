@@ -6,6 +6,7 @@ import {
   preprocessCreateTableParams,
   preprocessConditionalUpdateParams,
   preprocessIndexParams,
+  preprocessCheckVersionParams,
 } from "./preprocess-utils.js";
 
 // =============================================================================
@@ -416,18 +417,22 @@ export const CheckVersionSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   idColumn: z.string().optional().describe("Primary key column name. Defaults to 'id' if not provided."),
-  rowId: z.union([z.string(), z.number()]).describe("Primary key value of the row"),
+  rowId: z.union([z.string(), z.number()]).optional().describe("Primary key value of the row"),
+  id: z.union([z.string(), z.number()]).optional().describe("Alias for rowId"),
 });
 
 export const CheckVersionSchema = z
-  .preprocess(preprocessTableParams, CheckVersionSchemaBase)
+  .preprocess(preprocessCheckVersionParams, CheckVersionSchemaBase)
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     idColumn: data.idColumn,
-    rowId: data.rowId,
+    rowId: data.rowId ?? data.id,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.rowId !== undefined, {
+    message: "rowId (or id alias) is required",
   });
 
 export const CheckVersionOutputSchema = BaseOutputSchema.extend({
@@ -449,7 +454,8 @@ export const ConditionalUpdateSchemaBase = z.object({
       value: z.unknown(),
     })
   ).describe("Conditions identifying the row (e.g. primary key). Anti-Hallucination Hint: Must be an array of objects (e.g. [{column: 'id', value: 1}]), not a string."),
-  expectedVersion: z.number().describe("The _version value currently expected. Update fails if this does not match."),
+  expectedVersion: z.number().optional().describe("The _version value currently expected. Update fails if this does not match."),
+  version: z.number().optional().describe("Alias for expectedVersion"),
 });
 
 export const ConditionalUpdateSchema = z
@@ -458,10 +464,13 @@ export const ConditionalUpdateSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     data: data.data,
     conditions: data.conditions,
-    expectedVersion: data.expectedVersion,
+    expectedVersion: data.expectedVersion ?? data.version,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
+  })
+  .refine((data) => data.expectedVersion !== undefined, {
+    message: "expectedVersion (or version alias) is required",
   });
 
 export const ConditionalUpdateOutputSchema = BaseOutputSchema.extend({

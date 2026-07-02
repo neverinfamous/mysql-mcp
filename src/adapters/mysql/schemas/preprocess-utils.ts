@@ -71,6 +71,21 @@ export function preprocessTableParams(input: unknown): unknown {
 }
 
 /**
+ * Preprocess check version parameters:
+ * - Alias: id -> rowId
+ */
+export function preprocessCheckVersionParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+  
+  if (result["rowId"] === undefined && result["id"] !== undefined) {
+    result["rowId"] = result["id"];
+  }
+  
+  return result;
+}
+
+/**
  * Preprocess index parameters:
  * - Alias: column -> columns
  * - Coerce string to array
@@ -127,6 +142,10 @@ export function preprocessConditionalUpdateParams(input: unknown): unknown {
   if (rawConditions.length > 0) {
     // Flatten in case normalizeConditionItem returned an array
     result["conditions"] = rawConditions.flatMap(normalizeConditionItem);
+  }
+
+  if (result["expectedVersion"] === undefined && result["version"] !== undefined) {
+    result["expectedVersion"] = result["version"];
   }
 
   return result;
