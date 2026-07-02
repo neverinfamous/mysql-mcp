@@ -122,6 +122,8 @@ export const EventListSchemaBase = z.object({
   database: z.string().optional().describe("Alias for schema"),
   pattern: z.string().optional().describe("Pattern to filter event names by (LIKE). Note: Can also use name."),
   name: z.string().optional().describe("Alias for pattern"),
+  eventName: z.string().optional().describe("Alias for pattern"),
+  event: z.string().optional().describe("Alias for pattern"),
   includeDisabled: z
     .boolean()
     .optional()
@@ -134,10 +136,12 @@ export const EventListSchema = z.object({
   database: z.string().optional(),
   pattern: z.string().optional(),
   name: z.string().optional(),
+  eventName: z.string().optional(),
+  event: z.string().optional(),
   includeDisabled: z.boolean().default(true),
 }).transform(data => ({
   schema: data.schema ?? data.database,
-  pattern: data.pattern ?? data.name,
+  pattern: data.pattern ?? data.name ?? data.eventName ?? data.event,
   includeDisabled: data.includeDisabled,
 }));
 

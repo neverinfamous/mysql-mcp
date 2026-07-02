@@ -164,7 +164,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   eventCreate: ["name", "schedule", "body"],
   eventAlter: ["name", "schedule", "body"],
   eventDrop: "name",
-  eventList: "schema",
+  eventList: "pattern",
   eventStatus: "name",
 
   // ============ STATS GROUP ============

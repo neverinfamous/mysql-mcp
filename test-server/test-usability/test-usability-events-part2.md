@@ -19,6 +19,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `e
 - Test aliases: See if intuitively named methods work (e.g. `mysql.events.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
+- Test schema filtering defaults: ensure that if an agent passes `{ eventName: "test" }` to a list tool, it isn't silently stripped (which would return an unfiltered list and trigger a hallucination).
 
 ## 2. Heal Phase
 
