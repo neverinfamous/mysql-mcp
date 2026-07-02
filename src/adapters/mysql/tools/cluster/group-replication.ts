@@ -18,6 +18,7 @@ import {
 } from "../core/error-helpers.js";
 import {
   MemberSchema,
+  MemberSchemaBase,
   GRStatusOutputSchema,
   GRMembersOutputSchema,
   GRPrimaryOutputSchema,
@@ -135,7 +136,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all Group Replication members with detailed state information.",
     group: "cluster",
-    inputSchema: MemberSchema,
+    inputSchema: MemberSchemaBase,
     outputSchema: GRMembersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
