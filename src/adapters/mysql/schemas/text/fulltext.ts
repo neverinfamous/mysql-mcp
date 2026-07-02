@@ -8,20 +8,20 @@ import {
 function preprocessFulltextParams(val: unknown): unknown {
   const v1 = preprocessTableParams(val);
   const v2 = preprocessQueryOnlyParams(v1);
-  if (v2 && typeof v2 === "object") {
+  if (v2 !== null && typeof v2 === "object") {
     const v = v2 as Record<string, unknown>;
     // Agents often pass fulltextSearch(table, query, columns) resulting in:
     // columns = query (string), query = columns (array)
-    if (typeof v.columns === "string" && Array.isArray(v.query)) {
-      const temp = v.columns;
-      v.columns = v.query;
-      v.query = temp;
+    if (typeof v["columns"] === "string" && Array.isArray(v["query"])) {
+      const temp = v["columns"];
+      v["columns"] = v["query"];
+      v["query"] = temp;
     }
     // Also if they alias 'query' as 'sql', let's check sql too
-    if (typeof v.columns === "string" && Array.isArray(v.sql)) {
-      const temp = v.columns;
-      v.columns = v.sql;
-      v.sql = temp;
+    if (typeof v["columns"] === "string" && Array.isArray(v["sql"])) {
+      const temp = v["columns"];
+      v["columns"] = v["sql"];
+      v["sql"] = temp;
     }
   }
   return v2;
