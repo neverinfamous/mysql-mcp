@@ -495,6 +495,10 @@ export function preprocessDocFilterParams(val: unknown): unknown {
       result["filter"] = typeof result["sql"] === "object" && result["sql"] !== null
           ? JSON.stringify(result["sql"])
           : result["sql"];
+    } else if (result["where"] !== undefined) {
+      result["filter"] = typeof result["where"] === "object" && result["where"] !== null
+          ? JSON.stringify(result["where"])
+          : result["where"];
     }
   }
   if (result["set"] === undefined) {
@@ -526,6 +530,7 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   delete result["update"];
   delete result["query"];
   delete result["sql"];
+  delete result["where"];
 
   return result;
 }
