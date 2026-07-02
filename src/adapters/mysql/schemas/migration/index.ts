@@ -24,6 +24,8 @@ export const MigrationRecordSchemaBase = z.object({
     .string()
     .optional()
     .describe("Version identifier (e.g., '1.0.0', '2024-01-15-add-users')"),
+  migrationName: z.string().optional().describe("Alias for version"),
+  migration: z.string().optional().describe("Alias for version"),
   description: z
     .string()
     .optional()
@@ -82,6 +84,11 @@ export const MigrationRecordSchema = z.preprocess((input: unknown) => {
     if (out["migrationSql"] === undefined) {
       if (out["sql"] !== undefined) out["migrationSql"] = out["sql"];
       else if (out["query"] !== undefined) out["migrationSql"] = out["query"];
+    }
+    if (out["version"] === undefined) {
+      if (out["migrationName"] !== undefined) out["version"] = out["migrationName"];
+      else if (out["migration"] !== undefined) out["version"] = out["migration"];
+      else if (out["name"] !== undefined) out["version"] = out["name"];
     }
     if (out["description"] === undefined && out["name"] !== undefined) {
       out["description"] = out["name"];

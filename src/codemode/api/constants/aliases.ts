@@ -315,6 +315,17 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     revoke: "roleRevoke",
     grants: "roleGrants",
   },
+  // Migration: shorter aliases
+  migration: {
+    init: "migrationInit",
+    record: "migrationRecord",
+    apply: "migrationApply",
+    rollback: "migrationRollback",
+    history: "migrationHistory",
+    status: "migrationStatus",
+    get: "migrationHistory",
+    info: "migrationStatus",
+  },
   // DocStore: shorter aliases
   docstore: {
     add: "docAdd",
