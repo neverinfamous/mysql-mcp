@@ -428,6 +428,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   // Security: intuitive aliases
   security: {
     ssl: "sslStatus",
+    getSslStatus: "sslStatus",
+    getSsl: "sslStatus",
     encryption: "encryptionStatus",
     getEncryptionStatus: "encryptionStatus",
     firewall: "firewallStatus",
@@ -436,6 +438,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getPrivileges: "userPrivileges",
     userPrivs: "userPrivileges",
     password: "passwordValidate",
+    validatePassword: "passwordValidate",
+    checkPassword: "passwordValidate",
     mask: "maskData",
     sensitive: "sensitiveTables",
     getSensitiveTables: "sensitiveTables",

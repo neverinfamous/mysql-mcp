@@ -33,6 +33,8 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 const MaskDataSchemaBase = z.object({
   value: z.string().describe("Value to mask"),
   data: z.string().optional().describe("Alias for value"),
+  text: z.string().optional().describe("Alias for value"),
+  input: z.string().optional().describe("Alias for value"),
   type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]).describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
   keepFirst: z.number().optional().describe("Characters to keep from start"),
   keepLast: z.number().optional().describe("Characters to keep from end"),
@@ -43,8 +45,10 @@ const MaskDataSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
     const obj = val as Record<string, unknown>;
-    if (!("value" in obj) && "data" in obj) {
-      return { ...obj, value: obj["data"] };
+    if (!("value" in obj)) {
+      if ("data" in obj) return { ...obj, value: obj["data"] };
+      if ("text" in obj) return { ...obj, value: obj["text"] };
+      if ("input" in obj) return { ...obj, value: obj["input"] };
     }
     return val;
   },
@@ -99,6 +103,8 @@ const SensitiveTablesSchemaBase = z.object({
     .describe("Schema to scan (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
+  table: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  tableName: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
   patterns: z
     .array(z.string())
     .optional()
@@ -121,6 +127,10 @@ const SensitiveTablesSchema = z
           return { ...obj, schema: obj["database"] };
         } else if ("db" in obj) {
           return { ...obj, schema: obj["db"] };
+        } else if ("table" in obj) {
+          return { ...obj, schema: obj["table"] };
+        } else if ("tableName" in obj) {
+          return { ...obj, schema: obj["tableName"] };
         }
       }
       return val;

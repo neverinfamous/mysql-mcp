@@ -31,10 +31,20 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const PasswordValidateSchemaBase = z.object({
   password: z.string().optional().describe("Password to validate"),
+  pass: z.string().optional().describe("Alias for password"),
+  pwd: z.string().optional().describe("Alias for password"),
 });
 
 const PasswordValidateSchema = z.preprocess(
-  (val: unknown) => val,
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const obj = val as Record<string, unknown>;
+    if (!("password" in obj)) {
+      if ("pass" in obj) return { ...obj, password: obj["pass"] };
+      if ("pwd" in obj) return { ...obj, password: obj["pwd"] };
+    }
+    return val;
+  },
   z.object({
     password: z.string().min(1, "Password cannot be empty"),
   })
