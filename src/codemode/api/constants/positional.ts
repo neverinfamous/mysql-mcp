@@ -139,6 +139,13 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   auditRestoreBackup: "filename",
   auditDiffBackup: "filename",
 
+  // ============ EVENTS GROUP ============
+  eventCreate: ["name", "schedule", "body"],
+  eventAlter: ["name", "schedule", "body"],
+  eventDrop: "name",
+  eventList: "schema",
+  eventStatus: "name",
+
   // ============ STATS GROUP ============
   descriptive: ["table", "column"],
   percentiles: ["table", "column", "percentiles"],

@@ -6,10 +6,12 @@ import { BaseOutputSchema } from "./output-schemas.js";
 // =============================================================================
 
 export const EventCreateSchemaBase = z.object({
-  name: z.string().optional().describe("Event name"),
+  name: z.string().optional().describe("Event name. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
   schedule: z.string().optional().describe("Event schedule string (e.g., 'EVERY 1 DAY')"),
-  body: z.string().optional().describe("SQL statement(s) to execute"),
+  body: z.string().optional().describe("SQL statement(s) to execute. Note: Can also use sql or query."),
+  sql: z.string().optional().describe("Alias for body"),
+  query: z.string().optional().describe("Alias for body"),
   onCompletion: z
     .string()
     .optional()
@@ -29,6 +31,8 @@ export const EventCreateSchema = z.object({
   eventName: z.string().optional(),
   schedule: z.string().optional(),
   body: z.string().optional(),
+  sql: z.string().optional(),
+  query: z.string().optional(),
   onCompletion: z.string().default("NOT PRESERVE"),
   status: z.enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"]).default("ENABLE"),
   comment: z.string().optional(),
@@ -36,7 +40,7 @@ export const EventCreateSchema = z.object({
 }).transform(data => ({
   name: data.name ?? data.eventName ?? "",
   schedule: data.schedule ?? "",
-  body: data.body ?? "",
+  body: data.body ?? data.sql ?? data.query ?? "",
   onCompletion: data.onCompletion,
   status: data.status,
   comment: data.comment,
@@ -47,11 +51,13 @@ export const EventCreateSchema = z.object({
 
 
 export const EventAlterSchemaBase = z.object({
-  name: z.string().optional().describe("Event name"),
+  name: z.string().optional().describe("Event name. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
   newName: z.string().optional().describe("New event name (for rename)"),
   schedule: z.string().optional().describe("New schedule configuration"),
-  body: z.string().optional().describe("New SQL statement(s)"),
+  body: z.string().optional().describe("New SQL statement(s). Note: Can also use sql or query."),
+  sql: z.string().optional().describe("Alias for body"),
+  query: z.string().optional().describe("Alias for body"),
   onCompletion: z.string().optional(),
   status: z
     .enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"])
@@ -66,6 +72,8 @@ export const EventAlterSchema = z.object({
   newName: z.string().optional(),
   schedule: z.string().optional(),
   body: z.string().optional(),
+  sql: z.string().optional(),
+  query: z.string().optional(),
   onCompletion: z.string().optional(),
   status: z.enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"]).optional(),
   comment: z.string().optional(),
@@ -73,7 +81,7 @@ export const EventAlterSchema = z.object({
   name: data.name ?? data.eventName ?? "",
   newName: data.newName,
   schedule: data.schedule,
-  body: data.body,
+  body: data.body ?? data.sql ?? data.query,
   onCompletion: data.onCompletion,
   status: data.status,
   comment: data.comment,
@@ -81,7 +89,7 @@ export const EventAlterSchema = z.object({
 
 
 export const EventDropSchemaBase = z.object({
-  name: z.string().optional().describe("Event name to drop"),
+  name: z.string().optional().describe("Event name to drop. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().optional().default(false).describe("Add IF EXISTS clause"),
 });
