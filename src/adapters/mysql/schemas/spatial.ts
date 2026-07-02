@@ -126,6 +126,8 @@ export const PolygonSchemaBase = z.object({
     ),
   points: z.unknown().optional(),
   coords: z.unknown().optional(),
+  polygon: z.unknown().optional().describe("Polygon WKT"),
+  wkt: z.unknown().optional(),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
