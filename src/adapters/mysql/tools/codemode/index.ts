@@ -37,6 +37,8 @@ export const ExecuteCodeSchemaBase = z.object({
   javascript: z.string().optional().describe("Alias for code"),
   js: z.string().optional().describe("Alias for code"),
   command: z.string().optional().describe("Alias for code"),
+  execute: z.string().optional().describe("Alias for code"),
+  eval: z.string().optional().describe("Alias for code"),
   timeout: z
     .number()
     .optional()

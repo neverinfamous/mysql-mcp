@@ -42,6 +42,8 @@ export function preprocessExecuteCodeParams(input: unknown): unknown {
     else if (result["javascript"] !== undefined) result["code"] = result["javascript"];
     else if (result["js"] !== undefined) result["code"] = result["js"];
     else if (result["command"] !== undefined) result["code"] = result["command"];
+    else if (result["execute"] !== undefined) result["code"] = result["execute"];
+    else if (result["eval"] !== undefined) result["code"] = result["eval"];
   }
   return result;
 }
