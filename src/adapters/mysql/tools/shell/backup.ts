@@ -335,7 +335,7 @@ export function createShellDumpTablesTool(
         if (dryRun) {
           options.push("dryRun: true");
         }
-        if (where && Object.keys(where).length > 0) {
+        if (where !== undefined && Object.keys(where).length > 0) {
           const whereEntries = Object.entries(where)
             .map(
               ([tbl, cond]) => `"${escapeForJS(tbl)}": "${escapeForJS(cond)}"`,

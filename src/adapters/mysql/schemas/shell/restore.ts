@@ -36,7 +36,9 @@ export const ShellLoadDumpInputSchemaBase = z
       .array(z.string())
       .optional()
       .describe("Tables to include (schema.table format)"),
+    includeTable: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for includeTables"),
     excludeTables: z.array(z.string()).optional().describe("Tables to exclude"),
+    excludeTable: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for excludeTables"),
     ignoreExistingObjects: booleanCoerce
       .optional()
       .default(false)
@@ -61,10 +63,27 @@ export const ShellLoadDumpInputSchemaBase = z
 export const ShellLoadDumpInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { inputDir?: unknown; inputUrl?: unknown; dumpDir?: unknown; url?: unknown; path?: unknown; file?: unknown };
+    const obj = val as { inputDir?: unknown; inputUrl?: unknown; dumpDir?: unknown; url?: unknown; path?: unknown; file?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
+    
+    const rawIncludeTables = obj.includeTables ?? obj.includeTable;
+    const includeTablesArray = Array.isArray(rawIncludeTables) 
+      ? rawIncludeTables.map(String) 
+      : typeof rawIncludeTables === "string" 
+        ? [rawIncludeTables] 
+        : undefined;
+
+    const rawExcludeTables = obj.excludeTables ?? obj.excludeTable;
+    const excludeTablesArray = Array.isArray(rawExcludeTables) 
+      ? rawExcludeTables.map(String) 
+      : typeof rawExcludeTables === "string" 
+        ? [rawExcludeTables] 
+        : undefined;
+
     return {
       ...obj,
       inputDir: obj.inputDir ?? obj.inputUrl ?? obj.dumpDir ?? obj.url ?? obj.path ?? obj.file,
+      includeTables: includeTablesArray,
+      excludeTables: excludeTablesArray,
     };
   },
   ShellLoadDumpInputSchemaBase

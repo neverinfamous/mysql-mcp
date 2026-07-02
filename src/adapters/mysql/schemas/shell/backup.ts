@@ -91,10 +91,12 @@ export const ShellDumpSchemasInputSchemaBase = z
       .array(z.string())
       .optional()
       .describe("Tables to include (schema.table format)"),
+    includeTable: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for includeTables"),
     excludeTables: z
       .array(z.string())
       .optional()
       .describe("Tables to exclude (schema.table format)"),
+    excludeTable: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for excludeTables"),
     ddlOnly: booleanCoerce
       .optional()
       .default(false)
@@ -107,17 +109,34 @@ export const ShellDumpSchemasInputSchemaBase = z
 export const ShellDumpSchemasInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schemas?: unknown; schema?: unknown; schemaNames?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    const obj = val as { schemas?: unknown; schema?: unknown; schemaNames?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
     const rawSchemas = obj.schemas ?? obj.schema ?? obj.schemaNames ?? obj.name;
     const schemasArray = Array.isArray(rawSchemas) 
       ? rawSchemas.map(String) 
       : typeof rawSchemas === "string" 
         ? [rawSchemas] 
         : undefined;
+
+    const rawIncludeTables = obj.includeTables ?? obj.includeTable;
+    const includeTablesArray = Array.isArray(rawIncludeTables) 
+      ? rawIncludeTables.map(String) 
+      : typeof rawIncludeTables === "string" 
+        ? [rawIncludeTables] 
+        : undefined;
+
+    const rawExcludeTables = obj.excludeTables ?? obj.excludeTable;
+    const excludeTablesArray = Array.isArray(rawExcludeTables) 
+      ? rawExcludeTables.map(String) 
+      : typeof rawExcludeTables === "string" 
+        ? [rawExcludeTables] 
+        : undefined;
+
     return {
       ...obj,
       schemas: schemasArray,
       outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
+      includeTables: includeTablesArray,
+      excludeTables: excludeTablesArray,
     };
   },
   ShellDumpSchemasInputSchemaBase
@@ -173,13 +192,23 @@ export const ShellDumpTablesInputSchemaBase = z
 export const ShellDumpTablesInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; schemaName?: unknown; tables?: unknown; tableNames?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown };
+    const obj = val as { schema?: unknown; schemaName?: unknown; tables?: unknown; tableNames?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; where?: unknown };
     const rawTables = obj.tables ?? obj.tableNames ?? obj.table ?? obj.tableName ?? obj.name;
     const tablesArray = Array.isArray(rawTables) 
       ? rawTables.map(String) 
       : typeof rawTables === "string" 
         ? [rawTables] 
         : undefined;
+    
+    let whereClause = obj.where;
+    if (typeof whereClause === "string" && tablesArray !== undefined && tablesArray.length > 0) {
+      const newWhere: Record<string, unknown> = {};
+      for (const t of tablesArray) {
+        newWhere[t] = whereClause;
+      }
+      whereClause = newWhere;
+    }
+
     return {
       ...obj,
       schema:
@@ -194,6 +223,7 @@ export const ShellDumpTablesInputSchema = z.preprocess(
                 : "",
       tables: tablesArray,
       outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
+      where: whereClause,
     };
   },
   ShellDumpTablesInputSchemaBase
