@@ -29,7 +29,7 @@ export const JsonExtractSchema = z
       path: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.number().optional(),
+      limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
@@ -127,7 +127,7 @@ export const JsonKeysSchema = z
       path: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.number().optional(),
+      limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({

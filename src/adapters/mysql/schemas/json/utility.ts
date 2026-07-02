@@ -24,7 +24,7 @@ export const JsonNormalizeSchema = z
       col: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.number().default(100),
+      limit: z.coerce.number().default(100),
     }),
   )
   .transform((data) => ({
@@ -63,7 +63,7 @@ export const JsonStatsSchema = z
       col: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      sampleSize: z.number().default(1000),
+      sampleSize: z.coerce.number().default(1000),
     }),
   )
   .transform((data) => ({
@@ -98,7 +98,7 @@ export const JsonIndexSuggestSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      sampleSize: z.number().default(100),
+      sampleSize: z.coerce.number().default(100),
     }),
   )
   .transform((data) => ({
