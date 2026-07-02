@@ -55,8 +55,17 @@ export function createSpatialDistanceTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, spatialColumn, point, maxDistance, limit, srid } =
+        const { table, spatialColumn, point, geometry1, geometry2, maxDistance, limit, srid } =
           DistanceSchema.parse(params);
+
+        if (!table) {
+          const query = `SELECT ROUND(ST_Distance(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance`;
+          const result = await adapter.executeQuery(query, [geometry1, geometry2]);
+          return withTokenEstimate({
+            success: true,
+            data: { distance: Number(result.rows?.[0]?.["distance"]) }
+          });
+        }
 
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
@@ -128,8 +137,17 @@ export function createSpatialDistanceSphereTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, spatialColumn, point, maxDistance, limit, srid } =
+        const { table, spatialColumn, point, geometry1, geometry2, maxDistance, limit, srid } =
           DistanceSchema.parse(params);
+
+        if (!table) {
+          const query = `SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters`;
+          const result = await adapter.executeQuery(query, [geometry1, geometry2]);
+          return withTokenEstimate({
+            success: true,
+            data: { distance: Number(result.rows?.[0]?.["distance_meters"]), unit: "meters" }
+          });
+        }
 
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");

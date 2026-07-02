@@ -113,18 +113,27 @@ export function createSpatialPolygonTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { coordinates, srid } = PolygonSchema.parse(params);
+        const { coordinates, polygon, srid } = PolygonSchema.parse(params);
 
-        // Build WKT polygon
-        const rings = coordinates.map(
-          (ring) =>
-            "(" +
-            ring
-              .map(([lon, lat]) => `${String(lon)} ${String(lat)}`)
-              .join(", ") +
-            ")",
-        );
-        const wkt = `POLYGON(${rings.join(", ")})`;
+        let wkt: string;
+        if (polygon) {
+          wkt = polygon;
+        } else if (coordinates) {
+          // Build WKT polygon
+          const rings = coordinates.map(
+            (ring) =>
+              "(" +
+              ring
+                .map(([lon, lat]) => `${String(lon)} ${String(lat)}`)
+                .join(", ") +
+              ")",
+          );
+          wkt = `POLYGON(${rings.join(", ")})`;
+        } else {
+          return withTokenEstimate({
+            success: false, error: "Either coordinates or polygon WKT must be provided", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
+          });
+        }
 
         const result = await adapter.executeQuery(
           `SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,

@@ -133,16 +133,39 @@ export const PolygonSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
     const data = val as Record<string, unknown>;
+    
+    const poly = data["polygon"] ?? data["wkt"];
+    let coords = data["coordinates"] ?? data["coords"] ?? data["points"];
+
+    // If coordinates were passed to the first positional argument "table" due to positional.ts mapping
+    if (typeof data["table"] === "string" && data["table"].toUpperCase().includes("POLYGON")) {
+        coords = data["table"];
+    } else if (Array.isArray(data["table"])) {
+        coords = data["table"];
+    }
+
     return {
       ...data,
-      coordinates: data["coordinates"] ?? data["coords"] ?? data["points"],
+      coordinates: coords,
+      polygon: poly,
     };
   },
   z.object({
-    coordinates: z.array(z.array(z.array(z.number()).min(2).max(2))),
+    coordinates: z.union([z.array(z.array(z.array(z.number()).min(2).max(2))), z.string()]).optional(),
+    polygon: z.string().optional(),
     srid: z.unknown().optional().transform((v) => (v !== undefined ? Number(v) : 4326)),
   })
-);
+).transform(data => {
+  let polygonWkt = data.polygon;
+  let coords = data.coordinates;
+  
+  if (!polygonWkt && typeof coords === "string") {
+      polygonWkt = coords;
+      coords = undefined;
+  }
+  
+  return { ...data, coordinates: Array.isArray(coords) ? coords : undefined, polygon: polygonWkt };
+}).refine(data => data.coordinates ?? data.polygon, { message: "Either coordinates or polygon WKT must be provided" });
 
 export const DistanceSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
@@ -167,38 +190,69 @@ export const DistanceSchemaBase = z.object({
 
 export const DistanceSchema = z
   .object({
-    table: z.string().optional(),
+    table: z.unknown().optional(),
     tableName: z.string().optional(),
     name: z.string().optional(),
     spatialColumn: z.string().optional(),
     geometryColumn: z.string().optional(),
     column: z.string().optional(),
-    point: z.object({
-      longitude: z.unknown().optional(),
-      latitude: z.unknown().optional(),
-    }).optional(),
+    point: z.unknown().optional(),
+    point1: z.unknown().optional(),
+    point2: z.unknown().optional(),
+    geometry1: z.unknown().optional(),
+    geometry2: z.unknown().optional(),
     longitude: z.unknown().optional(),
     latitude: z.unknown().optional(),
     maxDistance: z.unknown().optional(),
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
   })
-  .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
-    spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? "",
-    point: {
-      longitude: Number(data.point?.longitude ?? data.longitude),
-      latitude: Number(data.point?.latitude ?? data.latitude),
-    },
-    maxDistance:
-      data.maxDistance !== undefined ? Number(data.maxDistance) : undefined,
-    limit: data.limit !== undefined ? Number(data.limit) : 20,
-    srid: data.srid !== undefined ? Number(data.srid) : 4326,
-  }))
+  .transform((data) => {
+    let table = typeof data.table === "string" ? data.table : data.tableName ?? data.name ?? "";
+    const spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? "";
+    
+    let pt1 = typeof data.point1 === "string" ? data.point1 : typeof data.geometry1 === "string" ? data.geometry1 : "";
+    let pt2 = typeof data.point2 === "string" ? data.point2 : typeof data.geometry2 === "string" ? data.geometry2 : "";
+    const pointStr = typeof data.point === "string" ? data.point : null;
+
+    // Heal positional parameters where agents put geometries in `table` and `spatialColumn` 
+    // e.g. distance("POINT(1 2)", "POINT(3 4)") -> table: "POINT(1 2)", spatialColumn: "POINT(3 4)"
+    if (table.toUpperCase().includes("POINT") || table.toUpperCase().includes("POLYGON")) {
+        pt1 = table;
+        pt2 = pointStr ?? spatialColumn;
+        table = "";
+    }
+
+    let longitude = Number((data.point as Record<string, unknown>)?.["longitude"] ?? data.longitude);
+    let latitude = Number((data.point as Record<string, unknown>)?.["latitude"] ?? data.latitude);
+
+    if (pointStr && Number.isNaN(longitude)) {
+        const match = /POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*\)/i.exec(pointStr);
+        if (match) {
+           longitude = Number(match[1]);
+           latitude = Number(match[2]);
+        }
+    }
+
+    return {
+      table,
+      spatialColumn,
+      point: { longitude, latitude },
+      geometry1: pt1,
+      geometry2: pt2,
+      maxDistance: data.maxDistance !== undefined ? Number(data.maxDistance) : undefined,
+      limit: data.limit !== undefined ? Number(data.limit) : 20,
+      srid: data.srid !== undefined ? Number(data.srid) : 4326,
+    };
+  })
   .refine(
-    (data) =>
-      !Number.isNaN(data.point.longitude) && !Number.isNaN(data.point.latitude),
-    { message: "point.longitude and point.latitude must be valid numbers" },
+    (data) => {
+      if (data.table) {
+        return !Number.isNaN(data.point.longitude) && !Number.isNaN(data.point.latitude);
+      }
+      return data.geometry1 !== "" && data.geometry2 !== "";
+    },
+    { message: "If table is provided, point.longitude and point.latitude must be valid numbers. Otherwise, point1 and point2 (or geometry1 and geometry2) must be provided." },
   )
   .refine(
     (data) => data.maxDistance === undefined || !Number.isNaN(data.maxDistance),
@@ -516,12 +570,13 @@ export const SpatialGeoJSONOutputSchema = BaseOutputSchema.extend({
 
 export const SpatialQueryResultOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    results: z.array(z.record(z.string(), z.unknown())),
+    results: z.array(z.record(z.string(), z.unknown())).optional(),
     count: z.number().optional(),
     referencePoint: z.object({
       longitude: z.number().optional(),
       latitude: z.number().optional(),
     }).loose().optional(),
     unit: z.string().optional(),
+    distance: z.number().optional(),
   }).loose().optional(),
 });

@@ -397,6 +397,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     create: "createColumn",
     dist: "distance",
     distSphere: "distanceSphere",
+    distance_sphere: "distanceSphere",
 
     pointInPolygon: "contains",
     getPoint: "point",
