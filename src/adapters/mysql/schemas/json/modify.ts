@@ -32,6 +32,9 @@ export const JsonSetSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       condition: z.string().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -88,6 +91,9 @@ export const JsonInsertSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       condition: z.string().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -144,6 +150,9 @@ export const JsonReplaceSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       condition: z.string().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -200,6 +209,9 @@ export const JsonRemoveSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       condition: z.string().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -253,6 +265,9 @@ export const JsonArrayAppendSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       condition: z.string().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -311,6 +326,9 @@ export const JsonUpdateSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       condition: z.string().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({

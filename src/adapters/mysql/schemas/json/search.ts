@@ -14,6 +14,10 @@ export const JsonContainsSchemaBase = z.object({
   where: z.string().optional().describe("Optional WHERE clause"),
   filter: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  columnName: z.string().optional().describe("Alias for column"),
 });
 
 export const JsonContainsSchema = z
@@ -31,6 +35,10 @@ export const JsonContainsSchema = z
       where: z.string().optional(),
       filter: z.string().optional(),
       limit: z.number().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      condition: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({
@@ -66,6 +74,10 @@ export const JsonSearchSchemaBase = z.object({
     .default("one")
     .describe("Search mode"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  columnName: z.string().optional().describe("Alias for column"),
 });
 
 export const JsonSearchSchema = z
@@ -80,6 +92,10 @@ export const JsonSearchSchema = z
       searchValue: z.unknown().optional(),
       mode: z.enum(["one", "all"]).optional().default("one"),
       limit: z.number().optional(),
+      sql: z.string().optional(),
+      query: z.string().optional(),
+      condition: z.string().optional(),
+      columnName: z.string().optional(),
     }),
   )
   .transform((data) => ({
