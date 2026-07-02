@@ -10,6 +10,7 @@ export const ShellImportTableInputSchemaBase = z
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     path: z.string().optional().describe("Alias for inputPath"),
     file: z.string().optional().describe("Alias for inputPath"),
+    filepath: z.string().optional().describe("Alias for inputPath"),
     url: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
     table: z.string().optional().describe("Target table name"),
@@ -54,7 +55,7 @@ export const ShellImportTableInputSchemaBase = z
 export const ShellImportTableInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
     const rawTable = obj.table ?? obj.tableName ?? obj.name;
     return {
       ...obj,
@@ -66,7 +67,7 @@ export const ShellImportTableInputSchema = z.preprocess(
         typeof rawTable === "number" || typeof rawTable === "boolean"
           ? String(rawTable)
           : rawTable,
-      inputPath: obj.inputPath ?? obj.inputUrl ?? obj.path ?? obj.file ?? obj.url,
+      inputPath: obj.inputPath ?? obj.inputUrl ?? obj.path ?? obj.file ?? obj.filepath ?? obj.url,
     };
   },
   ShellImportTableInputSchemaBase
@@ -79,6 +80,7 @@ export const ShellImportJSONInputSchemaBase = z
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     path: z.string().optional().describe("Alias for inputPath"),
     file: z.string().optional().describe("Alias for inputPath"),
+    filepath: z.string().optional().describe("Alias for inputPath"),
     url: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
     collection: z
@@ -102,7 +104,7 @@ export const ShellImportJSONInputSchemaBase = z
 export const ShellImportJSONInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; collection?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; collection?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
     const rawCollection = obj.collection ?? obj.table ?? obj.tableName ?? obj.name;
     return {
       ...obj,
@@ -114,7 +116,7 @@ export const ShellImportJSONInputSchema = z.preprocess(
         typeof rawCollection === "number" || typeof rawCollection === "boolean"
           ? String(rawCollection)
           : rawCollection,
-      inputPath: obj.inputPath ?? obj.inputUrl ?? obj.path ?? obj.file ?? obj.url,
+      inputPath: obj.inputPath ?? obj.inputUrl ?? obj.path ?? obj.file ?? obj.filepath ?? obj.url,
     };
   },
   ShellImportJSONInputSchemaBase

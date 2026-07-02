@@ -132,7 +132,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 
   // ============ BACKUP GROUP ============
   createDump: "database",
-  exportTable: "table",
+  exportTable: ["table", "outputPath"],
   importData: ["table", "data"],
   restoreDump: ["filename", "database"],
   auditListBackups: "target",

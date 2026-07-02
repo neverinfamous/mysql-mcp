@@ -404,6 +404,9 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     load: "loadDump",
     export: "exportTable",
     import: "importTable",
+    get: "version",
+    info: "version",
+    status: "version",
   },
   // Introspection: shorter aliases
   introspection: {
