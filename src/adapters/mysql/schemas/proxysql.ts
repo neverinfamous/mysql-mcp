@@ -171,10 +171,21 @@ export const ProxySQLUsersInputSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "string") return { username: val };
     if (typeof val !== "object" || val === null) return val ?? {};
-    return val;
+    const result = { ...(val as Record<string, unknown>) };
+    
+    // Anti-Hallucination: map 'user' or 'name' to 'username'
+    if (result["username"] === undefined) {
+      if (result["user"] !== undefined) {
+        result["username"] = result["user"];
+      } else if (result["name"] !== undefined) {
+        result["username"] = result["name"];
+      }
+    }
+    
+    return result;
   },
   z.object({
-    username: z.string().optional().describe("Filter by username"),
+    username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
   })
 );
 
@@ -304,6 +315,14 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
+    
+    // Anti-Hallucination: map 'pattern', 'search', or 'name' to 'like'
+    if (result["like"] === undefined) {
+      if (result["pattern"] !== undefined) result["like"] = result["pattern"];
+      else if (result["search"] !== undefined) result["like"] = result["search"];
+      else if (result["name"] !== undefined) result["like"] = result["name"];
+    }
+
     const limit = result["limit"];
     if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
       result["limit"] = Number(limit);
