@@ -241,6 +241,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     password: "passwordValidate",
     mask: "maskData",
     sensitive: "sensitiveTables",
+    auditLog: "audit",
+    get: "audit",
   },
   // Cluster: intuitive aliases
   cluster: {

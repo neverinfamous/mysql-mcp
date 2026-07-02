@@ -9,6 +9,7 @@ Tools: `mysql_security_audit`, `mysql_security_firewall_status`, `mysql_security
 - **Sensitive tables**: `mysql_security_sensitive_tables` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use `schema` parameter to limit scope. Returns `{ exists: false, schema }` for nonexistent schemas (P154).
 - **Enterprise features**: `mysql_security_firewall_status` and `mysql_security_firewall_rules` report availability and suggest installation for MySQL Enterprise Edition.
 - **Audit fallback**: `mysql_security_audit` falls back to `performance_schema.events_statements_history` when Enterprise Audit is unavailable. In fallback mode, `startTime` is ignored (picosecond counters incompatible with ISO timestamps — noted in `filtersIgnored`). `eventType` uses LIKE matching against `EVENT_NAME` (e.g., `"Execute"`, `"Ping"`). Default limit is 5.
+- **Anti-Hallucination**: For `mysql_security_audit` and `mysql_security_firewall_rules`, use the `user` parameter to filter by user (do not use `username`).
 
 ### Example: Data Masking
 ```json

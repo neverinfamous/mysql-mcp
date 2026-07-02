@@ -43,7 +43,15 @@ const AuditLogSchemaBase = z.object({
 });
 
 const AuditLogSchema = z.preprocess(
-  (val: unknown) => val,
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const v = val as Record<string, unknown>;
+      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
+      if (v["event"] !== undefined && v["eventType"] === undefined) v["eventType"] = v["event"];
+      if (v["time"] !== undefined && v["startTime"] === undefined) v["startTime"] = v["time"];
+    }
+    return val;
+  },
   z.object({
     limit: z.number().default(5),
     user: z.string().optional(),
@@ -59,7 +67,13 @@ const FirewallRulesSchemaBase = z.object({
 });
 
 const FirewallRulesSchema = z.preprocess(
-  (val: unknown) => val,
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const v = val as Record<string, unknown>;
+      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
+    }
+    return val;
+  },
   z.object({
     limit: z.number().default(50),
     user: z.string().optional(),
