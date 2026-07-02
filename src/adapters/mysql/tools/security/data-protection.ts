@@ -60,6 +60,7 @@ const MaskDataSchema = z.preprocess(
 const UserPrivilegesSchemaBase = z.object({
   user: z.string().optional().describe("Filter by username"),
   userName: z.string().optional().describe("Alias for user"),
+  username: z.string().optional().describe("Alias for user"),
   host: z.string().optional().describe("Host pattern"),
   includeRoles: z.boolean().optional().describe("Include role grants"),
   summary: z
@@ -74,8 +75,12 @@ const UserPrivilegesSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
     const obj = val as Record<string, unknown>;
-    if (!("user" in obj) && "userName" in obj) {
-      return { ...obj, user: obj["userName"] };
+    if (!("user" in obj)) {
+      if ("userName" in obj) {
+        return { ...obj, user: obj["userName"] };
+      } else if ("username" in obj) {
+        return { ...obj, user: obj["username"] };
+      }
     }
     return val;
   },
@@ -93,6 +98,7 @@ const SensitiveTablesSchemaBase = z.object({
     .optional()
     .describe("Schema to scan (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
   patterns: z
     .array(z.string())
     .optional()
@@ -109,8 +115,13 @@ const SensitiveTablesSchema = z
   .preprocess(
     (val: unknown) => {
       if (typeof val !== "object" || val === null) return val;
-      if (!("schema" in val) && "database" in val) {
-        return { ...val, schema: val.database };
+      const obj = val as Record<string, unknown>;
+      if (!("schema" in obj)) {
+        if ("database" in obj) {
+          return { ...obj, schema: obj["database"] };
+        } else if ("db" in obj) {
+          return { ...obj, schema: obj["db"] };
+        }
       }
       return val;
     },
