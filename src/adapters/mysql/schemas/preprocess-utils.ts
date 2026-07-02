@@ -264,22 +264,27 @@ export function preprocessQueryOnlyParams(val: unknown): unknown {
 
 export function preprocessAdminTableParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
-  const v = val as Record<string, unknown>;
+  const v = { ...(val as Record<string, unknown>) };
+  
   // If 'tables' is passed as a string (e.g. via codemode positional arg), wrap it into an array
   if (typeof v["tables"] === "string") {
     v["tables"] = [v["tables"]];
   }
-  // If 'table' is passed as a string and 'tables' is not set, wrap it into an array
-  if (typeof v["table"] === "string" && !Array.isArray(v["tables"])) {
-    return { ...v, tables: [v["table"]] };
+  
+  if (!Array.isArray(v["tables"])) {
+    if (Array.isArray(v["table"])) v["tables"] = v["table"];
+    else if (typeof v["table"] === "string") v["tables"] = [v["table"]];
+    else if (Array.isArray(v["tableName"])) v["tables"] = v["tableName"];
+    else if (typeof v["tableName"] === "string") v["tables"] = [v["tableName"]];
+    else if (Array.isArray(v["name"])) v["tables"] = v["name"];
+    else if (typeof v["name"] === "string") v["tables"] = [v["name"]];
   }
-  // Also support tableName/name aliases → tables
-  if (typeof v["tableName"] === "string" && !Array.isArray(v["tables"])) {
-    return { ...v, tables: [v["tableName"]] };
-  }
-  if (typeof v["name"] === "string" && !Array.isArray(v["tables"])) {
-    return { ...v, tables: [v["name"]] };
-  }
+
+  // Remove alias fields so they don't fail their own Zod validation
+  delete v["table"];
+  delete v["tableName"];
+  delete v["name"];
+  
   return v;
 }
 
