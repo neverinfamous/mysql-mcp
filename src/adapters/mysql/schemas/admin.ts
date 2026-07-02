@@ -313,6 +313,12 @@ export const InnodbStatusSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = { ...(obj as Record<string, unknown>) };
+      
+      // Alias handling for format and raw
+      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") {
+        data["summary"] = false;
+      }
+      
       if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
       return data;
     }
@@ -335,6 +341,12 @@ export const ReplicationStatusSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = { ...(obj as Record<string, unknown>) };
+      
+      // Alias handling for format and raw
+      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") {
+        data["summary"] = false;
+      }
+      
       if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
       return data;
     }
