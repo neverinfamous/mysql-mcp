@@ -387,6 +387,9 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
     database: z.string().optional().describe("Database name"),
     db: z.string().optional().describe("Alias for database"),
+    dbName: z.string().optional().describe("Alias for database"),
+    schema: z.string().optional().describe("Alias for database"),
+    schemaName: z.string().optional().describe("Alias for database"),
     tables: z
       .array(z.string())
       .min(1, "Tables array cannot be empty if provided")
@@ -408,7 +411,9 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     (input) => {
       if (typeof input !== "object" || input === null) return input;
       const res = { ...(input as Record<string, unknown>) };
-      if (res["database"] === undefined && res["db"] !== undefined) res["database"] = res["db"];
+      if (res["database"] === undefined) {
+        res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
+      }
       return res;
     },
     z.object({
@@ -522,22 +527,42 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
     database: z.string().optional().describe("Target database"),
     db: z.string().optional().describe("Alias for database"),
+    dbName: z.string().optional().describe("Alias for database"),
+    schema: z.string().optional().describe("Alias for database"),
+    schemaName: z.string().optional().describe("Alias for database"),
     filename: z
       .string()
+      .optional()
       .describe("Dump file to restore"),
+    file: z.string().optional().describe("Alias for filename"),
+    path: z.string().optional().describe("Alias for filename"),
+    filepath: z.string().optional().describe("Alias for filename"),
+    dumpFile: z.string().optional().describe("Alias for filename"),
   });
 
   const schema = z.preprocess(
     (input) => {
       if (typeof input !== "object" || input === null) return input;
       const res = { ...(input as Record<string, unknown>) };
-      if (res["database"] === undefined && res["db"] !== undefined) res["database"] = res["db"];
+      if (res["database"] === undefined) {
+        res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
+      }
+      if (res["filename"] === undefined) {
+        res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"];
+      }
       return res;
     },
     z.object({
       database: z.string(),
       db: z.string().optional(),
+      dbName: z.string().optional(),
+      schema: z.string().optional(),
+      schemaName: z.string().optional(),
       filename: z.string(),
+      file: z.string().optional(),
+      path: z.string().optional(),
+      filepath: z.string().optional(),
+      dumpFile: z.string().optional(),
     })
   ).transform((data) => ({
     database: data.database,

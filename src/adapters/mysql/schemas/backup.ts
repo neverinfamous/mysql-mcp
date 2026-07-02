@@ -18,6 +18,8 @@ export const ExportTableSchemaBase = z.object({
     .describe("Export format"),
   where: z.string().optional().describe("WHERE clause to filter rows"),
   filter: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -46,6 +48,8 @@ export const ExportTableSchema = z
         .default("SQL"),
       where: z.string().optional(),
       filter: z.string().optional(),
+      query: z.string().optional(),
+      condition: z.string().optional(),
       limit: z.unknown().optional(),
       batch: z.unknown().optional(),
     }),
@@ -53,7 +57,7 @@ export const ExportTableSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     format: data.format,
-    where: data.where ?? data.filter,
+    where: data.where ?? data.filter ?? data.query ?? data.condition,
     limit: data.limit !== undefined ? Number(data.limit) : 5,
     batch: data.batch !== undefined ? Number(data.batch) : 50,
   }))
@@ -83,7 +87,11 @@ export const ImportDataSchemaBase = z.object({
   tbl: z.string().optional().describe("Alias for table"),
   data: z
     .array(z.record(z.string(), z.unknown()))
+    .optional()
     .describe("Array of row objects to insert. (Do NOT pass a filepath string. To import a .sql file, use shell.importTable)"),
+  rows: z.array(z.record(z.string(), z.unknown())).optional().describe("Alias for data"),
+  values: z.array(z.record(z.string(), z.unknown())).optional().describe("Alias for data"),
+  items: z.array(z.record(z.string(), z.unknown())).optional().describe("Alias for data"),
 });
 
 export const ImportDataSchema = z
@@ -94,12 +102,15 @@ export const ImportDataSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       tbl: z.string().optional(),
-      data: z.array(z.record(z.string(), z.unknown())),
+      data: z.array(z.record(z.string(), z.unknown())).optional(),
+      rows: z.array(z.record(z.string(), z.unknown())).optional(),
+      values: z.array(z.record(z.string(), z.unknown())).optional(),
+      items: z.array(z.record(z.string(), z.unknown())).optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? "",
-    data: data.data,
+    data: data.data ?? data.rows ?? data.values ?? data.items ?? [],
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name/tbl alias) is required",
