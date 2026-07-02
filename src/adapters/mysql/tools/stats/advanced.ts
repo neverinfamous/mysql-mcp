@@ -83,8 +83,8 @@ export const StatsTopNSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -121,8 +121,8 @@ export const StatsDistinctSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -160,8 +160,8 @@ export const StatsFrequencySchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -196,7 +196,7 @@ export const StatsSummarySchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       columns: typeof obj["columns"] === "string" ? [obj["columns"]] : obj["columns"],
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };

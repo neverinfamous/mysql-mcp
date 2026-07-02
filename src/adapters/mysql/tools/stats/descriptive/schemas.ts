@@ -14,8 +14,8 @@ export const DescriptiveStatsSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
     };
   },
   z.object({
@@ -40,8 +40,9 @@ export const PercentilesSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      percentiles: obj["percentiles"] ?? obj["p"] ?? obj["pct"] ?? obj["percentile"],
     };
   },
   z.object({
@@ -69,8 +70,8 @@ export const DistributionSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
     };
   },
   z.object({
@@ -99,7 +100,7 @@ export const TimeSeriesSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       valueColumn: obj["valueColumn"] ?? obj["val"] ?? obj["value"] ?? obj["valColumn"],
       timeColumn: obj["timeColumn"] ?? obj["time"] ?? obj["dateColumn"] ?? obj["timestamp"],
     };
@@ -134,7 +135,7 @@ export const SamplingSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
     };
   },
   z.object({

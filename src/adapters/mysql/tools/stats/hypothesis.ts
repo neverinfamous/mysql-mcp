@@ -45,8 +45,8 @@ export const StatsHypothesisSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
     };
   },
   z.object({

@@ -348,6 +348,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     statsHistogram: "histogram",
     statsRowNumber: "rowNumber",
     statsSampling: "sampling",
+    get: "summary",
   },
   // Vector: intuitive aliases
   vector: {

@@ -21,9 +21,9 @@ export const CorrelationSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column1: obj["column1"] ?? obj["columnA"] ?? obj["col1"] ?? obj["columnX"] ?? obj["colX"] ?? obj["x"],
-      column2: obj["column2"] ?? obj["columnB"] ?? obj["col2"] ?? obj["columnY"] ?? obj["colY"] ?? obj["y"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column1: obj["column1"] ?? obj["columnA"] ?? obj["col1"] ?? obj["columnX"] ?? obj["colX"] ?? obj["x"] ?? obj["c1"],
+      column2: obj["column2"] ?? obj["columnB"] ?? obj["col2"] ?? obj["columnY"] ?? obj["colY"] ?? obj["y"] ?? obj["c2"],
     };
   },
   z.object({
@@ -53,9 +53,9 @@ export const RegressionSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      xColumn: obj["xColumn"] ?? obj["columnX"] ?? obj["column1"] ?? obj["colX"] ?? obj["x"],
-      yColumn: obj["yColumn"] ?? obj["columnY"] ?? obj["column2"] ?? obj["colY"] ?? obj["y"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      xColumn: obj["xColumn"] ?? obj["columnX"] ?? obj["column1"] ?? obj["colX"] ?? obj["x"] ?? obj["c1"],
+      yColumn: obj["yColumn"] ?? obj["columnY"] ?? obj["column2"] ?? obj["colY"] ?? obj["y"] ?? obj["c2"],
     };
   },
   z.object({
@@ -87,8 +87,8 @@ export const HistogramSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
     };
   },
   z.object({
