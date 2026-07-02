@@ -121,6 +121,9 @@ export const RouteNameInputSchemaBase = z.object({
   routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
   name: z.string().optional().describe("Alias for routeName"),
   route: z.string().optional().describe("Alias for routeName"),
+  routename: z.string().optional().describe("Alias for routeName"),
+  routerName: z.string().optional().describe("Alias for routeName"),
+  id: z.string().optional().describe("Alias for routeName"),
 });
 
 export const RouteNameInputSchema = z.preprocess(
@@ -129,7 +132,11 @@ export const RouteNameInputSchema = z.preprocess(
     const obj = data as Record<string, unknown>;
     return {
       ...obj,
-      routeName: obj["routeName"] !== undefined ? obj["routeName"] : (obj["route"] !== undefined ? obj["route"] : obj["name"]),
+      routeName: obj["routeName"] !== undefined ? obj["routeName"] : 
+                 (obj["route"] !== undefined ? obj["route"] : 
+                  (obj["name"] !== undefined ? obj["name"] : 
+                   (obj["routename"] !== undefined ? obj["routename"] : 
+                    (obj["routerName"] !== undefined ? obj["routerName"] : obj["id"])))),
     };
   },
   RouteNameInputSchemaBase
@@ -147,6 +154,8 @@ export const MetadataNameInputSchemaBase = z.object({
     .describe("Name of the metadata cache instance. Anti-Hallucination Hint: Pass metadataName, not metadata."),
   name: z.string().optional().describe("Alias for metadataName"),
   metadata: z.string().optional().describe("Alias for metadataName"),
+  metadataname: z.string().optional().describe("Alias for metadataName"),
+  id: z.string().optional().describe("Alias for metadataName"),
 });
 
 export const MetadataNameInputSchema = z.preprocess(
@@ -155,7 +164,10 @@ export const MetadataNameInputSchema = z.preprocess(
     const obj = data as Record<string, unknown>;
     return {
       ...obj,
-      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : (obj["metadata"] !== undefined ? obj["metadata"] : obj["name"]),
+      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : 
+                    (obj["metadata"] !== undefined ? obj["metadata"] : 
+                     (obj["name"] !== undefined ? obj["name"] : 
+                      (obj["metadataname"] !== undefined ? obj["metadataname"] : obj["id"]))),
     };
   },
   MetadataNameInputSchemaBase
@@ -170,6 +182,8 @@ export const ConnectionPoolNameInputSchemaBase = z.object({
   poolName: z.string().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
   name: z.string().optional().describe("Alias for poolName"),
   pool: z.string().optional().describe("Alias for poolName"),
+  poolname: z.string().optional().describe("Alias for poolName"),
+  id: z.string().optional().describe("Alias for poolName"),
 });
 
 export const ConnectionPoolNameInputSchema = z.preprocess(
@@ -178,7 +192,10 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
     const obj = data as Record<string, unknown>;
     return {
       ...obj,
-      poolName: obj["poolName"] !== undefined ? obj["poolName"] : (obj["pool"] !== undefined ? obj["pool"] : obj["name"]),
+      poolName: obj["poolName"] !== undefined ? obj["poolName"] : 
+                (obj["pool"] !== undefined ? obj["pool"] : 
+                 (obj["name"] !== undefined ? obj["name"] : 
+                  (obj["poolname"] !== undefined ? obj["poolname"] : obj["id"]))),
     };
   },
   ConnectionPoolNameInputSchemaBase

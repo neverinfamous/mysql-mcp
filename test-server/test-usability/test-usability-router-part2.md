@@ -15,6 +15,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `r
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
 - Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
+- Test strict parameter aliases: Pass casing typos like `routename` or conceptual typos like `routerName` or `id` instead of `routeName`.
 - Test positional params: Try `mysql.router.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.router.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
