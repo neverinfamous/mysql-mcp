@@ -225,6 +225,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     mysql_audit_restore_backup: "auditRestoreBackup",
     mysqlAuditRestoreBackup: "auditRestoreBackup",
     auditRestore: "auditRestoreBackup",
+    restoreBackup: "auditRestoreBackup",
     auditDiff: "auditDiffBackup",
     diff: "auditDiffBackup",
   },
