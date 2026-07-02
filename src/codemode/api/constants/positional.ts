@@ -84,6 +84,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ PERFORMANCE GROUP ============
   explain: "sql",
   explainAnalyze: "sql",
+  indexUsage: "table",
+  tableStats: "table",
 
   // ============ ADMIN GROUP ============
   checkTable: "table",

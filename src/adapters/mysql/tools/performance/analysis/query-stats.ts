@@ -16,7 +16,7 @@ export function createQueryStatsTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_query_stats",
     title: "MySQL Query Stats",
-    description: "Get query statistics from performance_schema.",
+    description: "Get top query statistics from performance_schema. NOTE: This returns overall server query stats. Do NOT pass a specific query or sql string.",
     group: "performance",
     inputSchema: QueryStatsSchemaBase,
     outputSchema: QueryStatsOutputSchema,

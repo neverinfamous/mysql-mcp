@@ -79,7 +79,6 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     rollbackTo: "transactionRollbackTo",
     execute: "transactionExecute",
   },
-  // Performance: intuitive aliases
   performance: {
     mysql_explain: "explain",
     mysql_explain_analyze: "explainAnalyze",
@@ -91,9 +90,13 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     trace: "optimizerTrace",
     bufferPool: "bufferPoolStats",
     stats: "tableStats",
+    table: "tableStats",
     threads: "threadStats",
     queries: "queryStats",
     slowlog: "slowQueries",
+    index: "indexUsage",
+    indexes: "indexUsage",
+    usage: "indexUsage",
   },
   // Optimization: shorter aliases
   optimization: {
