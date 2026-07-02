@@ -45,8 +45,8 @@ export const StatsHypothesisSchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"],
-      column: obj["column"] ?? obj["col"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"],
     };
   },
   z.object({
@@ -54,8 +54,8 @@ export const StatsHypothesisSchema = z.preprocess(
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     testType: z.enum(["t_test", "z_test"]).default("t_test"),
-    hypothesizedMean: z.number().default(0),
-    populationStdDev: z.number().optional(),
+    hypothesizedMean: z.coerce.number().default(0),
+    populationStdDev: z.coerce.number().optional(),
     groupBy: z.string().optional(),
     groupColumn: z.string().optional(),
     group1: z.union([z.string(), z.number()]).optional(),
