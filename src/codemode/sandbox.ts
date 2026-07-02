@@ -334,7 +334,8 @@ export class CodeModeSandbox {
                   const res = await (
                     methodFn as (...args: unknown[]) => Promise<unknown>
                   )(...(reviveBuffers(args) as unknown[]));
-                  return res;
+                  const parsed: unknown = JSON.parse(JSON.stringify(res, (_k, v) => typeof v === 'bigint' ? v.toString() : (v as unknown)));
+                  return parsed;
                 } catch (e) {
                   return {
                     __isHostError: true,
@@ -369,7 +370,8 @@ export class CodeModeSandbox {
               const res = await (
                 groupValue as (...args: unknown[]) => Promise<unknown>
               )(...(reviveBuffers(args) as unknown[]));
-              return res;
+              const parsed: unknown = JSON.parse(JSON.stringify(res, (_k, v) => typeof v === 'bigint' ? v.toString() : (v as unknown)));
+              return parsed;
             } catch (e) {
               return {
                 __isHostError: true,

@@ -161,6 +161,17 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ REPLICATION GROUP ============
   binlogEvents: ["logFile", "position"],
 
+  // ============ DOCSTORE GROUP ============
+  docCreateCollection: "name",
+  docDropCollection: "name",
+  docCollectionInfo: "collection",
+  docListCollections: "schema",
+  docFind: ["collection", "query"],
+  docAdd: ["collection", "document"],
+  docModify: ["collection", "documentId", "patch"],
+  docRemove: ["collection", "documentId"],
+  docCreateIndex: ["collection", "indexName", "fields"],
+
   // ============ PARTITIONING GROUP ============
   addPartition: ["table", "partitionName", "partitionType", "value"],
   dropPartition: ["table", "partitionName"],
@@ -206,4 +217,6 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
  */
 export const ARRAY_WRAP_MAP: Record<string, string> = {
   flushTables: "tables",
+  transactionExecute: "statements",
+  execute: "statements",
 };

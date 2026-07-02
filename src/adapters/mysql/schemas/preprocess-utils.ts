@@ -393,6 +393,11 @@ export function preprocessDocIndexParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const result = { ...(val as Record<string, unknown>) };
 
+  if (result["collection"] === undefined) {
+    if (result["table"] !== undefined) result["collection"] = result["table"];
+    else if (result["tableName"] !== undefined) result["collection"] = result["tableName"];
+  }
+
   if (result["schema"] === undefined && result["database"] !== undefined) {
     result["schema"] = result["database"];
   }
@@ -403,6 +408,7 @@ export function preprocessDocIndexParams(val: unknown): unknown {
 
   if (Array.isArray(result["fields"])) {
     result["fields"] = result["fields"].map((f: unknown) => {
+      if (typeof f === "string") return { path: f };
       if (typeof f !== "object" || f === null) return f;
       const fieldObj = { ...(f as Record<string, unknown>) };
       if (fieldObj["path"] === undefined && fieldObj["field"] !== undefined) {

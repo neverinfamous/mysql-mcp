@@ -319,6 +319,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     modify: "docModify",
     update: "docModify",
     remove: "docRemove",
+    delete: "docRemove",
     createCollection: "docCreateCollection",
     create: "docCreateCollection",
     dropCollection: "docDropCollection",
@@ -329,6 +330,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     info: "docCollectionInfo",
     get: "docFind",
     createIndex: "docCreateIndex",
+    addIndex: "docCreateIndex",
   },
   // SysSchema: shorter aliases
   sysschema: {
