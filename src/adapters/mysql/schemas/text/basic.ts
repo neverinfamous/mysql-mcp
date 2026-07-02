@@ -223,7 +223,7 @@ export const SubstringSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      start: z.coerce.number(),
+      start: z.union([z.string(), z.number()]).optional(),
       length: z.coerce.number().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
@@ -246,6 +246,14 @@ export const SubstringSchema = z
   .refine((data) => data.column !== "", {
     message: "column (or col alias) is required",
   })
+  .refine(
+    (data) => data.start !== undefined && !Number.isNaN(Number(data.start)),
+    { message: "Validation error: start is required and must be a number" },
+  )
+  .transform((data) => ({
+    ...data,
+    start: Number(data.start),
+  }))
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
@@ -290,7 +298,7 @@ export const ConcatSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      columns: z.array(z.string()).min(1, "At least one column is required"),
+      columns: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? v : [v]).optional(),
       separator: z.string().optional().default(" "),
       alias: z.string().optional().default("concatenated"),
       where: z.string().optional(),
@@ -311,6 +319,14 @@ export const ConcatSchema = z
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   })
+  .refine(
+    (data) => Array.isArray(data.columns) && data.columns.length > 0,
+    { message: "Validation error: columns must be an array with at least one column" }
+  )
+  .transform((data) => ({
+    ...data,
+    columns: data.columns ?? [],
+  }))
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),

@@ -57,9 +57,9 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   regexpMatch: ["table", "column", "pattern"],
   likeSearch: ["table", "column", "pattern"],
   soundex: ["table", "column", "value"],
-  substring: ["table", "column"],
-  concat: ["table", "columns"],
-  collationConvert: ["table", "column", "collation"],
+  substring: ["table", "column", "start", "length"],
+  concat: ["table", "...columns"],
+  collationConvert: ["table", "column", "charset", "collation"],
 
   // ============ FULLTEXT GROUP ============
   fulltextCreate: ["table", "columns"],

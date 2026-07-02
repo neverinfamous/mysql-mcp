@@ -73,7 +73,7 @@ export const CollationConvertSchema = z
     message: "column (or col alias) is required",
   })
   .refine((data) => data.charset !== "", {
-    message: "charset (or targetCharset alias) is required",
+    message: "Validation error: charset (or targetCharset alias) is required",
   })
   .refine(
     (data) =>

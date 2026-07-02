@@ -99,9 +99,12 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
   const argsToMap = lastArgIsOptionsObject ? args.length - 1 : args.length;
   for (let i = 0; i < paramMapping.length && i < argsToMap; i++) {
     const key = paramMapping[i];
-    const arg = args[i];
     if (key !== undefined) {
-      result[key] = arg;
+      if (key.startsWith("...")) {
+        result[key.slice(3)] = args.slice(i, argsToMap);
+        break;
+      }
+      result[key] = args[i];
     }
   }
 
