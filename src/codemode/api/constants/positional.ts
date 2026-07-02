@@ -166,7 +166,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   topN: ["table", "column", "n"],
   distinct: ["table", "column", "limit"],
   frequency: ["table", "column", "limit"],
-  summary: "table",
+  summary: ["table", "columns"],
   // Stats prefixed aliases
   statsTimeSeries: ["table", "timeColumn", "valueColumn"],
   statsDescriptive: ["table", "column"],

@@ -197,6 +197,7 @@ export const StatsSummarySchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      columns: typeof obj["columns"] === "string" ? [obj["columns"]] : obj["columns"],
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
