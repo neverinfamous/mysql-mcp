@@ -161,7 +161,7 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 // Tool Input Schemas
 // =============================================================================
 
-export const ProxySQLBaseInputSchema = z.object({});
+export const ProxySQLBaseInputSchema = z.object({}).strict();
 
 export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.unknown().optional().describe("Filter by username"),
@@ -181,12 +181,14 @@ export const ProxySQLUsersInputSchema = z.preprocess(
         result["username"] = result["name"];
       }
     }
+    delete result["user"];
+    delete result["name"];
     
     return result;
   },
   z.object({
     username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
-  })
+  }).strict()
 );
 
 export const ProxySQLStatusInputSchemaBase = z.object({
@@ -215,6 +217,9 @@ export const ProxySQLStatusInputSchema = z.preprocess(
         result["summary"] = result["table"];
       }
     }
+    delete result["database"];
+    delete result["table"];
+    
     if (typeof result["summary"] === "string") {
       if (result["summary"] === "true") result["summary"] = true;
       else if (result["summary"] === "false") result["summary"] = false;
@@ -228,7 +233,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
       .describe(
         "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Anti-Hallucination Hint: pass 'summary', not 'database' or 'table'.",
       ),
-  })
+  }).strict()
 );
 
 export const ProxySQLLimitInputSchemaBase = z.object({
@@ -248,6 +253,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     if (result["count"] !== undefined && result["limit"] === undefined) {
       result["limit"] = result["count"];
     }
+    delete result["count"];
 
     const limit = result["limit"];
     if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
@@ -262,7 +268,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
       .min(0)
       .optional()
       .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
-  })
+  }).strict()
 );
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
@@ -278,6 +284,8 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     if (result["hostgroup"] !== undefined && result["hostgroup_id"] === undefined) {
       result["hostgroup_id"] = result["hostgroup"];
     }
+    delete result["hostgroup"];
+    
     const hostgroupId = result["hostgroup_id"];
     if (typeof hostgroupId === "string" && hostgroupId.trim() !== "" && !isNaN(Number(hostgroupId))) {
       result["hostgroup_id"] = Number(hostgroupId);
@@ -291,7 +299,7 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
       .nonnegative()
       .optional()
       .describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
-  })
+  }).strict()
 );
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
@@ -322,6 +330,9 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
       else if (result["search"] !== undefined) result["like"] = result["search"];
       else if (result["name"] !== undefined) result["like"] = result["name"];
     }
+    delete result["pattern"];
+    delete result["search"];
+    delete result["name"];
 
     const limit = result["limit"];
     if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
@@ -346,7 +357,7 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
       .min(0)
       .optional()
       .describe("Maximum number of variables to return (default: 10)"),
-  })
+  }).strict()
 );
 
 export const ProxySQLCommandInputSchemaBase = z.object({
@@ -391,7 +402,7 @@ export const ProxySQLCommandInputSchema = z.preprocess(
         "PROXYSQL FLUSH LOGS",
       ])
       .describe("ProxySQL admin command to execute"),
-  })
+  }).strict()
 );
 
 export type ProxySQLCommand = z.infer<
