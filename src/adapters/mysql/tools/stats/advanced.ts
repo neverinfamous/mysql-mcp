@@ -73,6 +73,8 @@ export const StatsTopNSchemaBase = z.object({
     .optional()
     .describe("Columns to include (defaults to all except long text/blobs)"),
   where: z.string().optional().describe("Filter condition"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const StatsTopNSchema = z.preprocess(
@@ -83,6 +85,7 @@ export const StatsTopNSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
   z.object({
@@ -108,6 +111,8 @@ export const StatsDistinctSchemaBase = z.object({
     .optional()
     .describe("Maximum values to return (default: 100)"),
   where: z.string().optional().describe("Filter condition"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const StatsDistinctSchema = z.preprocess(
@@ -118,6 +123,7 @@ export const StatsDistinctSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
   z.object({
@@ -144,6 +150,8 @@ export const StatsFrequencySchemaBase = z.object({
     .optional()
     .describe("Maximum rows to return (default: 20)"),
   where: z.string().optional().describe("Filter condition"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const StatsFrequencySchema = z.preprocess(
@@ -154,6 +162,7 @@ export const StatsFrequencySchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"],
+      where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
   z.object({
@@ -177,6 +186,8 @@ export const StatsSummarySchemaBase = z.object({
       "Specific numeric columns to summarize (defaults to all numeric columns)",
     ),
   where: z.string().optional().describe("Filter condition"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const StatsSummarySchema = z.preprocess(
@@ -186,6 +197,7 @@ export const StatsSummarySchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
   z.object({

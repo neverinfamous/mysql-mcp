@@ -38,6 +38,8 @@ export const StatsOutliersSchemaBase = z.object({
     .optional()
     .describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
   where: z.string().optional().describe("Filter condition"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -56,6 +58,7 @@ export const StatsOutliersSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
       column: obj["column"] ?? obj["col"],
+      where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
   z.object({
