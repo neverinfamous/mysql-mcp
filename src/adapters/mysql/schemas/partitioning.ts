@@ -132,6 +132,7 @@ export const DropPartitionSchema = z
           obj["partitionName"] === undefined
         ) {
           if (obj["partition"] !== undefined) obj["partitionName"] = obj["partition"];
+          else if (obj["partitions"] !== undefined) obj["partitionName"] = obj["partitions"];
           else if (obj["name"] !== undefined && obj["table"] !== obj["name"]) obj["partitionName"] = obj["name"];
         }
       }
@@ -167,7 +168,7 @@ export const ReorganizePartitionSchemaBase = z.object({
   fromPartitions: z
     .array(z.string())
     .optional()
-    .describe("Source partition names"),
+    .describe("Source partition names. If passing a string, use a comma-separated list."),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
@@ -186,7 +187,7 @@ export const ReorganizePartitionSchemaBase = z.object({
       }),
     )
     .optional()
-    .describe("New partition definitions"),
+    .describe("Array of new partition definitions. MUST be an array of objects: [{ name: 'p1', value: '2024' }]"),
 });
 
 export const ReorganizePartitionSchema = z
@@ -216,10 +217,28 @@ export const ReorganizePartitionSchema = z
         
         if (typeof obj["toPartitions"] === "object" && obj["toPartitions"] !== null && !Array.isArray(obj["toPartitions"])) {
           obj["toPartitions"] = [obj["toPartitions"]];
+        } else if (typeof obj["toPartitions"] === "string") {
+          const toStr = obj["toPartitions"];
+          try {
+            const parsed = JSON.parse(toStr) as unknown;
+            obj["toPartitions"] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            obj["toPartitions"] = toStr
+              .split(",")
+              .map((s) => ({ name: s.trim(), value: "" }));
+          }
         }
         
         if (typeof obj["fromPartitions"] === "string") {
-          obj["fromPartitions"] = [obj["fromPartitions"]];
+          const fromStr = obj["fromPartitions"];
+          try {
+            const parsed = JSON.parse(fromStr) as unknown;
+            obj["fromPartitions"] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            obj["fromPartitions"] = fromStr
+              .split(",")
+              .map((s) => s.trim());
+          }
         }
       }
       return v;
@@ -258,7 +277,14 @@ export const ReorganizePartitionSchema = z
   })
   .refine((data) => data.toPartitions.length > 0, {
     message: "toPartitions is required",
-  });
+  })
+  .refine(
+    (data) => data.toPartitions.every((p) => p.name !== "" && p.value !== ""),
+    {
+      message:
+        "Each partition in toPartitions must be an object with a non-empty 'name' and 'value' (e.g. [{ name: 'p1', value: '2025' }])",
+    }
+  );
 
 export const PartitionInfoOutputSchema = BaseOutputSchema.extend({
   data: z.object({
