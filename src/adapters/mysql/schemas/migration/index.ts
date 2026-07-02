@@ -89,6 +89,7 @@ export const MigrationRecordSchema = z.preprocess((input: unknown) => {
       if (out["migrationName"] !== undefined) out["version"] = out["migrationName"];
       else if (out["migration"] !== undefined) out["version"] = out["migration"];
       else if (out["name"] !== undefined) out["version"] = out["name"];
+      else out["version"] = Date.now().toString();
     }
     if (out["description"] === undefined && out["name"] !== undefined) {
       out["description"] = out["name"];

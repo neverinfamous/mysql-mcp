@@ -225,8 +225,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 
   // ============ MIGRATION GROUP ============
   init: "database",
-  record: ["version", "migrationSql"],
-  apply: ["version", "migrationSql"],
+  record: "migrationSql",
+  apply: "migrationSql",
   history: "limit",
   status: "database",
 
