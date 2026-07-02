@@ -15,8 +15,8 @@ export const MemberSchemaBase = z.object({
 
 export const MemberSchema = z.preprocess(
   (val: unknown) => {
-    if (val === null || val === undefined || typeof val !== "object") {
-      return val;
+    if (typeof val === "string") {
+      return { memberId: val };
     }
     return val;
   },

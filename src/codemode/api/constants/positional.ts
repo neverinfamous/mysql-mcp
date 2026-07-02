@@ -187,6 +187,10 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   // ============ CLUSTER GROUP ============
   grMembers: "memberId",
   mysql_gr_members: "memberId",
+  clusterStatus: "summary",
+  mysql_cluster_status: "summary",
+  clusterInstances: "limit",
+  mysql_cluster_instances: "limit",
 
   // ============ SECURITY GROUP ============
   passwordValidate: "password",

@@ -271,6 +271,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   // Cluster: intuitive aliases
   cluster: {
     status: "clusterStatus",
+    get: "clusterStatus",
     instances: "clusterInstances",
     topology: "clusterTopology",
     switchover: "clusterSwitchover",
@@ -289,6 +290,11 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     mysql_gr_primary: "grPrimary",
     mysql_gr_transactions: "grTransactions",
     mysql_gr_flow_control: "grFlowControl",
+    mysql_cluster_status: "clusterStatus",
+    mysql_cluster_instances: "clusterInstances",
+    mysql_cluster_topology: "clusterTopology",
+    mysql_cluster_router_status: "clusterRouterStatus",
+    mysql_cluster_switchover: "clusterSwitchover",
   },
   // Roles: shorter aliases
   roles: {
