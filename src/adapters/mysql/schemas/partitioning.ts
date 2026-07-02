@@ -55,7 +55,7 @@ export const AddPartitionSchemaBase = z.object({
     .string()
     .optional()
     .describe(
-      'Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST, "4" for HASH/KEY partitions count. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
+      'Partition boundary value only (or sql/expression alias) - e.g., "2024" for RANGE, "1,2,3" for LIST, "4" for HASH/KEY partitions count. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
     ),
 });
 
@@ -73,6 +73,12 @@ export const AddPartitionSchema = z
         
         if (obj["partitionName"] === undefined) {
           if (obj["partition"] !== undefined) obj["partitionName"] = obj["partition"];
+        }
+
+        if (obj["value"] === undefined) {
+          if (obj["sql"] !== undefined) obj["value"] = obj["sql"];
+          else if (obj["expression"] !== undefined) obj["value"] = obj["expression"];
+          else if (obj["definition"] !== undefined) obj["value"] = obj["definition"];
         }
       }
       return v;
