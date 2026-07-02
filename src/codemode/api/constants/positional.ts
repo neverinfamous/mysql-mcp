@@ -126,6 +126,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   mysql_query_rewrite: "query",
   optimizerTrace: "query",
   mysql_optimizer_trace: "query",
+  trace: "query",
+  getOptimizerTrace: "query",
 
   // ============ ADMIN GROUP ============
   checkTable: "table",

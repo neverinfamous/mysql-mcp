@@ -157,6 +157,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     mysql_query_rewrite: "queryRewrite",
     mysql_force_index: "forceIndex",
     mysql_optimizer_trace: "optimizerTrace",
+    trace: "optimizerTrace",
+    getOptimizerTrace: "optimizerTrace",
   },
   // Admin: intuitive aliases
   admin: {
