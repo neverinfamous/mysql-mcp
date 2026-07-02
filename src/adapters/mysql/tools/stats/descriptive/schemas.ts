@@ -101,8 +101,8 @@ export const TimeSeriesSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
-      valueColumn: obj["valueColumn"] ?? obj["val"] ?? obj["value"] ?? obj["valColumn"],
-      timeColumn: obj["timeColumn"] ?? obj["time"] ?? obj["dateColumn"] ?? obj["timestamp"],
+      valueColumn: obj["valueColumn"] ?? obj["val"] ?? obj["value"] ?? obj["valColumn"] ?? obj["column"] ?? obj["col"] ?? obj["columnName"],
+      timeColumn: obj["timeColumn"] ?? obj["time"] ?? obj["dateColumn"] ?? obj["timestamp"] ?? obj["date"],
     };
   },
   z.object({
