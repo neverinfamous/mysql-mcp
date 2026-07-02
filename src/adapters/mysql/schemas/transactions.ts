@@ -113,6 +113,8 @@ export const TransactionExecuteSchemaBase = z.object({
     .optional()
     .describe("SQL statements to execute atomically"),
   queries: z.array(z.string()).optional().describe("Alias for statements"),
+  query: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements"),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements"),
   isolationLevel: z.string().optional().describe("Transaction isolation level"),
   isolation_level: z.string().optional().describe("Alias for isolationLevel"),
 });

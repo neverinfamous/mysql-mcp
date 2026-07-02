@@ -197,6 +197,15 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
       result["statements"] = result["queries"];
     else if (result["sqls"] !== undefined)
       result["statements"] = result["sqls"];
+    else if (result["query"] !== undefined)
+      result["statements"] = result["query"];
+    else if (result["sql"] !== undefined)
+      result["statements"] = result["sql"];
+  }
+
+  // Wrap singular string in array
+  if (typeof result["statements"] === "string") {
+    result["statements"] = [result["statements"]];
   }
 
   // Handle arrays of {sql: "..."} objects gracefully

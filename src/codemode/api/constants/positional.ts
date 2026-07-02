@@ -71,12 +71,14 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   fulltextExpand: ["table", "columns", "query"],
 
   // ============ TRANSACTION GROUP ============
+  transactionBegin: "isolationLevel",
   transactionCommit: "transactionId",
   transactionRollback: "transactionId",
   transactionSavepoint: ["transactionId", "name"],
   transactionRelease: ["transactionId", "name"],
   transactionRollbackTo: ["transactionId", "name"],
   // Short aliases
+  begin: "isolationLevel",
   commit: "transactionId",
   rollback: "transactionId",
   savepoint: ["transactionId", "name"],

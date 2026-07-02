@@ -72,8 +72,12 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   // Transactions: shorter aliases
   transactions: {
     begin: "transactionBegin",
+    start: "transactionBegin",
     commit: "transactionCommit",
+    end: "transactionCommit",
     rollback: "transactionRollback",
+    cancel: "transactionRollback",
+    stop: "transactionRollback",
     savepoint: "transactionSavepoint",
     release: "transactionRelease",
     rollbackTo: "transactionRollbackTo",
