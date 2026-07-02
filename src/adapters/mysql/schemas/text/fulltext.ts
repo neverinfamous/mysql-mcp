@@ -18,13 +18,31 @@ function preprocessFulltextParams(val: unknown): unknown {
       v["query"] = temp;
     }
     // Also if they alias 'query' as 'sql', let's check sql too
-    if (typeof v["columns"] === "string" && Array.isArray(v["sql"])) {
+    else if (typeof v["columns"] === "string" && Array.isArray(v["sql"])) {
       const temp = v["columns"];
       v["columns"] = v["sql"];
       v["sql"] = temp;
     }
+    // If it is just a string, wrap it in an array
+    else if (typeof v["columns"] === "string") {
+      v["columns"] = [v["columns"]];
+    }
+    
+    if (typeof v["col"] === "string") v["col"] = [v["col"]];
+    if (typeof v["column"] === "string") v["column"] = [v["column"]];
   }
   return v2;
+}
+
+function preprocessFulltextCreateParams(val: unknown): unknown {
+  const v = defaultToEmpty(val);
+  if (v !== null && typeof v === "object") {
+    const obj = v as Record<string, unknown>;
+    if (typeof obj["columns"] === "string") obj["columns"] = [obj["columns"]];
+    if (typeof obj["col"] === "string") obj["col"] = [obj["col"]];
+    if (typeof obj["column"] === "string") obj["column"] = [obj["column"]];
+  }
+  return v;
 }
 
 // --- FulltextCreate ---
@@ -43,7 +61,7 @@ export const FulltextCreateSchemaBase = z.object({
 
 export const FulltextCreateSchema = z
   .preprocess(
-    (val) => defaultToEmpty(val),
+    preprocessFulltextCreateParams,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -76,6 +94,7 @@ export const FulltextSearchSchemaBase = z.object({
   column: z.array(z.string()).optional().describe("Alias for columns"),
   query: z.string().optional().describe("Search query. REQUIRED. Note: must be a string, not an array."),
   sql: z.string().optional().describe("Alias for query"),
+  search: z.string().optional().describe("Alias for query"),
   mode: z
     .enum(["NATURAL", "BOOLEAN", "EXPANSION"])
     .optional()
@@ -113,6 +132,7 @@ export const FulltextSearchSchema = z
       column: z.array(z.string()).optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
+      search: z.string().optional(),
       mode: z.preprocess(
         (val) => (typeof val === "string" ? val.toUpperCase() : val),
         z.enum(["NATURAL", "BOOLEAN", "EXPANSION"]).optional().default("NATURAL")
@@ -126,7 +146,7 @@ export const FulltextSearchSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? data.col ?? data.column ?? [],
-    query: data.query ?? data.sql ?? "",
+    query: data.query ?? data.sql ?? data.search ?? "",
     mode: data.mode,
     maxLength: data.maxLength,
     limit: data.limit,
@@ -197,6 +217,8 @@ export const FulltextBooleanSchemaBase = z.object({
     .string()
     .optional()
     .describe("Boolean search query with +, -, *, etc. REQUIRED. Note: must be a string, not an array."),
+  sql: z.string().optional().describe("Alias for query"),
+  search: z.string().optional().describe("Alias for query"),
   maxLength: z
     .unknown()
     .optional()
@@ -228,6 +250,8 @@ export const FulltextBooleanSchema = z
       col: z.array(z.string()).optional(),
       column: z.array(z.string()).optional(),
       query: z.string().optional(),
+      sql: z.string().optional(),
+      search: z.string().optional(),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
       includeFacets: z.boolean().optional().default(false),
@@ -237,7 +261,7 @@ export const FulltextBooleanSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? data.col ?? data.column ?? [],
-    query: data.query ?? "",
+    query: data.query ?? data.sql ?? data.search ?? "",
     maxLength: data.maxLength,
     limit: data.limit,
     includeFacets: data.includeFacets,
@@ -268,6 +292,8 @@ export const FulltextExpandSchemaBase = z.object({
   col: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
   query: z.string().optional().describe("Search query to expand. REQUIRED. Note: must be a string, not an array."),
+  sql: z.string().optional().describe("Alias for query"),
+  search: z.string().optional().describe("Alias for query"),
   maxLength: z
     .unknown()
     .optional()
@@ -299,6 +325,8 @@ export const FulltextExpandSchema = z
       col: z.array(z.string()).optional(),
       column: z.array(z.string()).optional(),
       query: z.string().optional(),
+      sql: z.string().optional(),
+      search: z.string().optional(),
       maxLength: z.coerce.number().optional(),
       limit: z.coerce.number().optional(),
       includeFacets: z.boolean().optional().default(false),
@@ -308,7 +336,7 @@ export const FulltextExpandSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? data.col ?? data.column ?? [],
-    query: data.query ?? "",
+    query: data.query ?? data.sql ?? data.search ?? "",
     maxLength: data.maxLength,
     limit: data.limit,
     includeFacets: data.includeFacets,
