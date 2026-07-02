@@ -276,17 +276,7 @@ export function preprocessCreateTableParams(input: unknown): unknown {
   }
 
   if (result["columns"] !== undefined && !Array.isArray(result["columns"])) {
-    if (typeof result["columns"] === "object" && result["columns"] !== null) {
-      const colObj = result["columns"] as Record<string, unknown>;
-      if ("name" in colObj && "type" in colObj) {
-        result["columns"] = [colObj];
-      } else {
-        result["columns"] = Object.entries(colObj).map(([k, v]) => ({
-          name: k,
-          type: typeof v === "string" ? v : String(v),
-        }));
-      }
-    } else if (typeof result["columns"] === "string") {
+    if (typeof result["columns"] === "string") {
       result["columns"] = [{ name: result["columns"], type: "VARCHAR(255)" }];
     }
   }
