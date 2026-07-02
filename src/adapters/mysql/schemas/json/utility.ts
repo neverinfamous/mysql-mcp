@@ -116,14 +116,20 @@ export const JsonIndexSuggestSchema = z
 // --- JsonValidate (no table/column — no aliases needed) ---
 export const JsonValidateSchemaBase = z.object({
   value: z.unknown().optional().describe("JSON string to validate"),
+  json: z.unknown().optional().describe("Alias for value"),
+  data: z.unknown().optional().describe("Alias for value"),
+  document: z.unknown().optional().describe("Alias for value"),
 });
 
 export const JsonValidateSchema = z
   .object({
     value: z.unknown().optional(),
+    json: z.unknown().optional(),
+    data: z.unknown().optional(),
+    document: z.unknown().optional(),
   })
   .transform((data) => ({
-    value: data.value,
+    value: data.value ?? data.json ?? data.data ?? data.document,
   }))
   .refine((data) => data.value !== undefined && data.value !== null, {
     message: "value is required",

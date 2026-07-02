@@ -45,7 +45,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   get: ["table", "column", "path", "where"],
   search: ["table", "column", "searchValue"],
   update: ["table", "column", "path", "value", "where"],
-  validate: ["table", "column"],
+  validate: "value",
   stats: ["table", "column"],
   indexSuggest: ["table", "column"],
   normalize: ["table", "column"],

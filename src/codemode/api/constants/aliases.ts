@@ -20,6 +20,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     jsonSearch: "search",
     jsonUpdate: "update",
     jsonValidate: "validate",
+    validateData: "validate",
     jsonMerge: "merge",
     jsonNormalize: "normalize",
     jsonDiff: "diff",
