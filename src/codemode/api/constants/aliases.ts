@@ -399,6 +399,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   shell: {
     run: "runScript",
     script: "runScript",
+    execute: "runScript",
+    executeScript: "runScript",
+    mysqlsh_run_script: "runScript",
+    mysqlshRunScript: "runScript",
     upgrade: "checkUpgrade",
     dump: "dumpInstance",
     load: "loadDump",

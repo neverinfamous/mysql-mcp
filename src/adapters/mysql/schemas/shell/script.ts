@@ -4,6 +4,10 @@ import { booleanCoerce } from "./base.js";
 export const ShellRunScriptInputSchemaBase = z
   .object({
     script: z.string().optional().describe("Script content to execute"),
+    sql: z.string().optional().describe("Alias for script"),
+    query: z.string().optional().describe("Alias for script"),
+    command: z.string().optional().describe("Alias for script"),
+    code: z.string().optional().describe("Alias for script"),
     scriptPath: z.string().optional().describe("Path to script file to execute"),
     path: z.string().optional().describe("Alias for scriptPath"),
     file: z.string().optional().describe("Alias for scriptPath"),
@@ -27,6 +31,10 @@ export const ShellRunScriptInputSchemaBase = z
 export const ShellRunScriptInputSchema = z
   .object({
     script: z.unknown().optional(),
+    sql: z.unknown().optional(),
+    query: z.unknown().optional(),
+    command: z.unknown().optional(),
+    code: z.unknown().optional(),
     scriptPath: z.string().optional(),
     path: z.string().optional(), // alias
     file: z.string().optional(), // alias
@@ -39,9 +47,17 @@ export const ShellRunScriptInputSchema = z
   })
   .transform((data) => ({
     script:
-      data.script === undefined
-        ? ""
-        : String(data.script as string | number | boolean),
+      data.script !== undefined
+        ? String(data.script as string | number | boolean)
+        : data.sql !== undefined
+        ? String(data.sql as string | number | boolean)
+        : data.query !== undefined
+        ? String(data.query as string | number | boolean)
+        : data.command !== undefined
+        ? String(data.command as string | number | boolean)
+        : data.code !== undefined
+        ? String(data.code as string | number | boolean)
+        : "",
     scriptPath: data.scriptPath ?? data.path ?? data.file ?? "",
     language: data.language,
     dryRun: data.dryRun ?? false,
