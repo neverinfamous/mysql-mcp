@@ -17,6 +17,7 @@ import {
 export const TransactionBeginSchemaBase = z.object({
   isolationLevel: z.string().optional().describe("Transaction isolation level"),
   isolation_level: z.string().optional().describe("Alias for isolationLevel"),
+  level: z.string().optional().describe("Alias for isolationLevel"),
 });
 
 // Transformed schema for handler parsing
@@ -119,6 +120,7 @@ export const TransactionExecuteSchemaBase = z.object({
   sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements"),
   isolationLevel: z.string().optional().describe("Transaction isolation level. Expected one of: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE"),
   isolation_level: z.string().optional().describe("Alias for isolationLevel"),
+  level: z.string().optional().describe("Alias for isolationLevel"),
 });
 
 export const TransactionExecuteSchema = z

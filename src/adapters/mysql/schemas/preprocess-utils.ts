@@ -287,11 +287,9 @@ export function preprocessCreateTableParams(input: unknown): unknown {
 export function preprocessTransactionBeginParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input ?? {};
   const result = { ...(input as Record<string, unknown>) };
-  if (
-    result["isolationLevel"] === undefined &&
-    result["isolation_level"] !== undefined
-  ) {
-    result["isolationLevel"] = result["isolation_level"];
+  if (result["isolationLevel"] === undefined) {
+    if (result["isolation_level"] !== undefined) result["isolationLevel"] = result["isolation_level"];
+    else if (result["level"] !== undefined) result["isolationLevel"] = result["level"];
   }
   return result;
 }
@@ -305,11 +303,9 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
 
-  if (
-    result["isolationLevel"] === undefined &&
-    result["isolation_level"] !== undefined
-  ) {
-    result["isolationLevel"] = result["isolation_level"];
+  if (result["isolationLevel"] === undefined) {
+    if (result["isolation_level"] !== undefined) result["isolationLevel"] = result["isolation_level"];
+    else if (result["level"] !== undefined) result["isolationLevel"] = result["level"];
   }
 
   if (result["statements"] === undefined) {
