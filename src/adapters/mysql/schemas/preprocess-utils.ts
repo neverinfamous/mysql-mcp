@@ -179,13 +179,42 @@ export function preprocessVectorParams(input: unknown): unknown {
   if (result["queryVector"] === undefined && result["vector"] !== undefined) {
     result["queryVector"] = result["vector"];
   }
+  
+  if (result["vector"] === undefined && result["queryVector"] !== undefined) {
+    result["vector"] = result["queryVector"];
+  }
 
-  // Coerce queryVector from string to array if agent hallucinated a stringified array
+  if (result["id"] === undefined) {
+    if (result["rowId"] !== undefined) result["id"] = result["rowId"];
+    else if (result["recordId"] !== undefined) result["id"] = result["recordId"];
+  }
+
+  if (result["idColumn"] === undefined) {
+    if (result["idCol"] !== undefined) result["idColumn"] = result["idCol"];
+    else if (result["primaryKey"] !== undefined) result["idColumn"] = result["primaryKey"];
+  }
+
+  if (result["column"] === undefined) {
+    if (result["vectorColumn"] !== undefined) result["column"] = result["vectorColumn"];
+    else if (result["col"] !== undefined) result["column"] = result["col"];
+  }
+
+  // Coerce vector/queryVector from string to array if agent hallucinated a stringified array
   if (typeof result["queryVector"] === "string") {
     try {
       const parsed = JSON.parse(result["queryVector"]) as unknown;
       if (Array.isArray(parsed)) {
         result["queryVector"] = parsed;
+      }
+    } catch {
+      // Ignore parse error, let zod validation catch it
+    }
+  }
+  if (typeof result["vector"] === "string") {
+    try {
+      const parsed = JSON.parse(result["vector"]) as unknown;
+      if (Array.isArray(parsed)) {
+        result["vector"] = parsed;
       }
     } catch {
       // Ignore parse error, let zod validation catch it

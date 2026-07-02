@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { BaseOutputSchema } from "./output-schemas.js";
-import { preprocessTableParams, preprocessVectorParams } from "./preprocess-utils.js";
+import { preprocessVectorParams } from "./preprocess-utils.js";
 
 /**
  * Common schema fragments
@@ -56,7 +56,7 @@ export const VectorStoreSchemaBase = z.object({
 
 export const VectorStoreSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   column: columnParam,
@@ -75,7 +75,7 @@ export const VectorBatchStoreSchemaBase = z.object({
 
 export const VectorBatchStoreSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   column: columnParam,
@@ -95,7 +95,7 @@ export const VectorDeleteSchemaBase = z.object({
 
 export const VectorDeleteSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   id: idParam,
@@ -112,7 +112,7 @@ export const VectorGetSchemaBase = z.object({
 
 export const VectorGetSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   id: idParam,
@@ -229,7 +229,7 @@ export const VectorInfoSchemaBase = z.object({
 
 export const VectorInfoSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   column: z.string().min(1).optional(),
@@ -245,7 +245,7 @@ export const VectorCreateIndexSchemaBase = z.object({
 
 export const VectorCreateIndexSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
@@ -260,7 +260,7 @@ export const VectorOptimizeSchemaBase = z.object({
 
 export const VectorOptimizeSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
 })
@@ -273,7 +273,7 @@ export const VectorStatsSchemaBase = z.object({
 
 export const VectorStatsSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessVectorParams,
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
