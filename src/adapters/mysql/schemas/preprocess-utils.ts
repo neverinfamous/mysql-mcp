@@ -34,7 +34,7 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
 
 /**
  * Preprocess table parameters:
- * - Alias: tableName/name → table
+ * - Alias: tableName/name/tbl → table
  */
 export function preprocessTableParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
@@ -43,6 +43,7 @@ export function preprocessTableParams(input: unknown): unknown {
     if (result["tableName"] !== undefined)
       result["table"] = result["tableName"];
     else if (result["name"] !== undefined) result["table"] = result["name"];
+    else if (result["tbl"] !== undefined) result["table"] = result["tbl"];
   }
   return result;
 }

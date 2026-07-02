@@ -80,9 +80,10 @@ export const ImportDataSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
   data: z
     .array(z.record(z.string(), z.unknown()))
-    .describe("Array of row objects to insert"),
+    .describe("Array of row objects to insert. (Do NOT pass a filepath string. To import a .sql file, use shell.importTable)"),
 });
 
 export const ImportDataSchema = z
@@ -92,15 +93,16 @@ export const ImportDataSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
       data: z.array(z.record(z.string(), z.unknown())),
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? "",
     data: data.data,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "table (or tableName/name/tbl alias) is required",
   });
 
 // =============================================================================

@@ -385,7 +385,8 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
 export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
-    database: z.string().describe("Database name"),
+    database: z.string().optional().describe("Database name"),
+    db: z.string().optional().describe("Alias for database"),
     tables: z
       .array(z.string())
       .min(1, "Tables array cannot be empty if provided")
@@ -403,13 +404,26 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       .describe("Use single transaction for dump (no locking)"),
   });
 
-  const schema = schemaBase
-    .transform((data) => ({
-      database: data.database,
-      tables: data.tables,
-      noData: data.noData,
-      singleTransaction: data.singleTransaction,
-    }));
+  const schema = z.preprocess(
+    (input) => {
+      if (typeof input !== "object" || input === null) return input;
+      const res = { ...(input as Record<string, unknown>) };
+      if (res["database"] === undefined && res["db"] !== undefined) res["database"] = res["db"];
+      return res;
+    },
+    z.object({
+      database: z.string(),
+      db: z.string().optional(),
+      tables: z.array(z.string()).optional(),
+      noData: z.boolean().optional().default(false),
+      singleTransaction: z.boolean().optional().default(false),
+    })
+  ).transform((data) => ({
+    database: data.database,
+    tables: data.tables,
+    noData: data.noData,
+    singleTransaction: data.singleTransaction,
+  }));
 
   return {
     name: "mysql_create_dump",
@@ -506,17 +520,29 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
 export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
-    database: z.string().describe("Target database"),
+    database: z.string().optional().describe("Target database"),
+    db: z.string().optional().describe("Alias for database"),
     filename: z
       .string()
       .describe("Dump file to restore"),
   });
 
-  const schema = schemaBase
-    .transform((data) => ({
-      database: data.database,
-      filename: data.filename,
-    }));
+  const schema = z.preprocess(
+    (input) => {
+      if (typeof input !== "object" || input === null) return input;
+      const res = { ...(input as Record<string, unknown>) };
+      if (res["database"] === undefined && res["db"] !== undefined) res["database"] = res["db"];
+      return res;
+    },
+    z.object({
+      database: z.string(),
+      db: z.string().optional(),
+      filename: z.string(),
+    })
+  ).transform((data) => ({
+    database: data.database,
+    filename: data.filename,
+  }));
 
   return {
     name: "mysql_restore_dump",

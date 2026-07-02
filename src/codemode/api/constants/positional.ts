@@ -118,10 +118,10 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   replicationStatus: "summary",
 
   // ============ BACKUP GROUP ============
-  createDump: "tables",
+  createDump: "database",
   exportTable: "table",
-  importData: "table",
-  restoreDump: "filename",
+  importData: ["table", "data"],
+  restoreDump: ["database", "filename"],
 
   // ============ STATS GROUP ============
   descriptive: ["table", "column"],

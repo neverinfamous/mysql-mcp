@@ -159,6 +159,14 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     export: "exportTable",
     import: "importData",
     restore: "restoreDump",
+    mysql_export_table: "exportTable",
+    mysqlExportTable: "exportTable",
+    mysql_import_data: "importData",
+    mysqlImportData: "importData",
+    mysql_create_dump: "createDump",
+    mysqlCreateDump: "createDump",
+    mysql_restore_dump: "restoreDump",
+    mysqlRestoreDump: "restoreDump",
   },
   // Replication: intuitive aliases
   replication: {
