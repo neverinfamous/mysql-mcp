@@ -200,6 +200,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   // Schema: intuitive aliases
   schema: {
     views: "listViews",
+    getViews: "listViews",
+    getView: "listViews",
+    addView: "createView",
+    removeView: "dropView",
     functions: "listFunctions",
     procedures: "listStoredProcedures",
     triggers: "listTriggers",

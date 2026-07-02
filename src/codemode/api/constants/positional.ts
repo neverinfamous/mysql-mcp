@@ -33,6 +33,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   listTriggers: "table",
   listConstraints: "table",
   createView: ["name", "sql"],
+  dropView: "name",
 
   // ============ JSON GROUP ============
   extract: ["table", "column", "path", "where"],

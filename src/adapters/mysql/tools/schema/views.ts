@@ -54,6 +54,7 @@ const ListViewsOutputSchema = BaseOutputSchema.extend({
 const CreateViewSchemaBase = z.object({
   name: z.string().default("").describe("View name"),
   view: z.string().default("").describe("Alias for name"),
+  viewName: z.string().default("").describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   definition: z
@@ -61,6 +62,7 @@ const CreateViewSchemaBase = z.object({
     .default("")
     .describe("SELECT statement defining the view"),
   query: z.string().default("").describe("Alias for definition"),
+  sql: z.string().default("").describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
   algorithm: z.string().default("UNDEFINED").describe("View algorithm"),
   checkOption: z.string().default("NONE").describe("WITH CHECK OPTION"),
@@ -72,9 +74,9 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'],
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
-        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? obj['query'],
+        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? obj['query'] ?? obj['sql'],
       };
     }
     return val;
@@ -106,6 +108,7 @@ const CreateViewOutputSchema = BaseOutputSchema.extend({
 const DropViewSchemaBase = z.object({
   name: z.string().default("").describe("View name"),
   view: z.string().default("").describe("Alias for name"),
+  viewName: z.string().default("").describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
@@ -117,7 +120,7 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'],
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
       };
     }
