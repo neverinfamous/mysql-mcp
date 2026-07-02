@@ -3,7 +3,7 @@ import { preprocessJsonColumnParams } from "../../../schemas/preprocess-utils.js
 
 export const StatsRowNumberSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name (Required)"),
+  table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
@@ -12,7 +12,7 @@ export const StatsRowNumberSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Columns to include in result"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -35,7 +35,7 @@ export const StatsRowNumberSchema = z.preprocess(
     orderBy: z.string().min(1, "orderBy is required"),
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     offset: z.number().min(0).default(0),
   })
@@ -43,7 +43,7 @@ export const StatsRowNumberSchema = z.preprocess(
 
 export const StatsRankSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name (Required)"),
+  table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   orderBy: z
@@ -56,7 +56,7 @@ export const StatsRankSchemaBase = z.object({
     .optional()
     .describe("Columns to include in result"),
   method: z.unknown().optional().describe("Rank function type (default: rank)"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -80,7 +80,7 @@ export const StatsRankSchema = z.preprocess(
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
     method: z.enum(["rank", "dense_rank", "percent_rank"]).default("rank"),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     offset: z.number().min(0).default(0),
   })
@@ -88,7 +88,7 @@ export const StatsRankSchema = z.preprocess(
 
 export const StatsLagLeadSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name (Required)"),
+  table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to get lag/lead value from (Required)"),
@@ -112,7 +112,7 @@ export const StatsLagLeadSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Columns to include in result"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -139,7 +139,7 @@ export const StatsLagLeadSchema = z.preprocess(
     defaultValue: z.string().optional(),
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     paginationOffset: z.number().min(0).default(0),
   })
@@ -147,7 +147,7 @@ export const StatsLagLeadSchema = z.preprocess(
 
 export const StatsRunningTotalSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name (Required)"),
+  table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column to sum (Required)"),
@@ -162,7 +162,7 @@ export const StatsRunningTotalSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Columns to include in result"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -186,7 +186,7 @@ export const StatsRunningTotalSchema = z.preprocess(
     orderBy: z.string().min(1, "orderBy is required"),
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     offset: z.number().min(0).default(0),
   })
@@ -194,7 +194,7 @@ export const StatsRunningTotalSchema = z.preprocess(
 
 export const StatsMovingAvgSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name (Required)"),
+  table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column to average (Required)"),
@@ -210,7 +210,7 @@ export const StatsMovingAvgSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Columns to include in result"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -235,7 +235,7 @@ export const StatsMovingAvgSchema = z.preprocess(
     windowSize: z.coerce.number().min(1).default(3),
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     offset: z.number().min(0).default(0),
   })
@@ -243,7 +243,7 @@ export const StatsMovingAvgSchema = z.preprocess(
 
 export const StatsNtileSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
-  table: z.string().optional().describe("Table name (Required)"),
+  table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
@@ -256,7 +256,7 @@ export const StatsNtileSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Columns to include in result"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -280,7 +280,7 @@ export const StatsNtileSchema = z.preprocess(
     buckets: z.coerce.number().min(1).default(4),
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     offset: z.number().min(0).default(0),
   })
