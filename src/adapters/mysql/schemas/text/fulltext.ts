@@ -5,6 +5,28 @@ import {
   defaultToEmpty,
 } from "../preprocess-utils.js";
 
+function preprocessFulltextParams(val: unknown): unknown {
+  const v1 = preprocessTableParams(val);
+  const v2 = preprocessQueryOnlyParams(v1);
+  if (v2 && typeof v2 === "object") {
+    const v = v2 as Record<string, unknown>;
+    // Agents often pass fulltextSearch(table, query, columns) resulting in:
+    // columns = query (string), query = columns (array)
+    if (typeof v.columns === "string" && Array.isArray(v.query)) {
+      const temp = v.columns;
+      v.columns = v.query;
+      v.query = temp;
+    }
+    // Also if they alias 'query' as 'sql', let's check sql too
+    if (typeof v.columns === "string" && Array.isArray(v.sql)) {
+      const temp = v.columns;
+      v.columns = v.sql;
+      v.sql = temp;
+    }
+  }
+  return v2;
+}
+
 // --- FulltextCreate ---
 export const FulltextCreateSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
@@ -12,7 +34,7 @@ export const FulltextCreateSchemaBase = z.object({
   columns: z
     .array(z.string())
     .optional()
-    .describe("Columns to include in index"),
+    .describe("Columns to include in index. Note: must be an array (e.g. ['col1'])."),
   indexName: z.string().optional().describe("Optional index name"),
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
@@ -49,10 +71,10 @@ export const FulltextSearchSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search"),
+  columns: z.array(z.string()).optional().describe("Columns to search. Note: must be an array (e.g. ['col1'])."),
   col: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query"),
+  query: z.string().optional().describe("Search query. Note: must be a string, not an array."),
   sql: z.string().optional().describe("Alias for query"),
   mode: z
     .enum(["NATURAL", "BOOLEAN", "EXPANSION"])
@@ -81,10 +103,7 @@ export const FulltextSearchSchemaBase = z.object({
 
 export const FulltextSearchSchema = z
   .preprocess(
-    (val) => {
-      const v1 = preprocessTableParams(val);
-      return preprocessQueryOnlyParams(v1);
-    },
+    preprocessFulltextParams,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -171,13 +190,13 @@ export const FulltextBooleanSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search"),
+  columns: z.array(z.string()).optional().describe("Columns to search. Note: must be an array (e.g. ['col1'])."),
   col: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
   query: z
     .string()
     .optional()
-    .describe("Boolean search query with +, -, *, etc."),
+    .describe("Boolean search query with +, -, *, etc. Note: must be a string, not an array."),
   maxLength: z
     .unknown()
     .optional()
@@ -200,7 +219,7 @@ export const FulltextBooleanSchemaBase = z.object({
 
 export const FulltextBooleanSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessFulltextParams,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
@@ -245,10 +264,10 @@ export const FulltextExpandSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search"),
+  columns: z.array(z.string()).optional().describe("Columns to search. Note: must be an array (e.g. ['col1'])."),
   col: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query to expand"),
+  query: z.string().optional().describe("Search query to expand. Note: must be a string, not an array."),
   maxLength: z
     .unknown()
     .optional()
@@ -271,7 +290,7 @@ export const FulltextExpandSchemaBase = z.object({
 
 export const FulltextExpandSchema = z
   .preprocess(
-    preprocessTableParams,
+    preprocessFulltextParams,
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),

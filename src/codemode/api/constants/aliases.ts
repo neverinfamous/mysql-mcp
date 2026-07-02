@@ -54,8 +54,13 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
   // Fulltext: intuitive aliases
   fulltext: {
     create: "fulltextCreate",
+    add: "fulltextCreate",
     drop: "fulltextDrop",
+    remove: "fulltextDrop",
+    delete: "fulltextDrop",
     search: "fulltextSearch",
+    get: "fulltextSearch",
+    find: "fulltextSearch",
     boolean: "fulltextBoolean",
     expand: "fulltextExpand",
     createIndex: "fulltextCreate",
