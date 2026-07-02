@@ -10,6 +10,7 @@ import { BaseOutputSchema } from "../output-schemas.js";
 export const DependencyGraphSchemaBase = z.object({
   schema: z.string().optional().describe("Schema to analyze (REQUIRED)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
   includeRowCounts: z
     .boolean()
     .optional()
@@ -34,6 +35,7 @@ export const DependencyGraphSchemaBase = z.object({
 export const DependencyGraphSchema = z.object({
   schema: z.string().default(""),
   database: z.string().optional(),
+  db: z.string().optional(),
   table: z.string().optional(),
   tableName: z.string().optional(),
   name: z.string().optional(),
@@ -51,6 +53,7 @@ export const DependencyGraphSchema = z.object({
     .optional(),
 }).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
+  if (val.db && !val.schema) val.schema = val.db;
   if (val.tableName && !val.table) val.table = val.tableName;
   if (val.name && !val.table) val.table = val.name;
   
@@ -77,6 +80,7 @@ export const TopologicalSortSchemaBase = z.object({
     .optional()
     .describe("Schema to analyze (REQUIRED)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
   direction: z
     .string()
     .optional()
@@ -89,10 +93,12 @@ export const TopologicalSortSchema = z
   .object({
     schema: z.string().optional(),
     database: z.string().optional(),
+    db: z.string().optional(),
     direction: z.enum(["create", "drop"]).optional(),
   })
   .transform(val => {
     if (val.database && !val.schema) val.schema = val.database;
+    if (val.db && !val.schema) val.schema = val.db;
     return val;
   })
   .default({});
@@ -109,6 +115,7 @@ export const CascadeSimulatorSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   schema: z.string().optional().describe("Schema name (default: public)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
   operation: z
     .string()
     .optional()
@@ -121,6 +128,7 @@ const CascadeSimulatorInnerSchema = z.object({
   name: z.string().optional(),
   schema: z.string().optional(),
   database: z.string().optional(),
+  db: z.string().optional(),
   operation: z.enum(["DELETE", "DROP", "TRUNCATE"]).optional(),
 });
 
@@ -129,6 +137,7 @@ export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
   return input;
 }, CascadeSimulatorInnerSchema).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
+  if (val.db && !val.schema) val.schema = val.db;
   if (val.tableName && !val.table) val.table = val.tableName;
   if (val.name && !val.table) val.table = val.name;
 
@@ -155,6 +164,7 @@ export const SchemaSnapshotSchemaBase = z.object({
     .optional()
     .describe("Schema to snapshot (REQUIRED)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
   includeSystem: z
     .boolean()
     .optional()
@@ -181,6 +191,7 @@ export const SchemaSnapshotSchema = z
   .object({
     schema: z.string().optional(),
     database: z.string().optional(),
+    db: z.string().optional(),
     includeSystem: z.boolean().optional(),
     sections: z
       .array(
@@ -205,6 +216,7 @@ export const SchemaSnapshotSchema = z
   })
   .transform(val => {
     if (val.database && !val.schema) val.schema = val.database;
+    if (val.db && !val.schema) val.schema = val.db;
     return val;
   })
   .default({ compact: true, limit: 100 });
@@ -218,6 +230,7 @@ export const ConstraintAnalysisSchemaBase = z.object({
     .optional()
     .describe("Schema to analyze (REQUIRED)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
   table: z
     .string()
     .optional()
@@ -242,6 +255,7 @@ export const ConstraintAnalysisSchemaBase = z.object({
 const ConstraintAnalysisInnerSchema = z.object({
   schema: z.string().optional(),
   database: z.string().optional(),
+  db: z.string().optional(),
   table: z.string().optional(),
   tableName: z.string().optional(),
   name: z.string().optional(),
@@ -264,6 +278,7 @@ export const ConstraintAnalysisSchema = z.preprocess((input: unknown) => {
   return input;
 }, ConstraintAnalysisInnerSchema.default({})).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
+  if (val.db && !val.schema) val.schema = val.db;
   if (val.tableName && !val.table) val.table = val.tableName;
   if (val.name && !val.table) val.table = val.name;
 
@@ -294,27 +309,33 @@ export const MigrationRisksSchemaBase = z.object({
     .optional()
     .describe("Single DDL statement (alias for statements)"),
   sql: z.string().optional().describe("Alias for statements/statement"),
+  query: z.string().optional().describe("Alias for statements/statement"),
   ddlQuery: z.string().optional().describe("Alias for statements/statement"),
   schema: z
     .string()
     .optional()
     .describe("Target schema context (default: public)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
 });
 
 export const MigrationRisksSchema = z.object({
   statements: z.array(z.string()).optional(),
   statement: z.string().optional(),
   sql: z.string().optional(),
+  query: z.string().optional(),
   ddlQuery: z.string().optional(),
   schema: z.string().optional(),
   database: z.string().optional(),
+  db: z.string().optional(),
 }).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
+  if (val.db && !val.schema) val.schema = val.db;
   
   const stmts: string[] = val.statements ?? [];
   if (val.statement && stmts.length === 0) stmts.push(val.statement);
   if (val.sql && stmts.length === 0) stmts.push(val.sql);
+  if (val.query && stmts.length === 0) stmts.push(val.query);
   if (val.ddlQuery && stmts.length === 0) stmts.push(val.ddlQuery);
   val.statements = stmts;
   
