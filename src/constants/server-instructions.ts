@@ -114,7 +114,7 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 
 - **Audit Backup availability**: These interact with the Audit Subsystem's pre-mutation snapshots. If disabled, they return a \`CONFIGURATION_ERROR\`.
 - **List backups**: \`mysql_audit_list_backups\` has no required parameters, legitimately returns up to 10 latest backups. Use \`table\` parameter to filter.
-- **Diff backup**: \`mysql_audit_diff_backup\` provides a row-level differential. If the table was dropped, it safely returns a placeholder string. Returns \`{ success: false, error }\` for invalid \`backupId\`. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`.
+- **Diff backup**: \`mysql_audit_diff_backup\` provides a row-level differential. If the table was dropped, it safely returns a placeholder string. Returns \`{ success: false, error }\` for invalid \`backupId\`. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`. Aliases: \`diff\`, \`auditDiff\`, \`diffBackup\`.
 - **Restore backup**: \`mysql_audit_restore_backup\` restores a specific table. Set \`dryRun: true\` (default) to safely view the DDL and DML of a snapshot before actually executing the restoration. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`.`],
   ["cluster", `# Cluster Tools (Group Replication + InnoDB Cluster)
 

@@ -228,6 +228,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     restoreBackup: "auditRestoreBackup",
     auditDiff: "auditDiffBackup",
     diff: "auditDiffBackup",
+    diffBackup: "auditDiffBackup",
   },
   // Replication: intuitive aliases
   replication: {
