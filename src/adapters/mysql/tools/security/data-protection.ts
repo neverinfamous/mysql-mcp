@@ -65,6 +65,7 @@ const UserPrivilegesSchemaBase = z.object({
   user: z.string().optional().describe("Filter by username"),
   userName: z.string().optional().describe("Alias for user"),
   username: z.string().optional().describe("Alias for user"),
+  name: z.string().optional().describe("Alias for user"),
   host: z.string().optional().describe("Host pattern"),
   includeRoles: z.boolean().optional().describe("Include role grants"),
   summary: z
@@ -84,6 +85,8 @@ const UserPrivilegesSchema = z.preprocess(
         return { ...obj, user: obj["userName"] };
       } else if ("username" in obj) {
         return { ...obj, user: obj["username"] };
+      } else if ("name" in obj) {
+        return { ...obj, user: obj["name"] };
       }
     }
     return val;

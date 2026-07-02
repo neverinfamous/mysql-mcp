@@ -432,6 +432,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     getSsl: "sslStatus",
     encryption: "encryptionStatus",
     getEncryptionStatus: "encryptionStatus",
+    status: "encryptionStatus",
     firewall: "firewallStatus",
     privileges: "userPrivileges",
     getUserPrivileges: "userPrivileges",

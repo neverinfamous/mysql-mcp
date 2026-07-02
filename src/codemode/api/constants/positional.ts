@@ -324,8 +324,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   maskData: ["value", "type"],
   audit: "user",
   firewallRules: "user",
-  userPrivileges: "user",
-  sensitiveTables: "schema",
+  userPrivileges: ["user", "host"],
+  sensitiveTables: ["schema", "patterns"],
 
   // ============ ROUTER GROUP ============
   routeStatus: "routeName",
