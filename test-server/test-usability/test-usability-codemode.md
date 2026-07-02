@@ -12,7 +12,7 @@ Use the `mysql_execute_code` tool to interact with the following tools in the `c
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
-- Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
+- Guess property names: Pass `script` or `javascript` instead of `code` to see if they resolve correctly.
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.
 - Note any errors, exceptions, or unexpected behavior.
 
