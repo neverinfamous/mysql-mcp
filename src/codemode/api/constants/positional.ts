@@ -130,8 +130,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   getOptimizerTrace: "query",
 
   // ============ ADMIN GROUP ============
-  checkTable: "table",
-  repairTable: "table",
+  checkTable: ["table", "option"],
+  repairTable: ["table", "quick"],
   optimizeTable: "table",
   analyzeTable: "table",
   killQuery: "processId",

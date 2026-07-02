@@ -170,6 +170,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     kill: "killQuery",
     serverConfig: "serverConfig",
     config: "serverConfig",
+    get: "serverConfig",
+    set: "serverConfig",
     insight: "appendInsight",
     append: "appendInsight",
     audit: "auditSearch",
