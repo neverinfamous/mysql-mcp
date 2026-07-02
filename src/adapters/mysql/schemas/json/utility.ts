@@ -49,6 +49,8 @@ export const JsonStatsSchemaBase = z.object({
   col: z.string().optional().describe("Alias for column"),
   where: z.string().optional().describe("Optional WHERE clause"),
   filter: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
   sampleSize: z.unknown().optional().describe("Sample size for statistics"),
 });
 
@@ -63,13 +65,15 @@ export const JsonStatsSchema = z
       col: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
       sampleSize: z.coerce.number().default(1000),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    where: data.where ?? data.filter,
+    where: data.where ?? data.filter ?? data.query ?? data.sql,
     sampleSize: data.sampleSize,
   }))
   .refine((data) => data.table !== "", {
