@@ -12,4 +12,4 @@
   - ❌ Incorrect: `filter: "$.name == 'Alice'"` (comparison operators not supported in path)
   - ✅ Correct: `filter: "name=Alice"` (field=value format)
 - **Schema existence**: All docstore tools that accept a `schema` parameter return `{ success: false, code: "SCHEMA_NOT_FOUND" }` when a nonexistent schema is explicitly provided, matching the P154 pattern used by schema introspection and event tools.
-- **Find Filters** (`mysql_doc_find`): The filter parameter checks for field existence using JSON path only (e.g., `$.address.zip`). The path must be a valid JSON path (`$`, `$.field`, `$.field.sub`, `$.field[0]`); invalid paths return `{ success: false, error }`. Does NOT support `_id` or `field=value` formats. Accepts optional `schema` parameter.
+- **Find Filters** (`mysql_doc_find`): The filter parameter shares the same syntax as modify and remove. Supports JSON path for existence (e.g., `$.address`), direct `_id` match (32-character hex), and `field=value` format (e.g., `name=Alice`). Accepts optional `schema` parameter.

@@ -542,6 +542,8 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     collectionInfo: "docCollectionInfo",
     info: "docCollectionInfo",
     get: "docFind",
+    search: "docFind",
+    query: "docFind",
     createIndex: "docCreateIndex",
     addIndex: "docCreateIndex",
   },

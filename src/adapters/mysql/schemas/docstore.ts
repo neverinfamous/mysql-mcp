@@ -101,7 +101,7 @@ export const FindSchemaBase = z.object({
 });
 
 export const FindSchemaStrict = z.object({
-  collection: z.string(),
+  collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
   filter: z
     .string()
@@ -134,11 +134,11 @@ export const AddDocSchemaBase = z.object({
 });
 
 export const AddDocSchemaStrict = z.object({
-  collection: z.string(),
+  collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
   documents: z
     .array(z.record(z.string(), z.unknown()))
-    .describe("Documents to add"),
+    .describe("Documents to add. Hint: Use 'documents' instead of 'document'."),
 });
 
 export const AddDocSchema = z.preprocess(
@@ -168,14 +168,14 @@ export const ModifyDocSchemaBase = z.object({
 });
 
 export const ModifyDocSchemaStrict = z.object({
-  collection: z.string(),
+  collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
   filter: z
     .string()
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
-  set: z.record(z.string(), z.unknown()).optional().describe("Fields to set"),
+  set: z.record(z.string(), z.unknown()).optional().describe("Fields to set. Hint: Use 'set' instead of 'patch' or 'update'."),
   unset: z.array(z.string()).optional(),
 });
 
@@ -202,7 +202,7 @@ export const RemoveDocSchemaBase = z.object({
 });
 
 export const RemoveDocSchemaStrict = z.object({
-  collection: z.string(),
+  collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
   filter: z
     .string()
@@ -238,9 +238,9 @@ export const CreateDocIndexSchemaBase = z.object({
 });
 
 export const CreateDocIndexSchemaStrict = z.object({
-  collection: z.string(),
+  collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
-  name: z.string(),
+  name: z.string().describe("Index name. Hint: Use 'name' instead of 'indexName'."),
   fields: z.array(
     z.object({
       path: z.string(),
@@ -266,7 +266,7 @@ export const CollectionInfoSchemaBase = z.object({
 });
 
 export const CollectionInfoSchemaStrict = z.object({
-  collection: z.string(),
+  collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
 });
 
