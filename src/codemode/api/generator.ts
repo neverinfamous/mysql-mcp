@@ -1,8 +1,12 @@
 import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition } from "../../types/index.js";
+import { ValidationError } from "../../types/index.js";
 import type { AuditInterceptor } from "../../audit/interceptor.js";
 import { METHOD_ALIASES } from "./constants/index.js";
 import { normalizeParams } from "./params.js";
+import { formatHandlerErrorResponse } from "../../adapters/mysql/tools/core/error-helpers.js";
+
+import { z } from "zod";
 
 /**
  * Dynamic API generator for tool groups.
@@ -29,6 +33,24 @@ export function createGroupApi(
     api[methodName] = async (...args: unknown[]) => {
       // Normalize positional arguments to object parameters
       const normalizedParams = normalizeParams(methodName, args) ?? {};
+      
+      // Perform Zod validation on normalized params before calling the handler
+      let schema: z.ZodType;
+      if (typeof (tool.inputSchema as z.ZodType).safeParse === "function") {
+        schema = tool.inputSchema as z.ZodType;
+      } else {
+        schema = z.object(tool.inputSchema as z.ZodRawShape);
+      }
+
+      const validationResult = schema.safeParse(normalizedParams);
+      if (!validationResult.success) {
+        return formatHandlerErrorResponse(
+          new ValidationError(
+            `Validation failed for ${tool.name}: ${validationResult.error.message}`
+          )
+        );
+      }
+
       const context = adapter.createContext();
       context.isCodeMode = true;
 
@@ -36,13 +58,13 @@ export function createGroupApi(
       if (auditInterceptor) {
         return auditInterceptor.around(
           tool.name,
-          normalizedParams,
+          validationResult.data,
           context.requestId,
-          () => tool.handler(normalizedParams, context),
+          () => tool.handler(validationResult.data, context),
           { logAs: "mysql_execute_code" },
         );
       }
-      return tool.handler(normalizedParams, context);
+      return tool.handler(validationResult.data, context);
     };
   }
 
