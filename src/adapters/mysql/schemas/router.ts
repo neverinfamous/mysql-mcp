@@ -124,6 +124,8 @@ export const RouteNameInputSchemaBase = z.object({
   routename: z.string().optional().describe("Alias for routeName"),
   routerName: z.string().optional().describe("Alias for routeName"),
   id: z.string().optional().describe("Alias for routeName"),
+  clusterName: z.string().optional().describe("Alias for routeName"),
+  cluster_name: z.string().optional().describe("Alias for routeName"),
 });
 
 export const RouteNameInputSchema = z.preprocess(
@@ -136,7 +138,9 @@ export const RouteNameInputSchema = z.preprocess(
                  (obj["route"] !== undefined ? obj["route"] : 
                   (obj["name"] !== undefined ? obj["name"] : 
                    (obj["routename"] !== undefined ? obj["routename"] : 
-                    (obj["routerName"] !== undefined ? obj["routerName"] : obj["id"])))),
+                    (obj["routerName"] !== undefined ? obj["routerName"] : 
+                     (obj["clusterName"] !== undefined ? obj["clusterName"] : 
+                      (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"])))))),
     };
   },
   RouteNameInputSchemaBase
@@ -156,6 +160,8 @@ export const MetadataNameInputSchemaBase = z.object({
   metadata: z.string().optional().describe("Alias for metadataName"),
   metadataname: z.string().optional().describe("Alias for metadataName"),
   id: z.string().optional().describe("Alias for metadataName"),
+  clusterName: z.string().optional().describe("Alias for metadataName"),
+  cluster_name: z.string().optional().describe("Alias for metadataName"),
 });
 
 export const MetadataNameInputSchema = z.preprocess(
@@ -167,7 +173,9 @@ export const MetadataNameInputSchema = z.preprocess(
       metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : 
                     (obj["metadata"] !== undefined ? obj["metadata"] : 
                      (obj["name"] !== undefined ? obj["name"] : 
-                      (obj["metadataname"] !== undefined ? obj["metadataname"] : obj["id"]))),
+                      (obj["metadataname"] !== undefined ? obj["metadataname"] : 
+                       (obj["clusterName"] !== undefined ? obj["clusterName"] : 
+                        (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))),
     };
   },
   MetadataNameInputSchemaBase
@@ -184,6 +192,8 @@ export const ConnectionPoolNameInputSchemaBase = z.object({
   pool: z.string().optional().describe("Alias for poolName"),
   poolname: z.string().optional().describe("Alias for poolName"),
   id: z.string().optional().describe("Alias for poolName"),
+  clusterName: z.string().optional().describe("Alias for poolName"),
+  cluster_name: z.string().optional().describe("Alias for poolName"),
 });
 
 export const ConnectionPoolNameInputSchema = z.preprocess(
@@ -195,7 +205,9 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
       poolName: obj["poolName"] !== undefined ? obj["poolName"] : 
                 (obj["pool"] !== undefined ? obj["pool"] : 
                  (obj["name"] !== undefined ? obj["name"] : 
-                  (obj["poolname"] !== undefined ? obj["poolname"] : obj["id"]))),
+                  (obj["poolname"] !== undefined ? obj["poolname"] : 
+                   (obj["clusterName"] !== undefined ? obj["clusterName"] : 
+                    (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))),
     };
   },
   ConnectionPoolNameInputSchemaBase
