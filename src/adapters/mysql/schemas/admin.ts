@@ -350,18 +350,40 @@ export const ServerHealthSchema = z.preprocess(
 export const ServerConfigSchemaBase = z.object({
   action: z
     .enum(["get", "set"])
-    .describe("Whether to get or set the configuration value. Note: action is required."),
+    .optional()
+    .default("get")
+    .describe("Whether to get or set the configuration value. Defaults to 'get'."),
   setting: z
     .enum(["logLevel"])
     .optional()
     .describe("The setting to modify"),
+  key: z.enum(["logLevel"]).optional().describe("Alias for setting"),
   value: z
     .string()
     .optional()
     .describe("The new value for the setting (e.g., 'debug', 'info', 'warning')"),
+  val: z.string().optional().describe("Alias for value"),
 });
 
-export const ServerConfigSchema = ServerConfigSchemaBase.refine(
+export const ServerConfigSchema = z.preprocess(
+  (obj: unknown) => {
+    if (obj === null || obj === undefined || typeof obj !== "object") return { action: "get" };
+    const record = obj as Record<string, unknown>;
+    const result = { ...record };
+    
+    if (result["action"] === undefined) {
+      result["action"] = "get";
+    }
+    if (result["setting"] === undefined && result["key"] !== undefined) {
+      result["setting"] = result["key"];
+    }
+    if (result["value"] === undefined && result["val"] !== undefined) {
+      result["value"] = result["val"];
+    }
+    return result;
+  },
+  ServerConfigSchemaBase
+).refine(
   (data) => {
     if (data.action === "set") {
       return data.setting !== undefined && data.value !== undefined;
