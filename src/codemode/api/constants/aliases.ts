@@ -307,6 +307,10 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     scheduler: "schedulerStatus",
     getScheduler: "schedulerStatus",
     getSchedulerStatus: "schedulerStatus",
+    update: "eventAlter",
+    modify: "eventAlter",
+    delete: "eventDrop",
+    remove: "eventDrop",
   },
   // Stats: intuitive aliases
   stats: {
