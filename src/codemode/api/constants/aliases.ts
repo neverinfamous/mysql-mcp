@@ -26,6 +26,7 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     jsonIndexSuggest: "indexSuggest",
     jsonStats: "stats",
     jsonArrayAppend: "arrayAppend",
+    append: "arrayAppend",
   },
   // Text: mysql_regexp_match → regexpMatch, but also regex
   text: {

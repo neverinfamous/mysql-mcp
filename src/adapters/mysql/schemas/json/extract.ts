@@ -58,7 +58,7 @@ export const JsonGetSchemaBase = z.object({
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to extract"),
-  where: z.string().optional().describe("WHERE clause to identify rows"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
   filter: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),

@@ -40,7 +40,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   insert: ["table", "column", "path", "value", "where"],
   remove: ["table", "column", "path", "where"],
   contains: ["table", "column", "value"],
-  keys: ["table", "column", "where"],
+  keys: ["table", "column", "path", "where"],
   replace: ["table", "column", "path", "value", "where"],
   get: ["table", "column", "path", "where"],
   search: ["table", "column", "searchValue"],
@@ -51,7 +51,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   normalize: ["table", "column"],
   merge: ["json1", "json2"],
   diff: ["json1", "json2"],
-  arrayAppend: ["table", "column", "path", "value"],
+  arrayAppend: ["table", "column", "path", "value", "where"],
 
   // ============ TEXT GROUP ============
   regexpMatch: ["table", "column", "pattern"],

@@ -242,7 +242,8 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   return {
     ...v,
     table: v["table"] ?? v["tableName"] ?? v["name"],
-    column: v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"],
+    column: v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"],
+    path: v["path"] ?? v["json_path"] ?? v["jsonPath"],
     where,
     searchValue: v["searchValue"] ?? v["searchString"],
   };
