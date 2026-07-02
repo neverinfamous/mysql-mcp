@@ -3,7 +3,7 @@ import { preprocessJsonColumnParams } from "../preprocess-utils.js";
 
 // --- JsonExtract ---
 export const JsonExtractSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
@@ -51,14 +51,14 @@ export const JsonExtractSchema = z
 
 // --- JsonGet ---
 export const JsonGetSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to extract"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -101,7 +101,7 @@ export const JsonGetSchema = z
 
 // --- JsonKeys ---
 export const JsonKeysSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),

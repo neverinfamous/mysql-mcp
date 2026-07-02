@@ -3,7 +3,7 @@ import { preprocessJsonColumnParams } from "../preprocess-utils.js";
 
 // --- JsonSet ---
 export const JsonSetSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
@@ -11,7 +11,7 @@ export const JsonSetSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to set"),
   value: z.unknown().optional().describe("Value to set"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -62,7 +62,7 @@ export const JsonSetSchema = z
 
 // --- JsonInsert ---
 export const JsonInsertSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
@@ -70,7 +70,7 @@ export const JsonInsertSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to insert at"),
   value: z.unknown().optional().describe("Value to insert"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -240,7 +240,7 @@ export const JsonRemoveSchema = z
 
 // --- JsonArrayAppend ---
 export const JsonArrayAppendSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
@@ -248,7 +248,7 @@ export const JsonArrayAppendSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to array"),
   value: z.unknown().optional().describe("Value to append"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -299,7 +299,7 @@ export const JsonArrayAppendSchema = z
 
 // --- JsonUpdate ---
 export const JsonUpdateSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("JSON column name"),
@@ -307,7 +307,7 @@ export const JsonUpdateSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("JSON path to update"),
   value: z.unknown().optional().describe("New value"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED)"),
+  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
