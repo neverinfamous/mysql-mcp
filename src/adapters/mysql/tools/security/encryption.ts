@@ -222,7 +222,7 @@ export function createSecurityPasswordValidateTool(
     name: "mysql_security_password_validate",
     title: "MySQL Password Validation",
     description:
-      "Validate password strength using MySQL validate_password component.",
+      "Validate password strength using MySQL validate_password component. Note: Requires validate_password component to be installed.",
     group: "security",
     inputSchema: PasswordValidateSchemaBase,
     outputSchema: SecurityPasswordValidateOutputSchema,

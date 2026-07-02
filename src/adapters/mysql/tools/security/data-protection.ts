@@ -33,7 +33,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 const MaskDataSchemaBase = z.object({
   value: z.string().describe("Value to mask"),
   data: z.string().optional().describe("Alias for value"),
-  type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]).describe("Masking type"),
+  type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]).describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
   keepFirst: z.number().optional().describe("Characters to keep from start"),
   keepLast: z.number().optional().describe("Characters to keep from end"),
   maskChar: z.string().optional().describe("Character to use for masking"),

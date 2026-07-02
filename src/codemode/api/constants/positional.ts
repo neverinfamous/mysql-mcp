@@ -173,6 +173,7 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
 
   // ============ SECURITY GROUP ============
   passwordValidate: "password",
+  maskData: ["value", "type"],
   audit: "user",
   firewallRules: "user",
 };
