@@ -6,6 +6,12 @@ export const CorrelationSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column1: z.string().optional().describe("First numeric column"),
   column2: z.string().optional().describe("Second numeric column"),
+  columnA: z.string().optional().describe("Alias for column1"),
+  columnB: z.string().optional().describe("Alias for column2"),
+  col1: z.string().optional().describe("Alias for column1"),
+  col2: z.string().optional().describe("Alias for column2"),
+  columnX: z.string().optional().describe("Alias for column1"),
+  columnY: z.string().optional().describe("Alias for column2"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
@@ -16,6 +22,8 @@ export const CorrelationSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      column1: obj["column1"] ?? obj["columnA"] ?? obj["col1"] ?? obj["columnX"],
+      column2: obj["column2"] ?? obj["columnB"] ?? obj["col2"] ?? obj["columnY"],
     };
   },
   z.object({
@@ -32,6 +40,10 @@ export const RegressionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   xColumn: z.string().optional().describe("Independent variable column"),
   yColumn: z.string().optional().describe("Dependent variable column"),
+  columnX: z.string().optional().describe("Alias for xColumn"),
+  columnY: z.string().optional().describe("Alias for yColumn"),
+  column1: z.string().optional().describe("Alias for xColumn"),
+  column2: z.string().optional().describe("Alias for yColumn"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
 });
 
@@ -42,6 +54,8 @@ export const RegressionSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"],
+      xColumn: obj["xColumn"] ?? obj["columnX"] ?? obj["column1"],
+      yColumn: obj["yColumn"] ?? obj["columnY"] ?? obj["column2"],
     };
   },
   z.object({
