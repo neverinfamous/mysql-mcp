@@ -50,6 +50,7 @@ export const CollationConvertSchema = z
       column: z.string().optional(),
       col: z.string().optional(),
       charset: z.string().optional(),
+      targetCharset: z.string().optional(),
       collation: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),

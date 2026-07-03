@@ -188,7 +188,7 @@ export const SubstringSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string)"),
   col: z.string().optional().describe("Alias for column"),
-  start: z.unknown().describe("Starting position (1-indexed)"),
+  start: z.unknown().optional().describe("Starting position (1-indexed)"),
   length: z.unknown().optional().describe("Number of characters"),
   where: z
     .string()
@@ -256,7 +256,7 @@ export const ConcatSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).min(1, "At least one column is required").describe("Columns to concatenate (Note: Pass column names, not raw strings)"),
+  columns: z.array(z.string()).optional().describe("Columns to concatenate (Note: Pass column names, not raw strings)"),
   separator: z
     .string()
     .optional()
