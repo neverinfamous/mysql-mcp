@@ -610,7 +610,7 @@ export const AuditListBackupsSchemaBase = z.object({
     .int()
     .min(1)
     .max(100)
-    .default(10)
+    .default(5)
     .describe("Max backups to return"),
   target: z
     .string()
@@ -634,7 +634,7 @@ export const AuditListBackupsSchema = z
       return obj;
     },
     z.object({
-      limit: z.number().int().min(1).max(100).default(10),
+      limit: z.number().int().min(1).max(100).default(5),
       target: z.string().optional(),
     })
   )
