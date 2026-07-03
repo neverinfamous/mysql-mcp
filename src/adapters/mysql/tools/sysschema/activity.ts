@@ -32,6 +32,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 const UserSummarySchemaBase = z.object({
   user: z.string().optional().describe("Filter by specific user. Anti-Hallucination: Pass 'user', not 'userName' or 'account'."),
   username: z.string().optional().describe("Alias for user"),
+  userName: z.string().optional().describe("Alias for user"),
   account: z.string().optional().describe("Alias for user"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
@@ -56,6 +57,7 @@ const UserSummarySchema = z.preprocess(
 const HostSummarySchemaBase = z.object({
   host: z.string().optional().describe("Filter by specific host. Anti-Hallucination: Pass 'host', not 'hostName' or 'ip'."),
   hostname: z.string().optional().describe("Alias for host"),
+  hostName: z.string().optional().describe("Alias for host"),
   ip: z.string().optional().describe("Alias for host"),
   address: z.string().optional().describe("Alias for host"),
   limit: z.number().optional().describe("Maximum number of results"),

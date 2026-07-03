@@ -42,6 +42,8 @@ const StatementSummarySchemaBase = z.object({
   orderBy: z.string().optional().describe("Order results by. Anti-Hallucination: Pass 'orderBy', not 'sort' or 'order'."),
   order: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
+  order_by: z.string().optional().describe("Alias for orderBy"),
   limit: z.number().optional().describe("Maximum number of results"),
 });
 
