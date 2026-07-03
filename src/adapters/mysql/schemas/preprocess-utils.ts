@@ -217,9 +217,14 @@ export function preprocessVectorParams(input: unknown): unknown {
       const parsed = JSON.parse(result["queryVector"]) as unknown;
       if (Array.isArray(parsed)) {
         result["queryVector"] = parsed;
+      } else if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["queryVector"] === undefined) {
+        delete result["queryVector"];
       }
     } catch {
-      // Ignore parse error, let zod validation catch it
+      // Ignore parse error, but if it came from an alias, it's likely meant for queryText
+      if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["queryVector"] === undefined) {
+        delete result["queryVector"];
+      }
     }
   }
   if (typeof result["vector"] === "string") {
@@ -227,9 +232,14 @@ export function preprocessVectorParams(input: unknown): unknown {
       const parsed = JSON.parse(result["vector"]) as unknown;
       if (Array.isArray(parsed)) {
         result["vector"] = parsed;
+      } else if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["vector"] === undefined) {
+        delete result["vector"];
       }
     } catch {
-      // Ignore parse error, let zod validation catch it
+      // Ignore parse error, but if it came from an alias, it's likely meant for queryText
+      if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["vector"] === undefined) {
+        delete result["vector"];
+      }
     }
   }
 
