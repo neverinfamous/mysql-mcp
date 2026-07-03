@@ -37,11 +37,11 @@ export const BinlogEventsSchema = z.preprocess(
     limit: z
       .number()
       .nonnegative()
-      .max(20, "Limit capped at 20 to prevent payload exhaustion")
+      .max(50, "Limit capped at 50 to prevent payload exhaustion")
       .optional()
       .default(5)
       .describe(
-        "Maximum events to return (default: 5, max: 20). Set higher for more events.",
+        "Maximum events to return (default: 5, max: 50). Set higher for more events.",
       ),
   })
 );
