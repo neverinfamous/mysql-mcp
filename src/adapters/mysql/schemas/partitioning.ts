@@ -47,16 +47,21 @@ export const AddPartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   database: z.string().optional().describe("Database name"),
   partitionName: z.string().optional().describe("New partition name"),
+  partition: z.string().optional().describe("Alias for partitionName"),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
     .describe("Partition type"),
+  type: z.string().optional().describe("Alias for partitionType"),
   value: z
     .string()
     .optional()
     .describe(
       'Partition boundary value only (or sql/expression alias) - e.g., "2024" for RANGE, "1,2,3" for LIST, "4" for HASH/KEY partitions count. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
     ),
+  sql: z.string().optional().describe("Alias for value"),
+  expression: z.string().optional().describe("Alias for value"),
+  definition: z.string().optional().describe("Alias for value"),
 });
 
 export const AddPartitionSchema = z
@@ -120,6 +125,7 @@ export const DropPartitionSchemaBase = z.object({
   database: z.string().optional().describe("Database name"),
   partitionName: z.string().optional().describe("Partition name to drop"),
   partition: z.string().optional().describe("Alias for partitionName"),
+  partitions: z.string().optional().describe("Alias for partitionName"),
 });
 
 export const DropPartitionSchema = z
@@ -169,12 +175,16 @@ export const ReorganizePartitionSchemaBase = z.object({
     .array(z.string())
     .optional()
     .describe("Source partition names. If passing a string, use a comma-separated list."),
+  partitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
+  from: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
+  sourcePartitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
     .describe(
       "Partition type (RANGE, LIST, RANGE COLUMNS, LIST COLUMNS). HASH/KEY partitions cannot be reorganized.",
     ),
+  type: z.string().optional().describe("Alias for partitionType"),
   toPartitions: z
     .array(
       z.object({
@@ -188,6 +198,10 @@ export const ReorganizePartitionSchemaBase = z.object({
     )
     .optional()
     .describe("Array of new partition definitions. MUST be an array of objects: [{ name: 'p1', value: '2024' }]"),
+  into: z.unknown().optional().describe("Alias for toPartitions"),
+  intoPartitions: z.unknown().optional().describe("Alias for toPartitions"),
+  newPartitions: z.unknown().optional().describe("Alias for toPartitions"),
+  to: z.unknown().optional().describe("Alias for toPartitions"),
 });
 
 export const ReorganizePartitionSchema = z
