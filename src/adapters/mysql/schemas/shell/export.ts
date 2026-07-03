@@ -51,5 +51,5 @@ export const ShellExportTableInputSchema = z.preprocess(
     };
   },
   ShellExportTableInputSchemaBase
-).refine((data) => data.table != null && data.table !== "", { message: "VALIDATION_ERROR: table is required" })
- .refine((data) => data.outputPath != null && data.outputPath !== "", { message: "VALIDATION_ERROR: outputPath is required" });
+).refine((data) => data.table != null && data.table !== "", { message: "table is required" })
+ .refine((data) => data.outputPath != null && data.outputPath !== "", { message: "outputPath is required" });

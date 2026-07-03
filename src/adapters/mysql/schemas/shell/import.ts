@@ -94,6 +94,7 @@ export const ShellImportJSONInputSchemaBase = z
       .string()
       .optional()
       .describe("Target collection or table name"),
+    collectionName: z.string().optional().describe("Alias for collection"),
     table: z.string().optional().describe("Alias for collection"),
     tableName: z.string().optional().describe("Alias for collection"),
     name: z.string().optional().describe("Alias for collection"),
@@ -112,9 +113,9 @@ export const ShellImportJSONInputSchemaBase = z
 export const ShellImportJSONInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; database?: unknown; collection?: unknown; table?: unknown; tableName?: unknown; name?: unknown; coll?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; database?: unknown; collection?: unknown; collectionName?: unknown; table?: unknown; tableName?: unknown; name?: unknown; coll?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
     const rawSchema = obj.schema ?? obj.database;
-    const rawCollection = obj.collection ?? obj.table ?? obj.tableName ?? obj.name ?? obj.coll;
+    const rawCollection = obj.collection ?? obj.collectionName ?? obj.table ?? obj.tableName ?? obj.name ?? obj.coll;
     return {
       ...obj,
       schema:
