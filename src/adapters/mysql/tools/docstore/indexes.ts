@@ -86,7 +86,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           for (const field of fields) {
             const cleanPath = field.path.replace(/^\$\.?/, "");
             const colName = `_idx_${cleanPath.replace(/\./g, "_")}`;
-            const cast = field.type === "TEXT" ? "CHAR(255)" : field.type.toUpperCase().replace(/^STRING$/, "VARCHAR(255)").replace(/^STRING\(/, "VARCHAR(");
+            const typeUpper = field.type.toUpperCase();
+            const cast = (typeUpper === "TEXT" || typeUpper === "STRING") 
+              ? "VARCHAR(255)" 
+              : typeUpper.replace(/^(TEXT|STRING)\(/, "VARCHAR(");
             await adapter.executeQuery(
               `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast}
                            GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${cleanPath}'))) STORED`,
