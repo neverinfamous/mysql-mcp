@@ -49,17 +49,21 @@ export function createGroupApi(
       const context = adapter.createContext();
       context.isCodeMode = true;
 
-      // §1: Wrap with audit interceptor when available
-      if (auditInterceptor) {
-        return auditInterceptor.around(
-          tool.name,
-          validationResult.data,
-          context.requestId,
-          () => tool.handler(validationResult.data, context),
-          { logAs: "mysql_execute_code" },
-        );
+      try {
+        // §1: Wrap with audit interceptor when available
+        if (auditInterceptor) {
+          return await auditInterceptor.around(
+            tool.name,
+            validationResult.data,
+            context.requestId,
+            () => tool.handler(validationResult.data, context),
+            { logAs: "mysql_execute_code" },
+          );
+        }
+        return await tool.handler(validationResult.data, context);
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
       }
-      return tool.handler(validationResult.data, context);
     };
   }
 
