@@ -314,4 +314,49 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
       await client.close();
     }
   });
+
+  test("Binary Types: buffer handling and serialization", async ({}, testInfo) => {
+    const client = await createClient();
+    try {
+      const p = await callToolAndParse(client, "mysql_execute_code", {
+        code: \`
+          // Create
+          await mysql.core.writeQuery({
+            query: "CREATE TABLE IF NOT EXISTS _e2e_codemode_binary (id INT AUTO_INCREMENT PRIMARY KEY, bin_col BINARY(4), varbin_col VARBINARY(10), blob_col BLOB)"
+          });
+
+          // Insert
+          const insertRes = await mysql.core.writeQuery({
+            query: "INSERT INTO _e2e_codemode_binary (bin_col, varbin_col, blob_col) VALUES (X'DEADBEEF', X'68656C6C6F2062696E', X'AAAAAAAA')"
+          });
+          const insertId = insertRes.data?.lastInsertId ?? insertRes.data?.insertId ?? 1;
+
+          // Query
+          const result = await mysql.core.readQuery({
+            query: "SELECT bin_col, varbin_col, blob_col FROM _e2e_codemode_binary WHERE id = ?",
+            args: [insertId]
+          });
+
+          // Cleanup
+          await mysql.core.writeQuery({ query: "DROP TABLE _e2e_codemode_binary" });
+
+          const row = (result.data?.rows ?? result.rows)[0];
+          return {
+            hasBinType: row?.bin_col?.type === 'Buffer',
+            hasVarBinType: row?.varbin_col?.type === 'Buffer',
+            hasBlobType: row?.blob_col?.type === 'Buffer',
+            binLength: row?.bin_col?.data?.length,
+          };
+        \`,
+      });
+      expectSuccess(p);
+      const result = p.result as Record<string, unknown>;
+      expect(result.hasBinType).toBe(true);
+      expect(result.hasVarBinType).toBe(true);
+      expect(result.hasBlobType).toBe(true);
+      expect(result.binLength).toBe(4);
+    } finally {
+      await client.close();
+    }
+  });
 });
