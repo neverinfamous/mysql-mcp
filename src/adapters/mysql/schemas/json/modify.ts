@@ -17,6 +17,8 @@ export const JsonSetSchemaBase = z.object({
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonSetSchema = z
@@ -78,6 +80,8 @@ export const JsonInsertSchemaBase = z.object({
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonInsertSchema = z
@@ -139,6 +143,8 @@ export const JsonReplaceSchemaBase = z.object({
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonReplaceSchema = z
@@ -201,6 +207,8 @@ export const JsonRemoveSchemaBase = z.object({
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonRemoveSchema = z
@@ -260,6 +268,8 @@ export const JsonArrayAppendSchemaBase = z.object({
   condition: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonArrayAppendSchema = z

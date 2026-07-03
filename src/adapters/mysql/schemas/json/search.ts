@@ -20,6 +20,8 @@ export const JsonContainsSchemaBase = z.object({
   query: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   columnName: z.string().optional().describe("Alias for column"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonContainsSchema = z
@@ -89,6 +91,8 @@ export const JsonSearchSchemaBase = z.object({
   query: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   columnName: z.string().optional().describe("Alias for column"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonSearchSchema = z

@@ -15,6 +15,8 @@ export const JsonExtractSchemaBase = z.object({
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonExtractSchema = z
@@ -119,6 +121,8 @@ export const JsonKeysSchemaBase = z.object({
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonKeysSchema = z

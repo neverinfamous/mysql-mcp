@@ -11,6 +11,8 @@ export const JsonNormalizeSchemaBase = z.object({
   where: z.string().optional().describe("WHERE clause"),
   filter: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to process"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonNormalizeSchema = z
@@ -52,6 +54,8 @@ export const JsonStatsSchemaBase = z.object({
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
   sampleSize: z.unknown().optional().describe("Sample size for statistics"),
+  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonStatsSchema = z
