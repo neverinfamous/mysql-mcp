@@ -167,7 +167,10 @@ export const PolygonSchema = z.preprocess(
   }
   
   return { ...data, coordinates: Array.isArray(coords) ? coords : undefined, polygon: polygonWkt };
-}).refine(data => data.coordinates ?? data.polygon, { message: "Either coordinates or polygon WKT must be provided" });
+}).refine(data => data.coordinates ?? data.polygon, { message: "Either coordinates or polygon WKT must be provided" })
+  .refine((data) => !Number.isNaN(data.srid), {
+    message: "srid must be a valid number",
+  });
 
 export const DistanceSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
