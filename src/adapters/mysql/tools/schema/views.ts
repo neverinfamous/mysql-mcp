@@ -32,7 +32,7 @@ const ListViewsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
       };
     }
     return val;
@@ -75,9 +75,9 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'] ?? obj['tableName'],
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
-        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? obj['query'] ?? obj['sql'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? (obj['query'] === "" ? undefined : obj['query']) ?? (obj['sql'] === "" ? undefined : obj['sql']),
       };
     }
     return val;
@@ -122,8 +122,8 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? obj['view'] ?? obj['viewName'] ?? obj['tableName'],
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? obj['database'],
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
       };
     }
     return val;
