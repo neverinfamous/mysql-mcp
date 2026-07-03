@@ -10,10 +10,50 @@ const tableAliasesBase = {
   table: z.string().optional().describe("Target table name (Note: Pass table, not tableName)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
 };
-const columnParamBase = z.string().optional().describe("Vector column name");
-const idParamBase = z.union([z.string(), z.number()]).optional().describe("Row identifier (primary key value)");
-const idColumnParamBase = z.string().optional().describe("Primary key column name (default: 'id')");
+
+const columnAliasesBase = {
+  column: z.string().optional().describe("Vector column name"),
+  vectorColumn: z.string().optional().describe("Alias for column"),
+  col: z.string().optional().describe("Alias for column"),
+};
+
+const idAliasesBase = {
+  id: z.union([z.string(), z.number()]).optional().describe("Row identifier (primary key value)"),
+  rowId: z.union([z.string(), z.number()]).optional().describe("Alias for id"),
+  recordId: z.union([z.string(), z.number()]).optional().describe("Alias for id"),
+};
+
+const idColumnAliasesBase = {
+  idColumn: z.string().optional().describe("Primary key column name (default: 'id')"),
+  idCol: z.string().optional().describe("Alias for idColumn"),
+  primaryKey: z.string().optional().describe("Alias for idColumn"),
+};
+
+const vectorAliasesBase = {
+  vector: z.array(z.number()).optional().describe("Vector embedding as an array of numbers"),
+  queryVector: z.array(z.number()).optional().describe("Alias for vector"),
+  query: z.union([z.string(), z.array(z.number())]).optional().describe("Alias for vector"),
+  sql: z.union([z.string(), z.array(z.number())]).optional().describe("Alias for vector"),
+  search: z.union([z.string(), z.array(z.number())]).optional().describe("Alias for vector"),
+};
+
+const queryVectorAliasesBase = {
+  queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers (Note: Pass queryVector, not sql or query)"),
+  vector: z.array(z.number()).optional().describe("Alias for queryVector"),
+  query: z.union([z.string(), z.array(z.number())]).optional().describe("Alias for queryVector"),
+  sql: z.union([z.string(), z.array(z.number())]).optional().describe("Alias for queryVector"),
+  search: z.union([z.string(), z.array(z.number())]).optional().describe("Alias for queryVector"),
+};
+
+const distanceAliasesBase = {
+  maxDistance: z.number().optional().describe("Maximum distance threshold"),
+  distance: z.number().optional().describe("Alias for maxDistance"),
+  radius: z.number().optional().describe("Alias for maxDistance"),
+};
+
 const metricParamBase = z
   .enum(["COSINE", "EUCLIDEAN", "DOT"])
   .optional()
@@ -48,10 +88,10 @@ const filterParam = z
 
 export const VectorStoreSchemaBase = z.object({
   ...tableAliasesBase,
-  column: columnParamBase,
-  id: idParamBase,
-  vector: z.array(z.number()).optional().describe("Vector embedding as an array of numbers"),
-  idColumn: idColumnParamBase,
+  ...columnAliasesBase,
+  ...idAliasesBase,
+  ...vectorAliasesBase,
+  ...idColumnAliasesBase,
 });
 
 export const VectorStoreSchema = z
@@ -68,9 +108,12 @@ export const VectorStoreSchema = z
 
 export const VectorBatchStoreSchemaBase = z.object({
   ...tableAliasesBase,
-  column: columnParamBase,
-  items: z.array(z.object({ id: z.union([z.string(), z.number()]), vector: z.array(z.number()) })).optional().describe("Array of objects with 'id' and 'vector' fields"),
-  idColumn: idColumnParamBase,
+  ...columnAliasesBase,
+  items: z.array(z.object({ 
+    id: z.union([z.string(), z.number()]), 
+    vector: z.array(z.number()) 
+  })).optional().describe("Array of objects with 'id' and 'vector' fields"),
+  ...idColumnAliasesBase,
 });
 
 export const VectorBatchStoreSchema = z
@@ -89,8 +132,8 @@ export const VectorBatchStoreSchema = z
 
 export const VectorDeleteSchemaBase = z.object({
   ...tableAliasesBase,
-  id: idParamBase,
-  idColumn: idColumnParamBase,
+  ...idAliasesBase,
+  ...idColumnAliasesBase,
 });
 
 export const VectorDeleteSchema = z
@@ -105,9 +148,9 @@ export const VectorDeleteSchema = z
 
 export const VectorGetSchemaBase = z.object({
   ...tableAliasesBase,
-  id: idParamBase,
-  column: z.string().optional().describe("Specific vector column to return (if omitted, searches for VECTOR columns)"),
-  idColumn: idColumnParamBase,
+  ...idAliasesBase,
+  ...columnAliasesBase,
+  ...idColumnAliasesBase,
 });
 
 export const VectorGetSchema = z
@@ -127,9 +170,8 @@ export const VectorGetSchema = z
 
 export const VectorSearchSchemaBase = z.object({
   ...tableAliasesBase,
-  column: columnParamBase,
-  queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers (Note: Pass queryVector, not sql or query)"),
-  vector: z.array(z.number()).optional().describe("Alias for queryVector"),
+  ...columnAliasesBase,
+  ...queryVectorAliasesBase,
   k: z.number().optional().describe("Number of nearest neighbors to return (default: 10)"),
   metric: metricParamBase,
   filter: filterParamBase,
@@ -152,11 +194,9 @@ export const VectorSearchSchema = z
 
 export const VectorRangeSearchSchemaBase = z.object({
   ...tableAliasesBase,
-  column: columnParamBase,
-  queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers (Note: Pass queryVector, not sql or query)"),
-  vector: z.array(z.number()).optional().describe("Alias for queryVector"),
-  maxDistance: z.number().optional().describe("Maximum distance threshold"),
-  distance: z.number().optional().describe("Alias for maxDistance"),
+  ...columnAliasesBase,
+  ...queryVectorAliasesBase,
+  ...distanceAliasesBase,
   metric: metricParamBase,
   limit: z.number().optional().describe("Maximum number of results to return (default: 50)"),
   filter: filterParamBase,
@@ -182,11 +222,10 @@ export const VectorHybridSearchSchemaBase = z.object({
   ...tableAliasesBase,
   vectorColumn: z.string().optional().describe("Name of the vector column"),
   column: z.string().optional().describe("Alias for vectorColumn"),
+  col: z.string().optional().describe("Alias for vectorColumn"),
   textColumn: z.string().optional().describe("Name of the fulltext-indexed column"),
-  queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers (Note: Pass queryVector, not sql)"),
-  vector: z.array(z.number()).optional().describe("Alias for queryVector"),
+  ...queryVectorAliasesBase,
   queryText: z.string().optional().describe("Natural language search query (Note: Pass queryText, not sql)"),
-  query: z.string().optional().describe("Alias for queryText"),
   k: z.number().optional().describe("Number of fused results to return (default: 10)"),
   metric: z.enum(["COSINE", "EUCLIDEAN", "DOT"]).optional().describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')"),
   rrfK: z.number().optional().describe("RRF smoothing constant (default: 60). Lower = more weight to top ranks"),
@@ -225,7 +264,7 @@ export const VectorHybridSearchSchema = z
 
 export const VectorInfoSchemaBase = z.object({
   ...tableAliasesBase,
-  column: z.string().optional().describe("Specific vector column to check (if omitted, checks all VECTOR columns)"),
+  ...columnAliasesBase,
 });
 
 export const VectorInfoSchema = z
@@ -239,7 +278,7 @@ export const VectorInfoSchema = z
 
 export const VectorCreateIndexSchemaBase = z.object({
   ...tableAliasesBase,
-  column: columnParamBase,
+  ...columnAliasesBase,
   metric: metricParamBase,
   type: z.enum(["HNSW"]).optional().describe("Vector index type (default: 'HNSW')"),
 });
@@ -269,7 +308,7 @@ export const VectorOptimizeSchema = z
 
 export const VectorStatsSchemaBase = z.object({
   ...tableAliasesBase,
-  column: columnParamBase,
+  ...columnAliasesBase,
 });
 
 export const VectorStatsSchema = z
