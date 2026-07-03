@@ -34,7 +34,7 @@ const ListConstraintsSchema = z.preprocess(
     return val;
   },
   z.object({
-    table: z.string().describe("Table name"),
+    table: z.string().default("").describe("Table name"),
     schema: z.string().optional(),
     type: z
       .enum(["PRIMARY KEY", "FOREIGN KEY", "UNIQUE", "CHECK"])
