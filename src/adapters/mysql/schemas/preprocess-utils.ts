@@ -82,10 +82,10 @@ export function preprocessTableParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
   if (result["table"] === undefined) {
-    if (result["tableName"] !== undefined)
-      result["table"] = result["tableName"];
+    if (result["tableName"] !== undefined) result["table"] = result["tableName"];
     else if (result["name"] !== undefined) result["table"] = result["name"];
     else if (result["tbl"] !== undefined) result["table"] = result["tbl"];
+    else if (result["table_name"] !== undefined) result["table"] = result["table_name"];
   }
   return result;
 }
@@ -405,8 +405,8 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   
   return {
     ...v,
-    table: v["table"] ?? v["tableName"] ?? v["name"],
-    column: v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"],
+    table: v["table"] ?? v["tableName"] ?? v["name"] ?? v["tbl"] ?? v["table_name"],
+    column: v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"] ?? v["c"],
     path: v["path"] ?? v["json_path"] ?? v["jsonPath"],
     where,
     searchValue: v["searchValue"] ?? v["searchString"],
