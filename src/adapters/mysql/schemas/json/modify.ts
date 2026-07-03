@@ -41,10 +41,10 @@ export const JsonSetSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? "",
+    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -102,10 +102,10 @@ export const JsonInsertSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? "",
+    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -163,10 +163,10 @@ export const JsonReplaceSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? "",
+    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -226,9 +226,9 @@ export const JsonRemoveSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     paths: data.paths ?? data.keys ?? (data.path ? [data.path] : data.key ? [data.key] : []),
-    where: data.where ?? data.filter ?? data.condition ?? "",
+    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -284,10 +284,10 @@ export const JsonArrayAppendSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? "",
+    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -347,10 +347,10 @@ export const JsonUpdateSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? "",
+    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",

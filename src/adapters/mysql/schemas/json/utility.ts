@@ -123,6 +123,7 @@ export const JsonValidateSchemaBase = z.object({
   json: z.unknown().optional().describe("Alias for value"),
   data: z.unknown().optional().describe("Alias for value"),
   document: z.unknown().optional().describe("Alias for value"),
+  jsonString: z.unknown().optional().describe("Alias for value"),
 });
 
 export const JsonValidateSchema = z
@@ -131,9 +132,10 @@ export const JsonValidateSchema = z
     json: z.unknown().optional(),
     data: z.unknown().optional(),
     document: z.unknown().optional(),
+    jsonString: z.unknown().optional(),
   })
   .transform((data) => ({
-    value: data.value ?? data.json ?? data.data ?? data.document,
+    value: data.value ?? data.json ?? data.data ?? data.document ?? data.jsonString,
   }))
   .refine((data) => data.value !== undefined && data.value !== null, {
     message: "value is required",

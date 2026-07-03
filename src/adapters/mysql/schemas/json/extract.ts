@@ -26,17 +26,20 @@ export const JsonExtractSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
+      columnName: z.string().optional(),
       path: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
       limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    where: data.where ?? data.filter,
+    where: data.where ?? data.filter ?? data.query ?? data.sql,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -75,16 +78,19 @@ export const JsonGetSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
+      columnName: z.string().optional(),
       path: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    where: data.where ?? data.filter ?? "",
+    where: data.where ?? data.filter ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -124,17 +130,20 @@ export const JsonKeysSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
+      columnName: z.string().optional(),
       path: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
       limit: z.coerce.number().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.column ?? data.col ?? "",
+    column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    where: data.where ?? data.filter,
+    where: data.where ?? data.filter ?? data.query ?? data.sql,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
