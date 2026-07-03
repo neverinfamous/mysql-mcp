@@ -252,15 +252,20 @@ export const CreateDocIndexSchemaBase = z.object({
   name: z.string().optional(),
   indexName: z.string().optional().describe("Alias for name"),
   fields: z
-    .array(
-      z.object({
-        path: z.string().optional(),
-        field: z.string().optional(),
-        type: z.string().optional(),
-        required: z.boolean().optional(),
-      }),
-    )
-    .optional(),
+    .union([
+      z.string(),
+      z.array(z.string()),
+      z.array(
+        z.object({
+          path: z.string().optional(),
+          field: z.string().optional(),
+          type: z.string().optional(),
+          required: z.boolean().optional(),
+        }),
+      )
+    ])
+    .optional()
+    .describe("Array of field config objects, array of string paths, or a single string path"),
   unique: z.boolean().optional(),
 });
 
