@@ -21,13 +21,13 @@ export const ExportTableSchemaBase = z.object({
   query: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .number()
     .optional()
     .describe(
       "Maximum number of rows to export (default: 5). Set higher to export more rows.",
     ),
   batch: z
-    .unknown()
+    .number()
     .optional()
     .describe(
       "Rows per INSERT statement (default: 50). Higher values produce multi-row INSERT ... VALUES (...), (...) for smaller payloads.",
