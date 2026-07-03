@@ -13,6 +13,7 @@ export const ShellImportTableInputSchemaBase = z
     filepath: z.string().optional().describe("Alias for inputPath"),
     url: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
+    database: z.string().optional().describe("Alias for schema"),
     table: z.string().optional().describe("Target table name"),
     tableName: z.string().optional().describe("Alias for table"),
     name: z.string().optional().describe("Alias for table"),
@@ -55,14 +56,15 @@ export const ShellImportTableInputSchemaBase = z
 export const ShellImportTableInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; database?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const rawSchema = obj.schema ?? obj.database;
     const rawTable = obj.table ?? obj.tableName ?? obj.name;
     return {
       ...obj,
       schema:
-        typeof obj.schema === "number" || typeof obj.schema === "boolean"
-          ? String(obj.schema)
-          : obj.schema,
+        typeof rawSchema === "number" || typeof rawSchema === "boolean"
+          ? String(rawSchema)
+          : rawSchema,
       table:
         typeof rawTable === "number" || typeof rawTable === "boolean"
           ? String(rawTable)
@@ -83,6 +85,7 @@ export const ShellImportJSONInputSchemaBase = z
     filepath: z.string().optional().describe("Alias for inputPath"),
     url: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
+    database: z.string().optional().describe("Alias for schema"),
     collection: z
       .string()
       .optional()
@@ -105,14 +108,15 @@ export const ShellImportJSONInputSchemaBase = z
 export const ShellImportJSONInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; collection?: unknown; table?: unknown; tableName?: unknown; name?: unknown; coll?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; database?: unknown; collection?: unknown; table?: unknown; tableName?: unknown; name?: unknown; coll?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const rawSchema = obj.schema ?? obj.database;
     const rawCollection = obj.collection ?? obj.table ?? obj.tableName ?? obj.name ?? obj.coll;
     return {
       ...obj,
       schema:
-        typeof obj.schema === "number" || typeof obj.schema === "boolean"
-          ? String(obj.schema)
-          : obj.schema,
+        typeof rawSchema === "number" || typeof rawSchema === "boolean"
+          ? String(rawSchema)
+          : rawSchema,
       collection:
         typeof rawCollection === "number" || typeof rawCollection === "boolean"
           ? String(rawCollection)

@@ -3,6 +3,7 @@ import { z } from "zod";
 export const ShellExportTableInputSchemaBase = z
   .object({
     schema: z.string().optional().describe("Source schema (database) name"),
+    database: z.string().optional().describe("Alias for schema"),
     table: z.string().optional().describe("Table name to export"),
     tableName: z.string().optional().describe("Alias for table"),
     name: z.string().optional().describe("Alias for table"),
@@ -31,15 +32,16 @@ export const ShellExportTableInputSchemaBase = z
 export const ShellExportTableInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; table?: unknown; tableName?: unknown; name?: unknown; where?: unknown; filter?: unknown; outputPath?: unknown; outputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; database?: unknown; table?: unknown; tableName?: unknown; name?: unknown; where?: unknown; filter?: unknown; outputPath?: unknown; outputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const rawSchema = obj.schema ?? obj.database;
     const rawTable = obj.table ?? obj.tableName ?? obj.name;
     const finalWhere = obj.where ?? obj.filter;
     return {
       ...obj,
       schema:
-        typeof obj.schema === "number" || typeof obj.schema === "boolean"
-          ? String(obj.schema)
-          : obj.schema,
+        typeof rawSchema === "number" || typeof rawSchema === "boolean"
+          ? String(rawSchema)
+          : rawSchema,
       table:
         typeof rawTable === "number" || typeof rawTable === "boolean"
           ? String(rawTable)

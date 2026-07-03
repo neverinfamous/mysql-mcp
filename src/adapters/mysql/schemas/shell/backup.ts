@@ -66,6 +66,8 @@ export const ShellDumpSchemasInputSchemaBase = z
     schema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     schemaNames: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
+    database: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
+    databases: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
@@ -109,8 +111,8 @@ export const ShellDumpSchemasInputSchemaBase = z
 export const ShellDumpSchemasInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schemas?: unknown; schema?: unknown; schemaNames?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
-    const rawSchemas = obj.schemas ?? obj.schema ?? obj.schemaNames ?? obj.name;
+    const obj = val as { schemas?: unknown; schema?: unknown; schemaNames?: unknown; name?: unknown; database?: unknown; databases?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
+    const rawSchemas = obj.schemas ?? obj.schema ?? obj.schemaNames ?? obj.name ?? obj.database ?? obj.databases;
     const schemasArray = Array.isArray(rawSchemas) 
       ? rawSchemas.map(String) 
       : typeof rawSchemas === "string" 
@@ -150,6 +152,7 @@ export const ShellDumpTablesInputSchemaBase = z
   .object({
     schema: z.string().optional().describe("Schema containing tables"),
     schemaName: z.string().optional().describe("Alias for schema"),
+    database: z.string().optional().describe("Alias for schema"),
     tables: z.array(z.string()).optional().describe("Table names to dump"),
     tableNames: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
@@ -192,7 +195,7 @@ export const ShellDumpTablesInputSchemaBase = z
 export const ShellDumpTablesInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; schemaName?: unknown; tables?: unknown; tableNames?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; where?: unknown };
+    const obj = val as { schema?: unknown; schemaName?: unknown; database?: unknown; tables?: unknown; tableNames?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; where?: unknown };
     const rawTables = obj.tables ?? obj.tableNames ?? obj.table ?? obj.tableName ?? obj.name;
     const tablesArray = Array.isArray(rawTables) 
       ? rawTables.map(String) 
@@ -209,18 +212,16 @@ export const ShellDumpTablesInputSchema = z.preprocess(
       whereClause = newWhere;
     }
 
+    const rawSchema = obj.schema ?? obj.schemaName ?? obj.database;
+
     return {
       ...obj,
       schema:
-        typeof obj.schema === "string"
-          ? obj.schema
-          : typeof obj.schemaName === "string"
-            ? obj.schemaName
-            : typeof obj.schema === "number" || typeof obj.schema === "boolean"
-              ? String(obj.schema)
-              : typeof obj.schemaName === "number" || typeof obj.schemaName === "boolean"
-                ? String(obj.schemaName)
-                : "",
+        typeof rawSchema === "string"
+          ? rawSchema
+          : typeof rawSchema === "number" || typeof rawSchema === "boolean"
+            ? String(rawSchema)
+            : "",
       tables: tablesArray,
       outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
       where: whereClause,
