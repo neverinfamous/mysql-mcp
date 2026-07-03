@@ -17,7 +17,7 @@ const ListTriggersSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   schema: z
     .string()
-    .optional()
+    .default("")
     .describe("Schema name to list triggers for"),
   database: z.string().optional().describe("Alias for schema"),
   dbName: z.string().optional().describe("Alias for schema"),
@@ -39,7 +39,7 @@ const ListTriggersSchema = z.preprocess(
   },
   z.object({
     table: z.string().optional(),
-    schema: z.string().optional(),
+    schema: z.string().min(1, "Schema parameter is required"),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
@@ -86,11 +86,10 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
 
         // P154: Table existence check when explicitly provided
         if (table !== undefined && table !== "") {
-          // If targetSchema is not provided, we need to check the table in the current database
-          const tableCheckQuery = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?";
+          const tableCheckQuery = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
           const tableCheck = await adapter.executeQuery(
             tableCheckQuery,
-            [targetSchema ?? null, table],
+            [targetSchema, table],
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
@@ -109,10 +108,10 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
                     DEFINER as definer,
                     CREATED as created
                 FROM information_schema.TRIGGERS
-                WHERE TRIGGER_SCHEMA = COALESCE(?, DATABASE())
+                WHERE TRIGGER_SCHEMA = ?
             `;
 
-        const queryParams: unknown[] = [targetSchema ?? null];
+        const queryParams: unknown[] = [targetSchema];
 
         if (table !== undefined && table !== "") {
             query += " AND EVENT_OBJECT_TABLE = ?";
