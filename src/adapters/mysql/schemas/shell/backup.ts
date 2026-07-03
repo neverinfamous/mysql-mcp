@@ -10,6 +10,7 @@ export const ShellDumpInstanceInputSchemaBase = z
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
+    filepath: z.string().optional().describe("Alias for outputDir"),
     dir: z.string().optional().describe("Alias for outputDir"),
     directory: z.string().optional().describe("Alias for outputDir"),
     threads: z
@@ -51,10 +52,10 @@ export const ShellDumpInstanceInputSchemaBase = z
 export const ShellDumpInstanceInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; dir?: unknown; directory?: unknown };
+    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; filepath?: unknown; dir?: unknown; directory?: unknown };
     return {
       ...obj,
-      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path ?? obj.dir ?? obj.directory,
+      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path ?? obj.filepath ?? obj.dir ?? obj.directory,
     };
   },
   ShellDumpInstanceInputSchemaBase
@@ -72,6 +73,7 @@ export const ShellDumpSchemasInputSchemaBase = z
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
+    filepath: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -111,7 +113,7 @@ export const ShellDumpSchemasInputSchemaBase = z
 export const ShellDumpSchemasInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schemas?: unknown; schema?: unknown; schemaNames?: unknown; name?: unknown; database?: unknown; databases?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
+    const obj = val as { schemas?: unknown; schema?: unknown; schemaNames?: unknown; name?: unknown; database?: unknown; databases?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; filepath?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
     const rawSchemas = obj.schemas ?? obj.schema ?? obj.schemaNames ?? obj.name ?? obj.database ?? obj.databases;
     const schemasArray = Array.isArray(rawSchemas) 
       ? rawSchemas.map(String) 
@@ -136,7 +138,7 @@ export const ShellDumpSchemasInputSchema = z.preprocess(
     return {
       ...obj,
       schemas: schemasArray,
-      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
+      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path ?? obj.filepath,
       includeTables: includeTablesArray,
       excludeTables: excludeTablesArray,
     };
@@ -162,6 +164,7 @@ export const ShellDumpTablesInputSchemaBase = z
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
+    filepath: z.string().optional().describe("Alias for outputDir"),
     threads: z
       .number()
       .int()
@@ -179,6 +182,10 @@ export const ShellDumpTablesInputSchemaBase = z
       .record(z.string(), z.string())
       .optional()
       .describe('WHERE clauses per table ({tableName: "condition"})'),
+    filter: z
+      .record(z.string(), z.string())
+      .optional()
+      .describe("Alias for where"),
     dryRun: booleanCoerce
       .optional()
       .default(false)
@@ -195,7 +202,7 @@ export const ShellDumpTablesInputSchemaBase = z
 export const ShellDumpTablesInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; schemaName?: unknown; database?: unknown; tables?: unknown; tableNames?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; where?: unknown };
+    const obj = val as { schema?: unknown; schemaName?: unknown; database?: unknown; tables?: unknown; tableNames?: unknown; table?: unknown; tableName?: unknown; name?: unknown; outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; filepath?: unknown; where?: unknown; filter?: unknown };
     const rawTables = obj.tables ?? obj.tableNames ?? obj.table ?? obj.tableName ?? obj.name;
     const tablesArray = Array.isArray(rawTables) 
       ? rawTables.map(String) 
@@ -203,7 +210,7 @@ export const ShellDumpTablesInputSchema = z.preprocess(
         ? [rawTables] 
         : undefined;
     
-    let whereClause = obj.where;
+    let whereClause = obj.where ?? obj.filter;
     if (typeof whereClause === "string" && tablesArray !== undefined && tablesArray.length > 0) {
       const newWhere: Record<string, unknown> = {};
       for (const t of tablesArray) {
@@ -223,7 +230,7 @@ export const ShellDumpTablesInputSchema = z.preprocess(
             ? String(rawSchema)
             : "",
       tables: tablesArray,
-      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path,
+      outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path ?? obj.filepath,
       where: whereClause,
     };
   },

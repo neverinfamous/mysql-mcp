@@ -12,6 +12,7 @@ export const ShellLoadDumpInputSchemaBase = z
     url: z.string().optional().describe("Alias for inputDir"),
     path: z.string().optional().describe("Alias for inputDir"),
     file: z.string().optional().describe("Alias for inputDir"),
+    filepath: z.string().optional().describe("Alias for inputDir"),
     threads: z
       .number()
       .int()
@@ -63,7 +64,7 @@ export const ShellLoadDumpInputSchemaBase = z
 export const ShellLoadDumpInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { inputDir?: unknown; inputUrl?: unknown; dumpDir?: unknown; url?: unknown; path?: unknown; file?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
+    const obj = val as { inputDir?: unknown; inputUrl?: unknown; dumpDir?: unknown; url?: unknown; path?: unknown; file?: unknown; filepath?: unknown; includeTables?: unknown; includeTable?: unknown; excludeTables?: unknown; excludeTable?: unknown };
     
     const rawIncludeTables = obj.includeTables ?? obj.includeTable;
     const includeTablesArray = Array.isArray(rawIncludeTables) 
@@ -81,7 +82,7 @@ export const ShellLoadDumpInputSchema = z.preprocess(
 
     return {
       ...obj,
-      inputDir: obj.inputDir ?? obj.inputUrl ?? obj.dumpDir ?? obj.url ?? obj.path ?? obj.file,
+      inputDir: obj.inputDir ?? obj.inputUrl ?? obj.dumpDir ?? obj.url ?? obj.path ?? obj.file ?? obj.filepath,
       includeTables: includeTablesArray,
       excludeTables: excludeTablesArray,
     };

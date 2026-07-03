@@ -11,6 +11,7 @@ export const ShellRunScriptInputSchemaBase = z
     scriptPath: z.string().optional().describe("Path to script file to execute"),
     path: z.string().optional().describe("Alias for scriptPath"),
     file: z.string().optional().describe("Alias for scriptPath"),
+    filepath: z.string().optional().describe("Alias for scriptPath"),
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
@@ -38,6 +39,7 @@ export const ShellRunScriptInputSchema = z
     scriptPath: z.string().optional(),
     path: z.string().optional(), // alias
     file: z.string().optional(), // alias
+    filepath: z.string().optional(), // alias
     language: z
       .enum(["js", "py", "sql", "javascript", "python"])
       .optional()
@@ -58,7 +60,7 @@ export const ShellRunScriptInputSchema = z
         : data.code !== undefined
         ? String(data.code as string | number | boolean)
         : "",
-    scriptPath: data.scriptPath ?? data.path ?? data.file ?? "",
+    scriptPath: data.scriptPath ?? data.path ?? data.file ?? data.filepath ?? "",
     language: data.language,
     dryRun: data.dryRun ?? false,
     timeout: data.timeout,
