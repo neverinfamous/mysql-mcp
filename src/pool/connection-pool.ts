@@ -26,6 +26,7 @@ export interface ConnectionPoolConfig {
   charset?: string;
   timezone?: string;
   connectTimeout?: number;
+  dateStrings?: boolean;
 }
 
 /**
@@ -76,6 +77,7 @@ export class ConnectionPool {
         connectTimeout: this.config.connectTimeout ?? 30000,
         charset: this.config.charset ?? "utf8mb4",
         timezone: this.config.timezone ?? "local",
+        dateStrings: this.config.dateStrings ?? false,
 
         // SSL - convert boolean to mysql2 compatible format
         // mysql2 expects string | SslOptions | undefined, not boolean

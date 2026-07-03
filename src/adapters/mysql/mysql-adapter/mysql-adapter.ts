@@ -79,6 +79,7 @@ export class MySQLAdapter extends DatabaseAdapter {
       ssl: config.options?.ssl as boolean | undefined,
       charset: config.options?.charset ?? "utf8mb4",
       timezone: config.options?.timezone ?? "local",
+      dateStrings: config.options?.dateStrings ?? false,
       connectTimeout: config.options?.connectTimeout ?? 30000,
     };
 
