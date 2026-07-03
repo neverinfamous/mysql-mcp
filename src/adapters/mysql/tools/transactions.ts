@@ -369,7 +369,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
           success: false,
           error: `Transaction failed and was rolled back: ${msg}`,
           code: "EXECUTION_ERROR",
-          category: "execution",
+          category: "query",
           recoverable: false,
           rolledBack: true,
         });
