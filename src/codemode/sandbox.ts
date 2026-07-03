@@ -195,6 +195,64 @@ export class CodeModeSandbox {
 
       context.global.setSync("logRef", logRef);
       const setupScript = `
+        globalThis.Buffer = class Buffer extends Uint8Array {
+          static from(data, encoding) {
+            if (typeof data === 'string') {
+               if (encoding === 'hex') {
+                   const arr = new Uint8Array(data.length / 2);
+                   for (let i = 0; i < data.length; i += 2) {
+                       arr[i/2] = parseInt(data.substring(i, i+2), 16);
+                   }
+                   return new Buffer(arr);
+               } else if (encoding === 'base64') {
+                   const raw = atob(data);
+                   const arr = new Uint8Array(raw.length);
+                   for(let i = 0; i < raw.length; i++) {
+                       arr[i] = raw.charCodeAt(i);
+                   }
+                   return new Buffer(arr);
+               }
+               const encoder = new TextEncoder();
+               return new Buffer(encoder.encode(data));
+            }
+            if (Array.isArray(data) || data instanceof Uint8Array || data instanceof ArrayBuffer) {
+                return new Buffer(data);
+            }
+            if (data && data.type === 'Buffer' && Array.isArray(data.data)) {
+                return new Buffer(data.data);
+            }
+            throw new TypeError('Unsupported Buffer.from arguments in sandbox');
+          }
+          static isBuffer(obj) {
+            return obj instanceof Buffer || (obj && obj.type === 'Buffer');
+          }
+          toString(encoding) {
+             if (encoding === 'hex') {
+                 return Array.from(this).map(b => b.toString(16).padStart(2, '0')).join('');
+             }
+             if (encoding === 'base64') {
+                 return btoa(String.fromCharCode.apply(null, this));
+             }
+             const decoder = new TextDecoder();
+             return decoder.decode(this);
+          }
+        };
+
+        globalThis.__revive_sandbox_buffers = function(obj) {
+          if (obj === null || typeof obj !== 'object') return obj;
+          if (Array.isArray(obj)) return obj.map(item => globalThis.__revive_sandbox_buffers(item));
+          if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+            return Buffer.from(obj.data);
+          }
+          const revived = {};
+          for (const k in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, k)) {
+              revived[k] = globalThis.__revive_sandbox_buffers(obj[k]);
+            }
+          }
+          return revived;
+        };
+
         const stringifyArg = (a) => {
           try {
             return typeof a === 'object' && a !== null ? JSON.stringify(a, globalThis.__sandbox_replacer) : String(a);
@@ -352,7 +410,7 @@ export class CodeModeSandbox {
                       if (res && typeof res === 'object' && res.__isHostError) {
                           throw new Error(res.message);
                       }
-                      return globalThis.wrapResult(res);
+                      return globalThis.wrapResult(globalThis.__revive_sandbox_buffers(res));
                   });
                   return globalThis.wrapPromise(promise, ${JSON.stringify(methodName)});
                 };\n`;
@@ -388,7 +446,7 @@ export class CodeModeSandbox {
                   if (res && typeof res === 'object' && res.__isHostError) {
                       throw new Error(res.message);
                   }
-                  return globalThis.wrapResult(res);
+                  return globalThis.wrapResult(globalThis.__revive_sandbox_buffers(res));
               });
               return globalThis.wrapPromise(promise, ${JSON.stringify(groupName)});
             };\n`;
