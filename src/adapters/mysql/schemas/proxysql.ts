@@ -165,7 +165,9 @@ export const ProxySQLBaseInputSchema = z.object({}).strict();
 
 export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.unknown().optional().describe("Filter by username"),
-});
+  user: z.unknown().optional().describe("Alias for username"),
+  name: z.unknown().optional().describe("Alias for username"),
+}).strict();
 
 export const ProxySQLUsersInputSchema = z.preprocess(
   (val: unknown) => {
@@ -198,7 +200,9 @@ export const ProxySQLStatusInputSchemaBase = z.object({
     .describe(
       "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Set to false to get all variables.",
     ),
-});
+  database: z.unknown().optional().describe("Alias for summary"),
+  table: z.unknown().optional().describe("Alias for summary"),
+}).strict();
 
 export const ProxySQLStatusInputSchema = z.preprocess(
   (val: unknown) => {
@@ -241,7 +245,8 @@ export const ProxySQLLimitInputSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Maximum number of results to return (default: 20)"),
-});
+  count: z.unknown().optional().describe("Alias for limit"),
+}).strict();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
   (val: unknown) => {
@@ -273,7 +278,8 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
   hostgroup_id: z.unknown().optional().describe("Filter by hostgroup ID"),
-});
+  hostgroup: z.unknown().optional().describe("Alias for hostgroup ID"),
+}).strict();
 
 export const ProxySQLHostgroupInputSchema = z.preprocess(
   (val: unknown) => {
@@ -317,7 +323,10 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
-});
+  pattern: z.unknown().optional().describe("Alias for like"),
+  search: z.unknown().optional().describe("Alias for like"),
+  name: z.unknown().optional().describe("Alias for like"),
+}).strict();
 
 export const ProxySQLVariableFilterSchema = z.preprocess(
   (val: unknown) => {
@@ -365,7 +374,9 @@ export const ProxySQLCommandInputSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("ProxySQL admin command to execute. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
-});
+  sql: z.unknown().optional().describe("Alias for command"),
+  query: z.unknown().optional().describe("Alias for command"),
+}).strict();
 
 export const ProxySQLCommandInputSchema = z.preprocess(
   (val: unknown) => {
