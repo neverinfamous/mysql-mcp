@@ -133,6 +133,16 @@ export function createSysUserSummaryTool(
         };
 
         const result = await adapter.executeQuery(query, queryParams);
+
+        if (user && (!result.rows || result.rows.length === 0)) {
+          return withTokenEstimate({
+            success: false,
+            error: `User '${user}' not found`,
+            code: "NOT_FOUND_ERROR",
+            category: "not_found",
+          });
+        }
+
         return withTokenEstimate({
           success: true,
           data: {
@@ -202,6 +212,16 @@ export function createSysHostSummaryTool(
         };
 
         const result = await adapter.executeQuery(query, queryParams);
+
+        if (host && (!result.rows || result.rows.length === 0)) {
+          return withTokenEstimate({
+            success: false,
+            error: `Host '${host}' not found`,
+            code: "NOT_FOUND_ERROR",
+            category: "not_found",
+          });
+        }
+
         return withTokenEstimate({
           success: true,
           data: {
