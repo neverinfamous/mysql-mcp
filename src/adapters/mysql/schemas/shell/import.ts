@@ -43,6 +43,10 @@ export const ShellImportTableInputSchemaBase = z
       .describe(
         'Field delimiter. For CSV files, explicitly set to "," as delimiter is not auto-detected',
       ),
+    fieldsEnclosedBy: z
+      .string()
+      .optional()
+      .describe('Character used to enclose fields, e.g. \'"\' for standard CSV'),
     linesTerminatedBy: z.string().optional().describe("Line delimiter"),
     updateServerSettings: booleanCoerce
       .optional()

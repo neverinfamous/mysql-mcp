@@ -205,6 +205,7 @@ export function createShellImportTableTool(
           skipRows,
           columns,
           fieldsTerminatedBy,
+          fieldsEnclosedBy,
           linesTerminatedBy,
           updateServerSettings,
         } = ShellImportTableInputSchema.parse(params);
@@ -236,6 +237,11 @@ export function createShellImportTableTool(
         if (fieldsTerminatedBy) {
           options.push(
             `fieldsTerminatedBy: ${JSON.stringify(fieldsTerminatedBy)}`,
+          );
+        }
+        if (fieldsEnclosedBy) {
+          options.push(
+            `fieldsEnclosedBy: ${JSON.stringify(fieldsEnclosedBy)}`,
           );
         }
         if (linesTerminatedBy) {
