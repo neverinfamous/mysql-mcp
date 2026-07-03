@@ -207,6 +207,10 @@ export function preprocessVectorParams(input: unknown): unknown {
     else if (result["col"] !== undefined) result["column"] = result["col"];
   }
 
+  if (result["vectorColumn"] === undefined && result["column"] !== undefined) {
+    result["vectorColumn"] = result["column"];
+  }
+
   // Coerce vector/queryVector from string to array if agent hallucinated a stringified array
   if (typeof result["queryVector"] === "string") {
     try {

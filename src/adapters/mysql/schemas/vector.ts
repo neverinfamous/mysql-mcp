@@ -181,7 +181,8 @@ export const VectorRangeSearchSchema = z
 export const VectorHybridSearchSchemaBase = z.object({
   ...tableAliasesBase,
   vectorColumn: z.string().optional().describe("Name of the vector column"),
-  textColumn: z.string().describe("Name of the fulltext-indexed column"),
+  column: z.string().optional().describe("Alias for vectorColumn"),
+  textColumn: z.string().optional().describe("Name of the fulltext-indexed column"),
   queryVector: z.array(z.number()).optional().describe("Query vector as an array of numbers (Note: Pass queryVector, not sql)"),
   vector: z.array(z.number()).optional().describe("Alias for queryVector"),
   queryText: z.string().optional().describe("Natural language search query (Note: Pass queryText, not sql)"),
