@@ -343,10 +343,10 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
 
           const row = (result.data?.rows ?? result.rows)[0];
           return {
-            hasBinType: row?.bin_col?.type === 'Buffer',
-            hasVarBinType: row?.varbin_col?.type === 'Buffer',
-            hasBlobType: row?.blob_col?.type === 'Buffer',
-            binLength: row?.bin_col?.data?.length,
+            hasBinType: Buffer.isBuffer(row?.bin_col),
+            hasVarBinType: Buffer.isBuffer(row?.varbin_col),
+            hasBlobType: Buffer.isBuffer(row?.blob_col),
+            binLength: row?.bin_col?.length,
           };
         `,
       });
