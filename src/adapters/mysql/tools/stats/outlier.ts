@@ -27,11 +27,16 @@ export const StatsOutliersSchemaBase = z.object({
   table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z
     .string()
     .optional()
     .describe("Numeric column to check for outliers. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   method: z.unknown().optional().describe("Detection method to use"),
   threshold: z
     .unknown()

@@ -61,8 +61,13 @@ export const StatsTopNSchemaBase = z.object({
   table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to sort by. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   n: z
     .unknown()
     .optional()
@@ -106,8 +111,13 @@ export const StatsDistinctSchemaBase = z.object({
   table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to get distinct values for. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   limit: z
     .unknown()
     .optional()
@@ -142,11 +152,16 @@ export const StatsFrequencySchemaBase = z.object({
   table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z
     .string()
     .optional()
     .describe("Column to get frequency distribution for. Note: Pass column, not col."),
   col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   limit: z
     .unknown()
     .optional()
@@ -181,6 +196,10 @@ export const StatsSummarySchemaBase = z.object({
   table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
+  column: z.unknown().optional().describe("Alias for columns"),
+  col: z.unknown().optional().describe("Alias for columns"),
   columns: z
     .unknown()
     .optional()

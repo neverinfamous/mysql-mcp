@@ -6,6 +6,8 @@ export const StatsRowNumberSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
   selectColumns: z
@@ -46,6 +48,8 @@ export const StatsRankSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   orderBy: z
     .string()
     .optional()
@@ -91,9 +95,14 @@ export const StatsLagLeadSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column to get lag/lead value from (Required)"),
   col: z.string().optional().describe("Alias for column"),
   valueColumn: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
   direction: z
     .unknown()
@@ -150,9 +159,14 @@ export const StatsRunningTotalSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column to sum (Required)"),
   col: z.string().optional().describe("Alias for column"),
   valueColumn: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
   partitionBy: z
     .string()
@@ -197,9 +211,14 @@ export const StatsMovingAvgSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Numeric column to average (Required)"),
   col: z.string().optional().describe("Alias for column"),
   valueColumn: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
   windowSize: z
     .unknown()
@@ -255,6 +274,8 @@ export const StatsNtileSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Required). Anti-Hallucination Hint: Do not pass a full SQL query here."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
   buckets: z
     .unknown()
