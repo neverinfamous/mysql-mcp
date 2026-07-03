@@ -392,9 +392,11 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     schemaName: z.string().optional().describe("Alias for database"),
     tables: z
       .array(z.string())
-      .min(1, "Tables array cannot be empty if provided")
       .optional()
       .describe("Specific tables to dump"),
+    table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
+    tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
+    name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     noData: z
       .boolean()
       .optional()
@@ -414,12 +416,22 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       if (res["database"] === undefined) {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
+      const aliasVal = res["table"] ?? res["tableName"] ?? res["name"];
+      if (res["tables"] === undefined && aliasVal !== undefined) {
+        res["tables"] = Array.isArray(aliasVal) ? aliasVal : [aliasVal];
+      }
       return res;
     },
     z.object({
       database: z.string(),
       db: z.string().optional(),
-      tables: z.array(z.string()).optional(),
+      dbName: z.string().optional(),
+      schema: z.string().optional(),
+      schemaName: z.string().optional(),
+      tables: z.array(z.string()).min(1, "Tables array cannot be empty if provided").optional(),
+      table: z.any().optional(),
+      tableName: z.any().optional(),
+      name: z.any().optional(),
       noData: z.boolean().optional().default(false),
       singleTransaction: z.boolean().optional().default(false),
     })
