@@ -179,6 +179,10 @@ export const DistanceSchemaBase = z.object({
   spatialColumn: z.unknown().optional().describe("Spatial column name"),
   geometryColumn: z.unknown().optional(),
   column: z.unknown().optional(),
+  point1: z.unknown().optional(),
+  point2: z.unknown().optional(),
+  geometry1: z.unknown().optional(),
+  geometry2: z.unknown().optional(),
   longitude: z.unknown().optional(),
   latitude: z.unknown().optional(),
   point: z
