@@ -114,10 +114,6 @@ export const PointSchema = z
   });
 
 export const PolygonSchemaBase = z.object({
-  table: z.unknown().optional(),
-  column: z.unknown().optional(),
-  spatialColumn: z.unknown().optional(),
-  tableName: z.unknown().optional(),
   coordinates: z
     .unknown()
     .optional()
