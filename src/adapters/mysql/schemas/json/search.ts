@@ -81,6 +81,10 @@ export const JsonSearchSchemaBase = z.object({
     .default("one")
     .describe("Search mode"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
+  path: z.string().optional().describe("Optional JSON path to search within"),
+  escapeChar: z.string().optional().describe("Optional escape character"),
+  where: z.string().optional().describe("Optional WHERE clause to filter rows"),
+  filter: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
@@ -103,6 +107,10 @@ export const JsonSearchSchema = z
       val: z.unknown().optional(),
       mode: z.enum(["one", "all"]).optional().default("one"),
       limit: z.coerce.number().optional(),
+      path: z.string().optional(),
+      escapeChar: z.string().optional(),
+      where: z.string().optional(),
+      filter: z.string().optional(),
       sql: z.string().optional(),
       query: z.string().optional(),
       condition: z.string().optional(),
@@ -115,6 +123,9 @@ export const JsonSearchSchema = z
     searchValue: data.searchValue ?? data.searchString ?? data.searchStr ?? data.value ?? data.val,
     mode: data.mode,
     limit: data.limit,
+    path: data.path,
+    escapeChar: data.escapeChar,
+    where: data.where ?? data.filter,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",

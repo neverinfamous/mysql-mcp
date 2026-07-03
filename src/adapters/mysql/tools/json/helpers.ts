@@ -174,21 +174,34 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, searchValue, mode, limit } =
+        const { table, column, searchValue, mode, limit, path, escapeChar, where } =
           JsonSearchSchema.parse(params);
 
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
 
-        const limitClause = ` LIMIT ${limit ?? 50}`;
-        const sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${limitClause}`;
+        if (where) {
+          validateWhereClause(where);
+        }
 
-        const result = await adapter.executeReadQuery(sql, [
-          mode,
-          searchValue,
-          mode,
-          searchValue,
-        ]);
+        const limitClause = ` LIMIT ${limit ?? 50}`;
+        const userWhere = where ? ` AND (${where})` : "";
+        
+        let sql = "";
+        const sqlParams = [];
+        
+        if (path) {
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sqlParams.push(mode, searchValue, escapeChar ?? null, path, mode, searchValue, escapeChar ?? null, path);
+        } else if (escapeChar) {
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sqlParams.push(mode, searchValue, escapeChar, mode, searchValue, escapeChar);
+        } else {
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sqlParams.push(mode, searchValue, mode, searchValue);
+        }
+
+        const result = await adapter.executeReadQuery(sql, sqlParams);
         return withTokenEstimate({
           success: true,
           data: {
