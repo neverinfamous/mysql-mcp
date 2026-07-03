@@ -191,9 +191,16 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const sqlParams = [];
         
         if (path) {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
-          sqlParams.push(mode, searchValue, escapeChar ?? null, path, mode, searchValue, escapeChar ?? null, path);
-        } else if (escapeChar) {
+          const hasEscape = escapeChar !== undefined && escapeChar !== null;
+          const escapeSql = hasEscape ? '?' : 'NULL';
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
+          
+          const paramsList = [mode, searchValue];
+          if (hasEscape) paramsList.push(escapeChar);
+          paramsList.push(path);
+          
+          sqlParams.push(...paramsList, ...paramsList);
+        } else if (escapeChar !== undefined && escapeChar !== null) {
           sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, escapeChar, mode, searchValue, escapeChar);
         } else {
