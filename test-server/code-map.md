@@ -376,6 +376,7 @@ try {
 | `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
 | `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |
 | `test-server/test-advanced/test-codemode-advanced-json-helpers.md` | Code Mode Advanced - JSON Helpers (`mysql.json.*`) | ✅ DONE |
+| `test-server/test-advanced/test-codemode-advanced-router-routes.md` | Code Mode Advanced - Router Routes (`mysql.router.*`) | ✅ DONE |
 | `test-server/test-advanced/test-codemode-advanced-types-binary.md`| Code Mode binary data type stress testing                            |
 | `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
