@@ -12,9 +12,20 @@ export const MigrationInitSchemaBase = z.object({
     .string()
     .optional()
     .describe("Database to create the tracking table in (default: active database)"),
+  db: z.string().optional().describe("Alias for database"),
+  schema: z.string().optional().describe("Alias for database"),
 });
 
-export const MigrationInitSchema = MigrationInitSchemaBase.default({});
+export const MigrationInitSchema = z.preprocess((input: unknown) => {
+  if (typeof input === "object" && input !== null) {
+    const obj = input as Record<string, unknown>;
+    const out = { ...obj };
+    if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
+    if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
+    return out;
+  }
+  return input;
+}, MigrationInitSchemaBase.default({}));
 
 /**
  * mysql_migration_record input
@@ -50,6 +61,8 @@ export const MigrationRecordSchemaBase = z.object({
     .string()
     .optional()
     .describe("Database to apply the migration in (default: active database)"),
+  db: z.string().optional().describe("Alias for database"),
+  schema: z.string().optional().describe("Alias for database"),
 });
 
 // Internal parse schema — version and migrationSql are required
@@ -94,6 +107,8 @@ export const MigrationRecordSchema = z.preprocess((input: unknown) => {
     if (out["description"] === undefined && out["name"] !== undefined) {
       out["description"] = out["name"];
     }
+    if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
+    if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
     return out;
   }
   return input;
@@ -130,6 +145,13 @@ export const MigrationRollbackSchemaBase = z.object({
     .string()
     .optional()
     .describe("Database to roll back the migration in (default: active database)"),
+  migrationId: z.union([z.number(), z.string()]).optional().describe("Alias for id"),
+  transactionId: z.union([z.number(), z.string()]).optional().describe("Alias for id"),
+  migrationVersion: z.string().optional().describe("Alias for version"),
+  migration: z.string().optional().describe("Alias for version"),
+  name: z.string().optional().describe("Alias for version"),
+  db: z.string().optional().describe("Alias for database"),
+  schema: z.string().optional().describe("Alias for database"),
 });
 
 export const MigrationRollbackSchema = z.preprocess((input: unknown) => {
@@ -187,6 +209,11 @@ export const MigrationHistorySchemaBase = z.object({
     .string()
     .optional()
     .describe("Database to read the migration history from (default: active database)"),
+  system: z.string().optional().describe("Alias for sourceSystem"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  db: z.string().optional().describe("Alias for database"),
+  schema: z.string().optional().describe("Alias for database"),
 });
 
 export const MigrationHistorySchema = z.preprocess((input: unknown) => {
@@ -237,6 +264,8 @@ export const MigrationStatusSchemaBase = z.object({
     .string()
     .optional()
     .describe("Database where the tracking table lives (default: active database)"),
+  db: z.string().optional().describe("Alias for database"),
+  schema: z.string().optional().describe("Alias for database"),
 });
 
 export const MigrationStatusSchema = z.preprocess((input: unknown) => {
