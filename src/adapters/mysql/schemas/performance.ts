@@ -184,7 +184,7 @@ export const TableStatsSchema = z
 
 // Base schema for MCP visibility
 export const IndexRecommendationSchemaBase = z.object({
-  table: z.string().optional().describe("Table to analyze (analyzes all tables if omitted)"),
+  table: z.string().optional().describe("Table to analyze"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   queries: z.array(z.string()).optional()
