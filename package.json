@@ -77,17 +77,13 @@
     "picocolors": "^1.1.1",
     "ts-pattern": "^5.9.0",
     "tsup": "^8.5.1",
-    "tsx": "^4.22.4",
+    "tsx": "^4.22.5",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
     "vitest": "^4.1.9"
   },
   "resolutions": {
     "@modelcontextprotocol/sdk>ajv": "8.18.0",
-    "hono": "^4.12.25",
-    "esbuild": "0.28.1"
-  },
-  "overrides": {
-    "esbuild": "0.28.1"
+    "hono": "^4.12.25"
   }
 }
