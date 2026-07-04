@@ -62,8 +62,10 @@ Systematically execute all Advanced Code Mode tests in `test-server/test-advance
    - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 64. Fixed Z issues [W Prompt / V Code]."
    - Do NOT output any other text to the user during the test sequence.
 6. **Strict Verification and Anti-Hallucination**:
-   - The Coordinator MUST explicitly read the Test Sequence Queue (Dependency DAG) from this file (`coordinator-workflow.md`) and NEVER rely on memory for the filenames. Check the file contents if you lose your place.
-   - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND` or mentions that the test file does not exist, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly count it as a successful test.
+   - The Coordinator MUST use the `list_dir` tool on `test-server/test-advanced/` BEFORE starting, and cross-reference the actual directory contents against the list below.
+   - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.
+   - NEVER rely on memory for filenames or current test counts. ALWAYS read your exact position from the checklist artifact or this file.
+   - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND`, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly increment the counter or count it as a successful test.
 
 ## Test Sequence Queue (Dependency DAG)
 

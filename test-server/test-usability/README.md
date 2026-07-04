@@ -14,7 +14,7 @@ When an agent fails, they are instructed to permanently heal the codebase using 
 
 Because testing and healing all tools at once exhausts an agent's context window, we test them by group using separate threads/subagents via the `coordinator-workflow.md`.
 
-0. **Anti-Hallucination Guardrails:** The Coordinator MUST read the exact filenames from `coordinator-workflow.md` instead of guessing. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt if a file is not found.
+0. **Anti-Hallucination Guardrails:** The Coordinator MUST read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
 1. **Pick a test file** (e.g., `test-usability-core.md`).
 2. **Spawn a subagent** (or start a new thread) and feed them the file.
 3. **Local Validation**: The subagent will ONLY run fast static checks (`pnpm run lint && pnpm run typecheck`) whenever they apply a codebase fix. They should explicitly skip `pnpm run test` and `pnpm run test:e2e` to save time.

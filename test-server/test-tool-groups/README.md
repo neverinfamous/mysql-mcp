@@ -8,7 +8,7 @@
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
 ### 0. Anti-Hallucination Guardrails
-- **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt if a file is not found.
+- **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
 
 ### 1. Execution Strictness
 
