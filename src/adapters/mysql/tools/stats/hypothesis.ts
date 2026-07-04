@@ -57,6 +57,7 @@ export const StatsHypothesisSchema = z.preprocess(
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["sql"] ?? obj["query"],
+      testType: typeof obj["testType"] === "string" ? obj["testType"].replace(/-/g, "_") : obj["testType"],
     };
   },
   z.object({
