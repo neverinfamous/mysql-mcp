@@ -27,12 +27,16 @@ Systematically execute all Code Mode tests in `test-server/test-codemode/` to ve
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the queue.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
+   - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
    - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of Y. Fixed Z issues [W Prompt / V Code]." (e.g., "This is test 40 out of 46. Fixed 10 issues [2 Prompt / 8 Code].")
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
+6. **Strict Verification and Anti-Hallucination**:
+   - The Coordinator MUST explicitly read the Test Sequence Queue (Dependency DAG) from this file (`coordinator-workflow.md`) and NEVER rely on memory for the filenames. Check the file contents if you lose your place.
+   - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND` or mentions that the test file does not exist, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly count it as a successful test.
 
 ## Test Sequence Queue (Dependency DAG)
 
