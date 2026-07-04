@@ -20,7 +20,7 @@ describe("bindings", () => {
       }
     }) as MysqlApi;
 
-    buildSandboxBindings(mockApi, false);
+    const bindings = buildSandboxBindings(mockApi, false);
 
     // Verify groups exist
     expect(bindings).toHaveProperty("docstore");
@@ -46,7 +46,7 @@ describe("bindings", () => {
       get() { return {}; }
     }) as MysqlApi;
 
-    buildSandboxBindings(mockApi, false);
+    const bindings = buildSandboxBindings(mockApi, false);
     
     // Nothing should throw, and no hoisted methods should exist
     expect(bindings).not.toHaveProperty("explain");
@@ -146,7 +146,7 @@ describe("bindings", () => {
       }
     }) as MysqlApi;
 
-    buildSandboxBindings(mockApi, false);
+    const bindings = buildSandboxBindings(mockApi, false);
 
     expect(bindings).toHaveProperty("transactionBegin");
     expect(bindings).toHaveProperty("jsonExtract");
@@ -159,7 +159,7 @@ describe("bindings", () => {
         core: { readQuery: vi.fn() }
       };
       const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
-      buildSandboxBindings(mockApi, false);
+      const bindings = buildSandboxBindings(mockApi, false);
       
       const coreGroup = bindings["core"] as any;
       expect(coreGroup).toHaveProperty("help");
@@ -177,7 +177,7 @@ describe("bindings", () => {
         help: mockHelp
       };
       const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
-      buildSandboxBindings(mockApi, false);
+      const bindings = buildSandboxBindings(mockApi, false);
       
       expect(bindings).toHaveProperty("help");
       const helpFn = bindings["help"] as any;
@@ -191,7 +191,7 @@ describe("bindings", () => {
   describe("reportProgress", () => {
     it("should return error if no progress token in context", async () => {
       const mockApi = new Proxy({}, { get() { return {}; } }) as MysqlApi;
-      buildSandboxBindings(mockApi, false);
+      const bindings = buildSandboxBindings(mockApi, false);
       
       const result = await (bindings as any).reportProgress(50);
       expect(result).toEqual({ success: false, error: "No progress token available in context" });
@@ -202,7 +202,7 @@ describe("bindings", () => {
         baseContext: { progressToken: "test-token" }
       };
       const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
-      buildSandboxBindings(mockApi, false);
+      const bindings = buildSandboxBindings(mockApi, false);
       
       const result = await (bindings as any).reportProgress(50);
       expect(result.success).toBe(true);
@@ -214,7 +214,7 @@ describe("bindings", () => {
         baseContext: { progressToken: "test-token" }
       };
       const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
-      buildSandboxBindings(mockApi, false);
+      const bindings = buildSandboxBindings(mockApi, false);
       
       // We simulate import failure by passing invalid arguments to reportProgress 
       // or relying on a mock, but since we can't easily intercept the dynamic import,

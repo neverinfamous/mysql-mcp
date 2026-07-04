@@ -413,7 +413,7 @@ describe("readBody()", () => {
   });
 
   it("should parse valid JSON body", async () => {
-    const mockReq = new (await import("node:events").EventEmitter)();
+    const mockReq = new (await import("node:events")).EventEmitter();
     mockReq.method = "POST";
     // Mock the data events
     setTimeout(() => {
@@ -425,7 +425,7 @@ describe("readBody()", () => {
   });
 
   it("should reject invalid JSON body", async () => {
-    const mockReq = new (await import("node:events").EventEmitter)();
+    const mockReq = new (await import("node:events")).EventEmitter();
     mockReq.method = "POST";
     setTimeout(() => {
       mockReq.emit("data", Buffer.from('invalid json'));
@@ -435,7 +435,7 @@ describe("readBody()", () => {
   });
 
   it("should return undefined if body is empty", async () => {
-    const mockReq = new (await import("node:events").EventEmitter)();
+    const mockReq = new (await import("node:events")).EventEmitter();
     mockReq.method = "POST";
     setTimeout(() => {
       mockReq.emit("end");
@@ -445,7 +445,7 @@ describe("readBody()", () => {
   });
 
   it("should reject on req error", async () => {
-    const mockReq = new (await import("node:events").EventEmitter)();
+    const mockReq = new (await import("node:events")).EventEmitter();
     mockReq.method = "POST";
     setTimeout(() => {
       mockReq.emit("error", new Error("Req error"));

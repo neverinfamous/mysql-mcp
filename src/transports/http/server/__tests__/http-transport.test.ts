@@ -245,12 +245,12 @@ describe("HttpTransport", () => {
       // Test /sse
       req.url = "/sse";
       await requestHandler(req, res);
-      try { await requestHandler(req, res); } catch() {
+      try { await requestHandler(req, res); } catch(_e) {
         // ignore
       }
       
       req.url = "/messages";
-      try { await requestHandler(req, res); } catch() {
+      try { await requestHandler(req, res); } catch(_e) {
         // ignore
       }
     });
