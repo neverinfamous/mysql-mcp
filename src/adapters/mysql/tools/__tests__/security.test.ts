@@ -31,7 +31,7 @@ describe("Security Tools", () => {
       );
 
       const tool = tools.find((t) => t.name === "mysql_security_audit");
-      const result = (await tool?.handler({ limit: 10 }, mockContext));
+      const result = (await tool?.handler({ limit: 10, user: "root" }, mockContext));
 
       expect(result.data.source).toBe("performance_schema");
       expect(result.data.events).toHaveLength(1);
@@ -99,7 +99,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Connect error"));
 
       const tool = tools.find((t) => t.name === "mysql_security_audit");
-      const result = (await tool?.handler({}, mockContext));
+      const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toBe("Connect error");
@@ -109,7 +109,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = tools.find((t) => t.name === "mysql_security_audit");
-      const result = (await tool?.handler({}, mockContext));
+      const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Audit logging is not enabled");

@@ -103,6 +103,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler(
         {
           limit: 10,
+          user: "test",
         },
         mockContext,
       )) as { data: { source: string } };
@@ -185,7 +186,7 @@ describe("Security Audit Tools", () => {
       const tool = createSecurityAuditTool(
         mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as {
+      const result = (await tool.handler({ user: "test" }, mockContext)) as {
         success: boolean;
         error: string;
       };
@@ -200,7 +201,7 @@ describe("Security Audit Tools", () => {
       const tool = createSecurityAuditTool(
         mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as {
+      const result = (await tool.handler({ user: "test" }, mockContext)) as {
         success: boolean;
         error: string;
       };
@@ -215,7 +216,7 @@ describe("Security Audit Tools", () => {
       const tool = createSecurityAuditTool(
         mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as Record<
+      const result = (await tool.handler({ user: "test" }, mockContext)) as Record<
         string,
         unknown
       >;
