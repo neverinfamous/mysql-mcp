@@ -571,8 +571,9 @@ export function preprocessDocIndexParams(val: unknown): unknown {
     result["schema"] = result["database"];
   }
 
-  if (result["name"] === undefined && result["indexName"] !== undefined) {
-    result["name"] = result["indexName"];
+  if (result["name"] === undefined) {
+    if (result["indexName"] !== undefined) result["name"] = result["indexName"];
+    else if (result["index"] !== undefined) result["name"] = result["index"];
   }
 
   if (typeof result["fields"] === "string") {

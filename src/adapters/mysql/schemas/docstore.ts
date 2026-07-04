@@ -251,6 +251,7 @@ export const CreateDocIndexSchemaBase = z.object({
   database: z.string().optional().describe("Alias for schema"),
   name: z.string().optional(),
   indexName: z.string().optional().describe("Alias for name"),
+  index: z.string().optional().describe("Alias for name"),
   fields: z
     .union([
       z.string(),
@@ -272,7 +273,7 @@ export const CreateDocIndexSchemaBase = z.object({
 export const CreateDocIndexSchemaStrict = z.object({
   collection: z.string().describe("Collection name. Hint: Use 'collection' instead of 'table' or 'tableName'."),
   schema: z.string().optional(),
-  name: z.string().describe("Index name. Hint: Use 'name' instead of 'indexName'."),
+  name: z.string().describe("Index name. Hint: Use 'name' instead of 'indexName' or 'index'."),
   fields: z.array(
     z.object({
       path: z.string(),
