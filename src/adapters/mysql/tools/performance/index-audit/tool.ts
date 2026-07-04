@@ -39,16 +39,6 @@ export function createIndexRecommendationTool(
         const { table, queries, includeRedundant, includeUnindexed } =
           IndexRecommendationSchema.parse(params);
 
-        if (!table && (!queries || queries.length === 0)) {
-          return {
-            success: false,
-            error: "Either 'table' or 'queries' must be provided",
-            code: "VALIDATION_ERROR",
-            category: "validation",
-            recoverable: false
-          };
-        }
-
         if (table) {
           // P154: Validate table exists before proceeding
           try {
