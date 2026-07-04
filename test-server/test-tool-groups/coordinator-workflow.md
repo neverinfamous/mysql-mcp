@@ -31,6 +31,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the current Phase.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
+   - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
 6. **Structured Error Handling**:
    - Ensure subagents explicitly check that tools return structured MCP errors, not raw exceptions. Error messages should follow the standard `[LEVEL] [module] [CODE] message (context)` format where applicable.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
@@ -38,6 +39,9 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 7. **Coordinator Progress Reporting**:
    - The Coordinator should respond to the user with this format as each test proceeds: "This is test X out of 57. Fixed Z issues [W Prompt / V Code]."
    - The Coordinator may also output any other text to the user to convey necessary information, explain issues, or answer questions.
+8. **Strict Verification and Anti-Hallucination**:
+   - The Coordinator MUST explicitly read the Test Sequence Queue (Dependency DAG) from this file (`coordinator-workflow.md`) and NEVER rely on memory for the filenames. Check the file contents if you lose your place.
+   - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND` or mentions that the test file does not exist, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly count it as a successful test.
 
 ## Test Sequence Queue (Dependency DAG)
 

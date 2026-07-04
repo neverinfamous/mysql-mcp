@@ -26,6 +26,7 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - Once all local tests pass, the subagent will commit the code (`git commit -m "Optimize [group] tool usage"`), create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes, summarize findings, and exit. If no modifications were needed, no commit or journal entry is required.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
+   - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
    - Once the subagent completes, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and move to the next test in the queue.
 5. **Code Mode Error Testing Protocol**:
    - Subagents executing Code Mode test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting sandbox crashes or thrown raw exceptions.
@@ -34,6 +35,9 @@ Execute all usability tests in `test-server/test-usability/` to fuzz the `mysql-
 7. **Coordinator Progress Reporting**:
    - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 89. Fixed Z issues [W Prompt / V Code]."
    - Do NOT output any other text to the user during the test sequence.
+8. **Strict Verification and Anti-Hallucination**:
+   - The Coordinator MUST explicitly read the Test Sequence Queue from this file (`coordinator-workflow.md`) and NEVER rely on memory for the filenames. Check the file contents if you lose your place.
+   - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND` or mentions that the test file does not exist, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly count it as a successful test.
 
 ## Test Sequence Queue
 

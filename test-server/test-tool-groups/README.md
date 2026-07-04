@@ -7,6 +7,9 @@
 
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
+### 0. Anti-Hallucination Guardrails
+- **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt if a file is not found.
+
 ### 1. Execution Strictness
 
 - **Direct Calls Exclusive**: Test tools ONLY using direct MCP tool calls (e.g., calling `mysql_analyze_table`). Do not use Code Mode (`mysql_execute_code`) or scripts to batch the tests.
