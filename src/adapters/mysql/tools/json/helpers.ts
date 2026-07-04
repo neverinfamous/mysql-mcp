@@ -190,19 +190,21 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         let sql = "";
         const sqlParams = [];
         
+        const hasEscape = escapeChar !== undefined && escapeChar !== null;
+        if (hasEscape && typeof escapeChar === 'string' && escapeChar.length > 1) {
+          throw new Error("escapeChar must be empty or one character");
+        }
+        // MySQL requires escape_char in JSON_SEARCH to be a literal, not a parameter
+        const escapeSql = hasEscape ? (escapeChar === '' ? "''" : `'${escapeChar.replace(/'/g, "''")}'`) : 'NULL';
+        
         if (path) {
-          const hasEscape = escapeChar !== undefined && escapeChar !== null;
-          const escapeSql = hasEscape ? '?' : 'NULL';
           sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
           
-          const paramsList = [mode, searchValue];
-          if (hasEscape) paramsList.push(escapeChar);
-          paramsList.push(path);
-          
+          const paramsList = [mode, searchValue, path];
           sqlParams.push(...paramsList, ...paramsList);
-        } else if (escapeChar !== undefined && escapeChar !== null) {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
-          sqlParams.push(mode, searchValue, escapeChar, mode, searchValue, escapeChar);
+        } else if (hasEscape) {
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
+          sqlParams.push(mode, searchValue, mode, searchValue);
         } else {
           sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
