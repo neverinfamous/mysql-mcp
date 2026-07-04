@@ -212,7 +212,7 @@ export class CodeModeSandbox {
                    }
                    return new Buffer(arr);
                }
-               const encoder = new TextEncoder();
+               const encoder = new globalThis.TextEncoder();
                return new Buffer(encoder.encode(data));
             }
             if (Array.isArray(data) || data instanceof Uint8Array || data instanceof ArrayBuffer) {
@@ -233,9 +233,66 @@ export class CodeModeSandbox {
              if (encoding === 'base64') {
                  return btoa(String.fromCharCode.apply(null, this));
              }
-             const decoder = new TextDecoder();
+             const decoder = new globalThis.TextDecoder();
              return decoder.decode(this);
           }
+        };
+
+        globalThis.TextEncoder = class TextEncoder {
+          encode(str) {
+            let out = [], p = 0;
+            for (let i = 0; i < str.length; i++) {
+              let c = str.charCodeAt(i);
+              if (c < 128) out[p++] = c;
+              else if (c < 2048) { out[p++] = (c >> 6) | 192; out[p++] = (c & 63) | 128; }
+              else if (((c & 0xFC00) == 0xD800) && (i + 1) < str.length && ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
+                c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+                out[p++] = (c >> 18) | 240; out[p++] = ((c >> 12) & 63) | 128; out[p++] = ((c >> 6) & 63) | 128; out[p++] = (c & 63) | 128;
+              } else {
+                out[p++] = (c >> 12) | 224; out[p++] = ((c >> 6) & 63) | 128; out[p++] = (c & 63) | 128;
+              }
+            }
+            return new Uint8Array(out);
+          }
+        };
+
+        globalThis.TextDecoder = class TextDecoder {
+          decode(arr) {
+            let str = "";
+            for (let i = 0; i < arr.length; i++) {
+              let c = arr[i];
+              if (c < 128) str += String.fromCharCode(c);
+              else if (c > 191 && c < 224) { str += String.fromCharCode(((c & 31) << 6) | (arr[++i] & 63)); }
+              else if (c > 223 && c < 240) { str += String.fromCharCode(((c & 15) << 12) | ((arr[++i] & 63) << 6) | (arr[++i] & 63)); }
+              else { 
+                c = (((c & 7) << 18) | ((arr[++i] & 63) << 12) | ((arr[++i] & 63) << 6) | (arr[++i] & 63)) - 0x10000;
+                str += String.fromCharCode(0xD800 | (c >> 10), 0xDC00 | (c & 0x3FF));
+              }
+            }
+            return str;
+          }
+        };
+
+        globalThis.atob = function(str) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            let output = '';
+            for (let block, charCode, idx = 0, map = chars; str.charAt(idx | 0) || (map = '=', idx % 1); output += map.charAt(63 & block >> 8 - idx % 1 * 8)) {
+                charCode = str.charCodeAt(idx += 3/4);
+                if (charCode > 0xFF) throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
+                block = block << 8 | charCode;
+            }
+            return output;
+        };
+
+        globalThis.btoa = function(str) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            let output = '';
+            for (let block, charCode, idx = 0, map = chars; str.charAt(idx | 0) || (map = '=', idx % 1); output += map.charAt(63 & block >> 8 - idx % 1 * 8)) {
+                charCode = str.charCodeAt(idx += 3/4);
+                if (charCode > 0xFF) throw new Error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+                block = block << 8 | charCode;
+            }
+            return output;
         };
 
         globalThis.__revive_sandbox_buffers = function(obj) {
@@ -477,7 +534,12 @@ export class CodeModeSandbox {
         }
       `);
 
-      const wrappedCode = `(async () => { 
+      const wrappedCode = `(async () => {
+        const Buffer = globalThis.Buffer;
+        const TextEncoder = globalThis.TextEncoder;
+        const TextDecoder = globalThis.TextDecoder;
+        const atob = globalThis.atob;
+        const btoa = globalThis.btoa;
         try {
           const __sandbox_result = await (async () => { ${transformAutoReturn(code)} })();
           const __sandbox_str = JSON.stringify(__sandbox_result, globalThis.__sandbox_replacer);
