@@ -81,8 +81,8 @@ export class SystemDb {
   getDb(): Database {
     if (!this.db) {
       throw new MySQLMcpError(
-        "INTERNAL_ERROR",
         "SystemDb not initialized",
+        "INTERNAL_ERROR",
         ErrorCategory.INTERNAL
       );
     }

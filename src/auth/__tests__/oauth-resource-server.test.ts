@@ -168,6 +168,28 @@ describe("OAuthResourceServer", () => {
       ]);
     });
   });
+
+  describe("getWWWAuthenticateHeader()", () => {
+    it("should return basic header without error", () => {
+      expect(server.getWWWAuthenticateHeader()).toBe(
+        'Bearer realm="https://mysql-mcp.example.com"',
+      );
+    });
+
+    it("should include error if provided", () => {
+      expect(server.getWWWAuthenticateHeader("invalid_token")).toBe(
+        'Bearer realm="https://mysql-mcp.example.com", error="invalid_token"',
+      );
+    });
+
+    it("should include error and description if provided", () => {
+      expect(
+        server.getWWWAuthenticateHeader("invalid_token", "Token expired"),
+      ).toBe(
+        'Bearer realm="https://mysql-mcp.example.com", error="invalid_token", error_description="Token expired"',
+      );
+    });
+  });
 });
 
 describe("createOAuthResourceServer()", () => {

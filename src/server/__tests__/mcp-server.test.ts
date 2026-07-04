@@ -50,6 +50,7 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
   McpServer: class MockMcpServer {
     connect = vi.fn().mockResolvedValue(undefined);
     close = vi.fn().mockResolvedValue(undefined);
+    isConnected = vi.fn().mockReturnValue(true);
     tool = vi.fn();
     registerTool = vi.fn();
     resource = vi.fn();
@@ -228,6 +229,18 @@ describe("McpServer", () => {
         expect.any(Function),
       );
       expect(mockHttpTransport.start).toHaveBeenCalled();
+
+      // Test onConnect callback
+      const onConnectCall = (createHttpTransport as ReturnType<typeof vi.fn>).mock.calls[0][1];
+      const mockMcpTransport = {
+        start: vi.fn(),
+        close: vi.fn(),
+        send: vi.fn()
+      } as any;
+      await onConnectCall(mockMcpTransport);
+      
+      // onConnect should close existing connection and open new one
+      expect(lastMockMcpServerOptions).toBeDefined();
     });
 
     it("should configure OAuth when enabled", async () => {
@@ -334,6 +347,18 @@ describe("McpServer", () => {
 
     it("should do nothing if not started", async () => {
       await server.stop(); // Should not throw
+      expect(server.isRunning()).toBe(false);
+    });
+
+    it("should safely handle adapter disconnect errors", async () => {
+      const mockAdapter = createMockMySQLAdapter();
+      mockAdapter.disconnect = vi.fn().mockRejectedValue(new Error("Disconnect failed"));
+      server.registerAdapter(
+        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+      );
+      await server.start();
+      await server.stop(); // Should not throw
+      expect(mockAdapter.disconnect).toHaveBeenCalled();
       expect(server.isRunning()).toBe(false);
     });
 

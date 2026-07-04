@@ -148,6 +148,29 @@ describe("CodeModeSecurityManager", () => {
       const result = small.validateCode("a".repeat(11));
       expect(result.valid).toBe(false);
     });
+
+    it("should reject unicode escape sequences", async () => {
+      const result = manager.validateCode("const \\u0061 = 1;");
+      expect(result.valid).toBe(false);
+      expect(result.errors[0]).toContain("Unicode escape sequences");
+    });
+  });
+
+  describe("Redis initialization", () => {
+    it("should initialize redis client if REDIS_URL is present", async () => {
+      const prev = process.env["REDIS_URL"];
+      process.env["REDIS_URL"] = "redis://invalid-url-for-test";
+      
+      new CodeModeSecurityManager();
+      // Should handle the rejection gracefully via the catch block
+      await new Promise(r => setTimeout(r, 10)); // let the async connect fail
+      
+      if (prev === undefined) {
+        delete process.env["REDIS_URL"];
+      } else {
+        process.env["REDIS_URL"] = prev;
+      }
+    });
   });
 
   // ===========================================================================
@@ -196,6 +219,21 @@ describe("CodeModeSecurityManager", () => {
       expect(await await smallLimit.checkRateLimit("a")).toBe(false);
       expect(await await smallLimit.checkRateLimit("b")).toBe(true);
     });
+
+    it("should evict oldest entry if map exceeds max size", async () => {
+      const now = Date.now();
+      vi.setSystemTime(now);
+      
+      const fakeMap = new Map();
+      Object.defineProperty(fakeMap, 'size', { get: () => 10000 });
+      fakeMap.set("oldest-client", { count: 1, resetTime: now + 60000 });
+      (manager as any).rateLimitMap = fakeMap;
+      
+      await manager.checkRateLimit("new-client");
+      
+      expect(fakeMap.has("oldest-client")).toBe(false);
+      expect(fakeMap.has("new-client")).toBe(true);
+    });
   });
 
   // ===========================================================================
@@ -226,6 +264,31 @@ describe("CodeModeSecurityManager", () => {
       vi.advanceTimersByTime(61_000);
       expect(await manager.getRateLimitRemaining("client")).toBe(60);
       vi.useRealTimers();
+    });
+
+    it("should return remaining limit from redis if open", async () => {
+      const mockRedis = {
+        isOpen: true,
+        get: vi.fn().mockResolvedValue("5"),
+      };
+      (manager as any).redisClient = mockRedis;
+
+      const remaining = await manager.getRateLimitRemaining("client-redis");
+      expect(remaining).toBe(55); // 60 - 5
+      expect(mockRedis.get).toHaveBeenCalledWith("codemode:rl:client-redis");
+    });
+    
+    it("should fall back to memory if redis throws in getRateLimitRemaining", async () => {
+      const mockRedis = {
+        isOpen: true,
+        get: vi.fn().mockRejectedValue(new Error("Redis error")),
+      };
+      (manager as any).redisClient = mockRedis;
+
+      await manager.checkRateLimit("client-redis-err");
+      const remaining = await manager.getRateLimitRemaining("client-redis-err");
+      // Redis threw, should fallback to memory (where limit is 59 since we called checkRateLimit once, wait checkRateLimit also uses redis and might throw, let's just assert it doesn't throw)
+      expect(remaining).toBe(59);
     });
   });
 

@@ -129,6 +129,46 @@ function createMockAdapterWithTools(): MySQLAdapter {
       annotations: {},
       handler: vi.fn().mockResolvedValue({ success: true }),
     },
+    {
+      name: "mysql_create_dump",
+      group: "backup",
+      title: "Create Dump",
+      description: "Create a dump",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["write"],
+      annotations: {},
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    {
+      name: "mysql_stats_descriptive",
+      group: "stats",
+      title: "Descriptive Stats",
+      description: "Get descriptive stats",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["read"],
+      annotations: { readOnlyHint: true },
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    {
+      name: "mysql_vector_search",
+      group: "vector",
+      title: "Vector Search",
+      description: "Search vector index",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["read"],
+      annotations: { readOnlyHint: true },
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    {
+      name: "mysql_create_schema",
+      group: "schema",
+      title: "Create Schema",
+      description: "Create schema",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["write"],
+      annotations: {},
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    }
   ];
 
   return {
@@ -285,6 +325,18 @@ describe("MysqlApi", () => {
       if (api.transactions.begin) {
         expect(api.transactions.begin).toBe(api.transactions.transactionBegin);
       }
+    });
+
+    it("should create aliases for backup, stats, vector groups in sandbox bindings", () => {
+      // Since these groups might not have all methods in mock adapter, we test the sandbox bindings 
+      // creation which is what bindings.ts does
+      const bindings = api.createSandboxBindings();
+      
+      // We don't have backup/stats/vector mock tools but we can at least assert that 
+      // if they did exist, the aliases would be created. Let's add them to the mock.
+      expect(bindings.createDump).toBeDefined();
+      expect(bindings.descriptive).toBeDefined();
+      expect(bindings.vectorSearch).toBeDefined();
     });
   });
 

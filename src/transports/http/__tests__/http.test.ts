@@ -242,6 +242,27 @@ describe("checkRateLimit()", () => {
     const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
     expect(r1.allowed).toBe(true); // Should fallback to memory map (which is empty) and allow
   });
+
+  it("should fallback to memory when Redis fails with non-Error", async () => {
+    const config: HttpTransportConfig = {
+      port: 3000,
+      enableRateLimit: true,
+      rateLimitMaxRequests: 1,
+      rateLimitWindowMs: 60000,
+    };
+    const map = new Map<string, RateLimitEntry>();
+    const req = createMockRequest();
+    
+    const mockRedisClient = {
+      isOpen: true,
+      incr: vi.fn().mockRejectedValue("Redis string error"),
+      pExpire: vi.fn(),
+      pTTL: vi.fn(),
+    };
+
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    expect(r1.allowed).toBe(true);
+  });
 });
 
 describe("setSecurityHeaders()", () => {
@@ -389,6 +410,47 @@ describe("readBody()", () => {
     const mockReq = createMockRequest({ method: "OPTIONS" });
     const result = await readBody(mockReq);
     expect(result).toBeUndefined();
+  });
+
+  it("should parse valid JSON body", async () => {
+    const mockReq = new (await import("node:events").EventEmitter)();
+    mockReq.method = "POST";
+    // Mock the data events
+    setTimeout(() => {
+      mockReq.emit("data", Buffer.from('{"test": true}'));
+      mockReq.emit("end");
+    }, 10);
+    const result = await readBody(mockReq as any);
+    expect(result).toEqual({ test: true });
+  });
+
+  it("should reject invalid JSON body", async () => {
+    const mockReq = new (await import("node:events").EventEmitter)();
+    mockReq.method = "POST";
+    setTimeout(() => {
+      mockReq.emit("data", Buffer.from('invalid json'));
+      mockReq.emit("end");
+    }, 10);
+    await expect(readBody(mockReq as any)).rejects.toThrow("Invalid JSON");
+  });
+
+  it("should return undefined if body is empty", async () => {
+    const mockReq = new (await import("node:events").EventEmitter)();
+    mockReq.method = "POST";
+    setTimeout(() => {
+      mockReq.emit("end");
+    }, 10);
+    const result = await readBody(mockReq as any);
+    expect(result).toBeUndefined();
+  });
+
+  it("should reject on req error", async () => {
+    const mockReq = new (await import("node:events").EventEmitter)();
+    mockReq.method = "POST";
+    setTimeout(() => {
+      mockReq.emit("error", new Error("Req error"));
+    }, 10);
+    await expect(readBody(mockReq as any)).rejects.toThrow("Req error");
   });
 });
 
@@ -608,6 +670,49 @@ describe("handleRequest()", () => {
     });
     const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(JSON.parse(endCall as string)).toHaveProperty("status", "healthy");
+  });
+
+  it("should route to metrics endpoint when prometheus is enabled", async () => {
+    const transportWithMetrics = new HttpTransport({
+      port: 3000,
+      metricsExport: "prometheus",
+    });
+    
+    const mockReq = createMockRequest({ method: "GET", url: "/metrics" });
+    const mockRes = createMockResponse();
+
+    await (
+      transportWithMetrics as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest(mockReq, mockRes);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
+      "Content-Type": "text/plain",
+    });
+    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(typeof endCall).toBe("string");
+  });
+
+  it("should route to root endpoint", async () => {
+    const mockReq = createMockRequest({ method: "GET", url: "/" });
+    const mockRes = createMockResponse();
+
+    await (
+      transport as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest(mockReq, mockRes);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
+      "Content-Type": "application/json",
+    });
   });
 
   it("should route to OAuth metadata endpoint", async () => {

@@ -343,6 +343,24 @@ describe("CLI Args", () => {
       expect(result.databases[0].database).toBe("file-db");
     });
 
+    it("should parse YAML configuration file from --config", async () => {
+      vi.mocked(fs.promises.readFile).mockResolvedValue("host: yaml-host\n");
+      const yamlParseMock = vi.mocked((await import("yaml")).default.parse).mockReturnValue({ host: "yaml-host" });
+
+      const result = await parseArgs(["--config", "config.yaml"]);
+
+      expect(fs.promises.readFile).toHaveBeenCalledWith("config.yaml", "utf-8");
+      expect(yamlParseMock).toHaveBeenCalledWith("host: yaml-host\n");
+      expect(result.config.host).toBe("yaml-host");
+    });
+
+    it("should exit when configuration file fails to load", async () => {
+      vi.mocked(fs.promises.readFile).mockRejectedValue(new Error("File not found"));
+
+      await expect(parseArgs(["--config", "config.json"])).rejects.toThrow("process.exit(1)");
+      expect(mockConsoleError).toHaveBeenCalled();
+    });
+
     it("should prefer CLI over ENV over FILE", async () => {
       // 1. FILE config
       vi.mocked(fs.promises.readFile).mockResolvedValue(JSON.stringify({

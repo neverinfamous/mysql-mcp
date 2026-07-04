@@ -54,5 +54,12 @@ describe("SystemDb", () => {
     const db = new SystemDb({ dbPath });
     // Don't call init()
     expect(() => db.close()).not.toThrow();
+    expect(() => db.getDb()).toThrow("SystemDb not initialized");
+  });
+
+  it("should catch and log initialization errors", async () => {
+    // A path that is completely invalid should cause SQLite or mkdir to throw
+    const invalidDb = new SystemDb({ dbPath: "Z:\\invalid\\path\\that\\throws\\db.sqlite" });
+    await expect(invalidDb.init()).rejects.toThrow();
   });
 });
