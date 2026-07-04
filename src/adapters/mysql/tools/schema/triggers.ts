@@ -31,8 +31,8 @@ const ListTriggersSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        table: obj['table'] ?? obj['tableName'],
-        schema: (obj['schema'] !== undefined && obj['schema'] !== "") ? obj['schema'] : (obj['database'] ?? obj['dbName'] ?? ""),
+        table: (obj['table'] === "" ? undefined : obj['table']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']) ?? (obj['dbName'] === "" ? undefined : obj['dbName']),
       };
     }
     return val;

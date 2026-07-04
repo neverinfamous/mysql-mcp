@@ -34,8 +34,8 @@ const ListEventsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: obj['schema'] ?? obj['database'],
-        pattern: obj['pattern'] ?? obj['name'],
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        pattern: (obj['pattern'] === "" ? undefined : obj['pattern']) ?? (obj['name'] === "" ? undefined : obj['name']),
       };
     }
     return val;
