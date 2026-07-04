@@ -571,8 +571,10 @@ export function preprocessDocIndexParams(val: unknown): unknown {
   const result = { ...(val as Record<string, unknown>) };
 
   if (result["collection"] === undefined) {
-    if (result["table"] !== undefined) result["collection"] = result["table"];
+    if (result["collectionName"] !== undefined) result["collection"] = result["collectionName"];
+    else if (result["table"] !== undefined) result["collection"] = result["table"];
     else if (result["tableName"] !== undefined) result["collection"] = result["tableName"];
+    else if (result["tbl"] !== undefined) result["collection"] = result["tbl"];
   }
 
   if (result["schema"] === undefined && result["database"] !== undefined) {
