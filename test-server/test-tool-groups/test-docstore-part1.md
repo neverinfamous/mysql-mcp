@@ -155,10 +155,14 @@ docstore Tool Group (4 tools +1 for code mode):
 6. `mysql_doc_collection_info({collection: "test_coll"})` -> verify info
 7. `mysql_doc_drop_collection({collection: "test_coll"})` -> verify success
 
-**Domain error paths (??):**
+**Domain error paths:**
+1. `mysql_doc_collection_info({collection: "nonexistent_xyz"})` -> `{success: false, error: "Collection 'nonexistent_xyz' does not exist", code: "TABLE_NOT_FOUND"}`
+2. `mysql_doc_drop_collection({collection: "nonexistent_xyz"})` -> `{success: false, error: "Collection 'nonexistent_xyz' does not exist", code: "TABLE_NOT_FOUND"}`
+3. `mysql_doc_list_collections({schema: "nonexistent_xyz"})` -> `{success: false, error: "Schema 'nonexistent_xyz' does not exist", code: "SCHEMA_NOT_FOUND"}`
 
-**Zod validation error paths (??):**
-1. ?? `mysql_doc_create_collection({})` -> `{success: false, error: "..."}`
+**Zod validation error paths:**
+1. `mysql_doc_create_collection({})` -> `{success: false, error: "Validation error: name: Invalid input: expected string, received undefined", code: "VALIDATION_ERROR"}`
+2. `mysql_doc_create_collection({collection: "test_coll3", ifNotExists: "abc"})` -> `{success: false, error: "Validation error: ifNotExists: Invalid input: expected boolean, received string", code: "VALIDATION_ERROR"}`
 
 ## Post-Test Procedures
 
