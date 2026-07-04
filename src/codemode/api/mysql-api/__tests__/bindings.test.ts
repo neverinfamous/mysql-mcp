@@ -214,7 +214,7 @@ describe("bindings", () => {
         baseContext: { progressToken: "test-token" }
       };
       const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
-      const bindings = buildSandboxBindings(mockApi, false);
+      buildSandboxBindings(mockApi, false);
       
       // We simulate import failure by passing invalid arguments to reportProgress 
       // or relying on a mock, but since we can't easily intercept the dynamic import,

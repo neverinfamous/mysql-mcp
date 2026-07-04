@@ -21,7 +21,6 @@ import {
   createMockMySQLAdapter,
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 describe("Vector Tools", () => {
   let adapter: any;
@@ -62,7 +61,7 @@ describe("Vector Tools", () => {
       return { rows: [] };
     });
 
-    adapter.executeReadQuery.mockImplementation(async (query: string) => {
+    adapter.executeReadQuery.mockImplementation(async (_query: string) => {
       return { rows: [] };
     });
 

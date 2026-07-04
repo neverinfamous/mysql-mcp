@@ -102,7 +102,6 @@ describe("HttpTransport", () => {
 
     it("should handle request routing", async () => {
       await transport.start();
-      const server = (http.createServer as any).mock.results[0].value;
       const requestHandler = (http.createServer as any).mock.calls[0][0];
       
       req.url = "/health";
@@ -114,7 +113,6 @@ describe("HttpTransport", () => {
 
     it("should handle preflight OPTIONS requests", async () => {
       await transport.start();
-      const server = (http.createServer as any).mock.results[0].value;
       const requestHandler = (http.createServer as any).mock.calls[0][0];
       
       req.method = "OPTIONS";
@@ -245,12 +243,12 @@ describe("HttpTransport", () => {
       // Test /sse
       req.url = "/sse";
       await requestHandler(req, res);
-      try { await requestHandler(req, res); } catch(_e) {
+      try { await requestHandler(req, res); } catch {
         // ignore
       }
       
       req.url = "/messages";
-      try { await requestHandler(req, res); } catch(_e) {
+      try { await requestHandler(req, res); } catch {
         // ignore
       }
     });

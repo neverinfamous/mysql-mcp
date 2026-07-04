@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { AuditLogger } from "../logger.js";
-import { appendFile, mkdir, open, rename, stat } from "node:fs/promises";
+import { appendFile, open, rename, stat } from "node:fs/promises";
 import type { AuditEntry } from "../types.js";
 
 vi.mock("node:fs/promises", () => ({

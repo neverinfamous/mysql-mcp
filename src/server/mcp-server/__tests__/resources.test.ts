@@ -3,7 +3,7 @@ import { registerHelpResources, registerAuditResource, registerObservabilityReso
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { metrics } from "../../../observability/metrics.js";
 import { HELP_CONTENT } from "../../../constants/server-instructions.js";
-import { TOOL_GROUPS } from "../../../filtering/tool-constants.js";
+
 
 vi.mock("../../../observability/metrics.js", () => ({
   metrics: {

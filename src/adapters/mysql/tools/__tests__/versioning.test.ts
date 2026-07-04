@@ -9,7 +9,6 @@ import {
   createMockMySQLAdapter,
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 describe("Versioning Tools", () => {
   let adapter: any;
