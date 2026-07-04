@@ -151,12 +151,20 @@ export function preprocessConditionalUpdateParams(input: unknown): unknown {
   const conditions = result["conditions"];
   const condition = result["condition"];
   
+  if (result["data"] === undefined && result["updates"] !== undefined) {
+    result["data"] = result["updates"];
+  }
+  
   let rawConditions: unknown[] = [];
   
   if (conditions !== undefined) {
     rawConditions = Array.isArray(conditions) ? conditions : [conditions];
   } else if (condition !== undefined) {
     rawConditions = Array.isArray(condition) ? condition : [condition];
+  } else if (result["rowId"] !== undefined || result["id"] !== undefined) {
+    const val = result["rowId"] ?? result["id"];
+    const idCol = result["idColumn"] ?? "id";
+    rawConditions = [{ column: idCol, value: val }];
   }
 
   if (rawConditions.length > 0) {

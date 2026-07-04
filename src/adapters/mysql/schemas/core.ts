@@ -451,6 +451,7 @@ export const ConditionalUpdateSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   data: z.record(z.string(), z.unknown()).optional().describe("Column-value pairs to update"),
+  updates: z.record(z.string(), z.unknown()).optional().describe("Alias for data"),
   conditions: z.array(
     z.object({
       column: z.string(),
@@ -459,6 +460,9 @@ export const ConditionalUpdateSchemaBase = z.object({
     })
   ).optional().describe("Conditions identifying the row (e.g. primary key). Anti-Hallucination Hint: Must be an array of objects (e.g. [{column: 'id', value: 1}]), not a string."),
   condition: z.unknown().optional().describe("Alias for conditions (can be object, string, or number)"),
+  idColumn: z.string().optional().describe("Primary key column name. Defaults to 'id' if not provided. Used with rowId alias."),
+  rowId: z.union([z.string(), z.number()]).optional().describe("Alias for conditions. Shorthand for updating a single row by primary key."),
+  id: z.union([z.string(), z.number()]).optional().describe("Alias for rowId"),
   expectedVersion: z.number().optional().describe("The _version value currently expected. Update fails if this does not match."),
   version: z.number().optional().describe("Alias for expectedVersion"),
 });
