@@ -381,10 +381,10 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 | Filter Pattern   | Example                     | Tools | Description               |
 | ---------------- | --------------------------- | ----- | ------------------------- |
-| Shortcut only    | `starter`                   | 39    | Use a predefined bundle   |
-| Groups only      | `core,json,transactions`    | 33    | Combine individual groups |
-| Shortcut + Group | `starter,spatial`           | 51    | Extend a shortcut         |
-| Shortcut - Tool  | `starter,-mysql_drop_table` | 38    | Remove specific tools     |
+| Shortcut only    | `starter`                   | 43    | Use a predefined bundle   |
+| Groups only      | `core,json,transactions`    | 36    | Combine individual groups |
+| Shortcut + Group | `starter,spatial`           | 55    | Extend a shortcut         |
+| Shortcut - Tool  | `starter,-mysql_drop_table` | 42    | Remove specific tools     |
 
 ### Shortcuts (Predefined Bundles)
 
@@ -724,7 +724,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
 | `--audit-log`             | —                       | Path to the audit log file                          |
-| `--audit-backup`          | —                       | Enable audit backups                                |
+| `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
 | `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
@@ -762,6 +762,9 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `write` | Read + write operations   |
 | `admin` | Administrative operations |
 | `full`  | All operations            |
+| `db:{name}`              | Access to specific database         |
+| `schema:{name}`          | Access to specific schema           |
+| `table:{schema}:{table}` | Access to specific table            |
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 

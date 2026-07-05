@@ -215,53 +215,8 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 > **Architectural Rule:** Tool filtering allows skipping the `MYSQL_URI` configuration if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
-
-### What Can You Filter?
-
-The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
-
-| Filter Pattern   | Example                          | Tools | Description               |
-| ---------------- | -------------------------------- | ----- | ------------------------- |
-| Shortcut only    | `starter`                        | 39    | Use a predefined bundle   |
-| Groups only      | `core,json,transactions`         | 33    | Combine individual groups |
-| Tool names       | `mysql_read_query,mysql_explain` | 2     | Custom tool selection     |
-| Shortcut + Group | `starter,spatial`                | 51    | Extend a shortcut         |
-| Shortcut - Tool  | `starter,-mysql_drop_table`      | 38    | Remove specific tools     |
-
-#### Custom Tool Selection
-
-You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
-
-```bash
-# Enable exactly 3 tools
---tool-filter "mysql_read_query,mysql_write_query,mysql_list_tables"
-
-# Mix tools from different groups
---tool-filter "mysql_read_query,mysql_explain,mysql_json_extract"
-```
-
-### Shortcuts & Tool Groups
-
-mysql-mcp includes 28 tool groups and 16 shortcuts (e.g., `starter`, `dba-manage`, `ai-data-nosql`) to bypass IDE tool limits. Use the `--tool-filter` flag to enable only what you need.
-
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering to stay within your IDE's limits. 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available groups and predefined bundles.
-
----
-
-## ⚡ Boost Speed with Performance Tuning
-
-Schema metadata is cached to reduce repeated queries during tool/resource invocations.
-
-| Variable                    | Default  | Description                                                         |
-| --------------------------- | -------- | ------------------------------------------------------------------- |
-| `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
-| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`                  |
-| `CODE_MODE_MAX_RESULT_SIZE` | `102400` | Maximum Code Mode result payload in bytes (default 100KB, cap 50MB) |
-
-> **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
-
-> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses and `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See the code map for per-tool details.
 
 ---
 
@@ -331,6 +286,9 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `write` | Read + write operations   |
 | `admin` | Administrative operations |
 | `full`  | All operations            |
+| `db:{name}`              | Access to specific database         |
+| `schema:{name}`          | Access to specific schema           |
+| `table:{schema}:{table}` | Access to specific table            |
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 
