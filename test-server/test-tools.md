@@ -34,6 +34,6 @@ node scripts/reset-database.mjs
 | Host      | `localhost`   |
 | Port      | `3306`        |
 | User      | `root`        |
-| Password  | `root`        |
+| Password  | `password`    |
 | Database  | `testdb`      |
 | Container | `mysql-final` |

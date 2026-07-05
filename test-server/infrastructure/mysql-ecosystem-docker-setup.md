@@ -76,7 +76,7 @@ This document summarizes the installation and configuration of MySQL Router, Pro
 With `group_replication_start_on_boot=ON` (set in `innodb-cluster.yml`), the cluster **auto-recovers** from partial outages (single node restart, Docker upgrade). After a **full outage** (machine reboot where all 3 nodes stop simultaneously), Group Replication may fail to auto-start because no node can bootstrap the group. Use the convenience script:
 
 ```powershell
-# Quick reboot (uses defaults: root:root@localhost:3307, testCluster)
+# Quick reboot (uses defaults: root:password@localhost:3307, testCluster)
 .\scripts\reboot-cluster.ps1
 ```
 
@@ -90,7 +90,7 @@ docker start mysql-node1 mysql-node2 mysql-node3
 docker ps --filter "name=mysql-node" --format "{{.Names}}: {{.Status}}"
 
 # 3. Reboot the cluster using MySQL Shell
-& 'C:\Program Files\MySQL\MySQL Shell 9.5\bin\mysqlsh.exe' --uri root:root@localhost:3307 --js -e "dba.rebootClusterFromCompleteOutage('testCluster', {force: true})"
+& 'C:\Program Files\MySQL\MySQL Shell 9.5\bin\mysqlsh.exe' --uri root:password@localhost:3307 --js -e "dba.rebootClusterFromCompleteOutage('testCluster', {force: true})"
 
 # 4. Rejoin secondaries if they show as MISSING
 docker exec mysql-node1 mysqlsh --uri cluster_admin:cluster_admin@mysql-node1:3306 --js -e "var c = dba.getCluster(); c.rejoinInstance('cluster_admin:cluster_admin@mysql-node2:3306');"
@@ -428,7 +428,7 @@ docker run --rm --user root -v mysql-router-data:/tmp/mysqlrouter `
 docker run --rm --network innodb-cluster-net `
   -v mysql-router-data:/tmp/mysqlrouter `
   --entrypoint /bin/bash container-registry.oracle.com/mysql/community-router `
-  -c "mysqlrouter --bootstrap root:root@mysql-node1:3306 --directory /tmp/mysqlrouter --force --conf-set-option http_server.port=8443 --conf-set-option rest_connection_pool.require_realm=default_auth_realm --conf-set-option routing:bootstrap_rw.connection_sharing=1"
+  -c "mysqlrouter --bootstrap root:password@mysql-node1:3306 --directory /tmp/mysqlrouter --force --conf-set-option http_server.port=8443 --conf-set-option rest_connection_pool.require_realm=default_auth_realm --conf-set-option routing:bootstrap_rw.connection_sharing=1"
 
 # 5. Create REST API user
 docker run --rm -v mysql-router-data:/tmp/mysqlrouter `
