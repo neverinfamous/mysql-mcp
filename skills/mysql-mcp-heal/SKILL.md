@@ -65,6 +65,7 @@ Agents often run into environment-level interceptors or tooling issues that thro
 * **Safe Rewrites:** Instead, heal environment files by using precise `multi_replace_file_content` targeting single lines, or write a dedicated deterministic script to parse and rebuild the file safely.
 * **Native Tool Priority:** If you trigger a system interceptor for using shell commands like `cat`, `grep`, or `ls`, you MUST autonomously switch to native tools (e.g., `view_file`, `grep_search`, `list_dir`). DO NOT ask the user for help or wait for permission.
 * **Transient IDE Errors:** If shifting lines via code edits triggers IDE typing errors (e.g., "Unsafe argument of type error typed"), ALWAYS verify with `tsc --noEmit` before attempting complex type refactoring, as it may just be a stale ESLint cache.
+* **Coordinator Guardrails:** To mitigate structural hallucinations, you MUST enforce a `task.md` checklist, run a `list_dir` requirement before accessing unknown paths, and halt execution immediately on `FAILED_FILE_NOT_FOUND` rather than autonomously retrying.
 
 ## 2. Phase 2: Implementation
 

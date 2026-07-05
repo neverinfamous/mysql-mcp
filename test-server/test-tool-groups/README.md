@@ -9,6 +9,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ### 0. Anti-Hallucination Guardrails
 - **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
+- **Checklist Integrity**: Coordinators tracking progress in `task.md` MUST take extreme care when updating statuses (e.g., using `replace_file_content`). Only modify the completion brackets (`[ ]` -> `[x]`). NEVER alter, guess, or abbreviate the filename strings of future tests.
 
 ### 1. Execution Strictness
 

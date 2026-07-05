@@ -343,7 +343,6 @@ jobs:
       # Update Docker Hub description
       - name: Update Docker Hub Description
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
-        continue-on-error: true
         timeout-minutes: 5
         with:
           username: ${{ secrets.DOCKER_USERNAME }}

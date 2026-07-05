@@ -36,10 +36,10 @@ src/
 │
 ├── constants/
 │   ├── server-instructions.ts      # Generated: slim INSTRUCTIONS constant (~634 chars) + HELP_CONTENT map (per-group help)
-│   └── server-instructions/        # Source .md files for each help resource (26 files: overview, gotchas, core, json, etc.)
+│   └── server-instructions/        # Source .md files for each help resource (30 files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
-│   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts, group→tools map
+│   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (16 Shortcuts), group→tools map
 │   └── tool-filter.ts               # ToolFilter class — parse/apply --tool-filter expressions
 │
 ├── utils/
@@ -111,8 +111,8 @@ src/
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
-│       ├── prompts/                # 13+ MCP prompts (see § below)
-│       ├── resources/              # 19+ MCP resources (see § below)
+│       ├── prompts/                # 19 AI-Powered Prompts (see § below)
+│       ├── resources/              # 19 Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -171,7 +171,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Prompts (`src/adapters/mysql/prompts/`)
 
-19 prompt definitions across specialized workflow files:
+19 AI-Powered Prompts across specialized workflow files:
 
 <!-- BEGIN: PROMPTS -->
 | Prompt | Description |
@@ -195,7 +195,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Resources (`src/adapters/mysql/resources/`)
 
-19 data resources + 24+ help resources providing read-only metadata and agent guidance:
+19 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -237,7 +237,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `mysql://help`         | `server-instructions/overview.md` + `gotchas.md` | Gotchas, aliases, Code Mode API — always available     |
 | `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
 
-24 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
+28 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
 ---
 
@@ -319,9 +319,9 @@ try {
 
 | What                               | Where                                     | Notes                                                                                                           |
 | ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (26 files) |
+| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (30 files) |
 | Generator script                   | `scripts/generate-server-instructions.ts` | Reads per-group `.md` files → produces `server-instructions.ts`                                                 |
-| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts                                                                      |
+| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (16 Shortcuts)                                                                      |
 | Tool filter logic                  | `src/filtering/tool-filter.ts`            | `ToolFilter` class                                                                                              |
 | Connection pool                    | `src/pool/connection-pool.ts`             | mysql2/promise pool wrapper                                                                                     |
 | Progress reporter                  | `src/progress/progress-reporter.ts`       | MCP progress notification helpers                                                                               |
@@ -384,8 +384,8 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all 84 test prompts using the standard template    |
-| `test-server/test-prompts.md`               | Prompt testing plan (13 prompts)                                     |
-| `test-server/test-resources.md`             | Resource testing plan (19+ data resources)                           |
+| `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
+| `test-server/test-resources.md`             | Resource testing plan (19 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

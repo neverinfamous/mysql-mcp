@@ -28,7 +28,7 @@ describe("Audit Search Tool", () => {
       expect(result).toHaveProperty("data.entries.length", 1);
       expect(result).toHaveProperty("data.totalCount", 1);
       expect(mockAuditLogger.search).toHaveBeenCalledWith({
-        limit: 5,
+        limit: 10,
         offset: 0,
       });
     });

@@ -44,6 +44,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.
    - NEVER rely on memory for filenames or current test counts. ALWAYS read your exact position from the checklist artifact or this file.
    - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND`, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly increment the counter or count it as a successful test.
+   - **CRITICAL**: When updating the `task.md` checklist via tools like `replace_file_content`, you MUST ONLY change the status brackets (e.g., changing `[ ]` to `[/]` or `[x]`). DO NOT accidentally rewrite, abbreviate, or guess the filenames of upcoming tests. Doing so will cause them to fail with `FAILED_FILE_NOT_FOUND`.
 
 ## Test Sequence Queue (Dependency DAG)
 

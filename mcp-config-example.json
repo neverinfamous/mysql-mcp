@@ -12,19 +12,13 @@
         "MYSQL_POOL_SIZE": "10",
         "MYSQL_POOL_TIMEOUT": "10000",
         "MYSQL_POOL_QUEUE_LIMIT": "0",
-        "REDIS_URL": "redis://localhost:6379",
         "OAUTH_ENABLED": "false",
         "LOG_LEVEL": "info",
         "ALLOWED_IO_ROOTS": "C:/temp,/tmp",
         "MCP_ENABLE_HSTS": "true",
         "TRUST_PROXY": "true",
         "MCP_METRICS_EXPORT": "true",
-        "MYSQL_MCP_TOOL_FILTER": "starter",
-        "METADATA_CACHE_TTL_MS": "30000",
-        "CODEMODE_ISOLATION": "isolate",
-        "CODE_MODE_MAX_RESULT_SIZE": "102400",
-        "PROJECT_REGISTRY": "github.com/your-org",
-        "TEAM_DB_PATH": "/data/shared-dbs"
+        "MYSQL_MCP_TOOL_FILTER": "starter"
       }
     }
   }

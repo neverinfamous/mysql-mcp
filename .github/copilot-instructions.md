@@ -2,9 +2,13 @@
 
 ## Project Overview
 
-mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **241 tools** across **28 groups**, **19 resources**, and **19 prompts** — with Code Mode (sandboxed JS execution), HTTP/SSE transport, OAuth 2.1, Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
+mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **241 tools** across **28 groups**, **16 Shortcuts**, **19 resources**, and **19 prompts**.
 
-**Stack**: TypeScript, Vitest, Playwright (E2E), Zod schemas, mysql2 (MySQL driver), Commander (CLI).
+**Architecture & Capabilities**:
+- **Execution**: Code Mode execution via `isolated-vm` sandbox (massively reduces token overhead, strict 100KB payload cap, rate limiting).
+- **Transports**: Supported Transports: `stdio`, `http` (Streamable HTTP `/mcp`), `sse` (Legacy `/sse`).
+- **Authentication**: Simple Bearer Token or full OAuth 2.1 (RFC 9728/8414) with Keycloak.
+- **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
 
 ## Session Context
 

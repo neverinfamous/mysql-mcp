@@ -11,13 +11,22 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
 [![E2E](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml/badge.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
 [![Tests](https://img.shields.io/badge/Tests-2185_passed-success.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-90.09%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![Coverage](https://img.shields.io/badge/Coverage-90.07%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
-## The Most Comprehensive MySQL MCP Server Available
+## 💎 Value Proposition
 
-**mysql-mcp**: The definitive MySQL MCP Server. 241 tools, Code Mode, and OAuth 2.1 integration.
+**mysql-mcp** is the premier Model Context Protocol server for MySQL. It empowers AI assistants with unparalleled database capabilities.
+
+**Execute Complex Code**
+Experience Code Mode. Access our entire toolset via a single JavaScript sandbox. Slash token overhead by 90%.
+
+**Enterprise-Grade Reliability**
+Enjoy deterministic error handling. Run process-isolated code safely. Get enterprise features without sacrificing ease of use.
+
+**Complete Observability**
+Access 19 observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
 
 ### 🎯 Core Features
 
@@ -273,7 +282,7 @@ You can list individual tool names (without `+` prefix) to create a fully custom
 | `text`          | 6     | REGEXP, LIKE, SOUNDEX                                   |
 | `fulltext`      | 5     | Natural language & boolean search                       |
 | `performance`   | 11    | EXPLAIN, query analysis, anomaly detection              |
-| `optimization`  | 4     | Index hints, recommendations                            |
+| `optimization`  | 4     | Index hints, database-wide audits, EXPLAIN recommendations |
 | `admin`         | 9     | OPTIMIZE, ANALYZE, CHECK, insights                      |
 | `monitoring`    | 7     | PROCESSLIST, status variables                           |
 | `backup`        | 7     | Export, import, mysqldump, audit backups                |
@@ -322,7 +331,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
 | `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
-| `--dump-config`           | —                       | Print the resolved configuration and exit           |
+
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
 | `--mysql`, `-m`           | `MYSQL_URL`             | MySQL connection string                             |

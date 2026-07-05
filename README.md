@@ -17,13 +17,18 @@
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
-## Unleash Your Database
+## 💎 Value Proposition
 
-**mysql-mcp** is the premier **Model Context Protocol server for MySQL**. It empowers AI assistants with **unparalleled database capabilities**.
+**mysql-mcp** is the premier Model Context Protocol server for MySQL. It empowers AI assistants with unparalleled database capabilities.
 
-Experience **Code Mode**. Access its comprehensive toolset through a single JavaScript sandbox. Eliminate the massive token overhead of multi-step tool calls.
+**Execute Complex Code**
+Experience Code Mode. Access our entire toolset via a single JavaScript sandbox. Slash token overhead by 90%.
 
-Enjoy deterministic error handling and process-isolated code execution. Get enterprise-grade features without sacrificing ease of use.
+**Enterprise-Grade Reliability**
+Enjoy deterministic error handling. Run process-isolated code safely. Get enterprise features without sacrificing ease of use.
+
+**Complete Observability**
+Access 19 observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
 
 ## 🎯 Core Benefits
 
@@ -702,7 +707,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
 | `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
-| `--dump-config`           | —                       | Print the resolved configuration and exit           |
+
 | `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
