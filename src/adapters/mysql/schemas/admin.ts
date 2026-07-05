@@ -397,9 +397,7 @@ export const ServerHealthSchema = z.preprocess(
 export const ServerConfigSchemaBase = z.object({
   action: z
     .enum(["get", "set"])
-    .optional()
-    .default("get")
-    .describe("Whether to get or set the configuration value. Defaults to 'get'."),
+    .describe("Whether to get or set the configuration value."),
   setting: z
     .enum(["logLevel"])
     .optional()
@@ -418,9 +416,6 @@ export const ServerConfigSchema = z.preprocess(
     const record = obj as Record<string, unknown>;
     const result = { ...record };
     
-    if (result["action"] === undefined) {
-      result["action"] = "get";
-    }
     if (result["setting"] === undefined && result["key"] !== undefined) {
       result["setting"] = result["key"];
     }
@@ -451,7 +446,7 @@ export const AuditSearchSchemaBase = z.object({
   requestId: z.string().optional().describe("Filter by exact request ID"),
   fromTimestamp: z.string().optional().describe("Filter by start timestamp (ISO 8601)"),
   toTimestamp: z.string().optional().describe("Filter by end timestamp (ISO 8601)"),
-  limit: z.number().int().min(1).max(100).default(5).describe("Max results to return"),
+  limit: z.number().int().min(1).max(100).default(10).describe("Max results to return"),
   offset: z.number().int().min(0).default(0).describe("Pagination offset"),
 });
 

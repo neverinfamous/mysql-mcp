@@ -142,12 +142,12 @@ describe("Admin Schemas", () => {
   });
 
   describe("ServerConfigSchema", () => {
-    it("should default action to get", () => {
-      expect(ServerConfigSchema.parse({})).toMatchObject({ action: "get" });
+    it("should require action", () => {
+      expect(() => ServerConfigSchema.parse({})).toThrow();
     });
     it("should parse get action", () => {
       expect(ServerConfigSchema.parse({ action: "get", setting: "logLevel" })).toMatchObject({ action: "get", setting: "logLevel" });
-      expect(ServerConfigSchema.parse({ key: "logLevel" })).toMatchObject({ action: "get", setting: "logLevel" });
+      expect(() => ServerConfigSchema.parse({ key: "logLevel" })).toThrow();
     });
     it("should fail set action if setting or value missing", () => {
       expect(() => ServerConfigSchema.parse({ action: "set" })).toThrow();
@@ -159,8 +159,8 @@ describe("Admin Schemas", () => {
   });
 
   describe("AuditSearchSchema", () => {
-    it("should default pagination", () => {
-      expect(AuditSearchSchema.parse({})).toMatchObject({ limit: 5, offset: 0 });
+    it("should set defaults", () => {
+      expect(AuditSearchSchema.parse({})).toMatchObject({ limit: 10, offset: 0 });
     });
     it("should handle aliases for search", () => {
       expect(AuditSearchSchema.parse({ query: "abc" })).toMatchObject({ search: "abc" });
