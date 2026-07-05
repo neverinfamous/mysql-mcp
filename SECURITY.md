@@ -263,6 +263,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 | Version | Supported |
 | ------- | --------- |
+| 3.x.x   | ✅        |
 | 2.x.x   | ✅        |
 | 1.x.x   | ✅        |
 | < 1.0   | ❌        |

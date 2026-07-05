@@ -707,6 +707,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
 | `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
+| `--dump-config`           | —                       | Dump current configuration to stdout and exit       |
 
 | `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
@@ -717,9 +718,9 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--mysql-user`            | `MYSQL_USER`            | MySQL username                                      |
 | `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
 | `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
-| `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size                                |
-| `--pool-timeout`          | `MYSQL_POOL_TIMEOUT`    | Connection acquire timeout (ms)                     |
-| `--pool-queue-limit`      | `MYSQL_POOL_QUEUE_LIMIT`| Queue limit for waiting requests                    |
+| `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
+| `--pool-timeout`          | `MYSQL_POOL_TIMEOUT`    | Connection acquire timeout in ms (default: 10000)   |
+| `--pool-queue-limit`      | `MYSQL_POOL_QUEUE_LIMIT`| Queue limit for waiting requests (default: 0)       |
 | `--tool-filter`, `-f`     | `MYSQL_MCP_TOOL_FILTER` | Tool filter string                                  |
 | `--name`                  | `MCP_SERVER_NAME`       | Server name                                         |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
@@ -732,11 +733,11 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--audit-log`             | `AUDIT_LOG_PATH`        | Path to JSONL audit log file                        |
 | `--audit-redact`          | `AUDIT_REDACT`          | Redact tool arguments from audit log                |
 | `--audit-reads`           | `AUDIT_READS`           | Log read operations                                 |
-| `--audit-log-max-size`    | `AUDIT_LOG_MAX_SIZE`    | Max audit log size in bytes before rotation         |
+| `--audit-log-max-size`    | `AUDIT_LOG_MAX_SIZE`    | Max audit log size in bytes before rotation (default: 10MB) |
 | `--audit-backup`          | `AUDIT_BACKUP`          | Enable pre-mutation snapshots                       |
 | `--audit-backup-data`     | `AUDIT_BACKUP_DATA`     | Include sample data in pre-mutation snapshots       |
-| `--audit-backup-max-size` | `AUDIT_BACKUP_MAX_SIZE` | Max table size in bytes for data capture            |
-| `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
+| `--audit-backup-max-size` | `AUDIT_BACKUP_MAX_SIZE` | Max table size in bytes for data capture (default: 50MB) |
+| `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
 | `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |

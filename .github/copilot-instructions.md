@@ -110,3 +110,7 @@ When reviewing PRs, check for:
 - [ ] Missing Zod schemas on new tools
 - [ ] Kebab-case violations in new filenames
 - [ ] `continue-on-error: true` in workflow files — forbidden per project standards
+- [ ] Dual-Schema Pattern enforcement
+- [ ] `:latest` Docker tags used
+- [ ] Market value proposition blocks prominent in README
+- [ ] Docker readme <= 25,000 chars

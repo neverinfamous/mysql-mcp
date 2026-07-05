@@ -26,9 +26,9 @@ The most robust way to prevent a hallucination is to explicitly instruct the age
 * **Tool Descriptions:** Update the `description` fields on tool definition files (e.g., `src/adapters/mysql/tools/*/index.ts`). This is the agent's first impression of each tool.
 * **Server Instructions:** If a structural hallucination persists, update `src/constants/server-instructions/*.md`. Then run `pnpm run generate:instructions` (or `npx tsx scripts/generate-server-instructions.ts`). These alter the context payload for all agents upon connection.
 
-### Layer 2: Parameter Normalization Healing (Frictionless Recovery)
+### Layer 2: Parameter Normalization Healing (Dual-Schema Pattern / Frictionless Recovery)
 
-If agents consistently hallucinate inputs that can be logically inferred or normalized, heal them silently via `z.preprocess()` wrappers or positional params.
+If agents consistently hallucinate inputs that can be logically inferred or normalized, heal them silently via `z.preprocess()` wrappers or positional params (implementing the Dual-Schema Pattern).
 
 * **Parameter Aliases:** If agents pass `tableName` instead of `table`, use the `preprocess-utils.ts` alias resolver to automatically map the keys.
 * **Type Coercion:** If agents pass strings (e.g., `limit: "50"`) instead of numbers, use `coerceNumber` or similar in Zod to heal it before validation throws.

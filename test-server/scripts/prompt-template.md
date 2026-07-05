@@ -111,13 +111,13 @@ All tools should return errors as strongly-typed structured objects instead of t
 | **Handler error** ✅ | Handler catches error and returns `{success: false, error: "...", code: "..."}` | Parseable JSON object with `success`, `error`, `code` (e.g., `VALIDATION_ERROR`, `CONFLICT_ERROR`), and `category` fields | Correct            |
 | **MCP error** ❌     | Uncaught throw propagates to MCP framework                                      | Raw text error string, often prefixed with `Error:`, wrapped in an `isError: true` content block — no `success` field     | Bug — report as ❌ |
 
-## Split Schema Pattern Verification
+## Dual-Schema Pattern Verification
 
-All tools use the Split Schema pattern: a plain `z.object()` Base schema for MCP parameter visibility, and a `z.preprocess()` wrapper for handler parsing. Verify:
+All tools use the Dual-Schema pattern: a plain `z.object()` Base schema for MCP parameter visibility, and a `z.preprocess()` wrapper for handler parsing. Verify:
 
-1. **Parameter visibility**: For tools with optional parameters (e.g., `database`, `limit`), make a direct MCP call using those parameters. If the tool ignores or rejects documented parameters, report as a Split Schema violation.
+1. **Parameter visibility**: For tools with optional parameters (e.g., `database`, `limit`), make a direct MCP call using those parameters. If the tool ignores or rejects documented parameters, report as a Dual-Schema violation.
 2. **Alias acceptance**: For tools with documented parameter aliases (e.g., `table`/`tableName`/`name`, `query`/`sql`, `where`/`filter`), verify that direct MCP tool calls correctly accept the aliases — not just the primary parameter name.
-3. **`z.preprocess()` as `inputSchema`**: If a tool uses `z.preprocess()` directly as its `inputSchema` (instead of a plain `SchemaBase`), parameter metadata is stripped from JSON Schema generation. Report as a Split Schema violation.
+3. **`z.preprocess()` as `inputSchema`**: If a tool uses `z.preprocess()` directly as its `inputSchema` (instead of a plain `SchemaBase`), parameter metadata is stripped from JSON Schema generation. Report as a Dual-Schema violation.
 
 ## P154 Object Existence Verification
 

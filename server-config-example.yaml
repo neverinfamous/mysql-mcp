@@ -28,7 +28,7 @@ auditConfig:
   backup:
     enabled: true
     includeData: false
-    maxDataSizeBytes: 1048576 # 1MB
+    maxSizeBytes: 1048576 # 1MB
 
 # Databases Configuration
 # Only the first database in the array is currently connected/supported by the MySQL adapter.

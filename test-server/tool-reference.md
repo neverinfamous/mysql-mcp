@@ -266,13 +266,13 @@ Complete list of all **241 tools** across 28 categories.
 
 | Tool                          | Description                 |
 | ----------------------------- | --------------------------- |
-| `mysql_sys_user_summary`      | Resource usage by user      |
+| `mysql_sys_user_summary`      | Resource usage by user. **v3.2:** strict validation and aliases      |
 | `mysql_sys_io_summary`        | I/O usage by thread/file    |
 | `mysql_sys_statement_summary` | Statement analysis          |
 | `mysql_sys_wait_summary`      | Wait events analysis        |
 | `mysql_sys_innodb_lock_waits` | Blocked transactions info   |
 | `mysql_sys_schema_stats`      | Table/index sizes and bloat |
-| `mysql_sys_host_summary`      | Metrics by source host      |
+| `mysql_sys_host_summary`      | Metrics by source host. **v3.2:** strict validation and aliases      |
 | `mysql_sys_memory_summary`    | Memory usage breakdown      |
 
 ---
