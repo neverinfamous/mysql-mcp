@@ -40,14 +40,14 @@ Every tool returns structured error responses — never raw exceptions or intern
 }
 ```
 
-Error codes are module-prefixed (e.g., `CONNECTION_ERROR`, `SCHEMA_NOT_FOUND`). Internal stack traces are logged server-side but never exposed to clients.
+Error logic leverages the `MySQLMcpError` hierarchy (9 distinct categories) and returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed (e.g., `CONNECTION_ERROR`, `SCHEMA_NOT_FOUND`). Internal stack traces are logged server-side but never exposed to clients.
 
 ## 🔐 **Input Validation**
 
 - ✅ **Zod schemas** — all tool inputs validated at tool boundaries before database operations
 - ✅ **Parameterized queries** used throughout — never string interpolation
 - ✅ **Audit filters required** — audit log queries must provide at least one filter to prevent mass data extraction
-- ✅ **Data masking aliases** — validated strictly to prevent evasion
+- ✅ **Data masking aliases** — validated strictly at the MCP boundary to prevent evasion
 - ✅ **Identifier sanitization** — table, column, schema, and index names validated against injection
 
 ## 📁 **Filesystem Boundary Sandbox**

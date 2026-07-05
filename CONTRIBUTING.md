@@ -190,6 +190,7 @@ Error logic should leverage the `MySQLMcpError` hierarchy (e.g., `ValidationErro
 
 ### Input Validation
 
+- **Dual-Schema Pattern** — Tools use a plain `z.object()` Base schema for MCP parameter visibility, and a `z.preprocess()` wrapper for handler parsing to support aliases and coercion without breaking standard JSON Schema generation.
 - All parameters are validated via **Zod schemas** with explicit coercion controls (e.g., `z.preprocess(coerceNumber, z.number().optional())` instead of aggressive `z.coerce.number()`)
 - Output schemas are strictly defined to guarantee AI agents receive deterministic P154-compliant structures (using `openWorldHint: false`)
 - Invalid inputs must return structured errors, automatically handled by `formatHandlerError()` without raw Zod validation messages
@@ -208,7 +209,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ## 🔧 Adding or Modifying Tools
 
-mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, and `codemode`. When adding a new tool:
+mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. When adding a new tool:
 
 1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/mysql/schemas/`
 2. **Implement the handler** in the corresponding adapter directory under `src/adapters/mysql/tools/`

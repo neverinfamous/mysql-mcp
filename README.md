@@ -2,13 +2,8 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-[![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp) ![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp)
-[![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-
-![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen) [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp) [![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
-
-[![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)](https://github.com/neverinfamous/mysql-mcp) [![Coverage](https://img.shields.io/badge/Coverage-90.07%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -23,14 +18,14 @@ Experience Code Mode. Access our entire toolset via a single JavaScript sandbox.
 Enjoy deterministic error handling. Run process-isolated code safely. Get enterprise features without sacrificing ease of use.
 
 **Complete Observability**
-Access 49 observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
+Access 21 core observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
 
 ## 🎯 Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
-| **49 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
+| **Specialized Tools**                 | 241 specialized tools — the largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
+| **21 Core Resources**                 | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
 | **28 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`isolated-vm`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 241 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
@@ -95,7 +90,7 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 ---
 
-## Code Mode: Maximum Efficiency
+## ⚡ Maximize Efficiency with Code Mode
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
 
@@ -150,7 +145,7 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 
 ---
 
-## 🌐 HTTP/SSE Transport (Remote Access)
+## 🌐 Connect Remotely via HTTP/SSE
 
 For remote access, web-based clients, or HTTP-compatible MCP hosts, use the HTTP transport:
 
@@ -209,7 +204,7 @@ Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 | ------ | --------- | ---------------------------------------------------------------------- |
 | `GET`  | `/health` | Health check (bypasses rate limiting, always available for monitoring) |
 
-## 🔐 Authentication
+## 🔐 Secure Access with Authentication
 
 mysql-mcp supports two authentication mechanisms for HTTP transport:
 
@@ -321,7 +316,7 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 
 ---
 
-## 🔗 Database Connection Scenarios
+## 🔗 Connect to Any Database
 
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
@@ -375,10 +370,10 @@ Use the remote hostname directly:
 
 ---
 
-## 🛠️ Tool Filtering
+## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With an extensive toolset available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -608,7 +603,7 @@ This is useful for scripted or automated clients that need a minimal, precise se
 
 ---
 
-## 🤖 AI-Powered Prompts
+## 🤖 Automate Workflows with AI Prompts
 
 This server includes **28 intelligent prompts** for guided workflows:
 
@@ -636,9 +631,9 @@ This server includes **28 intelligent prompts** for guided workflows:
 
 ---
 
-## 📊 Resources
+## 📊 Monitor Health with Resources
 
-This server exposes **49 observability resources** for database observability and telemetry:
+This server exposes **21 core observability resources** (plus 28 dynamic help resources) for database observability and telemetry:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
@@ -667,7 +662,7 @@ This server exposes **49 observability resources** for database observability an
 
 ---
 
-## 🔧 Advanced Configuration
+## 🔧 Customize with Advanced Configuration
 
 > **Tip:** You can now configure the server using native JSON or YAML configuration files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.yaml` and `server-config-example.json` templates at the root of the project for setup details.
 
@@ -681,7 +676,7 @@ For specialized setups, see these Wiki pages:
 
 ---
 
-## ⚡ Performance Tuning
+## ⚡ Boost Speed with Performance Tuning
 
 Schema metadata is cached to reduce repeated queries during tool/resource invocations.
 
@@ -751,7 +746,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 
-## Development
+## 💻 Build and Contribute
 
 See **[From Source](#from-source)** above for setup. After cloning:
 

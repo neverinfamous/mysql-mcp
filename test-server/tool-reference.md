@@ -22,7 +22,7 @@ Complete list of all **241 tools** across 28 categories.
 | `mysql_enable_versioning`  | Enable OCC on a table                   |
 | `mysql_disable_versioning` | Disable OCC on a table                  |
 | `mysql_check_version`      | Get current _version of a row           |
-| `mysql_conditional_update` | Update row conditionally based on version |
+| `mysql_conditional_update` | Update row conditionally based on version. **v3.2:** aliases for data and conditions |
 
 ---
 
@@ -96,7 +96,7 @@ Complete list of all **241 tools** across 28 categories.
 | `mysql_doc_modify`            | Modify documents matching criteria    |
 | `mysql_doc_remove`            | Remove documents matching criteria    |
 | `mysql_doc_create_index`      | Create index on JSON path             |
-| `mysql_doc_collection_info`   | Get collection stats                  |
+| `mysql_doc_collection_info`   | Get collection stats. **v3.2:** alias handling for collectionName |
 
 ---
 
@@ -193,7 +193,7 @@ Complete list of all **241 tools** across 28 categories.
 
 | Tool                         | Description                                        |
 | ---------------------------- | -------------------------------------------------- |
-| `mysql_index_recommendation` | Suggest missing indexes. **v2.2:** `queries`, `includeRedundant`, `includeUnindexed` params |
+| `mysql_index_recommendation` | Suggest missing indexes. **v2.2:** `queries`, `includeRedundant`, `includeUnindexed` params. **v3.2:** allow database-wide index audit |
 | `mysql_query_rewrite`        | Query optimization hints                           |
 | `mysql_force_index`          | Generate FORCE INDEX hints                         |
 | `mysql_optimizer_trace`      | View optimizer decisions. **v2.2:** `summary` mode |
