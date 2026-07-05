@@ -1,7 +1,8 @@
 # MySQL-MCP Code Mode Testing Suite
 
-
 **Directory Purpose**: This folder contains 53 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Code Mode (`mysql_execute_code`) validation only**.
+>
+> 🚀 **Core Features Tested:** This suite rigorously validates our fastest and most capable execution environment: **Code Mode**, along with our secure **OAuth 2.1** and robust **Connection Pooling**.
 
 ## Agent Instructions
 

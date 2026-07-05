@@ -23,6 +23,9 @@
 
 > **Note**: If temp tables are present from a previous test pass, it's because the database is locked. Ignore them. Use existing `test_*` tables for read operations.
 
+> [!IMPORTANT]
+> **Core Features & Config**: When testing, keep in mind the server's core features: **OAuth 2.1, Code Mode, Connection Pooling**. Ensure your tests accommodate the latest architecture changes and any relevant flags (e.g., `--audit-log`, `--metrics-export`).
+
 ### Test Schema Reference
 
 {{SCHEMA_REF}}

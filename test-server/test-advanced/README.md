@@ -1,7 +1,8 @@
 # MySQL-MCP Advanced Stress Tests
 
-
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
+>
+> 🚀 **Core Features Tested:** This suite focuses heavily on pushing the limits of our flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
 This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` tool groups. These tests simulate complex, edge-case, and boundary interactions using exclusively **Code Mode** (`mysql_execute_code`).
 

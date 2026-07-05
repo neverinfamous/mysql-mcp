@@ -1,6 +1,8 @@
 # mysql-mcp Test Server — Agent Testing Instructions
 
 > **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
+>
+> 🚀 **Core Features:** Our test suite rigorously validates the server's flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
 ## Files
 

@@ -4,6 +4,8 @@
 
 This directory contains the Markdown files that serve as the foundation for the `mysql-mcp` dynamic help system. These files are presented directly to AI agents making context-gathering queries.
 
+> 🚀 **Core Features to Highlight:** When modifying instructions, always emphasize our best-in-class features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+
 ## ⚠️ Critical Workflow
 
 **DO NOT** edit `src/constants/server-instructions.ts` directly. It is auto-generated.

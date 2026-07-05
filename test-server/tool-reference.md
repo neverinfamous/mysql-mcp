@@ -1,7 +1,8 @@
 # Tool Reference
 
 Complete list of all **241 tools** across 28 categories.
-
+>
+> 🚀 **Core Features:** Enjoy enterprise-grade capabilities like **OAuth 2.1** for robust security, **Code Mode** for execution speed, and advanced **Connection Pooling** for performance.
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 
 ---
@@ -210,7 +211,7 @@ Complete list of all **241 tools** across 28 categories.
 | `mysql_flush_tables`   | FLUSH TABLES             |
 | `mysql_kill_query`     | KILL connection/query    |
 | `mysql_append_insight` | Append insight to log    |
-| `mysql_server_config`  | Manage server configs    |
+| `mysql_server_config`  | Manage server configs. **v3.2:** action required, audit default limit fixed |
 | `mysql_audit_search`   | Search and filter system audit logs |
 
 ---
@@ -222,7 +223,7 @@ Complete list of all **241 tools** across 28 categories.
 | `mysql_security_audit`             | Audit user privileges and settings                 |
 | `mysql_security_firewall_status`   | Firewall status (Enterprise/MariaDB)               |
 | `mysql_security_firewall_rules`    | List firewall rules                                |
-| `mysql_security_mask_data`         | Mask PII data patterns                             |
+| `mysql_security_mask_data`         | Mask PII data patterns. **v3.2:** alias validation at MCP boundary |
 | `mysql_security_password_validate` | check password strength policy                     |
 | `mysql_security_ssl_status`        | SSL/TLS connection status                          |
 | `mysql_security_user_privileges`   | List privileges for user. **v2.2:** `summary` mode |
