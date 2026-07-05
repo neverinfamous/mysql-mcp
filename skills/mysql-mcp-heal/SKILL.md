@@ -9,10 +9,11 @@ description: Guide for modifying the `mysql-mcp` codebase (schemas, server instr
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Value Proposition
-Build better AI integrations faster.
+Build AI integrations instantly.
 Empower agents with secure database access.
+Execute complex logic via Code Mode.
 Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise-grade security.
+Leverage OAuth 2.1 for enterprise security.
 
 The primary philosophy of this skill is: **Automate away as many problems as possible.** When you (the agent) encounter a hallucination, confusion, or an artificial roadblock, DO NOT just work around it or settle for throwing a "good error message".
 

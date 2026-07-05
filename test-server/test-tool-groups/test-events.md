@@ -198,7 +198,7 @@ events Tool Group (6 tools +1 for code mode):
 
 ### After Testing
 
-1. **Token Audit**: Use `read_resource` on `mysql://audit` to retrieve total token usage. Include in your final report.
+1. **Token Audit**: Use `read_resource` on `mysql://metrics` to retrieve total token usage. Include in your final report.
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code

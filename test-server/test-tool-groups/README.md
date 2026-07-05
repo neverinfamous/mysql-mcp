@@ -41,13 +41,13 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - `| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |`
   Never proceed to the final step until every tool in a given group is fully checked off.
 - **Help Resources**: The server uses an Adaptive Instruction Architecture. Tool signatures are NOT injected into your prompt by default. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/schema`) before testing to understand the expected parameters.
-- **Session Token Usage**: Use `read_resource` on `mysql://audit` at the end of your test group to capture the total `sessionTokenEstimate` and log it in your summaries.
+- **Session Token Usage**: Use `read_resource` on `mysql://metrics` at the end of your test group to capture the total `sessionTokenEstimate` and log it in your summaries.
 
 ### Perform Cleanup
 
 - Direct write tests should operate on temporary tables or objects prefixed with `temp_`.
 - When completed, explicitly drop all `temp_` artifacts.
-- Update `../code-map.md`, handlers, and instructions if bugs are uncovered, then update the Changelog with fixes before summarizing your work.
+- Update `../code-map.md`, handlers, and instructions if bugs are uncovered, then summarize your work.
 
 ## Access Available Test Files
 

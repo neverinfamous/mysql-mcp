@@ -53,6 +53,7 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "packageManager": "pnpm@9.15.4",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "acorn": "^8.17.0",

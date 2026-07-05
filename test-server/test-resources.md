@@ -43,7 +43,7 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 | 18  | `mysql://docstore`     | `{ collections, ... }`                         | `collectionCount >= 1` (test_documents detected)                          |
 | 19  | `mysql://insights`     | String text                                    | Returns a memo string from insights logging                               |
 | 20  | `mysql://metrics`      | `{ tools, resources, timestamp }`              | Returns populated metrics object tracking telemetry                       |
-| 21  | `mysql://audit`        | `{ entries: [...], ... }`                      | Returns forensic audit trail object                                       |
+| 21  | `mysql://metrics`        | `{ entries: [...], ... }`                      | Returns forensic audit trail object                                       |
 | 22  | `mysql://help`         | Markdown text                                  | Returns API reference documentation                                       |
 
 ### How to Read Resources

@@ -252,7 +252,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 | URI | Content |
 | --- | ------- |
-| `mysql://audit` | Parses and streams the configured `--audit-log` JSONL file to agents. |
+| `mysql://metrics` | Parses and streams the configured `--audit-log` JSONL file to agents. |
 | `mysql://metrics` | In-memory streaming telemetry (p50/p95/p99 latency). |
 | `mysql://help` | Critical gotchas, parameter aliases, and API reference. |
 

@@ -37,7 +37,7 @@ If you encounter any failures, errors, or hallucinations:
 
 ## 4. Commit
 
-1. If local verification passes, run `git add .` and `git commit -m "Optimize fulltext tool usage"`.
+1. If local verification passes, run `git add .` and `bun .\.agents\scripts\commit.ts --msg "test(usability): Optimize fulltext tool usage" --impact 0.1 --confidence 1.0 --validation passed --journal --add .`.
 2. Report your findings to the Coordinator.
 
 ## 5. Continuous Improvement

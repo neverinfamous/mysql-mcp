@@ -1,6 +1,6 @@
 # mysql-mcp — Copilot Code Review Context
 
-[![npm version](https://img.shields.io/npm/v/mysql-mcp.svg)](https://npmjs.org/package/mysql-mcp) [![License](https://img.shields.io/npm/l/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Value Proposition
@@ -12,7 +12,7 @@ Leverage OAuth 2.1 for enterprise security.
 
 ## Project Overview
 
-mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 22 resources, and 19 prompts.
+mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 243 tools, 22 resources, and 19 prompts.
 > **Architectural Rule:** Tool filtering allows skipping the MySQL connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 **Architecture & Capabilities**:
@@ -81,7 +81,7 @@ All tool handlers return structured error responses — never raw exceptions:
 }
 ```
 
-> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect 241 tools and current config flags.
+> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect 243 tools and current config flags.
 > **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts not explicitly listed in the tool-reference or registered in `server/`.
 
 ## Architecture Rules (Recent Changes)
@@ -145,8 +145,8 @@ When reviewing PRs, check for:
 - [ ] `continue-on-error: true` in workflow files — forbidden per project standards
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Market value proposition blocks prominent in README
+- [ ] Market value proposition blocks prominent in README (ensure <15 words and active voice)
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
-- [ ] Schema examples accurately reflect the 241 tool count and current configuration flags
+- [ ] Schema examples accurately reflect the 243 tool count and current configuration flags
