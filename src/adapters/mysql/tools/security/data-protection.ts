@@ -31,7 +31,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const MaskDataSchemaBase = z.object({
-  value: z.string().describe("Value to mask"),
+  value: z.string().optional().describe("Value to mask"),
   data: z.string().optional().describe("Alias for value"),
   text: z.string().optional().describe("Alias for value"),
   input: z.string().optional().describe("Alias for value"),
