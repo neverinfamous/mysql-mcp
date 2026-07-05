@@ -51,7 +51,10 @@ const UserSummarySchema = z.preprocess(
   z.object({
     user: z.string().optional(),
     limit: z.coerce.number().int().positive().default(5),
-  })
+    username: z.any().optional(),
+    userName: z.any().optional(),
+    account: z.any().optional(),
+  }).strict()
 );
 
 const HostSummarySchemaBase = z.object({
@@ -77,7 +80,11 @@ const HostSummarySchema = z.preprocess(
   z.object({
     host: z.string().optional(),
     limit: z.coerce.number().int().positive().default(5),
-  })
+    hostname: z.any().optional(),
+    hostName: z.any().optional(),
+    ip: z.any().optional(),
+    address: z.any().optional(),
+  }).strict()
 );
 
 /**
