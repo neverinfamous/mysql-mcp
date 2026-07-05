@@ -39,8 +39,8 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator should respond to the user with this format as each test proceeds: "This is test X out of 57. Fixed Z issues [W Prompt / V Code]."
-   - The Coordinator may also output any other text to the user to convey necessary information, explain issues, or answer questions.
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 57. Fixed Z issues [W Prompt / V Code]."
+   - Do NOT output any other text to the user during the test sequence.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-tool-groups/` BEFORE starting, and cross-reference the actual directory contents against the list below.
    - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.
