@@ -9,16 +9,16 @@
 
 ## 💎 Value Proposition
 
-**mysql-mcp** is the premier Model Context Protocol server for MySQL. It empowers AI assistants with unparalleled database capabilities.
+**mysql-mcp** is the definitive Model Context Protocol server for MySQL, empowering AI assistants with an unparalleled suite of database capabilities. It acts as the ultimate bridge between LLMs and your data, bringing production-ready infrastructure to agentic workflows.
 
 **Execute Complex Code**
-Experience Code Mode. Access our entire toolset via a single JavaScript sandbox. Slash token overhead by 90%.
+Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 JavaScript sandbox. Slash LLM token overhead by up to 90% while executing multi-step operations locally.
 
 **Enterprise-Grade Reliability**
-Enjoy deterministic error handling. Run process-isolated code safely. Get enterprise features without sacrificing ease of use.
+Built for production. Enjoy fully deterministic error handling, process-isolated code execution, and comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
 
 **Complete Observability**
-Access 21 core observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
+Uncover deep database insights instantly. Access 21 core observability resources to monitor schema evolution, query performance metrics, and replication health in real-time—making your agent a virtual DBA.
 
 ## 🎯 Core Benefits
 
