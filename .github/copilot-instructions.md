@@ -21,7 +21,7 @@ mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 
 - **Payload**: `CODE_MODE_MAX_RESULT_SIZE` sets max result payload (default 102400).
 - **Transports**: It supports `stdio`, streamable `http`, and legacy `sse`.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
-- **Audit Logging**: Maintain strict security with comprehensive audit trails.
+- **Audit Logging**: Maintain strict security with comprehensive audit trails (Note: `AUDIT_*` env vars are deprecated and removed; audit configuration is managed via CLI).
 - **Recent Architecture**:
   - Added conditional update aliases for data and conditions.
   - Fix alias resolution in stats hypothesis tool.
