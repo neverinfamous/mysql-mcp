@@ -27,6 +27,8 @@
         "MYSQL_MCP_TOOL_FILTER": "starter,codemode",
         "MCP_AUTH_TOKEN": "",
         "ALLOWED_IO_ROOTS": "C:/temp,/tmp",
+        "METADATA_CACHE_TTL_MS": "30000",
+        "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "AUDIT_LOG_PATH": "./audit.jsonl",
         "AUDIT_REDACT": "true",
         "AUDIT_READS": "false",
