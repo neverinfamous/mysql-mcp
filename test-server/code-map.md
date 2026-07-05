@@ -124,7 +124,7 @@ src/
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # 19 AI-Powered Prompts (see § below)
-│       ├── resources/              # 19 Observability Resources (see § below)
+│       ├── resources/              # 19 Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -204,9 +204,9 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ---
 
-## Resources (`src/adapters/mysql/resources/`)
+## Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
 
-19 Observability Resources + 19 help resources providing read-only metadata and agent guidance:
+22 Observability Resources + 19 help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -235,11 +235,13 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 <!-- END: RESOURCES -->
 
-### Audit Resource (registered dynamically by McpServer when `--audit-log` is set)
+### Server-Level Resources (`src/server/mcp-server/resources.ts`)
 
-| URI             | Content                                                             |
-| --------------- | ------------------------------------------------------------------- |
-| `mysql://audit` | Recent forensic audit trail + token summary + backup snapshot stats |
+| URI | Content |
+| --- | ------- |
+| `mysql://audit` | Parses and streams the configured `AUDIT_LOG` JSONL file to agents. |
+| `mysql://metrics` | In-memory streaming telemetry (p50/p95/p99 latency). |
+| `mysql://help` | Critical gotchas, parameter aliases, and API reference. |
 
 ### Help Resources (registered dynamically by McpServer)
 
@@ -397,7 +399,7 @@ try {
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all 174 test prompts using the standard template    |
 | `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
-| `test-server/test-resources.md`             | Resource testing plan (19 Observability Resources)                           |
+| `test-server/test-resources.md`             | Resource testing plan (22 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

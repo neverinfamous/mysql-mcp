@@ -1,7 +1,7 @@
 # MySQL-MCP Advanced Stress Tests
 
 [![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-19-green?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
 [![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)

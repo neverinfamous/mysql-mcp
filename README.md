@@ -18,14 +18,14 @@ Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem vi
 Built for production. Enjoy deterministic error handling and process-isolated code execution. Leverage comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
 
 **Complete Observability**
-Uncover deep database insights instantly. Access 19 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
+Uncover deep database insights instantly. Access 22 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
 
 ## 🎯 Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | 241 specialized tools — the largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
-| **19 Resources**                     | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
+| **22 Resources**                     | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
 | **19 AI-Powered Prompts**            | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`isolated-vm`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 241 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
@@ -586,6 +586,9 @@ If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to
 
 You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
 
+The easiest way to filter is using **whitelist mode** — simply specify the shortcut you want, and everything else is automatically disabled.
+> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.:
+
 ```bash
 # Enable exactly 3 tools (whitelist mode)
 --tool-filter "mysql_read_query,mysql_write_query,mysql_list_tables"
@@ -633,7 +636,7 @@ This server includes **19 intelligent prompts** for guided workflows:
 
 ## 📊 Monitor Health with Resources
 
-This server exposes **19 resources** for database observability and telemetry:
+This server exposes **22 resources** for database observability and telemetry:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
@@ -652,10 +655,13 @@ This server exposes **19 resources** for database observability and telemetry:
 | **`mysql://events`**    | Event Scheduler status and scheduled events |
 | **`mysql://sysschema`** | sys schema diagnostics summary              |
 | **`mysql://locks`**     | InnoDB lock contention detection            |
-| **`mysql://cluster`**   | Group Replication/InnoDB Cluster status     |
-| **`mysql://spatial`**   | Spatial columns and indexes                 |
-| **`mysql://docstore`**  | Document Store collections                  |
-| **`mysql://help/*`**    | API reference for 28 tool groups & gotchas  |
+| `mysql://cluster`       | Group Replication/InnoDB Cluster status     |
+| `mysql://spatial`       | Spatial columns and indexes                 |
+| `mysql://docstore`      | Document Store collections                  |
+| `mysql://insights`      | Business insights memo from mysql_append_insight |
+| `mysql://audit`         | Forensic audit trail and pre-mutation snapshot stats |
+| `mysql://metrics`       | In-memory streaming telemetry (p50/p95/p99 latency) |
+| `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
 
 ---
 
@@ -783,7 +789,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 241 tools, 19 resources, and 19 prompts interactively.
+Open **http://localhost:6274** to browse all 241 tools, 22 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 

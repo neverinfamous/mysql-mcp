@@ -16,12 +16,12 @@ Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem vi
 Built for production. Enjoy deterministic error handling and process-isolated code execution. Leverage comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
 
 **Complete Observability**
-Uncover deep database insights instantly. Access 19 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
+Uncover deep database insights instantly. Access 22 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
 
 ### 🎯 Core Features
 
 - **241 Specialized Tools**: From core CRUD and native JSON functions to advanced spatial/GIS, cluster management, introspection, and schema migration.
-- **19 Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
+- **22 Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
 - **19 AI-Powered Prompts**: Guided workflows for query building, schema design, performance tuning, and infrastructure setup.
 - **Code Mode (Token Savings)**: Execute complex operations locally inside a separate V8 isolate, reducing token overhead by up to 90%.
 - **Dual Transport & OAuth 2.1**: Full streamable HTTP and legacy SSE support, protected by granular scopes (`read`, `write`, `admin`, `full`).
@@ -210,7 +210,9 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-## 🛠️ Optimize Limits with Tool Filtering
+### Optimize Tokens: Tool Filtering
+
+> **Architectural Rule:** Tool filtering allows skipping the `MYSQL_URI` configuration if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 > [!IMPORTANT]
 > **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`

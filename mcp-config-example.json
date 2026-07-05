@@ -40,7 +40,14 @@
         "MYSQLSH_PATH": "",
         "MYSQL_XPORT": "33060",
         "CODEMODE_ISOLATION": "",
-        "LOG_LEVEL": "info"
+        "LOG_LEVEL": "info",
+        "AUDIT_LOG": "",
+        "AUDIT_REDACT": "true",
+        "AUDIT_READS": "false",
+        "AUDIT_LOG_MAX_SIZE": "10485760",
+        "AUDIT_BACKUP": "false",
+        "AUDIT_BACKUP_DATA": "",
+        "AUDIT_BACKUP_MAX_SIZE": "52428800"
       }
     }
   }

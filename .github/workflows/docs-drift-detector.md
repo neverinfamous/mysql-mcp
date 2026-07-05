@@ -33,7 +33,7 @@ concurrency: docs-drift-detector
 
 # Documentation Drift Detector
 
-You are auditing documentation for the **mysql-mcp** project. This premier TypeScript MCP server for MySQL databases empowers LLMs with 241 specialized tools. It features 19 resources and 19 prompts. Verify documentation accuracy. Ensure consistency with recent changes.
+You are auditing documentation for the **mysql-mcp** project. This premier TypeScript MCP server for MySQL databases empowers LLMs with 241 specialized tools. It features 22 resources and 19 prompts. Verify documentation accuracy. Ensure consistency with recent changes.
 
 ## Important Rules
 

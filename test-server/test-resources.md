@@ -1,6 +1,6 @@
 # Resource Testing Plan
 
-mysql-mcp exposes 19 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
+mysql-mcp exposes 22 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
 ### Setup
 

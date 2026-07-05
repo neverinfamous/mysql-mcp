@@ -12,7 +12,8 @@ Leverage OAuth 2.1 for enterprise security.
 
 ## Project Overview
 
-mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 19 resources, and 19 prompts.
+mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 22 resources, and 19 prompts.
+> **Architectural Rule:** Tool filtering allows skipping the MySQL connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 **Architecture & Capabilities**:
 - **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).
