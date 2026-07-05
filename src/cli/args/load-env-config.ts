@@ -39,7 +39,7 @@ export function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServ
   }
 
   // Check for tool filter in environment
-  const toolFilter = process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"];
+  const toolFilter = process.env["TOOL_FILTER"];
   if (toolFilter) {
     config.toolFilter = toolFilter;
   }
@@ -68,27 +68,7 @@ export function loadEnvConfig(poolConfig: PoolConfig): { config: Partial<McpServ
     };
   }
 
-  // Check audit environment variables
-  const auditLogPath = process.env["AUDIT_LOG_PATH"];
-  if (auditLogPath) {
-    config.auditConfig = {
-      enabled: true,
-      logPath: auditLogPath,
-      redact: process.env["AUDIT_REDACT"] === "true",
-      auditReads: process.env["AUDIT_READS"] === "true",
-      maxSizeBytes: process.env["AUDIT_LOG_MAX_SIZE"] ? parseInt(process.env["AUDIT_LOG_MAX_SIZE"], 10) : (10 * 1024 * 1024),
-    };
 
-    if (process.env["AUDIT_BACKUP"] === "true") {
-      config.auditConfig.backup = {
-        enabled: true,
-        includeData: process.env["AUDIT_BACKUP_DATA"] === "true",
-        maxAgeDays: 30, // Fixed default for now
-        maxCount: 1000, // Fixed default for now
-        maxDataSizeBytes: process.env["AUDIT_BACKUP_MAX_SIZE"] ? parseInt(process.env["AUDIT_BACKUP_MAX_SIZE"], 10) : (50 * 1024 * 1024),
-      };
-    }
-  }
 
   // Check database environment variables as fallback
   const envHost = process.env["MYSQL_HOST"];

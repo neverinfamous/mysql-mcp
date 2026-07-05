@@ -34,7 +34,7 @@ describe("CLI Args", () => {
     delete process.env["MYSQL_POOL_SIZE"];
     delete process.env["MYSQL_POOL_TIMEOUT"];
     delete process.env["MYSQL_POOL_QUEUE_LIMIT"];
-    delete process.env["MYSQL_MCP_TOOL_FILTER"];
+
     delete process.env["OAUTH_ENABLED"];
   });
 
@@ -108,13 +108,7 @@ describe("CLI Args", () => {
       vi.unstubAllEnvs();
     });
 
-    it("should prefer MYSQL_MCP_TOOL_FILTER over TOOL_FILTER", async () => {
-      vi.stubEnv("TOOL_FILTER", "-admin");
-      vi.stubEnv("MYSQL_MCP_TOOL_FILTER", "-security");
-      const result = await parseArgs([]);
-      expect(result.config.toolFilter).toBe("-security");
-      vi.unstubAllEnvs();
-    });
+
 
     it("should load oauth config from environment variables", async () => {
       vi.stubEnv("OAUTH_ENABLED", "true");
@@ -311,9 +305,6 @@ describe("CLI Args", () => {
       vi.stubEnv("MCP_AUTH_TOKEN", "env-token");
       vi.stubEnv("TRUST_PROXY", "true");
       vi.stubEnv("MCP_ENABLE_HSTS", "true");
-      vi.stubEnv("AUDIT_LOG_PATH", "/env/audit");
-      vi.stubEnv("AUDIT_REDACT", "true");
-      vi.stubEnv("AUDIT_BACKUP", "true");
 
       const result = await parseArgs([]);
 
@@ -321,10 +312,7 @@ describe("CLI Args", () => {
       expect(result.config.authToken).toBe("env-token");
       expect(result.config.trustProxy).toBe(true);
       expect(result.config.enableHSTS).toBe(true);
-      expect(result.config.auditConfig?.enabled).toBe(true);
-      expect(result.config.auditConfig?.logPath).toBe("/env/audit");
-      expect(result.config.auditConfig?.redact).toBe(true);
-      expect(result.config.auditConfig?.backup?.enabled).toBe(true);
+
 
       vi.unstubAllEnvs();
     });

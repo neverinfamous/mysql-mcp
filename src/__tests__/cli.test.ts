@@ -64,7 +64,7 @@ describe("CLI", () => {
     delete process.env["MYSQL_USER"];
     delete process.env["MYSQL_PASSWORD"];
     delete process.env["MYSQL_DATABASE"];
-    delete process.env["MYSQL_MCP_TOOL_FILTER"];
+
     delete process.env["OAUTH_ENABLED"];
   });
 

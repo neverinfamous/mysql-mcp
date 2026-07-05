@@ -69,7 +69,7 @@ Environment Variables:
   MYSQL_PASSWORD              MySQL password
   MYSQL_DATABASE              MySQL database
   MYSQL_POOL_SIZE             Connection pool size
-  MYSQL_MCP_TOOL_FILTER       Tool filter string
+  TOOL_FILTER                 Tool filter string
   MCP_HOST                    Host to bind HTTP transport to
   MCP_AUTH_TOKEN               Simple bearer token for HTTP authentication
   TRUST_PROXY                  Trust X-Forwarded-For (true/false)
@@ -95,11 +95,7 @@ Environment Variables:
   CODEMODE_ISOLATION          Code mode isolation level
   CODE_MODE_MAX_RESULT_SIZE   Max Code Mode result payload in bytes
   METADATA_CACHE_TTL_MS       Cache TTL for schema metadata
-  AUDIT_LOG_PATH              Path to JSONL audit log
-  AUDIT_REDACT                Redact tool args from audit log
-  AUDIT_READS                 Log read operations
-  AUDIT_BACKUP                Enable pre-mutation DDL snapshots
-  AUDIT_BACKUP_DATA           Include sample data in pre-mutation snapshots
+
   MYSQLMCP_PORT               Port for mysql-mcp
 `);
 }

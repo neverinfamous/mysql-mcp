@@ -47,12 +47,12 @@ function updateBadges() {
 
   // ![Coverage](https://img.shields.io/badge/Coverage-96.7%25-brightgreen.svg)
   const covRegex =
-    /!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[0-9.]+.*?\.svg\)/g;
+    /!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[^)]+\)/g;
   const newCovBadge = `![Coverage](https://img.shields.io/badge/Coverage-${linesPct}%25-${coverageColor}.svg)`;
 
   // ![E2E](https://img.shields.io/badge/E2E-179%20tests%20%C2%B7%20224%20tools-blue.svg)
   const e2eRegex =
-    /!\[E2E\]\(https:\/\/img\.shields\.io\/badge\/E2E-[a-zA-Z0-9%.-]+.*?\.svg\)/g;
+    /!\[E2E\]\(https:\/\/img\.shields\.io\/badge\/E2E-[^)]+\)/g;
   const newE2eBadge = `![E2E](https://img.shields.io/badge/E2E-${e2ePassing}%20passing%20%C2%B7%20${e2eSkipped}%20skipped-blue.svg)`;
 
   const filesToUpdate = ["README.md", "DOCKER_README.md"];

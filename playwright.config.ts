@@ -31,7 +31,7 @@ export default defineConfig({
     env: {
       ...process.env,
       // Load all tools (override starter default)
-      MYSQL_MCP_TOOL_FILTER: "+all",
+      TOOL_FILTER: "+all",
       // Provide sandbox boundaries for E2E tests
       ALLOWED_IO_ROOTS: `C:/temp,C:/tmp,/tmp,${tmpdir()}`,
       // Prevent 429s during E2E runs with many client connections

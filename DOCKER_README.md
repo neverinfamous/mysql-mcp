@@ -1,7 +1,7 @@
 # MySQL MCP Server
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) ![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -335,7 +335,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
 | `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 10000)   |
 | `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
-| `--tool-filter`, `-f`     | `MYSQL_MCP_TOOL_FILTER` | Tool filter string                                  |
+| `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
 | `--name`                  | —                       | Server name                                         |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
@@ -344,13 +344,13 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | —                       | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to JSONL audit log file                        |
-| `--audit-redact`          | `AUDIT_REDACT`          | Redact tool arguments from audit log                |
-| `--audit-reads`           | `AUDIT_READS`           | Log read operations                                 |
-| `--audit-log-max-size`    | `AUDIT_LOG_MAX_SIZE`    | Max audit log size in bytes before rotation (default: 10MB) |
-| `--audit-backup`          | `AUDIT_BACKUP`          | Enable pre-mutation snapshots                       |
-| `--audit-backup-data`     | `AUDIT_BACKUP_DATA`     | Include sample data in pre-mutation snapshots       |
-| `--audit-backup-max-size` | `AUDIT_BACKUP_MAX_SIZE` | Max table size in bytes for data capture (default: 50MB) |
+| `--audit-log`             | —                       | Path to JSONL audit log file                        |
+| `--audit-redact`          | —                       | Redact tool arguments from audit log                |
+| `--audit-reads`           | —                       | Log read operations                                 |
+| `--audit-log-max-size`    | —                       | Max audit log size in bytes before rotation         |
+| `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
+| `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
+| `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
 | `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
