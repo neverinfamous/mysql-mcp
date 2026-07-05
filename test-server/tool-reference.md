@@ -10,11 +10,11 @@
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 ## Value Proposition
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+**Build AI integrations instantly.**
+**Empower agents with secure database access.**
+**Execute complex logic via Code Mode.**
+**Scale operations with robust connection pooling.**
+**Leverage OAuth 2.1 for enterprise security.**
 
 Complete list of all **241 tools** across groups.
 >

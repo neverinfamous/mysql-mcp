@@ -133,9 +133,9 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 
 ---
 
-## ⚡ MCP Client Configuration
+## ⚡ Configure Your MCP Client
 
-### HTTP/SSE Server Usage (Advanced)
+### Connect via HTTP/SSE Server
 
 > **When to use HTTP mode:** Use HTTP mode when deploying `mysql-mcp` as a standalone server that multiple clients can connect to remotely. For local development with Claude Desktop or Cursor IDE, use the default `stdio` mode shown below instead.
 
@@ -210,7 +210,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-### Optimize Tokens: Tool Filtering
+## 🛠️ Optimize Tokens: Tool Filtering
 
 > **Architectural Rule:** Tool filtering allows skipping the `MYSQL_URI` configuration if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 

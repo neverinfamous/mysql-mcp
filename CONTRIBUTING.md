@@ -38,7 +38,7 @@ pnpm run build
 pnpm test
 
 # Run the full quality check
-pnpm run check   # Runs ESLint + TypeScript strict-mode type checking
+pnpm run check   # Runs ESLint + TypeScript strict-mode, plus unit and E2E tests
 ```
 
 ### Running the Server Locally
@@ -110,7 +110,7 @@ pnpm run bench
 
 ```bash
 # Lint + type check (required before submitting)
-pnpm run check   # ESLint + TypeScript strict-mode
+pnpm run check   # ESLint + TypeScript strict-mode, plus unit and E2E tests
 
 # Or individually
 pnpm run lint        # ESLint only
@@ -335,14 +335,13 @@ src/
 | ----------------------- | ---------------------------------------------------- |
 | `pnpm run build`         | Production build via tsup                            |
 | `pnpm run dev`           | Watch mode (fast unbundled hot reloads via tsx)      |
-| `pnpm run check`         | **Quality gate** — lint + typecheck (run before PRs) |
+| `pnpm run check`         | **Quality gate** — lint + typecheck + tests (run before PRs) |
 | `pnpm run lint`          | ESLint only                                          |
 | `pnpm run typecheck`     | TypeScript strict-mode type checking                 |
 | `pnpm test`              | Run all unit tests (Vitest)                          |
 | `pnpm run test:coverage` | Tests with V8 coverage report                        |
 | `pnpm run test:e2e`      | Playwright end-to-end tests (HTTP/SSE transport)     |
 | `pnpm run bench`         | Performance benchmarks (tinybench via Vitest)        |
-| `pnpm run bench:verbose` | Benchmarks with detailed timings                     |
 
 ### Benchmarks
 

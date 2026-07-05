@@ -160,9 +160,8 @@ node dist/cli.js \
 
 ```bash
 docker run --rm -p 3000:3000 \
-  -e MYSQL_HOST=host \
   writenotenow/mysql-mcp:latest \
-  --transport http --port 3000
+  --transport http --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
 The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect:
@@ -795,7 +794,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 241 tools, 22 resources, and 19 prompts interactively.
+Open **http://localhost:5173** to browse all 241 tools, 22 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 

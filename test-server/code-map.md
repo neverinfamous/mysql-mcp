@@ -5,7 +5,7 @@
 
 [![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-20-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
@@ -46,7 +46,7 @@ src/
 │       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
 │       ├── server.ts               # TransportType, McpServerConfig (port, host, toolFilter, metricsExport, name, allowedIoRoots, stateless, enableHSTS, trustProxy, authToken, auditConfig)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
-│       ├── errors.ts               # MySQLMcpError base + 7 subclasses (see § Error Classes)
+│       ├── errors.ts               # MySQLMcpError base + 11 subclasses (see § Error Classes)
 │       ├── error-types.ts          # ErrorCategory enum (9 categories), ErrorResponse interface, ErrorContext
 │       └── tools.ts                # ToolGroup, MetaGroup, RouterConfig, MySQLShellConfig,
 │                                   #   ToolFilterConfig, AdapterCapabilities, ToolDefinition,
@@ -129,7 +129,7 @@ src/
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
-│       ├── prompts/                # 19 AI-Powered Prompts (see § below)
+│       ├── prompts/                # 20 AI-Powered Prompts (see § below)
 │       ├── resources/              # 19 Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
@@ -188,7 +188,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Prompts (`src/adapters/mysql/prompts/`)
 
-19 AI-Powered Prompts across specialized workflow files:
+20 AI-Powered Prompts across specialized workflow files:
 
 <!-- BEGIN: PROMPTS -->
 | Prompt | Description |
@@ -252,7 +252,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 | URI | Content |
 | --- | ------- |
-| `mysql://metrics` | Parses and streams the configured `--audit-log` JSONL file to agents. |
+| `mysql://audit-log` | Parses and streams the configured `--audit-log` JSONL file to agents. |
 | `mysql://metrics` | In-memory streaming telemetry (p50/p95/p99 latency). |
 | `mysql://help` | Critical gotchas, parameter aliases, and API reference. |
 
@@ -412,7 +412,7 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all 174 test prompts using the standard template    |
-| `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
+| `test-server/test-prompts.md`               | Prompt testing plan (20 AI-Powered Prompts)                          |
 | `test-server/test-resources.md`             | Resource testing plan (22 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |

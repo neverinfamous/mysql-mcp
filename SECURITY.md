@@ -156,10 +156,10 @@ Full OAuth 2.1 for production multi-tenant deployments:
 
 The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
 
-- ✅ `cross-spawn` — GHSA-3xgq-45jj-v275
-- ✅ `glob` — CVE-2024-28849
-- ✅ `@isaacs/brace-expansion@5.0.1` — CVE-2026-25547
-- ✅ `tar@7.5.19` — CVE-2026-23950, CVE-2026-24842
+- ✅ `cross-spawn` — CVE-2024-21538
+- ✅ `glob` — CVE-2025-64756
+- ✅ `@isaacs/brace-expansion@5.0.1` — CVE-2025-5889
+- ✅ `tar@7.5.19` — CVE-2026-26960
 - ✅ `minimatch@10.2.5` — CVE-2026-27904, CVE-2026-27903
 
 ### **Volume Mounting Security**

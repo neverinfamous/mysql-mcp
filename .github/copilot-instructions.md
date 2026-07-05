@@ -4,11 +4,11 @@
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Value Proposition
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+**Build AI integrations instantly.**
+**Empower agents with secure database access.**
+**Execute complex logic via Code Mode.**
+**Scale operations with robust connection pooling.**
+**Leverage OAuth 2.1 for enterprise security.**
 
 ## Project Overview
 
@@ -21,7 +21,7 @@ mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 
 - **Payload**: `CODE_MODE_MAX_RESULT_SIZE` sets max result payload (default 102400).
 - **Transports**: It supports `stdio`, streamable `http`, and legacy `sse`.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
-- **Audit Logging**: Maintain strict security with comprehensive audit trails (Note: `AUDIT_*` env vars are deprecated and removed; audit configuration is managed via CLI).
+- **Audit Logging**: Maintain strict security with comprehensive audit trails.
 - **Recent Architecture**:
   - Added conditional update aliases for data and conditions.
   - Fix alias resolution in stats hypothesis tool.
@@ -126,7 +126,7 @@ src/
 | `test-server/tool-reference.md` | Categorized tool inventory          |
 | `CONTRIBUTING.md`               | Development setup and PR guidelines |
 | `DOCKER_README.md`              | Docker Hub documentation            |
-| `CHANGELOG.md`                  | Version history                     |
+| `UNRELEASED.md`                 | Version history                     |
 
 ## Review Checklist
 

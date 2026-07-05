@@ -29,7 +29,7 @@ Leverage OAuth 2.1 for enterprise security.
 > **Anti-Hallucination Guardrails:** You must maintain a `task.md` checklist, use `list_dir` before accessing directories, and immediately halt on `FAILED_FILE_NOT_FOUND` errors rather than autonomously retrying.
 
 > [!WARNING]
-> **Stale Build Issues:** The MCP server runs from the compiled `dist/` directory, NOT `src/`. If you encounter inexplicable behavior (e.g., tools executing old logic or throwing validation errors for things already fixed in the source code), the server might be running a stale build. Check if the compiled code in `dist/` matches the source code in `src/`. If out of sync, stop and instruct the user to run `npm run build` and restart the server before continuing testing.
+> **Stale Build Issues:** The MCP server runs from the compiled `dist/` directory, NOT `src/`. If you encounter inexplicable behavior (e.g., tools executing old logic or throwing validation errors for things already fixed in the source code), the server might be running a stale build. Check if the compiled code in `dist/` matches the source code in `src/`. If out of sync, stop and instruct the user to run `pnpm run build` and restart the server before continuing testing.
 
 > **Note**: If temp tables are present from a previous test pass, it's because the database is locked. Ignore them. Use existing `test_*` tables for read operations.
 
@@ -152,9 +152,8 @@ Key MySQL error codes that should be intercepted by handlers (not leaked as raw 
 
 During testing, check for these inconsistencies:
 
-1. **Throw-vs-return**: If a tool throws a raw error instead of returning `{success: false}`, report as ❌.
-2. **Error field name**: All `{ success: false }` error responses should use `error` as the field name.
-3. **Zod validation leaks**: If calling a tool with an invalid enum value or missing required field produces a raw MCP `-32602` Zod validation error instead of a structured response, report as ❌.
+1. **Error field name**: All `{ success: false }` error responses should use `error` as the field name.
+2. **Zod validation leaks**: If calling a tool with an invalid enum value or missing required field produces a raw MCP `-32602` Zod validation error instead of a structured response, report as ❌.
 
 ## Naming & Cleanup
 
