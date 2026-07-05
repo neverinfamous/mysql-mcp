@@ -2,7 +2,9 @@
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
-> Last updated: April 27, 2026
+> 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, blazing-fast **Code Mode**, and highly-optimized **Connection Pooling**.
+>
+> Last updated: July 5, 2026
 
 ---
 
@@ -26,7 +28,7 @@ src/
 │       │                           #   PoolStats, HealthStatus, initializationSql
 │       ├── query.ts                # QueryResult, ColumnInfo, FieldInfo, TableInfo, SchemaInfo, IndexInfo,
 │       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
-│       ├── server.ts               # TransportType, McpServerConfig (authToken, stateless, trustProxy)
+│       ├── server.ts               # TransportType, McpServerConfig (port, serverHost, toolFilter, logLevel, metricsExport, name, allowedIoRoots, stateless, enableHsts, trustProxy, authToken)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
 │       ├── errors.ts               # MySQLMcpError base + 7 subclasses (see § Error Classes)
 │       ├── error-types.ts          # ErrorCategory enum (9 categories), ErrorResponse interface, ErrorContext
@@ -125,8 +127,7 @@ src/
 <!-- BEGIN: TOOL_MAPPING -->
 | Group | Tools |
 | ----- | ----- |
-| **admin** | `mysql_audit_search`, `mysql_append_insight`, `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`, `mysql_server_config` |
-| **backup** | `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump` |
+| **admin** | `mysql_audit_search`, `mysql_append_insight`, `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`,| `mysql_server_config`  | Manage server configs. **v3.2:** `action` required, audit default limit fixed    | `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump` |
 | **cluster** | `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_instances`, `mysql_cluster_router_status`, `mysql_cluster_status`, `mysql_cluster_switchover`, `mysql_cluster_topology` |
 | **codemode** | `mysql_execute_code` |
 | **core** | `mysql_read_query`, `mysql_write_query`, `mysql_get_indexes`, `mysql_create_index`, `mysql_list_tables`, `mysql_describe_table`, `mysql_create_table`, `mysql_drop_table`, `mysql_enable_versioning`, `mysql_disable_versioning`, `mysql_check_version`, `mysql_conditional_update` |
@@ -162,7 +163,7 @@ src/
 
 mysql-mcp uses a decentralized schema architecture to maintain type safety and minimize bundle sizes:
 
-| Directory                         | Contents                                                                               |
+| `mysql_security_mask_data`         | Mask PII data patterns. **v3.2:** alias validation at MCP boundary |                                                  |
 | --------------------------------- | -------------------------------------------------------------------------------------- |
 | `adapters/mysql/schemas/`         | Modular Zod input schemas grouped by domain (e.g., `core.ts`, `admin.ts`, `schema.ts`) |
 | `adapters/mysql/schemas/index.ts` | Barrel export for all schema definitions                                               |

@@ -1,6 +1,8 @@
 ## Description
 
-Brief description of the changes.
+## Description
+
+Provide a brief, clear description of the changes.
 
 ## Related Issue
 
@@ -10,19 +12,20 @@ Closes #
 
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to change)
+- [ ] Breaking change (fix or feature changing existing functionality)
 - [ ] Documentation update
 
 ## How Has This Been Tested?
 
-Describe the tests you ran.
+Detail the specific tests you ran. Ensure thorough validation.
 
 ## Checklist
 
-- [ ] My code follows the project's style guidelines
-- [ ] I have performed a self-review of my code
-- [ ] I have commented my code, particularly in hard-to-understand areas
-- [ ] I have made corresponding changes to the documentation
-- [ ] My changes generate no new warnings
-- [ ] I have added tests that prove my fix is effective or that my feature works
-- [ ] New and existing tests pass locally with my changes (`pnpm run check`)
+- [ ] My code follows all project style guidelines.
+- [ ] I performed a rigorous self-review of my code.
+- [ ] I commented my code clearly in complex areas.
+- [ ] I made the necessary, corresponding documentation changes.
+- [ ] My changes generate zero new warnings.
+- [ ] I added tests proving my fix works flawlessly.
+- [ ] All new and existing tests pass locally (`pnpm run check`).
+- [ ] I ensured marketing compliance (prominent Value Proposition, active voice, <15 words).

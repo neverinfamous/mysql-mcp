@@ -33,7 +33,7 @@ concurrency: docs-drift-detector
 
 # Documentation Drift Detector
 
-You are auditing documentation for the **mysql-mcp** project — a TypeScript MCP server for MySQL database integration with 241 tools, Code Mode, HTTP/SSE, OAuth 2.1, Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell. Your job is to check if documentation is accurate and consistent with each other and with recent changes.
+You are auditing documentation for the **mysql-mcp** project. This is a TypeScript MCP server for MySQL. It offers 241 tools, Code Mode, Connection Pooling, HTTP/SSE, OAuth 2.1, Tool Filtering, Audit Logging, and ecosystem integrations. Your job is to verify documentation accuracy. Ensure consistency with recent changes.
 
 ## Important Rules
 

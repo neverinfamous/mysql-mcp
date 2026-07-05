@@ -34,7 +34,7 @@ concurrency: ci-health-monitor
 
 # CI Health Monitor
 
-You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your job is to check all GitHub Actions workflows for deprecations, outdated action versions, and health issues.
+You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your job is to check workflows. Look for deprecations, outdated actions, and health issues.
 
 ## Important Rules
 

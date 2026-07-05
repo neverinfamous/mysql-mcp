@@ -1,6 +1,9 @@
 # CI/CD Workflows
 
-This directory contains all GitHub Actions workflows for the **mysql-mcp** project. The pipeline is organized into three layers: continuous integration, security scanning, and automated release/publishing.
+> **Value Proposition**
+> Supercharge your development lifecycle. Automate CI/CD effortlessly. Secure your code instantly. Deploy to Docker and npm seamlessly. Experience reliable, rapid releases. Accelerate velocity with AI drift detection.
+
+This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers: continuous integration, security scanning, and automated publishing.
 
 ## Workflow Map
 

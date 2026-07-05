@@ -8,6 +8,9 @@ mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database
 - **Execution**: Code Mode execution via `isolated-vm` sandbox (massively reduces token overhead, strict 100KB payload cap, rate limiting).
 - **Transports**: Supported Transports: `stdio`, `http` (Streamable HTTP `/mcp`), `sse` (Legacy `/sse`).
 - **Authentication**: Simple Bearer Token or full OAuth 2.1 (RFC 9728/8414) with Keycloak.
+- **Configuration**: Port, Server Host, Tool Filter, Log Level, Metrics Export, Name, Allowed IO Roots, Stateless, Enable HSTS, Trust Proxy, Auth Token.
+- **Audit Logging**: Log Path, Redact, Reads, Max Size, Backup, Backup Data, Backup Max Size.
+- **Recent Architecture**: Mask data alias validation, server config action required, strict validation for user and host summaries.
 - **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
 
 ## Session Context
@@ -59,7 +62,16 @@ All tool handlers return structured error responses — never raw exceptions:
   suggestion: string,   // Actionable fix for the agent
   recoverable: boolean  // true = user can fix, false = server error
 }
+
+> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect 241 tools and current config flags.
 ```
+
+## Architecture Rules (Recent Changes)
+
+Ensure PRs adhere to these recent SSoT architectural rules:
+- **Security**: Allow mask data alias validation at MCP boundary.
+- **Admin**: Make server config action required and fix audit default limit.
+- **Sysschema**: Strict validation and aliases for user and host summaries.
 
 ## Architecture
 
@@ -114,3 +126,6 @@ When reviewing PRs, check for:
 - [ ] `:latest` Docker tags used
 - [ ] Market value proposition blocks prominent in README
 - [ ] Docker readme <= 25,000 chars
+- [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
+- [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
+- [ ] Schema examples accurately reflect the 241 tool count and current configuration flags
