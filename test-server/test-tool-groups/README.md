@@ -8,7 +8,7 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-**Validate tools instantly.** Our comprehensive tool suite guarantees precise interactions. Integrate seamlessly with standard endpoints. Accelerate development with flawless reliability.
+**Validate tools instantly.** Guarantee precise tool interactions. Integrate seamlessly with standard endpoints. Secure connections via OAuth 2.1. Optimize scaling with robust connection pooling. Accelerate development flawlessly.
 
 > 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Code Mode**, and **Docker**.
 

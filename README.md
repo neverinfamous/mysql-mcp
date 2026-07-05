@@ -655,9 +655,6 @@ This server exposes **19 resources** for database observability and telemetry:
 | **`mysql://cluster`**   | Group Replication/InnoDB Cluster status     |
 | **`mysql://spatial`**   | Spatial columns and indexes                 |
 | **`mysql://docstore`**  | Document Store collections                  |
-| **`mysql://insights`**  | Business insights memo from tools           |
-| **`mysql://metrics`**   | In-memory streaming metrics (p50/p95/p99)   |
-| **`mysql://audit`**     | Forensic audit trail and snapshot stats     |
 | **`mysql://help/*`**    | API reference for 28 tool groups & gotchas  |
 
 ---

@@ -8,7 +8,7 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-**Test UX intuitively.** Fuzz your agent experience to guarantee seamless integration. Discover and heal hallucinations automatically. Build bulletproof agentic workflows.
+**Test UX intuitively.** Fuzz agent experiences for seamless integration. Discover and heal hallucinations automatically. Utilize Code Mode safely. Secure data with OAuth 2.1. Build bulletproof agentic workflows.
 
 > 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Docker**.
 

@@ -8,7 +8,7 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-**Stress test confidently.** Our advanced suite ensures absolute stability under extreme conditions. Push your boundaries safely. Build with maximum confidence.
+**Stress test confidently.** Ensure absolute stability under extreme conditions. Push Code Mode to its limits. Rely on secure OAuth 2.1 authentication. Scale safely with connection pooling. Build with maximum confidence.
 
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 >
