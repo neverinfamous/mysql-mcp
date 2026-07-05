@@ -6,15 +6,15 @@
 ## Value Proposition
 Build AI integrations instantly.
 Empower agents with secure database access.
-Execute scripts rapidly via Code Mode.
-Scale easily with robust connection pooling.
-Secure everything using enterprise-grade OAuth 2.1.
+Execute complex logic via Code Mode.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise security.
 
 > **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
 >
 > 🚀 **Core Features:** Our test suite rigorously validates the server's flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
-## Files
+## Navigate Core Files
 
 | File / Directory             | Purpose                                                                                                                                       | When to Read                                 |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
@@ -25,7 +25,7 @@ Secure everything using enterprise-grade OAuth 2.1.
 | `test-advanced/`             | **Advanced stress tests** — 64 files for boundary values, state pollution, and payload monitoring (Code Mode only)                            | After group checklists pass                  |
 | `tool-reference.md`          | Complete 241-tool reference mapped to groups                                                                                               | Reference                                    |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns          | When debugging source code or making changes |
-| `test-resources.md`          | Resource testing plan (19 `mysql://` core observability resources + help)                                                                                               | When testing resources                       |
+| `test-resources.md`          | Resource testing plan (19 data resources + 3 server resources (audit, metrics, help) = 22 total resources)                                                                                               | When testing resources                       |
 | `test-resources.sql`         | Seed SQL for resource testing                                                                                                                 | Reference                                    |
 | `test-prompts-notes.md`      | Prompt testing plan                                                                                                                           | When testing prompts                         |
 | `test-prompts.sql`           | Seed SQL for prompt testing                                                                                                                   | Reference                                    |
@@ -34,7 +34,7 @@ Secure everything using enterprise-grade OAuth 2.1.
 | `sample.csv`, `sample.json`  | Fixtures for import/export testing                                                                                                            | Used by text/CSV tools                       |
 | `../scripts/test-*`            | Automated test scripts                                                                                                                        | Run after build                              |
 
-## Test Database Schema (Quick Reference)
+## Reference Test Database Schema
 
 | Table               | Rows | Key Columns                                       | JSON Columns        |
 | ------------------- | ---- | ------------------------------------------------- | ------------------- |
@@ -50,7 +50,7 @@ Secure everything using enterprise-grade OAuth 2.1.
 | `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
 | `test_partitioned`  | 26   | id, region, created_at                            | data                |
 
-## Conventions & Protocols
+## Follow Conventions and Protocols
 
 | Convention            | Rule                                                                                                 |
 | --------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -62,7 +62,7 @@ Secure everything using enterprise-grade OAuth 2.1.
 | Reporting             | ❌ Fail / ⚠️ Issue / 📦 Payload / ✅ Pass (inline only)                                              |
 | Cleanup               | Drop all `temp_*` / `stress_*` objects after testing                                                 |
 
-## Connection Details
+## Configure Connection Details
 
 | Property  | Value         |
 | --------- | ------------- |
@@ -73,13 +73,13 @@ Secure everything using enterprise-grade OAuth 2.1.
 
 > Note: Use `docker ps` / `docker start mysql-final` if connection is refused. Ecosystem tools connect on alternate ports (cluster: 3307, router: 8443, proxysql: 6032). See `test-tools.md` for details.
 
-## Agent Workflow for Tests
+## Execute Agent Test Workflow
 
-1. Read `mysql://help` resource (via MCP — critical gotchas, aliases, Code Mode API) and relevant group help (`mysql://help/{group}`).
-2. Read `test-tools.md` for the entry-point protocol: Split Schema, Zod validation, P154, and structured error patterns.
-3. **Standard tests**: Read the relevant `test-tool-groups/test-tool-group-{name}.md` for direct MCP tool call validation.
-4. **Code Mode tests**: Read the relevant `test-codemode/test-codemode-{name}.md` for `mysql_execute_code` validation.
-5. **Advanced tests**: After group checklists pass, read `test-advanced/test-tools-advanced-{name}.md` for stress testing.
+1. Read `mysql://help` resource and relevant group help. This covers gotchas, aliases, and APIs.
+2. Read `test-tools.md` for entry-point protocol details. This includes Split Schema, Zod validation, and structured errors.
+3. **Standard tests**: Read the relevant `test-tool-groups/` file. This validates direct MCP tool calls.
+4. **Code Mode tests**: Read the relevant `test-codemode/` file. This validates the `mysql_execute_code` tool.
+5. **Advanced tests**: Read `test-advanced/` files for stress testing. Only do this after group checklists pass.
 6. Execute the checklist items first (minimum bar), then freeform exploration.
 7. Clean up all `temp_*` / `stress_*` tables using `DROP TABLE IF EXISTS`.
-8. Report findings using ❌/⚠️/📦 format. Error paths MUST return enriched `ErrorResponse` (`{success: false, error, code, category, recoverable}`). Raw MCP errors = ❌.
+8. Report findings using ❌/⚠️/📦 format. Error paths MUST return enriched `ErrorResponse`. Raw MCP errors = ❌.

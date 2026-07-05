@@ -1,6 +1,24 @@
 # mysql-mcp Scripts
 
-## Cluster Management
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+
+![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg)
+
+## 💎 Value Proposition
+
+**mysql-mcp** is the ultimate Model Context Protocol server for MySQL. It empowers AI assistants with unmatched database capabilities. It brings production-ready infrastructure to agentic workflows.
+
+**Execute Complex Code**
+Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 sandbox. Slash LLM token overhead by up to 90%. Execute multi-step operations locally.
+
+**Enterprise-Grade Reliability**
+Built for production. Enjoy deterministic error handling and process-isolated code execution. Leverage comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
+
+**Complete Observability**
+Uncover deep database insights instantly. Access 22 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
+
+## 🚀 Orchestrate Your Ecosystem
 
 ### `reboot-cluster.mjs`
 
@@ -56,7 +74,7 @@ Config: innodb-cluster.yml (gitignored, local only)
 - `group_replication_bootstrap_group=OFF` — no auto-bootstrap (safety)
 - Data volumes: `mysql-node1-data`, `mysql-node2-data`, `mysql-node3-data`
 
-## Testing & Validation Scripts
+## 🛠️ Validate Your Capabilities
 
 These scripts are used to validate MCP server behavior dynamically:
 
@@ -166,7 +184,7 @@ A global teardown script for the E2E testing suite. It cleans up test artifacts 
 npx tsx scripts/teardown.ts
 ```
 
-## Refactoring & Maintenance Scripts
+## ⚙️ Maintain and Evolve Your Architecture
 
 ### `update-code-map.ts`
 

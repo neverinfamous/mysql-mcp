@@ -485,4 +485,4 @@ Complete list of all **241 tools** across groups.
 
 ---
 
-_Updated for v3.2.2 — June 14, 2026_
+_Updated for v3.2.2 — July 5, 2026_

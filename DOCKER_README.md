@@ -20,17 +20,17 @@ Uncover deep database insights instantly. Access 22 resources to monitor schema 
 
 ### 🎯 Core Features
 
-- **241 Specialized Tools**: From core CRUD and native JSON functions to advanced spatial/GIS, cluster management, introspection, and schema migration.
-- **22 Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
-- **19 AI-Powered Prompts**: Guided workflows for query building, schema design, performance tuning, and infrastructure setup.
-- **Code Mode (Token Savings)**: Execute complex operations locally inside a separate V8 isolate, reducing token overhead by up to 90%.
-- **Dual Transport & OAuth 2.1**: Full streamable HTTP and legacy SSE support, protected by granular scopes (`read`, `write`, `admin`, `full`).
-- **Deterministic Error Handling**: Every tool returns structured responses with actionable suggestions—no raw exceptions.
-- **Smart Tool Filtering**: 28 tool groups + 16 shortcuts let you stay within IDE limits.
+- **241 Specialized Tools**: Access core CRUD, JSON, spatial data, cluster management, and schema migration.
+- **22 Resources**: Monitor real-time schema, performance metrics, and InnoDB diagnostics instantly.
+- **19 AI Prompts**: Execute guided workflows for query building, schema design, and performance tuning.
+- **Code Mode**: Execute complex operations locally. Reduce LLM token overhead by up to 90%.
+- **Dual Transport & Security**: Enforce OAuth 2.1 access controls over streamable HTTP and legacy SSE.
+- **Deterministic Error Handling**: Receive structured responses with actionable suggestions. Avoid raw exceptions entirely.
+- **Smart Tool Filtering**: Mix 28 tool groups and 16 shortcuts to bypass IDE limits.
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Deploy in Minutes
 
 ### Prerequisites
 

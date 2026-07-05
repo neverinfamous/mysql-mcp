@@ -136,12 +136,12 @@ src/
 
 <!-- BEGIN: TOOL_MAPPING -->
 | Group | Tools |
-| ----- | ----- |
-| **admin** | `mysql_audit_search`, `mysql_append_insight`, `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`, `mysql_server_config`, `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump` |
+| **admin** | `mysql_audit_search`, `mysql_append_insight`, `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`, `mysql_server_config` |
+| **backup** | `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump` |
 | **cluster** | `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_instances`, `mysql_cluster_router_status`, `mysql_cluster_status`, `mysql_cluster_switchover`, `mysql_cluster_topology` |
 | **codemode** | `mysql_execute_code` |
 | **core** | `mysql_read_query`, `mysql_write_query`, `mysql_get_indexes`, `mysql_create_index`, `mysql_list_tables`, `mysql_describe_table`, `mysql_create_table`, `mysql_drop_table`, `mysql_enable_versioning`, `mysql_disable_versioning`, `mysql_check_version`, `mysql_conditional_update` |
-| **docstore** | `mysql_doc_list_collections`, `mysql_doc_create_collection`, `mysql_doc_drop_collection`, `mysql_doc_collection_info`, `mysql_doc_find`, `mysql_doc_modify`, `mysql_doc_remove`, `mysql_doc_create_index` |
+| **docstore** | `mysql_doc_list_collections`, `mysql_doc_create_collection`, `mysql_doc_drop_collection`, `mysql_doc_collection_info`, `mysql_doc_find`, `mysql_doc_add`, `mysql_doc_modify`, `mysql_doc_remove`, `mysql_doc_create_index` |
 | **events** | `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status` |
 | **fulltext** | `mysql_fulltext_boolean`, `mysql_fulltext_create`, `mysql_fulltext_drop`, `mysql_fulltext_expand`, `mysql_fulltext_search` |
 | **introspection** | `mysql_constraint_analysis`, `mysql_migration_risks`, `mysql_cascade_simulator`, `mysql_dependency_graph`, `mysql_topological_sort`, `mysql_schema_snapshot` |
@@ -187,6 +187,13 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 <!-- BEGIN: PROMPTS -->
 | Prompt | Description |
 | ------ | ----------- |
+| `mysql_tool_index` | Show all available MySQL tools organized by category |
+| `mysql_quick_query` | Quickly run a SQL query - shortcut for mysql_read_query or mysql_write_query |
+| `mysql_quick_schema` | Quickly explore database schema - lists tables or describes a specific table |
+| `mysql_query_builder` | Help build SQL queries for common operations |
+| `mysql_schema_design` | Help design table schemas |
+| `mysql_performance_analysis` | Analyze and optimize slow queries |
+| `mysql_migration` | Generate migration scripts for schema changes |
 | `mysql_backup_strategy` | Design enterprise backup strategy with RTO/RPO planning |
 | `mysql_setup_cluster` | Complete MySQL InnoDB Cluster and Group Replication setup guide |
 | `mysql_setup_docstore` | Complete MySQL Document Store and X DevAPI setup guide |
@@ -206,7 +213,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
 
-22 Observability Resources + 19 help resources providing read-only metadata and agent guidance:
+22 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -250,7 +257,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `mysql://help`         | `server-instructions/overview.md` + `gotchas.md` | Gotchas, aliases, Code Mode API — always available     |
 | `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
 
-19 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
+28 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
 ---
 

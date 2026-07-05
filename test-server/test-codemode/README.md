@@ -11,23 +11,23 @@
 **Execute code seamlessly.** Validate advanced scripting instantly. Harness Code Mode for extreme speed. Secure operations with OAuth 2.1. Scale efficiently using connection pooling. Ship faster with total confidence.
 
 **Directory Purpose**: This folder contains 53 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Code Mode (`mysql_execute_code`) validation only**.
->
+
 > 🚀 **Core Features Tested:** This suite rigorously validates our fastest and most capable execution environment: **Code Mode**, along with our secure **OAuth 2.1** and robust **Docker**.
 
-## Agent Instructions
+## Follow Agent Instructions
 
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
-### 0. Anti-Hallucination Guardrails
+### Enable Anti-Hallucination Guardrails
 - **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
 
-### 1. Execution Strictness
+### Enforce Execution Strictness
 
 - **Code Mode Exclusive**: Test tools ONLY using `mysql_execute_code`. Do not use the terminal or standalone standard tools unless specifically requested.
 - **Batching**: Group multiple method calls into a single JavaScript code execution script to save context window tokens and improve speed.
 - **Failures Array Format**: Design your JS script to capture both expected outputs and caught errors, appending assertions to a `failures` array, and returning `{ failures, success: failures.length === 0 }`.
 
-### 2. Validation Targets
+### Verify Validation Targets
 
 - **Happy Path Parity**: Validate that Code Mode handler execution matches expected database behavior.
 - **Structured Error Path**: Ensure domain errors (e.g. nonexistent table) return an object `{"success": false, "error": "..."}` instead of crashing or leaking raw MCP errors.
@@ -35,7 +35,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - **Payload Limits**: If a response payload is excessively large, report it as a 📦 Payload issue to optimize token usage.
 - **Sandbox Boundaries**: Ensure the server is configured with an `ALLOWED_IO_ROOTS` environment variable (e.g., `ALLOWED_IO_ROOTS=/tmp`). When testing filesystem-interacting tools (`backup`, `shell`), deliberately attempt directory traversal (e.g., `../..`) and provide paths outside the allowed roots. Assert that the operation is blocked and returns a structured `SECURITY_ERROR` rather than a raw exception.
 
-### 3. Tracking Progress
+### Track Testing Progress
 
 `| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |`
 Never proceed to the final step until every tool in a given group has both columns marked as ✅.
@@ -44,12 +44,12 @@ Never proceed to the final step until every tool in a given group has both colum
 
 > **Important**: ALWAYS use `tmp/task.md` as your scratchpad for tracking progress and testing results. DO NOT modify the testing prompt files directly.
 
-### 4. Cleanup
+### Perform Database Cleanup
 
 - Any write tests should operate on temporary tables or objects prefixed with `temp_` (e.g., `temp_users`).
 - Your script should explicitly drop `temp_` objects at the end of execution.
 
-## Test Files Available
+## Access Available Test Files
 
 - `test-codemode-admin-audit.md`
 - `test-codemode-admin-maintenance.md`
@@ -105,6 +105,6 @@ Never proceed to the final step until every tool in a given group has both colum
 - `test-codemode-vector-storage.md`
 - `test-codemode-versioning.md`
 
-## Test Results
+## Review Test Results
 
 Token consumption metrics and final summaries from executing the above codemode tests are persisted in [`test-results.md`](./test-results.md).

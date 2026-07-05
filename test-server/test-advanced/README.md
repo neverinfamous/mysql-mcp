@@ -14,14 +14,15 @@
 >
 > 🚀 **Core Features Tested:** This suite focuses heavily on pushing the limits of our flagship features: **OAuth 2.1**, **Code Mode**, and **Docker**.
 
-This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` tool groups. These tests simulate complex, edge-case, and boundary interactions using exclusively **Code Mode** (`mysql_execute_code`).
+This directory contains advanced stress tests for the tool groups.
+These tests simulate complex edge cases using exclusively Code Mode.
 
-## Pre-requisites
+## Fulfill Test Prerequisites
 
 1. Basic deterministic tool group checklists (located in `../test-codemode/*.md`) MUST be successfully passed before running these advanced tests.
 2. The testing database MUST be freshly seeded or reset to the baseline schema utilizing the `node ../../scripts/reset-database.mjs` script to ensure deterministic results.
 
-## Execution Parts
+## Understand Execution Parts
 
 The original monolithic advanced stress testing suite was split into granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
@@ -90,7 +91,7 @@ The original monolithic advanced stress testing suite was split into granular pa
 - `test-codemode-advanced-versioning.md`
 - `test-codemode-sandbox.md`
 
-## Agent Execution Protocol
+## Follow Execution Protocol
 
 When testing the contents of this directory, you MUST adhere to the following rules:
 

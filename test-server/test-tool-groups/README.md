@@ -10,25 +10,24 @@
 ## Value Proposition
 **Validate tools instantly.** Guarantee precise tool interactions. Integrate seamlessly with standard endpoints. Secure connections via OAuth 2.1. Optimize scaling with robust connection pooling. Accelerate development flawlessly.
 
-> 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Code Mode**, and **Docker**.
+> 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Direct Tool Calls**, and **Docker**.
 
+**Directory Purpose**: This folder contains 57 modular test prompts covering every tool group. These prompts are strictly designed for direct MCP tool call validation.
 
-**Directory Purpose**: This folder contains 57 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Direct MCP Tool Call validation**.
-
-## Agent Instructions
+## Follow Agent Instructions
 
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
-### 0. Anti-Hallucination Guardrails
-- **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
-- **Checklist Integrity**: Coordinators tracking progress in `task.md` MUST take extreme care when updating statuses (e.g., using `replace_file_content`). Only modify the completion brackets (`[ ]` -> `[x]`). NEVER alter, guess, or abbreviate the filename strings of future tests.
+### Enable Anti-Hallucination Guardrails
+- **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
+- **Checklist Integrity**: Coordinators tracking progress in `task.md` MUST take extreme care when updating statuses. Only modify the completion brackets (`[ ]` -> `[x]`). NEVER alter, guess, or abbreviate the filename strings of future tests.
 
-### 1. Execution Strictness
+### Enforce Execution Strictness
 
 - **Direct Calls Exclusive**: Test tools ONLY using direct MCP tool calls (e.g., calling `mysql_analyze_table`). Do not use Code Mode (`mysql_execute_code`) or scripts to batch the tests.
 - **No Scripted Loops**: Each happy and error path must be tested individually with a distinct tool call. This simulates exact client interaction behavior.
 
-### 2. Validation Targets
+### Verify Validation Targets
 
 - **Happy Path Consistency**: Validate that each tool outputs exactly what is expected from the explicit checklist items given in the prompt.
 - **Structured Error Path (P154)**: Ensure domain errors (e.g., nonexistent table) return an object `{"success": false, "error": "..."}`. A raw MCP error indicates a missing try/catch in the handler.
@@ -36,7 +35,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - **Payload Limits**: Watch for payload bloat and explicitly log it as a 📦 warning if it risks overflowing context window token limits.
 - **Sandbox Boundaries**: Ensure the server is configured with an `ALLOWED_IO_ROOTS` environment variable (e.g., `ALLOWED_IO_ROOTS=/tmp`). When testing filesystem-interacting tools (`backup`, `shell`), deliberately attempt directory traversal (e.g., `../..`) and provide paths outside the allowed roots. Assert that the operation is blocked and returns a structured `SECURITY_ERROR` rather than a raw exception.
 
-### 3. Tracking Metrics & Progress
+### Track Metrics and Progress
 
 - **Scratchpad**: Use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify the testing prompt files directly unless there is an error in them.
 - `| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |`
@@ -44,13 +43,13 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - **Help Resources**: The server uses an Adaptive Instruction Architecture. Tool signatures are NOT injected into your prompt by default. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/schema`) before testing to understand the expected parameters.
 - **Session Token Usage**: Use `read_resource` on `mysql://audit` at the end of your test group to capture the total `sessionTokenEstimate` and log it in your summaries.
 
-### 4. Cleanup & Scope
+### Perform Cleanup
 
 - Direct write tests should operate on temporary tables or objects prefixed with `temp_`.
 - When completed, explicitly drop all `temp_` artifacts.
 - Update `../code-map.md`, handlers, and instructions if bugs are uncovered, then update the Changelog with fixes before summarizing your work.
 
-## Test Files Available
+## Access Available Test Files
 
 - `test-admin-part1.md`
 - `test-admin-part2.md`
@@ -110,6 +109,6 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - `test-versioning-part1.md`
 - `test-versioning-part2.md`
 
-## Execution
+## Begin Execution
 
 Begin with any requested group prompt from this folder (e.g. `test-tool-group-admin.md`), and execute the deterministic checklist line-by-line using direct tool calls only.
