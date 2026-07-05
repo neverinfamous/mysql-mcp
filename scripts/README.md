@@ -76,6 +76,14 @@ node scripts/reset-database.mjs --SkipVerify
 node scripts/reset-database.mjs --Cluster
 ```
 
+### `seed.ts`
+
+Seeds the test database (`testdb`) with data from `test-server/test-seed.sql`. This is used to quickly inject seed data without running the full `reset-database.mjs` logic.
+
+```bash
+npx tsx scripts/seed.ts
+```
+
 ### `test-zod-errors.mjs`
 
 Starts the MCP server with `--tool-filter +all` and dynamically retrieves the schema for every registered tool. It then hammers each tool with intentionally malformed inputs (e.g., numbers instead of strings) to ensure that the global `McpServer` interceptor correctly catches SDK-level Zod parsing exceptions and formats them into standard `VALIDATION_ERROR` payloads, preventing raw `-32602` SDK errors from leaking to clients.
@@ -122,6 +130,14 @@ Starts the MCP server with the HTTP transport and establishes an SSE session via
 
 ```bash
 node scripts/test-sessions.mjs
+```
+
+### `test-cli-sessions.ts`
+
+Tests the compiled CLI entrypoint (`dist/cli.js`) to ensure it correctly establishes HTTP sessions, handles initialize and tool calls, terminates sessions, and updates the `activeSessions` metric properly.
+
+```bash
+npx tsx scripts/test-cli-sessions.ts
 ```
 
 ### `test-subscriptions-raw.mjs`
