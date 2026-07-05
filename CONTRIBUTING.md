@@ -16,8 +16,7 @@ Thank you for your interest in contributing to mysql-mcp! This project is built 
 
 - Node.js >= 24
 - Bun >= 1.0 (for script execution)
-- pnpm >= 9.x(see `engines` in `package.json`)
-- **pnpm** (Package manager)
+- pnpm >= 9.x (see `engines` in `package.json`)
 - **Git** (for version control)
 - **MySQL 5.7+ or 8.0+** (local instance or Docker)
 - **Docker** (optional, for container testing)

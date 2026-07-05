@@ -3,6 +3,12 @@
 [![npm version](https://img.shields.io/npm/v/mysql-mcp.svg)](https://npmjs.org/package/mysql-mcp) [![License](https://img.shields.io/npm/l/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
+[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+<br>
+[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
+[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 ## Value Proposition
 Build AI integrations instantly.
 Empower agents with secure database access.

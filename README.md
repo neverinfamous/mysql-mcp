@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -24,7 +24,21 @@ Uncover deep database insights instantly. Access 22 resources to monitor schema 
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |\n| **22 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |\n| **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |\n| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by up to 90%. |\n| **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |\n| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |\n| **Smart Tool Filtering**              | Use 28 groups and 16 shortcuts to stay within IDE tool limits. |\n| **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |\n| **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |\n| **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |\n| **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |\n| **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |\n| **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |\n| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. |\n| **Protocol Compliant**                | Support MCP 2025-11-25 with tool safety hints, resource priorities, and progress notifications. |
+| **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **22 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
+| **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
+| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by up to 90%. |
+| **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
+| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
+| **Smart Tool Filtering**              | Use 28 groups and 16 shortcuts to stay within IDE tool limits. |
+| **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
+| **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
+| **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
+| **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
+| **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
+| **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. |
+| **Protocol Compliant**                | Support MCP 2025-11-25 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
 
@@ -155,7 +169,7 @@ The server supports **two MCP transport protocols simultaneously**, enabling bot
 
 ### Streamable HTTP (Recommended)
 
-Modern protocol (MCP 2025-03-26) — single endpoint, session-based:
+Modern protocol (MCP 2025-11-25) — single endpoint, session-based:
 
 | Method   | Endpoint | Purpose                                          |
 | -------- | -------- | ------------------------------------------------ |
@@ -573,7 +587,7 @@ If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to
 You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
 
 The easiest way to filter is using **whitelist mode** — simply specify the shortcut you want, and everything else is automatically disabled.
-> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.:
+> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 ```bash
 # Enable exactly 3 tools (whitelist mode)

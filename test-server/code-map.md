@@ -3,6 +3,12 @@
 [![npm version](https://img.shields.io/npm/v/mysql-mcp.svg)](https://npmjs.org/package/mysql-mcp) [![License](https://img.shields.io/npm/l/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
+[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+<br>
+[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
+[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 ## Value Proposition
 Build AI integrations instantly.
 Empower agents with secure database access.
@@ -396,10 +402,11 @@ try {
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
 | `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
 | `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |
-| `test-server/test-advanced/test-codemode-advanced-json-helpers.md` | Code Mode Advanced - JSON Helpers (`mysql.json.*`) | ✅ DONE |
-| `test-server/test-advanced/test-codemode-advanced-router-routes.md` | Code Mode Advanced - Router Routes (`mysql.router.*`) | ✅ DONE |
-| `test-server/test-advanced/test-codemode-advanced-json-core-part2.md` | Code Mode Advanced - JSON Core Part 2 | ✅ DONE |
-| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1.md`| Code Mode Advanced - Shell Utils Part 1 | ✅ DONE |
+| `test-server/test-advanced/test-codemode-advanced-json-helpers.md` | Code Mode Advanced - JSON Helpers (`mysql.json.*`) |
+| `test-server/test-advanced/test-codemode-advanced-router-routes.md` | Code Mode Advanced - Router Routes (`mysql.router.*`) |
+| `test-server/test-advanced/test-codemode-advanced-json-core-part2.md` | Code Mode Advanced - JSON Core Part 2 |
+| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1.md`| Code Mode Advanced - Shell Utils Part 1 |
+| `test-server/test-advanced/test-codemode-advanced-types-json.md`  | Code Mode JSON data type stress testing                              |
 | `test-server/test-advanced/test-codemode-advanced-types-binary.md`| Code Mode binary data type stress testing                            |
 | `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |

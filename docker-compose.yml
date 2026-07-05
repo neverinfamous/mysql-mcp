@@ -16,6 +16,8 @@ services:
       - mysql://root:root@mysql:3306/testdb
     environment:
       - MYSQL_POOL_SIZE=20
+    volumes:
+      - ./data:/data
     depends_on:
       - mysql
 

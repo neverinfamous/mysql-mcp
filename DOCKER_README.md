@@ -18,7 +18,7 @@ Built for production. Enjoy deterministic error handling and process-isolated co
 **Complete Observability**
 Uncover deep database insights instantly. Access 22 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
 
-### 🎯 Core Features
+## 🎯 Core Benefits
 
 - **241 Specialized Tools**: Access core CRUD, JSON, spatial data, cluster management, and schema migration.
 - **22 Resources**: Monitor real-time schema, performance metrics, and InnoDB diagnostics instantly.
@@ -392,4 +392,4 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 ## Contributing & Security
 
-[Contributing Guidelines](CONTRIBUTING.md) • [Security Policy](SECURITY.md) • [MIT License](LICENSE) • [Code of Conduct](CODE_OF_CONDUCT.md)
+[Contributing Guidelines](https://github.com/neverinfamous/mysql-mcp/blob/main/CONTRIBUTING.md) • [Security Policy](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) • [MIT License](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) • [Code of Conduct](https://github.com/neverinfamous/mysql-mcp/blob/main/CODE_OF_CONDUCT.md)
