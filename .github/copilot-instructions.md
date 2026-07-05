@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **241 tools** (241 specialized tools via config) across **28 groups**, **16 Shortcuts**, **49 resources**, and **28 prompts**.
+mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **241 tools** (241 specialized tools via config) across **28 groups**, **21 core resources**, and **28 prompts**.
 
 **Architecture & Capabilities**:
 - **Execution**: Code Mode execution via `isolated-vm` sandbox (massively reduces token overhead, strict 100KB payload cap, rate limiting).
@@ -69,13 +69,7 @@ All tool handlers return structured error responses — never raw exceptions:
 ## Architecture Rules (Recent Changes)
 
 Ensure PRs adhere to these recent SSoT architectural rules:
-- `fix(security)`: allow mask data alias validation at MCP boundary.
-- `chore(tests)`: strengthen anti-hallucination guardrails across coordinator workflows.
-- `fix(admin)`: make server config action required and fix audit default limit.
-- `fix(sysschema)`: strict validation and aliases for user and host summaries.
-- `fix(docstore)`: add alias handling for collectionName.
-- `fix(core)`: add conditional update aliases for data and conditions.
-- `fix(optimization)`: allow database-wide index audit in indexRecommendation by removing empty payload validation.
+- Latest commits address "exhaustive documentation audit and synchronization" and "sync core docs and configuration with latest ssot".
 
 ## Architecture
 
