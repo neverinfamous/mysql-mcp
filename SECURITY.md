@@ -140,8 +140,8 @@ Full OAuth 2.1 for production multi-tenant deployments:
 
 ### **Non-Root User**
 
-- ✅ **Dedicated user**: `appuser` (UID 1001) with minimal privileges
-- ✅ **Restricted group**: `appgroup` (GID 1001)
+- ✅ **Dedicated user**: `app` (UID 1001) with minimal privileges
+- ✅ **Restricted group**: `app` (GID 1001)
 - ✅ **Restricted data directory**: `700` permissions
 
 ### **Container Hardening**
@@ -156,10 +156,11 @@ Full OAuth 2.1 for production multi-tenant deployments:
 
 The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
 
-- ✅ `diff@8.0.3` — GHSA-73rr-hh4g-fpgx
+- ✅ `cross-spawn` — GHSA-3xgq-45jj-v275
+- ✅ `glob` — CVE-2024-28849
 - ✅ `@isaacs/brace-expansion@5.0.1` — CVE-2026-25547
-- ✅ `tar@7.5.11` — CVE-2026-23950, CVE-2026-24842
-- ✅ `minimatch@10.2.4` — CVE-2026-27904, CVE-2026-27903
+- ✅ `tar@7.5.19` — CVE-2026-23950, CVE-2026-24842
+- ✅ `minimatch@10.2.5` — CVE-2026-27904, CVE-2026-27903
 
 ### **Volume Mounting Security**
 

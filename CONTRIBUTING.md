@@ -14,7 +14,9 @@ Thank you for your interest in contributing to mysql-mcp! This project is built 
 
 ### Prerequisites
 
-- **Node.js 24+** (see `engines` in `package.json`)
+- Node.js >= 24
+- Bun >= 1.0 (for script execution)
+- pnpm >= 9.x(see `engines` in `package.json`)
 - **pnpm** (Package manager)
 - **Git** (for version control)
 - **MySQL 5.7+ or 8.0+** (local instance or Docker)
@@ -279,7 +281,7 @@ All checks must pass before merge. Security steps **hard-fail on fixable issues*
 
 ## 📄 Committing and Changelog
 
-The project uses `bun .\.agents\scripts\commit.ts` for all commits with explicit file staging. **Do not use raw `git commit`.**
+The project uses `bun ./.agents/scripts/commit.ts` for all commits with explicit file staging. **Do not use raw `git commit`.**
 
 Log all changes directly via the wrapper using git trailers. We use an automated workflow that generates the changelog from commit history.
 

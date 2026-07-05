@@ -344,7 +344,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
-| `--log-level`             | —                       | Log level: debug, info, warn, error                 |
+| `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
 | `--audit-log`             | —                       | Path to JSONL audit log file                        |
 | `--audit-redact`          | —                       | Redact tool arguments from audit log                |
@@ -368,6 +368,9 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
 | —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
+| —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
+| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
+| —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 | —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes             |

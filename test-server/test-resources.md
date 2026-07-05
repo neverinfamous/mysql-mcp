@@ -1,6 +1,6 @@
 # Resource Testing Plan
 
-mysql-mcp exposes 22 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
+mysql-mcp exposes 23 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
 ### Setup
 
@@ -16,7 +16,7 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 
 **Step 1:** Read `C:\Users\chris\Desktop\mysql-mcp\test-server\test-resources.sql` to understand what resource seed data has been set up.
 
-**Step 2:** Test all 22 resource URIs by reading the core resource URIs. For each resource, validate the output against the expected structure documented below.
+**Step 2:** Test all 23 resource URIs by reading the core resource URIs. For each resource, validate the output against the expected structure documented below.
 
 ### Core Resources
 
@@ -24,7 +24,8 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 | --- | ---------------------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
 | 1   | `mysql://schema`       | `{ tables: [...] }`                            | Returns array of table definitions with columns                           |
 | 2   | `mysql://tables`       | `{ tables: [...] }`                            | Returns 12+ tables (test\_\* tables from test-seed.sql)                   |
-| 3   | `mysql://variables`    | `{ variables: [...] }` or key-value pairs      | Returns MySQL server variables                                            |
+| 3   | `mysql://table/{name}` | `{ table: "...", schema: [...] }`              | Returns schema definition for a specific table (e.g., test_products)      |
+| 4   | `mysql://variables`    | `{ variables: [...] }` or key-value pairs      | Returns MySQL server variables                                            |
 | 4   | `mysql://status`       | `{ status: [...] }` or key-value pairs         | Returns global status counters (Uptime > 0)                               |
 | 5   | `mysql://processlist`  | `{ processes: [...] }`                         | Returns at least 1 active connection                                      |
 | 6   | `mysql://pool`         | Pool statistics object                         | Returns connection pool state                                             |
@@ -64,4 +65,4 @@ For each resource, report:
 
 ### Final Summary
 
-Provide a summary table of all 22 resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.
+Provide a summary table of all 23 resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.

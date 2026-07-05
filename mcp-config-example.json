@@ -13,7 +13,7 @@
         "MYSQL_USER": "root",
         "MYSQL_PASSWORD": "password",
         "MYSQL_DATABASE": "testdb",
-        "MYSQL_POOL_SIZE": "10",
+        "MYSQL_POOL_SIZE": "20",
         "TOOL_FILTER": "starter,codemode",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",

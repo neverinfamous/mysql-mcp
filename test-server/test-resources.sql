@@ -130,7 +130,7 @@ ORDER BY revenue DESC;
 -- test_documents has doc (JSON) + _id columns — detected as X DevAPI collections.
 
 -- =============================================================================
--- SCHEMA, TABLES, VARIABLES, PROCESSLIST, POOL, CAPABILITIES:
+-- SCHEMA, TABLES, TABLE/{NAME}, VARIABLES, PROCESSLIST, POOL, CAPABILITIES:
 -- =============================================================================
 -- These resources query SHOW commands, information_schema, or internal pool
 -- state — they return meaningful data with no additional seeding.
