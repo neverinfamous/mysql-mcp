@@ -143,7 +143,7 @@ When reviewing PRs, check for:
 - [ ] Kebab-case violations in new filenames
 - [ ] `continue-on-error: true` in workflow files — forbidden per project standards
 - [ ] Dual-Schema Pattern enforcement
-- [ ] NO :latest Docker tags used (must pin versions)
+- [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
 - [ ] Market value proposition blocks prominent in README
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables

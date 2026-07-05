@@ -717,6 +717,11 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | —                       | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
+| `--audit-backup`          | —                       | Enable audit backups                                |
+| `--audit-reads`           | `AUDIT_READS`           | Include read-scope tool calls in the audit log      |
+| `--audit-redact`          | `AUDIT_REDACT`          | Redact sensitive arguments in the audit log         |
+| `--audit-log-max-size`    | `AUDIT_LOG_MAX_SIZE`    | Max file size before rotation (bytes)               |
 | `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
