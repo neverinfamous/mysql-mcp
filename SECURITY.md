@@ -196,7 +196,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 ## 🔄 **CI/CD Security**
 
 - ✅ **CodeQL analysis** — automated static analysis on push/PR
-- ✅ **npm audit** — dependency vulnerability checking (audit-level: moderate)
+- ✅ **pnpm audit** — dependency vulnerability checking (audit-level: moderate)
 - ✅ **Dependabot** — automated dependency update PRs (weekly for npm and GitHub Actions)
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
 - ✅ **E2E transport parity** — Playwright suite validates HTTP/SSE security behavior
@@ -255,7 +255,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Non-root Docker user
 - [x] Multi-stage Docker build with production pruning
 - [x] Transitive dependency CVE patching in Dockerfile
-- [x] CI/CD security pipeline (CodeQL, npm audit, secrets scanning)
+- [x] CI/CD security pipeline (CodeQL, pnpm audit, secrets scanning)
 - [x] Structured error responses (no internal details leaked)
 - [x] Comprehensive security documentation
 
@@ -286,7 +286,7 @@ We appreciate responsible disclosure and will acknowledge your contribution in o
 ## 🔄 **Security Updates**
 
 - **Container updates**: Rebuild Docker images when base images are updated
-- **Dependency updates**: Keep npm packages updated via `npm audit` and Dependabot
+- **Dependency updates**: Keep npm packages updated via `pnpm audit` and Dependabot
 - **Database maintenance**: Run `OPTIMIZE TABLE` and `ANALYZE TABLE` regularly for optimal performance
 - **Security patches**: Apply host system security updates
 

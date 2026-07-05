@@ -4,7 +4,10 @@
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Value Proposition
-**Validate features instantly.** Our comprehensive test server guarantees maximum reliability for your deployment. Experience seamless integration testing. Accelerate your development cycle safely.
+Build better AI integrations faster.
+Empower agents with secure database access.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise-grade security.
 
 > **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
 >

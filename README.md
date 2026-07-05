@@ -48,11 +48,11 @@ Uncover deep database insights instantly. Access 19 resources to monitor schema 
 
 - Node.js 24+
 - MySQL 5.7+ or 8.0+ server
-- npm or yarn
+- pnpm
 
 ### Installation
 
-#### NPM (Recommended)
+#### NPM / PNPM (Recommended)
 
 ```bash
 pnpm add -g @neverinfamous/mysql-mcp
@@ -800,13 +800,13 @@ npx @modelcontextprotocol/inspector --cli node dist/cli.js \
 The project maintains high test coverage (~90%) using Vitest.
 
 ```bash
-npm test
+pnpm test
 ```
 
 Run coverage report:
 
 ```bash
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 **Test Infrastructure:**
@@ -820,7 +820,7 @@ npm run test:coverage
 The project includes a performance benchmarking suite to track the efficiency of critical paths like Code Mode sandbox initialization, tool filtering, and URI routing.
 
 ```bash
-npm run bench
+pnpm run bench
 ```
 
 ---

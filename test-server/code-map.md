@@ -1,5 +1,8 @@
 # mysql-mcp Code Map
 
+[![npm version](https://img.shields.io/npm/v/mysql-mcp.svg)](https://npmjs.org/package/mysql-mcp) [![License](https://img.shields.io/npm/l/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
+[![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+
 ## Value Proposition
 Build better AI integrations faster.
 Empower agents with secure database access.
@@ -120,7 +123,7 @@ src/
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # 19 AI-Powered Prompts (see § below)
-│       ├── resources/              # 21 Observability Resources (see § below)
+│       ├── resources/              # 19 Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
