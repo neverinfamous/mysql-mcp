@@ -132,21 +132,15 @@ Starts the MCP server with the HTTP transport and establishes an SSE session via
 node scripts/test-sessions.mjs
 ```
 
-### `test-cli-sessions.ts`
+### `test-cli-sessions.mjs`
 
 Tests the compiled CLI entrypoint (`dist/cli.js`) to ensure it correctly establishes HTTP sessions, handles initialize and tool calls, terminates sessions, and updates the `activeSessions` metric properly.
 
 ```bash
-npx tsx scripts/test-cli-sessions.ts
+node scripts/test-cli-sessions.mjs
 ```
 
-### `test-subscriptions-raw.mjs`
 
-Tests the `resources/subscribe` feature using raw JSON-RPC messages over stdio.
-
-```bash
-node scripts/test-subscriptions-raw.mjs
-```
 
 ### `test-subscriptions-sdk.mjs`
 
