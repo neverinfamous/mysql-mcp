@@ -2,14 +2,15 @@
 
 ## Project Overview
 
-mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **241 tools** (241 specialized tools via config) across **28 groups**, **19 resources**, and **19 prompts**.
+mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 19 resources, and 19 prompts.
 
 **Architecture & Capabilities**:
-- **Execution**: Code Mode execution via `isolated-vm` sandbox (massively reduces token overhead, strict 100KB payload cap, rate limiting).
-- **Transports**: Supported Transports: `stdio`, `http` (Streamable HTTP `/mcp`), `sse` (Legacy `/sse`).
-- **Authentication**: Simple Bearer Token or full OAuth 2.1 (RFC 9728/8414) with Keycloak.
-- **Configuration**: Port, Server Host, Tool Filter, Log Level, Metrics Export, Name, Allowed IO Roots, Stateless, Enable HSTS, Trust Proxy, Auth Token.
-- **Audit Logging**: Log Path, Redact, Reads, Max Size, Backup, Backup Data, Backup Max Size.
+- **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).
+- **Cache**: `METADATA_CACHE_TTL_MS` is the cache TTL (default 30000).
+- **Payload**: `CODE_MODE_MAX_RESULT_SIZE` sets max result payload (default 102400).
+- **Transports**: It supports `stdio`, streamable `http`, and legacy `sse`.
+- **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
+- **Audit Logging**: Maintain strict security with comprehensive audit trails.
 - **Recent Architecture**:
   - Added conditional update aliases for data and conditions.
   - Fix alias resolution in stats hypothesis tool.
@@ -75,13 +76,12 @@ All tool handlers return structured error responses — never raw exceptions:
 ## Architecture Rules (Recent Changes)
 
 Ensure PRs adhere to these recent SSoT architectural rules:
-- Extensive use of Code Mode via `isolated-vm` (V8 isolate).
-- Dual HTTP Transport + SSE support.
-- Added conditional update aliases for data and conditions.
-- Fix alias resolution in stats hypothesis tool.
-- Added streamable and HTTP transport tests.
-- Mask data alias validation at MCP boundary.
-- Require at least one filter for audit tool to prevent payload bloat.
+- **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
+- `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
+- `CODE_MODE_MAX_RESULT_SIZE` strictly caps payload at 100KB (default 102400).
+- Supports dual streamable HTTP + SSE transports.
+- Ensure mask data alias validation at the MCP boundary.
+- Audit tool requires at least one filter to prevent bloat.
 
 ## Architecture
 
