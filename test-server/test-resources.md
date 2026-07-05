@@ -2,7 +2,7 @@
 
 ## Resource Testing
 
-mysql-mcp exposes 19 `mysql://` resources. Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
+mysql-mcp exposes 21 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
 ### Setup
 
@@ -18,7 +18,7 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 
 **Step 1:** Read `C:\Users\chris\Desktop\mysql-mcp\test-server\test-resources.sql` to understand what resource seed data has been set up.
 
-**Step 2:** Test all 22 resource categories (up to 50 endpoints) by reading the core resource URIs. For each resource, validate the output against the expected structure documented below.
+**Step 2:** Test all 22 resource URIs by reading the core resource URIs. For each resource, validate the output against the expected structure documented below.
 
 ### Core Resources
 
@@ -66,4 +66,4 @@ For each resource, report:
 
 ### Final Summary
 
-Provide a summary table of all 19 resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.
+Provide a summary table of all 22 resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.

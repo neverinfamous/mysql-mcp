@@ -10,7 +10,7 @@ mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database
 - **Authentication**: Simple Bearer Token or full OAuth 2.1 (RFC 9728/8414) with Keycloak.
 - **Configuration**: Port, Server Host, Tool Filter, Log Level, Metrics Export, Name, Allowed IO Roots, Stateless, Enable HSTS, Trust Proxy, Auth Token.
 - **Audit Logging**: Log Path, Redact, Reads, Max Size, Backup, Backup Data, Backup Max Size.
-- **Recent Architecture**: Mask data alias validation, server config action required, strict validation for user and host summaries.
+- **Recent Architecture**: `fix(sysschema)` strict validation and aliases for user and host summaries; `fix(docstore)` add alias handling for collectionName; `docs(tests)` strengthen anti-hallucination guardrails across coordinator workflows.
 - **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
 
 ## Session Context
@@ -69,7 +69,11 @@ All tool handlers return structured error responses — never raw exceptions:
 ## Architecture Rules (Recent Changes)
 
 Ensure PRs adhere to these recent SSoT architectural rules:
-- Latest commits address "exhaustive documentation audit and synchronization" and "sync core docs and configuration with latest ssot".
+- Extensive use of Code Mode via `isolated-vm` (V8 isolate).
+- Dual HTTP Transport + SSE support.
+- `fix(sysschema)`: strict validation and aliases for user and host summaries.
+- `fix(docstore)`: add alias handling for collectionName.
+- `docs(tests)`: strengthen anti-hallucination guardrails across coordinator workflows.
 
 ## Architecture
 

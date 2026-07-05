@@ -28,7 +28,7 @@ src/
 │       │                           #   PoolStats, HealthStatus, initializationSql
 │       ├── query.ts                # QueryResult, ColumnInfo, FieldInfo, TableInfo, SchemaInfo, IndexInfo,
 │       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
-│       ├── server.ts               # TransportType, McpServerConfig (port, serverHost, toolFilter, logLevel, metricsExport, name, allowedIoRoots, stateless, enableHsts, trustProxy, authToken, auditLog, auditRetention)
+│       ├── server.ts               # TransportType, McpServerConfig (port, host, toolFilter, metricsExport, name, allowedIoRoots, stateless, enableHSTS, trustProxy, authToken, auditConfig)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
 │       ├── errors.ts               # MySQLMcpError base + 7 subclasses (see § Error Classes)
 │       ├── error-types.ts          # ErrorCategory enum (9 categories), ErrorResponse interface, ErrorContext

@@ -8,6 +8,10 @@
         "C:/temp,/tmp"
       ],
       "env": {
+        "MCP_TRANSPORT": "stdio",
+        "MYSQLMCP_PORT": "3001",
+        "MCP_HOST": "localhost",
+        "MYSQL_URL": "",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "root",
