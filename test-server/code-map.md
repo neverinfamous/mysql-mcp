@@ -395,7 +395,7 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
-| `test-server/scripts/standardize-prompts.js`| Script to rebuild all 84 test prompts using the standard template    |
+| `test-server/scripts/standardize-prompts.js`| Script to rebuild all 174 test prompts using the standard template    |
 | `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
 | `test-server/test-resources.md`             | Resource testing plan (19 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |

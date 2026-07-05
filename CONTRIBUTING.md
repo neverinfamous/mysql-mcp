@@ -277,9 +277,11 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
 All checks must pass before merge. Security steps **hard-fail on fixable issues** — this is intentional.
 
-## 📄 Changelog
+## 📄 Committing and Changelog
 
-Log all changes directly in your **git commit messages** using git trailers. We use an automated workflow that generates the changelog from commit history.
+The project uses `bun .\.agents\scripts\commit.ts` for all commits with explicit file staging. **Do not use raw `git commit`.**
+
+Log all changes directly via the wrapper using git trailers. We use an automated workflow that generates the changelog from commit history.
 
 Example commit message:
 ```text
