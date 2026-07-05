@@ -10,7 +10,6 @@
       "env": {
         "MYSQLMCP_PORT": "3001",
         "MCP_HOST": "localhost",
-        "MYSQL_URL": "",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "root",
@@ -29,7 +28,19 @@
         "MCP_AUTH_TOKEN": "",
         "ALLOWED_IO_ROOTS": "C:/temp,/tmp",
         "METADATA_CACHE_TTL_MS": "30000",
-        "CODE_MODE_MAX_RESULT_SIZE": "102400"
+        "CODE_MODE_MAX_RESULT_SIZE": "102400",
+        "MYSQL_ROUTER_URL": "https://localhost:8443",
+        "MYSQL_ROUTER_USER": "rest_api",
+        "MYSQL_ROUTER_PASSWORD": "password",
+        "MYSQL_ROUTER_INSECURE": "true",
+        "PROXYSQL_HOST": "localhost",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin",
+        "MYSQLSH_PATH": "",
+        "MYSQL_XPORT": "33060",
+        "CODEMODE_ISOLATION": "",
+        "LOG_LEVEL": "info"
       }
     }
   }

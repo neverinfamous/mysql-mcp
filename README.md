@@ -160,7 +160,7 @@ node dist/cli.js \
 
 ```bash
 docker run --rm -p 3000:3000 \
-  -e MYSQL_URL=mysql://user:pass@host:3306/db \
+  -e MYSQL_HOST=host \
   writenotenow/mysql-mcp:latest \
   --transport http --port 3000
 ```
@@ -699,7 +699,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
-| `--mysql`, `-m`           | `MYSQL_URL`             | MySQL connection string                             |
+| `--mysql`, `-m`           | —                       | MySQL connection string                             |
 | `--mysql-host`            | `MYSQL_HOST`            | MySQL host                                          |
 | `--mysql-port`            | `MYSQL_PORT`            | MySQL port                                          |
 | `--mysql-user`            | `MYSQL_USER`            | MySQL username                                      |
@@ -715,18 +715,33 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
-| `--log-level`             | —                       | Log level: debug, info, warn, error                 |
+| `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
 | `--audit-log`             | —                       | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable audit backups                                |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
 | `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
+| `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
+| `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
 | `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
 | `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
 | `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
+| —                         | `MYSQL_ROUTER_URL`      | MySQL Router URL                                    |
+| —                         | `MYSQL_ROUTER_USER`     | MySQL Router user                                   |
+| —                         | `MYSQL_ROUTER_PASSWORD` | MySQL Router password                               |
+| —                         | `MYSQL_ROUTER_INSECURE` | Bypass Router TLS verification                      |
+| —                         | `PROXYSQL_HOST`         | ProxySQL host                                       |
+| —                         | `PROXYSQL_PORT`         | ProxySQL port                                       |
+| —                         | `PROXYSQL_USER`         | ProxySQL user                                       |
+| —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
+| —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
+| —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
+| —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
+| —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
+| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes             |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 

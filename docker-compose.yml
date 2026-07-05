@@ -1,0 +1,31 @@
+services:
+  mysql-mcp:
+    image: writenotenow/mysql-mcp:latest
+    ports:
+      - "3001:3001"
+    command:
+      - --transport
+      - http
+      - --port
+      - "3001"
+      - --allowed-io-roots
+      - /data
+      - --mysql
+      - mysql://root:root@mysql:3306/testdb
+    environment:
+      - MYSQL_POOL_SIZE=20
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+volumes:
+  mysql-data:

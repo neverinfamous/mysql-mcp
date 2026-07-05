@@ -1,7 +1,7 @@
 # MySQL MCP Server
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) ![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -326,7 +326,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
-| `--mysql`, `-m`           | `MYSQL_URL`             | MySQL connection string                             |
+| `--mysql`, `-m`           | —                       | MySQL connection string                             |
 | `--mysql-host`            | `MYSQL_HOST`            | MySQL host                                          |
 | `--mysql-port`            | `MYSQL_PORT`            | MySQL port                                          |
 | `--mysql-user`            | `MYSQL_USER`            | MySQL username                                      |
@@ -356,6 +356,19 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
 | `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
 | `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
+| —                         | `MYSQL_ROUTER_URL`      | MySQL Router URL                                    |
+| —                         | `MYSQL_ROUTER_USER`     | MySQL Router user                                   |
+| —                         | `MYSQL_ROUTER_PASSWORD` | MySQL Router password                               |
+| —                         | `MYSQL_ROUTER_INSECURE` | Bypass Router TLS verification                      |
+| —                         | `PROXYSQL_HOST`         | ProxySQL host                                       |
+| —                         | `PROXYSQL_PORT`         | ProxySQL port                                       |
+| —                         | `PROXYSQL_USER`         | ProxySQL user                                       |
+| —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
+| —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
+| —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
+| —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
+| —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
+| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes             |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
