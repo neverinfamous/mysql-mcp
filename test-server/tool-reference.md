@@ -1,6 +1,6 @@
 # Tool Reference
 
-Complete list of all **241 tools** across 28 categories.
+Complete list of all **241 tools** across groups.
 >
 > 🚀 **Core Features:** Enjoy enterprise-grade capabilities like **OAuth 2.1** for robust security, **Code Mode** for execution speed, and advanced **Connection Pooling** for performance.
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.

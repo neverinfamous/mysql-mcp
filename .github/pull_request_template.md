@@ -1,7 +1,5 @@
 ## Description
 
-## Description
-
 Provide a brief, clear description of the changes.
 
 ## Related Issue

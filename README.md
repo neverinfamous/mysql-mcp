@@ -9,24 +9,24 @@
 
 ## 💎 Value Proposition
 
-**mysql-mcp** is the definitive Model Context Protocol server for MySQL, empowering AI assistants with an unparalleled suite of database capabilities. It acts as the ultimate bridge between LLMs and your data, bringing production-ready infrastructure to agentic workflows.
+**mysql-mcp** is the ultimate Model Context Protocol server for MySQL. It empowers AI assistants with unmatched database capabilities. It brings production-ready infrastructure to agentic workflows.
 
 **Execute Complex Code**
-Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 JavaScript sandbox. Slash LLM token overhead by up to 90% while executing multi-step operations locally.
+Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 sandbox. Slash LLM token overhead by up to 90%. Execute multi-step operations locally.
 
 **Enterprise-Grade Reliability**
-Built for production. Enjoy fully deterministic error handling, process-isolated code execution, and comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
+Built for production. Enjoy deterministic error handling and process-isolated code execution. Leverage comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
 
 **Complete Observability**
-Uncover deep database insights instantly. Access 21 core observability resources to monitor schema evolution, query performance metrics, and replication health in real-time—making your agent a virtual DBA.
+Uncover deep database insights instantly. Access 19 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
 
 ## 🎯 Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | 241 specialized tools — the largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
-| **21 Core Resources**                 | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
-| **28 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
+| **19 Resources**                     | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
+| **19 AI-Powered Prompts**            | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`isolated-vm`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 241 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
 | **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
@@ -773,7 +773,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 241 tools, 49 resources, and 28 prompts interactively.
+Open **http://localhost:6274** to browse all 241 tools, 19 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 

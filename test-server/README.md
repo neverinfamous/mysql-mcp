@@ -1,5 +1,11 @@
 # mysql-mcp Test Server — Agent Testing Instructions
 
+[![npm version](https://img.shields.io/npm/v/mysql-mcp.svg)](https://npmjs.org/package/mysql-mcp) [![License](https://img.shields.io/npm/l/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
+[![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+
+## Value Proposition
+**Validate features instantly.** Our comprehensive test server guarantees maximum reliability for your deployment. Experience seamless integration testing. Accelerate your development cycle safely.
+
 > **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
 >
 > 🚀 **Core Features:** Our test suite rigorously validates the server's flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
@@ -13,9 +19,9 @@
 | `test-tool-groups/`          | **Standard tests** — 57 self-contained modular prompts for direct MCP tool call validation                                                    | When testing individual tool groups          |
 | `test-codemode/`             | **Code Mode tests** — 53 self-contained modular prompts for `mysql_execute_code` validation                                                   | When testing Code Mode parity                |
 | `test-advanced/`             | **Advanced stress tests** — 64 files for boundary values, state pollution, and payload monitoring (Code Mode only)                            | After group checklists pass                  |
-| `tool-reference.md`          | Complete 241-tool reference mapped to 28 groups                                                                                               | Reference                                    |
+| `tool-reference.md`          | Complete 241-tool reference mapped to groups                                                                                               | Reference                                    |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns          | When debugging source code or making changes |
-| `test-resources.md`          | Resource testing plan (21 `mysql://` core observability resources + help)                                                                                               | When testing resources                       |
+| `test-resources.md`          | Resource testing plan (19 `mysql://` core observability resources + help)                                                                                               | When testing resources                       |
 | `test-resources.sql`         | Seed SQL for resource testing                                                                                                                 | Reference                                    |
 | `test-prompts-notes.md`      | Prompt testing plan                                                                                                                           | When testing prompts                         |
 | `test-prompts.sql`           | Seed SQL for prompt testing                                                                                                                   | Reference                                    |

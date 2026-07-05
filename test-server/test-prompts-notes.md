@@ -1,6 +1,6 @@
 # Reset Prompts Test Database
 
-Run this command to seed the database for testing all 28 mysql-mcp prompts:
+Run this command to seed the database for testing all 19 mysql-mcp prompts:
 
 ```powershell
 docker exec mysql-final mysql -uroot -proot testdb -e "DROP TABLE IF EXISTS prompt_order_items, prompt_orders, prompt_users, prompt_transactions, prompt_sessions, prompt_audit_log, prompt_locations, prompt_documents, prompt_events, prompt_daily_reports, prompt_weekly_metrics;" && Get-Content .\test-server\test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -proot testdb
@@ -160,4 +160,4 @@ Each prompt invocation should:
 
 ### Final Summary
 
-Provide a summary table of all 28 prompts with their pass/partial/fail status. Separately list any issues requiring code fixes vs. documentation improvements.
+Provide a summary table of all 19 prompts with their pass/partial/fail status. Separately list any issues requiring code fixes vs. documentation improvements.

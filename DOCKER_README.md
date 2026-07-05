@@ -7,22 +7,22 @@
 
 ## 💎 Value Proposition
 
-**mysql-mcp** is the definitive Model Context Protocol server for MySQL, empowering AI assistants with an unparalleled suite of database capabilities. It acts as the ultimate bridge between LLMs and your data, bringing production-ready infrastructure to agentic workflows.
+**mysql-mcp** is the ultimate Model Context Protocol server for MySQL. It empowers AI assistants with unmatched database capabilities. It brings production-ready infrastructure to agentic workflows.
 
 **Execute Complex Code**
-Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 JavaScript sandbox. Slash LLM token overhead by up to 90% while executing multi-step operations locally.
+Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 sandbox. Slash LLM token overhead by up to 90%. Execute multi-step operations locally.
 
 **Enterprise-Grade Reliability**
-Built for production. Enjoy fully deterministic error handling, process-isolated code execution, and comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
+Built for production. Enjoy deterministic error handling and process-isolated code execution. Leverage comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
 
 **Complete Observability**
-Uncover deep database insights instantly. Access 21 core observability resources to monitor schema evolution, query performance metrics, and replication health in real-time—making your agent a virtual DBA.
+Uncover deep database insights instantly. Access 19 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
 
 ### 🎯 Core Features
 
 - **241 Specialized Tools**: From core CRUD and native JSON functions to advanced spatial/GIS, cluster management, introspection, and schema migration.
-- **21 Core Observability Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
-- **28 AI-Powered Prompts**: Guided workflows for query building, schema design, performance tuning, and infrastructure setup.
+- **19 Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
+- **19 AI-Powered Prompts**: Guided workflows for query building, schema design, performance tuning, and infrastructure setup.
 - **Code Mode (Token Savings)**: Execute complex operations locally inside a separate V8 isolate, reducing token overhead by up to 90%.
 - **Dual Transport & OAuth 2.1**: Full streamable HTTP and legacy SSE support, protected by granular scopes (`read`, `write`, `admin`, `full`).
 - **Deterministic Error Handling**: Every tool returns structured responses with actionable suggestions—no raw exceptions.

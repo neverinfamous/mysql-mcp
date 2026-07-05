@@ -97,7 +97,7 @@ src/
 │   ├── sandbox-factory.ts          # Sandbox creation factory
 │   ├── auto-return.ts              # Last-expression auto-return transform (IIFE helper)
 │   ├── api/
-│   │   ├── mysql-api/              # mysql.* API bridge — injects AuditInterceptor into all 28 groups
+│   │   ├── mysql-api/              # mysql.* API bridge — injects AuditInterceptor into all groups
 │   │   ├── constants/              # Code Mode method aliases, positional params, prefix rules
 │   │   ├── generator.ts            # createGroupApi() — dynamic tool→method generator with audit wrapper
 │   │   └── index.ts                # Barrel
@@ -113,7 +113,7 @@ src/
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
-│       ├── prompts/                # 28 AI-Powered Prompts (see § below)
+│       ├── prompts/                # 19 AI-Powered Prompts (see § below)
 │       ├── resources/              # 21 Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
@@ -122,7 +122,7 @@ src/
 
 ## Handler → Tool Mapping
 
-241 tools across 28 groups. Each handler file registers tools with `group` labels.
+241 tools across groups. Each handler file registers tools with `group` labels.
 
 <!-- BEGIN: TOOL_MAPPING -->
 | Group | Tools |
@@ -172,7 +172,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Prompts (`src/adapters/mysql/prompts/`)
 
-28 AI-Powered Prompts across specialized workflow files:
+19 AI-Powered Prompts across specialized workflow files:
 
 <!-- BEGIN: PROMPTS -->
 | Prompt | Description |
@@ -196,7 +196,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Resources (`src/adapters/mysql/resources/`)
 
-21 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
+19 Observability Resources + 19 help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -238,7 +238,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `mysql://help`         | `server-instructions/overview.md` + `gotchas.md` | Gotchas, aliases, Code Mode API — always available     |
 | `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
 
-28 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
+19 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
 ---
 
@@ -371,7 +371,7 @@ try {
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
 | `scripts/reset-database.mjs`                | Reset script - drops + re-seeds `testdb`                             |
 | `test-server/test-tools.md`                 | Entry-point protocol for manual agent testing                        |
-| `test-server/test-tool-groups/`             | Basic functionality tests for all 28 tool groups                     |
+| `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                     |
 | `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
 | `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
@@ -386,8 +386,8 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all 84 test prompts using the standard template    |
-| `test-server/test-prompts.md`               | Prompt testing plan (28 AI-Powered Prompts)                          |
-| `test-server/test-resources.md`             | Resource testing plan (21 Observability Resources)                           |
+| `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
+| `test-server/test-resources.md`             | Resource testing plan (19 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

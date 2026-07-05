@@ -2,7 +2,7 @@
 
 The testing infrastructure for `mysql-mcp` is split into three directories, matching the `db-mcp` gold standard:
 
-1. **`test-server/test-tool-groups/`**: Basic functionality tests for all 28 tool groups.
+1. **`test-server/test-tool-groups/`**: Basic functionality tests for all tool groups.
 2. **`test-server/test-codemode/`**: Code Mode (`mysql_execute_code`) functionality tests.
 3. **`test-server/test-advanced/`**: Advanced stress tests using Code Mode (nesting, RFC compliance, security, etc.).
 

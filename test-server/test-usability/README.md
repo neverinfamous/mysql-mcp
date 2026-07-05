@@ -1,5 +1,8 @@
 # Agent Usability & Hallucination Testing
 
+## Value Proposition
+**Test UX intuitively.** Fuzz your agent experience to guarantee seamless integration. Discover and heal hallucinations automatically. Build bulletproof agentic workflows.
+
 > 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Docker**.
 
 

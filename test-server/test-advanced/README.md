@@ -1,5 +1,8 @@
 # MySQL-MCP Advanced Stress Tests
 
+## Value Proposition
+**Stress test confidently.** Our advanced suite ensures absolute stability under extreme conditions. Push your boundaries safely. Build with maximum confidence.
+
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 >
 > 🚀 **Core Features Tested:** This suite focuses heavily on pushing the limits of our flagship features: **OAuth 2.1**, **Code Mode**, and **Docker**.

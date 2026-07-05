@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **241 tools** (241 specialized tools via config) across **28 groups**, **21 core resources**, and **28 prompts**.
+mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **241 tools** (241 specialized tools via config) across **28 groups**, **19 resources**, and **19 prompts**.
 
 **Architecture & Capabilities**:
 - **Execution**: Code Mode execution via `isolated-vm` sandbox (massively reduces token overhead, strict 100KB payload cap, rate limiting).
@@ -10,7 +10,12 @@ mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database
 - **Authentication**: Simple Bearer Token or full OAuth 2.1 (RFC 9728/8414) with Keycloak.
 - **Configuration**: Port, Server Host, Tool Filter, Log Level, Metrics Export, Name, Allowed IO Roots, Stateless, Enable HSTS, Trust Proxy, Auth Token.
 - **Audit Logging**: Log Path, Redact, Reads, Max Size, Backup, Backup Data, Backup Max Size.
-- **Recent Architecture**: `fix(sysschema)` strict validation and aliases for user and host summaries; `fix(docstore)` add alias handling for collectionName; `docs(tests)` strengthen anti-hallucination guardrails across coordinator workflows.
+- **Recent Architecture**:
+  - Added conditional update aliases for data and conditions.
+  - Fix alias resolution in stats hypothesis tool.
+  - Added streamable and HTTP transport tests.
+  - Mask data alias validation at MCP boundary.
+  - Require at least one filter for audit tool to prevent payload bloat.
 - **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
 
 ## Session Context
@@ -62,18 +67,21 @@ All tool handlers return structured error responses — never raw exceptions:
   suggestion: string,   // Actionable fix for the agent
   recoverable: boolean  // true = user can fix, false = server error
 }
+```
 
 > **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect 241 tools and current config flags.
-```
+> **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts not explicitly listed in the tool-reference or registered in `server/`.
 
 ## Architecture Rules (Recent Changes)
 
 Ensure PRs adhere to these recent SSoT architectural rules:
 - Extensive use of Code Mode via `isolated-vm` (V8 isolate).
 - Dual HTTP Transport + SSE support.
-- `fix(sysschema)`: strict validation and aliases for user and host summaries.
-- `fix(docstore)`: add alias handling for collectionName.
-- `docs(tests)`: strengthen anti-hallucination guardrails across coordinator workflows.
+- Added conditional update aliases for data and conditions.
+- Fix alias resolution in stats hypothesis tool.
+- Added streamable and HTTP transport tests.
+- Mask data alias validation at MCP boundary.
+- Require at least one filter for audit tool to prevent payload bloat.
 
 ## Architecture
 

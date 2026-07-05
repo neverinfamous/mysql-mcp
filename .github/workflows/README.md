@@ -5,7 +5,7 @@
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers: continuous integration, security scanning, and automated publishing.
 
-## Workflow Map
+## Visualize the Workflow Map
 
 ```mermaid
 flowchart LR
@@ -60,29 +60,29 @@ flowchart LR
 
 ---
 
-## Workflows
+## Explore the Workflows
 
-### CI
+### Accelerate with CI
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
 | [lint-and-test.yml](lint-and-test.yml) | push to `main` / PR    | Lint, typecheck, build, unit tests (Node 24.x + 25.x matrix), pnpm audit, Docker smoke test (build + HTTP start) |
 
-### Security
+### Secure the Pipeline
 
 | File                                       | Trigger                                   | Purpose                                                               |
 | ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------- |
 | [codeql.yml](codeql.yml)                   | push (JS/TS) / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` (security-extended) |
 | [secrets-scanning.yml](secrets-scanning.yml) | push to `main` / PR                      | TruffleHog (verified secrets) + Gitleaks scanning                     |
 
-### Release & Publishing
+### Publish Reliable Releases
 
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [docker-publish.yml](docker-publish.yml)   | `workflow_run` from lint-and-test (on `main`)       | Security scan (Docker Scout + Trivy), smoke test, multi-arch build (amd64 + arm64), manifest merge, Docker Hub description update                 |
 | [publish-npm.yml](publish-npm.yml)         | release published / manual                          | Version verification, build, publish to npm with `--provenance` (SLSA Build L3)                                                                   |
 
-### Agentic Workflows (GitHub Copilot)
+### Automate with Agentic Workflows
 
 These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks/about-assigning-tasks-to-copilot). Each `.md` file contains the agent prompt; the corresponding `.lock.yml` is the auto-generated compiled workflow (**do not edit `.lock.yml` files**).
 
@@ -94,7 +94,7 @@ These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.
 
 ---
 
-## Release Pipeline
+## Understand the Release Pipeline
 
 The full release flow for pushes to `main`:
 
@@ -117,7 +117,7 @@ For npm releases, the maintainer creates a GitHub release (tag `vX.Y.Z`), which 
 
 ---
 
-## Secrets Required
+## Manage Required Secrets
 
 | Secret            | Used By                    | Purpose                     |
 | ----------------- | -------------------------- | --------------------------- |
@@ -128,7 +128,7 @@ For npm releases, the maintainer creates a GitHub release (tag `vX.Y.Z`), which 
 
 ---
 
-## Editing Guidelines
+## Follow Editing Guidelines
 
 - **YAML workflows** — edit directly, commit to `main` or via PR
 - **Agentic `.md` prompts** — edit the `.md` file, then run `gh aw compile` to regenerate the `.lock.yml`
