@@ -58,30 +58,34 @@ mcp.stdout.on("data", (data) => {
 
       for (const tool of tools) {
         const schema = tool.inputSchema;
-        if (!schema || !schema.properties) continue;
-
-        const props = Object.keys(schema.properties);
-        if (props.length === 0) continue; // No arguments to break
-
-        // Pick the first property to break
-        const propName = props[0];
-        const propSchema = schema.properties[propName];
-        
         let badArg = {};
-        if (schema.required) {
-            for (const req of schema.required) {
-               if (req !== propName && schema.properties[req]) {
-                   const t = schema.properties[req].type;
-                   if (t === 'string') badArg[req] = "valid";
-                   else if (t === 'number' || t === 'integer') badArg[req] = 1;
-                   else if (t === 'boolean') badArg[req] = true;
-                   else if (t === 'array') badArg[req] = [];
-                   else if (t === 'object') badArg[req] = {};
-               }
+        let propName = "extraneous";
+
+        if (schema && schema.properties) {
+          const props = Object.keys(schema.properties);
+          if (props.length > 0) {
+            propName = props[0];
+            const propSchema = schema.properties[propName];
+            
+            if (schema.required) {
+                for (const req of schema.required) {
+                   if (req !== propName && schema.properties[req]) {
+                       const t = schema.properties[req].type;
+                       if (t === 'string') badArg[req] = "valid";
+                       else if (t === 'number' || t === 'integer') badArg[req] = 1;
+                       else if (t === 'boolean') badArg[req] = true;
+                       else if (t === 'array') badArg[req] = [];
+                       else if (t === 'object') badArg[req] = {};
+                   }
+                }
             }
+            badArg[propName] = generateBadValue(propSchema.type);
+          } else {
+            badArg["extraneous"] = "extraneous argument";
+          }
+        } else {
+          badArg["extraneous"] = "extraneous argument";
         }
-        
-        badArg[propName] = generateBadValue(propSchema.type);
 
         tests.push({
           name: `${tool.name} (${propName} type mismatch)`,

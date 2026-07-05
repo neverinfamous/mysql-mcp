@@ -14,10 +14,13 @@ async function main() {
   if (!env.MYSQL_USER) env.MYSQL_USER = "root";
   if (!env.MYSQL_PASSWORD) env.MYSQL_PASSWORD = "root";
   if (!env.MYSQL_DATABASE) env.MYSQL_DATABASE = "testdb";
+  if (!env.MYSQL_PORT) env.MYSQL_PORT = "3307";
+  env.AGENT_BYPASS = "1";
+  env.ALLOWED_IO_ROOTS = projectDir;
 
   const transport = new StdioClientTransport({
-    command: "node",
-    args: ["dist/cli.js"],
+    command: process.execPath,
+    args: ["dist/cli.js", "--tool-filter", "codemode"],
     env,
   });
 
@@ -85,6 +88,8 @@ async function main() {
   await testSub("mysql://tables");
   await testSub("mysql://table/test_live_sub/schema");
   await testSub("mysql://health");
+  // Immediately unsubscribe from health so it doesn't pollute subsequent strict-equality checks
+  await client.request({ method: "resources/unsubscribe", params: { uri: "mysql://health" } }, z.any());
 
   // Test C: Invalid Subscriptions
   await testSubFail("mysql://meta");

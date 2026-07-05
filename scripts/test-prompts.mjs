@@ -103,12 +103,12 @@ async function main() {
     // Required-argument prompts
     {
       name: "mysql_query_builder",
-      args: { tables: "users", operation: "SELECT" },
+      args: { table: "users", operation: "SELECT", description: "find users" },
       expect: "",
     },
     {
       name: "mysql_schema_design",
-      args: { useCase: "E-commerce" },
+      args: { entity: "E-commerce" },
       expect: "",
     },
     {
@@ -121,12 +121,12 @@ async function main() {
       args: { change: "add desc", table: "posts" },
       expect: "",
     },
-    { name: "mysql_quick_query", args: { action: "find users" }, expect: "" },
+    { name: "mysql_quick_query", args: { sql: "find users", type: "read" }, expect: "" },
 
     // Optional-argument prompts
     {
       name: "mysql_schema_design",
-      args: { useCase: "E-commerce", requirements: "1M users" },
+      args: { entity: "E-commerce", requirements: "1M users" },
       expect: "",
     },
     {
@@ -136,12 +136,12 @@ async function main() {
     },
     {
       name: "mysql_setup_router",
-      args: { useCase: "ha" },
+      args: {},
       expect: "router",
     },
     {
       name: "mysql_backup_strategy",
-      args: { backupType: "logical" },
+      args: { rpo: "1 hour" },
       expect: "Logical",
     },
     {

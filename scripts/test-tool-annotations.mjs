@@ -108,14 +108,14 @@ function warn(label, detail) {
 function validateAnnotations(tools) {
   console.log(`Total tools: ${tools.length}\n`);
 
-  // â”€â”€ 1. Tool count â”€â”€
+  // -- 1. Tool count --
   if (tools.length === EXPECTED_TOOL_COUNT) {
     pass("Tool count", `${tools.length} (expected ${EXPECTED_TOOL_COUNT})`);
   } else {
     fail("Tool count", `${tools.length} (expected ${EXPECTED_TOOL_COUNT})`);
   }
 
-  // â”€â”€ Collect per-field stats â”€â”€
+  // -- Collect per-field stats --
   const stats = {
     hasAnnotations: 0,
     hasOpenWorldHint: 0,
@@ -216,7 +216,7 @@ function validateAnnotations(tools) {
     }
   }
 
-  // â”€â”€ 2. All tools have annotations â”€â”€
+  // -- 2. All tools have annotations --
   if (stats.hasAnnotations === tools.length) {
     pass(
       "All tools have annotations",
@@ -229,7 +229,7 @@ function validateAnnotations(tools) {
     );
   }
 
-  // â”€â”€ 3. All tools have explicit openWorldHint â”€â”€
+  // -- 3. All tools have explicit openWorldHint --
   if (stats.missingOpenWorld.length === 0) {
     pass("openWorldHint coverage", `${stats.hasOpenWorldHint}/${tools.length}`);
   } else {
@@ -239,7 +239,7 @@ function validateAnnotations(tools) {
     );
   }
 
-  // â”€â”€ 4. openWorldHint=true matches exact allowlist â”€â”€
+  // -- 4. openWorldHint=true matches exact allowlist --
   const actualSet = new Set(stats.openWorldTrue);
   const unexpected = stats.openWorldTrue.filter(
     (name) => !OPEN_WORLD_ALLOWLIST.has(name),
@@ -264,7 +264,7 @@ function validateAnnotations(tools) {
     fail("openWorldHint allowlist", parts.join(" | "));
   }
 
-  // â”€â”€ 5. All tools have explicit readOnlyHint â”€â”€
+  // -- 5. All tools have explicit readOnlyHint --
   if (stats.missingReadOnly.length === 0) {
     pass("readOnlyHint coverage", `${stats.hasReadOnlyHint}/${tools.length}`);
   } else {
@@ -274,7 +274,7 @@ function validateAnnotations(tools) {
     );
   }
 
-  // â”€â”€ 6. All tools have explicit destructiveHint â”€â”€
+  // -- 6. All tools have explicit destructiveHint --
   if (stats.missingDestructive.length === 0) {
     pass(
       "destructiveHint coverage",
@@ -287,7 +287,7 @@ function validateAnnotations(tools) {
     );
   }
 
-  // â”€â”€ 7. No readOnly+destructive contradictions â”€â”€
+  // -- 7. No readOnly+destructive contradictions --
   if (stats.contradictions.length === 0) {
     pass("No readOnly+destructive contradictions", "0 violations");
   } else {
@@ -297,7 +297,7 @@ function validateAnnotations(tools) {
     );
   }
 
-  // â”€â”€ 8. sensitiveHint coverage â”€â”€
+  // -- 8. sensitiveHint coverage --
   // SDK-registered tools (built-in + audit) can't carry sensitiveHint because
   // the SDK's ToolAnnotations type doesn't include it. Only flag non-SDK tools.
   const sensitiveMissingNonSdk = stats.missingSensitive.filter(
@@ -321,14 +321,14 @@ function validateAnnotations(tools) {
     );
   }
 
-  // â”€â”€ 9. All tools have a title â”€â”€
+  // -- 9. All tools have a title --
   if (stats.missingTitle.length === 0) {
     pass("title coverage", `${stats.hasTitle}/${tools.length}`);
   } else {
     fail("title coverage", `missing on: ${stats.missingTitle.join(", ")}`);
   }
 
-  // â”€â”€ 10. Advisory: read-only tools should have idempotentHint=true â”€â”€
+  // -- 10. Advisory: read-only tools should have idempotentHint=true --
   if (stats.readOnlyMissingIdempotent.length > 0) {
     warn(
       "Read-only tools missing idempotentHint=true",
@@ -336,58 +336,58 @@ function validateAnnotations(tools) {
     );
   }
 
-  // â”€â”€ Summary â”€â”€
-  console.log("â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”");
-  console.log("â”‚                  ANNOTATION AUDIT RESULTS               â”‚");
-  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+  // -- Summary --
+  console.log("+----------------------------------------------------------+");
+  console.log("|                  ANNOTATION AUDIT RESULTS               |");
+  console.log("+----------------------------------------------------------+");
 
   const hasFailure = results.some((r) => r.status === "fail");
 
   for (const r of results) {
-    const icon = r.status === "pass" ? "âœ…" : "âŒ";
-    console.log(`â”‚ ${icon} ${r.label}`);
-    console.log(`â”‚    ${r.detail}`);
+    const icon = r.status === "pass" ? "[PASS]" : "[FAIL]";
+    console.log(`| ${icon} ${r.label}`);
+    console.log(`|    ${r.detail}`);
   }
 
   if (warnings.length > 0) {
-    console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
-    console.log("â”‚ âš ï¸  ADVISORY WARNINGS (non-blocking)                    â”‚");
+    console.log("+----------------------------------------------------------+");
+    console.log("| [WARN]   ADVISORY WARNINGS (non-blocking)                    |");
     for (const w of warnings) {
-      console.log(`â”‚ âš ï¸  ${w.label}`);
-      console.log(`â”‚    ${w.detail}`);
+      console.log(`| [WARN]   ${w.label}`);
+      console.log(`|    ${w.detail}`);
     }
   }
 
-  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
-  console.log("â”‚ FIELD COVERAGE SUMMARY                                  â”‚");
+  console.log("+----------------------------------------------------------+");
+  console.log("| FIELD COVERAGE SUMMARY                                  |");
   console.log(
-    `â”‚   openWorldHint:   ${pct(stats.hasOpenWorldHint, tools.length)}`,
+    `|   openWorldHint:   ${pct(stats.hasOpenWorldHint, tools.length)}`,
   );
   console.log(
-    `â”‚   readOnlyHint:    ${pct(stats.hasReadOnlyHint, tools.length)}`,
+    `|   readOnlyHint:    ${pct(stats.hasReadOnlyHint, tools.length)}`,
   );
   console.log(
-    `â”‚   destructiveHint: ${pct(stats.hasDestructiveHint, tools.length)}`,
+    `|   destructiveHint: ${pct(stats.hasDestructiveHint, tools.length)}`,
   );
   console.log(
-    `â”‚   sensitiveHint:   ${pct(stats.hasSensitiveHint, tools.length)}`,
+    `|   sensitiveHint:   ${pct(stats.hasSensitiveHint, tools.length)}`,
   );
   console.log(
-    `â”‚   idempotentHint:  ${pct(stats.hasIdempotentHint, tools.length)} (optional)`,
+    `|   idempotentHint:  ${pct(stats.hasIdempotentHint, tools.length)} (optional)`,
   );
-  console.log(`â”‚   title:           ${pct(stats.hasTitle, tools.length)}`);
-  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+  console.log(`|   title:           ${pct(stats.hasTitle, tools.length)}`);
+  console.log("+----------------------------------------------------------+");
   console.log(
-    `â”‚ BREAKDOWN: readOnlyHint=true: ${stats.readOnlyTrue.length} | destructiveHint=true: ${stats.destructiveTrue.length} | sensitiveHint=true: ${stats.sensitiveTrue.length}`,
+    `| BREAKDOWN: readOnlyHint=true: ${stats.readOnlyTrue.length} | destructiveHint=true: ${stats.destructiveTrue.length} | sensitiveHint=true: ${stats.sensitiveTrue.length}`,
   );
   console.log(
-    `â”‚ BREAKDOWN: openWorldHint=true: ${stats.openWorldTrue.length} (${stats.openWorldTrue.join(", ")})`,
+    `| BREAKDOWN: openWorldHint=true: ${stats.openWorldTrue.length} (${stats.openWorldTrue.join(", ")})`,
   );
-  console.log("â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤");
+  console.log("+----------------------------------------------------------+");
 
-  const verdict = hasFailure ? "âŒ FAIL" : "âœ… PASS";
-  console.log(`â”‚ VERDICT: ${verdict}`);
-  console.log("â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜");
+  const verdict = hasFailure ? "[FAIL] FAIL" : "[PASS] PASS";
+  console.log(`| VERDICT: ${verdict}`);
+  console.log("+----------------------------------------------------------+");
 
   return hasFailure ? 1 : 0;
 }
@@ -444,7 +444,7 @@ proc.stdout.on("data", (chunk) => {
 
         finished = true;
         proc.kill();
-        process.exit(exitCode);
+        setTimeout(() => process.exit(exitCode), 100);
       }
     } catch {
       // Not complete JSON yet

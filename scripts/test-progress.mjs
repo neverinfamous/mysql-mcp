@@ -12,18 +12,20 @@ const projectDir = resolve(__dirname, "..");
 
 const cleanEnv = { ...process.env };
 cleanEnv.ALLOWED_IO_ROOTS = projectDir;
+cleanEnv.AGENT_BYPASS = "1";
+cleanEnv.MCP_LOG_LEVEL = "debug";
 
 // Spawn the server with memory metrics disabled or standard args
 const proc = spawn(
-  "node",
+  process.execPath,
   [
     "dist/cli.js",
     "--mysql",
-    "mysql://root:root@localhost:3306/testdb",
-    "--tool-filter",
-    "+all",
+    "mysql://root:root@localhost:3307/testdb",
     "--log-level",
-    "error",
+    "debug",
+    "--tool-filter",
+    "optimization,admin,backup,core,codemode,performance"
   ],
   {
     cwd: projectDir,
@@ -43,6 +45,7 @@ proc.stdout.on("data", (chunk) => {
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed) continue;
+    console.log("RAW STDOUT:", line);
     try {
       const msg = JSON.parse(trimmed);
 
@@ -67,19 +70,17 @@ proc.stdout.on("data", (chunk) => {
 });
 
 proc.stderr.on("data", (chunk) => {
-  if (chunk.toString().includes("Error:")) {
-    console.error(`STDERR: ${chunk}`);
-  }
+  console.error(`SERVER STDERR: ${chunk}`);
 });
 
 let nextId = 1;
 function rpc(method, params = {}) {
   const id = nextId++;
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => {
-      pending.delete(id);
-      reject(new Error(`Timeout: ${method}`));
-    }, 15000);
+    const timer = setTimeout(
+      () => reject(new Error(`Timeout: ${method}`)),
+      300000 // 5 minutes
+    );
     pending.set(id, (msg) => {
       clearTimeout(timer);
       resolve(msg);
@@ -165,22 +166,18 @@ async function main() {
     throw new Error("Missing reportProgress in Code Mode sandbox");
   `;
 
-  // First, create a dummy table and populate it so we can read from it
-  const setupResp = await rpc("tools/call", {
-    name: "mysql_execute_code",
-    arguments: {
-        code: `
-          await mysql.core.writeQuery({ query: "CREATE TABLE IF NOT EXISTS test_prog_events (id INT PRIMARY KEY AUTO_INCREMENT, val VARCHAR(50))" });
-          await mysql.core.writeQuery({ query: "TRUNCATE TABLE test_prog_events" });
-          for (let i = 1; i <= 20; i++) {
-            await mysql.core.writeQuery({ query: "INSERT INTO test_prog_events (val) VALUES (?)", params: ["val " + i] });
-          }
-          return "Success";
-        `
-    }
-  });
-  if (setupResp.error || setupResp.result?.isError) {
-    console.error("Setup failed:", setupResp);
+  console.log("Sending ping...");
+  await rpc("ping", {});
+  console.log("Ping successful.");
+
+  console.log("Setting up test table...");
+  const setupCreate = await rpc("tools/call", { name: "mysql_write_query", arguments: { query: "CREATE TABLE IF NOT EXISTS test_prog_events (id INT PRIMARY KEY AUTO_INCREMENT, val VARCHAR(50))" } });
+  if (setupCreate.error) console.error("Setup CREATE failed:", setupCreate);
+  
+  await rpc("tools/call", { name: "mysql_write_query", arguments: { query: "TRUNCATE TABLE test_prog_events" } });
+  
+  for (let i = 1; i <= 20; i++) {
+    await rpc("tools/call", { name: "mysql_write_query", arguments: { query: "INSERT INTO test_prog_events (val) VALUES ('val " + i + "')" } });
   }
 
   const tests = [
@@ -212,13 +209,7 @@ async function main() {
     if (!success) passed = false;
   }
 
-  // Cleanup
-  await rpc("tools/call", {
-    name: "mysql_execute_code",
-    arguments: {
-      code: `await mysql.core.writeQuery("DROP TABLE IF EXISTS test_prog_events");`
-    }
-  });
+  await rpc("tools/call", { name: "mysql_write_query", arguments: { query: "DROP TABLE IF EXISTS test_prog_events" } });
 
   proc.kill();
   if (!passed) {

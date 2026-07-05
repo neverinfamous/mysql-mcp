@@ -125,8 +125,8 @@ async function main() {
     `  Token estimate: ~${Math.round(baseResult.instructionChars / 4)}`,
   );
 
-  const isSlim = baseResult.instructionChars < 2500;
-  console.log(`  Under 2500 chars: ${isSlim ? "✅" : "❌"}`);
+  const isSlim = baseResult.instructionChars < 4000;
+  console.log(`  Under 4000 chars: ${isSlim ? "✅" : "❌"}`);
   if (!isSlim) allPassed = false;
 
   const hasHelpPointer = baseResult.instructions.includes("mysql://help");

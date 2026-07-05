@@ -12,10 +12,11 @@ async function verify() {
   if (!env.MYSQL_USER) env.MYSQL_USER = "root";
   if (!env.MYSQL_PASSWORD) env.MYSQL_PASSWORD = "root";
   if (!env.MYSQL_DATABASE) env.MYSQL_DATABASE = "testdb";
+  if (!env.MYSQL_PORT) env.MYSQL_PORT = "3307";
 
   const transport = new StdioClientTransport({
-    command: "node",
-    args: [cliPath, "--tool-filter", "+all"],
+    command: process.execPath,
+    args: [cliPath, "--tool-filter", "all"],
     env,
   });
 
@@ -40,22 +41,14 @@ async function verify() {
     cursor = res.nextCursor;
   } while (cursor);
 
-  const ignoreList = [
-    "mysql_execute_code",
-    "server_info",
-    "server_health",
-    "list_adapters",
-    "mysql_server_config"
-  ];
-
   // Check if tools have the non-standard outputSchema property
   const missing = tools
-    .filter((t) => !ignoreList.includes(t.name) && !("outputSchema" in t))
+    .filter((t) => !("outputSchema" in t))
     .map((t) => t.name);
 
   if (missing.length === 0) {
     console.log(
-      `SUCCESS: All ${tools.length - ignoreList.length} standard tools have outputSchema defined on the protocol level.`,
+      `SUCCESS: All ${tools.length} standard tools have outputSchema defined on the protocol level.`,
     );
     process.exit(0);
   } else {

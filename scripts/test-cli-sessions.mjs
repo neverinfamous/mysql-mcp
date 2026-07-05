@@ -2,7 +2,7 @@ import { spawn } from 'child_process';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+const delay = (ms) => new Promise(res => setTimeout(res, ms));
 
 async function runTest() {
   console.log("Starting server...");
@@ -32,12 +32,12 @@ async function runTest() {
     process.exit(1);
   }
   
-  const failures: string[] = [];
+  const failures = [];
 
   try {
     console.log("Step 1: Baseline Health Check");
     let res = await fetch("http://localhost:12345/health");
-    let body = await res.json() as any;
+    let body = await res.json();
     console.log("Health 1:", body);
     if (body.status !== 'healthy') failures.push("Initial health status not healthy");
     if (body.activeSessions !== 0 && body.activeSessions !== undefined) failures.push("Initial activeSessions is not 0 or undefined");
@@ -71,7 +71,7 @@ async function runTest() {
 
     console.log("Step 3: Validate Active Sessions Metric");
     res = await fetch("http://localhost:12345/health");
-    body = await res.json() as any;
+    body = await res.json();
     console.log("Health 2:", body);
     if (body.activeSessions !== 1) failures.push(`Expected activeSessions: 1, got ${body.activeSessions}`);
 
@@ -112,11 +112,11 @@ async function runTest() {
 
     console.log("Step 7: Final Validation");
     res = await fetch("http://localhost:12345/health");
-    body = await res.json() as any;
+    body = await res.json();
     console.log("Health 3:", body);
     if (body.activeSessions !== 0 && body.activeSessions !== undefined) failures.push(`Expected activeSessions to be 0 or undefined, got ${body.activeSessions}`);
 
-  } catch (e: any) {
+  } catch (e) {
     console.error("Test Exception:", e.message);
     failures.push("Exception during test: " + e.message);
   } finally {
