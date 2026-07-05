@@ -23,15 +23,15 @@ Experience Code Mode. Access our entire toolset via a single JavaScript sandbox.
 Enjoy deterministic error handling. Run process-isolated code safely. Get enterprise features without sacrificing ease of use.
 
 **Complete Observability**
-Access 19 observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
+Access 49 observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
 
 ## 🎯 Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
-| **19 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
-| **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
+| **49 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
+| **28 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
 | **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`isolated-vm`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 241 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
 | **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
 | **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
@@ -610,7 +610,7 @@ This is useful for scripted or automated clients that need a minimal, precise se
 
 ## 🤖 AI-Powered Prompts
 
-This server includes **19 intelligent prompts** for guided workflows:
+This server includes **28 intelligent prompts** for guided workflows:
 
 | Prompt                        | Description                                            |
 | ----------------------------- | ------------------------------------------------------ |
@@ -638,7 +638,7 @@ This server includes **19 intelligent prompts** for guided workflows:
 
 ## 📊 Resources
 
-This server exposes **22 resource categories (50 total endpoints)** for database observability and telemetry:
+This server exposes **49 observability resources** for database observability and telemetry:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
@@ -778,7 +778,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 241 tools, 19 resources, and 19 prompts interactively.
+Open **http://localhost:6274** to browse all 241 tools, 49 resources, and 28 prompts interactively.
 
 **CLI mode for scripting:**
 

@@ -21,12 +21,12 @@ Experience Code Mode. Access our entire toolset via a single JavaScript sandbox.
 Enjoy deterministic error handling. Run process-isolated code safely. Get enterprise features without sacrificing ease of use.
 
 **Complete Observability**
-Access 19 observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
+Access 49 observability resources. Monitor schema, performance, and replication in real-time. Uncover deep database insights instantly.
 
 ### 🎯 Core Features
 
 - **241 Specialized Tools**: From core CRUD and native JSON functions to advanced spatial/GIS, cluster management, introspection, and schema migration.
-- **19 Observability Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
+- **49 Observability Resources**: Real-time schema, performance metrics, and InnoDB diagnostics.
 - **Code Mode (Token Savings)**: Execute complex operations locally inside a separate V8 isolate, reducing token overhead by up to 90%.
 - **Dual Transport & OAuth 2.1**: Full streamable HTTP and legacy SSE support, protected by granular scopes (`read`, `write`, `admin`, `full`).
 - **Deterministic Error Handling**: Every tool returns structured responses with actionable suggestions—no raw exceptions.

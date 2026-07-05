@@ -1,6 +1,6 @@
 # mysql-mcp Advanced Code Mode Testing Coordinator Workflow
 
-> 🚀 **Core Features Tested:** Orchestrates deep validation of our advanced capabilities: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> 🚀 **Core Features Tested:** Orchestrates deep validation of our advanced capabilities: **OAuth 2.1**, **Code Mode**, and **Docker**.
 
 We're working in the `mysql-mcp` project in this thread.
 

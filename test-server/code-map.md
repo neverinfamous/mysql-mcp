@@ -113,8 +113,8 @@ src/
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
-│       ├── prompts/                # 19 AI-Powered Prompts (see § below)
-│       ├── resources/              # 19 Observability Resources (see § below)
+│       ├── prompts/                # 28 AI-Powered Prompts (see § below)
+│       ├── resources/              # 21 Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -172,7 +172,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Prompts (`src/adapters/mysql/prompts/`)
 
-19 AI-Powered Prompts across specialized workflow files:
+28 AI-Powered Prompts across specialized workflow files:
 
 <!-- BEGIN: PROMPTS -->
 | Prompt | Description |
@@ -196,7 +196,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Resources (`src/adapters/mysql/resources/`)
 
-19 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
+21 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -386,8 +386,8 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all 84 test prompts using the standard template    |
-| `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
-| `test-server/test-resources.md`             | Resource testing plan (19 Observability Resources)                           |
+| `test-server/test-prompts.md`               | Prompt testing plan (28 AI-Powered Prompts)                          |
+| `test-server/test-resources.md`             | Resource testing plan (21 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

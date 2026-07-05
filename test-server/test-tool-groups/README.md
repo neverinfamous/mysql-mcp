@@ -1,6 +1,6 @@
 # MySQL-MCP Standard Testing Suite
 
-> 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Code Mode**, and **Docker**.
 
 
 **Directory Purpose**: This folder contains 57 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Direct MCP Tool Call validation**.

@@ -36,7 +36,7 @@ If agents consistently hallucinate inputs that can be logically inferred or norm
 
 ### Layer 3: Sandbox Proxy Interceptors (Actionable Errors)
 
-When agents execute code in Code Mode (`mysql_execute_code`), they often make standard Javascript mistakes. Instead of cryptic V8 runtime failures, `mysql-mcp` uses Proxy interceptors in `src/codemode/sandbox.ts` to throw explicit guidance.
+When agents execute code in Code Mode (which is now multiplexed to all tools), they often make standard Javascript mistakes. Instead of cryptic V8 runtime failures, `mysql-mcp` uses Proxy interceptors in `src/codemode/sandbox.ts` to throw explicit guidance.
 
 * **Missing `await` Catching:** Agents frequently forget the `await` keyword. All RPC Promise returns are wrapped. If the agent attempts to synchronously access a property (e.g. `result.success`), the `wrapPromise` interceptor throws: `"Attempted to access property 'success' on a Promise object. Did you forget to 'await' the tool call?"`
 * **Array Method Healing:** Agents often assume tools return Arrays instead of Objects (e.g., `{ success: true, rows: [...] }`). The `wrapResult` proxy intercepts Array methods (like `.map`, `.filter`) called directly on the returned Object and binds them dynamically to the inner array (e.g. `.rows`, `.tables`, `.results`).
@@ -66,6 +66,7 @@ Agents often run into environment-level interceptors or tooling issues that thro
 * **Native Tool Priority:** If you trigger a system interceptor for using shell commands like `cat`, `grep`, or `ls`, you MUST autonomously switch to native tools (e.g., `view_file`, `grep_search`, `list_dir`). DO NOT ask the user for help or wait for permission.
 * **Transient IDE Errors:** If shifting lines via code edits triggers IDE typing errors (e.g., "Unsafe argument of type error typed"), ALWAYS verify with `tsc --noEmit` before attempting complex type refactoring, as it may just be a stale ESLint cache.
 * **Coordinator Guardrails:** To mitigate structural hallucinations, you MUST enforce a `task.md` checklist, run a `list_dir` requirement before accessing unknown paths, and halt execution immediately on `FAILED_FILE_NOT_FOUND` rather than autonomously retrying.
+* **Audit Tool Payload Bloat:** To prevent payload bloat, the audit tool has a strict security requirement: it MUST receive at least one filter. If an agent hallucinates a blank audit call, the tool should reject it or the schema should enforce it.
 
 ## 2. Phase 2: Implementation
 

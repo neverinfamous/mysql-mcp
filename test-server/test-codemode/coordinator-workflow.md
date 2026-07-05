@@ -1,6 +1,6 @@
 # mysql-mcp Code Mode Testing Coordinator Workflow
 
-> 🚀 **Core Features Tested:** Oversees testing for **Code Mode** parity, alongside **OAuth 2.1** and **Connection Pooling**.
+> 🚀 **Core Features Tested:** Oversees testing for **Code Mode** parity, alongside **OAuth 2.1** and **Docker**.
 
 We're working on the mysql-mcp project/repository in this thread.
 

@@ -1,6 +1,6 @@
 # mysql-mcp Usability Testing Coordinator Workflow
 
-> 🚀 **Core Features Tested:** Validates the agent interaction experience with **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> 🚀 **Core Features Tested:** Validates the agent interaction experience with **OAuth 2.1**, **Code Mode**, and **Docker**.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 

@@ -1,6 +1,6 @@
 # mysql-mcp Tool Groups Testing Coordinator Workflow
 
-> 🚀 **Core Features Tested:** Coordinates execution across 241 tools to ensure robustness of **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> 🚀 **Core Features Tested:** Coordinates execution across 241 tools to ensure robustness of **OAuth 2.1**, **Code Mode**, and **Docker**.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 

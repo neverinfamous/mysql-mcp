@@ -21,7 +21,7 @@
         "MCP_ENABLE_HSTS": "true",
         "TRUST_PROXY": "true",
         "MCP_METRICS_EXPORT": "true",
-        "MYSQL_MCP_TOOL_FILTER": "starter",
+        "MYSQL_MCP_TOOL_FILTER": "starter,codemode",
         "MCP_SERVER_NAME": "mysql-mcp",
         "MCP_STATELESS": "false",
         "MCP_AUTH_TOKEN": "",
