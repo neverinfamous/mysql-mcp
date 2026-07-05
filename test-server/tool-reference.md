@@ -1,5 +1,11 @@
 # Tool Reference
 
+## Value Proposition
+Build better AI integrations faster.
+Empower agents with secure database access.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise-grade security.
+
 Complete list of all **241 tools** across groups.
 >
 > 🚀 **Core Features:** Enjoy enterprise-grade capabilities like **OAuth 2.1** for robust security, **Code Mode** for execution speed, and advanced **Connection Pooling** for performance.

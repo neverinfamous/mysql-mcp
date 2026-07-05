@@ -1,5 +1,11 @@
 # Server Instructions Overview
 
+## Value Proposition
+Build better AI integrations faster.
+Empower agents with secure database access.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise-grade security.
+
 **🤖 AGENT OPTIMIZED README**
 
 This directory contains the Markdown files that serve as the foundation for the `mysql-mcp` dynamic help system. These files are presented directly to AI agents making context-gathering queries.

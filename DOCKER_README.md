@@ -333,16 +333,16 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
 | `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
 | `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
-| `--pool-timeout`          | `MYSQL_POOL_TIMEOUT`    | Connection acquire timeout in ms (default: 10000)   |
-| `--pool-queue-limit`      | `MYSQL_POOL_QUEUE_LIMIT`| Queue limit for waiting requests (default: 0)       |
+| `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 10000)   |
+| `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
 | `--tool-filter`, `-f`     | `MYSQL_MCP_TOOL_FILTER` | Tool filter string                                  |
-| `--name`                  | `MCP_SERVER_NAME`       | Server name                                         |
+| `--name`                  | —                       | Server name                                         |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
-| `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
+| `--log-level`             | —                       | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
 | `--audit-log`             | `AUDIT_LOG_PATH`        | Path to JSONL audit log file                        |
 | `--audit-redact`          | `AUDIT_REDACT`          | Redact tool arguments from audit log                |

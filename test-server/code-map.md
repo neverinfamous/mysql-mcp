@@ -1,5 +1,11 @@
 # mysql-mcp Code Map
 
+## Value Proposition
+Build better AI integrations faster.
+Empower agents with secure database access.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise-grade security.
+
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
 > 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, blazing-fast **Code Mode**, and highly-optimized **Connection Pooling**.
