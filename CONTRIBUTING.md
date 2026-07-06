@@ -63,7 +63,7 @@ docker build -f Dockerfile -t mysql-mcp-dev .
 docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
 ```
 
-## 📋 What We're Looking For
+## 📋 Discover Contribution Goals
 
 We especially welcome contributions in these areas:
 
@@ -88,7 +88,7 @@ We especially welcome contributions in these areas:
 - **Performance benchmarks** for new hot paths
 - **IDE-specific integrations** beyond MCP
 
-## 🧪 Testing Your Changes
+## 🧪 Test Your Changes
 
 ### Automated Testing
 
@@ -154,7 +154,7 @@ docker build -f Dockerfile -t mysql-mcp-dev .
 docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
 ```
 
-## 📝 Coding Standards
+## 📝 Follow Coding Standards
 
 ### TypeScript Code Style
 
@@ -187,15 +187,15 @@ Every tool must return structured error responses — never raw exceptions:
 }
 ```
 
-Error logic should leverage the `MySQLMcpError` hierarchy (e.g., `ValidationError`, `QueryError`). Our Auto-refinement system automatically maps generic codes to specific ones (e.g., `QUERY_ERROR` → `TABLE_NOT_FOUND`) and populates suggestions. Catch at the handler boundary and return `formatHandlerError(error)` to ensure a highly-compliant JSON payload. Always propagate stack traces — don't swallow errors.
+Error logic should leverage the `MySQLMcpError` hierarchy. Our Auto-refinement system automatically maps generic codes to specific ones. It also populates suggestions. Catch at the handler boundary and return `formatHandlerError(error)` for JSON compliance. Always propagate stack traces — don't swallow errors.
 
 ### Input Validation
 
-- **Dual-Schema Pattern** — Tools use a plain `z.object()` Base schema for MCP parameter visibility, and a `z.preprocess()` wrapper for handler parsing to support aliases and coercion without breaking standard JSON Schema generation.
-- All parameters are validated via **Zod schemas** with explicit coercion controls (e.g., `z.preprocess(coerceNumber, z.number().optional())` instead of aggressive `z.coerce.number()`)
-- Output schemas are strictly defined to guarantee AI agents receive deterministic P154-compliant structures (using `openWorldHint: false`)
-- Invalid inputs must return structured errors, automatically handled by `formatHandlerError()` without raw Zod validation messages
-- SQL injection is prevented via **parameter binding** — never interpolate user input into SQL strings
+- **Dual-Schema Pattern** — Tools use a plain `z.object()` Base schema for visibility. A `z.preprocess()` wrapper supports aliases without breaking JSON Schema generation.
+- **Zod schemas** validate parameters with explicit coercion controls. Do not use aggressive `z.coerce.number()`.
+- Output schemas are strictly defined. This guarantees agents receive deterministic P154-compliant structures.
+- Invalid inputs must return structured errors. The `formatHandlerError()` helper handles this without raw validation messages.
+- SQL injection is prevented via **parameter binding**. Never interpolate user input into SQL strings.
 
 ### Logging
 
@@ -208,7 +208,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 - **Multi-platform** — Test on both amd64 and arm64 when possible
 - **Documentation** — Update Docker guides if needed
 
-## 🔧 Adding or Modifying Tools
+## 🔧 Add or Modify Tools
 
 mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. 
 
@@ -223,7 +223,7 @@ When adding a new tool:
 5. **Add the tool to the group's help resource** (the markdown file under `src/constants/server-instructions/`)
 6. **Verify OAuth Scope** — ensure the new tool aligns with its group's defined OAuth 2.1 scope (`read`, `write`, or `admin`)
 
-## 🐛 Bug Reports
+## 🐛 Report Bugs
 
 When reporting bugs, please include:
 
@@ -236,7 +236,7 @@ When reporting bugs, please include:
 
 Use our [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md) for consistency.
 
-## 💡 Feature Requests
+## 💡 Request Features
 
 For new features, please provide:
 
@@ -248,7 +248,7 @@ For new features, please provide:
 
 Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
-## 🔄 Pull Request Process
+## 🔄 Submit Pull Requests
 
 ### Before Submitting
 
@@ -282,7 +282,7 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
 All checks must pass before merge. Security steps **hard-fail on fixable issues** — this is intentional.
 
-## 📄 Committing and Changelog
+## 📄 Commit and Generate Changelogs
 
 The project uses `bun ./.agents/scripts/commit.ts` for all commits with explicit file staging. **Do not use raw `git commit`.**
 
@@ -304,7 +304,7 @@ Available trailers:
 
 > **Do not edit `CHANGELOG.md` directly** — it is assembled automatically during the release process.
 
-## 🎯 Development Tips
+## 🎯 Master Development Tips
 
 ### Working with MCP
 
@@ -356,7 +356,7 @@ If your change touches a hot path (tool dispatch, schema parsing, auth, Code Mod
 pnpm run bench
 ```
 
-## 🔐 Security
+## 🔐 Report Security Issues
 
 If you discover a security vulnerability, **do not** open a public issue. Please follow our [Security Policy](SECURITY.md) and report it to **admin@adamic.tech**.
 
@@ -368,14 +368,14 @@ When contributing code, follow these security practices:
 - **Typed error classes** with descriptive messages — don't expose internal details to end users
 - **Transport Security** — preserve DNS rebinding protection and Slowloris DoS timeouts in HTTP layers
 
-## 🤝 Community
+## 🤝 Join the Community
 
 - **Be respectful** — Follow our [Code of Conduct](CODE_OF_CONDUCT.md)
 - **Ask questions** — Use GitHub Issues for discussion
 - **Share ideas** — Feature requests and feedback welcome
 - **Help others** — Answer questions and review PRs
 
-## 📞 Getting Help
+## 📞 Get Help
 
 - **GitHub Issues** — Bug reports and feature requests
 - **Documentation** — Check [README.md](README.md), [Wiki](https://github.com/neverinfamous/mysql-mcp/wiki), and Docker guides first
