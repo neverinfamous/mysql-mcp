@@ -202,7 +202,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-## 🛠️ Optimize Tokens: Tool Filtering
+## 🛠️ Optimize Limits with Tool Filtering
 
 > **Architectural Rule:** Tool filtering allows skipping the `--mysql connection` configuration if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 

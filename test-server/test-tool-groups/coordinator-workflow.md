@@ -37,10 +37,10 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 6. **Structured Error Handling**:
    - Ensure subagents explicitly check that tools return structured MCP errors, not raw exceptions. Error messages should follow the standard `[LEVEL] [module] [CODE] message (context)` format where applicable.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
-   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
+   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_cluster_status`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user as each test proceeds and include the running count: "This is test X out of 57. Fixed Z issues [W Prompt / V Code]."
-   - The Coordinator is allowed to output additional information and custom messages (such as Phase transitions) as long as the running count is included.
+   - The Coordinator MUST respond to the user as each test proceeds and include the running count: This is test X out of 57. Fixed Z issues [W Prompt / V Code]. Do not wrap the message in quotes or add preamble.
+   - The Coordinator is allowed to output additional information and custom messages *only* during phase transitions.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-tool-groups/` BEFORE starting, and cross-reference the actual directory contents against the list below.
    - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.
@@ -147,7 +147,7 @@ _(Coordinator pauses: Asks user to switch filter to `dba-schema` and restart)_
 - `test-versioning-part1.md`
 - `test-versioning-part2.md`
 
-_(Coordinator pauses: Asks user to switch filter to `ecosystem` and restart)_
+_(Coordinator pauses: Asks user to switch testing to the mysql-ecosystem server)_
 
 ### Phase 11: `ecosystem` shortcut
 

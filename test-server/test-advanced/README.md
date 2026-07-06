@@ -9,11 +9,11 @@
 
 ## Value Proposition
 
-- Build AI integrations instantly.
-- Empower agents with secure database access.
-- Execute complex logic via Code Mode.
-- Scale operations with robust connection pooling.
-- Leverage OAuth 2.1 for enterprise security.
+- **Build AI integrations instantly.**
+- **Empower agents with secure database access.**
+- **Execute complex logic via Code Mode.**
+- **Scale operations with robust connection pooling.**
+- **Leverage OAuth 2.1 for enterprise security.**
 
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 >

@@ -9,11 +9,11 @@
 
 ## Value Proposition
 
-- Build AI integrations instantly.
-- Empower agents with secure database access.
-- Execute complex logic via Code Mode.
-- Scale operations with robust connection pooling.
-- Leverage OAuth 2.1 for enterprise security.
+- **Build AI integrations instantly.**
+- **Empower agents with secure database access.**
+- **Execute complex logic via Code Mode.**
+- **Scale operations with robust connection pooling.**
+- **Leverage OAuth 2.1 for enterprise security.**
 
 > 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Direct Tool Calls**, and **Docker**.
 
@@ -55,6 +55,8 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - Update `../code-map.md`, handlers, and instructions if bugs are uncovered, then summarize your work.
 
 ## Access Available Test Files
+
+> **Note**: These files are standard prompt outlines intended to be fed directly to subagents for parallel execution.
 
 - `test-admin-part1.md`
 - `test-admin-part2.md`

@@ -1,6 +1,6 @@
 # mysql-mcp {{TITLE_TYPE}}: [{{GROUP_NAME}}]
 
-[![npm version](https://img.shields.io/npm/v/mysql-mcp.svg)](https://npmjs.org/package/mysql-mcp) [![License](https://img.shields.io/npm/l/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
+[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Value Proposition
@@ -142,8 +142,8 @@ All tools use the Dual-Schema pattern: a plain `z.object()` Base schema for MCP 
 
 All tools that accept a table name should return structured error responses for nonexistent tables and databases. For each, verify:
 
-1. **Nonexistent table**: Calling with `table: "nonexistent_table_xyz"` returns a structured error — not a raw MySQL exception
-2. **Nonexistent database/schema**: Where applicable, calling with a nonexistent database produces a similarly clear structured error
+1. **Nonexistent table**: Calling with `table: "nonexistent_table_xyz"` returns `{ exists: false, table }` — not a generic error or raw MySQL exception
+2. **Nonexistent database/schema**: Where applicable, calling with a nonexistent database produces `{ exists: false }`
 
 Key MySQL error codes that should be intercepted by handlers (not leaked as raw errors):
 
@@ -189,7 +189,7 @@ During testing, check for these inconsistencies:
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`scripts/test-seed.sql`)
    - This prompt
 

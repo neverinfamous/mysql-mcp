@@ -35,7 +35,7 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
 6. **Tool Availability Warning**:
    - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user. NOTE: The ecosystem tools (cluster, proxysql, router, shell) are running on a different port/MCP config (`mysql-ecosystem`) than the standard tools/tool groups. Ecosystem should be enabled for them already, but if it isn't working, the subagent MUST let the user know immediately so they can enable it. We want to actively test ecosystem, not just test graceful degradation.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 89. Fixed Z issues [W Prompt / V Code]."
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of 89. Fixed Z issues [W Prompt / V Code]. Do not wrap the message in quotes or add preamble.
    - Do NOT output any other text to the user during the test sequence.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-usability/` BEFORE starting, and cross-reference the actual directory contents against the list below.

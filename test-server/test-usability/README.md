@@ -9,13 +9,13 @@
 
 ## Value Proposition
 
-- Build AI integrations instantly.
-- Empower agents with secure database access.
-- Execute complex logic via Code Mode.
-- Scale operations with robust connection pooling.
-- Leverage OAuth 2.1 for enterprise security.
+- **Build AI integrations instantly.**
+- **Empower agents with secure database access.**
+- **Execute complex logic via Code Mode.**
+- **Scale operations with robust connection pooling.**
+- **Leverage OAuth 2.1 for enterprise security.**
 
-> 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Docker**.
 
 
 > **This directory is optimized for AI agent consumption.**
@@ -30,14 +30,7 @@ Use the optimization layers described in `skills/mysql-mcp-heal/SKILL.md`.
 
 ## Execute Fuzzing Workflow
 
-We test tools by group using separate threads to save context window.
-
-0. **Anti-Hallucination Guardrails:** Maintain a `task.md` checklist. Read exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
-1. **Pick a test file** (e.g., `test-usability-core.md`).
-2. **Spawn a subagent** (or start a new thread) and feed them the file.
-3. **Local Validation**: The subagent MUST validate all changes by running `pnpm run check`.
-4. **Commit**: The subagent commits the fix. Kill the subagent before moving on to the next test file.
-5. **Final Testing & Sweep**: Once all tests complete, the Coordinator agent will run `pnpm run check` to validate the full test suite and fix any broken unit/E2E tests. Finally, a live verification run is conducted against a fresh, restarted server.
+Please defer entirely to `coordinator-workflow.md` for orchestration steps and rules.
 
 ## Access Available Test Files
 

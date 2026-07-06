@@ -9,7 +9,7 @@ services:
       - --allowed-io-roots
       - /tmp/mcp-sandbox
       - --audit-log
-      - /tmp/mcp-sandbox/audit.jsonl
+      - /data/audit.jsonl
     environment:
       - MCP_AUTH_TOKEN=your-secure-token # Required for HTTP mode
       - MYSQL_HOST=mysql

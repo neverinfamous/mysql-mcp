@@ -171,6 +171,8 @@ Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 | `GET`    | `/mcp`   | SSE stream for server notifications              |
 | `DELETE` | `/mcp`   | Session termination                              |
 
+> **Rate Limit:** HTTP transport is limited to 100 requests per minute per IP.
+
 Sessions are managed via the `Mcp-Session-Id` header.
 
 ### Run Statelessly
@@ -256,7 +258,7 @@ This implementation follows:
 
 The server exposes metadata at `/.well-known/oauth-protected-resource`.
 
-> **Note for Keycloak users:** Add an **Audience mapper** to your client (Client → Client scopes → dedicated scope → Add mapper → Audience) to include the correct `aud` claim in tokens.
+> **Note for Keycloak users:** Add an **Audience mapper** to your client. This includes the correct `aud` claim. (Client → Client scopes → dedicated scope → Add mapper → Audience)
 
 > [!NOTE]
 > **Per-tool scope enforcement:** Scopes are enforced at the tool level — each tool group maps to a required scope (`read`, `write`, or `admin`). When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. When OAuth is not configured, scope checks are skipped entirely.
@@ -323,7 +325,10 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 
 ```json
-"--mysql", "mysql://user:password@host.docker.internal:3306/database"
+[
+  "--mysql",
+  "mysql://user:password@host.docker.internal:3306/database"
+]
 ```
 
 ### MySQL in Another Docker Container
@@ -349,7 +354,10 @@ docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
 Use the remote hostname directly:
 
 ```json
-"--mysql", "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
+[
+  "--mysql",
+  "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
+]
 ```
 
 | Provider         | Example Hostname                                 |
@@ -562,7 +570,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 ---
 
 **Legacy Syntax (still supported):**
-If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to start with _all_ tools enabled and then subtract.
+If you start with a negative filter (e.g., `-ecosystem`), it enables all tools first. It then subtracts the specified tools.
 
 ### Syntax Reference
 
@@ -717,7 +725,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
-| `--audit-log`             | —                       | Path to the audit log file                          |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
