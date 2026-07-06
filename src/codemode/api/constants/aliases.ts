@@ -174,7 +174,6 @@ export const METHOD_ALIASES: Record<string, Record<string, string>> = {
     analyze: "analyzeTable",
     flush: "flushTables",
     kill: "killQuery",
-    serverConfig: "serverConfig",
     config: "serverConfig",
     get: "serverConfig",
     set: "serverConfig",
