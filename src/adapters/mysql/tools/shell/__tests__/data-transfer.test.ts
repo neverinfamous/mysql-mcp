@@ -135,16 +135,14 @@ describe("Shell Data Transfer Tools", () => {
         {
           schema: "test",
           table: "users",
-          outputPath: "C:\\temp\\dump.csv",
+          outputPath: "/tmp/dump\\with\\backslashes.csv",
           format: "csv",
         },
         mockContext,
       );
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      // In JS code it should be escaped: C:\\temp\\dump
-      // So we look for "C:\\temp\\dump" in the string
-      expect(jsArg).toContain("C:\\\\temp\\\\dump");
+      expect(jsArg).toContain("/tmp/dump\\\\with\\\\backslashes.csv");
     });
     it("should return structured error for privilege errors", async () => {
       setupMockSpawn("", "Access denied for user", 1);

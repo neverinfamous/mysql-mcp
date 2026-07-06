@@ -56,7 +56,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
     await new Promise<void>((resolve) => {
       jwksServer = createServer((req, res) => {
         try {
-          console.log("JWKS Server received request:", req.method, encodeURIComponent(req.url || ""));
+          console.log("JWKS Server received request");
           if (req.url === "/jwks") {
             const body = JSON.stringify({ keys: [publicJwk] });
             res.writeHead(200, {
