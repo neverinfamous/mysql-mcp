@@ -2,18 +2,20 @@
 
 [![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-64-purple?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-65-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## 💎 Value Proposition
 
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
+The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM token overhead with sandboxed Code Mode execution, scale seamlessly with built-in connection pooling, and enforce zero-trust security via strict OAuth 2.1 access controls.
+
+- **Execute complex logic natively via Code Mode**, reducing LLM token consumption by 70-90%.
+- **Accelerate agentic workflows** with a comprehensive suite of 200+ specialized tools.
+- **Provision secure, sandboxed database access** engineered specifically for AI agents.
+- **Scale enterprise operations** seamlessly with highly optimized connection pooling.
+- **Ensure uncompromising security** with native OAuth 2.1 integration.
 
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 >

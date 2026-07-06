@@ -2,18 +2,20 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/neverinfamous/mysql-mcp)](https://hub.docker.com/r/neverinfamous/mysql-mcp)
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## 💎 Value Proposition
 
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
+The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM token overhead with sandboxed Code Mode execution, scale seamlessly with built-in connection pooling, and enforce zero-trust security via strict OAuth 2.1 access controls.
+
+- **Execute complex logic natively via Code Mode**, reducing LLM token consumption by 70-90%.
+- **Accelerate agentic workflows** with a comprehensive suite of 200+ specialized tools.
+- **Provision secure, sandboxed database access** engineered specifically for AI agents.
+- **Scale enterprise operations** seamlessly with highly optimized connection pooling.
+- **Ensure uncompromising security** with native OAuth 2.1 integration.
 
 ## 🎯 Core Benefits
 
@@ -32,7 +34,7 @@
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. Backed by a robust Vitest suite and Playwright transport validation with 0 skipped tests, guaranteeing deterministic reliability in production. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -478,9 +480,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -513,9 +516,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 {
   "mcpServers": {
     "mysql-mcp-cluster": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -548,9 +552,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 {
   "mcpServers": {
     "mysql-mcp-ecosystem": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--tool-filter",
