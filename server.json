@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
   "name": "io.github.neverinfamous/mysql-mcp",
   "title": "MySQL MCP Server",
-  "description": "Enterprise MySQL MCP Server with OAuth 2.1, Code Mode, 241 tools, 23 resources, 19 prompts.",
+  "description": "Connect LLMs to enterprise MySQL securely. Features OAuth 2.1, Code Mode, 241 tools, and 23 resources.",
   "version": "3.2.2",
   "packages": [
     {

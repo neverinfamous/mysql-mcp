@@ -4,7 +4,7 @@ The mysql-mcp MySQL MCP server implements comprehensive security measures to pro
 
 ## 🛡️ **Secure Your Database**
 
-### **SQL Injection Prevention**
+### Prevent SQL Injection
 
 **Identifier Sanitization** (`src/utils/identifiers.ts`)
 
@@ -25,7 +25,7 @@ Key functions:
 - ✅ **All user-provided values** use parameterized queries via `mysql2` library
 - ✅ **Identifier sanitization** complements parameterized values — defense in depth
 
-### **Structured Error Handling**
+### Handle Errors Structurally
 
 Every tool returns structured error responses — never raw exceptions or internal details:
 
@@ -64,19 +64,19 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 
 Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
-### **Engine-Level Restrictions**
+### Enforce Engine-Level Restrictions
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
 - ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
 - ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
 
-### **Static Code Validation**
+### Validate Code Statically
 
 - ✅ **29 blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
 - ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
 
-### **Runtime Protection**
+### Protect the Runtime
 
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — 30s hard limit (not configurable, enforced by the isolate engine) to prevent resource exhaustion.
@@ -90,7 +90,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 When running in HTTP mode (`--transport http`), the following security measures apply:
 
-### **Security Headers & Protections**
+### Add Security Headers
 
 - ✅ **DNS Rebinding Protection** — `validateHostHeader()` strictly validates `Host` headers
 - ✅ **X-Content-Type-Options: nosniff** — prevents MIME sniffing
@@ -100,18 +100,18 @@ When running in HTTP mode (`--transport http`), the following security measures 
 - ✅ **Referrer-Policy: no-referrer** — prevents referrer leakage
 - ✅ **Permissions-Policy: camera=(), microphone=(), geolocation=()** — restricts browser APIs
 
-### **HSTS Support**
+### Support HSTS
 
 - ✅ **Strict-Transport-Security** header for HTTPS deployments
 - ✅ Enable via `--enable-hsts` flag or `MCP_ENABLE_HSTS=true`
 
-### **CORS Configuration**
+### Configure CORS
 
 - ✅ **Origin whitelist** with `Vary: Origin` header for caching
 - ✅ **Optional credentials support** (`corsAllowCredentials`)
 - ✅ **MCP-specific headers** allowed (`X-Session-ID`, `mcp-session-id`)
 
-### **Rate Limiting & Timeouts**
+### Apply Rate Limiting
 
 - ✅ **Built-in Rate Limiting** — 100 requests/minute per IP. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Health Endpoint Bypass** — `/health` bypasses limits to ensure reliable load balancer checks
@@ -120,7 +120,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 > **Reverse Proxy Note:** Rate limiting uses `req.socket.remoteAddress`. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. Ensure your proxy forwards distinct client IPs, or apply rate limiting at the proxy layer instead.
 
-### **Request Limits**
+### Restrict Request Limits
 
 - ✅ **Memory Exhaustion Protection** — Strict request bounds prevent memory exhaustion DoS
 
@@ -138,13 +138,13 @@ Full OAuth 2.1 for production multi-tenant deployments:
 
 ## 🐳 **Harden Docker Containers**
 
-### **Non-Root User**
+### Run as Non-Root User
 
 - ✅ **Dedicated user**: `app` (UID 1001) with minimal privileges
 - ✅ **Restricted group**: `app` (GID 1001)
 - ✅ **Restricted data directory**: `700` permissions
 
-### **Container Hardening**
+### Harden the Container
 
 - ✅ **Minimal base image**: `node:24-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
@@ -152,7 +152,7 @@ Full OAuth 2.1 for production multi-tenant deployments:
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
 - ✅ **Process isolation** from host system
 
-### **Dependency Patching**
+### Patch Dependencies
 
 The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
 
@@ -162,14 +162,14 @@ The Dockerfile patches npm-bundled transitive dependencies for Docker Scout comp
 - ✅ `tar@7.5.19` — CVE-2026-26960
 - ✅ `minimatch@10.2.5` — CVE-2026-27904, CVE-2026-27903
 
-### **Volume Mounting Security**
+### Mount Volumes Securely
 
 ```bash
 # Secure volume mounting
 docker run -v ./data:/app/data:rw,noexec,nosuid,nodev writenotenow/mysql-mcp:latest
 ```
 
-### **Resource Limits**
+### Apply Resource Limits
 
 ```bash
 # Apply resource limits
@@ -178,18 +178,18 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 ## 🔐 **Secure Your Logs**
 
-### **Audit Subsystem**
+### Enable Audit Subsystem
 
 - ✅ **Full JSONL Audit Trails** — comprehensive logging array capturing mutations, Code Mode executions, and system events
 - ✅ **Session Token Estimates** — robust burn-rate tracking appended to log entries
 - ✅ **Pre-Mutation Snapshots** — interceptor captures table states before destructive administration operations
 
-### **Credential Redaction**
+### Redact Credentials
 
 - ✅ **Sensitive fields automatically redacted** in logs: `password`, `secret`, `token`, `apikey`, `issuer`, `audience`, `jwksUri`, `credentials`, etc.
 - ✅ **Recursive sanitization** for nested objects
 
-### **Log Injection Prevention**
+### Prevent Log Injection
 
 - ✅ **Control character sanitization** (ASCII 0x00-0x1F except tab/newline, 0x7F, C1 characters)
 - ✅ **Prevents log forging** and escape sequence attacks
@@ -204,7 +204,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 ## 🚨 **Security Best Practices**
 
-### **For Users**
+### Best Practices for Users
 
 1. **Never commit database credentials** to version control — use environment variables
 2. **Use OAuth 2.1 authentication** for HTTP transport in production — never expose HTTP transport without OAuth
@@ -217,7 +217,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 9. **For cloud-managed databases** with IAM authentication (e.g., AWS RDS), set `MYSQL_POOL_MIN=2` to reduce connection establishment latency
 10. **Consider SHA-pinning** critical GitHub Actions in CI workflows for supply-chain defense-in-depth
 
-### **For Developers**
+### Best Practices for Developers
 
 1. **Parameterized queries only** — never interpolate user input into SQL strings
 2. **Zod validation** — all tool inputs validated via schemas at tool boundaries

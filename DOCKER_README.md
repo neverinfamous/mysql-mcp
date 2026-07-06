@@ -37,11 +37,11 @@
 
 ## 🚀 Deploy in Minutes
 
-### Prerequisites
+### Meet Prerequisites
 
-- MySQL 5.7+ or 8.0+ server
+- MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
 
-### Installation
+### Install the Server
 
 #### Docker (Recommended)
 
@@ -70,9 +70,9 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 - **Hard timeouts** — synchronous engine-level termination if execution exceeds the fixed 30-second hard limit (not configurable)
 - **Full API access** — all 28 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
-### ⚡ Code Mode Only (Maximum Token Savings)
+### ⚡ Run Only Code Mode
 
-If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to all 241 tools' worth of capability through the `mysql.*` API:
+Run with **only Code Mode enabled**. A single tool provides full capability access:
 
 ```json
 {
@@ -146,12 +146,6 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "run",
         "-i",
         "--rm",
-        "-e", "MYSQL_HOST",
-        "-e", "MYSQL_PORT",
-        "-e", "MYSQL_USER",
-        "-e", "MYSQL_PASSWORD",
-        "-e", "MYSQL_DATABASE",
-        "-e", "MYSQL_XPORT",
         "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio"
@@ -175,14 +169,20 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ### Connect via HTTP/SSE Server
 
-> **When to use HTTP mode:** Use HTTP mode when deploying `mysql-mcp` as a standalone server that multiple clients can connect to remotely. For local development with Claude Desktop or Cursor IDE, use the default `stdio` mode shown above instead.
+> **When to use HTTP mode:** Deploy `mysql-mcp` as a standalone server. Multiple clients can connect remotely. Use `stdio` mode for local development.
 
 **Use cases for HTTP mode:**
 
-- Running the server in a Docker container accessible over a network
-- Deploying to cloud platforms (AWS, GCP, Azure)
-- Enabling OAuth 2.1 authentication for enterprise security
-- Allowing multiple AI clients to share one database connection
+- Run the server in a network-accessible Docker container
+- Deploy to cloud platforms (AWS, GCP, Azure)
+- Enable OAuth 2.1 authentication for enterprise security
+- Share one database connection across multiple AI clients
+
+```bash
+docker run --rm -p 3000:3000 \
+  writenotenow/mysql-mcp:latest \
+  --transport http --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
+```
 
 ### Security Features & Utility Endpoints
 

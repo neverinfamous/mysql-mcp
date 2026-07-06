@@ -7,15 +7,15 @@
         "--transport",
         "stdio",
         "--allowed-io-roots",
-        "C:/temp,/tmp"
+        "C:/temp/mcp-sandbox,/tmp/mcp-sandbox"
       ],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "root",
-        "MYSQL_PASSWORD": "password",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
-        "MYSQL_POOL_SIZE": "20",
+        "MYSQL_POOL_SIZE": "10",
         "TOOL_FILTER": "starter",
         "MYSQLMCP_PORT": "3000",
         "MCP_HOST": "127.0.0.1",
@@ -29,7 +29,7 @@
         "MCP_HEADERS_TIMEOUT": "65000",
         "REDIS_URL": "redis://localhost:6379",
         "OAUTH_ENABLED": "false",
-        "OAUTH_ISSUER": "http://localhost:8080/realms/mysql-mcp",
+        "OAUTH_ISSUER": "https://auth.example.com",
         "OAUTH_AUDIENCE": "mysql-mcp-client",
         "OAUTH_JWKS_URI": "",
         "OAUTH_CLOCK_TOLERANCE": "60",

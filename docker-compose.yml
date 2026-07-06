@@ -7,16 +7,16 @@ services:
       - --transport
       - http
       - --allowed-io-roots
-      - /data
+      - /tmp/mcp-sandbox
       - --audit-log
-      - /data/audit.jsonl
+      - /tmp/mcp-sandbox/audit.jsonl
     environment:
       - MCP_AUTH_TOKEN=your-secure-token # Required for HTTP mode
       - MYSQL_HOST=mysql
-      - MYSQL_USER=root
-      - MYSQL_PASSWORD=password
+      - MYSQL_USER=mcp_user
+      - MYSQL_PASSWORD=secure_password
       - MYSQL_DATABASE=testdb
-      - MYSQL_POOL_SIZE=20
+      - MYSQL_POOL_SIZE=10
       - MYSQLMCP_PORT=3000
       - REDIS_URL=redis://redis:6379
     volumes:

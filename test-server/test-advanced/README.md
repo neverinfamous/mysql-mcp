@@ -8,7 +8,12 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-**Stress test confidently.** Ensure absolute stability under extreme conditions. Push Code Mode to its limits. Rely on secure OAuth 2.1 authentication. Scale safely with connection pooling. Build with maximum confidence.
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 >
@@ -95,7 +100,7 @@ The original monolithic advanced stress testing suite was split into granular pa
 
 When testing the contents of this directory, you MUST adhere to the following rules:
 
-0. **Anti-Hallucination Guardrails:** The Coordinator MUST read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
+0. **Anti-Hallucination Guardrails:** Read exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
 1. **Strict Code Mode Only:** All advanced stress tests must be executed entirely within the `node:worker_threads` sandbox via `mysql_execute_code`. Direct component tool calls are explicitly forbidden here unless specifically instructed for baseline comparison.
 2. **Help Resources (Adaptive Architecture):** Tool and method signatures are NO LONGER automatically injected into your system prompt. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/json`) to understand the `mysql.*` API before writing code.
 3. **Sequential Grouping:** Because these operations are intensive, execute only **one markdown file at a time**. Report findings in `<appDataDir>\brain\<conversation-id>\scratch\task.md` (the conversation scratchpad), fix errors, and commit the changes before advancing to the next file segment.

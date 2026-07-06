@@ -4,9 +4,9 @@
   "transport": "stdio",
   "enableHSTS": false,
   "trustProxy": false,
-  "toolFilter": "-admin,-shell",
+  "toolFilter": "starter",
   "allowedIoRoots": [
-    "/var/backups/mysql",
+    "C:/temp/mcp-sandbox",
     "/tmp/mcp-sandbox"
   ],
   "auditConfig": {
@@ -28,7 +28,7 @@
       "port": 3306,
       "username": "mcp_user",
       "password": "secure_password",
-      "database": "production_db",
+      "database": "testdb",
       "pool": {
         "connectionLimit": 10,
         "acquireTimeout": 10000,

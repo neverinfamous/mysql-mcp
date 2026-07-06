@@ -39,13 +39,13 @@
 
 ## 🚀 Deploy in Minutes
 
-### Prerequisites
+### Meet Prerequisites
 
 - Node.js 24+
-- MySQL 5.7+ or 8.0+ server
+- MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
 - pnpm
 
-### Installation
+### Install the Server
 
 #### NPM / PNPM (Recommended)
 
@@ -87,9 +87,9 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 ## ⚡ Maximize Efficiency with Code Mode
 
-Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
+Code Mode (`mysql_execute_code`) dramatically reduces token usage. It is included by default.
 
-Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate. It enforces strict heap limits and synchronous termination. We map `mysql.*` API calls through the boundary using native wrappers. This provides:
+Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination. It maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
 - **Strict Isolate Boundary** — prevents native object cross-talk. It eliminates prototype pollution vectors entirely since objects cannot cross the boundary.
 - **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
@@ -100,9 +100,9 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 - **Hard timeouts** — synchronous engine-level termination if execution exceeds the fixed 30-second hard limit (not configurable)
 - **Full API access** — all 28 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
-### ⚡ Code Mode Only (Maximum Token Savings)
+### ⚡ Run Only Code Mode
 
-If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to its full capability through the `mysql.*` API:
+Run with **only Code Mode enabled**. A single tool provides full capability access:
 
 ```json
 {
@@ -142,7 +142,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ## 🌐 Connect Remotely via HTTP/SSE
 
-For remote access, web-based clients, or HTTP-compatible MCP hosts, use the HTTP transport:
+Use the HTTP transport for remote access:
 
 ```bash
 node dist/cli.js \
@@ -159,7 +159,7 @@ docker run --rm -p 3000:3000 \
   --transport http --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
-The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect:
+The server supports **two MCP transport protocols simultaneously**. Both modern and legacy clients can connect:
 
 ### Streamable HTTP (Recommended)
 
@@ -173,9 +173,9 @@ Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 
 Sessions are managed via the `Mcp-Session-Id` header.
 
-### Stateless Mode
+### Run Statelessly
 
-For serverless/stateless deployments where sessions are not needed:
+Use stateless deployments where sessions are not needed:
 
 ```bash
 node dist/cli.js --transport http --port 3000 --stateless --mysql "mysql://..."
@@ -204,7 +204,7 @@ mysql-mcp supports two authentication mechanisms for HTTP transport:
 
 ### Simple Bearer Token (`--auth-token`)
 
-Lightweight authentication for development or single-tenant deployments:
+Use lightweight authentication for development:
 
 ```bash
 node dist/cli.js --transport http --port 3000 --auth-token my-secret --mysql "mysql://..."
@@ -218,7 +218,7 @@ Clients must include `Authorization: Bearer my-secret` on all requests. `/health
 
 ### OAuth 2.1 (Enterprise)
 
-Full OAuth 2.1 with RFC 9728/8414 compliance for production multi-tenant deployments:
+Use full OAuth 2.1 for production deployments:
 
 ```bash
 node dist/cli.js \

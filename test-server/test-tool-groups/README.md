@@ -8,7 +8,12 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-**Validate tools instantly.** Guarantee precise tool interactions. Integrate seamlessly with standard endpoints. Secure connections via OAuth 2.1. Optimize scaling with robust connection pooling. Accelerate development flawlessly.
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 > 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Direct Tool Calls**, and **Docker**.
 
@@ -19,8 +24,8 @@
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
 ### Enable Anti-Hallucination Guardrails
-- **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
-- **Checklist Integrity**: Coordinators tracking progress in `task.md` MUST take extreme care when updating statuses. Only modify the completion brackets (`[ ]` -> `[x]`). NEVER alter, guess, or abbreviate the filename strings of future tests.
+- **Strict Parsing**: Read exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
+- **Checklist Integrity**: Take extreme care when updating statuses in `task.md`. Modify completion brackets only. Never alter or abbreviate filename strings.
 
 ### Enforce Execution Strictness
 

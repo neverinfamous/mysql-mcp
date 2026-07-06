@@ -8,7 +8,12 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-**Execute code seamlessly.** Validate advanced scripting instantly. Harness Code Mode for extreme speed. Secure operations with OAuth 2.1. Scale efficiently using connection pooling. Ship faster with total confidence.
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 **Directory Purpose**: This folder contains 53 modular test prompts. They cover every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
 
@@ -19,7 +24,7 @@
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
 ### Enable Anti-Hallucination Guardrails
-- **Strict Parsing**: The Coordinator MUST read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
+- **Strict Parsing**: Read exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
 
 ### Enforce Execution Strictness
 

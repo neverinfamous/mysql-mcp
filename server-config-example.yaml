@@ -1,5 +1,7 @@
+# Value Proposition: Centralized, type-safe configuration for enterprise MySQL MCP deployment.
+#
 # MySQL MCP Server Configuration Example
-# You can load this file by running: mysql-mcp --config path/to/server-config-example.yaml
+# Load this configuration by running: mysql-mcp --config path/to/server-config-example.yaml
 #
 # Configuration Priority: CLI Flags > Environment Variables > Config File > Defaults
 # For database connections and OAuth settings, the entire array/object must come from a single source
@@ -13,9 +15,9 @@ enableHSTS: false
 trustProxy: false
 
 # Tooling and Sandbox
-toolFilter: "-admin,-shell" # Exclude admin and shell tools for safety
+toolFilter: "starter"
 allowedIoRoots:
-  - "/var/backups/mysql"
+  - "C:/temp/mcp-sandbox"
   - "/tmp/mcp-sandbox"
 
 # Audit Logging Configuration
@@ -38,7 +40,7 @@ databases:
     port: 3306
     username: "mcp_user"
     password: "secure_password"
-    database: "production_db"
+    database: "testdb"
     pool:
       connectionLimit: 10
       acquireTimeout: 10000
@@ -52,3 +54,13 @@ oauth:
   audience: "mysql-mcp"
   jwksUri: "https://auth.example.com/.well-known/jwks.json"
   clockTolerance: 60
+
+# Advanced & Ecosystem Features
+# Uncomment and configure as needed
+# redisUrl: "redis://localhost:6379"
+# codeModeIsolation: "sandbox"
+# proxySql:
+#   host: "localhost"
+#   port: 6032
+#   username: "radmin"
+#   password: "radmin"

@@ -8,11 +8,12 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 > 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
@@ -31,7 +32,7 @@ Use the optimization layers described in `skills/mysql-mcp-heal/SKILL.md`.
 
 We test tools by group using separate threads to save context window.
 
-0. **Anti-Hallucination Guardrails:** The Coordinator MUST maintain a `task.md` checklist, read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
+0. **Anti-Hallucination Guardrails:** Maintain a `task.md` checklist. Read exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
 1. **Pick a test file** (e.g., `test-usability-core.md`).
 2. **Spawn a subagent** (or start a new thread) and feed them the file.
 3. **Local Validation**: The subagent MUST validate all changes by running `pnpm run check`.
