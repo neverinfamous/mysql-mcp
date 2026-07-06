@@ -205,3 +205,11 @@ Automatically updates test coverage badges in `README.md` and `DOCKER_README.md`
 ```bash
 npx tsx scripts/update-badges.ts
 ```
+
+### `generate-social.mjs`
+
+Generates the `social-preview.png` branding asset using Playwright and standard web technologies (HTML/CSS) to ensure a consistent, pixel-perfect 1280x640 preview image for GitHub, incorporating the Adamic logo and 3-2 grid badge layout.
+
+```bash
+node scripts/generate-social.mjs
+```
