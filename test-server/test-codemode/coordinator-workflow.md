@@ -6,11 +6,11 @@ We're working on the mysql-mcp project/repository in this thread.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
-This guide instructs the Coordinator agent on how to run the `mysql-mcp` Code Mode test suite using subagents.
+This guide instructs the Coordinator agent on running the Code Mode test suite.
 
 ## Goal
 
-Systematically execute all Code Mode tests in `test-server/test-codemode/` to verify sandbox isolation, workflow orchestration, payload optimization, and error handling. You will delegate testing to subagents, ensuring high-fidelity results and structured error handling, while compiling telemetry.
+Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, workflow orchestration, payload optimization, and error handling. Delegate testing to subagents for high-fidelity results. Compile telemetry during execution.
 
 ## Workflow Rules
 
