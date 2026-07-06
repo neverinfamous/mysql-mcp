@@ -9,16 +9,6 @@
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
-## 💎 Value Proposition
-
-The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM token overhead with sandboxed Code Mode execution, scale seamlessly with built-in connection pooling, and enforce zero-trust security via strict OAuth 2.1 access controls.
-
-- **Execute complex logic natively via Code Mode**, reducing LLM token consumption by 70-90%.
-- **Accelerate agentic workflows** with a comprehensive suite of 200+ specialized tools.
-- **Provision secure, sandboxed database access** engineered specifically for AI agents.
-- **Scale enterprise operations** seamlessly with highly optimized connection pooling.
-- **Ensure uncompromising security** with native OAuth 2.1 integration.
-
 > **Agent-optimized navigation reference.** Read this before searching the codebase. It covers directory layout and handler→tool mapping. It also covers type/schema locations, error hierarchy, and key constants.
 >
 > 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, **Code Mode**, and highly-optimized **Connection Pooling**.
@@ -352,7 +342,7 @@ try {
 | ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (30 files) |
 | Generator script                   | `scripts/generate-server-instructions.ts` | Reads per-group `.md` files → produces `server-instructions.ts`                                                 |
-| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (16 available, 11 core tested)                                                                      |
+| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (16 predefined shortcuts)                                                                      |
 | Tool filter logic                  | `src/filtering/tool-filter.ts`            | `ToolFilter` class                                                                                              |
 | Connection pool                    | `src/pool/connection-pool.ts`             | mysql2/promise pool wrapper                                                                                     |
 | Progress reporter                  | `src/progress/progress-reporter.ts`       | MCP progress notification helpers                                                                               |

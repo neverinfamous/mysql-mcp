@@ -9,13 +9,7 @@
 
 ## 💎 Value Proposition
 
-The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM token overhead with sandboxed Code Mode execution, scale seamlessly with built-in connection pooling, and enforce zero-trust security via strict OAuth 2.1 access controls.
-
-- **Execute complex logic natively via Code Mode**, reducing LLM token consumption by 70-90%.
-- **Accelerate agentic workflows** with a comprehensive suite of 200+ specialized tools.
-- **Provision secure, sandboxed database access** engineered specifically for AI agents.
-- **Scale enterprise operations** seamlessly with highly optimized connection pooling.
-- **Ensure uncompromising security** with native OAuth 2.1 integration.
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 ## 🎯 Core Benefits
 
@@ -34,7 +28,7 @@ The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM tok
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. Backed by a robust Vitest suite and Playwright transport validation with 0 skipped tests, guaranteeing deterministic reliability in production. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---

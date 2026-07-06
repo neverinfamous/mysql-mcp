@@ -7,13 +7,7 @@
 
 ## 💎 Value Proposition
 
-The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM token overhead with sandboxed Code Mode execution, scale seamlessly with built-in connection pooling, and enforce zero-trust security via strict OAuth 2.1 access controls.
-
-- **Execute complex logic natively via Code Mode**, reducing LLM token consumption by 70-90%.
-- **Accelerate agentic workflows** with a comprehensive suite of 200+ specialized tools.
-- **Provision secure, sandboxed database access** engineered specifically for AI agents.
-- **Scale enterprise operations** seamlessly with highly optimized connection pooling.
-- **Ensure uncompromising security** with native OAuth 2.1 integration.
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 ## 🎯 Core Benefits
 
@@ -306,6 +300,6 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-## 🤝 Contribute and Secure the Server
+## 💻 Extend and Contribute
 
 [Contributing Guidelines](https://github.com/neverinfamous/mysql-mcp/blob/main/CONTRIBUTING.md) • [Security Policy](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) • [MIT License](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) • [Code of Conduct](https://github.com/neverinfamous/mysql-mcp/blob/main/CODE_OF_CONDUCT.md)

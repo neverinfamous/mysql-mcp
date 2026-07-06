@@ -9,16 +9,6 @@
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
-## 💎 Value Proposition
-
-The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM token overhead with sandboxed Code Mode execution, scale seamlessly with built-in connection pooling, and enforce zero-trust security via strict OAuth 2.1 access controls.
-
-- **Execute complex logic natively via Code Mode**, reducing LLM token consumption by 70-90%.
-- **Accelerate agentic workflows** with a comprehensive suite of 200+ specialized tools.
-- **Provision secure, sandboxed database access** engineered specifically for AI agents.
-- **Scale enterprise operations** seamlessly with highly optimized connection pooling.
-- **Ensure uncompromising security** with native OAuth 2.1 integration.
-
 Complete list of all **200+ tools** across groups.
 >
 > 🚀 **Core Features:** Enjoy enterprise-grade capabilities. Use **OAuth 2.1** for robust security. Use **Code Mode** for execution speed. Rely on advanced **Connection Pooling** for performance.
