@@ -19,7 +19,7 @@ jobs:
     runs-on: ubuntu-24.04
     services:
       mysql:
-        image: mysql:8.0
+        image: mysql@sha256:7dcddc01f13bab2f15cde676d44d01f61fc9f99fe7785e86196dfc07d358ae2b
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: testdb
@@ -39,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
         with:
-          node-version: "26.x"
+          node-version-file: ".node-version"
           cache: "pnpm"
 
       - name: Install dependencies

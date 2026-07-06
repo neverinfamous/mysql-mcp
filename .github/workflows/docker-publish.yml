@@ -16,10 +16,6 @@ env:
 
 permissions:
   contents: read
-  packages: write
-  security-events: write
-  id-token: write
-  attestations: write
 
 jobs:
   # Security scan BEFORE any images are pushed
@@ -59,48 +55,17 @@ jobs:
           cache-to: type=gha,scope=linux/amd64,mode=max
 
       - name: Docker Scout security scan
+        uses: docker/scout-action@481412c8b8de36d0f79e85aa382c60397466feb6 # v1
         timeout-minutes: 10
+        with:
+          command: cves
+          image: local-scan:latest
+          only-fixed: true
+          only-severities: critical,high,medium,low
+          exit-code: true
         env:
           DOCKER_SCOUT_HUB_USER: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_SCOUT_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/v1.23.1/install.sh | sh -s --
-          docker images local-scan:latest
-          echo "🔍 Running Docker Scout security scan for local-scan:latest"
-
-          echo "⏱️ Running Docker Scout scan for ALL FIXABLE vulnerabilities..."
-
-          # Use --only-fixed to find CVEs that HAVE fixes available
-          # Scan all severities to catch medium/low CVEs that have available fixes
-          if timeout 480 docker scout cves local-scan:latest --only-fixed --only-severity critical,high,medium,low > scout_fixable.txt 2>&1; then
-            echo "📊 Scan completed"
-
-            # Check if any fixable CVEs were found at any severity
-            if grep -qE "(CRITICAL|HIGH|MEDIUM|LOW)" scout_fixable.txt 2>/dev/null; then
-              echo "❌ Fixable CVEs detected - blocking deploy"
-              cat scout_fixable.txt
-              echo ""
-              echo "🚨 Deploy blocked: These vulnerabilities have available fixes."
-              echo "   Update dependencies or Dockerfile to resolve."
-              exit 1
-            else
-              echo "✅ No fixable CVEs found"
-            fi
-          else
-            exit_code=$?
-            if [ $exit_code -eq 2 ]; then
-              # Exit code 2 means vulnerabilities found
-              echo "❌ Fixable CVEs detected by Docker Scout"
-              cat scout_fixable.txt
-              exit 1
-            else
-              echo "❌ Docker Scout scan failed with exit code $exit_code"
-              cat scout_fixable.txt 2>/dev/null || true
-              exit 1
-            fi
-          fi
-
-          echo "✅ Docker Scout security gate passed"
 
       - name: Trivy security scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -358,7 +323,7 @@ jobs:
           short-description: "MySQL MCP server with 241 tools, Code Mode, OAuth 2.1, HTTP/SSE, and Audit Logs."
 
       - name: Deployment Summary
-        if: github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           echo "✅ Successfully published Docker images to production"
           echo "🐳 Registry: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
