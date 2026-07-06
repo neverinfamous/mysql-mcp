@@ -91,7 +91,7 @@ describe("mcp-server resources", () => {
       registerHelpResources(mcpServer, enabledTools);
       
       // Should register gotchas + all groups
-      expect(mcpServer.registerResource).toHaveBeenCalledTimes(29); // gotchas + 28 groups
+      expect(mcpServer.registerResource).toHaveBeenCalledTimes(28); // gotchas + 27 groups
       
       getSpy.mockRestore();
     });
