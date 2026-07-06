@@ -2,7 +2,7 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/neverinfamous/mysql-mcp)](https://hub.docker.com/r/neverinfamous/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
@@ -19,7 +19,7 @@
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
@@ -41,7 +41,7 @@
 
 ### Meet Prerequisites
 
-- Node.js 26+
+- Node.js 24+
 - MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
 - pnpm
 
@@ -68,7 +68,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@loc
 #### Docker
 
 ```bash
-docker run -i --rm writenotenow/mysql-mcp:latest \
+docker run -i --rm neverinfamous/mysql-mcp:latest \
   --transport stdio \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
@@ -170,7 +170,7 @@ npx -y @neverinfamous/mysql-mcp \
 
 ```bash
 docker run --rm -p 3000:3000 \
-  writenotenow/mysql-mcp:latest \
+  neverinfamous/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
@@ -363,7 +363,7 @@ docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:
 Run MCP server on the same network:
 
 ```bash
-docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
+docker run -i --rm --network mynet neverinfamous/mysql-mcp:latest \
   --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
 ```
 
