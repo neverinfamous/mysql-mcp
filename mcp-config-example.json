@@ -4,6 +4,8 @@
       "command": "node",
       "args": [
         "/absolute/path/to/mysql-mcp/dist/cli.js",
+        "--transport",
+        "stdio",
         "--allowed-io-roots",
         "C:/temp,/tmp"
       ],
