@@ -681,7 +681,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | Variable                    | Default  | Description                                                         |
 | --------------------------- | -------- | ------------------------------------------------------------------- |
 | `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
-| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`                  |
+| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warn`, `error`                     |
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
@@ -749,12 +749,12 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 ### Scopes
 
-| Scope   | Access Level              |
-| ------- | ------------------------- |
-| `read`  | Read-only queries         |
-| `write` | Read + write operations   |
-| `admin` | Administrative operations |
-| `full`  | All operations            |
+| Scope                    | Access Level                        |
+| ------------------------ | ----------------------------------- |
+| `read`                   | Read-only queries (SELECT, EXPLAIN) |
+| `write`                  | Read + write operations             |
+| `admin`                  | Full administrative access          |
+| `full`                   | Grants all access                   |
 | `db:{name}`              | Access to specific database         |
 | `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |

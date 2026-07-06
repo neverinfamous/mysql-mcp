@@ -182,7 +182,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ## 🛠️ Optimize Tokens: Tool Filtering
 
-> **Architectural Rule:** Tool filtering allows skipping the `MYSQL_URI` configuration if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
+> **Architectural Rule:** Tool filtering allows skipping the `--mysql connection` configuration if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 > [!IMPORTANT]
 > **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering to stay within your IDE's limits. 
@@ -239,22 +239,22 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
 | —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
+| —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
+| —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
-| —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
-| —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
 ### Scopes
 
-| Scope   | Access Level              |
-| ------- | ------------------------- |
-| `read`  | Read-only queries         |
-| `write` | Read + write operations   |
-| `admin` | Administrative operations |
-| `full`  | All operations            |
+| Scope                    | Access Level                        |
+| ------------------------ | ----------------------------------- |
+| `read`                   | Read-only queries (SELECT, EXPLAIN) |
+| `write`                  | Read + write operations             |
+| `admin`                  | Full administrative access          |
+| `full`                   | Grants all access                   |
 | `db:{name}`              | Access to specific database         |
 | `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |

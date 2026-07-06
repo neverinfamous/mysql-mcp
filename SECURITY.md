@@ -209,8 +209,8 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 1. **Never commit database credentials** to version control — use environment variables
 2. **Use OAuth 2.1 authentication** for HTTP transport in production — never expose HTTP transport without OAuth
 3. **Restrict database user permissions** to minimum required
-4. **Enable SSL** for database connections in production (`--ssl` or `ssl=true` in connection string)
-5. **Enable HSTS** when running over HTTPS (`--enableHSTS`)
+4. **Enable SSL** for database connections in production (`ssl=true` in connection string)
+5. **Enable HSTS** when running over HTTPS (`--enable-hsts`)
 6. **Configure CORS origins explicitly** — avoid wildcards
 7. **Use resource limits** — apply Docker `--memory` and `--cpus` limits
 8. **Apply rate limiting at the proxy layer** when deploying behind a reverse proxy

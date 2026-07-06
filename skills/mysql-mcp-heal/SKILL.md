@@ -87,5 +87,5 @@ Agents often run into environment-level interceptors or tooling issues that thro
 
 ## 3. References
 
-- **CLI Wrapper Library (`lib-agent-exec`):** [AGENT_README.md](file:///C:/Users/chris/Desktop/adamic/.agents/scripts/lib-agent-exec/AGENT_README.md) - For execution bridge boundaries and safety rules.
-- **MySQL Skill:** [SKILL.md](file:///C:/Users/chris/Desktop/adamic/skills/mysql/SKILL.md) - For MySQL enterprise production rules, query safety, and schema configurations.
+- **CLI Wrapper Library (`lib-agent-exec`):** Load the `lib-agent-exec` skill - For execution bridge boundaries and safety rules.
+- **MySQL Skill:** Load the `mysql` skill - For MySQL enterprise production rules, query safety, and schema configurations.

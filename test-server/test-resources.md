@@ -37,7 +37,7 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 | #   | Resource URI           | Expected Output Shape                          | Pass Criteria                                                             |
 | --- | ---------------------- | ---------------------------------------------- | ------------------------------------------------------------------------- |
 | 1   | `mysql://schema`       | `{ tables: [...] }`                            | Returns array of table definitions with columns                           |
-| 2   | `mysql://tables`       | `{ tables: [...] }`                            | Returns 12+ tables (test\_\* tables from test-seed.sql)                   |
+| 2   | `mysql://tables`       | `{ tables: [...] }`                            | Returns 11+ tables (test\_* tables from test-seed.sql)                   |
 | 3   | `mysql://table/{name}` | `{ table: "...", schema: [...] }`              | Returns schema definition for a specific table (e.g., test_products)      |
 | 4   | `mysql://variables`    | `{ variables: [...] }` or key-value pairs      | Returns MySQL server variables                                            |
 | 5   | `mysql://status`       | `{ status: [...] }` or key-value pairs         | Returns global status counters (Uptime > 0)                               |

@@ -10,7 +10,7 @@ on:
 
 engine:
   id: copilot
-  model: claude-opus-4-20250514
+  model: claude-3-5-sonnet-latest
 
 network:
   allowed:

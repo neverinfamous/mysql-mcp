@@ -17,10 +17,12 @@ services:
       - MYSQL_DATABASE=testdb
       - MYSQL_POOL_SIZE=20
       - MYSQLMCP_PORT=3000
+      - REDIS_URL=redis://redis:6379
     volumes:
       - ./data:/data
     depends_on:
       - mysql
+      - redis
 
   mysql:
     image: mysql:8.4
@@ -32,5 +34,13 @@ services:
     volumes:
       - mysql-data:/var/lib/mysql
 
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
 volumes:
   mysql-data:
+  redis-data:

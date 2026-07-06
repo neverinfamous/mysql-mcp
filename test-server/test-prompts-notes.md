@@ -89,7 +89,7 @@ Tables prefixed with `prompt_*` to support testing:
 /mysql_setup_replication type:group
 ```
 
-### Required-Argument Prompts (5)
+### Required-Argument Prompts (6)
 
 #### mysql_query_builder (operation, table, description)
 

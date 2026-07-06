@@ -241,7 +241,7 @@ Complete list of all **241 tools** across groups.
 | `mysql_security_firewall_status`   | Firewall status (Enterprise/MariaDB)               |
 | `mysql_security_firewall_rules`    | List firewall rules                                |
 | `mysql_security_mask_data`         | Mask PII data patterns. **v3.2:** alias validation at MCP boundary |
-| `mysql_security_password_validate` | check password strength policy                     |
+| `mysql_security_password_validate` | Check password strength policy                     |
 | `mysql_security_ssl_status`        | SSL/TLS connection status                          |
 | `mysql_security_user_privileges`   | List privileges for user. **v2.2:** `summary` mode |
 | `mysql_security_sensitive_tables`  | Scan for sensitive table names                     |
