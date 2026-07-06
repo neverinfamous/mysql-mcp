@@ -22,8 +22,8 @@ You MUST modify the underlying infrastructure (codebase, environment profiles, w
 ## 1. Phase 1: Determine the Layer of Healing
 
 There is a strict hierarchy of how you should heal the codebase:
-1. **Prevent (Highest Preference - Frictionless Recovery):** Automate the problem away. Modify the API schemas, normalizers, or aliases to silently catch, transform, or permit the hallucinatory payload so the execution succeeds automatically.
-2. **Mitigate (Fallback Only):** ONLY if the input cannot be safely inferred, coerced, or permitted without causing data destruction, intercept it and throw a highly actionable custom error explicitly guiding the agent on how to fix it immediately.
+1. **Prevent (Highest Preference - Frictionless Recovery):** Automate the problem away. Modify API schemas, normalizers, or aliases. Silently catch, transform, or permit hallucinatory payloads. Execution should succeed automatically.
+2. **Mitigate (Fallback Only):** Use this only if inputs cannot be safely inferred or coerced. Intercept the input. Throw an actionable custom error. Explicitly guide the agent on immediate fixes.
 
 Determine which of the 6 layers needs modification:
 
