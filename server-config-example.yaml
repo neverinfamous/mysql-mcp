@@ -8,7 +8,7 @@
 # Server Core Settings
 host: "127.0.0.1"
 port: 3000
-transport: "stdio" # or "sse"
+transport: "stdio" # or "http", "sse"
 enableHSTS: false
 trustProxy: false
 
@@ -28,7 +28,7 @@ auditConfig:
   backup:
     enabled: true
     includeData: false
-    maxSizeBytes: 1048576 # 1MB
+    maxDataSizeBytes: 1048576 # 1MB
 
 # Databases Configuration
 # Only the first database in the array is currently connected/supported by the MySQL adapter.

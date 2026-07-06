@@ -1,5 +1,19 @@
 # MCP Server Pre-Flight Check — mysql-mcp
 
+[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+<br>
+[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
+[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
+
+## Value Proposition
+Build AI integrations instantly.
+Empower agents with secure database access.
+Execute complex logic via Code Mode.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise security.
+
 > **Purpose:** Validate that slim instructions, help resources, and data resources are working correctly before running full test passes. Run this in a fresh conversation with the server enabled.
 
 Do NOT read any files from disk. Answer using ONLY what you received via MCP initialization and resource reads.

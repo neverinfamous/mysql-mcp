@@ -5,7 +5,7 @@
 
 [![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-20-purple?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
@@ -188,7 +188,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Prompts (`src/adapters/mysql/prompts/`)
 
-20 AI-Powered Prompts across specialized workflow files:
+19 AI-Powered Prompts across specialized workflow files:
 
 <!-- BEGIN: PROMPTS -->
 | Prompt | Description |
@@ -219,7 +219,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
 
-22 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
+23 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -243,6 +243,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `mysql://spatial` | Spatial Columns |
 | `mysql://status` | Server Status |
 | `mysql://sysschema` | sys Schema Diagnostics |
+| `mysql://table/{name}` | Specific Table Schema |
 | `mysql://tables` | Table List |
 | `mysql://variables` | Server Variables |
 
@@ -412,8 +413,8 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all 174 test prompts using the standard template    |
-| `test-server/test-prompts.md`               | Prompt testing plan (20 AI-Powered Prompts)                          |
-| `test-server/test-resources.md`             | Resource testing plan (22 Observability Resources)                           |
+| `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
+| `test-server/test-resources.md`             | Resource testing plan (23 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

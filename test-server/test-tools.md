@@ -1,10 +1,25 @@
 # MySQL-MCP Testing Guide
 
-The testing infrastructure for `mysql-mcp` is split into three directories, matching the `db-mcp` gold standard:
+[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+<br>
+[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
+[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
+
+## Value Proposition
+Build AI integrations instantly.
+Empower agents with secure database access.
+Execute complex logic via Code Mode.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise security.
+
+The testing infrastructure for `mysql-mcp` is split into four directories, matching the `db-mcp` gold standard:
 
 1. **`test-server/test-tool-groups/`**: Basic functionality tests for all tool groups.
 2. **`test-server/test-codemode/`**: Code Mode (`mysql_execute_code`) functionality tests.
 3. **`test-server/test-advanced/`**: Advanced stress tests using Code Mode (nesting, RFC compliance, security, etc.).
+4. **`test-server/test-usability/`**: Usability, hallucination fuzzing, and prompt tuning via Code Mode.
 
 ## Standardization
 

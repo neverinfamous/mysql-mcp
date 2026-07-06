@@ -72,7 +72,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` (C++ V8)
 
 ### **Static Code Validation**
 
-- ✅ **29 blocked patterns** — regex rules blocking `require()`, `import()`, `eval()`, `Function()`, `__proto__`, `constructor.constructor`, filesystem/network access, and system commands.
+- ✅ **29 blocked patterns** — regex rules blocking `require()`, `import()`, `eval()`, `Function()`, `process`, `__proto__`, `constructor.constructor`, filesystem/network access, and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
 - ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
 
@@ -131,7 +131,7 @@ Full OAuth 2.1 for production multi-tenant deployments:
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
 - ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
-- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `table:{schema}:{table}`
+- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 
 > **⚠️ HTTP without OAuth:** When OAuth is not configured, all scope checks are bypassed. If you expose the HTTP transport without enabling OAuth, any client has full unrestricted access. Always enable OAuth for production HTTP deployments.
@@ -249,7 +249,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Security headers (CSP, X-Content-Type-Options, X-Frame-Options, Cache-Control, Referrer-Policy, Permissions-Policy)
 - [x] HSTS (opt-in)
 - [x] OAuth 2.1 with JWT/JWKS validation (RFC 9728, RFC 8414)
-- [x] MySQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`)
+- [x] MySQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:*`, `schema:*`, `table:*:*`)
 - [x] Per-tool scope enforcement via `AsyncLocalStorage`
 - [x] Credential redaction in logs
 - [x] Log injection prevention

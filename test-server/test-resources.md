@@ -1,5 +1,19 @@
 # Resource Testing Plan
 
+[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+<br>
+[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
+[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
+
+## Value Proposition
+Build AI integrations instantly.
+Empower agents with secure database access.
+Execute complex logic via Code Mode.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise security.
+
 mysql-mcp exposes 23 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
 ### Setup
@@ -26,25 +40,25 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 | 2   | `mysql://tables`       | `{ tables: [...] }`                            | Returns 12+ tables (test\_\* tables from test-seed.sql)                   |
 | 3   | `mysql://table/{name}` | `{ table: "...", schema: [...] }`              | Returns schema definition for a specific table (e.g., test_products)      |
 | 4   | `mysql://variables`    | `{ variables: [...] }` or key-value pairs      | Returns MySQL server variables                                            |
-| 4   | `mysql://status`       | `{ status: [...] }` or key-value pairs         | Returns global status counters (Uptime > 0)                               |
-| 5   | `mysql://processlist`  | `{ processes: [...] }`                         | Returns at least 1 active connection                                      |
-| 6   | `mysql://pool`         | Pool statistics object                         | Returns connection pool state                                             |
-| 7   | `mysql://capabilities` | `{ version, features, ... }`                   | Returns MySQL version and feature flags                                   |
-| 8   | `mysql://health`       | `{ status, metrics, ... }`                     | Returns health assessment with numeric metrics                            |
-| 9   | `mysql://performance`  | `{ summary, top_queries, ... }`                | `summary.total_queries > 0`, `top_queries` non-empty                      |
-| 10  | `mysql://indexes`      | `{ indexes: [...] }`                           | Returns index info for test tables (idx*products*\*, etc.)                |
-| 11  | `mysql://replication`  | Replication status object                      | Returns binlog position; replicas may be empty                            |
-| 12  | `mysql://innodb`       | `{ bufferPool, ... }`                          | Returns InnoDB buffer pool stats with non-zero reads                      |
-| 13  | `mysql://events`       | `{ schedulerEnabled, events: [...] }`          | `schedulerEnabled: true`, events array includes `test_resource_event`     |
-| 14  | `mysql://sysschema`    | `{ available, topUsers, slowStatements, ... }` | `available: true`, `topUsers` non-empty                                   |
-| 15  | `mysql://locks`        | `{ currentLockWaits, lockStatistics, ... }`    | `lockStatistics` has InnoDB row lock counters; `lockWaits` may be empty   |
-| 16  | `mysql://cluster`      | `{ groupReplicationEnabled, ... }`             | Returns `groupReplicationEnabled: false` on standalone; `true` on cluster |
-| 17  | `mysql://spatial`      | `{ spatialColumns, spatialIndexes, ... }`      | `spatialColumnCount >= 1` (test_locations.geom), `spatialIndexCount >= 1` |
-| 18  | `mysql://docstore`     | `{ collections, ... }`                         | `collectionCount >= 1` (test_documents detected)                          |
-| 19  | `mysql://insights`     | String text                                    | Returns a memo string from insights logging                               |
-| 20  | `mysql://metrics`      | `{ tools, resources, timestamp }`              | Returns populated metrics object tracking telemetry                       |
-| 21  | `mysql://metrics`        | `{ entries: [...], ... }`                      | Returns forensic audit trail object                                       |
-| 22  | `mysql://help`         | Markdown text                                  | Returns API reference documentation                                       |
+| 5   | `mysql://status`       | `{ status: [...] }` or key-value pairs         | Returns global status counters (Uptime > 0)                               |
+| 6   | `mysql://processlist`  | `{ processes: [...] }`                         | Returns at least 1 active connection                                      |
+| 7   | `mysql://pool`         | Pool statistics object                         | Returns connection pool state                                             |
+| 8   | `mysql://capabilities` | `{ version, features, ... }`                   | Returns MySQL version and feature flags                                   |
+| 9   | `mysql://health`       | `{ status, metrics, ... }`                     | Returns health assessment with numeric metrics                            |
+| 10  | `mysql://performance`  | `{ summary, top_queries, ... }`                | `summary.total_queries > 0`, `top_queries` non-empty                      |
+| 11  | `mysql://indexes`      | `{ indexes: [...] }`                           | Returns index info for test tables (idx*products*\*, etc.)                |
+| 12  | `mysql://replication`  | Replication status object                      | Returns binlog position; replicas may be empty                            |
+| 13  | `mysql://innodb`       | `{ bufferPool, ... }`                          | Returns InnoDB buffer pool stats with non-zero reads                      |
+| 14  | `mysql://events`       | `{ schedulerEnabled, events: [...] }`          | `schedulerEnabled: true`, events array includes `test_resource_event`     |
+| 15  | `mysql://sysschema`    | `{ available, topUsers, slowStatements, ... }` | `available: true`, `topUsers` non-empty                                   |
+| 16  | `mysql://locks`        | `{ currentLockWaits, lockStatistics, ... }`    | `lockStatistics` has InnoDB row lock counters; `lockWaits` may be empty   |
+| 17  | `mysql://cluster`      | `{ groupReplicationEnabled, ... }`             | Returns `groupReplicationEnabled: false` on standalone; `true` on cluster |
+| 18  | `mysql://spatial`      | `{ spatialColumns, spatialIndexes, ... }`      | `spatialColumnCount >= 1` (test_locations.geom), `spatialIndexCount >= 1` |
+| 19  | `mysql://docstore`     | `{ collections, ... }`                         | `collectionCount >= 1` (test_documents detected)                          |
+| 20  | `mysql://insights`     | String text                                    | Returns a memo string from insights logging                               |
+| 21  | `mysql://metrics`      | `{ tools, resources, timestamp }`              | Returns populated metrics object tracking telemetry                       |
+| 22  | `mysql://audit-log`    | `{ entries: [...], ... }`                      | Returns forensic audit trail object                                       |
+| 23  | `mysql://help`         | Markdown text                                  | Returns API reference documentation                                       |
 
 ### How to Read Resources
 

@@ -349,7 +349,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "243 tools, 22 resources, 19 prompts. Includes Code Mode, HTTP/SSE, OAuth 2.1, and Audit Logs."
+          short-description: "241 tools, 22 resources, 19 prompts. Includes Code Mode, HTTP/SSE, OAuth 2.1, and Audit Logs."
 
       - name: Deployment Summary
         if: github.ref == 'refs/heads/main'

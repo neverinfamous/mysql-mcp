@@ -66,7 +66,7 @@ flowchart LR
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| [lint-and-test.yml](lint-and-test.yml) | push to `main` / PR    | Lint, typecheck, build, unit tests (Node 24.x + 25.x matrix), pnpm audit, Docker smoke test (build + HTTP start) |
+| [lint-and-test.yml](lint-and-test.yml) | push to `main` / PR    | Lint, typecheck, build, unit tests (Node 24.x, 25.x, and 26.x matrix), pnpm audit, Docker smoke test (build + HTTP start) |
 
 ### Secure the Pipeline
 

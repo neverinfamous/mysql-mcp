@@ -342,6 +342,7 @@ src/
 | `pnpm run test:coverage` | Tests with V8 coverage report                        |
 | `pnpm run test:e2e`      | Playwright end-to-end tests (HTTP/SSE transport)     |
 | `pnpm run bench`         | Performance benchmarks (tinybench via Vitest)        |
+| `bun ./.agents/scripts/preview-changelog.mjs` | Preview changelog generation from git history |
 
 ### Benchmarks
 

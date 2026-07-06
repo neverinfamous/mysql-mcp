@@ -445,7 +445,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Quick Start: Recommended IDE Configuration
 
-Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursorrules`, or equivalent):
+Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
 
 #### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 

@@ -24,7 +24,7 @@ Uncover deep database insights instantly. Access 22 resources to monitor schema 
 - **22 Resources**: Monitor real-time schema, performance metrics, and InnoDB diagnostics instantly.
 - **19 AI Prompts**: Execute guided workflows for query building, schema design, and performance tuning.
 - **Code Mode**: Execute complex operations locally. Reduce LLM token overhead by up to 90%.
-- **Dual Transport & Security**: Enforce OAuth 2.1 access controls over streamable HTTP and legacy SSE.
+- **Dual Transport**: Enforce OAuth 2.1 over streamable HTTP and legacy SSE.
 - **Deterministic Error Handling**: Receive structured responses with actionable suggestions. Avoid raw exceptions entirely.
 - **Smart Tool Filtering**: Mix 28 tool groups and 16 shortcuts to bypass IDE limits.
 
@@ -66,15 +66,7 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
 
-#### From Source
 
-```bash
-git clone https://github.com/neverinfamous/mysql-mcp.git
-cd mysql-mcp
-pnpm install
-pnpm run build
-node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/database
-```
 
 ---
 
@@ -158,13 +150,16 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
+      "command": "docker",
       "args": [
-        "C:/path/to/mysql-mcp/dist/cli.js",
+        "run",
+        "-i",
+        "--rm",
+        "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--mysql",
-        "mysql://user:password@localhost:3306/database"
+        "mysql://user:password@host.docker.internal:3306/database"
       ]
     }
   }
@@ -247,11 +242,11 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
-| `--audit-log`             | —                       | Path to JSONL audit log file                        |
-| `--audit-redact`          | —                       | Redact tool arguments from audit log                |
-| `--audit-reads`           | —                       | Log read operations                                 |
-| `--audit-log-max-size`    | —                       | Max audit log size in bytes before rotation         |
+| `--audit-log`             | —                       | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
+| `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
+| `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
+| `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
 | `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
 | `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
 | `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
