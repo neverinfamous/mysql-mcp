@@ -1,37 +1,38 @@
 /**
  * mysql-mcp - Code Mode Sandbox
  *
- * Sandboxed execution environment using Node.js vm module.
- * Provides code isolation with memory/time limits for LLM-generated code.
- *
- * Note: This uses Node.js vm module which provides script isolation but not
- * true V8 isolate separation. For production environments with untrusted code,
- * consider using isolated-vm or running in a separate process/container.
+ * Sandboxed execution environment using isolated-vm.
+ * Provides true V8 isolate separation for maximum security.
  */
 
-import vm from "node:vm";
-import { logger } from "../utils/logger.js";
+import type ivm from "isolated-vm";
+import * as acorn from "acorn";
 import {
   DEFAULT_SANDBOX_OPTIONS,
   DEFAULT_POOL_OPTIONS,
   type SandboxOptions,
   type PoolOptions,
   type SandboxResult,
-  type ExecutionMetrics,
 } from "./types.js";
 import { transformAutoReturn } from "./auto-return.js";
+import {
+  ValidationError,
+  PoolError,
+} from "../types/modules/errors.js";
 
 /**
- * A sandboxed execution context using Node.js vm module
+ * A sandboxed execution context using isolated-vm
  */
+const GROUP_NAME_REGEX = /^[a-zA-Z0-9_]+$/;
+const astCache = new Map<string, acorn.Node>();
+const MAX_AST_CACHE_SIZE = 500;
+
 export class CodeModeSandbox {
-  private context: vm.Context;
   private readonly options: Required<SandboxOptions>;
   private disposed = false;
-  private readonly logBuffer: string[] = [];
+  private accumulatedLogs: string[] = [];
 
-  private constructor(context: vm.Context, options: Required<SandboxOptions>) {
-    this.context = context;
+  private constructor(options: Required<SandboxOptions>) {
     this.options = options;
   }
 
@@ -39,240 +40,596 @@ export class CodeModeSandbox {
    * Create a new sandbox instance
    */
   static create(options?: SandboxOptions): CodeModeSandbox {
-    const opts = { ...DEFAULT_SANDBOX_OPTIONS, ...options };
-
-    // Create a shared log buffer that will be used by both sandbox console and instance
-    const sharedLogBuffer: string[] = [];
-
-    // Create a minimal sandbox context
-    const sandbox = {
-      console: {
-        log: (...args: unknown[]) => {
-          sharedLogBuffer.push(
-            args
-              .map((a) =>
-                typeof a === "object" && a !== null
-                  ? JSON.stringify(a)
-                  : String(a),
-              )
-              .join(" "),
-          );
-        },
-        warn: (...args: unknown[]) =>
-          sharedLogBuffer.push(
-            "[WARN] " +
-              args
-                .map((a) =>
-                  typeof a === "object" && a !== null
-                    ? JSON.stringify(a)
-                    : String(a),
-                )
-                .join(" "),
-          ),
-        error: (...args: unknown[]) =>
-          sharedLogBuffer.push(
-            "[ERROR] " +
-              args
-                .map((a) =>
-                  typeof a === "object" && a !== null
-                    ? JSON.stringify(a)
-                    : String(a),
-                )
-                .join(" "),
-          ),
-        info: (...args: unknown[]) =>
-          sharedLogBuffer.push(
-            "[INFO] " +
-              args
-                .map((a) =>
-                  typeof a === "object" && a !== null
-                    ? JSON.stringify(a)
-                    : String(a),
-                )
-                .join(" "),
-          ),
-      },
-      // No access to Node.js globals
-      require: undefined,
-      process: undefined,
-      global: undefined,
-      globalThis: undefined,
-      __dirname: undefined,
-      __filename: undefined,
-      module: undefined,
-      exports: undefined,
-      // Safe built-ins only
-      JSON,
-      Math,
-      Date,
-      Array,
-      Object,
-      String,
-      Number,
-      Boolean,
-      Map,
-      Set,
-      Promise,
-      Error,
-      TypeError,
-      RangeError,
-      SyntaxError,
-      // Async support
-      setTimeout: undefined, // Disabled for security
-      setInterval: undefined, // Disabled for security
-      setImmediate: undefined, // Disabled for security
+    const opts: Required<SandboxOptions> = {
+      ...DEFAULT_SANDBOX_OPTIONS,
+      ...options,
     };
-
-    const context = vm.createContext(sandbox);
-    const instance = new CodeModeSandbox(context, opts);
-
-    // Use the shared buffer directly - replace instance's buffer with the shared one
-    (instance as unknown as { logBuffer: string[] }).logBuffer =
-      sharedLogBuffer;
-
-    return instance;
+    return new CodeModeSandbox(opts);
   }
 
   /**
    * Execute code in the sandbox
-   * @param code - TypeScript/JavaScript code to execute
-   * @param apiBindings - Object with mysql.* API methods to expose
    */
   async execute(
     code: string,
     apiBindings: Record<string, unknown>,
+    timeoutMs?: number,
   ): Promise<SandboxResult> {
     if (this.disposed) {
       return {
         success: false,
         error: "Sandbox has been disposed",
+        code: "INTERNAL_ERROR",
+        category: "internal",
+        recoverable: false,
         metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
       };
     }
 
-    const startTime = performance.now();
-    const startMemory = process.memoryUsage().heapUsed;
-
-    try {
-      // Inject mysql API bindings into the context
-      this.context["mysql"] = apiBindings;
-
-      // Wrap code in async IIFE to support await
-      const wrappedCode = `
-                (async () => {
-                    ${transformAutoReturn(code)}
-                })();
-            `;
-
-      // Compile and run with timeout
-      const script = new vm.Script(wrappedCode, {
-        filename: "codemode-script.js",
-      });
-
-      const result = await (script.runInContext(this.context, {
-        timeout: this.options.timeoutMs,
-        breakOnSigint: true,
-      }) as Promise<unknown>);
-
-      const endTime = performance.now();
-      const endMemory = process.memoryUsage().heapUsed;
-
-      return {
-        success: true,
-        result,
-        metrics: this.calculateMetrics(
-          startTime,
-          endTime,
-          startMemory,
-          endMemory,
-        ),
-      };
-    } catch (error) {
-      const endTime = performance.now();
-      const endMemory = process.memoryUsage().heapUsed;
-
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      const stack = error instanceof Error ? error.stack : undefined;
-
-      // Check for specific error types
-      if (errorMessage.includes("Script execution timed out")) {
+    // Validate apiBindings group names to prevent injection
+    for (const groupName of Object.keys(apiBindings)) {
+      if (
+        !GROUP_NAME_REGEX.test(groupName) ||
+        groupName === "__proto__" ||
+        groupName === "constructor" ||
+        groupName === "prototype"
+      ) {
         return {
           success: false,
-          error: `Execution timeout: exceeded ${String(this.options.timeoutMs)}ms limit`,
-          stack,
-          metrics: this.calculateMetrics(
-            startTime,
-            endTime,
-            startMemory,
-            endMemory,
-          ),
+          error: `Security Error: Invalid tool group name '${groupName}'`,
+          code: "VALIDATION_ERROR",
+          category: "validation",
+          recoverable: false,
+          metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
+    }
 
+    try {
+      const wrappedCode = `async function __wrapper() { ${code} }`;
+      if (!astCache.has(wrappedCode)) {
+        const ast = acorn.parse(wrappedCode, {
+          ecmaVersion: "latest",
+          sourceType: "script",
+        });
+        const validateAst = (node: unknown): void => {
+          if (node === null || node === undefined || typeof node !== "object")
+            return;
+          const n = node as Record<string, unknown>;
+          if (n["type"] === "WithStatement") {
+            throw new ValidationError(
+              "'with' statements are forbidden in sandbox code.",
+            );
+          }
+          if (
+            n["type"] === "MemberExpression" &&
+            n["object"] !== null &&
+            n["object"] !== undefined &&
+            typeof n["object"] === "object" &&
+            (n["object"] as Record<string, unknown>)["type"] === "Identifier"
+          ) {
+            const objName = (n["object"] as Record<string, unknown>)[
+              "name"
+            ] as string;
+            if (
+              ["process", "require", "global", "globalThis"].includes(objName)
+            ) {
+              throw new ValidationError(`Access to '${objName}' is forbidden.`);
+            }
+          }
+          for (const key in n) {
+            if (key !== "loc" && key !== "start" && key !== "end") {
+              validateAst(n[key]);
+            }
+          }
+        };
+        validateAst(ast);
+        if (astCache.size >= MAX_AST_CACHE_SIZE) {
+          const firstKey = astCache.keys().next().value;
+          if (firstKey) astCache.delete(firstKey);
+        }
+        astCache.set(wrappedCode, ast);
+      }
+    } catch (e: unknown) {
       return {
         success: false,
-        error: errorMessage,
-        stack,
-        metrics: this.calculateMetrics(
-          startTime,
-          endTime,
-          startMemory,
-          endMemory,
-        ),
+        error:
+          "Code validation failed: " +
+          (e instanceof Error ? e.message : String(e)),
+        code: "VALIDATION_ERROR",
+        category: "validation",
+        recoverable: false,
+        metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
       };
     }
-  }
 
-  /**
-   * Calculate execution metrics
-   */
-  private calculateMetrics(
-    startTime: number,
-    endTime: number,
-    startMemory: number,
-    endMemory: number,
-  ): ExecutionMetrics {
+    const effectiveTimeout = timeoutMs ?? this.options.timeoutMs;
+    let ivmLib: typeof ivm | null = null;
+    try {
+      await SandboxPool.initialize();
+      ivmLib = SandboxPool.getIvmLib();
+    } catch {
+      // Fallback to node:vm if isolated-vm is broken/missing
+    }
+
+    if (!ivmLib) {
+      return {
+        success: false,
+        error: "Security Error: isolated-vm native bindings failed to load. Code Mode strict isolation is enabled and node:vm fallback is prohibited.",
+        code: "INTERNAL_ERROR",
+        category: "internal",
+        recoverable: false,
+        metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
+      };
+
+    }
+
+    const isolate = new ivmLib.Isolate({
+      memoryLimit: this.options.memoryLimitMb,
+    });
+
+    let context: ivm.Context | undefined;
+    let logRef: ivm.Reference<unknown> | undefined;
+    let script: ivm.Script | undefined;
+    const refCleanup: ivm.Reference<unknown>[] = [];
+    const logs: string[] = [];
+
+    const startTime = performance.now();
+    let result: unknown;
+    let success = true;
+    let errorMsg: string | undefined;
+
+    try {
+      context = isolate.createContextSync();
+      const jail = context.global;
+      jail.setSync("global", jail.derefInto());
+
+      logRef = new ivmLib.Reference((level: string, ...args: unknown[]) => {
+        const msg = args
+          .map((a) =>
+            typeof a === "object" && a !== null ? JSON.stringify(a) : String(a),
+          )
+          .join(" ");
+        logs.push(level === "LOG" ? msg : `[${level}] ${msg}`);
+      });
+
+      context.global.setSync("logRef", logRef);
+      const setupScript = `
+        globalThis.Buffer = class Buffer extends Uint8Array {
+          static from(data, encoding) {
+            if (typeof data === 'string') {
+               if (encoding === 'hex') {
+                   const arr = new Uint8Array(data.length / 2);
+                   for (let i = 0; i < data.length; i += 2) {
+                       arr[i/2] = parseInt(data.substring(i, i+2), 16);
+                   }
+                   return new Buffer(arr);
+               } else if (encoding === 'base64') {
+                   const raw = atob(data);
+                   const arr = new Uint8Array(raw.length);
+                   for(let i = 0; i < raw.length; i++) {
+                       arr[i] = raw.charCodeAt(i);
+                   }
+                   return new Buffer(arr);
+               }
+               const encoder = new globalThis.TextEncoder();
+               return new Buffer(encoder.encode(data));
+            }
+            if (Array.isArray(data) || data instanceof Uint8Array || data instanceof ArrayBuffer) {
+                return new Buffer(data);
+            }
+            if (data && data.type === 'Buffer' && Array.isArray(data.data)) {
+                return new Buffer(data.data);
+            }
+            throw new TypeError('Unsupported Buffer.from arguments in sandbox');
+          }
+          static isBuffer(obj) {
+            return obj instanceof Buffer || (obj && obj.type === 'Buffer');
+          }
+          toString(encoding) {
+             if (encoding === 'hex') {
+                 return Array.from(this).map(b => b.toString(16).padStart(2, '0')).join('');
+             }
+             if (encoding === 'base64') {
+                 return btoa(String.fromCharCode.apply(null, this));
+             }
+             const decoder = new globalThis.TextDecoder();
+             return decoder.decode(this);
+          }
+        };
+
+        globalThis.TextEncoder = class TextEncoder {
+          encode(str) {
+            let out = [], p = 0;
+            for (let i = 0; i < str.length; i++) {
+              let c = str.charCodeAt(i);
+              if (c < 128) out[p++] = c;
+              else if (c < 2048) { out[p++] = (c >> 6) | 192; out[p++] = (c & 63) | 128; }
+              else if (((c & 0xFC00) == 0xD800) && (i + 1) < str.length && ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
+                c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+                out[p++] = (c >> 18) | 240; out[p++] = ((c >> 12) & 63) | 128; out[p++] = ((c >> 6) & 63) | 128; out[p++] = (c & 63) | 128;
+              } else {
+                out[p++] = (c >> 12) | 224; out[p++] = ((c >> 6) & 63) | 128; out[p++] = (c & 63) | 128;
+              }
+            }
+            return new Uint8Array(out);
+          }
+        };
+
+        globalThis.TextDecoder = class TextDecoder {
+          decode(arr) {
+            let str = "";
+            for (let i = 0; i < arr.length; i++) {
+              let c = arr[i];
+              if (c < 128) str += String.fromCharCode(c);
+              else if (c > 191 && c < 224) { str += String.fromCharCode(((c & 31) << 6) | (arr[++i] & 63)); }
+              else if (c > 223 && c < 240) { str += String.fromCharCode(((c & 15) << 12) | ((arr[++i] & 63) << 6) | (arr[++i] & 63)); }
+              else { 
+                c = (((c & 7) << 18) | ((arr[++i] & 63) << 12) | ((arr[++i] & 63) << 6) | (arr[++i] & 63)) - 0x10000;
+                str += String.fromCharCode(0xD800 | (c >> 10), 0xDC00 | (c & 0x3FF));
+              }
+            }
+            return str;
+          }
+        };
+
+        globalThis.atob = function(str) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            let output = '';
+            for (let block, charCode, idx = 0, map = chars; str.charAt(idx | 0) || (map = '=', idx % 1); output += map.charAt(63 & block >> 8 - idx % 1 * 8)) {
+                charCode = str.charCodeAt(idx += 3/4);
+                if (charCode > 0xFF) throw new Error("'atob' failed: The string to be decoded is not correctly encoded.");
+                block = block << 8 | charCode;
+            }
+            return output;
+        };
+
+        globalThis.btoa = function(str) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
+            let output = '';
+            for (let block, charCode, idx = 0, map = chars; str.charAt(idx | 0) || (map = '=', idx % 1); output += map.charAt(63 & block >> 8 - idx % 1 * 8)) {
+                charCode = str.charCodeAt(idx += 3/4);
+                if (charCode > 0xFF) throw new Error("'btoa' failed: The string to be encoded contains characters outside of the Latin1 range.");
+                block = block << 8 | charCode;
+            }
+            return output;
+        };
+
+        globalThis.__revive_sandbox_buffers = function(obj) {
+          if (obj === null || typeof obj !== 'object') return obj;
+          if (Array.isArray(obj)) return obj.map(item => globalThis.__revive_sandbox_buffers(item));
+          if (obj.type === 'Buffer' && Array.isArray(obj.data)) {
+            return Buffer.from(obj.data);
+          }
+          const revived = {};
+          for (const k in obj) {
+            if (Object.prototype.hasOwnProperty.call(obj, k)) {
+              revived[k] = globalThis.__revive_sandbox_buffers(obj[k]);
+            }
+          }
+          return revived;
+        };
+
+        const stringifyArg = (a) => {
+          try {
+            return typeof a === 'object' && a !== null ? JSON.stringify(a, globalThis.__sandbox_replacer) : String(a);
+          } catch (e) {
+            return String(a);
+          }
+        };
+        globalThis.console = {
+          log: (...args) => logRef.applyIgnored(undefined, ['LOG', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          error: (...args) => logRef.applyIgnored(undefined, ['ERROR', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          warn: (...args) => logRef.applyIgnored(undefined, ['WARN', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          info: (...args) => logRef.applyIgnored(undefined, ['INFO', ...args.map(stringifyArg)], { arguments: { copy: true } }),
+          debug: (...args) => logRef.applyIgnored(undefined, ['DEBUG', ...args.map(stringifyArg)], { arguments: { copy: true } })
+        };
+        
+        globalThis.wrapResult = function(result) {
+            if (result !== null && result !== undefined && typeof result === 'object') {
+                const isFailed = 'success' in result && result.success === false;
+                if (isFailed) {
+                    return new Proxy(result, {
+                        get(target, prop) {
+                            if (prop in target) return target[prop];
+                            if (typeof prop === 'string' && !['then', 'catch', 'finally', 'constructor', 'prototype', 'toJSON', 'isError'].includes(prop)) {
+                                const errVal = target.error;
+                                const errorMsg = typeof errVal === 'string' ? errVal : 'Unknown error';
+                                throw new Error("Attempted to access missing property '" + prop + "' on a failed operation. API Error: " + errorMsg);
+                            }
+                            return undefined;
+                        }
+                    });
+                }
+                
+                if (!Array.isArray(result)) {
+                    return new Proxy(result, {
+                        get(target, prop) {
+                            if (prop in target) return target[prop];
+                            
+                            const searchObj = (target.data && typeof target.data === 'object') ? target.data : target;
+                            
+                            if (typeof prop === 'string' && prop in searchObj) {
+                                return searchObj[prop];
+                            }
+                            
+                            if (prop === Symbol.iterator) {
+                                const arrayKeys = Object.keys(searchObj).filter(k => Array.isArray(searchObj[k]));
+                                const targetKey = arrayKeys.find(k => ['rows', 'columns', 'tables', 'results', 'items', 'entries', 'keys'].includes(k)) || arrayKeys[0];
+                                if (targetKey !== undefined) {
+                                    return function* () {
+                                        yield* searchObj[targetKey];
+                                    };
+                                }
+                            }
+                            
+                            if (typeof prop === 'string' && ['map', 'filter', 'reduce', 'forEach', 'find', 'some', 'every', 'flatMap', 'slice', 'length'].includes(prop)) {
+                                const arrayKeys = Object.keys(searchObj).filter(k => Array.isArray(searchObj[k]));
+                                const targetKey = arrayKeys.find(k => ['rows', 'columns', 'tables', 'results', 'items', 'entries', 'keys'].includes(k)) || arrayKeys[0];
+                                if (targetKey !== undefined) {
+                                    const arr = searchObj[targetKey];
+                                    if (prop === 'length') return arr.length;
+                                    const method = arr[prop];
+                                    if (typeof method === 'function') {
+                                        return (...args) => method.apply(arr, args);
+                                    }
+                                }
+                                const keys = Object.keys(searchObj).join(', ') || 'none';
+                                throw new TypeError("CodeMode Non-Array Proxy Error: Attempted to call Array method '" + prop + "' on an Object. The returned result is not an Array, and no array properties could be automatically resolved. Keys available: " + keys + ". Target JSON: " + JSON.stringify(target));
+                            }
+                            return undefined;
+                        }
+                    });
+                }
+            }
+            return result;
+        };
+        
+        globalThis.wrapPromise = function(promise, methodName) {
+            return new Proxy(promise, {
+                get(target, prop) {
+                    if (prop === 'then') return target.then.bind(target);
+                    if (prop === 'catch') return target.catch.bind(target);
+                    if (prop === 'finally') return target.finally.bind(target);
+                    if (typeof prop === 'string' && !['constructor', 'toString', 'valueOf', 'toJSON'].includes(prop)) {
+                        throw new Error("Attempted to access property '" + prop + "' on a Promise object. Did you forget to 'await' the tool call? (e.g. const result = await mysql.group." + methodName + "(...))");
+                    }
+                    return Reflect.get(target, prop);
+                }
+            });
+        };
+
+        globalThis.mysql = {};
+      `;
+      context.evalSync(setupScript);
+      
+      context.evalSync(`
+        globalThis.__sandbox_replacer = function(k, v) {
+          if (this[k] instanceof Uint8Array) {
+            return { type: 'Buffer', data: Array.from(this[k]) };
+          }
+          return v;
+        };
+      `);
+
+      let rpcCount = 0;
+      // Security (CWE-400): Limit host tool calls per execution to prevent
+      // malicious code from flooding the host via rapid RPC requests.
+      const MAX_RPC_CALLS = 1000;
+
+      // Inject apiBindings
+      const reviveBuffers = (obj: unknown): unknown => {
+        if (obj === null || typeof obj !== 'object') return obj;
+        if (Array.isArray(obj)) return obj.map((item) => reviveBuffers(item));
+        const record = obj as Record<string, unknown>;
+        if (record['type'] === 'Buffer' && Array.isArray(record['data'])) {
+          return Buffer.from(record['data'] as number[]);
+        }
+        const revived: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(record)) {
+          revived[k] = reviveBuffers(v);
+        }
+        return revived;
+      };
+
+      let batchedScript = "";
+      for (const [groupName, groupValue] of Object.entries(apiBindings)) {
+        if (typeof groupValue === "object" && groupValue !== null) {
+          batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}] = {};\n`;
+          for (const [methodName, methodFn] of Object.entries(groupValue)) {
+            if (typeof methodFn === "function") {
+              const fnRef = new ivmLib.Reference(async (...args: unknown[]) => {
+                try {
+                  if (++rpcCount > MAX_RPC_CALLS) {
+                    return {
+                      __isHostError: true,
+                      message: `RateLimitError: QuotaExceededError: Maximum number of host tool calls (${MAX_RPC_CALLS}) exceeded (attempted call ${rpcCount}).`
+                    };
+                  }
+                  const res = await (
+                    methodFn as (...args: unknown[]) => Promise<unknown>
+                  )(...(reviveBuffers(args) as unknown[]));
+                  const parsed: unknown = JSON.parse(JSON.stringify(res, (_k, v) => typeof v === 'bigint' ? v.toString() : (v as unknown)));
+                  return parsed;
+                } catch (e) {
+                  return {
+                    __isHostError: true,
+                    message: e instanceof Error ? e.message : String(e)
+                  };
+                }
+              });
+              refCleanup.push(fnRef);
+              const refName = `fnRef_${groupName}_${methodName}`;
+              context.global.setSync(refName, fnRef);
+              batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}][${JSON.stringify(methodName)}] = (...args) => {
+                  const safeArgs = JSON.parse(JSON.stringify(args, globalThis.__sandbox_replacer));
+                  const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
+                      if (res && typeof res === 'object' && res.__isHostError) {
+                          throw new Error(res.message);
+                      }
+                      return globalThis.wrapResult(globalThis.__revive_sandbox_buffers(res));
+                  });
+                  return globalThis.wrapPromise(promise, ${JSON.stringify(methodName)});
+                };\n`;
+            }
+          }
+        } else if (typeof groupValue === "function") {
+          const fnRef = new ivmLib.Reference(async (...args: unknown[]) => {
+            try {
+              if (++rpcCount > MAX_RPC_CALLS) {
+                return {
+                  __isHostError: true,
+                  message: `RateLimitError: QuotaExceededError: Maximum number of host tool calls (${MAX_RPC_CALLS}) exceeded (attempted call ${rpcCount}).`
+                };
+              }
+              const res = await (
+                groupValue as (...args: unknown[]) => Promise<unknown>
+              )(...(reviveBuffers(args) as unknown[]));
+              const parsed: unknown = JSON.parse(JSON.stringify(res, (_k, v) => typeof v === 'bigint' ? v.toString() : (v as unknown)));
+              return parsed;
+            } catch (e) {
+              return {
+                __isHostError: true,
+                message: e instanceof Error ? e.message : String(e)
+              };
+            }
+          });
+          refCleanup.push(fnRef);
+          const refName = `fnRef_${groupName}`;
+          context.global.setSync(refName, fnRef);
+          batchedScript += `globalThis.mysql[${JSON.stringify(groupName)}] = (...args) => {
+              const safeArgs = JSON.parse(JSON.stringify(args, globalThis.__sandbox_replacer));
+              const promise = globalThis[${JSON.stringify(refName)}].apply(undefined, safeArgs, { arguments: { copy: true }, result: { promise: true, copy: true } }).then(res => {
+                  if (res && typeof res === 'object' && res.__isHostError) {
+                      throw new Error(res.message);
+                  }
+                  return globalThis.wrapResult(globalThis.__revive_sandbox_buffers(res));
+              });
+              return globalThis.wrapPromise(promise, ${JSON.stringify(groupName)});
+            };\n`;
+        }
+      }
+      
+      if (batchedScript.length > 0) {
+        context.evalSync(batchedScript);
+      }
+
+      context.evalSync(`
+        const proxyHandler = {
+          get(target, prop, receiver) {
+            if (typeof prop === "string" && !(prop in target)) {
+              const camelProp = prop.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+              if (camelProp in target) {
+                return Reflect.get(target, camelProp, receiver);
+              }
+            }
+            return Reflect.get(target, prop, receiver);
+          }
+        };
+        globalThis.mysql = new Proxy(globalThis.mysql, proxyHandler);
+        for (const key of Object.keys(globalThis.mysql)) {
+          if (typeof globalThis.mysql[key] === "object" && globalThis.mysql[key] !== null) {
+            globalThis.mysql[key] = new Proxy(globalThis.mysql[key], proxyHandler);
+          }
+        }
+      `);
+
+      const wrappedCode = `(async () => {
+        const Buffer = globalThis.Buffer;
+        const TextEncoder = globalThis.TextEncoder;
+        const TextDecoder = globalThis.TextDecoder;
+        const atob = globalThis.atob;
+        const btoa = globalThis.btoa;
+        try {
+          const __sandbox_result = await (async () => { ${transformAutoReturn(code)} })();
+          const __sandbox_str = JSON.stringify(__sandbox_result, globalThis.__sandbox_replacer);
+          return { __isIsolateSuccess: true, data: __sandbox_str === undefined ? undefined : JSON.parse(__sandbox_str) };
+        } catch (e) {
+          return { __isIsolateSuccess: false, message: e && e.message ? String(e.message) : String(e) };
+        }
+      })()`;
+      script = isolate.compileScriptSync(wrappedCode, {
+        filename: `code-mode.js`,
+      });
+      const isolateRes = (await script.run(context, {
+        timeout: effectiveTimeout,
+        promise: true,
+        copy: true,
+      })) as { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
+      if (isolateRes?.__isIsolateSuccess === false) {
+        throw new Error(isolateRes.message ?? "Unknown isolate error");
+      }
+      result = isolateRes?.__isIsolateSuccess ? isolateRes.data : isolateRes;
+    } catch (error: unknown) {
+      success = false;
+      errorMsg = error instanceof Error ? error.message : String(error);
+    } finally {
+      // Cleanup references and isolate robustly
+      for (const ref of refCleanup) {
+        try {
+          ref.release();
+        } catch {
+          /* ignore */
+        }
+      }
+      try {
+        logRef?.release();
+      } catch {
+        /* ignore */
+      }
+      try {
+        script?.release();
+      } catch {
+        /* ignore */
+      }
+      try {
+        context?.release();
+      } catch {
+        /* ignore */
+      }
+      try {
+        isolate.dispose();
+      } catch {
+        /* ignore */
+      }
+    }
+
+    const endTime = performance.now();
+
+    this.accumulatedLogs.push(...logs);
+
     return {
-      wallTimeMs: Math.round(endTime - startTime),
-      cpuTimeMs: Math.round(endTime - startTime), // Approximation
-      memoryUsedMb: Math.max(
-        0,
-        Math.round(((endMemory - startMemory) / (1024 * 1024)) * 100) / 100,
-      ),
+      success,
+      ...(success ? { result } : { 
+        error: errorMsg,
+        code: "EXECUTION_ERROR",
+        category: "execution",
+        recoverable: false
+      }),
+      logs,
+      metrics: {
+        wallTimeMs: Math.round(endTime - startTime),
+        cpuTimeMs: Math.round(endTime - startTime),
+        memoryUsedMb: 0,
+      },
     };
   }
 
-  /**
-   * Get console output from the sandbox
-   */
   getConsoleOutput(): string[] {
-    return [...this.logBuffer];
+    return [...this.accumulatedLogs];
   }
 
-  /**
-   * Clear console output buffer
-   */
   clearConsoleOutput(): void {
-    this.logBuffer.length = 0;
+    this.accumulatedLogs = [];
   }
 
-  /**
-   * Check if sandbox is healthy
-   */
   isHealthy(): boolean {
     return !this.disposed;
   }
 
-  /**
-   * Dispose of the sandbox and release resources
-   */
   dispose(): void {
-    if (this.disposed) return;
-
     this.disposed = true;
-    // vm.Context doesn't need explicit cleanup, but we mark as disposed
-    this.logBuffer.length = 0;
+    this.accumulatedLogs = [];
   }
 }
 
@@ -282,170 +639,90 @@ export class CodeModeSandbox {
 export class SandboxPool {
   private readonly options: Required<PoolOptions>;
   private readonly sandboxOptions: Required<SandboxOptions>;
-  private readonly available: CodeModeSandbox[] = [];
-  private readonly inUse = new Set<CodeModeSandbox>();
-  private disposed = false;
-  private cleanupInterval: NodeJS.Timeout | null = null;
+  private inUseCount = 0;
+  private readonly idlePool: CodeModeSandbox[] = [];
+  private static ivmPromise: Promise<typeof ivm> | null = null;
+  private static cachedIvmLib: typeof ivm | null = null;
 
   constructor(poolOptions?: PoolOptions, sandboxOptions?: SandboxOptions) {
     this.options = { ...DEFAULT_POOL_OPTIONS, ...poolOptions };
     this.sandboxOptions = { ...DEFAULT_SANDBOX_OPTIONS, ...sandboxOptions };
   }
 
-  /**
-   * Initialize the pool with minimum instances
-   */
-  initialize(): void {
-    logger.info(
-      `Initializing sandbox pool with ${String(this.options.minInstances)} instances`,
-      {
-        module: "CODEMODE" as const,
-      },
-    );
-
-    for (let i = 0; i < this.options.minInstances; i++) {
-      const sandbox = CodeModeSandbox.create(this.sandboxOptions);
-      this.available.push(sandbox);
+  static getIvmLib(): typeof ivm {
+    if (!SandboxPool.cachedIvmLib) {
+      throw new Error("ivmLib not initialized");
     }
-
-    // Start cleanup interval
-    this.cleanupInterval = setInterval(() => {
-      this.cleanup();
-    }, this.options.idleTimeoutMs);
+    return SandboxPool.cachedIvmLib;
   }
 
-  /**
-   * Acquire a sandbox from the pool
-   */
-  acquire(): CodeModeSandbox {
-    if (this.disposed) {
-      throw new Error("Pool has been disposed");
-    }
-
-    // Try to get an available sandbox
-    while (this.available.length > 0) {
-      const sandbox = this.available.pop();
-      if (sandbox?.isHealthy()) {
-        this.inUse.add(sandbox);
-        return sandbox;
-      }
-      // Sandbox is unhealthy, dispose it
-      sandbox?.dispose();
-    }
-
-    // Create a new sandbox if under limit
-    const totalCount = this.inUse.size;
-    if (totalCount < this.options.maxInstances) {
-      const sandbox = CodeModeSandbox.create(this.sandboxOptions);
-      this.inUse.add(sandbox);
-      return sandbox;
-    }
-
-    // Pool exhausted
-    throw new Error(
-      `Sandbox pool exhausted (max: ${String(this.options.maxInstances)})`,
-    );
-  }
-
-  /**
-   * Release a sandbox back to the pool
-   */
-  release(sandbox: CodeModeSandbox): void {
-    if (!this.inUse.has(sandbox)) {
-      return;
-    }
-
-    this.inUse.delete(sandbox);
-
-    if (this.disposed) {
-      sandbox.dispose();
-      return;
-    }
-
-    // Return to pool if healthy and under limit
-    if (
-      sandbox.isHealthy() &&
-      this.available.length < this.options.maxInstances
-    ) {
-      sandbox.clearConsoleOutput();
-      this.available.push(sandbox);
-    } else {
-      sandbox.dispose();
+  static async initialize(): Promise<void> {
+    SandboxPool.ivmPromise ??= import("isolated-vm")
+      .then((m) => m.default)
+      .catch(() => null as unknown as typeof ivm);
+    const lib = await SandboxPool.ivmPromise;
+    if (lib !== null) {
+      SandboxPool.cachedIvmLib = lib;
     }
   }
 
-  /**
-   * Execute code using a pooled sandbox
-   */
+  async initialize(): Promise<void> {
+    await SandboxPool.initialize();
+  }
+
   async execute(
     code: string,
     apiBindings: Record<string, unknown>,
+    timeoutMs?: number,
   ): Promise<SandboxResult> {
-    const sandbox = this.acquire();
-    try {
-      return await sandbox.execute(code, apiBindings);
-    } finally {
-      this.release(sandbox);
+    if (!SandboxPool.cachedIvmLib) {
+      await SandboxPool.initialize();
     }
-  }
 
-  /**
-   * Clean up excess idle sandboxes
-   */
-  private cleanup(): void {
-    // Remove unhealthy sandboxes
-    const healthy: CodeModeSandbox[] = [];
-    for (const sandbox of this.available) {
-      if (sandbox.isHealthy()) {
-        healthy.push(sandbox);
+    if (this.inUseCount >= this.options.maxInstances) {
+      throw new PoolError(
+        `Sandbox pool exhausted (max ${this.options.maxInstances})`
+      );
+    }
+
+    this.inUseCount++;
+    let sandbox = this.idlePool.pop();
+
+    if (sandbox === undefined) {
+      sandbox = CodeModeSandbox.create(this.sandboxOptions);
+    } else {
+      sandbox.clearConsoleOutput();
+    }
+
+    try {
+      return await sandbox.execute(code, apiBindings, timeoutMs);
+    } finally {
+      this.inUseCount--;
+      if (this.idlePool.length < 4 && sandbox.isHealthy()) {
+        this.idlePool.push(sandbox);
       } else {
         sandbox.dispose();
       }
     }
-    this.available.length = 0;
-    this.available.push(...healthy);
-
-    // Trim to minimum
-    while (this.available.length > this.options.minInstances) {
-      const sandbox = this.available.pop();
-      sandbox?.dispose();
-    }
   }
 
-  /**
-   * Get pool statistics
-   */
-  getStats(): { available: number; inUse: number; max: number } {
+  cleanup(): void {
+    for (const sandbox of this.idlePool) {
+      sandbox.dispose();
+    }
+    this.idlePool.length = 0;
+  }
+
+  getStats(): { available: number; inUse: number; max: number; idle: number } {
     return {
-      available: this.available.length,
-      inUse: this.inUse.size,
+      available: Math.max(0, this.options.maxInstances - this.inUseCount),
+      inUse: this.inUseCount,
       max: this.options.maxInstances,
+      idle: this.idlePool.length,
     };
   }
 
-  /**
-   * Dispose of all sandboxes in the pool
-   */
   dispose(): void {
-    if (this.disposed) return;
-
-    this.disposed = true;
-
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-      this.cleanupInterval = null;
-    }
-
-    for (const sandbox of this.available) {
-      sandbox.dispose();
-    }
-    this.available.length = 0;
-
-    for (const sandbox of this.inUse) {
-      sandbox.dispose();
-    }
-    this.inUse.clear();
-
-    logger.info("Sandbox pool disposed", { module: "CODEMODE" as const });
+    this.cleanup();
   }
 }

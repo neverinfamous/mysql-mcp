@@ -10,7 +10,7 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -20,6 +20,10 @@ import {
   ExportTableSchemaBase,
   ImportDataSchema,
   ImportDataSchemaBase,
+  ExportTableOutputSchema,
+  ImportDataOutputSchema,
+  CreateDumpOutputSchema,
+  RestoreDumpOutputSchema,
 } from "../../schemas/index.js";
 import {
   validateIdentifier,
@@ -106,6 +110,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Export table data as SQL INSERT statements or CSV format.",
     group: "backup",
     inputSchema: ExportTableSchemaBase,
+    outputSchema: ExportTableOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -129,15 +134,16 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
             return withTokenEstimate({
               success: false,
               error: `Table '${table}' does not exist`,
+              code: "TABLE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Table does not exist. Run mysql_list_tables to see available tables.",
+              recoverable: false,
               details: { exists: false, table },
             });
           }
         } catch (dbErr) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(dbErr) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(dbErr) }
           );
         }
 
@@ -161,10 +167,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           reporter?.progress(1, `Processing ${rows.length} rows...`);
         } catch (error) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(error) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(error) }
           );
         }
 
@@ -250,7 +253,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -264,6 +267,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Import data into a table from an array of row objects.",
     group: "backup",
     inputSchema: ImportDataSchemaBase,
+    outputSchema: ImportDataOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -272,6 +276,29 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Validate table name for SQL injection prevention
         validateIdentifier(table, "table");
+
+        // Verify table exists (P154)
+        try {
+          const tableCheck = await adapter.executeReadQuery(
+            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
+            [table],
+          );
+          if (!tableCheck.rows || tableCheck.rows.length === 0) {
+            return withTokenEstimate({
+              success: false,
+              error: `Table '${table}' does not exist`,
+              code: "TABLE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Table does not exist. Run mysql_list_tables to see available tables.",
+              recoverable: false,
+              details: { exists: false, table },
+            });
+          }
+        } catch (dbErr) {
+          return withTokenEstimate(
+            { ...formatHandlerErrorResponse(dbErr) }
+          );
+        }
 
         if (data.length === 0) {
           return withTokenEstimate({
@@ -349,7 +376,7 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -359,11 +386,17 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
 export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
     database: z.string().optional().describe("Database name"),
+    db: z.string().optional().describe("Alias for database"),
+    dbName: z.string().optional().describe("Alias for database"),
+    schema: z.string().optional().describe("Alias for database"),
+    schemaName: z.string().optional().describe("Alias for database"),
     tables: z
       .array(z.string())
-      .min(1, "Tables array cannot be empty if provided")
       .optional()
       .describe("Specific tables to dump"),
+    table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
+    tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
+    name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     noData: z
       .boolean()
       .optional()
@@ -376,16 +409,38 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       .describe("Use single transaction for dump (no locking)"),
   });
 
-  const schema = schemaBase
-    .transform((data) => ({
-      database: data.database ?? "",
-      tables: data.tables,
-      noData: data.noData,
-      singleTransaction: data.singleTransaction,
-    }))
-    .refine((data) => data.database !== "", {
-      message: "database is required",
-    });
+  const schema = z.preprocess(
+    (input) => {
+      if (typeof input !== "object" || input === null) return input;
+      const res = { ...(input as Record<string, unknown>) };
+      if (res["database"] === undefined) {
+        res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
+      }
+      const aliasVal = res["table"] ?? res["tableName"] ?? res["name"];
+      if (res["tables"] === undefined && aliasVal !== undefined) {
+        res["tables"] = Array.isArray(aliasVal) ? aliasVal : [aliasVal];
+      }
+      return res;
+    },
+    z.object({
+      database: z.string(),
+      db: z.string().optional(),
+      dbName: z.string().optional(),
+      schema: z.string().optional(),
+      schemaName: z.string().optional(),
+      tables: z.array(z.string()).min(1, "Tables array cannot be empty if provided").optional(),
+      table: z.any().optional(),
+      tableName: z.any().optional(),
+      name: z.any().optional(),
+      noData: z.boolean().optional().default(false),
+      singleTransaction: z.boolean().optional().default(false),
+    })
+  ).transform((data) => ({
+    database: data.database,
+    tables: data.tables,
+    noData: data.noData,
+    singleTransaction: data.singleTransaction,
+  }));
 
   return {
     name: "mysql_create_dump",
@@ -393,12 +448,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     description: "Generate mysqldump command for backing up database.",
     group: "backup",
     inputSchema: schemaBase,
+    outputSchema: CreateDumpOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { database, tables, noData, singleTransaction } =
-          schema.parse(params);
+        const { database, tables, noData, singleTransaction } = schema.parse(params);
 
         // Verify database exists
         try {
@@ -410,14 +465,15 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             return withTokenEstimate({
               success: false,
               error: `Database '${database}' does not exist.`,
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database does not exist.",
+              recoverable: false,
             });
           }
         } catch (dbErr) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(dbErr) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(dbErr) }
           );
         }
 
@@ -433,14 +489,15 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
                 return withTokenEstimate({
                   success: false,
                   error: `Table '${table}' does not exist in database '${database}'.`,
+                  code: "TABLE_NOT_FOUND",
+                  category: "resource",
+                  suggestion: "Table does not exist.",
+                  recoverable: false,
                 });
               }
             } catch (tableErr) {
               return withTokenEstimate(
-                formatHandlerErrorResponse(tableErr) as unknown as Record<
-                  string,
-                  unknown
-                >,
+                { ...formatHandlerErrorResponse(tableErr) }
               );
             }
           }
@@ -471,7 +528,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -481,21 +538,48 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
     database: z.string().optional().describe("Target database"),
+    db: z.string().optional().describe("Alias for database"),
+    dbName: z.string().optional().describe("Alias for database"),
+    schema: z.string().optional().describe("Alias for database"),
+    schemaName: z.string().optional().describe("Alias for database"),
     filename: z
       .string()
       .optional()
-      .default("backup.sql")
       .describe("Dump file to restore"),
+    file: z.string().optional().describe("Alias for filename"),
+    path: z.string().optional().describe("Alias for filename"),
+    filepath: z.string().optional().describe("Alias for filename"),
+    dumpFile: z.string().optional().describe("Alias for filename"),
   });
 
-  const schema = schemaBase
-    .transform((data) => ({
-      database: data.database ?? "",
-      filename: data.filename,
-    }))
-    .refine((data) => data.database !== "", {
-      message: "database is required",
-    });
+  const schema = z.preprocess(
+    (input) => {
+      if (typeof input !== "object" || input === null) return input;
+      const res = { ...(input as Record<string, unknown>) };
+      if (res["database"] === undefined) {
+        res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
+      }
+      if (res["filename"] === undefined) {
+        res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"];
+      }
+      return res;
+    },
+    z.object({
+      database: z.string(),
+      db: z.string().optional(),
+      dbName: z.string().optional(),
+      schema: z.string().optional(),
+      schemaName: z.string().optional(),
+      filename: z.string(),
+      file: z.string().optional(),
+      path: z.string().optional(),
+      filepath: z.string().optional(),
+      dumpFile: z.string().optional(),
+    })
+  ).transform((data) => ({
+    database: data.database,
+    filename: data.filename,
+  }));
 
   return {
     name: "mysql_restore_dump",
@@ -503,6 +587,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     description: "Generate command for restoring from mysqldump backup.",
     group: "backup",
     inputSchema: schemaBase,
+    outputSchema: RestoreDumpOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -519,14 +604,15 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
             return withTokenEstimate({
               success: false,
               error: `Database '${database}' does not exist.`,
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database does not exist.",
+              recoverable: false,
             });
           }
         } catch (dbErr) {
           return withTokenEstimate(
-            formatHandlerErrorResponse(dbErr) as unknown as Record<
-              string,
-              unknown
-            >,
+            { ...formatHandlerErrorResponse(dbErr) }
           );
         }
 
@@ -541,7 +627,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },

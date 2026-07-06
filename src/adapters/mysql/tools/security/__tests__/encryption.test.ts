@@ -4,7 +4,6 @@ import {
   createSecurityEncryptionStatusTool,
   createSecurityPasswordValidateTool,
 } from "../encryption.js";
-import { MySQLAdapter } from "../../../mysql-adapter.js";
 
 describe("Security Encryption Tools", () => {
   let mockAdapter: MySQLAdapter;
@@ -14,7 +13,7 @@ describe("Security Encryption Tools", () => {
     mockExecuteQuery = vi.fn();
     mockAdapter = {
       executeQuery: mockExecuteQuery,
-    } as unknown as MySQLAdapter;
+    };
   });
 
   describe("mysql_security_ssl_status", () => {
@@ -44,7 +43,7 @@ describe("Security Encryption Tools", () => {
           rows: [{ cipher: "AES256-SHA" }],
         });
 
-      const result = (await tool.handler({}, {} as any)) as any;
+      const result = await tool.handler({}, {});
 
       expect(result).toMatchObject({
         success: true,
@@ -74,7 +73,7 @@ describe("Security Encryption Tools", () => {
         .mockResolvedValueOnce({ rows: [] }) // Variables
         .mockResolvedValueOnce({ rows: [] }); // Connection
 
-      const result = (await tool.handler({}, {} as any)) as any;
+      const result = await tool.handler({}, {});
 
       expect(result.data.sslEnabled).toBe(false);
       expect(result.data.currentCipher).toBe("None");
@@ -103,7 +102,7 @@ describe("Security Encryption Tools", () => {
           rows: [{ Variable_name: "innodb_redo_log_encrypt", Value: "ON" }],
         });
 
-      const result = (await tool.handler({}, {} as any)) as any;
+      const result = await tool.handler({}, {});
 
       expect(result.data.keyringInstalled).toBe(true);
       expect(result.data.tdeAvailable).toBe(true);
@@ -130,10 +129,10 @@ describe("Security Encryption Tools", () => {
           rows: [{ strength: 100 }],
         });
 
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { password: "StrongPassword123!" },
-        {} as any,
-      )) as any;
+        {},
+      );
 
       expect(result.data.interpretation).toBe("Very Strong");
       expect(result.data.meetsPolicy).toBe(true);
@@ -151,10 +150,10 @@ describe("Security Encryption Tools", () => {
           rows: [{ strength: 20 }],
         });
 
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { password: "123" },
-        {} as any,
-      )) as any;
+        {},
+      );
 
       expect(result.data.interpretation).toBe("Very Weak");
       expect(result.data.meetsPolicy).toBe(false);
@@ -165,10 +164,10 @@ describe("Security Encryption Tools", () => {
       // Empty policy variables = component not installed
       mockExecuteQuery.mockResolvedValueOnce({ rows: [] });
 
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { password: "pass" },
-        {} as any,
-      )) as any;
+        {},
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("not installed");
@@ -183,10 +182,10 @@ describe("Security Encryption Tools", () => {
       // Function call fails
       mockExecuteQuery.mockRejectedValue(new Error("Function not found"));
 
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { password: "pass" },
-        {} as any,
-      )) as any;
+        {},
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("failed");

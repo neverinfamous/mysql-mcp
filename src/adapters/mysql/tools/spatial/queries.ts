@@ -5,12 +5,12 @@
  * 4 tools: distance, distance_sphere, contains, within.
  */
 
-import { ZodError } from "zod";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -27,26 +27,13 @@ import {
   ContainsSchema,
   WithinSchemaBase,
   WithinSchema,
+  SpatialQueryResultOutputSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
 // Helpers
 // =============================================================================
-
-/** Safely extract a string field from raw params for error context */
-function paramStr(params: unknown, key: string): string {
-  if (
-    params !== null &&
-    params !== undefined &&
-    typeof params === "object" &&
-    key in params
-  ) {
-    const val = (params as Record<string, unknown>)[key];
-    return typeof val === "string" ? val : "";
-  }
-  return "";
-}
 
 // =============================================================================
 
@@ -63,19 +50,28 @@ export function createSpatialDistanceTool(
       "Find rows within a certain distance from a point (Cartesian distance).",
     group: "spatial",
     inputSchema: DistanceSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, spatialColumn, point, maxDistance, limit, srid } =
+        const { table, spatialColumn, point, geometry1, geometry2, maxDistance, limit, srid } =
           DistanceSchema.parse(params);
+
+        if (!table) {
+          const query = `SELECT ROUND(ST_Distance(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance`;
+          const result = await adapter.executeQuery(query, [geometry1, geometry2]);
+          return withTokenEstimate({
+            success: true,
+            data: { distance: Number(result.rows?.[0]?.["distance"]) }
+          });
+        }
 
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -85,7 +81,7 @@ export function createSpatialDistanceTool(
 
         let query = `
                 SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
-                       ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance
+                       ROUND(ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance
                 FROM ${escapedTable}
             `;
 
@@ -114,25 +110,10 @@ export function createSpatialDistanceTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -151,19 +132,28 @@ export function createSpatialDistanceSphereTool(
       "Calculate distance on a sphere (for geographic coordinates). Returns distance in meters.",
     group: "spatial",
     inputSchema: DistanceSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, spatialColumn, point, maxDistance, limit, srid } =
+        const { table, spatialColumn, point, geometry1, geometry2, maxDistance, limit, srid } =
           DistanceSchema.parse(params);
+
+        if (!table) {
+          const query = `SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters`;
+          const result = await adapter.executeQuery(query, [geometry1, geometry2]);
+          return withTokenEstimate({
+            success: true,
+            data: { distance: Number(result.rows?.[0]?.["distance_meters"]), unit: "meters" }
+          });
+        }
 
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -173,7 +163,7 @@ export function createSpatialDistanceSphereTool(
 
         let query = `
                 SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
-                       ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as distance_meters
+                       ROUND(ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters
                 FROM ${escapedTable}
             `;
 
@@ -203,25 +193,10 @@ export function createSpatialDistanceSphereTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -240,6 +215,7 @@ export function createSpatialContainsTool(
       "Find rows where the geometry is contained within a specified polygon.",
     group: "spatial",
     inputSchema: ContainsSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -251,8 +227,7 @@ export function createSpatialContainsTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -279,25 +254,10 @@ export function createSpatialContainsTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -313,6 +273,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Find rows where the geometry is within a specified geometry.",
     group: "spatial",
     inputSchema: WithinSchemaBase,
+    outputSchema: SpatialQueryResultOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -324,8 +285,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -352,25 +312,10 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          const tbl = paramStr(params, "table");
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
-            details: {
-              exists: false,
-              table: tbl,
-            },
-          });
-        }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };

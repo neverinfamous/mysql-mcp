@@ -16,6 +16,7 @@ import {
   stopServer,
   createClient,
   callToolAndParse,
+  cleanupAuditFiles,
 } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
@@ -108,10 +109,11 @@ test.describe("Audit Log Rotation Stress", () => {
       stopServer(port);
 
       // Cleanup all possible rotated files
-      await rm(logPath, { force: true }).catch(() => {});
+      await cleanupAuditFiles(logPath);
       for (let i = 1; i <= 6; i++) {
         await rm(`${logPath}.${i}`, { force: true }).catch(() => {});
       }
     }
   });
 });
+

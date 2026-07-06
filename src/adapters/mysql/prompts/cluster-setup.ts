@@ -4,6 +4,7 @@
  * Complete InnoDB Cluster and Group Replication setup guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupClusterPrompt(): PromptDefinition {
   return {
@@ -113,7 +114,7 @@ cluster.setPrimaryInstance('admin@new-primary:3306')
 3. **Monitor replication lag** with flow control
 4. **Test failover regularly** in staging
 
-Start by checking cluster status with \`mysql_cluster_status\`.`);
+Start by checking cluster status with \`mysql_cluster_status\`.${getSkillDirective()}`);
     },
   };
 }

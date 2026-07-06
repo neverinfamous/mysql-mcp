@@ -7,7 +7,7 @@
  * auto-detection.
  *
  * MySQL wire-protocol error codes are matched via their message patterns
- * (e.g., errno 1146 → "Table '.*' doesn't exist").
+ * (e.g., errno 1146 → "Table '.*' does not exist").
  */
 
 import { ErrorCategory } from "../types/modules/error-types.js";
@@ -26,9 +26,16 @@ const ERROR_SUGGESTIONS: {
   // Resource errors — table/column/schema/index not found
   // =========================================================================
   {
-    pattern: /Table '.*' doesn't exist/i,
+    pattern: /Table '.*' (?:doesn't|does not) exist/i,
     suggestion:
       "Table does not exist. Run mysql_list_tables to see available tables.",
+    category: ErrorCategory.RESOURCE,
+    code: "TABLE_NOT_FOUND",
+  },
+  {
+    pattern: /Unknown table ['"].*['"]/i,
+    suggestion:
+      "Table or view does not exist. Run mysql_list_tables or mysql_list_views to see available objects.",
     category: ErrorCategory.RESOURCE,
     code: "TABLE_NOT_FOUND",
   },
@@ -47,7 +54,7 @@ const ERROR_SUGGESTIONS: {
     code: "COLUMN_NOT_FOUND",
   },
   {
-    pattern: /Unknown database ['"].*['"]/i,
+    pattern: /(?:Unknown database|Database (?:'.*?' )?(?:doesn't|does not) exist|Schema (?:'.*?' )?(?:doesn't|does not) exist)/i,
     suggestion:
       "Database not found. Use mysql_list_schemas to see available databases.",
     category: ErrorCategory.RESOURCE,
@@ -57,6 +64,20 @@ const ERROR_SUGGESTIONS: {
     pattern: /index ['"].*['"] (?:does not exist|not found)/i,
     suggestion:
       "Index not found. Use mysql_get_indexes to see available indexes.",
+    category: ErrorCategory.RESOURCE,
+    code: "INDEX_NOT_FOUND",
+  },
+  {
+    pattern: /No FULLTEXT index found for the specified columns/i,
+    suggestion:
+      "A FULLTEXT index is required for this operation. Create one using mysql_fulltext_create.",
+    category: ErrorCategory.RESOURCE,
+    code: "INDEX_NOT_FOUND",
+  },
+  {
+    pattern: /Can't find FULLTEXT index matching the column list/i,
+    suggestion:
+      "A FULLTEXT index is required for this operation. Create one using mysql_fulltext_create.",
     category: ErrorCategory.RESOURCE,
     code: "INDEX_NOT_FOUND",
   },
@@ -258,6 +279,13 @@ const ERROR_SUGGESTIONS: {
   // Configuration errors
   // =========================================================================
   {
+    pattern: /(?:extension|plugin) .* (?:not available|not loaded|disabled)/i,
+    suggestion:
+      "Verify that the required plugin/extension is loaded on the MySQL server.",
+    category: ErrorCategory.CONFIGURATION,
+    code: "EXTENSION_MISSING",
+  },
+  {
     pattern: /Unknown system variable/i,
     suggestion:
       "Verify the variable name. Use mysql_show_variables to see available server variables.",
@@ -285,13 +313,15 @@ const ERROR_SUGGESTIONS: {
     pattern: /rate limit exceeded/i,
     suggestion:
       "Wait before retrying. Combine multiple operations into fewer mysql_execute_code calls.",
-    category: ErrorCategory.PERMISSION,
+    category: ErrorCategory.CONNECTION,
+    code: "RATE_LIMIT_ERROR",
   },
   {
-    pattern: /execution timed out/i,
+    pattern: /execution timed out|wait_timeout exceeded|read timeout/i,
     suggestion:
-      "Reduce code complexity or increase timeout (max 30s). Break into smaller operations.",
-    category: ErrorCategory.QUERY,
+      "Reduce query/code complexity or increase timeout. Break into smaller operations.",
+    category: ErrorCategory.CONNECTION,
+    code: "TIMEOUT_ERROR",
   },
   {
     pattern: /sandbox.*not initialized/i,

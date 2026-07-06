@@ -10,7 +10,7 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -28,6 +28,12 @@ import {
   FlushTablesSchemaBase,
   KillQuerySchema,
   KillQuerySchemaBase,
+  OptimizeTableOutputSchema,
+  AnalyzeTableOutputSchema,
+  CheckTableOutputSchema,
+  RepairTableOutputSchema,
+  FlushTablesOutputSchema,
+  KillQueryOutputSchema,
 } from "../../schemas/index.js";
 
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
@@ -45,6 +51,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Optimize tables to reclaim unused space and defragment data.",
     group: "admin",
     inputSchema: OptimizeTableSchemaBase,
+    outputSchema: OptimizeTableOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -93,14 +100,26 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
       "Analyze tables to update index statistics for the query optimizer.",
     group: "admin",
     inputSchema: AnalyzeTableSchemaBase,
+    outputSchema: AnalyzeTableOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = AnalyzeTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
-        const result = await adapter.rawQuery(`ANALYZE TABLE ${tableList}`);
-        const rows = result.rows ?? [];
+        const rows: Record<string, unknown>[] = [];
+        
+        const reporter = progressFactory.create(_context.progressToken);
+        for (let i = 0; i < tables.length; i++) {
+          const t = tables[i];
+          if (!t) continue;
+          reporter?.progress(i, tables.length, `Analyzing table: ${t}`);
+          const result = await adapter.rawQuery(`ANALYZE TABLE \`${t}\``);
+          if (result.rows) {
+            rows.push(...result.rows);
+          }
+        }
+        reporter?.complete();
+
         const errorRow = rows.find(
           (r: Record<string, unknown>) =>
             String(r["Msg_type"]).toLowerCase() === "error",
@@ -134,18 +153,28 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Check tables for errors.",
     group: "admin",
     inputSchema: CheckTableSchemaBase,
+    outputSchema: CheckTableOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, option } = CheckTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
         const optionClause = option ? ` ${option}` : "";
-        // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
-        const result = await adapter.rawQuery(
-          `CHECK TABLE ${tableList}${optionClause}`,
-        );
-        const rows = result.rows ?? [];
+        const rows: Record<string, unknown>[] = [];
+
+        const reporter = progressFactory.create(_context.progressToken);
+        for (let i = 0; i < tables.length; i++) {
+          const t = tables[i];
+          if (!t) continue;
+          reporter?.progress(i, tables.length, `Checking table: ${t}`);
+          // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
+          const result = await adapter.rawQuery(`CHECK TABLE \`${t}\`${optionClause}`);
+          if (result.rows) {
+            rows.push(...result.rows);
+          }
+        }
+        reporter?.complete();
+
         const errorRow = rows.find(
           (r: Record<string, unknown>) =>
             String(r["Msg_type"]).toLowerCase() === "error",
@@ -182,6 +211,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Repair corrupted tables (MyISAM only).",
     group: "admin",
     inputSchema: RepairTableSchemaBase,
+    outputSchema: RepairTableOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -232,6 +262,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Flush tables to ensure data is written to disk.",
     group: "admin",
     inputSchema: FlushTablesSchemaBase,
+    outputSchema: FlushTablesOutputSchema,
     requiredScopes: ["admin"],
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -247,7 +278,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           );
           const foundTables = new Set(
             (checkResult.rows ?? []).map(
-              (r: Record<string, unknown>) => r["TABLE_NAME"] as string,
+              (r: Record<string, unknown>) => typeof r["TABLE_NAME"] === "string" ? r["TABLE_NAME"] : String(r["TABLE_NAME"]),
             ),
           );
           const notFound = tables.filter((t) => !foundTables.has(t));
@@ -294,6 +325,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Kill a running query or connection.",
     group: "admin",
     inputSchema: KillQuerySchemaBase,
+    outputSchema: KillQueryOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {

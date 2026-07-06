@@ -14,6 +14,10 @@ import {
   AuthorizationError,
   ValidationError,
   TransactionError,
+  TimeoutError,
+  RateLimitError,
+  ConflictError,
+  ExtensionNotAvailableError,
   ErrorCategory,
 } from "../index.js";
 
@@ -192,6 +196,64 @@ describe("Error Classes", () => {
     });
   });
 
+  describe("TimeoutError", () => {
+    it("should create with correct code", () => {
+      const error = new TimeoutError("Operation timed out");
+      expect(error.code).toBe("TIMEOUT_ERROR");
+      expect(error.name).toBe("TimeoutError");
+      expect(error.recoverable).toBe(true);
+    });
+
+    it("should be instance of MySQLMcpError", () => {
+      const error = new TimeoutError("Timeout");
+      expect(error).toBeInstanceOf(MySQLMcpError);
+    });
+  });
+
+  describe("RateLimitError", () => {
+    it("should create with correct code", () => {
+      const error = new RateLimitError("Rate limit exceeded");
+      expect(error.code).toBe("RATE_LIMIT_ERROR");
+      expect(error.name).toBe("RateLimitError");
+      expect(error.recoverable).toBe(true);
+    });
+
+    it("should be instance of MySQLMcpError", () => {
+      const error = new RateLimitError("Limit");
+      expect(error).toBeInstanceOf(MySQLMcpError);
+    });
+  });
+
+  describe("ConflictError", () => {
+    it("should create with correct code", () => {
+      const error = new ConflictError("Version mismatch");
+      expect(error.code).toBe("CONFLICT_ERROR");
+      expect(error.name).toBe("ConflictError");
+      expect(error.recoverable).toBe(true);
+    });
+
+    it("should be instance of MySQLMcpError", () => {
+      const error = new ConflictError("Conflict");
+      expect(error).toBeInstanceOf(MySQLMcpError);
+    });
+  });
+
+  describe("ExtensionNotAvailableError", () => {
+    it("should create with correct code and auto-generated message", () => {
+      const error = new ExtensionNotAvailableError("test_plugin");
+      expect(error.code).toBe("EXTENSION_MISSING");
+      expect(error.name).toBe("ExtensionNotAvailableError");
+      expect(error.recoverable).toBe(false);
+      expect(error.message).toContain("test_plugin");
+      expect(error.suggestion).toContain("test_plugin");
+    });
+
+    it("should be instance of MySQLMcpError", () => {
+      const error = new ExtensionNotAvailableError("plugin");
+      expect(error).toBeInstanceOf(MySQLMcpError);
+    });
+  });
+
   describe("Error inheritance chain", () => {
     it("should maintain proper prototype chain for all errors", () => {
       const errors = [
@@ -202,6 +264,10 @@ describe("Error Classes", () => {
         new AuthorizationError("test"),
         new ValidationError("test"),
         new TransactionError("test"),
+        new TimeoutError("test"),
+        new RateLimitError("test"),
+        new ConflictError("test"),
+        new ExtensionNotAvailableError("test"),
       ];
 
       for (const error of errors) {
@@ -210,6 +276,21 @@ describe("Error Classes", () => {
         expect(typeof error.message).toBe("string");
         expect(typeof error.code).toBe("string");
       }
+    });
+  });
+
+  describe("ErrorResponse strictness", () => {
+    it("should return all required fields from toResponse()", () => {
+      const error = new QueryError("Syntax error");
+      const response = error.toResponse();
+      
+      expect(response.success).toBe(false);
+      expect(response.error).toBe("Syntax error");
+      expect(typeof response.code).toBe("string");
+      expect(typeof response.category).toBe("string");
+      expect(response).toHaveProperty("suggestion");
+      expect(typeof response.recoverable).toBe("boolean");
+      expect(response).toHaveProperty("details");
     });
   });
 });

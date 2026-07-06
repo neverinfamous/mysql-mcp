@@ -5,12 +5,12 @@
  * 2 tools: column creation and index creation.
  */
 
-import { ZodError } from "zod";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -26,6 +26,8 @@ import {
   SpatialColumnSchema,
   SpatialIndexSchemaBase,
   SpatialIndexSchema,
+  SpatialCreateColumnOutputSchema,
+  SpatialCreateIndexOutputSchema,
 } from "../../schemas/spatial.js";
 import { WRITE } from "../../../../utils/annotations.js";
 
@@ -61,6 +63,7 @@ export function createSpatialCreateColumnTool(
     description: "Add a geometry/spatial column to an existing table.",
     group: "spatial",
     inputSchema: SpatialColumnSchemaBase,
+    outputSchema: SpatialCreateColumnOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -72,8 +75,7 @@ export function createSpatialCreateColumnTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -81,8 +83,7 @@ export function createSpatialCreateColumnTool(
         const upperType = type.toUpperCase();
         if (!VALID_GEOMETRY_TYPES.has(upperType)) {
           return withTokenEstimate({
-            success: false,
-            error: `Invalid type: '${type}' — expected one of: ${[...VALID_GEOMETRY_TYPES].join(", ")}`,
+            success: false, error: `Invalid type: '${type}' — expected one of: ${[...VALID_GEOMETRY_TYPES].join(", ")}`, code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -105,18 +106,19 @@ export function createSpatialCreateColumnTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
-        if (msg.includes("doesn't exist")) {
-          const tbl = paramStr(params, "table");
+        if (msg.includes("Invalid use of NULL value")) {
           return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
+            success: false, error: "Cannot add a NOT NULL column to a table with existing rows without a default. Please set nullable: true or clear the table.", code: "QUERY_ERROR", category: "query", recoverable: false,
+          });
+        }
+        if (msg.includes("does not exist") || msg.includes("doesn't exist")) {
+          const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
+          return withTokenEstimate({
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
             details: {
               exists: false,
               table: tbl,
@@ -124,14 +126,13 @@ export function createSpatialCreateColumnTool(
           });
         }
         if (msg.includes("Duplicate column name")) {
-          const col = paramStr(params, "column");
-          const tbl = paramStr(params, "table");
+          const col = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn");
+          const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
-            success: false,
-            error: `Column '${col}' already exists on table '${tbl}'`,
+            success: false, error: `Column '${col}' already exists on table '${tbl}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -150,6 +151,7 @@ export function createSpatialCreateIndexTool(
       "Create a SPATIAL index on a geometry column for faster queries.",
     group: "spatial",
     inputSchema: SpatialIndexSchemaBase,
+    outputSchema: SpatialCreateIndexOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -160,8 +162,7 @@ export function createSpatialCreateIndexTool(
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid column name",
+            success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -175,8 +176,7 @@ export function createSpatialCreateIndexTool(
         const idxName = indexName ?? `idx_spatial_${bareTable}_${column}`;
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(idxName)) {
           return withTokenEstimate({
-            success: false,
-            error: "Invalid index name",
+            success: false, error: "Invalid index name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
 
@@ -193,9 +193,7 @@ export function createSpatialCreateIndexTool(
           const dataType = String(colRow["DATA_TYPE"]).toUpperCase();
           if (isNullable) {
             return withTokenEstimate({
-              success: false,
-              error:
-                `Cannot create SPATIAL index on nullable column '${column}'. ` +
+              success: false, code: "QUERY_ERROR", category: "query", recoverable: false, error: `Cannot create SPATIAL index on nullable column '${column}'. ` +
                 `Alter the column to NOT NULL first: ` +
                 `ALTER TABLE ${escapeQualifiedTable(table)} MODIFY \`${column}\` ${dataType} NOT NULL`,
             });
@@ -214,8 +212,7 @@ export function createSpatialCreateIndexTool(
         if (existingRow) {
           const existingName = String(existingRow["INDEX_NAME"]);
           return withTokenEstimate({
-            success: false,
-            error: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`,
+            success: false, error: `Spatial index '${existingName}' already exists on column '${column}' of table '${table}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
 
@@ -233,44 +230,39 @@ export function createSpatialCreateIndexTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
         if (error instanceof ValidationError) {
-          return withTokenEstimate({ success: false, error: error.message });
+          return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
         const msg = error instanceof Error ? error.message : String(error);
-        const tbl = paramStr(params, "table");
-        if (msg.includes("Table") && msg.includes("doesn't exist")) {
+        const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
+        if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
           return withTokenEstimate({
-            success: false,
-            error: `Table '${tbl}' does not exist`,
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
             details: { exists: false, table: tbl },
           });
         }
         if (
           msg.includes("Key column") &&
-          msg.includes("doesn't exist in table")
+          (msg.includes("does not exist in table") || msg.includes("doesn't exist in table"))
         ) {
-          const col = paramStr(params, "column");
+          const col = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
           return withTokenEstimate({
-            success: false,
-            error: `Column '${col}' does not exist on table '${tbl}'`,
+            success: false, error: `Column '${col}' does not exist on table '${tbl}'`, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false,
           });
         }
         if (msg.includes("Cannot create SPATIAL index on nullable column")) {
-          return formatHandlerErrorResponse(new Error(msg));
+          return formatHandlerErrorResponse(error);
         }
         const idxFromParams = paramStr(params, "indexName");
+        const colForIdx = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
         const idx =
-          idxFromParams || `idx_spatial_${tbl}_${paramStr(params, "column")}`;
+          idxFromParams || `idx_spatial_${tbl}_${colForIdx}`;
         if (msg.includes("Duplicate key name")) {
           return withTokenEstimate({
-            success: false,
-            error: `Index '${idx}' already exists on table '${tbl}'`,
+            success: false, error: `Index '${idx}' already exists on table '${tbl}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
           });
         }
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };

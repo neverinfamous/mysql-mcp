@@ -24,6 +24,12 @@ describe("Shell Configuration", () => {
   beforeEach(() => {
     vi.resetModules();
     process.env = { ...originalEnv };
+    delete process.env["MYSQLSH_PATH"];
+    delete process.env["MYSQL_HOST"];
+    delete process.env["MYSQL_PORT"];
+    delete process.env["MYSQL_USER"];
+    delete process.env["MYSQL_PASSWORD"];
+    delete process.env["MYSQLSH_TIMEOUT"];
   });
 
   afterEach(() => {
@@ -73,7 +79,7 @@ describe("Subprocess Execution", () => {
     mockChild.stdin = { write: vi.fn(), end: vi.fn() };
     mockChild.kill = vi.fn();
 
-    (spawn as any).mockReturnValue(mockChild);
+    (spawn ).mockReturnValue(mockChild);
   });
 
   it("should resolve with stdout on success", async () => {
@@ -102,7 +108,7 @@ describe("Subprocess Execution", () => {
     const promise = execMySQLShell(["--version"]);
 
     const error = new Error("spawn ENOENT");
-    mockChild.emit("error", error as any);
+    mockChild.emit("error", error);
 
     await expect(promise).rejects.toThrow("MySQL Shell not found");
   });
@@ -138,7 +144,7 @@ describe("execShellJS", () => {
     mockChild.stdout = new EventEmitter();
     mockChild.stderr = new EventEmitter();
     mockChild.kill = vi.fn();
-    (spawn as any).mockReturnValue(mockChild);
+    (spawn ).mockReturnValue(mockChild);
   });
 
   it("should parse JSON result", async () => {

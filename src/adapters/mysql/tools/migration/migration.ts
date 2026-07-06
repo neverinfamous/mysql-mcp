@@ -5,13 +5,16 @@
  * 3 tools total.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   MigrationInitSchemaBase,
   MigrationInitSchema,
@@ -20,6 +23,9 @@ import {
   MigrationApplySchemaBase,
   MigrationApplySchema,
   // Output schemas
+  MigrationInitOutputSchema,
+  MigrationRecordOutputSchema,
+  MigrationApplyOutputSchema,
 } from "../../schemas/index.js";
 import {
   TRACKING_TABLE,
@@ -37,17 +43,19 @@ import { WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
 export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_migration_init",
+    title: "Migration Init",
     description:
       "Initialize or verify the schema version tracking table (_mcp_schema_versions). " +
       "Idempotent — safe to call repeatedly. Returns current tracking state.",
     group: "migration",
     inputSchema: MigrationInitSchemaBase,
+    outputSchema: MigrationInitOutputSchema,
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationInitSchema.parse(params);
 
-        let targetSchema = parsed.schema;
+        let targetSchema = parsed.database;
         if (!targetSchema) {
           const dbRow = (
             await adapter.executeReadQuery("SELECT DATABASE() as db")
@@ -92,7 +100,7 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -109,6 +117,7 @@ export function createMigrationRecordTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_record",
+    title: "Migration Record",
     description:
       "Record a migration in the schema version tracking table with status 'recorded' (metadata only, SQL not executed). " +
       "Use mysql_migration_apply instead to execute SQL and record with status 'applied'. " +
@@ -116,23 +125,28 @@ export function createMigrationRecordTool(
       "Computes SHA-256 hash for idempotency detection.",
     group: "migration",
     inputSchema: MigrationRecordSchemaBase,
+    outputSchema: MigrationRecordOutputSchema,
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationRecordSchema.parse(params);
-        await ensureTrackingTable(adapter);
+        await ensureTrackingTable(adapter, parsed.database);
 
         const { migrationHash, duplicateError } = await checkDuplicateHash(
           adapter,
           parsed.version,
           parsed.migrationSql,
+          parsed.database,
         );
-        if (duplicateError) return duplicateError;
+        if (duplicateError) return withTokenEstimate(duplicateError);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
         await adapter.executeWriteQuery(
@@ -165,7 +179,7 @@ export function createMigrationRecordTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
         const row = resultRows[0] ?? {};
         const response = {
@@ -177,7 +191,7 @@ export function createMigrationRecordTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -194,29 +208,35 @@ export function createMigrationApplyTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_apply",
+    title: "Migration Apply",
     description:
       "Execute migration SQL and record it atomically. Note: MySQL DDL statements cannot be rolled back, they commit the current transaction. " +
       "Auto-provisions the tracking table on first use. " +
       "Use mysql_migration_record instead if you only need to log an already-applied migration.",
     group: "migration",
     inputSchema: MigrationApplySchemaBase,
+    outputSchema: MigrationApplyOutputSchema,
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationApplySchema.parse(params);
-        await ensureTrackingTable(adapter);
+        await ensureTrackingTable(adapter, parsed.database);
 
         const { migrationHash, duplicateError } = await checkDuplicateHash(
           adapter,
           parsed.version,
           parsed.migrationSql,
+          parsed.database,
         );
-        if (duplicateError) return duplicateError;
+        if (duplicateError) return withTokenEstimate(duplicateError);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
         // We do not use transactions for DDL in MySQL because MySQL DDL commits implicitly
@@ -256,7 +276,7 @@ export function createMigrationApplyTool(
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
             );
-            return { ...errorResponse, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
           }
           const row = resultRows[0] ?? {};
           const response = {
@@ -268,7 +288,7 @@ export function createMigrationApplyTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
 
@@ -303,7 +323,7 @@ export function createMigrationApplyTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);

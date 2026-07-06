@@ -96,4 +96,7 @@ export interface RequestContext {
 
   /** Reference to the MCP server for emitting events */
   server?: McpServer;
+
+  /** Indicates if the context is running within Code Mode */
+  isCodeMode?: boolean;
 }

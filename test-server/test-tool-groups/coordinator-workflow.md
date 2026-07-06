@@ -1,0 +1,180 @@
+# mysql-mcp Tool Groups Testing Coordinator Workflow
+
+> 🚀 **Core Features Tested:** Coordinates execution across 200+ tools to ensure robustness of **OAuth 2.1**, **Direct Tool Calls**, and **Connection Pooling**.
+
+> **This document is optimized for an autonomous agent acting as a Coordinator.**
+
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
+
+We're working in the `mysql-mcp` project in this thread.
+
+This guide instructs the Coordinator agent on how to run the `mysql-mcp` Tool Groups test suite using subagents.
+
+## Goal
+
+Systematically execute all standard tool group tests in `test-server/test-tool-groups/` to verify behavioral correctness, parameter validation, error handling, and output schemas. You will delegate testing to subagents, ensuring high-fidelity results and structured error handling, while compiling telemetry.
+
+## Workflow Rules
+
+1. **Batched Sequential Execution**: Tests MUST be executed sequentially (one subagent at a time). Because the `mysql-mcp` server uses a Tool Filter (shortcuts) to prevent exceeding IDE limits, the tests are grouped into 11 **Phases** based on the required shortcut.
+2. **Subagent Delegation**:
+   - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file within the current Phase.
+   - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
+3. **Phase Transitions & Server Restarts**:
+   - The Coordinator will run continuously _within_ each Phase.
+   - When a Phase is complete, the Coordinator MUST pause and message the user: _"Phase X complete. Please switch the main config shortcut to `[Next Shortcut]` and manually restart the `mysql-mcp` server. Reply 'ready' when done."_
+   - Do NOT proceed to the next Phase until the user replies 'ready'.
+4. **Validation and Immediate Continuation (Within a Phase)**:
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint` and `pnpm run typecheck`. Do NOT run `pnpm run test` or `pnpm run check`. Ensure the local checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation. The main agent (Coordinator) will fix any broken tests at the end of the test suite.
+   - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation and immediately report back to the Coordinator.
+5. **Finalization and Commit**:
+   - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
+   - **CRITICAL PRIORITY**: NEVER delete a testing prompt or workflow file after success.
+   - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
+   - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
+   - The subagent MUST commit all changes locally (`bun .\.agents\scripts\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`).
+   - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
+   - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the current Phase.
+   - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
+   - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
+6. **Structured Error Handling**:
+   - Ensure subagents explicitly check that tools return structured MCP errors, not raw exceptions. Error messages should follow the standard `[LEVEL] [module] [CODE] message (context)` format where applicable.
+   - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
+   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_cluster_status`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
+7. **Coordinator Progress Reporting**:
+   - The Coordinator MUST respond to the user as each test proceeds and include the running count: This is test X out of Y. X fixes applied [Y Prompt / Z Code]: <concise description>. Do not wrap the message in quotes or add preamble.
+   - The Coordinator is allowed to output additional information and custom messages *only* during phase transitions.
+8. **Strict Verification and Anti-Hallucination**:
+   - The Coordinator MUST use the `list_dir` tool on `test-server/test-tool-groups/` BEFORE starting, and cross-reference the actual directory contents against the list below.
+   - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.
+   - NEVER rely on memory for filenames or current test counts. ALWAYS read your exact position from the checklist artifact or this file.
+   - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND`, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly increment the counter or count it as a successful test.
+   - **CRITICAL**: When updating the `task.md` checklist via tools like `replace_file_content`, you MUST ONLY change the status brackets (e.g., changing `[ ]` to `[/]` or `[x]`). DO NOT accidentally rewrite, abbreviate, or guess the filenames of upcoming tests. Doing so will cause them to fail with `FAILED_FILE_NOT_FOUND`.
+
+## Test Sequence Queue (Dependency DAG)
+
+### Phase 1: `starter` shortcut
+
+- `test-core-part1.md` (**MUST PASS FIRST**)
+- `test-core-part2.md`
+- `test-codemode.md`
+- `test-json-core-part1.md`
+- `test-json-core-part2.md`
+- `test-json-enhanced.md`
+- `test-json-helpers.md`
+- `test-transactions.md`
+- `test-text.md`
+- `test-versioning-part1.md`
+- `test-versioning-part2.md`
+
+_(Coordinator pauses: Asks user to switch filter to `dev-power` and restart)_
+
+### Phase 2: `dev-power` shortcut
+
+- `test-schema-management.md`
+- `test-schema-routines-part1.md`
+- `test-schema-routines-part2.md`
+- `test-performance-analysis-part1.md`
+- `test-performance-analysis-part2.md`
+- `test-performance-anomaly.md`
+- `test-fulltext-part1.md`
+- `test-fulltext-part2.md`
+
+_(Coordinator pauses: Asks user to switch filter to `dev-analytics` and restart)_
+
+### Phase 3: `dev-analytics` shortcut
+
+- `test-stats-advanced.md`
+- `test-stats-descriptive-part1.md`
+- `test-stats-descriptive-part2.md`
+- `test-stats-window.md`
+
+_(Coordinator pauses: Asks user to switch filter to `ai-data-nosql` and restart)_
+
+### Phase 4: `ai-data-nosql` shortcut
+
+- `test-docstore-part1.md`
+- `test-docstore-part2.md`
+
+_(Coordinator pauses: Asks user to switch filter to `ai-search` and restart)_
+
+### Phase 5: `ai-search` shortcut
+
+- `test-vector-management.md`
+- `test-vector-search.md`
+- `test-vector-storage.md`
+
+_(Coordinator pauses: Asks user to switch filter to `ai-spatial` and restart)_
+
+### Phase 6: `ai-spatial` shortcut
+
+- `test-spatial-geometry.md`
+- `test-spatial-operations.md`
+- `test-spatial-queries.md`
+- `test-spatial-setup.md`
+
+_(Coordinator pauses: Asks user to switch filter to `dba-monitor` and restart)_
+
+### Phase 7: `dba-monitor` shortcut
+
+- `test-monitoring.md`
+- `test-sys-part1.md`
+- `test-sys-part2.md`
+- `test-optimization.md`
+
+_(Coordinator pauses: Asks user to switch filter to `dba-manage` and restart)_
+
+### Phase 8: `dba-manage` shortcut
+
+- `test-admin-part1.md`
+- `test-admin-part2.md`
+- `test-backup-part1.md`
+- `test-backup-part2.md`
+- `test-replication.md`
+- `test-partitioning.md`
+- `test-events.md`
+
+_(Coordinator pauses: Asks user to switch filter to `dba-secure` and restart)_
+
+### Phase 9: `dba-secure` shortcut
+
+- `test-security-part1.md`
+- `test-security-part2.md`
+- `test-roles-part1.md`
+- `test-roles-part2.md`
+
+_(Coordinator pauses: Asks user to switch filter to `dba-schema` and restart)_
+
+### Phase 10: `dba-schema` shortcut
+
+- `test-introspection.md`
+- `test-migration.md`
+
+_(Coordinator pauses: Asks user to switch testing to the mysql-ecosystem server)_
+
+### Phase 11: `ecosystem` shortcut
+
+- `test-cluster-gr.md`
+- `test-cluster-innodb.md`
+- `test-proxysql-part1.md`
+- `test-proxysql-part2.md`
+- `test-router-part1.md`
+- `test-router-part2.md`
+- `test-shell-part1.md`
+- `test-shell-part2.md`
+
+## Telemetry Collection
+
+When the suite finishes, compile the **Total Token Estimate** and resource metrics (e.g., `mysql://metrics`) from all subagents into a final report for the user. Also, report the **Total Number of Issues Fixed** during the entire suite.
+
+## Post-Suite Validation
+
+At the absolute end of the testing suite, check your records. If ANY subagent applied fixes during the run:
+
+1. Message the main agent: "The test suite is complete. Fixes were applied during the run. Please ask the user to restart the server ONCE, and then we will run a final validation sweep."

@@ -14,8 +14,8 @@ import {
   createTableStatsTool,
   createBufferPoolStatsTool,
   createThreadStatsTool,
-} from "../analysis.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+} from "../analysis/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -34,7 +34,7 @@ describe("Performance Analysis Tools", () => {
 
   describe("createExplainTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createExplainTool(mockAdapter);
 
       expect(tool.name).toBe("mysql_explain");
       expect(tool.group).toBe("performance");
@@ -54,7 +54,7 @@ describe("Performance Analysis Tools", () => {
         ]),
       );
 
-      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createExplainTool(mockAdapter);
       const result = await tool.handler(
         { query: "SELECT * FROM users", format: "TRADITIONAL" },
         mockContext,
@@ -75,7 +75,7 @@ describe("Performance Analysis Tools", () => {
         ]),
       );
 
-      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createExplainTool(mockAdapter);
       const result = await tool.handler(
         { query: "SELECT * FROM users", format: "TREE" },
         mockContext,
@@ -102,7 +102,7 @@ describe("Performance Analysis Tools", () => {
         ]),
       );
 
-      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createExplainTool(mockAdapter);
       const result = (await tool.handler(
         { query: "SELECT * FROM users", format: "JSON" },
         mockContext,
@@ -120,7 +120,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult(mockRows),
       );
 
-      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createExplainTool(mockAdapter);
       const result = (await tool.handler(
         { query: "SELECT * FROM users", format: "JSON" },
         mockContext,
@@ -131,17 +131,17 @@ describe("Performance Analysis Tools", () => {
 
     it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
-      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createExplainTool(mockAdapter);
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
         mockContext,
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success false for invalid SQL", async () => {
@@ -149,7 +149,7 @@ describe("Performance Analysis Tools", () => {
         new Error("You have an error in your SQL syntax"),
       );
 
-      const tool = createExplainTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createExplainTool(mockAdapter);
       const result = (await tool.handler(
         { query: "SELECTT * FROMM users" },
         mockContext,
@@ -163,7 +163,7 @@ describe("Performance Analysis Tools", () => {
   describe("createExplainAnalyzeTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createExplainAnalyzeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_explain_analyze");
@@ -182,7 +182,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createExplainAnalyzeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { query: "SELECT * FROM users" },
@@ -197,7 +197,7 @@ describe("Performance Analysis Tools", () => {
 
     it("should return unsupported for JSON format", async () => {
       const tool = createExplainAnalyzeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT 1", format: "JSON" },
@@ -205,18 +205,18 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("does not support FORMAT=JSON");
+      expect(result.error).toContain("expected \"TREE\"");
       // Should NOT call executeReadQuery for JSON format
       expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
     });
 
     it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createExplainAnalyzeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
@@ -224,7 +224,7 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return success false for invalid SQL", async () => {
@@ -233,7 +233,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createExplainAnalyzeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECTT * FROMM users" },
@@ -255,7 +255,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createExplainAnalyzeTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { sql: "SELECT * FROM users" },
@@ -282,12 +282,12 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createSlowQueriesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ limit: 5 }, mockContext);
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("LEFT(DIGEST_TEXT, 200)");
       expect(call).toContain("LIMIT 5");
       expect(result).toHaveProperty("data.slowQueries");
@@ -297,12 +297,12 @@ describe("Performance Analysis Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSlowQueriesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ limit: 10, minTime: 0.5 }, mockContext);
 
       // 0.5 sec = 500,000,000,000 picoseconds (AVG_TIMER_WAIT is in picoseconds)
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("AVG_TIMER_WAIT > 500000000000");
     });
 
@@ -321,7 +321,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createSlowQueriesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
         data: { slowQueries: Record<string, unknown>[] };
@@ -347,7 +347,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createSlowQueriesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
         data: { slowQueries: Record<string, unknown>[] };
@@ -373,7 +373,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createSlowQueriesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
         data: { slowQueries: Record<string, unknown>[] };
@@ -399,7 +399,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createSlowQueriesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
         data: { slowQueries: Record<string, unknown>[] };
@@ -418,7 +418,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createSlowQueriesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
         success: boolean;
@@ -432,17 +432,17 @@ describe("Performance Analysis Tools", () => {
 
   describe("createQueryStatsTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       expect(tool.name).toBe("mysql_query_stats");
     });
 
     it("should order by total_time by default", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       await tool.handler({}, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ORDER BY SUM_TIMER_WAIT DESC");
       expect(call).toContain("LEFT(DIGEST_TEXT, 200)");
       expect(call).toContain("LIMIT 3");
@@ -451,20 +451,20 @@ describe("Performance Analysis Tools", () => {
     it("should order by executions when requested", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       await tool.handler({ orderBy: "executions" }, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ORDER BY COUNT_STAR DESC");
     });
 
     it("should order by avg_time when requested", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       await tool.handler({ orderBy: "avg_time" }, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ORDER BY AVG_TIMER_WAIT DESC");
     });
 
@@ -473,6 +473,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             database_name: "testdb",
+    title: "Testdb",
             query_text: "DROP TABLE IF EXISTS `t`",
             execution_count: 3,
             avg_time_ms: 18446743555252.1,
@@ -486,7 +487,7 @@ describe("Performance Analysis Tools", () => {
         ]),
       );
 
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         data: { queries: Record<string, unknown>[] };
       };
@@ -502,6 +503,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             database_name: "testdb",
+    title: "Testdb",
             query_text: "SELECT 1",
             execution_count: 10,
             avg_time_ms: 250,
@@ -515,7 +517,7 @@ describe("Performance Analysis Tools", () => {
         ]),
       );
 
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         data: { queries: Record<string, unknown>[] };
       };
@@ -531,6 +533,7 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             database_name: "testdb",
+    title: "Testdb",
             query_text: "SELECT * FROM users",
             execution_count: 5,
             avg_time_ms: "209241.7573",
@@ -544,7 +547,7 @@ describe("Performance Analysis Tools", () => {
         ]),
       );
 
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         data: { queries: Record<string, unknown>[] };
       };
@@ -563,7 +566,7 @@ describe("Performance Analysis Tools", () => {
         new Error("Access denied for performance_schema"),
       );
 
-      const tool = createQueryStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createQueryStatsTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
         error: string;
@@ -576,18 +579,20 @@ describe("Performance Analysis Tools", () => {
 
   describe("createIndexUsageTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createIndexUsageTool(mockAdapter);
       expect(tool.name).toBe("mysql_index_usage");
     });
 
     it("should query index usage stats", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
-      const result = await tool.handler({}, mockContext);
+      const tool = createIndexUsageTool(mockAdapter);
+      const result = await tool.handler({ table: "users" }, mockContext);
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       expect(call).toContain("table_io_waits_summary_by_index_usage");
       expect(result).toHaveProperty("data.indexUsage");
     });
@@ -598,11 +603,11 @@ describe("Performance Analysis Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createIndexUsageTool(mockAdapter);
       await tool.handler({ table: "users" }, mockContext);
 
       // Second call should be the index usage query with table filter
-      const call = mockAdapter.executeReadQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       expect(call).toContain("object_name = ?");
       const args = mockAdapter.executeReadQuery.mock.calls[1][1];
       expect(args).toEqual(["users"]);
@@ -611,44 +616,48 @@ describe("Performance Analysis Tools", () => {
     it("should return success false for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createIndexUsageTool(mockAdapter);
       const result = await tool.handler({ table: "nonexistent" }, mockContext);
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' doesn't exist",
+        error: "Table 'nonexistent' does not exist",
       });
       // Should only call once (existence check), not the index usage query
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(1);
     });
 
     it("should apply default limit", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
-      await tool.handler({}, mockContext);
+      const tool = createIndexUsageTool(mockAdapter);
+      await tool.handler({ table: "users" }, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
-      expect(call).toContain("LIMIT 3");
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
+      expect(call).toContain("LIMIT 5");
     });
 
     it("should use custom limit", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
-      await tool.handler({ limit: 10 }, mockContext);
+      const tool = createIndexUsageTool(mockAdapter);
+      await tool.handler({ table: "users", limit: 10 }, mockContext);
 
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       expect(call).toContain("LIMIT 10");
     });
 
     it("should return structured error on query failure", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Access denied for performance_schema"),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockRejectedValueOnce(new Error("Access denied for performance_schema"));
 
-      const tool = createIndexUsageTool(mockAdapter as unknown as MySQLAdapter);
-      const result = (await tool.handler({}, mockContext)) as {
+      const tool = createIndexUsageTool(mockAdapter);
+      const result = (await tool.handler({ table: "users" }, mockContext)) as {
         success: boolean;
         error: string;
       };
@@ -660,7 +669,7 @@ describe("Performance Analysis Tools", () => {
 
   describe("createTableStatsTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createTableStatsTool(mockAdapter);
       expect(tool.name).toBe("mysql_table_stats");
     });
 
@@ -669,18 +678,19 @@ describe("Performance Analysis Tools", () => {
         createMockQueryResult([
           {
             table_name: "users",
+    title: "Users",
             estimated_rows: 1000,
           },
         ]),
       );
 
-      const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createTableStatsTool(mockAdapter);
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
         data: { stats: unknown };
       };
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("information_schema.TABLES");
       expect(result.data.stats).toBeDefined();
     });
@@ -688,14 +698,14 @@ describe("Performance Analysis Tools", () => {
     it("should return success false if table not found", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createTableStatsTool(mockAdapter);
       const result = (await tool.handler(
         { table: "nonexistent" },
         mockContext,
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
     });
 
     it("should return structured error on query failure", async () => {
@@ -703,7 +713,7 @@ describe("Performance Analysis Tools", () => {
         new Error("Access denied for information_schema"),
       );
 
-      const tool = createTableStatsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createTableStatsTool(mockAdapter);
       const result = (await tool.handler({ table: "users" }, mockContext)) as {
         success: boolean;
         error: string;
@@ -717,7 +727,7 @@ describe("Performance Analysis Tools", () => {
   describe("createBufferPoolStatsTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createBufferPoolStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_buffer_pool_stats");
     });
@@ -733,12 +743,12 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createBufferPoolStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("INNODB_BUFFER_POOL_STATS");
       expect(call).toContain("POOL_SIZE");
       expect(call).toContain("HIT_RATE");
@@ -752,7 +762,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createBufferPoolStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -767,7 +777,7 @@ describe("Performance Analysis Tools", () => {
   describe("createThreadStatsTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createThreadStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_thread_stats");
     });
@@ -783,12 +793,12 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createThreadStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("performance_schema.threads");
       expect(result).toHaveProperty("data.threads");
     });
@@ -799,7 +809,7 @@ describe("Performance Analysis Tools", () => {
       );
 
       const tool = createThreadStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;

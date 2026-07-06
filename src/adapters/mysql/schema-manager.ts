@@ -123,7 +123,7 @@ export class SchemaManager {
           columns: [row["columnName"] as string],
           unique: row["nonUnique"] === 0,
           type: row["type"] as "BTREE" | "HASH" | "FULLTEXT" | "SPATIAL",
-          cardinality: row["cardinality"] as number | undefined,
+          cardinality: row["cardinality"] != null ? Number(row["cardinality"]) : undefined,
         });
       }
     }
@@ -225,9 +225,9 @@ export class SchemaManager {
           ? ("view" as const)
           : ("table" as const),
       engine: row["engine"] as string | undefined,
-      rowCount: row["rowCount"] as number | undefined,
-      dataLength: row["dataLength"] as number | undefined,
-      indexLength: row["indexLength"] as number | undefined,
+      rowCount: row["rowCount"] != null ? Number(row["rowCount"]) : undefined,
+      dataLength: row["dataLength"] != null ? Number(row["dataLength"]) : undefined,
+      indexLength: row["indexLength"] != null ? Number(row["indexLength"]) : undefined,
       createTime: row["createTime"] as Date | undefined,
       updateTime: row["updateTime"] as Date | undefined,
       collation: row["collation"] as string | undefined,
@@ -319,7 +319,7 @@ export class SchemaManager {
       name: tableName,
       type: tableRow?.["type"] === "VIEW" ? "view" : "table",
       engine: tableRow?.["engine"] as string | undefined,
-      rowCount: tableRow?.["rowCount"] as number | undefined,
+      rowCount: tableRow?.["rowCount"] != null ? Number(tableRow["rowCount"]) : undefined,
       collation: tableRow?.["collation"] as string | undefined,
       comment: tableRow?.["comment"] as string | undefined,
       columns,
@@ -394,7 +394,7 @@ export class SchemaManager {
           columns: [row["columnName"] as string],
           unique: row["nonUnique"] === 0,
           type: row["type"] as "BTREE" | "HASH" | "FULLTEXT" | "SPATIAL",
-          cardinality: row["cardinality"] as number | undefined,
+          cardinality: row["cardinality"] != null ? Number(row["cardinality"]) : undefined,
         });
       }
     }

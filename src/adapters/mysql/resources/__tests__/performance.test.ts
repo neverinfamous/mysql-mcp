@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createPerformanceResource } from "../performance.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -66,7 +66,7 @@ describe("Performance Resource", () => {
 
     // Mock performance schema failure
     mockAdapter.executeQuery.mockRejectedValueOnce(
-      new Error("Table doesn't exist"),
+      new Error("Table does not exist"),
     );
 
     const resource = createPerformanceResource(

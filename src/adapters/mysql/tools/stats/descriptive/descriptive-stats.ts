@@ -1,0 +1,160 @@
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../../core/error-helpers.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+import type {
+  ToolDefinition,
+  RequestContext,
+} from "../../../../../types/index.js";
+import { DescriptiveStatsOutputSchema } from "../../../schemas/stats.js";
+import { ValidationError } from "../../../../../types/index.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
+import { READ_ONLY } from "../../../../../utils/annotations.js";
+import { DescriptiveStatsSchemaBase, DescriptiveStatsSchema } from "./schemas.js";
+
+/**
+ * Calculate descriptive statistics
+ */
+export function createDescriptiveStatsTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
+  return {
+    name: "mysql_stats_descriptive",
+    title: "MySQL Descriptive Statistics",
+    description:
+      "Calculate descriptive statistics (mean, median, stddev, min, max, count) for a numeric column.",
+    group: "stats",
+    inputSchema: DescriptiveStatsSchemaBase,
+    outputSchema: DescriptiveStatsOutputSchema,
+    requiredScopes: ["read"],
+    annotations: READ_ONLY,
+    handler: async (params: unknown, _context: RequestContext) => {
+      try {
+        const { table, column, where } = DescriptiveStatsSchema.parse(params);
+        // Validate identifiers
+        validateQualifiedIdentifier(table, "table");
+        validateIdentifier(column, "column");
+
+        const whereClause = where ? `WHERE ${where}` : "";
+
+        // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
+        await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
+
+        const { schema, table: parsedTableName } = parseQualifiedTable(table);
+
+        const colCheck = await adapter.executeQuery(
+          `SELECT DATA_TYPE FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+          schema ? [schema, parsedTableName, column] : [parsedTableName, column],
+        );
+        const dataTypeVal = colCheck.rows?.[0]?.["DATA_TYPE"];
+        const dataType =
+          typeof dataTypeVal === "string" ? dataTypeVal.toLowerCase() : "";
+        // Empty result means column does not exist; non-empty result with non-numeric type means wrong type
+        if (!colCheck.rows || colCheck.rows.length === 0) {
+          throw new ValidationError(`Column '${column}' not found on table ${escapeQualifiedTable(table)}`);
+        }
+        if (
+          ![
+            "tinyint",
+            "smallint",
+            "mediumint",
+            "int",
+            "bigint",
+            "decimal",
+            "numeric",
+            "float",
+            "double",
+          ].includes(dataType)
+        ) {
+          throw new ValidationError(`Column type mismatch: '${column}' is not a numeric column (type: ${dataType})`);
+        }
+
+        // Get basic count for median calculation
+        const countResult = await adapter.executeQuery(
+          `SELECT COUNT(*) as count FROM ${escapeQualifiedTable(table)} ${whereClause}`,
+        );
+        const totalCount = Number(countResult.rows?.[0]?.["count"] ?? 0);
+
+        if (totalCount === 0) {
+          return withTokenEstimate({
+            success: true,
+            data: {
+              column,
+              count: 0,
+              mean: null,
+              median: null,
+              stddev: null,
+              variance: null,
+              min: null,
+              max: null,
+              range: null,
+              sum: null,
+            },
+          });
+        }
+
+        // Calculate median offset/limit
+        const limit = 2 - (totalCount % 2);
+        const offset = Math.floor((totalCount - 1) / 2);
+
+        const medianQuery = `
+                SELECT AVG(val) as median
+                FROM (
+                    SELECT \`${column}\` as val
+                    FROM ${escapeQualifiedTable(table)}
+                    ${whereClause}
+                    ORDER BY \`${column}\`
+                    LIMIT ${String(limit)}
+                    OFFSET ${String(offset)}
+                ) as median_calc
+            `;
+
+        const query = `
+                SELECT
+                    COUNT(\`${column}\`) as count,
+                    AVG(\`${column}\`) as mean,
+                    STD(\`${column}\`) as stddev,
+                    VAR_POP(\`${column}\`) as variance,
+                    MIN(\`${column}\`) as min,
+                    MAX(\`${column}\`) as max,
+                    MAX(\`${column}\`) - MIN(\`${column}\`) as \`range\`,
+                    SUM(\`${column}\`) as sum
+                FROM ${escapeQualifiedTable(table)}
+                ${whereClause}
+            `;
+
+        const [statsResult, medianResult] = await Promise.all([
+          adapter.executeQuery(query),
+          adapter.executeQuery(medianQuery),
+        ]);
+
+        const stats = statsResult.rows?.[0];
+        const medianRow = medianResult.rows?.[0];
+
+        return withTokenEstimate({
+          success: true,
+          data: {
+            column,
+            count: Number(stats?.["count"] ?? 0),
+            mean: stats?.["mean"] != null ? Number(stats?.["mean"]) : null,
+            median:
+              medianRow?.["median"] != null
+                ? Number(medianRow?.["median"])
+                : null,
+            stddev:
+              stats?.["stddev"] != null ? Number(stats?.["stddev"]) : null,
+            variance:
+              stats?.["variance"] != null ? Number(stats?.["variance"]) : null,
+            min: stats?.["min"] != null ? Number(stats?.["min"]) : null,
+            max: stats?.["max"] != null ? Number(stats?.["max"]) : null,
+            range: stats?.["range"] != null ? Number(stats?.["range"]) : null,
+            sum: stats?.["sum"] != null ? Number(stats?.["sum"]) : null,
+          },
+        });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
+      }
+    },
+  };
+}

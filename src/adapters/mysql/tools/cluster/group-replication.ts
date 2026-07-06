@@ -6,21 +6,32 @@
  */
 
 import { z } from "zod";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { ExtensionNotAvailableError } from "../../../../types/index.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import {
+  MemberSchema,
+  MemberSchemaBase,
+  GRStatusOutputSchema,
+  GRMembersOutputSchema,
+  GRPrimaryOutputSchema,
+  GRTransactionsOutputSchema,
+  GRFlowControlOutputSchema,
+} from "../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
 // Schemas
 // =============================================================================
 
-const MemberSchema = z.object({
-  memberId: z.string().optional().describe("Filter by specific member UUID"),
-});
+// Moved to schemas/cluster.ts
 
 // =============================================================================
 // Tool Creation Functions
@@ -36,7 +47,8 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get comprehensive Group Replication status including mode and member state.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    outputSchema: GRStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -46,10 +58,9 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication plugin is not active",
-          };
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("Group Replication")
+          );
         }
 
         const statusResult = await adapter.executeQuery(`
@@ -81,34 +92,33 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
                 SELECT @@server_uuid as serverUuid
             `);
 
-        const localUuid = localResult.rows?.[0]?.["serverUuid"] as string;
+        const localUuidVal = localResult.rows?.[0]?.["serverUuid"];
+        const localUuid = typeof localUuidVal === "string" ? localUuidVal : "";
         const members = memberResult.rows ?? [];
-        const localMember = members.find((m) => m["MEMBER_ID"] === localUuid);
+        const mappedMembers = members.map((m) => {
+          return {
+            id: m["MEMBER_ID"],
+            host: m["MEMBER_HOST"],
+            port: m["MEMBER_PORT"],
+            state: m["MEMBER_STATE"],
+            role: m["MEMBER_ROLE"],
+            version: m["MEMBER_VERSION"],
+            isLocal: m["MEMBER_ID"] === localUuid,
+          };
+        });
+
+        const localMemberMapped = mappedMembers.find((m) => m.isLocal) ?? null;
 
         const data = {
           enabled: members.length > 0,
           groupName: config?.["groupName"] ?? null,
           singlePrimaryMode: config?.["singlePrimaryMode"] === 1,
           localAddress: config?.["localAddress"] ?? null,
-          localMember: localMember ?? null,
-          memberCount: members.length,
-          members: members.map((m) => {
-            const member = m;
-            return {
-              id: member["MEMBER_ID"],
-              host: member["MEMBER_HOST"],
-              port: member["MEMBER_PORT"],
-              state: member["MEMBER_STATE"],
-              role: member["MEMBER_ROLE"],
-              version: member["MEMBER_VERSION"],
-              isLocal: member["MEMBER_ID"] === localUuid,
-            };
-          }),
+          localMember: localMemberMapped,
+          memberCount: mappedMembers.length,
+          members: mappedMembers,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -126,7 +136,8 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all Group Replication members with detailed state information.",
     group: "cluster",
-    inputSchema: MemberSchema,
+    inputSchema: MemberSchemaBase,
+    outputSchema: GRMembersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -138,10 +149,9 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication not active",
-          };
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("Group Replication")
+          );
         }
 
         let query = `
@@ -172,10 +182,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -193,11 +200,22 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Identify the current primary member in a single-primary GR cluster.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    outputSchema: GRPrimaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        // Check if GR is running
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
+        );
+        if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("Group Replication")
+          );
+        }
+
         const result = await adapter.executeQuery(`
                 SELECT 
                     MEMBER_ID as memberId,
@@ -222,10 +240,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
           hasPrimary: !!primary,
           isLocalPrimary: primary?.["memberId"] === localUuid,
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -245,7 +260,8 @@ export function createGRTransactionsTool(
     description:
       "Get Group Replication transaction statistics and pending transactions.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    outputSchema: GRTransactionsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -255,10 +271,9 @@ export function createGRTransactionsTool(
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication not active",
-          };
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("Group Replication")
+          );
         }
 
         // Get transaction statistics
@@ -292,10 +307,7 @@ export function createGRTransactionsTool(
             purged: gtid?.["gtidPurged"] ?? "",
           },
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }
@@ -313,7 +325,8 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get Group Replication flow control statistics and throttling info.",
     group: "cluster",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    outputSchema: GRFlowControlOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -323,10 +336,9 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
           "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
         );
         if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
-          return {
-            success: false,
-            error: "Group Replication not active",
-          };
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("Group Replication")
+          );
         }
 
         // Get flow control configuration
@@ -354,12 +366,12 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         // Determine if flow control is active
         const isThrottling = (queueResult.rows ?? []).some((row) => {
           const r = row;
-          const certQueue = r["certifyQueue"] as number;
-          const appQueue = r["applierQueue"] as number;
-          const certThreshold =
-            (config?.["certifierThreshold"] as number) ?? 25000;
-          const appThreshold =
-            (config?.["applierThreshold"] as number) ?? 25000;
+          const certQueue = Number(r["certifyQueue"] ?? 0);
+          const appQueue = Number(r["applierQueue"] ?? 0);
+
+          const certThreshold = Number(config?.["certifierThreshold"] ?? 25000);
+
+          const appThreshold = Number(config?.["applierThreshold"] ?? 25000);
           return certQueue > certThreshold || appQueue > appThreshold;
         });
 
@@ -371,10 +383,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
             ? "Flow control is active. Consider investigating slow members or adjusting thresholds."
             : "Flow control is not currently throttling.",
         };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
-        );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

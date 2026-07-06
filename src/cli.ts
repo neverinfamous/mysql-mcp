@@ -5,14 +5,14 @@
  * Entry point for running the mysql-mcp server from the command line.
  */
 
-import { createServer } from "./server/mcp-server.js";
-import { MySQLAdapter } from "./adapters/mysql/mysql-adapter.js";
+import { createServer } from "./server/mcp-server/index.js";
+import { MySQLAdapter } from "./adapters/mysql/mysql-adapter/index.js";
 import type {
   McpServerConfig,
   DatabaseConfig,
   OAuthConfig,
 } from "./types/index.js";
-import { parseArgs } from "./cli/args.js";
+import { parseArgs } from "./cli/args/index.js";
 import { logger } from "./utils/logger.js";
 
 /**
@@ -93,8 +93,36 @@ export async function main(args?: {
   databases: DatabaseConfig[];
   oauth: OAuthConfig | undefined;
   shouldExit?: boolean;
+  dumpConfig?: boolean;
 }): Promise<void> {
-  const { config, databases, oauth, shouldExit } = args ?? parseArgs();
+  const { config, databases, oauth, shouldExit, dumpConfig } = args ?? await parseArgs();
+
+  if (dumpConfig) {
+    // Redact sensitive values before dumping
+    const safeConfig = JSON.parse(JSON.stringify({ config, databases, oauth })) as {
+      config?: { authToken?: string; [key: string]: unknown };
+      oauth?: { jwksUri?: string; [key: string]: unknown };
+      databases?: { password?: string; [key: string]: unknown }[];
+    };
+    
+    if (typeof safeConfig.config?.authToken === "string") {
+      safeConfig.config.authToken = "***REDACTED***";
+    }
+    
+    if (typeof safeConfig.oauth?.jwksUri === "string") {
+      safeConfig.oauth.jwksUri = "***REDACTED***";
+    }
+    
+    if (Array.isArray(safeConfig.databases)) {
+      for (const db of safeConfig.databases) {
+        if (typeof db.password === "string") {
+          db.password = "***REDACTED***";
+        }
+      }
+    }
+    process.stdout.write(JSON.stringify(safeConfig, null, 2) + "\n");
+    process.exit(0);
+  }
 
   if (shouldExit) {
     process.exit(0);
@@ -153,12 +181,19 @@ export async function main(args?: {
             `mysql:${dbConfig.database ?? "default"}`,
           );
         } else {
-          // Normal flow: connect then register
-          await adapter.connect(dbConfig);
+          // Normal flow: register first, connect asynchronously
+          // This allows the MCP server to start immediately and prevents "context deadline exceeded" timeouts in Claude Desktop
           server.registerAdapter(
             adapter,
             `mysql:${dbConfig.database ?? "default"}`,
           );
+          
+          adapter.connect(dbConfig).catch((error: unknown) => {
+            logger.error(
+              `Failed to connect to database ${dbConfig.database ?? "default"} in background`,
+              { error: String(error) },
+            );
+          });
         }
       }
     }

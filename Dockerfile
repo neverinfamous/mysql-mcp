@@ -19,17 +19,18 @@ RUN apk add --no-cache \
     g++
 
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install ALL dependencies (including devDependencies for build)
-RUN npm ci --include=dev
+RUN npm install -g pnpm && \
+    pnpm install --frozen-lockfile
 
 # Copy source code
-COPY tsconfig.json ./
+COPY tsconfig*.json tsup.config.ts ./
 COPY src/ ./src/
 
 # Build the application
-RUN npm run build
+RUN pnpm run build
 
 # -----------------
 # Stage 2: Runtime
@@ -48,10 +49,10 @@ RUN apk upgrade --no-cache
 # - CVE-2024-21538: cross-spawn < 7.0.5
 # - CVE-2025-64756: glob < 10.5.0
 # - CVE-2025-5889: brace-expansion <= 2.0.1
-# - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy with 7.5.15)
+# - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy with 7.5.19)
 # - CVE-2026-27904: minimatch < 10.2.3 (patch npm's bundled copy with 10.2.5)
-RUN npm install -g npm@latest && \
-    npm install -g tar@7.5.15 && \
+RUN npm install -g npm@latest pnpm && \
+    npm install -g tar@7.5.19 && \
     rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
     cp -r /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/tar && \
     npm uninstall -g tar && \
@@ -69,11 +70,13 @@ RUN addgroup -g 1001 app && \
 ENV MCP_HOST=0.0.0.0
 
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies only
-RUN npm ci --omit=dev && \
-    npm cache clean --force
+# Install production dependencies only (needs build tools for better-sqlite3)
+RUN apk add --no-cache python3 make g++ && \
+    pnpm install --prod --frozen-lockfile && \
+    pnpm store prune && \
+    apk del python3 make g++
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist

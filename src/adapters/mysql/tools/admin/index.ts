@@ -5,7 +5,7 @@
  * 18 tools total (7 admin + 7 monitoring + 4 backup).
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules
@@ -26,7 +26,7 @@ import {
   createReplicationStatusTool,
   createPoolStatsTool,
   createServerHealthTool,
-} from "./monitoring.js";
+} from "./monitoring/index.js";
 
 import {
   createExportTableTool,
@@ -41,7 +41,10 @@ import {
   createAuditDiffBackupTool,
 } from "./audit-backup.js";
 
+import { createAuditSearchTool } from "./audit-search.js";
+
 import { createAppendInsightTool } from "./insights.js";
+import { createServerConfigTool } from "./server-config.js";
 
 /**
  * Get admin tools
@@ -55,6 +58,8 @@ export function getAdminTools(adapter: MySQLAdapter): ToolDefinition[] {
     createFlushTablesTool(adapter),
     createKillQueryTool(adapter),
     createAppendInsightTool(),
+    createServerConfigTool(),
+    createAuditSearchTool(adapter),
   ];
 }
 

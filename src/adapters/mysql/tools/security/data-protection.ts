@@ -9,11 +9,17 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  SecurityMaskDataOutputSchema,
+  SecurityUserPrivilegesOutputSchema,
+  SecuritySensitiveTablesOutputSchema,
+} from "../../schemas/security.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
@@ -24,25 +30,74 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Zod Schemas
 // =============================================================================
 
-const MaskDataSchema = z.object({
-  value: z.string().describe("Value to mask"),
-  type: z.string().describe("Masking type"),
-  keepFirst: z.number().default(0).describe("Characters to keep from start"),
-  keepLast: z.number().default(0).describe("Characters to keep from end"),
-  maskChar: z.string().default("*").describe("Character to use for masking"),
+const MaskDataSchemaBase = z.object({
+  value: z.string().optional().describe("Value to mask"),
+  data: z.string().optional().describe("Alias for value"),
+  text: z.string().optional().describe("Alias for value"),
+  input: z.string().optional().describe("Alias for value"),
+  type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]).describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
+  keepFirst: z.number().optional().describe("Characters to keep from start"),
+  keepLast: z.number().optional().describe("Characters to keep from end"),
+  maskChar: z.string().optional().describe("Character to use for masking"),
 });
 
-const UserPrivilegesSchema = z.object({
+const MaskDataSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const obj = val as Record<string, unknown>;
+    if (!("value" in obj)) {
+      if ("data" in obj) return { ...obj, value: obj["data"] };
+      if ("text" in obj) return { ...obj, value: obj["text"] };
+      if ("input" in obj) return { ...obj, value: obj["input"] };
+    }
+    return val;
+  },
+  z.object({
+    value: z.string(),
+    type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]),
+    keepFirst: z.coerce.number().default(0),
+    keepLast: z.coerce.number().default(0),
+    maskChar: z.string().default("*"),
+  })
+);
+
+const UserPrivilegesSchemaBase = z.object({
   user: z.string().optional().describe("Filter by username"),
-  host: z.string().default("%").describe("Host pattern"),
-  includeRoles: z.boolean().default(true).describe("Include role grants"),
+  userName: z.string().optional().describe("Alias for user"),
+  username: z.string().optional().describe("Alias for user"),
+  name: z.string().optional().describe("Alias for user"),
+  host: z.string().optional().describe("Host pattern"),
+  includeRoles: z.boolean().optional().describe("Include role grants"),
   summary: z
     .boolean()
-    .default(false)
+    .optional()
     .describe(
       "Return condensed summary (privilege counts) instead of raw GRANT strings",
     ),
 });
+
+const UserPrivilegesSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const obj = val as Record<string, unknown>;
+    if (!("user" in obj)) {
+      if ("userName" in obj) {
+        return { ...obj, user: obj["userName"] };
+      } else if ("username" in obj) {
+        return { ...obj, user: obj["username"] };
+      } else if ("name" in obj) {
+        return { ...obj, user: obj["name"] };
+      }
+    }
+    return val;
+  },
+  z.object({
+    user: z.string().default(""),
+    host: z.string().default("%"),
+    includeRoles: z.boolean().default(true),
+    summary: z.boolean().default(false),
+  })
+);
 
 const SensitiveTablesSchemaBase = z.object({
   schema: z
@@ -50,6 +105,9 @@ const SensitiveTablesSchemaBase = z.object({
     .optional()
     .describe("Schema to scan (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
+  table: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  tableName: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
   patterns: z
     .array(z.string())
     .optional()
@@ -66,15 +124,23 @@ const SensitiveTablesSchema = z
   .preprocess(
     (val: unknown) => {
       if (typeof val !== "object" || val === null) return val;
-      const v = val as Record<string, unknown>;
-      if (v["schema"] === undefined && v["database"] !== undefined) {
-        v["schema"] = v["database"];
+      const obj = val as Record<string, unknown>;
+      if (!("schema" in obj)) {
+        if ("database" in obj) {
+          return { ...obj, schema: obj["database"] };
+        } else if ("db" in obj) {
+          return { ...obj, schema: obj["db"] };
+        } else if ("table" in obj) {
+          return { ...obj, schema: obj["table"] };
+        } else if ("tableName" in obj) {
+          return { ...obj, schema: obj["tableName"] };
+        }
       }
-      return v;
+      return val;
     },
     z.object({
-      schema: z.string().optional(),
-      database: z.string().optional(),
+      schema: z.string().default(""),
+      database: z.string().default(""),
       patterns: z
         .array(z.string())
         .default([
@@ -117,30 +183,14 @@ export function createSecurityMaskDataTool(
     description:
       "Apply data masking to sensitive values (implementation for Community Edition).",
     group: "security",
-    inputSchema: MaskDataSchema,
+    inputSchema: MaskDataSchemaBase,
+    outputSchema: SecurityMaskDataOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: (params: unknown, _context: RequestContext): Promise<unknown> => {
       try {
         const { value, type, keepFirst, keepLast, maskChar } =
           MaskDataSchema.parse(params);
-
-        const validTypes = [
-          "email",
-          "phone",
-          "ssn",
-          "credit_card",
-          "partial",
-        ] as const;
-        if (!validTypes.includes(type as (typeof validTypes)[number])) {
-          return Promise.resolve(
-            formatHandlerErrorResponse(
-              new Error(
-                `Invalid type: '${type}' — expected one of: ${validTypes.join(", ")}`,
-              ),
-            ),
-          );
-        }
 
         let maskedValue: string;
 
@@ -258,7 +308,8 @@ export function createSecurityUserPrivilegesTool(
     title: "MySQL User Privileges",
     description: "Get comprehensive privilege report for users.",
     group: "security",
-    inputSchema: UserPrivilegesSchema,
+    inputSchema: UserPrivilegesSchemaBase,
+    outputSchema: SecurityUserPrivilegesOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -266,38 +317,40 @@ export function createSecurityUserPrivilegesTool(
         const { user, host, includeRoles, summary } =
           UserPrivilegesSchema.parse(params);
 
+        if (!user) {
+          return formatHandlerErrorResponse(
+            new ValidationError("Parameter 'user' (or 'userName') is required to prevent payload bloat.")
+          );
+        }
         // P154: User existence check when explicitly provided
-        if (user) {
-          const userCheck = await adapter.executeQuery(
+        const userCheck = await adapter.executeQuery(
             "SELECT User FROM mysql.user WHERE User = ? LIMIT 1",
             [user],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`User '${user}' does not exist.`),
+              new ValidationError(`User '${user}' does not exist.`),
             );
           }
-        }
 
         // Get users
         let usersQuery = `
                 SELECT User, Host,
-                       plugin as authPlugin,
-                       account_locked as accountLocked,
-                       password_expired as passwordExpired,
-                       password_lifetime as passwordLifetime,
-                       max_connections as maxConnections,
-                       max_user_connections as maxUserConnections
+                       plugin AS authPlugin,
+                       account_locked AS accountLocked,
+                       password_expired AS passwordExpired,
+                       password_lifetime AS passwordLifetime,
+                       max_connections AS maxConnections,
+                       max_user_connections AS maxUserConnections
                 FROM mysql.user
             `;
 
         const conditions: string[] = [];
         const queryParams: unknown[] = [];
 
-        if (user) {
-          conditions.push("User = ?");
-          queryParams.push(user);
-        }
+        conditions.push("User = ?");
+        queryParams.push(user);
+        
         if (host !== "%") {
           conditions.push("Host = ?");
           queryParams.push(host);
@@ -313,8 +366,8 @@ export function createSecurityUserPrivilegesTool(
         const userPrivileges = [];
         for (const userRow of usersResult.rows ?? []) {
           const u = userRow;
-          const userName = u["User"] as string;
-          const userHost = u["Host"] as string;
+          const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+          const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
 
           const grantsResult = await adapter.executeQuery(
             `SHOW GRANTS FOR \`${userName}\`@\`${userHost}\``,
@@ -322,7 +375,7 @@ export function createSecurityUserPrivilegesTool(
 
           const grants = (grantsResult.rows ?? []).map((r) => {
             const values = Object.values(r);
-            return values[0] as string;
+            return typeof values[0] === "string" ? values[0] : String(values[0]);
           });
 
           let roles: string[] = [];
@@ -338,8 +391,9 @@ export function createSecurityUserPrivilegesTool(
               );
 
               roles = (rolesResult.rows ?? []).map((r) => {
-                const role = r;
-                return `${role["FROM_USER"] as string}@${role["FROM_HOST"] as string}`;
+                const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
+                const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
+                return `${fromUser}@${fromHost}`;
               });
             } catch {
               // Role edges table might not exist in older versions
@@ -424,24 +478,28 @@ export function createSecuritySensitiveTablesTool(
     description: "Identify tables and columns that may contain sensitive data.",
     group: "security",
     inputSchema: SensitiveTablesSchemaBase,
+    outputSchema: SecuritySensitiveTablesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { schema, patterns, limit } = SensitiveTablesSchema.parse(params);
 
+        if (!schema) {
+          return formatHandlerErrorResponse(
+            new ValidationError("Parameter 'schema' (or 'database') is required to prevent payload bloat.")
+          );
+        }
         // P154: Schema existence check when explicitly provided
-        if (schema) {
-          const schemaCheck = await adapter.executeQuery(
+        const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${schema}' does not exist.`),
+              new ValidationError(`Schema '${schema}' does not exist.`),
             );
           }
-        }
 
         // Build pattern conditions
         const patternConditions = patterns
@@ -449,20 +507,18 @@ export function createSecuritySensitiveTablesTool(
           .join(" OR ");
         const patternParams = patterns.map((p) => `%${p}%`);
 
-        // Build schema condition - use explicit schema if provided, otherwise DATABASE()
-        const schemaCondition = schema
-          ? "TABLE_SCHEMA = ?"
-          : "TABLE_SCHEMA = DATABASE()";
-        const schemaParams = schema ? [schema] : [];
+        // Build schema condition - use explicit schema if provided
+        const schemaCondition = "TABLE_SCHEMA = ?";
+        const schemaParams = [schema];
 
         const query = `
                 SELECT
-                    TABLE_NAME as tableName,
-                    COLUMN_NAME as columnName,
-                    DATA_TYPE as dataType,
-                    COLUMN_TYPE as columnType,
-                    IS_NULLABLE as nullable,
-                    COLUMN_COMMENT as comment
+                    TABLE_NAME AS tableName,
+                    COLUMN_NAME AS columnName,
+                    DATA_TYPE AS dataType,
+                    COLUMN_TYPE AS columnType,
+                    IS_NULLABLE AS nullable,
+                    COLUMN_COMMENT AS comment
                 FROM information_schema.COLUMNS
                 WHERE ${schemaCondition}
                   AND (${patternConditions})
@@ -478,7 +534,7 @@ export function createSecuritySensitiveTablesTool(
         const tableMap = new Map<string, Record<string, unknown>[]>();
         for (const row of result.rows ?? []) {
           const r = row;
-          const tableName = r["tableName"] as string;
+          const tableName = typeof r["tableName"] === "string" ? r["tableName"] : String(r["tableName"]);
           if (!tableMap.has(tableName)) {
             tableMap.set(tableName, []);
           }

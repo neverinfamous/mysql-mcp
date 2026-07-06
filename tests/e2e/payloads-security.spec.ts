@@ -31,7 +31,7 @@ test.describe("Payload Contracts: Security + Roles", () => {
       const payload = await callToolAndParse(
         client,
         "mysql_security_user_privileges",
-        {},
+        { user: "root" },
       );
 
       expect(typeof payload).toBe("object");
@@ -76,7 +76,7 @@ test.describe("Payload Contracts: Security + Roles", () => {
       const payload = await callToolAndParse(
         client,
         "mysql_security_sensitive_tables",
-        { limit: 5 },
+        { schema: "testdb", limit: 5 },
       );
 
       expect(typeof payload).toBe("object");

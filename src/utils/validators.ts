@@ -102,7 +102,7 @@ export function validateIdentifier(
  * - Max length 255 characters (MySQL host limit)
  * - Blocks injection characters: quotes, semicolons, backticks, parentheses, spaces
  */
-const MYSQL_USER_HOST_PATTERN = /^[a-zA-Z0-9_%.-]+$/;
+const MYSQL_USER_HOST_PATTERN = /^[a-zA-Z0-9_%.\-@]+$/;
 
 /**
  * Validate a MySQL user or host value for safe interpolation
@@ -132,7 +132,7 @@ export function validateMySQLUserHost(
 
   if (!MYSQL_USER_HOST_PATTERN.test(value)) {
     throw new ValidationError(
-      `Invalid ${type}: contains disallowed characters. Only alphanumeric, underscore, percent, dot, and hyphen are allowed.`,
+      `Invalid ${type}: contains disallowed characters. Only alphanumeric, underscore, percent, dot, hyphen, and @ are allowed.`,
       type,
     );
   }
@@ -305,4 +305,22 @@ export function escapeQualifiedTable(table: string): string {
     .split(".")
     .map((part) => `\`${part.replace(/`/g, "``")}\``)
     .join(".");
+}
+
+/**
+ * Parse a potentially qualified table name into schema and table
+ * Returns the schema and table parts, stripping any backticks.
+ * If no schema is provided, schema is undefined.
+ */
+export function parseQualifiedTable(table: string): { schema?: string; table: string } {
+  const parts = table.split(".");
+  if (parts.length > 1) {
+    return {
+      schema: parts[0]?.replace(/`/g, ""),
+      table: parts[1]?.replace(/`/g, "") ?? "",
+    };
+  }
+  return {
+    table: table.replace(/`/g, ""),
+  };
 }

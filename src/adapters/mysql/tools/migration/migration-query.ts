@@ -5,13 +5,16 @@
  * 3 tools total.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   MigrationRollbackSchemaBase,
   MigrationRollbackSchema,
@@ -20,6 +23,9 @@ import {
   MigrationStatusSchemaBase,
   MigrationStatusSchema,
   // Output schemas
+  MigrationRollbackOutputSchema,
+  MigrationHistoryOutputSchema,
+  MigrationStatusOutputSchema,
 } from "../../schemas/index.js";
 import {
   TRACKING_TABLE,
@@ -37,21 +43,26 @@ export function createMigrationRollbackTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_rollback",
+    title: "Migration Rollback",
     description:
       "Roll back a specific migration by ID or version. " +
       "Executes the stored rollback_sql and updates status to 'rolled_back'. " +
       "Use dryRun: true to preview the rollback SQL without executing.",
     group: "migration",
     inputSchema: MigrationRollbackSchemaBase,
+    outputSchema: MigrationRollbackOutputSchema,
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationRollbackSchema.parse(params);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         await ensureTrackingTable(adapter, targetSchema);
 
         if (parsed.id === undefined && parsed.version === undefined) {
@@ -66,7 +77,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         // Coerce id: functional param, return error on wrong type
@@ -84,7 +95,7 @@ export function createMigrationRollbackTool(
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
             );
-            return { ...errorResponse, metrics: { tokenEstimate } };
+            return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
           }
           coercedId = num;
         }
@@ -116,7 +127,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         const row = findRows[0] ?? {};
@@ -136,7 +147,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         if (rollbackSql === null) {
@@ -150,7 +161,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
 
         if (parsed.dryRun === true) {
@@ -165,7 +176,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
 
         try {
@@ -189,7 +200,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         } catch (err: unknown) {
           const msg = err instanceof Error ? err.message : String(err);
           const errorResponse = {
@@ -202,7 +213,7 @@ export function createMigrationRollbackTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
           );
-          return { ...errorResponse, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
         }
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
@@ -220,20 +231,25 @@ export function createMigrationHistoryTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_history",
+    title: "Migration History",
     description:
       "Query migration history with optional filtering by status and source system. " +
       "Returns paginated results ordered by applied_at descending.",
     group: "migration",
     inputSchema: MigrationHistorySchemaBase,
+    outputSchema: MigrationHistoryOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationHistorySchema.parse(params);
 
-        const dbRow = (
-          await adapter.executeReadQuery("SELECT DATABASE() as db")
-        ).rows?.[0];
-        const targetSchema = (dbRow?.["db"] as string) || "mysql";
+        let targetSchema = parsed.database;
+        if (!targetSchema) {
+          const dbRow = (
+            await adapter.executeReadQuery("SELECT DATABASE() as db")
+          ).rows?.[0];
+          targetSchema = (dbRow?.["db"] as string) || "mysql";
+        }
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
 
         await ensureTrackingTable(adapter, targetSchema);
@@ -292,7 +308,7 @@ export function createMigrationHistoryTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -309,16 +325,18 @@ export function createMigrationStatusTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_status",
+    title: "Migration Status",
     description:
       "Get current migration tracking status: latest version, counts by status, " +
-      "and list of source systems. Returns initialized: false if tracking table doesn't exist.",
+      "and list of source systems. Returns initialized: false if tracking table does not exist.",
     group: "migration",
     inputSchema: MigrationStatusSchemaBase,
+    outputSchema: MigrationStatusOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = MigrationStatusSchema.parse(params);
-        let targetSchema = parsed.schema;
+        let targetSchema = parsed.database;
 
         if (!targetSchema) {
           const dbRow = (
@@ -327,7 +345,6 @@ export function createMigrationStatusTool(
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
 
-        // Check if tracking table exists
         const check = await adapter.executeReadQuery(
           `SELECT EXISTS (
           SELECT 1 FROM information_schema.TABLES
@@ -335,6 +352,27 @@ export function createMigrationStatusTool(
         ) AS table_exists`,
           [targetSchema, TRACKING_TABLE],
         );
+
+        if (parsed.database) {
+          const schemaCheck = await adapter.executeReadQuery(
+            `SELECT EXISTS(SELECT 1 FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?) AS schema_exists`,
+            [parsed.database]
+          );
+          const schemaRow = (schemaCheck.rows ?? [])[0];
+          const schemaExists = schemaRow?.["schema_exists"] === 1 || schemaRow?.["schema_exists"] === true;
+          
+          if (!schemaExists) {
+            const errorResponse = {
+              success: false as const,
+              error: `Database '${parsed.database}' does not exist.`,
+              code: "NOT_FOUND",
+              category: "validation",
+              recoverable: true,
+            };
+            const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
+            return withTokenEstimate({ ...errorResponse, metrics: { tokenEstimate } });
+          }
+        }
         const firstRow = (check.rows ?? [])[0];
         const tableExists =
           firstRow?.["table_exists"] === 1 ||
@@ -360,7 +398,7 @@ export function createMigrationStatusTool(
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
-          return { ...response, metrics: { tokenEstimate } };
+          return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
 
         const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
@@ -381,7 +419,7 @@ export function createMigrationStatusTool(
         const latestResult = await adapter.executeReadQuery(
           `SELECT version, applied_at FROM ${qualifiedTable}
          WHERE status = 'applied'
-         ORDER BY applied_at DESC LIMIT 1`,
+         ORDER BY applied_at DESC, id DESC LIMIT 1`,
         );
         const latestRow = (latestResult.rows ?? [])[0];
 
@@ -401,7 +439,7 @@ export function createMigrationStatusTool(
           latestAppliedAt =
             appliedAt instanceof Date
               ? appliedAt.toISOString()
-              : ((appliedAt as string | null) ?? "");
+              : ((typeof appliedAt === "string" ? appliedAt : null) ?? "");
         }
 
         const response = {
@@ -424,7 +462,7 @@ export function createMigrationStatusTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );
-        return { ...response, metrics: { tokenEstimate } };
+        return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

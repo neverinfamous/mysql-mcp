@@ -5,12 +5,18 @@
  * 5 tools: master_status, slave_status, binlog_events, gtid_status, replication_lag.
  */
 
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import { ErrorCategory, MySQLMcpError } from "../../../types/index.js";
 import {
   BinlogEventsSchemaBase,
   BinlogEventsSchema,
-} from "../schemas/index.js";
+  MasterStatusOutputSchema,
+  SlaveStatusOutputSchema,
+  BinlogEventsOutputSchema,
+  GtidStatusOutputSchema,
+  ReplicationLagOutputSchema,
+} from "../schemas/replication.js";
 import { z } from "zod";
 import {
   formatHandlerErrorResponse,
@@ -32,7 +38,7 @@ export function getReplicationTools(adapter: MySQLAdapter): ToolDefinition[] {
 }
 
 function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_master_status",
@@ -40,6 +46,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get binary log position from master/source server.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: MasterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -61,7 +68,11 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate(response);
         } catch (e) {
           return formatHandlerErrorResponse(
-            `Binary logging may not be enabled: ${String(e)}`,
+            new MySQLMcpError(
+              `Binary logging may not be enabled: ${String(e)}`,
+              "DOMAIN_ERROR",
+              ErrorCategory.CONFIGURATION
+            )
           );
         }
       }
@@ -70,7 +81,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_slave_status",
@@ -78,6 +89,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get detailed replication slave/replica status.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: SlaveStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -101,9 +113,10 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
           // Fall through to not-configured response
         }
       }
-      return formatHandlerErrorResponse(
-        "This server is not configured as a replica",
-      );
+      return withTokenEstimate({
+        success: true as const,
+        data: { configured: false },
+      });
     },
   };
 }
@@ -116,6 +129,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
       "View binary log events for point-in-time recovery or replication debugging.",
     group: "replication",
     inputSchema: BinlogEventsSchemaBase,
+    outputSchema: BinlogEventsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -166,9 +180,24 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const result = await adapter.executeQuery(sql);
+          
+          // Strip repetitive columns to save tokens and prevent payload bloat
+          const events = (result.rows ?? []).map((row: Record<string, unknown>) => {
+            let info = row["Info"];
+            if (typeof info === "string" && info.length > 50) {
+              info = info.substring(0, 47) + "...";
+            }
+            return {
+              pos: row["Pos"],
+              type: row["Event_type"],
+              end: row["End_log_pos"],
+              info
+            };
+          });
+
           const response = {
             success: true as const,
-            data: { events: result.rows },
+            data: { events },
           };
           return withTokenEstimate(response);
         } catch (e) {
@@ -176,29 +205,30 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           const targetFile = effectiveLogFile || logFile;
           if (targetFile && message.includes("Could not find target log")) {
             return formatHandlerErrorResponse(
-              `Binlog file '${targetFile}' not found`,
+              new MySQLMcpError(
+                `Binlog file '${targetFile}' not found`,
+                "DOMAIN_ERROR",
+                ErrorCategory.RESOURCE
+              )
             );
           }
           return formatHandlerErrorResponse(
-            `Failed to read binlog events: ${message}`,
+            new MySQLMcpError(
+              `Failed to read binlog events: ${message}`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY
+            )
           );
         }
       } catch (e) {
-        if (e instanceof z.ZodError) {
-          return formatHandlerErrorResponse(
-            e.issues.map((i) => i.message).join("; "),
-          );
-        }
-        return formatHandlerErrorResponse(
-          `Failed to read binlog events: ${String(e)}`,
-        );
+        return formatHandlerErrorResponse(e);
       }
     },
   };
 }
 
 function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_gtid_status",
@@ -206,6 +236,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get Global Transaction ID (GTID) status for replication.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: GtidStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -236,7 +267,11 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (e) {
         return formatHandlerErrorResponse(
-          `Failed to retrieve GTID status: ${String(e)}`,
+          new MySQLMcpError(
+            `Failed to retrieve GTID status: ${String(e)}`,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY
+          )
         );
       }
     },
@@ -244,7 +279,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({});
+  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_replication_lag",
@@ -252,6 +287,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Calculate replication lag in seconds.",
     group: "replication",
     inputSchema: schema,
+    outputSchema: ReplicationLagOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -298,9 +334,10 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         }
       }
 
-      return formatHandlerErrorResponse(
-        "This server is not configured as a replica",
-      );
+      return withTokenEstimate({
+        success: true as const,
+        data: { lagSeconds: null },
+      });
     },
   };
 }

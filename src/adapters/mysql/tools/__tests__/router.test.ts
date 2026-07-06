@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getRouterTools } from "../router.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import { getRouterTools } from "../router/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -29,7 +29,7 @@ describe("getRouterTools", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRouterTools(createMockMySQLAdapter());
   });
 
   it("should return 9 router tools", () => {
@@ -73,7 +73,7 @@ describe("Tool Structure Validation", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRouterTools(createMockMySQLAdapter());
   });
 
   it("mysql_router_status should have correct structure", () => {
@@ -115,7 +115,7 @@ describe("Handler Execution", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRouterTools(createMockMySQLAdapter());
     mockContext = createMockRequestContext();
   });
 
@@ -419,7 +419,7 @@ describe("HTTP Header Handling", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRouterTools(createMockMySQLAdapter());
     mockContext = createMockRequestContext();
   });
 
@@ -465,7 +465,7 @@ describe("Error Handling", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRouterTools(createMockMySQLAdapter());
     mockContext = createMockRequestContext();
   });
 
@@ -497,7 +497,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
-    expect((result as any).error).toContain("401 Unauthorized");
+    expect(Reflect.get(result || {}, "error")).toContain("401 Unauthorized");
   });
 
   it("should return unavailable response on 404 Not Found", async () => {
@@ -531,7 +531,7 @@ describe("Error Handling", () => {
     );
 
     expect(result).toHaveProperty("success", false);
-    expect((result as any).error).toContain("404 Not Found");
+    expect(Reflect.get(result || {}, "error")).toContain("Route 'nonexistent' not found");
   });
 
   it("should return unavailable response on network error", async () => {
@@ -553,7 +553,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
-    expect((result as any).error).toContain("Network error");
+    expect(Reflect.get(result || {}, "error")).toContain("Network error");
   });
 
   it("should return unavailable response on connection refused", async () => {
@@ -577,7 +577,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
-    expect((result as any).error).toContain("Connection refused");
+    expect(Reflect.get(result || {}, "error")).toContain("Connection refused");
   });
 });
 
@@ -587,7 +587,7 @@ describe("Zod Validation Error Handling", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRouterTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRouterTools(createMockMySQLAdapter());
     mockContext = createMockRequestContext();
   });
 
@@ -665,7 +665,7 @@ describe("Authentication and TLS Handling", () => {
     setupMockRequest();
 
     const tools = getRouterTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     await tool.handler({}, createMockRequestContext());
@@ -684,7 +684,7 @@ describe("Authentication and TLS Handling", () => {
     setupMockRequest();
 
     const tools = getRouterTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     await tool.handler({}, createMockRequestContext());
@@ -703,7 +703,7 @@ describe("Authentication and TLS Handling", () => {
     setupMockRequest();
 
     const tools = getRouterTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     await tool.handler({}, createMockRequestContext());
@@ -720,7 +720,7 @@ describe("Authentication and TLS Handling", () => {
     setupMockRequest();
 
     const tools = getRouterTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     await tool.handler({}, createMockRequestContext());
@@ -738,7 +738,7 @@ describe("Authentication and TLS Handling", () => {
     setupMockRequest();
 
     const tools = getRouterTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     const tool = tools.find((t) => t.name === "mysql_router_status")!;
     await tool.handler({}, createMockRequestContext());

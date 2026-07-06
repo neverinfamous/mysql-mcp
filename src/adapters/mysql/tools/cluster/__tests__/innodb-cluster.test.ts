@@ -11,8 +11,8 @@ import {
   createClusterRouterStatusTool,
   createClusterSwitchoverTool,
   createClusterTopologyTool,
-} from "../innodb-cluster.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+} from "../innodb-cluster/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -58,9 +58,9 @@ describe("InnoDB Cluster Tools", () => {
         ); // Full cluster info (non-summary mode)
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.isInnoDBCluster).toBe(true);
       expect(result.data.cluster).toEqual({
@@ -72,33 +72,30 @@ describe("InnoDB Cluster Tools", () => {
       expect(result.data.routerCount).toBe(2);
     });
 
-    it("should fall back to GR status when InnoDB Cluster metadata not found", async () => {
+    it("should return error when InnoDB Cluster metadata not found", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([])) // Schema check - empty
-        .mockResolvedValueOnce(createMockQueryResult([{ memberCount: 3 }])); // GR member count
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result: any = await tool.handler({}, mockContext);
 
-      expect(result.data.isInnoDBCluster).toBe(false);
-      expect(result.data.message).toContain("Group Replication status");
-      expect(result.data.onlineMembers).toBe(3);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("InnoDB Cluster");
     });
 
-    it("should fall back to GR status when schema check returns undefined rows", async () => {
+    it("should return error when schema check returns undefined rows", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce({ rows: undefined }) // Schema check - undefined rows
-        .mockResolvedValueOnce(createMockQueryResult([{ memberCount: 2 }])); // GR member count
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result: any = await tool.handler({}, mockContext);
 
-      expect(result.data.isInnoDBCluster).toBe(false);
-      expect(result.data.onlineMembers).toBe(2);
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("InnoDB Cluster");
     });
 
     it("should return error response when query fails", async () => {
@@ -107,9 +104,9 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.error).toBe("Connection refused");
     });
@@ -118,9 +115,9 @@ describe("InnoDB Cluster Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue("String error");
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.error).toBe("String error");
     });
@@ -133,9 +130,9 @@ describe("InnoDB Cluster Tools", () => {
         .mockRejectedValueOnce(new Error("GR query also failed")); // Fallback fails
 
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({ limit: 10 }, mockContext)) as any;
+      const result = await tool.handler({ limit: 10 }, mockContext);
 
       expect(result.error).toBe(
         "Primary Error: Metadata query failed. Fallback Error: GR query also failed",
@@ -157,9 +154,9 @@ describe("InnoDB Cluster Tools", () => {
         ); // GR fallback
 
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({ limit: 10 }, mockContext)) as any;
+      const result = await tool.handler({ limit: 10 }, mockContext);
 
       expect(result.data.source).toBe("group_replication");
       expect(result.data.instances).toHaveLength(1);
@@ -173,9 +170,9 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.error).toContain("Router metadata not available");
       expect(result.error).toContain("mysql_router_status");
@@ -189,9 +186,9 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.routers).toHaveLength(1);
       expect(result.data.count).toBe(1);
@@ -214,12 +211,12 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: false },
         mockContext,
-      )) as any;
+      );
 
       expect(result.data.routers).toHaveLength(1);
       expect(result.data.routers[0].attributes).toBeDefined();
@@ -249,12 +246,12 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: false },
         mockContext,
-      )) as any;
+      );
 
       expect(result.data.routers).toHaveLength(2);
       expect(result.data.routers[0].isStale).toBe(false);
@@ -303,12 +300,12 @@ describe("InnoDB Cluster Tools", () => {
         );
 
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: false },
         mockContext,
-      )) as any;
+      );
 
       expect(result.data.isInnoDBCluster).toBe(true);
       const routerOpts = result.data.cluster.router_options;
@@ -337,9 +334,9 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.instances[0].memberState).toBe("ONLINE");
       expect(result.data.instances[0].memberRole).toBe("PRIMARY");
@@ -372,9 +369,9 @@ describe("InnoDB Cluster Tools", () => {
         );
 
       const tool = createClusterTopologyTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.totalMembers).toBe(3);
       expect(result.data.onlineMembers).toBe(1);
@@ -387,7 +384,9 @@ describe("InnoDB Cluster Tools", () => {
 
   describe("createClusterSwitchoverTool", () => {
     it("should warn when no online secondaries exist", async () => {
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -403,9 +402,9 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.canSwitchover).toBe(false);
       expect(result.data.candidates).toHaveLength(0);
@@ -416,7 +415,9 @@ describe("InnoDB Cluster Tools", () => {
     });
 
     it("should return currentPrimary as null when no primary exists", async () => {
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -432,15 +433,17 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.currentPrimary).toBeNull();
     });
 
     it("should recommend good switchover candidate", async () => {
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -466,9 +469,9 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.canSwitchover).toBe(true);
       expect(result.data.candidates).toHaveLength(1);
@@ -485,9 +488,9 @@ describe("InnoDB Cluster Tools", () => {
       );
 
       const tool = createClusterTopologyTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.error).toBe("Connection refused");
     });
@@ -498,9 +501,9 @@ describe("InnoDB Cluster Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = createClusterSwitchoverTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.error).toBe("Access denied");
     });
@@ -509,53 +512,53 @@ describe("InnoDB Cluster Tools", () => {
   describe("Zod validation leak prevention", () => {
     it("cluster_status should return structured error for invalid summary type", async () => {
       const tool = createClusterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: "yes" },
         mockContext,
-      )) as any;
+      );
 
       expect(result.error).toBeDefined();
-      expect(result.error).toContain("Expected boolean");
+      expect(result.error).toContain("expected boolean");
     });
 
     it("cluster_instances should return structured error for invalid limit type", async () => {
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({ limit: "abc" }, mockContext)) as any;
+      const result = await tool.handler({ limit: "abc" }, mockContext);
 
       expect(result.error).toBeDefined();
-      expect(result.error).toContain("Expected positive integer");
+      expect(result.error).toContain("expected number");
     });
 
     it("cluster_instances should return structured error for negative limit", async () => {
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({ limit: -5 }, mockContext)) as any;
+      const result = await tool.handler({ limit: -5 }, mockContext);
 
       expect(result.error).toBeDefined();
     });
 
     it("cluster_instances should return structured error for float limit", async () => {
       const tool = createClusterInstancesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({ limit: 0.5 }, mockContext)) as any;
+      const result = await tool.handler({ limit: 0.5 }, mockContext);
 
       expect(result.error).toBeDefined();
     });
 
     it("cluster_router_status should return structured error for invalid summary type", async () => {
       const tool = createClusterRouterStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({ summary: 123 }, mockContext)) as any;
+      const result = await tool.handler({ summary: 123 }, mockContext);
 
       expect(result.error).toBeDefined();
-      expect(result.error).toContain("Expected boolean");
+      expect(result.error).toContain("expected boolean");
     });
   });
 });

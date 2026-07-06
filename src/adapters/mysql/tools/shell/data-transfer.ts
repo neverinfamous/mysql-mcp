@@ -6,14 +6,20 @@
 
 import { ZodError } from "zod";
 import * as path from "path";
+import * as fs from "fs";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  ValidationError,
+  MySQLMcpError,
+  ErrorCategory,
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../types/index.js";
+import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellExportTableInputSchema,
   ShellExportTableInputSchemaBase,
@@ -21,7 +27,10 @@ import {
   ShellImportTableInputSchemaBase,
   ShellImportJSONInputSchema,
   ShellImportJSONInputSchemaBase,
-} from "../../schemas/shell.js";
+  ShellExportTableOutputSchema,
+  ShellImportTableOutputSchema,
+  ShellImportJSONOutputSchema,
+} from "../../schemas/shell/index.js";
 import {
   getShellConfig,
   escapeForJS,
@@ -32,7 +41,9 @@ import {
 /**
  * Export table to file
  */
-export function createShellExportTableTool(): ToolDefinition {
+export function createShellExportTableTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_export_table",
     title: "MySQL Shell Export Table",
@@ -40,10 +51,13 @@ export function createShellExportTableTool(): ToolDefinition {
       "Export a MySQL table to a file using util.exportTable(). Supports CSV and TSV formats with WHERE clause filtering.",
     group: "shell",
     inputSchema: ShellExportTableInputSchemaBase,
+    outputSchema: ShellExportTableOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -53,11 +67,11 @@ export function createShellExportTableTool(): ToolDefinition {
         // Escape path for JavaScript
         const finalOutputPath = outputPath ?? outputUrl;
         if (!finalOutputPath) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: outputPath or outputUrl is required",
-          });
+          throw new ValidationError("outputPath or outputUrl is required");
         }
+        
+        assertSafeIoPath(finalOutputPath, adapter.getAllowedIoRoots());
+
         const resolvedPath = path.resolve(finalOutputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -73,7 +87,8 @@ export function createShellExportTableTool(): ToolDefinition {
 
         const optionsStr =
           options.length > 0 ? `, { ${options.join(", ")} }` : "";
-        const jsCode = `return util.exportTable("${schema}.${table}", "${escapedPath}"${optionsStr});`;
+        const target = schema ? `${schema}.${table}` : table;
+        const jsCode = `return util.exportTable("${target}", "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode);
 
@@ -97,12 +112,61 @@ export function createShellExportTableTool(): ToolDefinition {
           errorMessage.includes("privilege") ||
           errorMessage.includes("Access denied")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: `Export failed due to insufficient privileges: ${errorMessage}.`,
-            suggestion: `Ensure the user has SELECT privilege on the target table.`,
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Export failed due to insufficient privileges: ${errorMessage}.`,
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              { suggestion: `Ensure the user has SELECT privilege on the target table.` }
+            )
+          );
         }
+        
+        if (
+          errorMessage.includes("1146") ||
+          errorMessage.includes("doesn't exist") ||
+          errorMessage.includes("was not found in the database")
+        ) {
+          const match1 = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const match2 = /table `([^`]+)`\.`([^`]+)` was not found/i.exec(errorMessage);
+          const msg = match1 
+            ? `Table '${match1[1]}' does not exist` 
+            : (match2 ? `Table '${match2[1]}.${match2[2]}' does not exist` : "Table does not exist");
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the table name and schema.",
+            })
+          );
+        }
+        if (
+          errorMessage.includes("1049") ||
+          errorMessage.includes("Unknown database")
+        ) {
+          const match = /Unknown database '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Database '${match[1]}' does not exist` : "Database does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the schema (database) name.",
+            })
+          );
+        }
+        if (errorMessage.includes("1054") || errorMessage.includes("Unknown column")) {
+          const match = /Unknown column '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Column '${match[1]}' not found` : "Column not found";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the column name in your query.",
+            })
+          );
+        }
+        if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Check your SQL syntax.",
+            })
+          );
+        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -112,7 +176,9 @@ export function createShellExportTableTool(): ToolDefinition {
 /**
  * Import table from file
  */
-export function createShellImportTableTool(): ToolDefinition {
+export function createShellImportTableTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_import_table",
     title: "MySQL Shell Import Table",
@@ -120,10 +186,13 @@ export function createShellImportTableTool(): ToolDefinition {
       "Parallel table import using util.importTable(). For CSV files, explicitly set fieldsTerminatedBy to ',' as the delimiter is not auto-detected. Target table must already exist.",
     group: "shell",
     inputSchema: ShellImportTableInputSchemaBase,
+    outputSchema: ShellImportTableOutputSchema,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -136,22 +205,25 @@ export function createShellImportTableTool(): ToolDefinition {
           skipRows,
           columns,
           fieldsTerminatedBy,
+          fieldsEnclosedBy,
           linesTerminatedBy,
           updateServerSettings,
         } = ShellImportTableInputSchema.parse(params);
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: inputPath or inputUrl is required",
-          });
+          throw new ValidationError("inputPath or inputUrl is required");
         }
+
+        assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots(), false);
+
         const resolvedPath = path.resolve(finalInputPath);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
-        options.push(`schema: "${schema}"`);
+        if (schema) {
+          options.push(`schema: "${schema}"`);
+        }
         options.push(`table: "${table}"`);
         if (threads) {
           options.push(`threads: ${threads}`);
@@ -165,6 +237,11 @@ export function createShellImportTableTool(): ToolDefinition {
         if (fieldsTerminatedBy) {
           options.push(
             `fieldsTerminatedBy: ${JSON.stringify(fieldsTerminatedBy)}`,
+          );
+        }
+        if (fieldsEnclosedBy) {
+          options.push(
+            `fieldsEnclosedBy: ${JSON.stringify(fieldsEnclosedBy)}`,
           );
         }
         if (linesTerminatedBy) {
@@ -201,17 +278,80 @@ export function createShellImportTableTool(): ToolDefinition {
         }
         const errorMessage =
           error instanceof Error ? error.message : String(error);
+          
+        if (
+          errorMessage.includes("--super-read-only") ||
+          errorMessage.includes("--read-only")
+        ) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "The MySQL server is running in read-only mode (likely a replica). Switch to a primary node for write operations.",
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              { suggestion: "Execute writes against the primary node, or use the router's R/W port instead of the R/O port." }
+            )
+          );
+        }
+
         if (
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: "Import failed: local_infile is disabled on the server.",
-            suggestion:
-              "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Import failed: local_infile is disabled on the server.",
+              "CONFIGURATION_ERROR",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+            )
+          );
         }
+        
+        if (
+          errorMessage.includes("1146") ||
+          errorMessage.includes("doesn't exist") ||
+          errorMessage.includes("was not found in the database")
+        ) {
+          const match1 = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const match2 = /table `([^`]+)`\.`([^`]+)` was not found/i.exec(errorMessage);
+          const msg = match1 
+            ? `Table '${match1[1]}' does not exist` 
+            : (match2 ? `Table '${match2[1]}.${match2[2]}' does not exist` : "Table does not exist");
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the table name and schema.",
+            })
+          );
+        }
+        if (
+          errorMessage.includes("1049") ||
+          errorMessage.includes("Unknown database")
+        ) {
+          const match = /Unknown database '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Database '${match[1]}' does not exist` : "Database does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the schema (database) name.",
+            })
+          );
+        }
+        if (errorMessage.includes("1054") || errorMessage.includes("Unknown column")) {
+          const match = /Unknown column '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Column '${match[1]}' not found` : "Column not found";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the column name in your query.",
+            })
+          );
+        }
+        if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Check your SQL syntax.",
+            })
+          );
+        }
+
         return formatHandlerErrorResponse(error);
       }
     },
@@ -221,7 +361,9 @@ export function createShellImportTableTool(): ToolDefinition {
 /**
  * Import JSON documents
  */
-export function createShellImportJSONTool(): ToolDefinition {
+export function createShellImportJSONTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_import_json",
     title: "MySQL Shell Import JSON",
@@ -229,10 +371,13 @@ export function createShellImportJSONTool(): ToolDefinition {
       "Import JSON documents from a file using util.importJson(). Supports NDJSON (one JSON object per line) and multi-line JSON objects (not JSON arrays). REQUIRES X Protocol (port 33060).",
     group: "shell",
     inputSchema: ShellImportJSONInputSchemaBase,
+    outputSchema: ShellImportJSONOutputSchema,
     requiredScopes: ["write"],
     annotations: {
       readOnlyHint: false,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -248,16 +393,28 @@ export function createShellImportJSONTool(): ToolDefinition {
 
         const finalInputPath = inputPath ?? inputUrl;
         if (!finalInputPath) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: inputPath or inputUrl is required",
-          });
+          throw new ValidationError("inputPath or inputUrl is required");
         }
+
+        assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots());
+
         const resolvedPath = path.resolve(finalInputPath);
+        
+        if (!fs.existsSync(resolvedPath)) {
+          throw new MySQLMcpError(
+            `Cannot open file '${resolvedPath}': No such file or directory`,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY,
+            { details: { protocol: "X Protocol" } }
+          );
+        }
+
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
-        options.push(`schema: "${schema}"`);
+        if (schema) {
+          options.push(`schema: "${schema}"`);
+        }
 
         if (tableColumn) {
           // Importing to a table column
@@ -295,12 +452,15 @@ export function createShellImportJSONTool(): ToolDefinition {
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
-          return withTokenEstimate({
-            success: false,
-            error: `X Protocol connection failed: ${errorMessage}.`,
-            suggestion: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
-            details: { protocol: "X Protocol" },
-          });
+          throw new MySQLMcpError(
+            `X Protocol connection failed: ${errorMessage}.`,
+            "CONNECTION_ERROR",
+            ErrorCategory.CONNECTION,
+            {
+              suggestion: `Ensure MySQL X Plugin is enabled (port ${process.env["MYSQL_XPORT"] ?? "33060"}) and the user has access. Check: SHOW PLUGINS LIKE 'mysqlx';`,
+              details: { protocol: "X Protocol" },
+            }
+          );
         }
 
         // Check for X Protocol access denied errors in stderr
@@ -308,12 +468,15 @@ export function createShellImportJSONTool(): ToolDefinition {
           result.stderr.includes("Access denied") ||
           result.stderr.includes("1045")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: `X Protocol authentication failed.`,
-            suggestion: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
-            details: { protocol: "X Protocol" },
-          });
+          throw new MySQLMcpError(
+            `X Protocol authentication failed.`,
+            "AUTHENTICATION_ERROR",
+            ErrorCategory.AUTHENTICATION,
+            {
+              suggestion: `The user may not have access via X Protocol (port ${process.env["MYSQL_XPORT"] ?? "33060"}). Verify: 1) X Plugin is enabled, 2) User has proper grants, 3) Authentication plugin is compatible (mysql_native_password or caching_sha2_password).`,
+              details: { protocol: "X Protocol" },
+            }
+          );
         }
 
         // Parse result
@@ -335,11 +498,12 @@ export function createShellImportJSONTool(): ToolDefinition {
             }
 
             if (!parsed.success) {
-              return withTokenEstimate({
-                success: false,
-                error: parsed.error ?? "Unknown MySQL Shell error",
-                details: { protocol: "X Protocol" },
-              });
+              throw new MySQLMcpError(
+                parsed.error ?? "Unknown MySQL Shell error",
+                "QUERY_ERROR",
+                ErrorCategory.QUERY,
+                { details: { protocol: "X Protocol" } }
+              );
             }
             return withTokenEstimate({
               success: true,
@@ -355,12 +519,25 @@ export function createShellImportJSONTool(): ToolDefinition {
         }
 
         if (result.exitCode !== 0) {
-          return withTokenEstimate({
-            success: false,
-            error:
-              result.stderr || result.stdout || "MySQL Shell import failed",
-            details: { protocol: "X Protocol" },
-          });
+          const stderrText = (result.stderr || result.stdout || "MySQL Shell import failed")
+            .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+            .trim() || "MySQL Shell import failed";
+          
+          if (stderrText.includes("MySQL Error 2006") || stderrText.includes("server has gone away")) {
+            throw new MySQLMcpError(
+              stderrText,
+              "CONNECTION_ERROR",
+              ErrorCategory.CONNECTION,
+              { details: { protocol: "X Protocol" }, recoverable: true }
+            );
+          }
+
+          throw new MySQLMcpError(
+            stderrText,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY,
+            { details: { protocol: "X Protocol" } }
+          );
         }
 
         return withTokenEstimate({
@@ -374,6 +551,38 @@ export function createShellImportJSONTool(): ToolDefinition {
           },
         });
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error);
+        }
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        if (
+          errorMessage.includes("1146") ||
+          errorMessage.includes("doesn't exist") ||
+          errorMessage.includes("was not found in the database")
+        ) {
+          const match1 = /Table '([^']+)' doesn't exist/i.exec(errorMessage);
+          const match2 = /table `([^`]+)`\.`([^`]+)` was not found/i.exec(errorMessage);
+          const msg = match1 
+            ? `Table '${match1[1]}' does not exist` 
+            : (match2 ? `Table '${match2[1]}.${match2[2]}' does not exist` : "Table does not exist");
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the table name and schema.",
+            })
+          );
+        }
+        if (
+          errorMessage.includes("1049") ||
+          errorMessage.includes("Unknown database")
+        ) {
+          const match = /Unknown database '([^']+)'/i.exec(errorMessage);
+          const msg = match ? `Database '${match[1]}' does not exist` : "Database does not exist";
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(msg, "QUERY_ERROR", ErrorCategory.QUERY, {
+              suggestion: "Verify the schema (database) name.",
+            })
+          );
+        }
         return formatHandlerErrorResponse(error);
       }
     },

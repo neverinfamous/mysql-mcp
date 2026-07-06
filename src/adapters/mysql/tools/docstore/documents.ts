@@ -3,7 +3,7 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -23,6 +23,10 @@ import {
   ModifyDocSchemaBase,
   RemoveDocSchema,
   RemoveDocSchemaBase,
+  FindDocOutputSchema,
+  AddDocOutputSchema,
+  ModifyDocOutputSchema,
+  RemoveDocOutputSchema,
 } from "../../schemas/index.js";
 import {
   READ_ONLY,
@@ -38,6 +42,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Query documents in a collection.",
       group: "docstore",
       inputSchema: FindSchemaBase,
+      outputSchema: FindDocOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -48,11 +53,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           // Check if collection exists (with schema detection)
@@ -85,6 +94,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 return withTokenEstimate({
                   success: false,
                   error: `Invalid field name: "${f}". Field names must be valid identifiers (letters, digits, underscores).`,
+                  code: "VALIDATION_ERROR",
+                  category: "validation",
                 });
               }
             }
@@ -113,9 +124,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             const row = r;
             const docValue = row["doc"];
             const idValue = row["_id"];
-            const parsed =
+            const parsed: unknown =
               typeof docValue === "string"
-                ? (JSON.parse(docValue) as Record<string, unknown>)
+                ? JSON.parse(docValue)
                 : docValue;
 
             if (
@@ -124,8 +135,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               typeof parsed === "object" &&
               !Array.isArray(parsed)
             ) {
-              if (!("_id" in (parsed as Record<string, unknown>))) {
-                (parsed as Record<string, unknown>)["_id"] = idValue;
+              if (!("_id" in parsed)) {
+                Object.assign(parsed, { _id: idValue });
               }
             }
             return parsed;
@@ -148,6 +159,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Add documents to a collection.",
       group: "docstore",
       inputSchema: AddDocSchemaBase,
+      outputSchema: AddDocOutputSchema,
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -157,11 +169,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const addCheck = await checkCollectionExists(
@@ -210,6 +226,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Update documents in a collection.",
       group: "docstore",
       inputSchema: ModifyDocSchemaBase,
+      outputSchema: ModifyDocOutputSchema,
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -220,11 +237,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const modCheck = await checkCollectionExists(
@@ -251,25 +272,31 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const updates: string[] = [];
           const updateParams: unknown[] = [];
           if (set) {
-            for (const [path, value] of Object.entries(set)) {
+            for (const [rawPath, value] of Object.entries(set)) {
+              const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
               // Validate path against identifier regex to prevent injection
               if (!IDENTIFIER_RE.test(path)) {
                 return withTokenEstimate({
                   success: false,
-                  error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  error: `Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  code: "VALIDATION_ERROR",
+                  category: "validation",
                 });
               }
-              updates.push(`doc = JSON_SET(doc, ?, CAST(? AS JSON))`);
+              updates.push(`doc = JSON_SET(doc, ?, CAST(CONVERT(? USING utf8mb4) AS JSON))`);
               updateParams.push(`$.${path}`, JSON.stringify(value));
             }
           }
           if (unset) {
-            for (const path of unset) {
+            for (const rawPath of unset) {
+              const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
               // Validate path against identifier regex to prevent injection
               if (!IDENTIFIER_RE.test(path)) {
                 return withTokenEstimate({
                   success: false,
-                  error: `Invalid field path: "${path}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  error: `Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`,
+                  code: "VALIDATION_ERROR",
+                  category: "validation",
                 });
               }
               updates.push(`doc = JSON_REMOVE(doc, ?)`);
@@ -281,6 +308,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "No modifications specified",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const { where, params: whereParams } = parseDocFilter(filter);
@@ -308,6 +337,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Remove documents from a collection.",
       group: "docstore",
       inputSchema: RemoveDocSchemaBase,
+      outputSchema: RemoveDocOutputSchema,
       requiredScopes: ["write"],
       annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -317,11 +347,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const rmCheck = await checkCollectionExists(

@@ -35,8 +35,8 @@ export function formatZodError(error: ZodError): string {
  * returning just the meaningful error description.
  *
  * @example
- * formatMysqlError(new Error("Query failed: ER_NO_SUCH_TABLE: Table 'testdb.xyz' doesn't exist"))
- * // => "Table 'testdb.xyz' doesn't exist"
+ * formatMysqlError(new Error("Query failed: ER_NO_SUCH_TABLE: Table 'testdb.xyz' does not exist"))
+ * // => "Table 'testdb.xyz' does not exist"
  *
  * formatMysqlError(new Error("Execute failed: ER_DUP_ENTRY: Duplicate entry '1' for key 'PRIMARY'"))
  * // => "Duplicate entry '1' for key 'PRIMARY'"
@@ -55,6 +55,12 @@ export function formatMysqlError(err: unknown): string {
       .replace(/^ER_[A-Z_]+:\s*/i, "")
       // Strip numeric error code patterns (e.g., "1146 (42S02): ...")
       .replace(/^\d+\s*\([A-Z0-9]+\):\s*/, "")
+      // Normalize "doesn't exist" to "does not exist" for consistency
+      .replace(/doesn't exist/g, "does not exist")
+      // Map unknown column to "Column 'X' not found"
+      .replace(/Unknown column ('.*?') in 'field list'/i, "Column $1 not found")
+      // Map SQL syntax errors to "SQL syntax error: near '...'"
+      .replace(/You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ('.*?').*/i, "SQL syntax error: near $1")
       .trim()
   );
 }
@@ -88,6 +94,12 @@ export function stripErrorPrefix(msg: string): string {
  * }
  * ```
  */
+import { findSuggestion } from "../../../../utils/error-suggestions.js";
+
+const isZodError = (err: unknown): err is ZodError => {
+  return err instanceof ZodError || (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError");
+};
+
 export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   let response: ErrorResponse;
 
@@ -95,29 +107,30 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
   if (err instanceof MySQLMcpError) {
     response = err.toResponse();
     response.error = formatMysqlError(response.error);
-  } else if (
-    err instanceof ZodError ||
-    (err !== null &&
-      typeof err === "object" &&
-      "name" in err &&
-      err.name === "ZodError")
-  ) {
+  } else if (isZodError(err)) {
     // Zod validation error
     response = {
       success: false,
-      error: formatZodError(err as ZodError),
+      error: formatZodError(err),
       code: "VALIDATION_ERROR",
       category: ErrorCategory.VALIDATION,
+      suggestion: undefined,
       recoverable: false,
+      details: undefined,
     };
   } else {
     // Raw MySQL / unknown error
+    const formattedError = formatMysqlError(err);
+    const match = findSuggestion(formattedError);
+    
     response = {
       success: false,
-      error: formatMysqlError(err),
-      code: "UNKNOWN_ERROR",
-      category: ErrorCategory.INTERNAL,
+      error: formattedError,
+      code: match?.code ?? "UNKNOWN_ERROR",
+      category: match?.category ?? ErrorCategory.INTERNAL,
+      suggestion: match?.suggestion,
       recoverable: false,
+      details: undefined,
     };
   }
 

@@ -2,7 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import * as child_process from "child_process";
 import * as path from "path";
 import * as fsModule from "fs";
-import { createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
+import {
+  createMockRequestContext,
+  createMockMySQLAdapter,
+} from "../../../../../__tests__/mocks/index.js";
 import {
   createShellLoadDumpTool,
   createShellRunScriptTool,
@@ -25,14 +28,16 @@ vi.mock("fs", async () => {
   };
 });
 
-describe("Shell Restore and Script Tools", () => {
+describe("Shell Restore Tools", () => {
   let mockContext: ReturnType<typeof createMockRequestContext>;
   let mockSpawn: ReturnType<typeof vi.fn>;
+  let mockAdapter: MockMySQLAdapter;
 
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
-    mockSpawn = child_process.spawn as any;
+    mockSpawn = child_process.spawn;
+    mockAdapter = createMockMySQLAdapter();
   });
 
   afterEach(() => {
@@ -72,15 +77,15 @@ describe("Shell Restore and Script Tools", () => {
       });
       setupMockSpawn(successJson);
 
-      const tool = createShellLoadDumpTool();
-      const result = (await tool.handler(
+      const tool = createShellLoadDumpTool(mockAdapter);
+      const result = await tool.handler(
         {
           inputDir: "/backup/full",
           ignoreVersion: true,
           resetProgress: true,
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
 
@@ -93,7 +98,7 @@ describe("Shell Restore and Script Tools", () => {
 
     it("should support all optional parameters", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
-      const tool = createShellLoadDumpTool();
+      const tool = createShellLoadDumpTool(mockAdapter);
       await tool.handler(
         {
           inputDir: "/in",
@@ -120,14 +125,14 @@ describe("Shell Restore and Script Tools", () => {
 
     it("should enable local_infile when updateServerSettings is true", async () => {
       setupMockSpawn(JSON.stringify({ success: true }));
-      const tool = createShellLoadDumpTool();
-      const result = (await tool.handler(
+      const tool = createShellLoadDumpTool(mockAdapter);
+      const result = await tool.handler(
         {
           inputDir: "/backup",
           updateServerSettings: true,
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.localInfileEnabled).toBe(true);
@@ -139,13 +144,13 @@ describe("Shell Restore and Script Tools", () => {
     it("should return structured error when local_infile is disabled", async () => {
       setupMockSpawn("", "ERROR: local_infile is disabled", 1);
 
-      const tool = createShellLoadDumpTool();
-      const result = (await tool.handler(
+      const tool = createShellLoadDumpTool(mockAdapter);
+      const result = await tool.handler(
         {
           inputDir: "/backup",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
@@ -155,13 +160,13 @@ describe("Shell Restore and Script Tools", () => {
     it("should return structured error when Loading local data is disabled", async () => {
       setupMockSpawn("", "Loading local data is disabled on the server", 1);
 
-      const tool = createShellLoadDumpTool();
-      const result = (await tool.handler(
+      const tool = createShellLoadDumpTool(mockAdapter);
+      const result = await tool.handler(
         {
           inputDir: "/backup",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("local_infile");
@@ -171,13 +176,13 @@ describe("Shell Restore and Script Tools", () => {
     it("should return structured error for non-local_infile errors", async () => {
       setupMockSpawn("", "Schema already exists", 1);
 
-      const tool = createShellLoadDumpTool();
-      const result = (await tool.handler(
+      const tool = createShellLoadDumpTool(mockAdapter);
+      const result = await tool.handler(
         {
           inputDir: "/backup",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Schema already exists");
@@ -186,13 +191,13 @@ describe("Shell Restore and Script Tools", () => {
     it("should return structured error with hint for duplicate objects", async () => {
       setupMockSpawn("", "Duplicate objects found in destination", 1);
 
-      const tool = createShellLoadDumpTool();
-      const result = (await tool.handler(
+      const tool = createShellLoadDumpTool(mockAdapter);
+      const result = await tool.handler(
         {
           inputDir: "/backup",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain("Duplicate objects");
@@ -204,14 +209,14 @@ describe("Shell Restore and Script Tools", () => {
     it("should run javascript script", async () => {
       setupMockSpawn("Script output");
 
-      const tool = createShellRunScriptTool();
+      const tool = createShellRunScriptTool(mockAdapter);
       const result = (await tool.handler(
         {
           script: 'print("hello")',
           language: "js",
         },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(true);
       expect(result.data.stdout).toBe("Script output");
@@ -223,14 +228,14 @@ describe("Shell Restore and Script Tools", () => {
     it("should run python script", async () => {
       setupMockSpawn("Python output");
 
-      const tool = createShellRunScriptTool();
+      const tool = createShellRunScriptTool(mockAdapter);
       const result = (await tool.handler(
         {
           script: 'print("hello")',
           language: "py",
         },
         mockContext,
-      )) as any;
+      ));
 
       expect(result.success).toBe(true);
       const args = mockSpawn.mock.calls[0][1];
@@ -240,14 +245,14 @@ describe("Shell Restore and Script Tools", () => {
     it("should run sql script via secure temp file", async () => {
       setupMockSpawn("SQL output");
 
-      const tool = createShellRunScriptTool();
-      const result = (await tool.handler(
+      const tool = createShellRunScriptTool(mockAdapter);
+      const result = await tool.handler(
         {
           script: "SELECT 1",
           language: "sql",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       const args = mockSpawn.mock.calls[0][1];

@@ -11,7 +11,7 @@ import {
   createCreateDumpTool,
   createRestoreDumpTool,
 } from "../backup.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -31,7 +31,7 @@ describe("Admin Backup Tools", () => {
   describe("createExportTableTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_export_table");
@@ -51,7 +51,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", format: "SQL" },
@@ -75,7 +75,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", format: "CSV" },
@@ -96,7 +96,7 @@ describe("Admin Backup Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "empty_table", format: "SQL" },
@@ -117,14 +117,14 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         { table: "orders", format: "SQL", where: 'status = "active"' },
         mockContext,
       );
 
-      const call = mockAdapter.executeReadQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeReadQuery.mock.calls[1][0];
       expect(call).toContain('WHERE status = "active"');
     });
 
@@ -138,7 +138,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "products", format: "SQL" },
@@ -158,7 +158,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "items", format: "SQL" },
@@ -179,7 +179,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "configs", format: "CSV" },
@@ -191,7 +191,7 @@ describe("Admin Backup Tools", () => {
 
     it("should validate table name for SQL injection", async () => {
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
@@ -205,7 +205,7 @@ describe("Admin Backup Tools", () => {
 
     it("should validate WHERE clause for SQL injection", async () => {
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
@@ -228,7 +228,7 @@ describe("Admin Backup Tools", () => {
       );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "nonexistent", format: "SQL" },
@@ -248,7 +248,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", format: "SQL", where: "invalid_col = 'bad'" },
@@ -256,7 +256,7 @@ describe("Admin Backup Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("Unknown column 'invalid_col' in 'where clause'");
     });
 
     it("should generate proper INSERT statements with column names", async () => {
@@ -269,7 +269,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "logs", format: "SQL" },
@@ -282,7 +282,7 @@ describe("Admin Backup Tools", () => {
 
     it("should return structured error for Zod validation failures", async () => {
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", limit: -1 },
@@ -295,7 +295,7 @@ describe("Admin Backup Tools", () => {
 
     it("should return structured error for limit: 0", async () => {
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", limit: 0 },
@@ -319,7 +319,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", format: "SQL", batch: 2 },
@@ -346,7 +346,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", format: "SQL", batch: 10 },
@@ -361,7 +361,7 @@ describe("Admin Backup Tools", () => {
       );
     });
 
-    it("should default to batch: 1 producing individual INSERT statements", async () => {
+    it("should default to batch: 50 producing multi-row INSERT statements", async () => {
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([{ TABLE_NAME: "users" }]))
         .mockResolvedValueOnce(
@@ -372,7 +372,7 @@ describe("Admin Backup Tools", () => {
         );
 
       const tool = createExportTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { table: "users", format: "SQL" },
@@ -381,15 +381,14 @@ describe("Admin Backup Tools", () => {
 
       expect(result.data.rowCount).toBe(2);
       const statements = result.data.sql.split("\n");
-      expect(statements).toHaveLength(2);
-      expect(statements[0]).toContain("VALUES (1, 'Alice');");
-      expect(statements[1]).toContain("VALUES (2, 'Bob');");
+      expect(statements).toHaveLength(1);
+      expect(statements[0]).toContain("VALUES (1, 'Alice'), (2, 'Bob');");
     });
   });
 
   describe("createImportDataTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
 
       expect(tool.name).toBe("mysql_import_data");
       expect(tool.group).toBe("backup");
@@ -404,7 +403,7 @@ describe("Admin Backup Tools", () => {
         executionTimeMs: 5,
       });
 
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -422,7 +421,7 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should handle empty data array", async () => {
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -443,7 +442,7 @@ describe("Admin Backup Tools", () => {
         executionTimeMs: 5,
       });
 
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       await tool.handler(
         {
           table: "users",
@@ -452,13 +451,13 @@ describe("Admin Backup Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeWriteQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeWriteQuery.mock.calls[0][0];
       expect(call).toContain("INSERT INTO");
       expect(call).toContain("?");
     });
 
     it("should validate table name for SQL injection", async () => {
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
 
       const result = (await tool.handler(
         {
@@ -479,7 +478,7 @@ describe("Admin Backup Tools", () => {
         executionTimeMs: 5,
       });
 
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       await tool.handler(
         {
           table: "mixed",
@@ -504,7 +503,7 @@ describe("Admin Backup Tools", () => {
         new Error("Duplicate entry '1' for key 'users.PRIMARY'"),
       );
 
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -527,10 +526,10 @@ describe("Admin Backup Tools", () => {
 
     it("should return structured error for non-existent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "nonexistent",
@@ -544,7 +543,7 @@ describe("Admin Backup Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("doesn't exist");
+      expect(result.error).toContain("does not exist");
       expect(result.details.rowsInserted).toBe(0);
     });
 
@@ -553,7 +552,7 @@ describe("Admin Backup Tools", () => {
         new Error("Unknown column 'nonexistent_col' in 'field list'"),
       );
 
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -567,12 +566,12 @@ describe("Admin Backup Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Unknown column");
+      expect(result.error).toContain("not found");
       expect(result.details.rowsInserted).toBe(0);
     });
 
     it("should return structured error for Zod validation failures", async () => {
-      const tool = createImportDataTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createImportDataTool(mockAdapter);
       const result = (await tool.handler(
         { data: [{ name: "test" }] },
         mockContext,
@@ -585,7 +584,7 @@ describe("Admin Backup Tools", () => {
 
   describe("createCreateDumpTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateDumpTool(mockAdapter);
 
       expect(tool.name).toBe("mysql_create_dump");
       expect(tool.group).toBe("backup");
@@ -594,7 +593,7 @@ describe("Admin Backup Tools", () => {
     });
 
     it("should return validation error when database is missing", async () => {
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateDumpTool(mockAdapter);
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
         error: string;
@@ -608,7 +607,7 @@ describe("Admin Backup Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ SCHEMA_NAME: "production_db" }]),
       );
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateDumpTool(mockAdapter);
       const result = (await tool.handler(
         { database: "production_db" },
         mockContext,
@@ -625,7 +624,7 @@ describe("Admin Backup Tools", () => {
           { TABLE_NAME: "users" },
         ]),
       );
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateDumpTool(mockAdapter);
       const result = (await tool.handler(
         {
           database: "mydb",
@@ -642,7 +641,7 @@ describe("Admin Backup Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
       );
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateDumpTool(mockAdapter);
       const result = (await tool.handler(
         { database: "mydb", noData: true },
         mockContext,
@@ -655,7 +654,7 @@ describe("Admin Backup Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
       );
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateDumpTool(mockAdapter);
       const result = (await tool.handler(
         { database: "mydb", singleTransaction: true },
         mockContext,
@@ -671,7 +670,7 @@ describe("Admin Backup Tools", () => {
           { TABLE_NAME: "users" },
         ]),
       );
-      const tool = createCreateDumpTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCreateDumpTool(mockAdapter);
       const result = (await tool.handler(
         {
           database: "mydb",
@@ -691,7 +690,7 @@ describe("Admin Backup Tools", () => {
   describe("createRestoreDumpTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_restore_dump");
@@ -702,7 +701,7 @@ describe("Admin Backup Tools", () => {
 
     it("should return validation error when database is missing", async () => {
       const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -720,7 +719,7 @@ describe("Admin Backup Tools", () => {
         createMockQueryResult([{ SCHEMA_NAME: "restore_target" }]),
       );
       const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -740,7 +739,7 @@ describe("Admin Backup Tools", () => {
         createMockQueryResult([{ SCHEMA_NAME: "mydb" }]),
       );
       const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       let result = (await tool.handler(
@@ -759,7 +758,7 @@ describe("Admin Backup Tools", () => {
     it("should return structured error for non-existent database", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
       const tool = createRestoreDumpTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { database: "nonexistent", filename: "backup.sql" },

@@ -72,6 +72,23 @@ __tests__/
 *.spec.ts
 coverage/
 test-results.json
+scripts/
+
+# Keycloak (development server)
+keycloak-*/
+keycloak/
+
+# MCP Registry tokens
+.mcpregistry_github_token
+.mcpregistry_registry_token
+
+# Test files & configs
+tests/
+__tests__/
+*.test.ts
+*.spec.ts
+coverage/
+test-results.json
 eslint.config.js
 vitest.config.ts
 
@@ -83,6 +100,7 @@ vitest.config.ts
 Thumbs.db
 releases/
 tmp/
+history.json
 
 # Assets
 social-preview.png

@@ -2,81 +2,73 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-[![GitHub](https://img.shields.io/badge/GitHub-neverinfamous/mysql--mcp-blue?logo=github)](https://github.com/neverinfamous/mysql-mcp)
-![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)
-[![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp)
-[![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
-![Status](https://img.shields.io/badge/status-Production%2FStable-brightgreen)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp)
-[![Security](https://img.shields.io/badge/Security-Enhanced-green.svg)](SECURITY.md)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![E2E](https://img.shields.io/badge/E2E-432%20passing%20%C2%B7%200%20skipped-blue.svg)](https://github.com/neverinfamous/mysql-mcp/actions/workflows/e2e.yml)
-[![Tests](https://img.shields.io/badge/Tests-2185%20passing-brightgreen.svg)](https://github.com/neverinfamous/mysql-mcp)
-[![Coverage](https://img.shields.io/badge/Coverage-89.74%25-green.svg)](https://github.com/neverinfamous/mysql-mcp)
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.91%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
-## The Most Comprehensive MySQL MCP Server Available
+## 💎 Value Proposition
 
-**mysql-mcp** is the definitive **Model Context Protocol server for MySQL** — empowering AI assistants like AntiGravity, Claude, Cursor, and other MCP clients with **unparalleled database capabilities**. Features **Code Mode** — a revolutionary approach that provides access to all 224 tools through a single JavaScript sandbox, eliminating the massive token overhead of multi-step tool calls. Also includes deterministic error handling, process-isolated code execution, and enterprise-grade features without sacrificing ease of use.
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
-## 🎯 What Sets Us Apart
+## 🎯 Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **224 Specialized Tools**             | The largest MySQL tool collection for MCP — from core CRUD and native JSON functions (MySQL 5.7+) to advanced spatial/GIS, document store, and cluster management                                                                                                                      |
-| **18 Observability Resources**        | Real-time schema, performance metrics, process lists, status variables, replication status, and InnoDB diagnostics                                                                                                                                                                     |
-| **19 AI-Powered Prompts**             | Guided workflows for query building, schema design, performance tuning, and infrastructure setup                                                                                                                                                                                       |
-| **Code Mode (Massive Token Savings)** | Execute complex operations locally inside a separate V8 isolate (`worker_threads`). Instead of spending thousands of tokens on back-and-forth tool calls, Code Mode exposes all 224 capabilities locally, reducing token overhead by up to 90% while supercharging AI agent reasoning. |
-| **Token-Optimized Payloads**          | Every tool response is audited for token efficiency. Tools with large payloads offer optional flags (`summary`, `limit`, `compact`) to reduce response size — monitoring, sysschema, stats, spatial, and cluster tools all support payload reduction                                   |
-| **OAuth 2.1 + Access Control**        | Enterprise-ready security with RFC 9728/8414 compliance, granular scopes (`read`, `write`, `admin`, `full`, `db:*`, `table:*:*`), and Keycloak integration                                                                                                                             |
-| **Smart Tool Filtering**              | 25 tool groups + 11 shortcuts let you stay within IDE limits while exposing exactly what you need                                                                                                                                                                                      |
-| **Dual HTTP Transport**               | Streamable HTTP (`/mcp`) for modern clients + legacy SSE (`/sse`) for backward compatibility — both protocols supported simultaneously with session management, security headers, CORS, rate limiting, and body size enforcement                                                       |
-| **High-Performance Pooling**          | Built-in connection pooling for efficient, concurrent database access                                                                                                                                                                                                                  |
-| **Ecosystem Integrations**            | First-class support for **MySQL Router**, **ProxySQL**, and **MySQL Shell** utilities                                                                                                                                                                                                  |
-| **Advanced Encryption**               | Full TLS/SSL support for secure connections, plus tools for managing data masking, encryption monitoring, and compliance                                                                                                                                                               |
-| **Production-Ready Security**         | SQL injection protection, parameterized queries, input validation, and audit capabilities                                                                                                                                                                                              |
-| **Deterministic Error Handling**      | Every tool returns structured `{success, error, code, category, suggestion, recoverable}` responses — no raw exceptions, no silent failures, no misleading messages. Agents get actionable context instead of cryptic MySQL error codes                                                |
-| **Strict TypeScript**                 | 100% type-safe codebase with 2185 tests and 90% coverage                                                                                                                                                                                                                               |
-| **MCP 2025-11-25 Compliant**          | Full protocol support with tool safety hints, resource priorities, and progress notifications                                                                                                                                                                                          |
+| **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
+| **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
+| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
+| **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
+| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
+| **Smart Tool Filtering**              | Use 28 tool groups and 16 shortcuts to stay within IDE tool limits. |
+| **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
+| **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
+| **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
+| **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
+| **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
+| **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
+| **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Deploy in Minutes
 
-### Prerequisites
+### Meet Prerequisites
 
 - Node.js 24+
-- MySQL 5.7+ or 8.0+ server
-- npm or yarn
+- MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
+- pnpm
 
-### Installation
+### Install the Server
 
-#### NPM (Recommended)
+#### NPM / PNPM (Recommended)
 
 ```bash
-npm install -g @neverinfamous/mysql-mcp
+pnpm add -g @neverinfamous/mysql-mcp
 ```
 
 Run the server:
 
 ```bash
-mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+mysql-mcp --transport stdio --mysql "mysql://user:password@localhost:3306/database"
 ```
 
 Or use npx without installing:
 
 ```bash
-npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://user:password@localhost:3306/database"
 ```
 
 #### Docker
 
+> **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The GitHub repo uses `neverinfamous`.
+
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
-  --mysql mysql://user:password@host.docker.internal:3306/database
+  --mysql "mysql://user:password@host.docker.internal:3306/database"
 ```
 
 #### From Source
@@ -84,33 +76,45 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 ```bash
 git clone https://github.com/neverinfamous/mysql-mcp.git
 cd mysql-mcp
-npm install
-npm run build
-node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/database
+pnpm install
+pnpm run build
+node dist/cli.js --transport stdio --mysql "mysql://user:password@localhost:3306/database"
 ```
 
 ---
 
-## Code Mode: Maximum Efficiency
+## ⚡ Maximize Efficiency with Code Mode
 
-Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
+Code Mode (`mysql_execute_code`) reduces token usage by 70-90%. It is included by default.
 
-Code executes in a **worker-thread sandbox** — a separate V8 isolate with its own memory space. All `mysql.*` API calls are forwarded to the main thread via a `MessagePort`-based RPC bridge, where the actual database operations execute. This provides:
+Code executes in a **C++ V8 isolate sandbox**. The server uses a physically separate V8 isolate via `isolated-vm`. The server enforces strict heap limits and synchronous termination. The server maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
-- **V8 code generation restrictions** — `eval()` and `Function()` construction from strings disabled at the engine level via `codeGeneration: { strings: false, wasm: false }`
-- **Frozen prototypes** — all built-in prototypes frozen inside the vm context to prevent dynamic constructor chain escapes
-- **18 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network access
-- **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
-- **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
-- **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — worker termination if execution exceeds the configured limit
-- **Full API access** — all 25 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
+### Enforce Engine-Level Restrictions
 
-Set `CODEMODE_ISOLATION=vm` to fall back to the in-process `vm` module sandbox if needed.
+- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
 
-### ⚡ Code Mode Only (Maximum Token Savings)
+### Validate Code Statically
 
-If you control your own setup, you can run with **only Code Mode enabled** — a single tool that provides access to all 224 tools' worth of capability through the `mysql.*` API:
+- ✅ **29 blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
+- ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
+
+### Protect the Runtime
+
+- ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — Enforces a 30s hard limit. It prevents resource exhaustion.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
+- ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
+- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
+- ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
+- ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
+- ✅ **Full API access** — Exposes all 28 tool groups via the mysql.* namespace.
+
+### ⚡ Run Only Code Mode
+
+Run with **only Code Mode enabled**. A single tool provides full capability access:
 
 ```json
 {
@@ -129,14 +133,15 @@ If you control your own setup, you can run with **only Code Mode enabled** — a
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "your_user",
         "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database"
+        "MYSQL_DATABASE": "your_database",
+        "REDIS_URL": "redis://localhost:6379"
       }
     }
   }
 }
 ```
 
-This exposes just `mysql_execute_code`. The agent writes JavaScript against the typed `mysql.*` SDK — composing queries, chaining operations across all 25 tool groups, and returning exactly the data it needs — in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/) pioneered by Cloudflare for their entire API: fixed token cost regardless of how many capabilities exist.
+This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across 28 groups. They return exactly the needed data in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/). It ensures fixed token costs.
 
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
@@ -147,13 +152,14 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 
 ---
 
-## 🌐 HTTP/SSE Transport (Remote Access)
+## 🌐 Connect Remotely via HTTP/SSE
 
-For remote access, web-based clients, or HTTP-compatible MCP hosts, use the HTTP transport:
+Use the HTTP transport for remote access:
 
 ```bash
-node dist/cli.js \
+npx -y @neverinfamous/mysql-mcp \
   --transport http \
+  --server-host 0.0.0.0 \
   --port 3000 \
   --mysql "mysql://user:pass@localhost:3306/db"
 ```
@@ -162,16 +168,15 @@ node dist/cli.js \
 
 ```bash
 docker run --rm -p 3000:3000 \
-  -e MYSQL_URL=mysql://user:pass@host:3306/db \
   writenotenow/mysql-mcp:latest \
-  --transport http --port 3000
+  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
-The server supports **two MCP transport protocols simultaneously**, enabling both modern and legacy clients to connect:
+The server supports **two MCP transport protocols simultaneously**. Both modern and legacy clients can connect:
 
-### Streamable HTTP (Recommended)
+### Use Streamable HTTP (Recommended)
 
-Modern protocol (MCP 2025-03-26) — single endpoint, session-based:
+Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 
 | Method   | Endpoint | Purpose                                          |
 | -------- | -------- | ------------------------------------------------ |
@@ -179,19 +184,21 @@ Modern protocol (MCP 2025-03-26) — single endpoint, session-based:
 | `GET`    | `/mcp`   | SSE stream for server notifications              |
 | `DELETE` | `/mcp`   | Session termination                              |
 
-Sessions are managed via the `Mcp-Session-Id header.
+> **Rate Limit:** HTTP transport is limited to 100 requests per minute per IP. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 
-### Stateless Mode
+Sessions are managed via the `Mcp-Session-Id` header.
 
-For serverless/stateless deployments where sessions are not needed:
+### Run Statelessly
+
+Use stateless deployments where sessions are not needed:
 
 ```bash
-node dist/cli.js --transport http --port 3000 --stateless --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --stateless --mysql "mysql://..."
 ```
 
 In stateless mode: `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
 
-### Legacy SSE (Backward Compatibility)
+### Connect via Legacy SSE (Backward Compatibility)
 
 Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 
@@ -200,37 +207,38 @@ Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 | `GET`  | `/sse`                     | Opens SSE stream, returns `/messages?sessionId=<id>` endpoint |
 | `POST` | `/messages?sessionId=<id>` | Send JSON-RPC messages to the session                         |
 
-### Utility Endpoints
+### Access Utility Endpoints
 
 | Method | Endpoint  | Purpose                                                                |
 | ------ | --------- | ---------------------------------------------------------------------- |
 | `GET`  | `/health` | Health check (bypasses rate limiting, always available for monitoring) |
 
-## 🔐 Authentication
+## 🔐 Secure Access with Authentication
 
 mysql-mcp supports two authentication mechanisms for HTTP transport:
 
-### Simple Bearer Token (`--auth-token`)
+### Authenticate Fast with Bearer Tokens (`--auth-token`)
 
-Lightweight authentication for development or single-tenant deployments:
+Use lightweight authentication for development:
 
 ```bash
-node dist/cli.js --transport http --port 3000 --auth-token my-secret --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --auth-token my-secret --mysql "mysql://..."
 
 # Or via environment variable
 export MCP_AUTH_TOKEN=my-secret
-node dist/cli.js --transport http --port 3000 --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://..."
 ```
 
 Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401` with `WWW-Authenticate: Bearer` headers per RFC 6750.
 
-### OAuth 2.1 (Enterprise)
+### Enforce Enterprise Security with OAuth 2.1
 
-Full OAuth 2.1 with RFC 9728/8414 compliance for production multi-tenant deployments:
+Use full OAuth 2.1 for production deployments:
 
 ```bash
 node dist/cli.js \
   --transport http \
+  --server-host 0.0.0.0 \
   --port 3000 \
   --mysql "mysql://user:pass@localhost:3306/db" \
   --oauth-enabled \
@@ -254,20 +262,21 @@ Access control is managed through OAuth scopes:
 | `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |
 
-### RFC Compliance
+### RFC Compliance & Enterprise Security
 
-This implementation follows:
+This implementation follows full OAuth 2.1 for production multi-tenant deployments:
 
-- **RFC 9728** — OAuth 2.1 Protected Resource Metadata
-- **RFC 8414** — OAuth 2.1 Authorization Server Metadata
-- **RFC 7591** — OAuth 2.1 Dynamic Client Registration
+- ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
+- ✅ **RFC 8414** Authorization Server Discovery with caching
+- ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
+- ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
+- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
+- ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 
-The server exposes metadata at `/.well-known/oauth-protected-resource`.
-
-> **Note for Keycloak users:** Add an **Audience mapper** to your client (Client → Client scopes → dedicated scope → Add mapper → Audience) to include the correct `aud` claim in tokens.
+> **Note for Keycloak users:** Add an **Audience mapper** to your client. This includes the correct `aud` claim. (Client → Client scopes → dedicated scope → Add mapper → Audience)
 
 > [!NOTE]
-> **Per-tool scope enforcement:** Scopes are enforced at the tool level — each tool group maps to a required scope (`read`, `write`, or `admin`). When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. When OAuth is not configured, scope checks are skipped entirely.
+> **Per-tool scope enforcement:** Scopes are enforced at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. When OAuth is not configured, scope checks are skipped entirely.
 
 > [!WARNING]
 > **HTTP without authentication:** When using `--transport http` without enabling OAuth or `--auth-token`, all clients have full unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
@@ -278,9 +287,10 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--mysql",
@@ -297,8 +307,8 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
-      "args": ["C:/path/to/mysql-mcp/dist/cli.js", "--transport", "stdio"],
+      "command": "npx",
+      "args": ["-y", "@neverinfamous/mysql-mcp", "--transport", "stdio"],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
@@ -318,12 +328,12 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 
 ---
 
-## 🔗 Database Connection Scenarios
+## 🔗 Connect to Any Database
 
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
 | **MySQL on host machine** | `host.docker.internal`    | `mysql://user:pass@host.docker.internal:3306/db` |
-| **MySQL in Docker**       | Container name or network | `mysql://user:pass@mysql-container:3306/db`      |
+| **MySQL in Docker**       | `host.docker.internal` (Local) or `mysql` (Docker Compose) | `mysql://user:pass@host.docker.internal:3306/db`      |
 | **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://user:pass@db.example.com:3306/db`       |
 
 ### MySQL on Host Machine
@@ -331,12 +341,15 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 
 ```json
-"--mysql", "mysql://user:password@host.docker.internal:3306/database"
+[
+  "--mysql",
+  "mysql://user:password@host.docker.internal:3306/database"
+]
 ```
 
 ### MySQL in Another Docker Container
 
-Add both containers to the same Docker network, then use the container name:
+For local Docker setups, standardize on `host.docker.internal`. If you are using Docker Compose, you can use the service name `mysql` (or your specific container name) for docker-compose networking:
 
 Create a network and run MySQL:
 
@@ -349,7 +362,7 @@ Run MCP server on the same network:
 
 ```bash
 docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
-  --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
+  --transport stdio --mysql "mysql://root:pass@mysql-db:3306/mysql"
 ```
 
 ### Remote/Cloud MySQL (RDS, Cloud SQL, etc.)
@@ -357,7 +370,10 @@ docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
 Use the remote hostname directly:
 
 ```json
-"--mysql", "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
+[
+  "--mysql",
+  "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
+]
 ```
 
 | Provider         | Example Hostname                                 |
@@ -372,10 +388,10 @@ Use the remote hostname directly:
 
 ---
 
-## 🛠️ Tool Filtering
+## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 224 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 200+ tools available, you MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -383,43 +399,47 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 | Filter Pattern   | Example                     | Tools | Description               |
 | ---------------- | --------------------------- | ----- | ------------------------- |
-| Shortcut only    | `starter`                   | 39    | Use a predefined bundle   |
-| Groups only      | `core,json,transactions`    | 33    | Combine individual groups |
-| Shortcut + Group | `starter,spatial`           | 51    | Extend a shortcut         |
-| Shortcut - Tool  | `starter,-mysql_drop_table` | 38    | Remove specific tools     |
+| Shortcut only    | `starter`                   | 43    | Use a predefined bundle   |
+| Groups only      | `core,json,transactions`    | 36    | Combine individual groups |
+| Shortcut + Group | `starter,spatial`           | 55    | Extend a shortcut         |
+| Shortcut - Tool  | `starter,-mysql_drop_table` | 42    | Remove specific tools     |
 
 ### Shortcuts (Predefined Bundles)
 
 | Shortcut        | Tools  | Use Case           | What's Included                                                    |
 | --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
-| `starter`       | **39** | Standard Package   | core, json, transactions, text, codemode                           |
-| `essential`     | 16     | Minimal footprint  | core, transactions, codemode                                       |
-| `dev-power`     | 63     | Power Developer    | core, schema, performance, stats, fulltext, transactions, codemode |
-| `ai-data`       | 46     | AI Data Analyst    | core, json, docstore, text, fulltext, codemode                     |
-| `ai-spatial`    | 59     | AI Spatial Analyst | core, spatial, stats, performance, transactions, codemode          |
-| `dba-monitor`   | 39     | DBA Monitoring     | core, monitoring, performance, sysschema, optimization, codemode   |
-| `dba-manage`    | 38     | DBA Management     | core, admin, backup, replication, partitioning, events, codemode   |
-| `dba-secure`    | 33     | DBA Security       | core, security, roles, transactions, codemode                      |
-| `dba-schema`    | 32     | DBA Schema         | core, schema, introspection, migration, codemode                   |
-| `base-core`     | 50     | Base Ops           | core, json, transactions, text, schema, codemode                   |
-| `base-advanced` | 53     | Advanced Features  | docstore, spatial, stats, fulltext, events, codemode               |
-| `ecosystem`     | 41     | External Tools     | cluster, proxysql, router, shell, codemode                         |
+| `starter`         | **43** | Standard Package    | core, json, transactions, text, codemode                         |
+| `essential`       | 20     | Minimal footprint   | core, transactions, codemode                                     |
+| `dev-power`       | 47     | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
+| `dev-analytics`   | 44     | Developer Analytics | core, stats, performance, codemode                               |
+| `ai-data-nosql`   | 39     | AI Data NoSQL       | core, json, docstore, codemode                                   |
+| `ai-search`       | 35     | AI Search           | core, text, fulltext, vector, codemode                           |
+| `ai-spatial`      | 32     | AI Spatial Analyst  | core, spatial, transactions, codemode                            |
+| `ai-vector`       | 29     | AI Vector Analyst   | core, vector, fulltext, codemode                                 |
+| `dba-monitor`     | 43     | DBA Monitoring      | core, monitoring, performance, sysschema, optimization, codemode |
+| `dba-manage`      | 44     | DBA Management      | core, admin, backup, replication, partitioning, events, codemode |
+| `dba-secure`      | 37     | DBA Security        | core, security, roles, transactions, codemode                    |
+| `dba-schema`      | 36     | DBA Schema          | core, schema, introspection, migration, codemode                 |
+| `base-relational` | 37     | Base Relational     | core, transactions, text, schema, codemode                       |
+| `base-analytics`  | 27     | Base Analytics      | stats, events, codemode                                          |
+| `base-nosql`      | 33     | Base NoSQL          | docstore, spatial, vector, codemode                              |
+| `ecosystem`       | 41     | External Tools      | cluster, proxysql, router, shell, codemode                       |
 
-### Tool Groups (27 Available)
+### Tool Groups (28 Available)
 
 > Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
 | Group           | Tools | Description                                             |
 | --------------- | ----- | ------------------------------------------------------- |
 | `codemode`      | 1     | Code Mode (sandboxed code execution) 🌟 **Recommended** |
-| `core`          | 8     | Read/write queries, tables, indexes                     |
+| `core`          | 12    | Read/write queries, tables, indexes                     |
 | `transactions`  | 7     | BEGIN, COMMIT, ROLLBACK, savepoints                     |
 | `json`          | 17    | JSON functions, merge, diff, stats                      |
 | `text`          | 6     | REGEXP, LIKE, SOUNDEX                                   |
 | `fulltext`      | 5     | Natural language & boolean search                       |
 | `performance`   | 11    | EXPLAIN, query analysis, anomaly detection              |
-| `optimization`  | 4     | Index hints, recommendations                            |
-| `admin`         | 7     | OPTIMIZE, ANALYZE, CHECK, insights                      |
+| `optimization`  | 4     | Index hints, database-wide audits, EXPLAIN recommendations |
+| `admin`         | 9     | OPTIMIZE, ANALYZE, CHECK, insights                      |
 | `monitoring`    | 7     | PROCESSLIST, status variables                           |
 | `backup`        | 7     | Export, import, mysqldump, audit backups                |
 | `replication`   | 5     | Master/slave, binlog                                    |
@@ -438,24 +458,26 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `cluster`       | 10    | Group Replication, InnoDB Cluster                       |
 | `proxysql`      | 11    | ProxySQL management                                     |
 | `router`        | 9     | MySQL Router REST API                                   |
+| `vector`        | 11    | Vector embeddings, KNN search, hybrid search (MySQL 9.0+)|
 
 ---
 
 ### Quick Start: Recommended IDE Configuration
 
-Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursorrules`, or equivalent):
+Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
 
 #### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 
-**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to all 224 tools via a JavaScript sandbox.
+**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to its full toolset via a JavaScript sandbox.
 
 ```json
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -464,7 +486,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_username",
+        "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "your_password",
         "MYSQL_DATABASE": "your_database"
       }
@@ -488,9 +510,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 {
   "mcpServers": {
     "mysql-mcp-cluster": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -514,8 +537,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 > **⚠️ Prerequisites:**
 >
-> - **InnoDB Cluster** with MySQL Router requires the cluster to be running for Router REST API authentication (uses `metadata_cache` backend)
-> - Router REST API uses HTTPS with self-signed certificates by default — set `MYSQL_ROUTER_INSECURE=true` to bypass certificate verification
+> - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
+> - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
 > - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`) for `mysqlsh_import_json` and `docstore` tools
 > - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
 
@@ -523,9 +546,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 {
   "mcpServers": {
     "mysql-mcp-ecosystem": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -565,7 +589,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 ---
 
 **Legacy Syntax (still supported):**
-If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to start with _all_ tools enabled and then subtract.
+If you start with a negative filter (e.g., `-ecosystem`), it enables all tools first. It then subtracts the specified tools.
 
 ### Syntax Reference
 
@@ -582,6 +606,9 @@ If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to
 ### Custom Tool Selection
 
 You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
+
+The easiest way to filter is using **whitelist mode**. Simply specify the shortcut you want. Everything else is automatically disabled.
+> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 ```bash
 # Enable exactly 3 tools (whitelist mode)
@@ -600,7 +627,7 @@ This is useful for scripted or automated clients that need a minimal, precise se
 
 ---
 
-## 🤖 AI-Powered Prompts
+## 🤖 Automate Workflows with AI Prompts
 
 This server includes **19 intelligent prompts** for guided workflows:
 
@@ -628,14 +655,15 @@ This server includes **19 intelligent prompts** for guided workflows:
 
 ---
 
-## 📊 Resources
+## 📊 Monitor Health with Resources
 
-This server exposes **18 resources** for database observability:
+This server exposes **23 resources** for database observability and telemetry:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
 | `mysql://schema`        | Full database schema                        |
 | `mysql://tables`        | Table listing with metadata                 |
+| `mysql://table/{name}`  | Specific Table Schema                       |
 | `mysql://variables`     | Server configuration variables              |
 | `mysql://status`        | Server status metrics                       |
 | `mysql://processlist`   | Active connections and queries              |
@@ -649,13 +677,19 @@ This server exposes **18 resources** for database observability:
 | **`mysql://events`**    | Event Scheduler status and scheduled events |
 | **`mysql://sysschema`** | sys schema diagnostics summary              |
 | **`mysql://locks`**     | InnoDB lock contention detection            |
-| **`mysql://cluster`**   | Group Replication/InnoDB Cluster status     |
-| **`mysql://spatial`**   | Spatial columns and indexes                 |
-| **`mysql://docstore`**  | Document Store collections                  |
+| `mysql://cluster`       | Group Replication/InnoDB Cluster status     |
+| `mysql://spatial`       | Spatial columns and indexes                 |
+| `mysql://docstore`      | Document Store collections                  |
+| `mysql://insights`      | Business insights memo from mysql_append_insight |
+| `mysql://audit-log`     | Forensic audit trail and pre-mutation snapshot stats |
+| `mysql://metrics`       | In-memory streaming telemetry (p50/p95/p99 latency) |
+| `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
 
 ---
 
-## 🔧 Advanced Configuration
+## 🔧 Customize with Advanced Configuration
+
+> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.json` template at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 
@@ -667,19 +701,18 @@ For specialized setups, see these Wiki pages:
 
 ---
 
-## ⚡ Performance Tuning
+## ⚡ Boost Speed with Performance Tuning
 
-Schema metadata is cached to reduce repeated queries during tool/resource invocations.
+The server caches schema metadata to reduce repeated queries during tool/resource invocations.
 
 | Variable                    | Default  | Description                                                         |
 | --------------------------- | -------- | ------------------------------------------------------------------- |
 | `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
-| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`                  |
-| `CODE_MODE_MAX_RESULT_SIZE` | `102400` | Maximum Code Mode result payload in bytes (default 100KB, cap 50MB) |
+| `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warn`, `error`                     |
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
-> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses and `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See the code map for per-tool details.
+> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses. They also support `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See the code map for per-tool details.
 
 ---
 
@@ -687,37 +720,82 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
+| `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
+| `--dump-config`           | —                       | Dump current configuration to stdout and exit       |
+
+| `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
+| `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
+| `--mysql`, `-m`           | —                       | MySQL connection string                             |
+| `--mysql-host`            | `MYSQL_HOST`            | MySQL host                                          |
+| `--mysql-port`            | `MYSQL_PORT`            | MySQL port                                          |
+| `--mysql-user`            | `MYSQL_USER`            | MySQL username                                      |
+| `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
+| `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
+| `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
+| `--pool-min`              | `MYSQL_POOL_MIN`        | Minimum connections in pool (default: 0)            |
+| `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 30000)   |
+| `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
+| `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
+| `--name`                  | —                       | Server name                                         |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
+| `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
+| `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
-| `--oauth-enabled`         | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
+| `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
+| `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
+| `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
+| `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
+| `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
+| `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
+| `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
+| `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
 | `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
 | `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
+| —                         | `MYSQL_ROUTER_URL`      | MySQL Router URL                                    |
+| —                         | `MYSQL_ROUTER_USER`     | MySQL Router user                                   |
+| —                         | `MYSQL_ROUTER_PASSWORD` | MySQL Router password                               |
+| —                         | `MYSQL_ROUTER_INSECURE` | Bypass Router TLS verification                      |
+| —                         | `PROXYSQL_HOST`         | ProxySQL host                                       |
+| —                         | `PROXYSQL_PORT`         | ProxySQL port                                       |
+| —                         | `PROXYSQL_USER`         | ProxySQL user                                       |
+| —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
+| —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
+| —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
+| —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
+| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
+| —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
+| —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
+| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
+| —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
 ### Scopes
 
-| Scope   | Access Level              |
-| ------- | ------------------------- |
-| `read`  | Read-only queries         |
-| `write` | Read + write operations   |
-| `admin` | Administrative operations |
-| `full`  | All operations            |
+| Scope                    | Access Level                        |
+| ------------------------ | ----------------------------------- |
+| `read`                   | Read-only queries (SELECT, EXPLAIN) |
+| `write`                  | Read + write operations             |
+| `admin`                  | Full administrative access          |
+| `full`                   | Grants all access                   |
+| `db:{name}`              | Access to specific database         |
+| `schema:{name}`          | Access to specific schema           |
+| `table:{schema}:{table}` | Access to specific table            |
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 
-## Development
+## 💻 Extend and Contribute
 
 See **[From Source](#from-source)** above for setup. After cloning:
 
 ```bash
-npm run lint && npm run typecheck  # Run checks
-npm test                           # Run tests
+pnpm run check  # Run lint, typecheck, unit tests, and E2E tests
 ```
 
 ### MCP Inspector
@@ -727,7 +805,7 @@ Use [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to visual
 Build the server first:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
 Launch Inspector with mysql-mcp:
@@ -738,7 +816,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:6274** to browse all 224 tools, 18 resources, and 19 prompts interactively.
+Open **http://localhost:5173** to browse all 241 tools, 23 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 
@@ -765,13 +843,13 @@ npx @modelcontextprotocol/inspector --cli node dist/cli.js \
 The project maintains high test coverage (~90%) using Vitest.
 
 ```bash
-npm test
+pnpm test
 ```
 
 Run coverage report:
 
 ```bash
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 **Test Infrastructure:**
@@ -785,7 +863,7 @@ npm run test:coverage
 The project includes a performance benchmarking suite to track the efficiency of critical paths like Code Mode sandbox initialization, tool filtering, and URI routing.
 
 ```bash
-npm run bench
+pnpm run bench
 ```
 
 ---

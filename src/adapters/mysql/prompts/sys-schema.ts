@@ -4,6 +4,7 @@
  * Complete sys schema usage guide for diagnostics.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSysSchemaGuidePrompt(): PromptDefinition {
   return {
@@ -104,7 +105,7 @@ SELECT sys.format_statement('SELECT * FROM users WHERE id = 1');
 3. **Reset stats after schema changes**
 4. **Monitor performance_schema memory**
 
-Start by checking overall user activity with \`mysql_sys_user_summary\`.`);
+Start by checking overall user activity with \`mysql_sys_user_summary\`.${getSkillDirective()}`);
     },
   };
 }

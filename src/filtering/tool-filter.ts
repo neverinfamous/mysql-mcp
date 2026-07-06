@@ -291,7 +291,7 @@ export function filterTools(
  */
 export function getToolFilterFromEnv(): ToolFilterConfig {
   const filterString =
-    process.env["MYSQL_MCP_TOOL_FILTER"] ?? process.env["TOOL_FILTER"] ?? "";
+    process.env["TOOL_FILTER"] ?? "";
   return parseToolFilter(filterString);
 }
 

@@ -4,6 +4,7 @@
  * Complete Event Scheduler configuration guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupEventsPrompt(): PromptDefinition {
   return {
@@ -97,7 +98,7 @@ DO
 2. **Permission denied**: Grant EVENT privilege
 3. **Event disappeared**: Check ON COMPLETION PRESERVE setting
 
-Start by checking the scheduler status with \`mysql_scheduler_status\`.`);
+Start by checking the scheduler status with \`mysql_scheduler_status\`.${getSkillDirective()}`);
     },
   };
 }

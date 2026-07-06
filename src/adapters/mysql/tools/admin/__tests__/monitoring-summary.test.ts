@@ -12,8 +12,8 @@ import {
   createReplicationStatusTool,
   createShowStatusTool,
   createShowVariablesTool,
-} from "../monitoring.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+} from "../monitoring/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -48,7 +48,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -71,7 +71,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -99,7 +99,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -122,7 +122,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -142,7 +142,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -159,7 +159,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -173,7 +173,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -188,7 +188,7 @@ describe("Monitoring Summary & Edge Cases", () => {
       );
 
       const tool = createInnodbStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ summary: true }, mockContext)) as {
         data: { summary: Record<string, unknown> };
@@ -208,7 +208,7 @@ describe("Monitoring Summary & Edge Cases", () => {
         .mockRejectedValueOnce(new Error("SLAVE not supported"));
 
       const tool = createReplicationStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: { configured: boolean; message: string };
@@ -224,7 +224,7 @@ describe("Monitoring Summary & Edge Cases", () => {
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createReplicationStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: { configured: boolean; message: string };
@@ -240,7 +240,7 @@ describe("Monitoring Summary & Edge Cases", () => {
   // ===========================================================================
   describe("status/variables limit validation", () => {
     it("should reject limit < 1 in showStatus", async () => {
-      const tool = createShowStatusTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createShowStatusTool(mockAdapter);
       const result = (await tool.handler({ limit: 0 }, mockContext)) as {
         success: boolean;
         error: string;
@@ -251,7 +251,7 @@ describe("Monitoring Summary & Edge Cases", () => {
 
     it("should reject limit < 1 in showVariables", async () => {
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ limit: 0 }, mockContext)) as {
         success: boolean;
@@ -264,10 +264,10 @@ describe("Monitoring Summary & Edge Cases", () => {
     it("should handle showVariables with LIKE and session", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       const tool = createShowVariablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ global: false, like: "max_%" }, mockContext);
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).not.toContain("GLOBAL");
       expect(call).toContain("LIKE 'max_%'");
     });

@@ -1,13 +1,13 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
   "name": "io.github.neverinfamous/mysql-mcp",
   "title": "MySQL MCP Server",
-  "description": "Enterprise-grade MySQL MCP Server with OAuth 2.1, 224 specialized tools, and Code Mode",
-  "version": "3.2.2",
+  "description": "Connect AI agents to enterprise MySQL. Minimize tokens with Code Mode. Secure access via OAuth 2.1.",
+  "version": "4.0.0",
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "docker.io/writenotenow/mysql-mcp:v3.2.2",
+      "identifier": "docker.io/writenotenow/mysql-mcp:latest",
       "transport": {
         "type": "stdio"
       }
@@ -30,7 +30,7 @@
     "codemode"
   ],
   "author": {
-    "name": "Adamic.tech"
+    "name": "neverinfamous"
   },
   "homepage": "https://github.com/neverinfamous/mysql-mcp",
   "repository": {

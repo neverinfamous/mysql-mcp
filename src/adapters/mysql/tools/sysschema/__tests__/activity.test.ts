@@ -9,7 +9,7 @@ import {
   createSysUserSummaryTool,
   createSysHostSummaryTool,
 } from "../activity.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -29,7 +29,7 @@ describe("Sys Schema Activity Tools", () => {
   describe("createSysUserSummaryTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysUserSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_user_summary");
       expect(tool.group).toBe("sysschema");
@@ -46,7 +46,7 @@ describe("Sys Schema Activity Tools", () => {
       );
 
       const tool = createSysUserSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ limit: 10 }, mockContext)) as {
         data: { rows: unknown[] };
@@ -60,13 +60,13 @@ describe("Sys Schema Activity Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysUserSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ user: "specific_user" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("WHERE user = ?");
-      const args = mockAdapter.executeQuery.mock.calls[0][1] as unknown[];
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
       expect(args).toContain("specific_user");
     });
   });
@@ -74,7 +74,7 @@ describe("Sys Schema Activity Tools", () => {
   describe("createSysHostSummaryTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysHostSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_host_summary");
     });
@@ -90,7 +90,7 @@ describe("Sys Schema Activity Tools", () => {
       );
 
       const tool = createSysHostSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: { rows: unknown[] };
@@ -104,13 +104,13 @@ describe("Sys Schema Activity Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysHostSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ host: "127.0.0.1" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("WHERE host = ?");
-      const args = mockAdapter.executeQuery.mock.calls[0][1] as unknown[];
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
       expect(args).toContain("127.0.0.1");
     });
   });

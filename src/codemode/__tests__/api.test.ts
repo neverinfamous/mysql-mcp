@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MysqlApi } from "../api/index.js";
-import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
+import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 
 // Suppress logger
 vi.mock("../../utils/logger.js", () => ({
@@ -24,7 +24,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "core",
       title: "Read Query",
       description: "Execute a read query",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true },
       handler: vi.fn().mockResolvedValue({ rows: [], rowsAffected: 0 }),
@@ -34,7 +34,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "core",
       title: "Write Query",
       description: "Execute a write query",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["write"],
       annotations: {},
       handler: vi.fn().mockResolvedValue({ rows: [], rowsAffected: 1 }),
@@ -44,7 +44,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "core",
       title: "Describe Table",
       description: "Describe a table",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true },
       handler: vi.fn().mockResolvedValue({ columns: [] }),
@@ -54,7 +54,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "json",
       title: "JSON Extract",
       description: "Extract JSON value",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true },
       handler: vi.fn().mockResolvedValue({ rows: [] }),
@@ -64,7 +64,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "fulltext",
       title: "Fulltext Search",
       description: "Search fulltext index",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true },
       handler: vi.fn().mockResolvedValue({ rows: [] }),
@@ -74,7 +74,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "transactions",
       title: "Begin Transaction",
       description: "Begin a transaction",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["write"],
       annotations: {},
       handler: vi.fn().mockResolvedValue({ transactionId: "txn-1" }),
@@ -84,7 +84,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "transactions",
       title: "Commit Transaction",
       description: "Commit a transaction",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["write"],
       annotations: {},
       handler: vi.fn().mockResolvedValue({ success: true }),
@@ -94,7 +94,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "sysschema",
       title: "Schema Stats",
       description: "Get schema stats from sys schema",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["read"],
       annotations: { readOnlyHint: true },
       handler: vi.fn().mockResolvedValue({ stats: [] }),
@@ -104,7 +104,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "docstore",
       title: "Add Document",
       description: "Add document to collection",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["write"],
       annotations: {},
       handler: vi.fn().mockResolvedValue({ success: true }),
@@ -114,7 +114,7 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "shell",
       title: "Run Script",
       description: "Run MySQL Shell script",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["admin"],
       annotations: {},
       handler: vi.fn().mockResolvedValue({ output: "" }),
@@ -124,11 +124,51 @@ function createMockAdapterWithTools(): MySQLAdapter {
       group: "migration",
       title: "Migration Init",
       description: "Initialize migration tracking",
-      inputSchema: { parse: (v: unknown) => v },
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
       requiredScopes: ["write"],
       annotations: {},
       handler: vi.fn().mockResolvedValue({ success: true }),
     },
+    {
+      name: "mysql_create_dump",
+      group: "backup",
+      title: "Create Dump",
+      description: "Create a dump",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["write"],
+      annotations: {},
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    {
+      name: "mysql_stats_descriptive",
+      group: "stats",
+      title: "Descriptive Stats",
+      description: "Get descriptive stats",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["read"],
+      annotations: { readOnlyHint: true },
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    {
+      name: "mysql_vector_search",
+      group: "vector",
+      title: "Vector Search",
+      description: "Search vector index",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["read"],
+      annotations: { readOnlyHint: true },
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    },
+    {
+      name: "mysql_create_schema",
+      group: "schema",
+      title: "Create Schema",
+      description: "Create schema",
+      inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
+      requiredScopes: ["write"],
+      annotations: {},
+      handler: vi.fn().mockResolvedValue({ success: true }),
+    }
   ];
 
   return {
@@ -286,6 +326,18 @@ describe("MysqlApi", () => {
         expect(api.transactions.begin).toBe(api.transactions.transactionBegin);
       }
     });
+
+    it("should create aliases for backup, stats, vector groups in sandbox bindings", () => {
+      // Since these groups might not have all methods in mock adapter, we test the sandbox bindings 
+      // creation which is what bindings.ts does
+      const bindings = api.createSandboxBindings();
+      
+      // We don't have backup/stats/vector mock tools but we can at least assert that 
+      // if they did exist, the aliases would be created. Let's add them to the mock.
+      expect(bindings.createDump).toBeDefined();
+      expect(bindings.descriptive).toBeDefined();
+      expect(bindings.vectorSearch).toBeDefined();
+    });
   });
 
   // ===========================================================================
@@ -386,7 +438,7 @@ describe("normalizeParams (indirect)", () => {
         group: "core",
         title: "Read Query",
         description: "Execute read query",
-        inputSchema: { parse: (v: unknown) => v },
+        inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
         requiredScopes: ["read"],
         annotations: {},
         handler: vi.fn().mockResolvedValue({ rows: [] }),
@@ -396,7 +448,7 @@ describe("normalizeParams (indirect)", () => {
         group: "core",
         title: "Create Table",
         description: "Create a table",
-        inputSchema: { parse: (v: unknown) => v },
+        inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
         requiredScopes: ["write"],
         annotations: {},
         handler: vi.fn().mockResolvedValue({ success: true }),
@@ -406,7 +458,7 @@ describe("normalizeParams (indirect)", () => {
         group: "transactions",
         title: "Transaction Execute",
         description: "Execute statements in transaction",
-        inputSchema: { parse: (v: unknown) => v },
+        inputSchema: { safeParse: (v: unknown) => ({ success: true, data: v }) },
         requiredScopes: ["write"],
         annotations: {},
         handler: vi.fn().mockResolvedValue({ success: true }),

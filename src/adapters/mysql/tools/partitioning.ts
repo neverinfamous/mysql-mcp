@@ -5,7 +5,7 @@
  * 4 tools: partition_info, add_partition, drop_partition, reorganize_partition.
  */
 
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import {
   formatMysqlError,
@@ -20,7 +20,11 @@ import {
   DropPartitionSchemaBase,
   ReorganizePartitionSchema,
   ReorganizePartitionSchemaBase,
-} from "../schemas/index.js";
+  PartitionInfoOutputSchema,
+  AddPartitionOutputSchema,
+  DropPartitionOutputSchema,
+  ReorganizePartitionOutputSchema,
+} from "../schemas/partitioning.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
 
 /**
@@ -42,23 +46,50 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Get partition information for a table.",
     group: "partitioning",
     inputSchema: PartitionInfoSchemaBase,
+    outputSchema: PartitionInfoOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, summary } = PartitionInfoSchema.parse(params);
+        const { table, summary, database } = PartitionInfoSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // Check if table exists (P154)
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
 
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -81,11 +112,11 @@ function createPartitionInfoTool(adapter: MySQLAdapter): ToolDefinition {
                     CREATE_TIME,
                     UPDATE_TIME
                 FROM information_schema.PARTITIONS
-                WHERE TABLE_SCHEMA = DATABASE()
+                WHERE TABLE_SCHEMA = ${dbFilter}
                   AND TABLE_NAME = ?
                 ORDER BY PARTITION_ORDINAL_POSITION
             `,
-          [table],
+          checkParams,
         );
 
         // Check if table is partitioned
@@ -144,23 +175,50 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Add a new partition to a partitioned table.",
     group: "partitioning",
     inputSchema: AddPartitionSchemaBase,
+    outputSchema: AddPartitionOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, partitionName, partitionType, value } =
+        const { table, partitionName, partitionType, value, database } =
           AddPartitionSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // P154: Check if table exists
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -169,25 +227,29 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         let sql: string;
+        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
 
         switch (partitionType) {
           case "RANGE":
           case "RANGE COLUMNS":
-            sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
             break;
           case "LIST":
           case "LIST COLUMNS":
-            sql = `ALTER TABLE \`${table}\` ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
             break;
           case "HASH":
           case "KEY":
-            sql = `ALTER TABLE \`${table}\` ADD PARTITION PARTITIONS ${value}`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION PARTITIONS ${value}`;
             break;
           default: {
-            const unexpectedType: never = partitionType as never;
+            const unexpectedType: never = partitionType;
             const response = {
               success: false as const,
               error: `Unsupported partition type: ${String(unexpectedType)}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -214,6 +276,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -224,6 +289,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Cannot add RANGE partition — existing MAXVALUE partition must be reorganized first using mysql_reorganize_partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -234,6 +302,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Partition value(s) already exist in another partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -244,6 +315,9 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: formatMysqlError(error),
+            code: "UNKNOWN_ERROR",
+            category: "internal",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -265,22 +339,49 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
       "Drop a partition from a partitioned table. Warning: This deletes all data in the partition!",
     group: "partitioning",
     inputSchema: DropPartitionSchemaBase,
+    outputSchema: DropPartitionOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, partitionName } = DropPartitionSchema.parse(params);
+        const { table, partitionName, database } = DropPartitionSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // P154: Check if table exists
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -289,8 +390,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         try {
+          const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
           await adapter.executeQuery(
-            `ALTER TABLE \`${table}\` DROP PARTITION \`${partitionName}\``,
+            `ALTER TABLE ${tableRef} DROP PARTITION \`${partitionName}\``,
           );
 
           adapter.clearSchemaCache();
@@ -313,6 +415,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -326,6 +431,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Partition '${partitionName}' does not exist on table '${table}'`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -336,6 +444,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: formatMysqlError(error),
+            code: "UNKNOWN_ERROR",
+            category: "internal",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -356,23 +467,50 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Reorganize partitions by splitting or merging them.",
     group: "partitioning",
     inputSchema: ReorganizePartitionSchemaBase,
+    outputSchema: ReorganizePartitionOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, fromPartitions, partitionType, toPartitions } =
+        const { table, fromPartitions, partitionType, toPartitions, database } =
           ReorganizePartitionSchema.parse(params);
+
+        if (database) {
+          const dbCheck = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?`,
+            [database],
+          );
+          if (!dbCheck.rows || dbCheck.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `Database '${database}' does not exist`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+        }
+
+        const dbFilter = database ? `?` : `DATABASE()`;
+        const checkParams = database ? [database, table] : [table];
 
         // P154: Check if table exists
         const tableCheck = await adapter.executeQuery(
           `SELECT TABLE_NAME FROM information_schema.TABLES
-           WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`,
-          [table],
+           WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ?`,
+          checkParams,
         );
         if (!tableCheck.rows || tableCheck.rows.length === 0) {
           const response = {
             success: false as const,
             error: `Table '${table}' does not exist`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -394,7 +532,8 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           })
           .join(", ");
 
-        const sql = `ALTER TABLE \`${table}\` REORGANIZE PARTITION ${fromList} INTO (${toList})`;
+        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+        const sql = `ALTER TABLE ${tableRef} REORGANIZE PARTITION ${fromList} INTO (${toList})`;
 
         try {
           await adapter.executeQuery(sql);
@@ -418,6 +557,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Table '${table}' is not partitioned`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -428,6 +570,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `One or more source partitions (${fromPartitions.join(", ")}) do not exist on table '${table}'`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -438,6 +583,9 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false as const,
             error: formatMysqlError(error),
+            code: "UNKNOWN_ERROR",
+            category: "internal",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,

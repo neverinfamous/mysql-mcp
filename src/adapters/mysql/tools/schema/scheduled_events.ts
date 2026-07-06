@@ -1,11 +1,15 @@
 import { z } from "zod";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const ListEventsSchemaBase = z.object({
@@ -14,19 +18,45 @@ const ListEventsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
-  status: z.string().optional().describe("Filter by status"),
-});
-
-const ListEventsSchema = z.object({
-  schema: z
-    .string()
-    .optional()
-    .describe("Schema name (defaults to current database)"),
-  database: z.string().optional().describe("Alias for schema"),
+  pattern: z.string().optional().describe("Filter events by name (supports LIKE pattern)"),
+  name: z.string().optional().describe("Alias for pattern"),
   status: z
     .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
     .optional()
     .describe("Filter by status"),
+  limit: z.number().default(50).describe("Maximum number of results to return"),
+  offset: z.number().default(0).describe("Number of results to skip"),
+});
+
+const ListEventsSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        pattern: (obj['pattern'] === "" ? undefined : obj['pattern']) ?? (obj['name'] === "" ? undefined : obj['name']),
+      };
+    }
+    return val;
+  },
+  z.object({
+    schema: z.string().optional(),
+    pattern: z.string().optional(),
+    status: z
+      .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
+      .optional()
+      .describe("Filter by status"),
+    limit: z.number().default(50),
+    offset: z.number().default(0),
+  })
+);
+
+const ListEventsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    events: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
 });
 
 /**
@@ -40,13 +70,15 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
       "List all scheduled events with execution status and schedule info.",
     group: "schema",
     inputSchema: ListEventsSchemaBase,
+    outputSchema: ListEventsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListEventsSchema.parse(params);
-        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const targetSchema = parsedParams.schema;
         const status = parsedParams.status;
+        const pattern = parsedParams.pattern;
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {
@@ -90,20 +122,21 @@ export function createListEventsTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams.push(status);
         }
 
-        query += " ORDER BY EVENT_NAME";
+        if (pattern !== undefined) {
+          query += " AND EVENT_NAME LIKE ?";
+          queryParams.push(pattern);
+        }
+
+        query += ` ORDER BY EVENT_NAME LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}`;
 
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             events: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }

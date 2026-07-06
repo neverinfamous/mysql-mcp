@@ -1,38 +1,62 @@
 # mysql-mcp — Copilot Code Review Context
 
-## Project Overview
+[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
+[![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-mysql-mcp is a TypeScript MCP (Model Context Protocol) server for MySQL database integration. It offers **224 tools** across **27 groups**, **18 resources**, and **19 prompts** — with Code Mode (sandboxed JS execution), HTTP/SSE transport, OAuth 2.1, Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
+## 💎 Deliver the Value Proposition
 
-**Stack**: TypeScript, Vitest, Playwright (E2E), Zod schemas, mysql2 (MySQL driver), Commander (CLI).
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
-## Session Context
+## Review the Project Overview
 
-Before starting work on this project, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server for real-time context:
+mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 200+ tools and extensive resources.
+> **Architectural Rule:** Tool filtering skips MySQL connections when using exclusively router, proxysql, or shell tools.
+
+**Architecture & Capabilities**:
+- **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).
+- **Cache**: `METADATA_CACHE_TTL_MS` is the cache TTL (default 30000).
+- **Transports**: It supports `stdio`, streamable `http`, and legacy `sse`.
+- **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
+- **Audit Logging**: Maintain strict security with comprehensive audit trails.
+- **Recent Architecture**:
+  - Added conditional update aliases for data and conditions.
+  - Fix alias resolution in stats hypothesis tool.
+  - Added streamable and HTTP transport tests.
+  - Mask data alias validation at MCP boundary.
+  - Require at least one filter for audit tool to prevent payload bloat.
+- **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
+
+## Utilize Session Context
+
+Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. It provides real-time context:
 
 - **Recent journal entries** — what was just worked on by the development agent
 - **GitHub status** — open issues, PRs, CI status, milestones
 - **Workflow runs** — recent CI/CD results
 - **Copilot review summaries** — your own recent review findings
 
-For detailed session handoff context, search for entries tagged `session-summary` — these contain end-of-session notes from the development agent.
+For detailed session handoff context, search for entries tagged `session-summary`. These contain end-of-session notes from the development agent.
 
-If you find issues during code review, use `create_entry` with tag `copilot-finding` to record them for the development agent to see in their next session briefing.
+Log review issues using `create_entry` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
 
-## Coding Standards
+## Enforce Coding Standards
 
-### Naming
+### Format Names Correctly
 
-- **Files and folders**: Always kebab-case (`database-adapter.ts`, `tool-filter.ts`)
+- **Files and folders**: Always kebab-case (`schema-manager.ts`, `tool-filter.ts`)
 - **Never** PascalCase or camelCase for filenames
 
-### Modularity
+### Maintain Modularity
 
 - **File size limit**: Source files stay under ~500 lines
 - **Split pattern**: `foo.ts` → `foo/` directory with sub-modules + `foo/index.ts` barrel re-export
 - **Logical grouping**: Split by functional cohesion, not arbitrary line counts
 
-### Type Safety
+### Ensure Type Safety
 
 - **Strict TypeScript** — `tsconfig.json` enforces strict mode
 - **Never use `eslint-disable`** to evade standards
@@ -42,7 +66,7 @@ If you find issues during code review, use `create_entry` with tag `copilot-find
 - **Zod schemas** for all tool input validation at system boundaries
 - **Union types over enums** — use `type Status = "active" | "inactive"` instead of `enum`
 
-### Error Handling
+### Implement Error Handling
 
 All tool handlers return structured error responses — never raw exceptions:
 
@@ -57,12 +81,25 @@ All tool handlers return structured error responses — never raw exceptions:
 }
 ```
 
-## Architecture
+> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the 200+ tools and current config flags.
+> **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts. They must be explicitly listed in the tool-reference or registered in `server/`.
+
+## Apply Architecture Rules (Recent Changes)
+
+Ensure PRs adhere to these recent SSoT architectural rules:
+- **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
+- `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
+- Supports `stdio`, streamable `http`, and legacy `sse` transports.
+- Ensure mask data alias validation at the MCP boundary.
+- Audit tool requires at least one filter to prevent bloat.
+
+## Navigate the Architecture
 
 ```
 src/
 ├── cli.ts                      # CLI entry point (Commander)
 ├── index.ts                    # Library entry point
+├── version.ts                  # Version export
 ├── adapters/                   # MySQL database adapters
 ├── audit/                      # Audit and token logging
 ├── auth/                       # OAuth 2.1 authentication
@@ -71,6 +108,7 @@ src/
 ├── constants/                  # Server instructions, config
 ├── filtering/                  # Tool filtering (groups, meta-groups)
 ├── logging/                    # Structured logging
+├── observability/              # Observability and metrics
 ├── pool/                       # Connection pool management
 ├── progress/                   # Progress notification helpers
 ├── server/                     # MCP server setup and registration
@@ -79,27 +117,37 @@ src/
 └── utils/                      # Logger, error helpers, utilities
 ```
 
-## Key Reference Files
+## Consult Key Reference Files
 
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
 | `test-server/code-map.md`       | File → tool/handler mapping         |
-| `test-server/Tool-Reference.md` | Categorized tool inventory          |
+| `test-server/tool-reference.md` | Categorized tool inventory          |
+| `test-server/test-tools.md`     | Test validation reference           |
 | `CONTRIBUTING.md`               | Development setup and PR guidelines |
 | `DOCKER_README.md`              | Docker Hub documentation            |
-| `CHANGELOG.md`                  | Version history                     |
 
-## Review Checklist
+
+## Complete the Review Checklist
 
 When reviewing PRs, check for:
 
-- [ ] Hardcoded tool/group counts — should be dynamic
 - [ ] Missing barrel exports in `src/types/index.ts` when new types are added
 - [ ] `eslint-disable` usage — always forbidden
 - [ ] `@ts-ignore` or `as any` — always forbidden
 - [ ] Raw exceptions from tool handlers — must use structured error responses
+- [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
+- [ ] Update the 200+ tools count in markdown lists if tools are added/removed.
 - [ ] Files approaching 500 lines — flag for splitting
 - [ ] New tools missing from tool filtering configuration
 - [ ] Missing Zod schemas on new tools
 - [ ] Kebab-case violations in new filenames
-- [ ] `continue-on-error: true` in workflow files — forbidden per project standards
+- [ ] `continue-on-error: true` in workflow files — forbidden per project standards (except Agentic Workflow `.lock.yml` files)
+- [ ] Verify the author has run tests locally (e.g., via pnpm run check)
+- [ ] Dual-Schema Pattern enforcement
+- [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
+- [ ] Display value proposition blocks prominently in README. Ensure strict compliance with exact text.
+- [ ] Docker readme <= 25,000 chars
+- [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
+- [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
+- [ ] Schema examples accurately reflect the 200+ tool count and current configuration flags

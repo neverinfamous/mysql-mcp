@@ -18,6 +18,7 @@ import type { HttpTransportConfig } from "./types.js";
 export function handleHealthCheck(
   res: ServerResponse,
   config: HttpTransportConfig,
+  activeSessions?: number,
 ): void {
   res.writeHead(200, { "Content-Type": "application/json" });
   res.end(
@@ -25,6 +26,7 @@ export function handleHealthCheck(
       status: "healthy",
       timestamp: new Date().toISOString(),
       oauthEnabled: !!(config.resourceServer && config.tokenValidator),
+      ...(activeSessions !== undefined && { activeSessions }),
     }),
   );
 }

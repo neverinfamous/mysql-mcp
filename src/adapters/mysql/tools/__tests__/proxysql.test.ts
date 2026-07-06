@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { getProxySQLTools } from "../proxysql.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import { getProxySQLTools } from "../proxysql/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -30,7 +30,7 @@ describe("getProxySQLTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -78,7 +78,7 @@ describe("Tool Structure Validation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -121,7 +121,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     mockContext = createMockRequestContext();
 
@@ -219,10 +219,10 @@ describe("Handler Execution", () => {
         ]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: false },
         mockContext,
-      )) as any;
+      );
 
       const credVar = result.data.adminVariables.find(
         (v: any) => v.variable_name === "admin-admin_credentials",
@@ -268,10 +268,10 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockAdminVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_runtime_status")!;
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { summary: true },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.summary).toBe(true);
@@ -565,7 +565,7 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce([mockVars]);
 
       const tool = tools.find((t) => t.name === "proxysql_global_variables")!;
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       // Non-sensitive should be preserved
       const threads = result.data.variables.find(
@@ -694,7 +694,7 @@ describe("Connection Error Handling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     mockContext = createMockRequestContext();
   });
@@ -736,7 +736,7 @@ describe("Crash Tests (all 12 handlers)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getProxySQLTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
     mockContext = createMockRequestContext();
 

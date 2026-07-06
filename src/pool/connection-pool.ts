@@ -26,6 +26,7 @@ export interface ConnectionPoolConfig {
   charset?: string;
   timezone?: string;
   connectTimeout?: number;
+  dateStrings?: boolean;
 }
 
 /**
@@ -73,9 +74,10 @@ export class ConnectionPool {
         queueLimit: poolConfig.queueLimit ?? 0,
 
         // Connection options
-        connectTimeout: this.config.connectTimeout ?? 10000,
+        connectTimeout: this.config.connectTimeout ?? 30000,
         charset: this.config.charset ?? "utf8mb4",
         timezone: this.config.timezone ?? "local",
+        dateStrings: this.config.dateStrings ?? false,
 
         // SSL - convert boolean to mysql2 compatible format
         // mysql2 expects string | SslOptions | undefined, not boolean
@@ -89,6 +91,8 @@ export class ConnectionPool {
         // Other options
         enableKeepAlive: poolConfig.enableKeepAlive ?? true,
         keepAliveInitialDelay: poolConfig.keepAliveInitialDelay ?? 0,
+        supportBigNumbers: true,
+        bigNumberStrings: false,
 
         // Namedplaceholders for better parameter handling
         namedPlaceholders: false,
@@ -136,14 +140,15 @@ export class ConnectionPool {
       const connection = await this.pool.getConnection();
 
       // Run initialization SQL if configured and not already initialized
-      if (
-        this.config.initializationSql &&
-        this.config.initializationSql.length > 0 &&
-        !this.initializedConnections.has(connection)
-      ) {
+      if (!this.initializedConnections.has(connection)) {
         try {
-          for (const sql of this.config.initializationSql) {
-            await connection.query(sql);
+          // Always enforce strict mode
+          await connection.query("SET SESSION sql_mode = 'STRICT_ALL_TABLES,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
+
+          if (this.config.initializationSql && this.config.initializationSql.length > 0) {
+            for (const sql of this.config.initializationSql) {
+              await connection.query(sql);
+            }
           }
           this.initializedConnections.add(connection);
         } catch (error) {

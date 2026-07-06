@@ -2,7 +2,7 @@
  * mysql-mcp - Performance Benchmarks
  *
  * Benchmarks for measuring the performance of optimized code paths.
- * Run with: npm test -- --grep="Performance Benchmarks"
+ * Run with: pnpm test -- --grep="Performance Benchmarks"
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";

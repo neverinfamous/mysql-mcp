@@ -6,8 +6,8 @@ import {
   createStatsRunningTotalTool,
   createStatsMovingAvgTool,
   createStatsNtileTool,
-} from "../window.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+} from "../window/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -44,7 +44,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsRowNumberTool>;
 
     beforeEach(() => {
-      tool = createStatsRowNumberTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsRowNumberTool(mockAdapter);
     });
 
     it("should assign row numbers", async () => {
@@ -53,10 +53,10 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
-      expect(sql).toContain("ROW_NUMBER() OVER( ORDER BY `score DESC`)");
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
+      expect(sql).toContain("ROW_NUMBER() OVER( ORDER BY score DESC)");
     });
 
     it("should return error on invalid table name", async () => {
@@ -64,8 +64,8 @@ describe("Window Function Tools", () => {
         { table: "users;", orderBy: "score DESC" },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Invalid table name");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Invalid table name");
     });
 
     it("should handle Zod validation errors", async () => {
@@ -73,20 +73,20 @@ describe("Window Function Tools", () => {
         { table: "users" }, // Missing orderBy
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Validation error");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Validation error");
     });
 
     it("should handle table not found error", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'unknown' doesn't exist"),
+        new Error("Table 'unknown' does not exist"),
       );
       const result = await tool.handler(
         { table: "unknown", orderBy: "score DESC" },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("doesn't exist");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("does not exist");
     });
   });
 
@@ -94,7 +94,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsRankTool>;
 
     beforeEach(() => {
-      tool = createStatsRankTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsRankTool(mockAdapter);
     });
 
     it("should assign ranks", async () => {
@@ -103,10 +103,10 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
-      expect(sql).toContain("DENSE_RANK() OVER( ORDER BY `score DESC`)");
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
+      expect(sql).toContain("DENSE_RANK() OVER( ORDER BY score DESC)");
     });
   });
 
@@ -114,7 +114,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsLagLeadTool>;
 
     beforeEach(() => {
-      tool = createStatsLagLeadTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsLagLeadTool(mockAdapter);
     });
 
     it("should use LAG", async () => {
@@ -129,10 +129,10 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
-      expect(sql).toContain("LAG(`amount`, 2) OVER( ORDER BY `date`)");
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
+      expect(sql).toContain("LAG(`amount`, 2) OVER( ORDER BY date)");
     });
 
     it("should return error on invalid column name", async () => {
@@ -145,8 +145,8 @@ describe("Window Function Tools", () => {
         },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Invalid column name");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Invalid column name");
     });
 
     it("should handle unknown column error", async () => {
@@ -162,9 +162,9 @@ describe("Window Function Tools", () => {
         },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain(
-        "One or more referenced columns do not exist",
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain(
+        "Unknown column 'missing_col'",
       );
     });
   });
@@ -174,7 +174,7 @@ describe("Window Function Tools", () => {
 
     beforeEach(() => {
       tool = createStatsRunningTotalTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
     });
 
@@ -184,11 +184,11 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain(
-        "SUM(`amount`) OVER( ORDER BY `date` ROWS UNBOUNDED PRECEDING)",
+        "SUM(`amount`) OVER( ORDER BY date ROWS UNBOUNDED PRECEDING)",
       );
     });
   });
@@ -197,7 +197,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsMovingAvgTool>;
 
     beforeEach(() => {
-      tool = createStatsMovingAvgTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsMovingAvgTool(mockAdapter);
     });
 
     it("should calculate moving average", async () => {
@@ -206,11 +206,11 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sql).toContain(
-        "AVG(`amount`) OVER( ORDER BY `date` ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)",
+        "AVG(`amount`) OVER( ORDER BY date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW)",
       );
     });
   });
@@ -219,7 +219,7 @@ describe("Window Function Tools", () => {
     let tool: ReturnType<typeof createStatsNtileTool>;
 
     beforeEach(() => {
-      tool = createStatsNtileTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createStatsNtileTool(mockAdapter);
     });
 
     it("should assign ntile buckets", async () => {
@@ -228,10 +228,10 @@ describe("Window Function Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
-      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
-      expect(sql).toContain("NTILE(4) OVER( ORDER BY `score DESC`)");
+      const sql = mockAdapter.executeQuery.mock.calls[0]?.[0];
+      expect(sql).toContain("NTILE(4) OVER( ORDER BY score DESC)");
     });
   });
 });

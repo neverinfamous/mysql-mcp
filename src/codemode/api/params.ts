@@ -1,4 +1,4 @@
-import { POSITIONAL_PARAM_MAP, ARRAY_WRAP_MAP } from "./constants.js";
+import { POSITIONAL_PARAM_MAP, ARRAY_WRAP_MAP } from "./constants/index.js";
 
 /**
  * Normalize parameters to support positional arguments.
@@ -26,8 +26,8 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
       return arg;
     }
 
-    // String arg - use positional mapping
-    if (typeof arg === "string") {
+    // String, Number, Boolean arg - use positional mapping
+    if (typeof arg === "string" || typeof arg === "number" || typeof arg === "boolean") {
       const paramMapping = POSITIONAL_PARAM_MAP[methodName];
       if (typeof paramMapping === "string") {
         return { [paramMapping]: arg };
@@ -36,7 +36,10 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
         return { [paramMapping[0]]: arg };
       }
       // Fallback: try common parameter names
-      return { sql: arg, query: arg, table: arg, name: arg };
+      if (typeof arg === "string") {
+        return { sql: arg, query: arg, table: arg, name: arg };
+      }
+      return arg;
     }
 
     return arg;
@@ -99,9 +102,12 @@ export function normalizeParams(methodName: string, args: unknown[]): unknown {
   const argsToMap = lastArgIsOptionsObject ? args.length - 1 : args.length;
   for (let i = 0; i < paramMapping.length && i < argsToMap; i++) {
     const key = paramMapping[i];
-    const arg = args[i];
     if (key !== undefined) {
-      result[key] = arg;
+      if (key.startsWith("...")) {
+        result[key.slice(3)] = args.slice(i, argsToMap);
+        break;
+      }
+      result[key] = args[i];
     }
   }
 

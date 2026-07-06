@@ -1,26 +1,26 @@
 /**
  * MySQL Performance Tools - Optimization
  *
- * Query optimization and index recommendation tools.
- * 4 tools: index_recommendation, query_rewrite, force_index, optimizer_trace.
+ * Query optimization and index tools.
+ * 3 tools: query_rewrite, force_index, optimizer_trace.
  */
 
 import type { PoolConnection } from "mysql2/promise";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import {
-  IndexRecommendationSchema,
-  IndexRecommendationSchemaBase,
   ForceIndexSchema,
   ForceIndexSchemaBase,
   preprocessQueryOnlyParams,
+  QueryRewriteOutputSchema,
+  ForceIndexOutputSchema,
+  OptimizerTraceOutputSchema,
 } from "../../schemas/index.js";
 import { z } from "zod";
 import {
-  formatMysqlError,
   formatHandlerErrorResponse,
 } from "../core/error-helpers.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
@@ -81,13 +81,16 @@ function extractTraceSummary(
   }
 
   try {
-    const trace = JSON.parse(traceStr) as {
+    interface OptimizerTrace {
       steps?: {
         join_optimization?: {
           select?: number;
           steps?: {
             rows_estimation?: {
               table?: string;
+              rows?: number;
+              cost?: number;
+              table_type?: string;
               range_analysis?: {
                 table_scan?: { rows: number; cost: number };
                 chosen_range_access_summary?: {
@@ -116,7 +119,14 @@ function extractTraceSummary(
           }[];
         };
       }[];
-    };
+    }
+    const isOptimizerTrace = (val: unknown): val is OptimizerTrace => typeof val === "object" && val !== null;
+    
+    const parsed: unknown = JSON.parse(traceStr);
+    if (!isOptimizerTrace(parsed)) {
+      throw new Error("Invalid trace data");
+    }
+    const trace = parsed;
 
     const steps = trace.steps ?? [];
     for (const step of steps) {
@@ -125,6 +135,15 @@ function extractTraceSummary(
           // Extract rows estimation decisions
           if (optStep.rows_estimation) {
             for (const est of optStep.rows_estimation) {
+              if (est.table_type === "const") {
+                decisions.push({
+                  type: "const_lookup",
+                  table: est.table,
+                  estimatedRows: est.rows,
+                  estimatedCost: est.cost,
+                });
+              }
+
               const rangeAnalysis = est.range_analysis;
               if (rangeAnalysis?.chosen_range_access_summary?.chosen) {
                 const plan = rangeAnalysis.chosen_range_access_summary;
@@ -182,89 +201,6 @@ function extractTraceSummary(
   return { success: true, data: { query, decisions } };
 }
 
-export function createIndexRecommendationTool(
-  adapter: MySQLAdapter,
-): ToolDefinition {
-  return {
-    name: "mysql_index_recommendation",
-    title: "MySQL Index Recommendation",
-    description:
-      "Analyze table and suggest potentially missing indexes based on query patterns.",
-    group: "optimization",
-    inputSchema: IndexRecommendationSchemaBase,
-    requiredScopes: ["read"],
-    annotations: READ_ONLY,
-    handler: async (params: unknown, _context: RequestContext) => {
-      try {
-        const { table } = IndexRecommendationSchema.parse(params);
-
-        // Get columns
-        const columns = await adapter.describeTable(table);
-
-        // Graceful handling for non-existent tables (P154)
-        if (!columns.columns || columns.columns.length === 0) {
-          throw new ValidationError(`Table '${table}' does not exist`);
-        }
-
-        // Get existing indexes
-        const indexes = await adapter.getTableIndexes(table);
-        const indexedColumns = new Set(indexes.flatMap((i) => i.columns));
-
-        // Analyze which columns might benefit from indexing
-        const recommendations: { column: string; reason: string }[] = [];
-
-        for (const col of columns.columns) {
-          if (indexedColumns.has(col.name)) continue;
-
-          // Suggest indexes for common patterns
-          if (col.name.endsWith("_id") || col.name === "id") {
-            recommendations.push({
-              column: col.name,
-              reason: "Foreign key or ID column often benefits from indexing",
-            });
-          } else if (
-            ["created_at", "updated_at", "date", "timestamp"].some((s) =>
-              col.name.includes(s),
-            )
-          ) {
-            recommendations.push({
-              column: col.name,
-              reason: "Timestamp columns often used in range queries",
-            });
-          } else if (
-            col.name === "status" ||
-            col.name === "type" ||
-            col.name === "category"
-          ) {
-            recommendations.push({
-              column: col.name,
-              reason: "Status/type columns often used in filtering",
-            });
-          }
-        }
-
-        const response = {
-          success: true,
-          data: {
-            exists: true,
-            table,
-            existingIndexes: indexes.map((i) => ({
-              name: i.name,
-              columns: i.columns,
-            })),
-            recommendations,
-          },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
-      } catch (err) {
-        return formatHandlerErrorResponse(err);
-      }
-    },
-  };
-}
 
 export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
   const schemaBase = z.object({
@@ -296,6 +232,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Analyze a query and suggest optimizations.",
     group: "optimization",
     inputSchema: schemaBase,
+    outputSchema: QueryRewriteOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -349,20 +286,27 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
+        if (upperQuery.includes(" IN (SELECT")) {
+          suggestions.push(
+            "IN (SELECT ...) subqueries can often be rewritten as JOINs for better performance",
+          );
+        }
+
+        if (upperQuery.includes(" JOIN ")) {
+          suggestions.push(
+            "Ensure foreign keys or indexes exist on all JOIN conditions",
+          );
+        }
+
         // Get EXPLAIN for the query
         let explainResult: unknown = null;
-        let explainError: string | undefined;
-        try {
-          const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
-          const result = await adapter.executeReadQuery(explainSql);
-          if (result.rows?.[0]) {
-            const explainStr = result.rows[0]["EXPLAIN"];
-            if (typeof explainStr === "string") {
-              explainResult = JSON.parse(explainStr) as unknown;
-            }
+        const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
+        const result = await adapter.executeReadQuery(explainSql);
+        if (result.rows?.[0]) {
+          const explainStr = result.rows[0]["EXPLAIN"];
+          if (typeof explainStr === "string") {
+            explainResult = JSON.parse(explainStr);
           }
-        } catch (err: unknown) {
-          explainError = formatMysqlError(err);
         }
 
         const response: Record<string, unknown> = {
@@ -374,13 +318,6 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
             explainPlan: explainResult,
           },
         };
-
-        if (explainError) {
-          response["success"] = false;
-          response["error"] = explainError;
-          (response["data"] as Record<string, unknown>)["explainError"] =
-            explainError;
-        }
 
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
@@ -400,6 +337,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Generate a query with FORCE INDEX hint.",
     group: "optimization",
     inputSchema: ForceIndexSchemaBase,
+    outputSchema: ForceIndexOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -489,6 +427,7 @@ export function createOptimizerTraceTool(
     description: "Get detailed optimizer trace for a query.",
     group: "optimization",
     inputSchema: schemaBase,
+    outputSchema: OptimizerTraceOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -508,31 +447,10 @@ export function createOptimizerTraceTool(
         await connection.query('SET optimizer_trace="enabled=on"');
         tracingEnabled = true;
 
-        // Execute the query (may fail for nonexistent tables, etc.)
         try {
           await connection.query(query);
         } catch (err: unknown) {
-          const errorMsg = formatMysqlError(err);
-          if (summary) {
-            const response = {
-              success: false,
-              error: errorMsg,
-              data: { query, decisions: [] },
-            };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
-          }
-          const response = {
-            success: false,
-            error: errorMsg,
-            data: { query, trace: null },
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(err);
         }
 
         // Get the trace
@@ -541,18 +459,118 @@ export function createOptimizerTraceTool(
         );
 
         if (summary) {
+          const traceRows: Record<string, unknown>[] = [];
+          if (Array.isArray(rows)) {
+            for (const r of rows) {
+              if (typeof r === "object" && r !== null && !Array.isArray(r)) {
+                const newRow: Record<string, unknown> = {};
+                for (const [key, value] of Object.entries(r)) {
+                  newRow[key] = value;
+                }
+                traceRows.push(newRow);
+              }
+            }
+          }
           // Extract key decisions from the trace
-          const response = extractTraceSummary(
-            rows as Record<string, unknown>[],
-            query,
-          );
+          const response = extractTraceSummary(traceRows, query);
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
           );
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const response = { success: true, data: { trace: rows } };
+        if (Array.isArray(rows)) {
+          const parsedTraceRows = rows.map((r) => {
+            if (typeof r === "object" && r !== null && "TRACE" in r) {
+              const rawTrace = (r as Record<string, unknown>)["TRACE"];
+              if (typeof rawTrace === "string") {
+                try {
+                  const parsed = JSON.parse(rawTrace) as unknown;
+                  // Optimize the payload by deep cleaning empty structures and redundant fields
+                  const deepClean = (obj: unknown): unknown => {
+                    if (Array.isArray(obj)) {
+                      const arr = obj
+                        .filter((item) => {
+                          if (typeof item === "object" && item !== null) {
+                            const i = item as Record<string, unknown>;
+                            if (i["usable"] === false) return false;
+                            if (i["chosen"] === false) return false;
+                            if (i["pruned_by_cost"] === true) return false;
+                            if (i["pruned_by_heuristic"] === true) return false;
+                          }
+                          return true;
+                        })
+                        .map(deepClean)
+                        .filter((v) => v !== undefined);
+                      return arr.length > 0 ? arr : undefined;
+                    } else if (typeof obj === "object" && obj !== null) {
+                      const res: Record<string, unknown> = {};
+                      for (const [k, v] of Object.entries(obj)) {
+                        if (
+                          k === "MISSING_BYTES_BEYOND_MAX_MEM_SIZE" ||
+                          k === "INSUFFICIENT_PRIVILEGES" ||
+                          k === "expanded_query" ||
+                          k === "condition_processing" ||
+                          k === "transformations_to_nested_joins" ||
+                          k === "attaching_conditions_to_tables" ||
+                          k === "ref_optimizer_key_uses" ||
+                          k === "table_dependencies" ||
+                          k === "finalizing_table_conditions" ||
+                          k === "analyzing_range_alternatives" ||
+                          k === "considered_access_paths" && Array.isArray(v) && v.length === 0 ||
+                          k === "chosen" && v === true ||
+                          k === "usable" && v === true
+                        ) {
+                          continue;
+                        }
+                        const cleaned = deepClean(v);
+                        if (cleaned !== undefined) {
+                          if (typeof cleaned === "object" && cleaned !== null && !Array.isArray(cleaned)) {
+                            const c = cleaned as Record<string, unknown>;
+                            // Prune sub-objects that are just rejections
+                            if (c["usable"] === false) continue;
+                            if (c["chosen"] === false) continue;
+                            if (c["pruned_by_cost"] === true) continue;
+                            if (c["pruned_by_heuristic"] === true) continue;
+                          }
+                          res[k] = cleaned;
+                        }
+                      }
+                      return Object.keys(res).length > 0 ? res : undefined;
+                    }
+                    return obj;
+                  };
+
+                  const newRow: Record<string, unknown> = {};
+                  for (const [k, v] of Object.entries(r)) {
+                    if (k === "TRACE") {
+                      newRow[k] = deepClean(parsed);
+                    } else if (
+                      (k === "MISSING_BYTES_BEYOND_MAX_MEM_SIZE" || k === "INSUFFICIENT_PRIVILEGES") && 
+                      v === 0
+                    ) {
+                      continue;
+                    } else {
+                      newRow[k] = v;
+                    }
+                  }
+                  return newRow;
+                } catch {
+                  return r;
+                }
+              }
+            }
+            return r;
+          });
+
+          const response = { success: true, data: { query, trace: parsedTraceRows } };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
+          return { ...response, metrics: { tokenEstimate } };
+        }
+
+        const response = { success: true, data: { query, trace: rows } };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
         );

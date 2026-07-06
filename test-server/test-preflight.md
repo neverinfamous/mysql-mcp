@@ -1,5 +1,20 @@
 # MCP Server Pre-Flight Check — mysql-mcp
 
+[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+<br>
+[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
+[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
+
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
+
 > **Purpose:** Validate that slim instructions, help resources, and data resources are working correctly before running full test passes. Run this in a fresh conversation with the server enabled.
 
 Do NOT read any files from disk. Answer using ONLY what you received via MCP initialization and resource reads.
@@ -12,6 +27,8 @@ Report exactly what you received in the MCP server instructions during initializ
 - Character count of the instructions
 - Does it mention help resources? If so, what URIs?
 - Does it contain detailed tool parameter tables or response structure docs? (It should NOT)
+- Does it reference `mysql://help` for gotchas?
+- Does it reference `mysql://help/{group}` for group-specific help?
 
 ## Step 2: Help Resource Access
 
@@ -44,7 +61,7 @@ Based on steps 1-4, answer:
 
 | #   | Check                                                      | Result   |
 | --- | ---------------------------------------------------------- | -------- |
-| 1   | Instructions are slim (<1000 chars), not monolithic        | ✅ or ❌ |
+| 1   | Instructions are slim (<3000 chars), static, not monolithic | ✅ or ❌ |
 | 2   | Instructions reference help resources (`mysql://help`)     | ✅ or ❌ |
 | 3   | Main help resource is readable                             | ✅ or ❌ |
 | 4   | Group-specific help resource is readable                   | ✅ or ❌ |

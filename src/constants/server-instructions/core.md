@@ -1,11 +1,28 @@
 # Core Tools (`mysql_read_query`, `mysql_write_query`, `mysql_create_table`, etc.)
 
-- **Prepared statements**: `mysql_read_query` and `mysql_write_query` support parameterized queries via the `params` array. Use `?` placeholders: `query: "SELECT * FROM users WHERE id = ?", params: [123]`.
-- **DDL statements**: DDL (e.g., `CREATE TABLE`, `ALTER TABLE`) is automatically handled via text protocol fallback in `mysql_write_query`.
-- **Query error handling**: `mysql_read_query` and `mysql_write_query` return `{ success: false, error }` for all query errors (nonexistent table, syntax, permissions, etc.), instead of throwing raw errors.
-- **Boolean defaults**: `mysql_create_table` auto-converts boolean `default: true` to `1` and `default: false` to `0` for MySQL compatibility. Alternatively, use `TINYINT(1)` with numeric defaults directly.
-- **Existence checks**: `mysql_describe_table` and `mysql_get_indexes` return `{ exists: false, table: "..." }` gracefully when the table does not exist, avoiding raw SQL errors.
-- **Create/Drop safety**: `mysql_create_table` returns `{ success: false, error }` when the table already exists (without `ifNotExists`). With `ifNotExists: true`, creating a table that already exists returns `{ success: true, skipped: true, reason: "Table already exists" }`. `mysql_drop_table` returns `{ success: false, error }` when the table does not exist (without `ifExists`). With `ifExists: true`, dropping a nonexistent table returns `{ success: true, skipped: true, reason: "Table did not exist" }`. All other errors (e.g., permissions) return `{ success: false, error }` instead of throwing raw exceptions.
-- **List tables**: `mysql_list_tables` accepts an optional `database` parameter. When the specified database does not exist, returns `{ exists: false, database, message }` instead of an empty result set.
-- **Index creation**: `mysql_create_index` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types. Use `ifNotExists: true` to skip if the index already exists. Returns `{ success: false, error }` when the index already exists (without `ifNotExists`), when a specified column does not exist on the table, or for any other error. Returns `{ exists: false, table }` only when the target table itself does not exist. Note: InnoDB only supports BTREE indexes; HASH type is silently converted to BTREE (the response includes a `warning` field). HASH is only effective with the MEMORY engine.
-- **Table names**: All core tools support qualified names (`schema.table` format) for cross-database operations.
+**Encapsulated Tools**: `mysql_read_query`, `mysql_write_query`, `mysql_list_tables`, `mysql_describe_table`, `mysql_create_table`, `mysql_drop_table`, `mysql_create_index`, `mysql_get_indexes`, `mysql_enable_versioning`, `mysql_disable_versioning`, `mysql_check_version`, `mysql_conditional_update`
+
+### Query Execution (`mysql_read_query`, `mysql_write_query`)
+- **Prepared statements**: `mysql_read_query` and `mysql_write_query` support parameterized queries via the `params` array.
+  ```json
+  { "query": "SELECT * FROM users WHERE id = ?", "params": [123] }
+  ```
+- **Streaming & Pagination**: `mysql_read_query` applies default `LIMIT 50` for SELECT/WITH unless `LIMIT` is provided. Use `cursor` for pagination. Use `stream: true` + `chunkSize` for incremental MCP progress notifications.
+- **DDL & Errors**: DDL (e.g., `CREATE TABLE`) automatically falls back to text protocol in `mysql_write_query`. Returns `{ success: false, error }` instead of throwing raw errors on query failures.
+
+### Schema Management (`mysql_create_table`, `mysql_drop_table`, `mysql_describe_table`, `mysql_list_tables`)
+- **Boolean Defaults**: `mysql_create_table` auto-converts `default: true` to `1` and `default: false` to `0`.
+- **Create/Drop Safety**: Returns `{ success: false, error }` on exists/missing unless using `ifNotExists: true` or `ifExists: true` respectively, which return `{ success: true, skipped: true, reason: "..." }`.
+- **Existence Checks**: Standard `{ success: false, error: "..." }` returned if target tables/databases don't exist.
+
+### Index Management (`mysql_create_index`, `mysql_get_indexes`)
+- **Index creation**: `mysql_create_index` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types.
+  - *Note*: InnoDB HASH is silently converted to BTREE. HASH only effective with MEMORY engine.
+  - Supports `ifNotExists: true` to skip.
+- **Cross-Database**: All tools support qualified names (`schema.table`).
+
+### Optimistic Concurrency Control (OCC)
+- `mysql_enable_versioning`: Adds a `_version` column and a trigger to a table.
+- `mysql_disable_versioning`: Disables versioning by dropping the trigger and column.
+- `mysql_check_version`: Checks the current `_version` of a specific row.
+- `mysql_conditional_update`: Conditionally updates a row. On conflict, returns `CONFLICT_ERROR` ErrorResponse.

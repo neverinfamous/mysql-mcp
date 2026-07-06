@@ -20,7 +20,7 @@ import {
   createSysInnoDBLockWaitsTool,
   createSysMemorySummaryTool,
 } from "../resources.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -45,7 +45,7 @@ describe("Sys Schema Error Paths", () => {
         new Error("DB connection lost"),
       );
       const tool = createSysUserSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -58,7 +58,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle non-Error thrown in user summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue("string error");
       const tool = createSysUserSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -71,7 +71,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle database error in host summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("DB timeout"));
       const tool = createSysHostSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -84,7 +84,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle non-Error thrown in host summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue(42);
       const tool = createSysHostSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -102,7 +102,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle database error in statement summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Query failed"));
       const tool = createSysStatementSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -115,7 +115,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle database error in wait summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Wait query error"));
       const tool = createSysWaitSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -128,7 +128,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle database error in IO summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("IO query error"));
       const tool = createSysIOSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -141,7 +141,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle non-Error thrown in statement summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue("raw string");
       const tool = createSysStatementSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -159,7 +159,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle database error in schema stats", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Schema error"));
       const tool = createSysSchemaStatsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -172,7 +172,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle database error in innodb lock waits", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Lock error"));
       const tool = createSysInnoDBLockWaitsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -185,7 +185,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle database error in memory summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Memory error"));
       const tool = createSysMemorySummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -198,7 +198,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle non-Error thrown in lock waits", async () => {
       mockAdapter.executeQuery.mockRejectedValue({ code: "UNKNOWN" });
       const tool = createSysInnoDBLockWaitsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -210,7 +210,7 @@ describe("Sys Schema Error Paths", () => {
     it("should handle non-Error thrown in memory summary", async () => {
       mockAdapter.executeQuery.mockRejectedValue(undefined);
       const tool = createSysMemorySummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;

@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Payload Contract Tests: JSON
  *
  * Validates response shapes for JSON tools (17 total):
@@ -47,7 +47,7 @@ test.describe("Payload Contracts: JSON", () => {
     }
   });
 
-  test("mysql_json_keys returns { rows, rowCount }", async () => {
+  test("mysql_json_keys returns { keys }", async () => {
     const client = await createClient();
     try {
       const payload = await callToolAndParse(client, "mysql_json_keys", {
@@ -56,7 +56,7 @@ test.describe("Payload Contracts: JSON", () => {
       });
 
       const data = payload.data as Record<string, unknown>;
-      expect(Array.isArray(data.rows)).toBe(true);
+      expect(Array.isArray(data.keys)).toBe(true);
     } finally {
       await client.close();
     }

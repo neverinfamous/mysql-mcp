@@ -51,11 +51,12 @@ async function waitForSnapshots(
       "mysql_audit_list_backups",
       {},
     );
+    const data = result.data as Record<string, unknown> | undefined;
     const total =
-      typeof result.total === "number"
-        ? result.total
-        : Array.isArray(result.backups)
-          ? (result.backups as unknown[]).length
+      typeof data?.total === "number"
+        ? data.total
+        : Array.isArray(data?.backups)
+          ? (data!.backups as unknown[]).length
           : 0;
     if (total >= minCount) {
       return result;
@@ -114,11 +115,12 @@ test.describe("Audit Backup Snapshots", () => {
       // Wait for the snapshot to appear
       const listResult = await waitForSnapshots(client, 1);
 
-      // Response shape: { backups: [...], total: N }
-      expect(typeof listResult.total).toBe("number");
-      expect(listResult.total as number).toBeGreaterThanOrEqual(1);
+      // Response shape: { data: { backups: [...], total: N } }
+      const data = listResult.data as Record<string, unknown>;
+      expect(typeof data.total).toBe("number");
+      expect(data.total as number).toBeGreaterThanOrEqual(1);
 
-      const backups = listResult.backups as Array<Record<string, unknown>>;
+      const backups = data.backups as Array<Record<string, unknown>>;
       expect(backups.length).toBeGreaterThanOrEqual(1);
 
       // Verify snapshot metadata shape
@@ -136,8 +138,9 @@ test.describe("Audit Backup Snapshots", () => {
           target: TEMP_TABLE,
         },
       );
-      expect(typeof filtered.total).toBe("number");
-      expect(filtered.total as number).toBeGreaterThanOrEqual(1);
+      const filteredData = filtered.data as Record<string, unknown>;
+      expect(typeof filteredData.total).toBe("number");
+      expect(filteredData.total as number).toBeGreaterThanOrEqual(1);
     } finally {
       // Clean up table (may already be dropped)
       try {
@@ -151,6 +154,7 @@ test.describe("Audit Backup Snapshots", () => {
       }
       if (client) await client.close();
       stopServer(port);
+      await delay(500);
       await rm(dir, { recursive: true, force: true });
     }
   });
@@ -194,8 +198,9 @@ test.describe("Audit Backup Snapshots", () => {
 
       // Wait for snapshot to appear
       const listResult = await waitForSnapshots(client, 1);
+      const data = listResult.data as Record<string, unknown>;
       const backups = (
-        listResult.backups as Array<Record<string, unknown>>
+        data.backups as Array<Record<string, unknown>>
       ).filter((s) => s.tool === "mysql_optimize_table");
       expect(backups.length).toBeGreaterThanOrEqual(1);
 
@@ -208,14 +213,15 @@ test.describe("Audit Backup Snapshots", () => {
         { filename },
       );
 
-      // Response shape: { snapshotDdl, liveDdl, metadata }
-      expect(typeof diffResult.snapshotDdl).toBe("string");
-      expect(typeof diffResult.liveDdl).toBe("string");
-      expect(diffResult.metadata).toBeDefined();
+      // Response shape: { data: { snapshotDdl, liveDdl, metadata } }
+      const diffData = diffResult.data as Record<string, unknown>;
+      expect(typeof diffData.snapshotDdl).toBe("string");
+      expect(typeof diffData.liveDdl).toBe("string");
+      expect(diffData.metadata).toBeDefined();
 
       // Both DDLs should contain the table name
-      const snapshotDdl = diffResult.snapshotDdl as string;
-      const liveDdl = diffResult.liveDdl as string;
+      const snapshotDdl = diffData.snapshotDdl as string;
+      const liveDdl = diffData.liveDdl as string;
       expect(snapshotDdl).toContain(TEMP_TABLE);
       expect(liveDdl).toContain(TEMP_TABLE);
     } finally {
@@ -230,6 +236,7 @@ test.describe("Audit Backup Snapshots", () => {
       }
       if (client) await client.close();
       stopServer(port);
+      await delay(500);
       await rm(dir, { recursive: true, force: true });
     }
   });
@@ -273,8 +280,9 @@ test.describe("Audit Backup Snapshots", () => {
 
       // Wait for snapshot
       const listResult = await waitForSnapshots(client, 1);
+      const data = listResult.data as Record<string, unknown>;
       const backups = (
-        listResult.backups as Array<Record<string, unknown>>
+        data.backups as Array<Record<string, unknown>>
       ).filter((s) => s.tool === "mysql_drop_table");
       const filename = backups[0]!.filename as string;
 
@@ -285,11 +293,12 @@ test.describe("Audit Backup Snapshots", () => {
         { filename, dryRun: true },
       );
 
-      // Response shape: { dryRun, sql, metadata }
-      expect(restoreResult.dryRun).toBe(true);
-      expect(typeof restoreResult.sql).toBe("string");
-      expect((restoreResult.sql as string).length).toBeGreaterThan(0);
-      expect(restoreResult.metadata).toBeDefined();
+      // Response shape: { data: { dryRun, sql, metadata } }
+      const restoreData = restoreResult.data as Record<string, unknown>;
+      expect(restoreData.dryRun).toBe(true);
+      expect(typeof restoreData.sql).toBe("string");
+      expect((restoreData.sql as string).length).toBeGreaterThan(0);
+      expect(restoreData.metadata).toBeDefined();
 
       // Table should still not exist (dry run didn't execute anything)
       const descResult = await callToolAndParse(
@@ -303,6 +312,7 @@ test.describe("Audit Backup Snapshots", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
+      await delay(500);
       await rm(dir, { recursive: true, force: true });
     }
   });
@@ -353,3 +363,4 @@ test.describe("Audit Backup Snapshots", () => {
     }
   });
 });
+

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createSchemaSnapshotTool } from "../snapshot.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -15,7 +15,7 @@ describe("Schema Snapshot Tool", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tool = createSchemaSnapshotTool(mockAdapter as unknown as MySQLAdapter);
+    tool = createSchemaSnapshotTool(mockAdapter);
     mockContext = createMockRequestContext();
 
     // Mock for schema/table existence
@@ -119,18 +119,18 @@ describe("Schema Snapshot Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
-    expect(data.snapshot.tables).toBeDefined();
-    expect(data.snapshot.views).toBeDefined();
-    expect(data.snapshot.indexes).toBeDefined();
-    expect(data.snapshot.constraints).toBeDefined();
-    expect(data.snapshot.functions).toBeDefined();
-    expect(data.snapshot.triggers).toBeDefined();
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
+    expect(data.tables).toBeDefined();
+    expect(data.views).toBeDefined();
+    expect(data.indexes).toBeDefined();
+    expect(data.constraints).toBeDefined();
+    expect(data.functions).toBeDefined();
+    expect(data.triggers).toBeDefined();
 
     // Check that columns were attached to tables
-    expect(data.snapshot.tables[0].columns).toBeDefined();
-    expect(data.snapshot.tables[0].columns.length).toBe(2);
+    expect(data.tables[0].columns).toBeDefined();
+    expect(data.tables[0].columns.length).toBe(2);
   });
 
   it("should only return specified sections", async () => {
@@ -139,11 +139,11 @@ describe("Schema Snapshot Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
-    expect(data.snapshot.tables).toBeDefined();
-    expect(data.snapshot.views).toBeUndefined();
-    expect(data.snapshot.indexes).toBeUndefined();
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
+    expect(data.tables).toBeDefined();
+    expect(data.views).toBeUndefined();
+    expect(data.indexes).toBeUndefined();
   });
 
   it("should handle compact mode without returning definitions and columns", async () => {
@@ -152,9 +152,9 @@ describe("Schema Snapshot Tool", () => {
       mockContext,
     );
 
-    expect((result as any).success).toBe(true);
-    const data = (result as any).data;
-    expect(data.snapshot.views).toBeDefined();
-    expect(data.snapshot.views[0].definition).toBeUndefined(); // Compact mode sets definition to NULL which gets stripped
+    expect(Reflect.get(result || {}, "success")).toBe(true);
+    const data = Reflect.get(result || {}, "data");
+    expect(data.views).toBeDefined();
+    expect(data.views[0].definition).toBeUndefined(); // Compact mode sets definition to NULL which gets stripped
   });
 });

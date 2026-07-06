@@ -5,6 +5,7 @@
  */
 
 import { z } from "zod";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 // =============================================================================
 // Router Status Types
@@ -117,58 +118,163 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 export const RouterBaseInputSchema = z.object({});
 
 export const RouteNameInputSchemaBase = z.object({
-  routeName: z.string().optional().describe("Name of the route to query"),
+  routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
+  name: z.string().optional().describe("Alias for routeName"),
+  route: z.string().optional().describe("Alias for routeName"),
+  routename: z.string().optional().describe("Alias for routeName"),
+  routerName: z.string().optional().describe("Alias for routeName"),
+  id: z.string().optional().describe("Alias for routeName"),
+  clusterName: z.string().optional().describe("Alias for routeName"),
+  cluster_name: z.string().optional().describe("Alias for routeName"),
 });
 
-export const RouteNameInputSchema = z
-  .object({
-    routeName: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    routeName:
-      data.routeName === undefined
-        ? ""
-        : String(data.routeName as string | number | boolean),
-  }))
-  .refine((data) => data.routeName !== "", {
-    message: "routeName must not be empty",
-  });
+export const RouteNameInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
+    return {
+      ...obj,
+      routeName: obj["routeName"] !== undefined ? obj["routeName"] : 
+                 (obj["route"] !== undefined ? obj["route"] : 
+                  (obj["name"] !== undefined ? obj["name"] : 
+                   (obj["routename"] !== undefined ? obj["routename"] : 
+                    (obj["routerName"] !== undefined ? obj["routerName"] : 
+                     (obj["clusterName"] !== undefined ? obj["clusterName"] : 
+                      (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"])))))),
+    };
+  },
+  RouteNameInputSchemaBase
+).refine((data) => data.routeName !== undefined && data.routeName !== "", {
+  message: "routeName must not be empty",
+  path: ["routeName"]
+}).transform((data) => ({
+  routeName: data.routeName ?? "",
+}));
 
 export const MetadataNameInputSchemaBase = z.object({
   metadataName: z
     .string()
     .optional()
-    .describe("Name of the metadata cache instance"),
+    .describe("Name of the metadata cache instance. Anti-Hallucination Hint: Pass metadataName, not metadata."),
+  name: z.string().optional().describe("Alias for metadataName"),
+  metadata: z.string().optional().describe("Alias for metadataName"),
+  metadataname: z.string().optional().describe("Alias for metadataName"),
+  id: z.string().optional().describe("Alias for metadataName"),
+  clusterName: z.string().optional().describe("Alias for metadataName"),
+  cluster_name: z.string().optional().describe("Alias for metadataName"),
 });
 
-export const MetadataNameInputSchema = z
-  .object({
-    metadataName: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    metadataName:
-      data.metadataName === undefined
-        ? ""
-        : String(data.metadataName as string | number | boolean),
-  }))
-  .refine((data) => data.metadataName !== "", {
-    message: "metadataName must not be empty",
-  });
+export const MetadataNameInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
+    return {
+      ...obj,
+      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : 
+                    (obj["metadata"] !== undefined ? obj["metadata"] : 
+                     (obj["name"] !== undefined ? obj["name"] : 
+                      (obj["metadataname"] !== undefined ? obj["metadataname"] : 
+                       (obj["clusterName"] !== undefined ? obj["clusterName"] : 
+                        (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))),
+    };
+  },
+  MetadataNameInputSchemaBase
+).refine((data) => data.metadataName !== undefined && data.metadataName !== "", {
+  message: "metadataName must not be empty",
+  path: ["metadataName"]
+}).transform((data) => ({
+  metadataName: data.metadataName ?? "",
+}));
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
-  poolName: z.string().optional().describe("Name of the connection pool"),
+  poolName: z.string().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
+  name: z.string().optional().describe("Alias for poolName"),
+  pool: z.string().optional().describe("Alias for poolName"),
+  poolname: z.string().optional().describe("Alias for poolName"),
+  id: z.string().optional().describe("Alias for poolName"),
+  clusterName: z.string().optional().describe("Alias for poolName"),
+  cluster_name: z.string().optional().describe("Alias for poolName"),
 });
 
-export const ConnectionPoolNameInputSchema = z
-  .object({
-    poolName: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    poolName:
-      data.poolName === undefined
-        ? ""
-        : String(data.poolName as string | number | boolean),
-  }))
-  .refine((data) => data.poolName !== "", {
-    message: "poolName must not be empty",
-  });
+export const ConnectionPoolNameInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
+    return {
+      ...obj,
+      poolName: obj["poolName"] !== undefined ? obj["poolName"] : 
+                (obj["pool"] !== undefined ? obj["pool"] : 
+                 (obj["name"] !== undefined ? obj["name"] : 
+                  (obj["poolname"] !== undefined ? obj["poolname"] : 
+                   (obj["clusterName"] !== undefined ? obj["clusterName"] : 
+                    (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))),
+    };
+  },
+  ConnectionPoolNameInputSchemaBase
+).refine((data) => data.poolName !== undefined && data.poolName !== "", {
+  message: "poolName must not be empty",
+  path: ["poolName"]
+}).transform((data) => ({
+  poolName: data.poolName ?? "",
+}));
+
+// =============================================================================
+// Tool Output Schemas
+// =============================================================================
+
+export const RouterStatusOutputSchema = BaseOutputSchema.extend({
+  data: RouterStatusResponseSchema.optional(),
+});
+
+export const RouterRoutesOutputSchema = BaseOutputSchema.extend({
+  data: RouteListSchema.optional(),
+});
+
+export const RouterRouteStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    status: RouteStatusSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteHealthOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    health: RouteHealthSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteConnectionsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    connections: RouteConnectionsListSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteDestinationsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    destinations: RouteDestinationsListSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterRouteBlockedHostsOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    routeName: z.string(),
+    blockedHosts: BlockedHostsListSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterMetadataStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    metadataName: z.string(),
+    status: MetadataStatusSchema.optional(),
+  }).loose().optional(),
+});
+
+export const RouterPoolStatusOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    poolName: z.string(),
+    status: ConnectionPoolStatusSchema.optional(),
+  }).loose().optional(),
+});

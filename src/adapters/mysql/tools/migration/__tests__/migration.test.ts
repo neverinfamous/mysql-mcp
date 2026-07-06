@@ -4,7 +4,7 @@ import {
   createMigrationRecordTool,
   createMigrationApplyTool,
 } from "../migration.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -26,7 +26,7 @@ describe("Migration Core Tools", () => {
         return createMockQueryResult([{ db: "testdb" }]);
       }
       if (query.includes("information_schema.TABLES")) {
-        // Assume table doesn't exist by default for init test
+        // Assume table does not exist by default for init test
         return createMockQueryResult([{ table_exists: 0 }]);
       }
       if (query.includes("COUNT(*)")) {
@@ -51,17 +51,17 @@ describe("Migration Core Tools", () => {
     let tool: ReturnType<typeof createMigrationInitTool>;
 
     beforeEach(() => {
-      tool = createMigrationInitTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createMigrationInitTool(mockAdapter);
     });
 
     it("should initialize the tracking table", async () => {
       const result = await tool.handler({ schema: "testdb" }, mockContext);
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
 
       const sqlCall = mockAdapter.executeWriteQuery.mock
-        .calls[0]?.[0] as string;
+        .calls[0]?.[0];
       expect(sqlCall).toContain(
         "CREATE TABLE IF NOT EXISTS testdb._mcp_schema_versions",
       );
@@ -78,9 +78,9 @@ describe("Migration Core Tools", () => {
 
       const result = await tool.handler({ schema: "testdb" }, mockContext);
 
-      expect((result as any).success).toBe(true);
-      expect((result as any).data.tableCreated).toBe(false);
-      expect((result as any).data.existingRecords).toBe(5);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect(Reflect.get(result || {}, "data").tableCreated).toBe(false);
+      expect(Reflect.get(result || {}, "data").existingRecords).toBe(5);
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
     });
   });
@@ -89,7 +89,7 @@ describe("Migration Core Tools", () => {
     let tool: ReturnType<typeof createMigrationRecordTool>;
 
     beforeEach(() => {
-      tool = createMigrationRecordTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createMigrationRecordTool(mockAdapter);
     });
 
     it("should record a migration without executing DDL", async () => {
@@ -98,14 +98,14 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       // Ensure tracking table check/create
       expect(mockAdapter.executeWriteQuery).toHaveBeenCalled();
 
       // Should insert into the tracking table, but should NOT execute the migrationSql itself
       const calls = mockAdapter.executeWriteQuery.mock.calls;
-      const executedQueries = calls.map((c) => c[0] as string);
+      const executedQueries = calls.map((c) => c[0]);
 
       expect(
         executedQueries.some((q) =>
@@ -133,8 +133,8 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("already been applied");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("already been applied");
     });
   });
 
@@ -142,7 +142,7 @@ describe("Migration Core Tools", () => {
     let tool: ReturnType<typeof createMigrationApplyTool>;
 
     beforeEach(() => {
-      tool = createMigrationApplyTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createMigrationApplyTool(mockAdapter);
     });
 
     it("should execute migration SQL and record it", async () => {
@@ -151,10 +151,10 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
 
       const calls = mockAdapter.executeWriteQuery.mock.calls;
-      const executedQueries = calls.map((c) => c[0] as string);
+      const executedQueries = calls.map((c) => c[0]);
 
       // Should execute the actual migration
       expect(executedQueries.includes("CREATE TABLE b (id INT)")).toBe(true);
@@ -181,12 +181,12 @@ describe("Migration Core Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Syntax error");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Syntax error");
 
       // Should have attempted to record the failure
       const calls = mockAdapter.executeWriteQuery.mock.calls;
-      const executedQueries = calls.map((c) => c[0] as string);
+      const executedQueries = calls.map((c) => c[0]);
       expect(
         executedQueries.some(
           (q) => q.includes("VALUES") && q.includes("'failed'"),

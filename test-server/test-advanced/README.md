@@ -1,56 +1,96 @@
 # MySQL-MCP Advanced Stress Tests
 
-> **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
+**🤖 AGENT INSTRUCTIONS**
 
-This directory contains the "Second-Pass" advanced tests for the `mysql-mcp` tool groups. These tests simulate complex, edge-case, and boundary interactions using exclusively **Code Mode** (`mysql_execute_code`).
+This directory contains advanced stress tests for the tool groups. These tests simulate complex edge cases using exclusively Code Mode.
 
-## Pre-requisites
+## Meet Fast Prerequisites
 
-1. Basic deterministic tool group checklists (located in `../test-tool-groups-codemode/*.md`) MUST be successfully passed before running these advanced tests.
-2. The testing database MUST be freshly seeded or reset to the baseline schema utilizing the `../reset-database.ps1` script to ensure deterministic results.
+1. Basic deterministic tool group checklists in `../test-codemode/*.md` MUST pass first.
+2. The testing database MUST be freshly seeded or reset. Run `node ../../scripts/reset-database.mjs` to ensure deterministic results.
 
-## Execution Parts
+## Understand Execution Parts
 
-The original monolithic advanced stress testing suite was split into 27 granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
+The original monolithic advanced stress testing suite was split into granular parts. This preserves agent attention spans and prevents LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
-| File                                   | Primary Focus       | Key Validations                                                                                     |
-| -------------------------------------- | ------------------- | --------------------------------------------------------------------------------------------------- |
-| `test-tools-advanced-core.md`          | Core                | Boundary values, empty states, single-row edge cases, NULL-heavy data, state pollution, idempotency |
-| `test-tools-advanced-transactions.md`  | Transactions        | Aborted transaction recovery, savepoint stress, mixed statement execution, failure rollback         |
-| `test-tools-advanced-schema.md`        | Schema              | DDL idempotency, cross-object dependencies, parameter alias parity, payload monitoring              |
-| `test-tools-advanced-json.md`          | JSON                | Deep mutation workflows, nested path operations, merge operations                                   |
-| `test-tools-advanced-spatial.md`       | Spatial             | Boundary coordinates, out-of-bounds validation, exact boundary values                               |
-| `test-tools-advanced-document.md`      | Document Store      | Empty array edge cases, nonexistent field criteria, collection lifecycle                            |
-| `test-tools-advanced-fulltext.md`      | Fulltext/Search     | Search pipeline lifecycle, temp table FTS index creation and search                                 |
-| `test-tools-advanced-introspection.md` | Introspection       | Deep dependency graphs, circular foreign keys, cascade limit testing                                |
-| `test-tools-advanced-migration.md`     | Migration           | Corrupted checksums, out-of-order logs, idempotency, boundary rollbacks                             |
-| `test-tools-advanced-stats.md`         | Stats               | Null handling, zero-variance arrays, hypothesis boundaries, missing types                           |
-| `test-tools-advanced-text.md`          | Text                | Regex edge cases, unicode/encoding, boundary lengths, collation stress                              |
-| `test-tools-advanced-roles.md`         | Roles               | Lifecycle collisions, grant/revoke sequences, cascading verify, alias parity                        |
-| `test-tools-advanced-events.md`        | Events              | Lifecycle collisions, schedule boundary values, event body validation                               |
-| `test-tools-advanced-partitioning.md`  | Partitioning        | Partition lifecycle stress, non-partitioned table handling, reorganize edge cases                   |
-| `test-tools-advanced-optimization.md`  | Optimization        | Complex query rewrites, optimizer trace payloads, force index edge cases                            |
-| `test-tools-advanced-monitoring.md`    | Monitoring          | Payload efficiency, summary mode parity, filter edge cases, sequential stability                    |
-| `test-tools-advanced-security.md`      | Security            | Password validation boundaries, sensitive table detection, privilege enumeration edges              |
-| `test-tools-advanced-backup.md`        | Backup              | Export edge cases, format boundary values, dump parameter validation                                |
-| `test-tools-advanced-sys.md`           | Sys Schema          | Payload efficiency audit, empty state handling, sequential stability                                |
-| `test-tools-advanced-cluster.md`       | Cluster             | Graceful degradation, happy-path stress, summary mode and payload monitoring                        |
-| `test-tools-advanced-proxysql.md`      | ProxySQL            | Graceful degradation, happy-path stress, payload monitoring and filter boundaries                   |
-| `test-tools-advanced-router.md`        | Router              | Graceful degradation, invalid route name stress, happy-path, payload monitoring                     |
-| `test-tools-advanced-shell.md`         | Shell               | Graceful degradation, dry run boundaries, parameter validation, script execution safety             |
-| `test-tools-advanced-replication.md`   | Replication         | Single-server resilience, binlog boundary values, happy-path, payload monitoring                    |
-| `test-tools-advanced-admin.md`         | Admin/Error Quality | Cross-group error message quality, type mismatches, invalid parameter values, payload sizes         |
-| `test-tools-advanced-performance.md`   | Performance/Payload | Truncation indicators, summary mode, anomaly detection bounds                                       |
+- `test-codemode-advanced-core-part1.md`
+- `test-codemode-advanced-core-part2.md`
+- `test-codemode-advanced-admin-control.md`
+- `test-codemode-advanced-admin-maintenance.md`
+- `test-codemode-advanced-backup-audit.md`
+- `test-codemode-advanced-backup-export.md`
+- `test-codemode-advanced-cluster-group-replication.md`
+- `test-codemode-advanced-cluster-innodb.md`
+- `test-codemode-advanced-concurrency.md`
+- `test-codemode-advanced-docstore-collections.md`
+- `test-codemode-advanced-docstore-documents.md`
+- `test-codemode-advanced-events.md`
+- `test-codemode-advanced-fulltext.md`
+- `test-codemode-advanced-introspection.md`
+- `test-codemode-advanced-json-core-part1.md`
+- `test-codemode-advanced-json-core-part2.md`
+- `test-codemode-advanced-json-enhanced.md`
+- `test-codemode-advanced-json-helpers.md`
+- `test-codemode-advanced-migration.md`
+- `test-codemode-advanced-monitoring-health.md`
+- `test-codemode-advanced-monitoring-status.md`
+- `test-codemode-advanced-optimization.md`
+- `test-codemode-advanced-partitioning.md`
+- `test-codemode-advanced-performance-analysis-part1.md`
+- `test-codemode-advanced-performance-analysis-part2.md`
+- `test-codemode-advanced-performance-anomaly.md`
+- `test-codemode-advanced-proxysql-config.md`
+- `test-codemode-advanced-proxysql-status.md`
+- `test-codemode-advanced-replication.md`
+- `test-codemode-advanced-roles-assignment.md`
+- `test-codemode-advanced-roles-management.md`
+- `test-codemode-advanced-router-advanced.md`
+- `test-codemode-advanced-router-routes.md`
+- `test-codemode-advanced-schema-management.md`
+- `test-codemode-advanced-schema-routines.md`
+- `test-codemode-advanced-schema-triggers.md`
+- `test-codemode-advanced-schema-views.md`
+- `test-codemode-advanced-security-audit.md`
+- `test-codemode-advanced-security-system.md`
+- `test-codemode-advanced-sessions.md`
+- `test-codemode-advanced-shell-data.md`
+- `test-codemode-advanced-shell-utils-part1.md`
+- `test-codemode-advanced-shell-utils-part2.md`
+- `test-codemode-advanced-spatial-geometry.md`
+- `test-codemode-advanced-spatial-operations.md`
+- `test-codemode-advanced-spatial-queries.md`
+- `test-codemode-advanced-spatial-setup.md`
+- `test-codemode-advanced-stats-advanced.md`
+- `test-codemode-advanced-stats-descriptive.md`
+- `test-codemode-advanced-stats-time-series.md`
+- `test-codemode-advanced-stats-window.md`
+- `test-codemode-advanced-sys-part1.md`
+- `test-codemode-advanced-sys-part2.md`
+- `test-codemode-advanced-text.md`
+- `test-codemode-advanced-transactions.md`
+- `test-codemode-advanced-types-binary.md`
+- `test-codemode-advanced-types-date.md`
+- `test-codemode-advanced-types-json.md`
+- `test-codemode-advanced-types-numeric.md`
+- `test-codemode-advanced-vector-management.md`
+- `test-codemode-advanced-vector-search.md`
+- `test-codemode-advanced-vector-storage.md`
+- `test-codemode-advanced-versioning.md`
+- `test-codemode-sandbox.md`
 
-## Agent Execution Protocol
+## Follow Execution Protocol
 
 When testing the contents of this directory, you MUST adhere to the following rules:
 
+0. **Anti-Hallucination Guardrails:** Read exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
+0.5. **Validation Strictness:** If you modify the codebase, you MUST validate changes locally by running ONLY `pnpm run lint` and `pnpm run typecheck`. Do NOT run `pnpm run test` or `pnpm run check`. Do NOT run any validation if you only modified documentation. The coordinator will run full test suites and fix broken tests at the end.
 1. **Strict Code Mode Only:** All advanced stress tests must be executed entirely within the `node:worker_threads` sandbox via `mysql_execute_code`. Direct component tool calls are explicitly forbidden here unless specifically instructed for baseline comparison.
-2. **Sequential Grouping:** Because these operations are intensive, execute only **one markdown file at a time**. Report findings in `tmp/task.md` (the project-level scratchpad), fix errors, apply updates to the changelog, and commit the changes before advancing to the next file segment.
-3. **Payload Optimization (Token Monitoring):**
+2. **Help Resources (Adaptive Architecture):** Tool and method signatures are NO LONGER automatically injected into your system prompt. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/json`) to understand the `mysql.*` API before writing code.
+3. **Sequential Grouping:** Execute only **one markdown file at a time**. Report findings in `<appDataDir>\brain\<conversation-id>\task.md`. Fix errors and commit changes before advancing to the next file.
+4. **Payload Optimization (Token Monitoring):**
    - These tests deliberately trigger large responses and deep architectural nesting.
    - You MUST closely monitor the `metrics.tokenEstimate` value returned from the `mysql_execute_code` payloads.
    - If extremely large unbounded responses are produced, this is flagged as a 📦 **Payload Issue**. You must halt and patch the source handler boundary constraints (e.g., restricting integer `limit` inputs or dynamically dropping table dimensions).
-4. **Structured Error Adherence (P154):** When intentionally attempting boundary failure parameters (missing columns, invalid dimension types), assert that the adapter outputs a proper structured error (`{success: false, error: "..."}`) rather than leaking raw MySQL native errors.
-5. **No Persistent Pollution:** After finishing execution within a document, verify that all `stress_*` schema tables and functions generated within Code Mode have been safely `DROP`ped. No test state should bleed over into the next run.
+5. **Structured Error Adherence (P154):** When intentionally attempting boundary failure parameters (missing columns, invalid dimension types), assert that the adapter outputs a proper structured error (`{success: false, error: "..."}`) rather than leaking raw MySQL native errors.
+6. **Security Sandbox Boundaries:** Ensure the server uses `ALLOWED_IO_ROOTS`. For filesystem-interacting tools, actively test directory traversal edge cases (e.g., `../../etc/passwd`). Test paths explicitly outside the allowed boundary. Confirm `SECURITY_ERROR` is correctly thrown and caught.
+7. **No Persistent Pollution:** After finishing execution within a document, verify that all `stress_*` schema tables and functions generated within Code Mode have been safely `DROP`ped. No test state should bleed over into the next run.

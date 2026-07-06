@@ -9,7 +9,7 @@ import {
   createSpatialPointTool,
   createSpatialPolygonTool,
 } from "../geometry.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -29,7 +29,7 @@ describe("Spatial Geometry Tools", () => {
   describe("createSpatialPointTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_point");
       expect(tool.group).toBe("spatial");
@@ -46,18 +46,19 @@ describe("Spatial Geometry Tools", () => {
       );
 
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { longitude: 10, latitude: 20 },
         mockContext,
-      )) as { data: { wkt: string; geoJson: any } };
+      )) as { data: { wkt: string; geoJson: Record<string, unknown> } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const sql = mockAdapter.executeQuery.mock.calls[0][0];
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
       // With axis-order=long-lat, longitude comes first in POINT
-      expect(call).toContain("POINT(10 20)");
-      expect(call).toContain("axis-order=long-lat");
+      expect(args[0]).toBe("POINT(10 20)");
+      expect(sql).toContain("axis-order=long-lat");
       expect(result.data.wkt).toBe("POINT(20 10)");
       expect(result.data.geoJson).toEqual({
         type: "Point",
@@ -69,34 +70,34 @@ describe("Spatial Geometry Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ longitude: 10, latitude: 20 }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("4326");
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(args).toContain(4326);
     });
 
     it("should handle custom SRID", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSpatialPointTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         { longitude: 10, latitude: 20, srid: 3857 },
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("3857");
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(args).toContain(3857);
     });
   });
 
   describe("createSpatialPolygonTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSpatialPolygonTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_spatial_polygon");
     });
@@ -113,7 +114,7 @@ describe("Spatial Geometry Tools", () => {
       );
 
       const tool = createSpatialPolygonTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const coordinates = [
         [
@@ -130,10 +131,10 @@ describe("Spatial Geometry Tools", () => {
       };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       // Now using axis-order=long-lat for correct coordinate handling
       expect(call).toContain("axis-order=long-lat");
-      const args = mockAdapter.executeQuery.mock.calls[0][1] as any[];
+      const args = mockAdapter.executeQuery.mock.calls[0][1];
       expect(args[0]).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");
 
       expect(result.data.wkt).toBe("POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))");

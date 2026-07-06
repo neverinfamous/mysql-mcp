@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createListEventsTool } from "../scheduled_events.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -25,11 +25,11 @@ describe("Schema Event Tools", () => {
         ]),
       );
 
-      const tool = createListEventsTool(mockAdapter as unknown as MySQLAdapter);
-      const result = await tool.handler({}, mockContext);
+      const tool = createListEventsTool(mockAdapter);
+      const result = await tool.handler({ schema: "testdb" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("information_schema.EVENTS");
       expect(result).toBeDefined();
     });
@@ -37,7 +37,7 @@ describe("Schema Event Tools", () => {
     it("should return exists false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createListEventsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createListEventsTool(mockAdapter);
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
@@ -48,19 +48,22 @@ describe("Schema Event Tools", () => {
     });
 
     it("should filter by status when provided", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ SCHEMA_NAME: "testdb" }]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = createListEventsTool(mockAdapter as unknown as MySQLAdapter);
-      await tool.handler({ status: "ENABLED" }, mockContext);
+      const tool = createListEventsTool(mockAdapter);
+      await tool.handler({ schema: "testdb", status: "ENABLED" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("STATUS = ?");
-      const params = mockAdapter.executeQuery.mock.calls[0][1] as unknown[];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(params).toContain("ENABLED");
     });
     it("should return structured error for invalid status", async () => {
-      const tool = createListEventsTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createListEventsTool(mockAdapter);
       const result = (await tool.handler(
         { status: "INVALID_STATUS" },
         mockContext,

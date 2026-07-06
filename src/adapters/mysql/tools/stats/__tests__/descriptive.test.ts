@@ -5,8 +5,8 @@ import {
   createDistributionTool,
   createTimeSeriesToolStats,
   createSamplingTool,
-} from "../descriptive.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+} from "../descriptive/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -27,11 +27,14 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createDescriptiveStatsTool>;
 
     beforeEach(() => {
-      tool = createDescriptiveStatsTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createDescriptiveStatsTool(mockAdapter);
     });
 
     it("should calculate descriptive stats", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("COUNT(*)")) {
           return createMockQueryResult([{ count: 10 }]);
         }
@@ -60,8 +63,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.count).toBe(10);
       expect(data.mean).toBe(5.5);
       expect(data.median).toBe(5.5);
@@ -71,6 +74,9 @@ describe("Descriptive Stats Tools", () => {
 
     it("should handle empty tables gracefully", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("COUNT(*)")) {
           return createMockQueryResult([{ count: 0 }]);
         }
@@ -82,8 +88,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.count).toBe(0);
       expect(data.mean).toBeNull();
       expect(data.median).toBeNull();
@@ -94,8 +100,8 @@ describe("Descriptive Stats Tools", () => {
         { table: "invalid table", column: "age" },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Invalid table name");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Invalid table name");
     });
   });
 
@@ -103,7 +109,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createPercentilesTool>;
 
     beforeEach(() => {
-      tool = createPercentilesTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createPercentilesTool(mockAdapter);
     });
 
     it("should calculate percentiles", async () => {
@@ -125,8 +131,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.totalCount).toBe(100);
       expect(data.percentiles.p50).toBe(42);
       expect(data.percentiles.p90).toBe(42);
@@ -145,8 +151,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("is not a numeric column");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("is not a numeric column");
     });
   });
 
@@ -154,11 +160,14 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createDistributionTool>;
 
     beforeEach(() => {
-      tool = createDistributionTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createDistributionTool(mockAdapter);
     });
 
     it("should calculate distribution buckets", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) {
+          return createMockQueryResult([{ DATA_TYPE: "int" }]);
+        }
         if (query.includes("GROUP BY bucket")) {
           return createMockQueryResult([
             { bucket: 0, count: 50, bucket_min: 0, bucket_max: 9 },
@@ -176,8 +185,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.bucketCount).toBe(10);
       expect(data.minValue).toBe(0);
       expect(data.maxValue).toBe(100);
@@ -191,7 +200,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createTimeSeriesToolStats>;
 
     beforeEach(() => {
-      tool = createTimeSeriesToolStats(mockAdapter as unknown as MySQLAdapter);
+      tool = createTimeSeriesToolStats(mockAdapter);
     });
 
     it("should aggregate time series data", async () => {
@@ -218,8 +227,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.interval).toBe("day");
       expect(data.aggregation).toBe("sum");
       expect(data.dataPoints.length).toBe(1);
@@ -237,8 +246,8 @@ describe("Descriptive Stats Tools", () => {
         },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Invalid interval");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Invalid interval");
     });
   });
 
@@ -246,7 +255,7 @@ describe("Descriptive Stats Tools", () => {
     let tool: ReturnType<typeof createSamplingTool>;
 
     beforeEach(() => {
-      tool = createSamplingTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createSamplingTool(mockAdapter);
     });
 
     it("should return random sample", async () => {
@@ -262,8 +271,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.sampleSize).toBe(2);
       expect(data.sample.length).toBe(2);
       expect(data.sample[0].name).toBe("Alice");
@@ -281,7 +290,7 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect((result as any).success).toBe(true);
+      expect(Reflect.get(result || {}, "success")).toBe(true);
     });
   });
 });

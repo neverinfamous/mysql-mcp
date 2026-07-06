@@ -179,7 +179,7 @@ describe("AuditLogger", () => {
     logger.log(
       fakeEntry({
         success: false,
-        error: "Table 'users' doesn't exist",
+        error: "Table 'users' does not exist",
       }),
     );
     await logger.close();
@@ -187,7 +187,7 @@ describe("AuditLogger", () => {
     const content = await readFile(logPath, "utf-8");
     const entry = JSON.parse(content.trim()) as AuditEntry;
     expect(entry.success).toBe(false);
-    expect(entry.error).toBe("Table 'users' doesn't exist");
+    expect(entry.error).toBe("Table 'users' does not exist");
   });
 
   describe("recent()", () => {

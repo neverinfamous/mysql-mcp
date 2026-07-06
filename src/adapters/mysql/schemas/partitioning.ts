@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { preprocessTableParams } from "./preprocess-utils.js";
+import { BaseOutputSchema } from "./output-schemas.js";
 
 // =============================================================================
 // Partitioning Schemas
@@ -10,6 +11,7 @@ export const PartitionInfoSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  database: z.string().optional().describe("Database name"),
   summary: z
     .boolean()
     .optional()
@@ -25,11 +27,13 @@ export const PartitionInfoSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      database: z.string().optional(),
       summary: z.boolean().optional().default(true),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
+    database: data.database,
     summary: data.summary,
   }))
   .refine((data) => data.table !== "", {
@@ -41,26 +45,54 @@ export const AddPartitionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  database: z.string().optional().describe("Database name"),
   partitionName: z.string().optional().describe("New partition name"),
+  partition: z.string().optional().describe("Alias for partitionName"),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
     .describe("Partition type"),
+  type: z.string().optional().describe("Alias for partitionType"),
   value: z
     .string()
     .optional()
     .describe(
-      'Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST, "4" for HASH/KEY partitions count. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
+      'Partition boundary value only (or sql/expression alias) - e.g., "2024" for RANGE, "1,2,3" for LIST, "4" for HASH/KEY partitions count. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
     ),
+  sql: z.string().optional().describe("Alias for value"),
+  expression: z.string().optional().describe("Alias for value"),
+  definition: z.string().optional().describe("Alias for value"),
 });
 
 export const AddPartitionSchema = z
   .preprocess(
-    preprocessTableParams,
+    (val) => {
+      const v = preprocessTableParams(val);
+      if (typeof v === "object" && v !== null) {
+        const obj = v as Record<string, unknown>;
+        if (typeof obj["partitionType"] === "string") {
+          obj["partitionType"] = obj["partitionType"].toUpperCase();
+        } else if (obj["partitionType"] === undefined && typeof obj["type"] === "string") {
+          obj["partitionType"] = obj["type"].toUpperCase();
+        }
+        
+        if (obj["partitionName"] === undefined) {
+          if (obj["partition"] !== undefined) obj["partitionName"] = obj["partition"];
+        }
+
+        if (obj["value"] === undefined) {
+          if (obj["sql"] !== undefined) obj["value"] = obj["sql"];
+          else if (obj["expression"] !== undefined) obj["value"] = obj["expression"];
+          else if (obj["definition"] !== undefined) obj["value"] = obj["definition"];
+        }
+      }
+      return v;
+    },
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      database: z.string().optional(),
       partitionName: z.string().optional(),
       partitionType: z
         .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
@@ -70,8 +102,9 @@ export const AddPartitionSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
+    database: data.database,
     partitionName: data.partitionName ?? "",
-    partitionType: data.partitionType ?? "",
+    partitionType: data.partitionType ? data.partitionType : "RANGE",
     value: data.value ?? "",
   }))
   .refine((data) => data.table !== "", {
@@ -79,9 +112,6 @@ export const AddPartitionSchema = z
   })
   .refine((data) => data.partitionName !== "", {
     message: "partitionName is required",
-  })
-  .refine((data) => data.partitionType !== "", {
-    message: "partitionType is required",
   })
   .refine((data) => data.value !== "", {
     message: "value is required",
@@ -92,8 +122,10 @@ export const DropPartitionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  database: z.string().optional().describe("Database name"),
   partitionName: z.string().optional().describe("Partition name to drop"),
   partition: z.string().optional().describe("Alias for partitionName"),
+  partitions: z.string().optional().describe("Alias for partitionName"),
 });
 
 export const DropPartitionSchema = z
@@ -103,10 +135,11 @@ export const DropPartitionSchema = z
       if (typeof v === "object" && v !== null) {
         const obj = v as Record<string, unknown>;
         if (
-          obj["partitionName"] === undefined &&
-          obj["partition"] !== undefined
+          obj["partitionName"] === undefined
         ) {
-          obj["partitionName"] = obj["partition"];
+          if (obj["partition"] !== undefined) obj["partitionName"] = obj["partition"];
+          else if (obj["partitions"] !== undefined) obj["partitionName"] = obj["partitions"];
+          else if (obj["name"] !== undefined && obj["table"] !== obj["name"]) obj["partitionName"] = obj["name"];
         }
       }
       return v;
@@ -115,12 +148,14 @@ export const DropPartitionSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      database: z.string().optional(),
       partitionName: z.string().optional(),
       partition: z.string().optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
+    database: data.database,
     partitionName: data.partitionName ?? data.partition ?? "",
   }))
   .refine((data) => data.table !== "", {
@@ -135,16 +170,21 @@ export const ReorganizePartitionSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  database: z.string().optional().describe("Database name"),
   fromPartitions: z
     .array(z.string())
     .optional()
-    .describe("Source partition names"),
+    .describe("Source partition names. If passing a string, use a comma-separated list."),
+  partitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
+  from: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
+  sourcePartitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
   partitionType: z
     .enum(["RANGE", "LIST", "HASH", "KEY", "RANGE COLUMNS", "LIST COLUMNS"])
     .optional()
     .describe(
       "Partition type (RANGE, LIST, RANGE COLUMNS, LIST COLUMNS). HASH/KEY partitions cannot be reorganized.",
     ),
+  type: z.string().optional().describe("Alias for partitionType"),
   toPartitions: z
     .array(
       z.object({
@@ -157,16 +197,71 @@ export const ReorganizePartitionSchemaBase = z.object({
       }),
     )
     .optional()
-    .describe("New partition definitions"),
+    .describe("Array of new partition definitions. MUST be an array of objects: [{ name: 'p1', value: '2024' }]"),
+  into: z.unknown().optional().describe("Alias for toPartitions"),
+  intoPartitions: z.unknown().optional().describe("Alias for toPartitions"),
+  newPartitions: z.unknown().optional().describe("Alias for toPartitions"),
+  to: z.unknown().optional().describe("Alias for toPartitions"),
 });
 
 export const ReorganizePartitionSchema = z
   .preprocess(
-    preprocessTableParams,
+    (val) => {
+      const v = preprocessTableParams(val);
+      if (typeof v === "object" && v !== null) {
+        const obj = v as Record<string, unknown>;
+        if (typeof obj["partitionType"] === "string") {
+          obj["partitionType"] = obj["partitionType"].toUpperCase();
+        } else if (obj["partitionType"] === undefined && typeof obj["type"] === "string") {
+          obj["partitionType"] = obj["type"].toUpperCase();
+        }
+        
+        if (obj["fromPartitions"] === undefined) {
+          if (obj["partitions"] !== undefined) obj["fromPartitions"] = obj["partitions"];
+          else if (obj["from"] !== undefined) obj["fromPartitions"] = obj["from"];
+          else if (obj["sourcePartitions"] !== undefined) obj["fromPartitions"] = obj["sourcePartitions"];
+        }
+        
+        if (obj["toPartitions"] === undefined) {
+          if (obj["into"] !== undefined) obj["toPartitions"] = obj["into"];
+          else if (obj["intoPartitions"] !== undefined) obj["toPartitions"] = obj["intoPartitions"];
+          else if (obj["newPartitions"] !== undefined) obj["toPartitions"] = obj["newPartitions"];
+          else if (obj["to"] !== undefined) obj["toPartitions"] = obj["to"];
+        }
+        
+        if (typeof obj["toPartitions"] === "object" && obj["toPartitions"] !== null && !Array.isArray(obj["toPartitions"])) {
+          obj["toPartitions"] = [obj["toPartitions"]];
+        } else if (typeof obj["toPartitions"] === "string") {
+          const toStr = obj["toPartitions"];
+          try {
+            const parsed = JSON.parse(toStr) as unknown;
+            obj["toPartitions"] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            obj["toPartitions"] = toStr
+              .split(",")
+              .map((s) => ({ name: s.trim(), value: "" }));
+          }
+        }
+        
+        if (typeof obj["fromPartitions"] === "string") {
+          const fromStr = obj["fromPartitions"];
+          try {
+            const parsed = JSON.parse(fromStr) as unknown;
+            obj["fromPartitions"] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            obj["fromPartitions"] = fromStr
+              .split(",")
+              .map((s) => s.trim());
+          }
+        }
+      }
+      return v;
+    },
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      database: z.string().optional(),
       fromPartitions: z.array(z.string()).optional(),
       partitionType: z
         .enum(["RANGE", "LIST", "RANGE COLUMNS", "LIST COLUMNS"])
@@ -183,8 +278,9 @@ export const ReorganizePartitionSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
+    database: data.database,
     fromPartitions: data.fromPartitions ?? [],
-    partitionType: data.partitionType ?? "",
+    partitionType: data.partitionType ? data.partitionType : "RANGE",
     toPartitions: data.toPartitions ?? [],
   }))
   .refine((data) => data.table !== "", {
@@ -193,9 +289,45 @@ export const ReorganizePartitionSchema = z
   .refine((data) => data.fromPartitions.length > 0, {
     message: "fromPartitions is required",
   })
-  .refine((data) => data.partitionType !== "", {
-    message: "partitionType is required",
-  })
   .refine((data) => data.toPartitions.length > 0, {
     message: "toPartitions is required",
-  });
+  })
+  .refine(
+    (data) => data.toPartitions.every((p) => p.name !== "" && p.value !== ""),
+    {
+      message:
+        "Each partition in toPartitions must be an object with a non-empty 'name' and 'value' (e.g. [{ name: 'p1', value: '2025' }])",
+    }
+  );
+
+export const PartitionInfoOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    partitioned: z.boolean(),
+    method: z.unknown().optional(),
+    expression: z.unknown().optional(),
+    partitions: z.array(z.record(z.string(), z.unknown())).optional(),
+  }).loose().optional(),
+});
+
+export const AddPartitionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    partitionName: z.string(),
+  }).loose().optional(),
+});
+
+export const DropPartitionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    partitionName: z.string(),
+    warning: z.string().optional(),
+  }).loose().optional(),
+});
+
+export const ReorganizePartitionOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    table: z.string(),
+    fromPartitions: z.array(z.string()),
+    toPartitions: z.array(z.string()),
+  }).loose().optional(),
+});

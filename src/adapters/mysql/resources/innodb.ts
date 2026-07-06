@@ -3,7 +3,7 @@
  *
  * InnoDB buffer pool and engine status metrics.
  */
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type {
   ResourceDefinition,
   RequestContext,

@@ -12,38 +12,52 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  ValidationError,
+  MySQLMcpError,
+  ErrorCategory,
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../types/index.js";
+import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellLoadDumpInputSchema,
+  ShellLoadDumpInputSchemaBase,
   ShellRunScriptInputSchema,
   ShellRunScriptInputSchemaBase,
-} from "../../schemas/shell.js";
+  ShellLoadDumpOutputSchema,
+  ShellRunScriptOutputSchema,
+} from "../../schemas/shell/index.js";
 import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
 
 /**
  * Load dump to instance
  */
-export function createShellLoadDumpTool(): ToolDefinition {
+export function createShellLoadDumpTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_load_dump",
     title: "MySQL Shell Load Dump",
     description:
       "Load a MySQL Shell dump using util.loadDump(). Restores data from a dump created by dumpInstance, dumpSchemas, or dumpTables. Supports parallel loading.",
     group: "shell",
-    inputSchema: ShellLoadDumpInputSchema,
+    inputSchema: ShellLoadDumpInputSchemaBase,
+    outputSchema: ShellLoadDumpOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const {
           inputDir,
           inputUrl,
+          dumpDir,
           threads,
           dryRun,
           includeSchemas,
@@ -56,13 +70,15 @@ export function createShellLoadDumpTool(): ToolDefinition {
           updateServerSettings,
         } = ShellLoadDumpInputSchema.parse(params);
 
-        const finalInputDir = inputDir ?? inputUrl;
+        const finalInputDir = inputDir ?? inputUrl ?? dumpDir;
         if (!finalInputDir) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: inputDir or inputUrl is required",
-          });
+          throw new ValidationError("inputDir or inputUrl is required");
         }
+
+        if (!dryRun) {
+          assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
+        }
+
         const resolvedPath = resolve(finalInputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -165,26 +181,26 @@ export function createShellLoadDumpTool(): ToolDefinition {
                   errorMessage.includes("local_infile") ||
                   errorMessage.includes("Loading local data is disabled")
                 ) {
-                  return withTokenEstimate({
-                    success: false,
-                    error:
-                      "Load failed: local_infile is disabled on the server.",
-                    suggestion:
-                      "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-                  });
+                  throw new MySQLMcpError(
+                    "Load failed: local_infile is disabled on the server.",
+                    "CONFIGURATION_ERROR",
+                    ErrorCategory.CONFIGURATION,
+                    { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+                  );
                 }
                 if (errorMessage.includes("Duplicate objects")) {
-                  return withTokenEstimate({
-                    success: false,
-                    error: errorMessage,
-                    suggestion:
-                      "Use ignoreExistingObjects: true to skip existing objects",
-                  });
+                  throw new MySQLMcpError(
+                    errorMessage,
+                    "CONFLICT_ERROR",
+                    ErrorCategory.QUERY,
+                    { suggestion: "Use ignoreExistingObjects: true to skip existing objects" }
+                  );
                 }
-                return withTokenEstimate({
-                  success: false,
-                  error: errorMessage,
-                });
+                throw new MySQLMcpError(
+                  errorMessage,
+                  "QUERY_ERROR",
+                  ErrorCategory.QUERY
+                );
               }
               break;
             }
@@ -221,20 +237,24 @@ export function createShellLoadDumpTool(): ToolDefinition {
           errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: "Load failed: local_infile is disabled on the server.",
-            suggestion:
-              "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "Load failed: local_infile is disabled on the server.",
+              "CONFIGURATION_ERROR",
+              ErrorCategory.CONFIGURATION,
+              { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+            )
+          );
         }
         if (errorMessage.includes("Duplicate objects")) {
-          return withTokenEstimate({
-            success: false,
-            error: errorMessage,
-            suggestion:
-              "Use ignoreExistingObjects: true to skip existing objects",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "CONFLICT_ERROR",
+              ErrorCategory.QUERY,
+              { suggestion: "Use ignoreExistingObjects: true to skip existing objects" }
+            )
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -242,22 +262,27 @@ export function createShellLoadDumpTool(): ToolDefinition {
   };
 }
 
-export function createShellRunScriptTool(): ToolDefinition {
+export function createShellRunScriptTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_run_script",
     title: "MySQL Shell Run Script",
     description:
-      "Execute a JavaScript, Python, or SQL script via MySQL Shell. Provides access to X DevAPI, AdminAPI, and all MySQL Shell features.",
+      "Execute a JavaScript, Python, or SQL script via MySQL Shell. Provides access to X DevAPI, AdminAPI, and all MySQL Shell features. NOTE: The script executes inside the MySQL Shell process, so file access inside the script is not restricted by allowedIoRoots. Use carefully.",
     group: "shell",
     inputSchema: ShellRunScriptInputSchemaBase,
+    outputSchema: ShellRunScriptOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { script, language, timeout } =
+        const { script, scriptPath, language, dryRun, timeout } =
           ShellRunScriptInputSchema.parse(params);
         const config = getShellConfig();
 
@@ -282,10 +307,38 @@ export function createShellRunScriptTool(): ToolDefinition {
             });
         }
 
+        if (scriptPath) {
+          assertSafeIoPath(scriptPath, adapter.getAllowedIoRoots(), false);
+          try {
+            await fs.access(scriptPath);
+          } catch {
+            throw new MySQLMcpError(
+              `Script file not found: ${scriptPath}`,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION
+            );
+          }
+        }
+
+        if (dryRun) {
+          return withTokenEstimate({
+            success: true,
+            data: {
+              language,
+              exitCode: 0,
+              stdout: "Dry run successful",
+              stderr: "",
+            },
+          });
+        }
+
         let result;
-        // SQL scripts with comments or multi-line content break when passed via -e
-        // Use --file approach for SQL to properly handle all syntax
-        if (language === "sql") {
+        if (scriptPath) {
+          const args = ["--uri", config.connectionUri, langFlag, "--file", scriptPath];
+          result = await execMySQLShell(args, { timeout });
+        } else if (language === "sql") {
+          // SQL scripts with comments or multi-line content break when passed via -e
+          // Use --file approach for SQL to properly handle all syntax
           // Create a secure temp directory via mkdtemp (restrictive permissions,
           // unique path) to avoid CodeQL js/insecure-temporary-file alert.
           const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
@@ -311,18 +364,19 @@ export function createShellRunScriptTool(): ToolDefinition {
         }
 
         if (result.exitCode !== 0) {
-          return withTokenEstimate({
-            success: false,
-            error: result.stderr
+          throw new MySQLMcpError(
+            result.stderr
               ? result.stderr.trim()
               : `Script failed with exit code ${result.exitCode}`,
-            details: {
-              language,
-              exitCode: result.exitCode,
-              stdout: result.stdout,
-              stderr: result.stderr,
-            },
-          });
+            "QUERY_ERROR",
+            ErrorCategory.QUERY,
+            { details: {
+                language,
+                exitCode: result.exitCode,
+                stdout: result.stdout,
+                stderr: result.stderr,
+            } }
+          );
         }
 
         return withTokenEstimate({

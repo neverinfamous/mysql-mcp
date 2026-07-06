@@ -10,11 +10,17 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  SecurityAuditOutputSchema,
+  SecurityFirewallStatusOutputSchema,
+  SecurityFirewallRulesOutputSchema,
+} from "../../schemas/security.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 // =============================================================================
@@ -25,22 +31,68 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Zod Schemas
 // ============================================================================
 
-const AuditLogSchema = z.object({
-  limit: z.number().default(10).describe("Maximum number of records"),
+const AuditLogSchemaBase = z.object({
+  limit: z.number().optional().describe("Maximum number of records"),
+  count: z.number().optional().describe("Alias for limit"),
   user: z.string().optional().describe("Filter by username"),
+  userName: z.string().optional().describe("Alias for user"),
+  username: z.string().optional().describe("Alias for user"),
   eventType: z
     .string()
     .optional()
     .describe(
       'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME.',
     ),
+  event: z.string().optional().describe("Alias for eventType"),
   startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
+  time: z.string().optional().describe("Alias for startTime"),
 });
 
-const FirewallRulesSchema = z.object({
+const AuditLogSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const v = val as Record<string, unknown>;
+      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
+      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
+      if (v["userName"] !== undefined && v["user"] === undefined) v["user"] = v["userName"];
+      if (v["event"] !== undefined && v["eventType"] === undefined) v["eventType"] = v["event"];
+      if (v["time"] !== undefined && v["startTime"] === undefined) v["startTime"] = v["time"];
+    }
+    return val;
+  },
+  z.object({
+    limit: z.number().default(5),
+    user: z.string().optional(),
+    eventType: z.string().optional(),
+    startTime: z.string().optional(),
+  })
+);
+
+const FirewallRulesSchemaBase = z.object({
+  limit: z.number().optional().describe("Maximum number of records to return"),
+  count: z.number().optional().describe("Alias for limit"),
   user: z.string().optional().describe("Filter by username"),
-  mode: z.string().optional().describe("Filter by mode"),
+  userName: z.string().optional().describe("Alias for user"),
+  username: z.string().optional().describe("Alias for user"),
+  mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional().describe("Filter by mode"),
 });
+
+const FirewallRulesSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const v = val as Record<string, unknown>;
+      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
+      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
+      if (v["userName"] !== undefined && v["user"] === undefined) v["user"] = v["userName"];
+    }
+    return val;
+  },
+  z.object({
+    limit: z.number().default(50),
+    user: z.string().optional(),
+    mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
+  })
+);
 
 // =============================================================================
 // Tool Creation Functions
@@ -56,7 +108,8 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Query the MySQL audit log (requires Enterprise Audit or compatible plugin).",
     group: "security",
-    inputSchema: AuditLogSchema,
+    inputSchema: AuditLogSchemaBase,
+    outputSchema: SecurityAuditOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -64,6 +117,13 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { limit, user, eventType, startTime } =
           AuditLogSchema.parse(params);
+          
+        if (!user && !eventType && !startTime) {
+          return formatHandlerErrorResponse(
+            new ValidationError("At least one filter ('user', 'eventType', or 'startTime') is required.")
+          );
+        }
+        
         const checkResult = await adapter.executeQuery(`
                     SELECT TABLE_NAME
                     FROM information_schema.TABLES
@@ -75,12 +135,12 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           // Try performance_schema alternative
           let query = `
                         SELECT
-                            e.EVENT_NAME as event,
-                            e.OBJECT_TYPE as objectType,
-                            e.OBJECT_NAME as objectName,
-                            t.PROCESSLIST_USER as user,
-                            t.PROCESSLIST_HOST as host,
-                            e.TIMER_START as startTime
+                            e.EVENT_NAME AS event,
+                            e.OBJECT_TYPE AS objectType,
+                            e.OBJECT_NAME AS objectName,
+                            t.PROCESSLIST_USER AS user,
+                            t.PROCESSLIST_HOST AS host,
+                            e.TIMER_START AS startTime
                         FROM performance_schema.events_statements_history e
                         JOIN performance_schema.threads t
                           ON e.THREAD_ID = t.THREAD_ID
@@ -118,7 +178,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeQuery(query, []);
           const data: Record<string, unknown> = {
             source: "performance_schema",
-            message: "Using performance_schema as audit log is not available",
+            message: "Using performance_schema AS audit log is not available",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
@@ -176,7 +236,6 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         const stripped = stripErrorPrefix(msg);
         const lower = stripped.toLowerCase();
         if (
-          lower.includes("doesn't exist") ||
           lower.includes("does not exist") ||
           lower.includes("access denied")
         ) {
@@ -204,6 +263,7 @@ export function createSecurityFirewallStatusTool(
     description: "Get MySQL Enterprise Firewall plugin status.",
     group: "security",
     inputSchema: z.object({}),
+    outputSchema: SecurityFirewallStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -275,26 +335,34 @@ export function createSecurityFirewallRulesTool(
     title: "MySQL Firewall Rules",
     description: "List MySQL Enterprise Firewall allowlist rules.",
     group: "security",
-    inputSchema: FirewallRulesSchema,
+    inputSchema: FirewallRulesSchemaBase,
+    outputSchema: SecurityFirewallRulesOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { user, mode } = FirewallRulesSchema.parse(params);
+        const { limit, user, mode } = FirewallRulesSchema.parse(params);
 
-        const validModes = [
-          "RECORDING",
-          "PROTECTING",
-          "DETECTING",
-          "OFF",
-        ] as const;
-        if (mode && !validModes.includes(mode as (typeof validModes)[number])) {
-          return formatHandlerErrorResponse(
-            new Error(
-              `Invalid mode: '${mode}' — expected one of: ${validModes.join(", ")}`,
-            ),
-          );
+        // Check if firewall plugin is installed
+        const pluginResult = await adapter.executeQuery(`
+                    SELECT PLUGIN_NAME, PLUGIN_STATUS
+                    FROM information_schema.PLUGINS
+                    WHERE PLUGIN_NAME LIKE '%firewall%'
+                `);
+
+        if (!pluginResult.rows || pluginResult.rows.length === 0) {
+          return withTokenEstimate({
+            success: true,
+            data: {
+              users: [],
+              rules: [],
+              userCount: 0,
+              ruleCount: 0,
+              message: "MySQL Enterprise Firewall is not installed",
+            },
+          });
         }
+
         // Get firewall users
         let usersQuery = `
                     SELECT USERHOST, MODE
@@ -316,6 +384,9 @@ export function createSecurityFirewallRulesTool(
         if (conditions.length > 0) {
           usersQuery += " WHERE " + conditions.join(" AND ");
         }
+        
+        usersQuery += " LIMIT ?";
+        queryParams.push(limit);
 
         const usersResult = await adapter.executeQuery(usersQuery, queryParams);
 
@@ -325,13 +396,18 @@ export function createSecurityFirewallRulesTool(
                     FROM mysql.firewall_whitelist
                 `;
 
+        const rulesParams: unknown[] = [];
         if (user) {
           rulesQuery += " WHERE USERHOST LIKE ?";
+          rulesParams.push(`%${user}%`);
         }
+        
+        rulesQuery += " LIMIT ?";
+        rulesParams.push(limit);
 
         const rulesResult = await adapter.executeQuery(
           rulesQuery,
-          user ? [`%${user}%`] : [],
+          rulesParams,
         );
 
         return withTokenEstimate({

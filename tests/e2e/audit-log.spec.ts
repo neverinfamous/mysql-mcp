@@ -17,7 +17,7 @@
  * transaction tools (write scope) to generate audit entries.
  */
 
-import { readFile, rm, appendFile } from "node:fs/promises";
+import { readFile, appendFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { setTimeout as delay } from "node:timers/promises";
@@ -29,6 +29,7 @@ import {
   createClient,
   callToolRaw,
   callToolAndParse,
+  cleanupAuditFiles,
 } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
@@ -115,7 +116,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -152,7 +153,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -194,7 +195,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -226,7 +227,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -263,7 +264,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -294,7 +295,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -351,7 +352,7 @@ test.describe("Audit Log", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -385,7 +386,7 @@ test.describe("Audit Log", () => {
       // Wait generous amount for background flush to disk
       await delay(2000);
 
-      // Read via resource which is evaluated natively by AuditLogger
+      // Read via resource which is evaluated natively by AuditLogger (now powered by SystemDb)
       const resource = await client.readResource({ uri: "mysql://audit" });
       const text = (resource.contents[0] as { text: string }).text;
       const body = JSON.parse(text) as {
@@ -393,14 +394,22 @@ test.describe("Audit Log", () => {
         summary: Record<string, unknown>;
       };
 
-      // Corrupted line is ignored, valid previous line + new lines are read
+      // Since SystemDb is used for reads, it will only contain the new entry made after startup
+      // The manually appended text file entries are ignored by the SQLite read path
       const toolsRead = body.recent.map((e) => e.tool);
-      expect(toolsRead).toContain("mysql_transaction_rollback");
       expect(toolsRead).toContain("mysql_transaction_begin");
+      expect(toolsRead).not.toContain("mysql_transaction_rollback");
+
+      // Verify the raw text file still gracefully accepted the new append despite previous corruption
+      const rawFile = await readFile(logPath, "utf-8");
+      expect(rawFile).toContain("category\":\"wri"); // The corrupted line
+      expect(rawFile).toContain("mysql_transaction_rollback"); // The manual valid line
+      expect(rawFile).toContain("mysql_transaction_begin"); // The new valid line
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true });
+      await cleanupAuditFiles(logPath);
     }
   });
 });
+

@@ -3,7 +3,7 @@ import {
   createListStoredProceduresTool,
   createListFunctionsTool,
 } from "../routines.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -29,12 +29,12 @@ describe("Schema Routine Tools", () => {
       );
 
       const tool = createListStoredProceduresTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ schema: "testdb" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("information_schema.ROUTINES");
       expect(result).toBeDefined();
     });
@@ -43,7 +43,7 @@ describe("Schema Routine Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createListStoredProceduresTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { schema: "nonexistent_db" },
@@ -64,9 +64,9 @@ describe("Schema Routine Tools", () => {
       );
 
       const tool = createListFunctionsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = await tool.handler({}, mockContext);
+      const result = await tool.handler({ schema: "testdb" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
@@ -76,7 +76,7 @@ describe("Schema Routine Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createListFunctionsTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { schema: "nonexistent_db" },

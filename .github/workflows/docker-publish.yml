@@ -1,11 +1,18 @@
 name: Build and Push Docker Images
 
 on:
-  # Only run after lint-and-test completes successfully
-  workflow_run:
-    workflows: ["Lint and Test"]
-    types: [completed]
-    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      emergency_bypass:
+        description: 'Bypass upstream gatekeeper checks AND environment gates (EMERGENCY ONLY)'
+        type: boolean
+        required: true
+        default: false
+      bypass_reason:
+        description: 'Justification for bypassing upstream safety gates (required when emergency_bypass is true)'
+        required: false
+        default: ''
 
 env:
   REGISTRY: docker.io
@@ -13,30 +20,41 @@ env:
 
 permissions:
   contents: read
-  packages: write
-  security-events: write
-  pull-requests: write
-  id-token: write
-  attestations: write
 
 jobs:
   # Security scan BEFORE any images are pushed
   # This ensures no vulnerable images reach Docker Hub
   security-scan:
-    if: github.event.workflow_run.conclusion == 'success'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       security-events: write
 
     steps:
+      - name: Require emergency bypass acknowledgment
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          BYPASS_REASON: ${{ inputs.bypass_reason }}
+        run: |
+          if [ "${{ inputs.emergency_bypass }}" != "true" ]; then
+            echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
+            echo "To proceed, you must explicitly check the 'emergency_bypass' option."
+            exit 1
+          fi
+          if [ ${#BYPASS_REASON} -lt 10 ]; then
+            echo "❌ Error: Emergency bypass requires a justification reason of at least 10 characters."
+            exit 1
+          fi
+          echo "⚠️ Emergency Bypass Acknowledged"
+          echo "Justification: $BYPASS_REASON"
+
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.sha }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Build image for scanning (local only)
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
@@ -51,51 +69,17 @@ jobs:
           cache-to: type=gha,scope=linux/amd64,mode=max
 
       - name: Docker Scout security scan
+        uses: docker/scout-action@481412c8b8de36d0f79e85aa382c60397466feb6 # v1
         timeout-minutes: 10
+        with:
+          command: cves
+          image: local-scan:latest
+          only-fixed: true
+          only-severities: critical,high,medium,low
+          exit-code: true
         env:
           DOCKER_SCOUT_HUB_USER: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_SCOUT_HUB_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-        run: |
-          curl -sSfL https://raw.githubusercontent.com/docker/scout-cli/main/install.sh | sh -s --
-          docker images local-scan:latest
-          echo "🔍 Running Docker Scout security scan for local-scan:latest"
-
-          echo "⏱️ Running Docker Scout scan for ALL FIXABLE vulnerabilities..."
-
-          # Use --only-fixed to find CVEs that HAVE fixes available
-          # Scan all severities to catch medium/low CVEs that have available fixes
-          if timeout 480 docker scout cves local-scan:latest --only-fixed --only-severity critical,high,medium,low > scout_fixable.txt 2>&1; then
-            echo "📊 Scan completed"
-
-            # Check if any fixable CVEs were found at any severity
-            if grep -qE "(CRITICAL|HIGH|MEDIUM|LOW)" scout_fixable.txt 2>/dev/null; then
-              echo "❌ Fixable CVEs detected - blocking deploy"
-              cat scout_fixable.txt
-              echo ""
-              echo "🚨 Deploy blocked: These vulnerabilities have available fixes."
-              echo "   Update dependencies or Dockerfile to resolve."
-              exit 1
-            else
-              echo "✅ No fixable CVEs found"
-            fi
-          else
-            exit_code=$?
-            if [ $exit_code -eq 2 ]; then
-              # Exit code 2 means vulnerabilities found
-              echo "❌ Fixable CVEs detected by Docker Scout"
-              cat scout_fixable.txt
-              exit 1
-            elif [ $exit_code -eq 124 ]; then
-              echo "⚠️ Docker Scout scan timed out"
-              echo "🔄 Continuing build - scan timeout is not a security failure"
-            else
-              echo "❌ Docker Scout scan failed with exit code $exit_code"
-              cat scout_fixable.txt 2>/dev/null || true
-              exit 1
-            fi
-          fi
-
-          echo "✅ Docker Scout security gate passed"
 
       - name: Trivy security scan
         uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # v0.36.0
@@ -120,29 +104,29 @@ jobs:
 
       - name: Upload Trivy results to GitHub Security
         if: always()
-        uses: github/codeql-action/upload-sarif@68bde559dea0fdcac2102bfdf6230c5f70eb485e # v4.35.4
+        uses: github/codeql-action/upload-sarif@54f647b7e1bb85c95cddabcd46b0c578ec92bc1a # v4.36.3
         with:
           sarif_file: trivy-results.sarif
           category: trivy-docker-scan
 
   # Smoke test: verify the Docker image actually starts before pushing
-  # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/db-mcp#149)
+  # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/mysql-mcp#149)
   smoke-test:
     needs: [security-scan]
     if: ${{ needs.security-scan.result == 'success' }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.sha }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Build image for smoke test
         uses: docker/build-push-action@bcafcacb16a39f128d818304e6c9c0c18556b85f # v7.1.0
@@ -153,8 +137,8 @@ jobs:
           push: false
           load: true
           tags: smoke-test:latest
-          cache-from: type=gha,scope=smoke-test
-          cache-to: type=gha,scope=smoke-test,mode=max
+          cache-from: type=gha,scope=linux/amd64
+          cache-to: type=gha,scope=linux/amd64,mode=max
 
       - name: Smoke test — binary loads without crash
         run: |
@@ -188,13 +172,13 @@ jobs:
   # Build each platform on native architecture (only runs if security scan passes)
   build-platform:
     needs: [security-scan, smoke-test]
-    if: always() && needs.security-scan.result == 'success' && needs.smoke-test.result == 'success' && github.event_name != 'pull_request'
+    if: needs.smoke-test.result == 'success' && github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
         include:
           - platform: linux/amd64
-            runner: ubuntu-latest
+            runner: ubuntu-24.04
           - platform: linux/arm64
             runner: ubuntu-24.04-arm
 
@@ -205,20 +189,17 @@ jobs:
       id-token: write
       attestations: write
 
-    outputs:
-      version: ${{ steps.version.outputs.version }}
-
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.sha }}
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -267,7 +248,7 @@ jobs:
           touch "/tmp/digests/${digest#sha256:}"
 
       - name: Upload digest
-        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: digests-${{ matrix.platform == 'linux/amd64' && 'amd64' || 'arm64' }}
           path: /tmp/digests/*
@@ -276,9 +257,9 @@ jobs:
 
   # Merge platform images into multi-arch manifest
   merge-and-push:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [build-platform]
-    if: always() && needs.build-platform.result == 'success' && github.event_name != 'pull_request'
+    if: needs.build-platform.result == 'success' && github.event_name != 'pull_request'
     permissions:
       contents: read
       packages: write
@@ -287,14 +268,15 @@ jobs:
       deployments: write
 
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
+      # Evaluates to 'production' if tag push OR emergency bypass, otherwise '' (no environment gate)
+      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass) && 'production' || '' }}
       url: https://hub.docker.com/r/writenotenow/mysql-mcp
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
-          ref: ${{ github.event.workflow_run.head_sha }}
+          ref: ${{ github.sha }}
 
       - name: Download digests
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
@@ -304,10 +286,10 @@ jobs:
           merge-multiple: true
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@4d04d5d9486b7bd6fa91e7baf45bbb4f8b9deedd # v4
+        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
 
       - name: Log in to Docker Hub
-        uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 # v4
+        uses: docker/login-action@4907a6ddec9925e35a0a9e82d7399ccc52663121 # v4.1.0
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
@@ -330,8 +312,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ github.event.workflow_run.head_branch == 'main' }}
-            type=raw,value=latest,enable=${{ github.event.workflow_run.head_branch == 'main' }}
+            type=raw,value=v${{ steps.version.outputs.version }},enable=true
+            type=raw,value=latest,enable=true
             type=sha,prefix=sha-,format=short
 
       - name: Create and push manifest
@@ -346,19 +328,17 @@ jobs:
 
       # Update Docker Hub description
       - name: Update Docker Hub Description
-        if: github.ref == 'refs/heads/main'
         uses: peter-evans/dockerhub-description@1b9a80c056b620d92cedb9d9b5a223409c68ddfa # v5
-        continue-on-error: true
         timeout-minutes: 5
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "MySQL MCP- 224 Tools in 1 Code Mode with Pooling, HTTP/SSE, OAuth 2.1, Encryption & Audit/Token Log."
+          short-description: "MySQL MCP server with 241 tools, Code Mode, OAuth 2.1, HTTP/SSE, and Audit Logs."
 
       - name: Deployment Summary
-        if: github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/v')
         run: |
           echo "✅ Successfully published Docker images to production"
           echo "🐳 Registry: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"

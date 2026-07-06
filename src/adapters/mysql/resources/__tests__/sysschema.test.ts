@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createSysSchemaResource } from "../sysschema.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -77,22 +77,20 @@ describe("SysSchema Resource", () => {
 
   it("should handle null query results", async () => {
     mockAdapter.executeQuery.mockResolvedValueOnce(
-      createMockQueryResult(null as any),
+      createMockQueryResult(null ),
     ); // Users
-    mockAdapter.executeQuery.mockResolvedValueOnce(
-      createMockQueryResult(null as any),
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult(null ),
     ); // Statements
-    mockAdapter.executeQuery.mockResolvedValueOnce(
-      createMockQueryResult(null as any),
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult(null ),
     ); // Locks
 
     const resource = createSysSchemaResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://sysschema",
       mockContext,
-    )) as any;
+    );
 
     expect(result.topUsers).toEqual([]);
     expect(result.slowStatements).toEqual([]);

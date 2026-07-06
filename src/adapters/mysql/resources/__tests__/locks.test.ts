@@ -4,7 +4,7 @@ import {
   createMockQueryResult,
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { createLocksResource } from "../locks.js";
 
 describe("Locks Resource", () => {
@@ -44,10 +44,10 @@ describe("Locks Resource", () => {
     const resource = createLocksResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://locks",
       mockContext,
-    )) as any;
+    );
 
     expect(result.currentLockWaits).toBe(1);
     expect(result.lockWaits).toHaveLength(1);
@@ -64,10 +64,10 @@ describe("Locks Resource", () => {
     const resource = createLocksResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://locks",
       mockContext,
-    )) as any;
+    );
 
     expect(result).toHaveProperty("error");
     expect(result.currentLockWaits).toBe(0);
@@ -84,10 +84,10 @@ describe("Locks Resource", () => {
     const resource = createLocksResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://locks",
       mockContext,
-    )) as any;
+    );
 
     expect(result.currentLockWaits).toBe(0);
     expect(result.lockStatistics).toEqual({});
@@ -109,10 +109,10 @@ describe("Locks Resource", () => {
     const resource = createLocksResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://locks",
       mockContext,
-    )) as any;
+    );
 
     expect(result.lockStatistics).toEqual({
       valid_var: "789",
@@ -136,10 +136,10 @@ describe("Locks Resource", () => {
     const resource = createLocksResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://locks",
       mockContext,
-    )) as any;
+    );
 
     expect(result.currentLockWaits).toBe(0);
     expect(result.lockWaits).toEqual([]);

@@ -6,7 +6,7 @@
  */
 
 import { z } from "zod";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -15,22 +15,30 @@ import {
   createSandboxPool,
   getDefaultSandboxMode,
   type ISandboxPool,
-  type SandboxMode,
 } from "../../../../codemode/sandbox-factory.js";
 import { CodeModeSecurityManager } from "../../../../codemode/security.js";
 import { createMysqlApi } from "../../../../codemode/api/index.js";
-import type { ExecuteCodeOptions } from "../../../../codemode/types.js";
+import { logger } from "../../../../utils/logger.js";
 
 import { ErrorResponseFields } from "../../schemas/error-response-fields.js";
+import { preprocessExecuteCodeParams } from "../../schemas/preprocess-utils.js";
+import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
-// Schema for mysql_execute_code input
-export const ExecuteCodeSchema = z.object({
+export const ExecuteCodeSchemaBase = z.object({
   code: z
     .string()
     .optional()
     .describe(
-      "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations.",
+      "TypeScript/JavaScript code to execute. Use mysql.{group}.{method}() for database operations. Note: Pass code, not script, javascript, or query.",
     ),
+  script: z.string().optional().describe("Alias for code"),
+  query: z.string().optional().describe("Alias for code"),
+  sql: z.string().optional().describe("Alias for code"),
+  javascript: z.string().optional().describe("Alias for code"),
+  js: z.string().optional().describe("Alias for code"),
+  command: z.string().optional().describe("Alias for code"),
+  execute: z.string().optional().describe("Alias for code"),
+  eval: z.string().optional().describe("Alias for code"),
   timeout: z
     .number()
     .optional()
@@ -41,6 +49,17 @@ export const ExecuteCodeSchema = z.object({
     .describe("If true, restricts to read-only operations"),
 });
 
+export const ExecuteCodeSchema = z
+  .preprocess(preprocessExecuteCodeParams, ExecuteCodeSchemaBase)
+  .transform((data) => ({
+    code: data.code ?? "",
+    timeout: data.timeout,
+    readonly: data.readonly,
+  }))
+  .refine((data) => data.code !== "", {
+    message: "code (or alias like script/query) is required",
+  });
+
 // Schema for mysql_execute_code output
 export const ExecuteCodeOutputSchema = z
   .object({
@@ -50,6 +69,7 @@ export const ExecuteCodeOutputSchema = z
       .optional()
       .describe("Return value from the executed code"),
     error: z.string().optional().describe("Error message if execution failed"),
+    logs: z.array(z.string()).optional().describe("Captured console output from execution"),
     metrics: z
       .object({
         wallTimeMs: z
@@ -78,22 +98,23 @@ let securityManager: CodeModeSecurityManager | null = null;
 /**
  * Get isolation mode from environment variable
  */
-function getIsolationMode(): SandboxMode {
+function getIsolationMode(): string {
   const envMode = process.env["CODEMODE_ISOLATION"];
-  if (envMode === "worker") return "worker";
-  if (envMode === "vm") return "vm";
+  if (envMode && envMode !== "isolate") {
+    logger.warning(`Unsupported CODEMODE_ISOLATION=${envMode}. Using default 'isolate' mode.`, { module: "CODEMODE" as const });
+  }
   return getDefaultSandboxMode();
 }
 
 /**
  * Initialize Code Mode infrastructure
  */
-function ensureInitialized(): {
+async function ensureInitialized(): Promise<{
   pool: ISandboxPool;
   security: CodeModeSecurityManager;
-} {
+}> {
   sandboxPool ??= createSandboxPool(getIsolationMode());
-  sandboxPool.initialize();
+  await sandboxPool.initialize();
   securityManager ??= new CodeModeSecurityManager();
   return { pool: sandboxPool, security: securityManager };
 }
@@ -115,7 +136,7 @@ Available API groups:
 - mysql.fulltext: fulltextSearch, fulltextCreate, fulltextBoolean, fulltextExpand (5 methods)
 - mysql.performance: explain, explainAnalyze, slowQueries, bufferPoolStats, tableStats (8 methods)
 - mysql.optimization: indexRecommendation, queryRewrite, forceIndex, optimizerTrace (4 methods)
-- mysql.admin: optimizeTable, analyzeTable, checkTable, repairTable, flushTables, killQuery (6 methods)
+- mysql.admin: optimizeTable, analyzeTable, checkTable, repairTable, flushTables, killQuery, serverConfig, appendInsight, auditSearch (9 methods)
 - mysql.monitoring: showProcesslist, showStatus, showVariables, innodbStatus, poolStats (7 methods)
 - mysql.backup: createDump, exportTable, importData, restoreDump (4 methods)
 - mysql.replication: masterStatus, slaveStatus, binlogEvents, gtidStatus, replicationLag (5 methods)
@@ -142,19 +163,22 @@ for (const t of tables.tables) {
 return results;
 \`\`\``,
     group: "codemode",
-    inputSchema: ExecuteCodeSchema,
+    inputSchema: ExecuteCodeSchemaBase,
+    outputSchema: ExecuteCodeOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: false,
       destructiveHint: true,
       idempotentHint: false,
-      openWorldHint: false,
+      openWorldHint: true,
+      sensitiveHint: true,
     },
     handler: async (params: unknown, _context: RequestContext) => {
-      const { code, readonly } = params as ExecuteCodeOptions;
+      try {
+        const { code, readonly, timeout } = ExecuteCodeSchema.parse(params);
 
       // Initialize infrastructure
-      const { pool, security } = ensureInitialized();
+      const { pool, security } = await ensureInitialized();
 
       // Validate code
       const validation = security.validateCode(code);
@@ -162,22 +186,28 @@ return results;
         return {
           success: false,
           error: `Code validation failed: ${validation.errors.join("; ")}`,
+          code: "VALIDATION_ERROR",
+          category: "validation",
+          recoverable: false,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
 
       // Check rate limit
       const clientId = "default";
-      if (!security.checkRateLimit(clientId)) {
+      if (!(await security.checkRateLimit(clientId))) {
         return {
           success: false,
           error: "Rate limit exceeded. Please wait before executing more code.",
+          code: "RATE_LIMIT_ERROR",
+          category: "rate_limit",
+          recoverable: true,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
 
       // Create mysql API bindings (readonly filtering applied when readonly: true)
-      const mysqlApi = createMysqlApi(adapter, readonly);
+      const mysqlApi = createMysqlApi(adapter, readonly, _context);
       const bindings = mysqlApi.createSandboxBindings();
 
       // Validate bindings are populated
@@ -195,6 +225,9 @@ return results;
           success: false,
           error:
             "mysql.* API not available: no tool bindings were created. Ensure adapter.getToolDefinitions() returns valid tools.",
+          code: "INTERNAL_ERROR",
+          category: "internal",
+          recoverable: false,
           metrics: { wallTimeMs: 0, cpuTimeMs: 0, memoryUsedMb: 0 },
         };
       }
@@ -203,7 +236,7 @@ return results;
       const transactionsBefore = new Set(adapter.getActiveTransactionIds());
 
       // Execute in sandbox
-      const result = await pool.execute(code, bindings);
+      const result = await pool.execute(code, bindings, timeout);
 
       // Always cleanup orphaned transactions (uncommitted txns from any execution)
       const transactionsAfter = adapter.getActiveTransactionIds();
@@ -243,15 +276,18 @@ return results;
       const helpHint =
         "Tip: Use mysql.help() to list all groups, or mysql.core.help() for group-specific methods.";
 
-      // Include hint and enriched metrics in response
-      return {
-        ...result,
-        metrics:
-          result.metrics != null
-            ? { ...result.metrics, tokenEstimate }
-            : undefined,
-        hint: helpHint,
-      };
+        // Include hint and enriched metrics in response
+        return {
+          ...result,
+          metrics:
+            result.metrics != null
+              ? { ...result.metrics, tokenEstimate }
+              : undefined,
+          hint: helpHint,
+        };
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
     },
   };
 }

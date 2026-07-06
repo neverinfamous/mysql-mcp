@@ -1,29 +1,42 @@
 # mysql-mcp Test Server — Agent Testing Instructions
 
-> **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
+[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
+[![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-## Files
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
+
+> **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
+>
+> 🚀 **Core Features:** Our test suite rigorously validates the server's flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+
+## Navigate Core Files
 
 | File / Directory             | Purpose                                                                                                                                       | When to Read                                 |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | `test-tools.md`              | **Entry-point protocol** — connection details, testing rules, structured error patterns, Zod/P154/Split Schema verification, reporting format | Always read first                            |
 | `test-preflight.md`          | **Pre-flight check** — validates slim instructions, help resources, data resources, and tool-filter alignment in 5 steps                      | Before any test pass                         |
-| `test-tool-groups/`          | **Standard tests** — 26 self-contained per-group prompts for direct MCP tool call validation                                                  | When testing individual tool groups          |
-| `test-tool-groups-codemode/` | **Code Mode tests** — 26 per-group prompts for `mysql_execute_code` validation                                                                | When testing Code Mode parity                |
-| `test-advanced/`             | **Advanced stress tests** — 26 files for boundary values, state pollution, and payload monitoring (Code Mode only)                            | After group checklists pass                  |
-| `Tool-Reference.md`          | Complete 192-tool reference mapped to 25 groups                                                                                               | Reference                                    |
+| `test-tool-groups/`          | **Standard tests** — 57 self-contained modular prompts for direct MCP tool call validation                                                    | When testing individual tool groups          |
+| `test-codemode/`             | **Code Mode tests** — 53 self-contained modular prompts for `mysql_execute_code` validation                                                   | When testing Code Mode parity                |
+| `test-usability/`            | **Usability tests** — 89 prompts for hallucination fuzzing and UX validation via Code Mode                                                                     | When testing UX                              |
+| `test-advanced/`             | **Advanced stress tests** — 64 files for boundary values, state pollution, and payload monitoring (Code Mode only)                            | After group checklists pass                  |
+| `tool-reference.md`          | Complete 200+ tool reference mapped to groups                                                                                               | Reference                                    |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns          | When debugging source code or making changes |
-| `test-resources.md`          | Resource testing plan (18 `mysql://` resources)                                                                                               | When testing resources                       |
+| `test-resources.md`          | Resource testing plan (23 total resources)                                                                                               | When testing resources                       |
 | `test-resources.sql`         | Seed SQL for resource testing                                                                                                                 | Reference                                    |
 | `test-prompts-notes.md`      | Prompt testing plan                                                                                                                           | When testing prompts                         |
 | `test-prompts.sql`           | Seed SQL for prompt testing                                                                                                                   | Reference                                    |
-| `reset-database.ps1`         | Reset + re-seed `testdb`                                                                                                                      | When data is dirty                           |
+| `../scripts/reset-database.mjs`| Reset + re-seed `testdb`                                                                                          | When data is dirty                           |
 | `test-seed.sql`              | Primary seed SQL (DDL + DML) for all `test_*` tables                                                                                          | Reference only                               |
-| `blog_schema.sql`            | Standalone example schema (`blog_system` DB) — 7 tables, sample data, 8 annotated queries                                                     | Reference / cross-database testing           |
 | `sample.csv`, `sample.json`  | Fixtures for import/export testing                                                                                                            | Used by text/CSV tools                       |
-| `../scripts/test-*.mjs`      | Automated test scripts                                                                                                                        | Run after build                              |
+| `../scripts/test-*`            | Automated test scripts                                                                                                                        | Run after build                              |
 
-## Test Database Schema (Quick Reference)
+## Reference Test Database Schema
 
 | Table               | Rows | Key Columns                                       | JSON Columns        |
 | ------------------- | ---- | ------------------------------------------------- | ------------------- |
@@ -39,7 +52,7 @@
 | `test_documents`    | 10   | id, collection_name, doc, \_id (UUID)             | doc                 |
 | `test_partitioned`  | 26   | id, region, created_at                            | data                |
 
-## Conventions & Protocols
+## Follow Conventions and Protocols
 
 | Convention            | Rule                                                                                                 |
 | --------------------- | ---------------------------------------------------------------------------------------------------- |
@@ -51,7 +64,7 @@
 | Reporting             | ❌ Fail / ⚠️ Issue / 📦 Payload / ✅ Pass (inline only)                                              |
 | Cleanup               | Drop all `temp_*` / `stress_*` objects after testing                                                 |
 
-## Connection Details
+## Configure Connection Details
 
 | Property  | Value         |
 | --------- | ------------- |
@@ -62,13 +75,13 @@
 
 > Note: Use `docker ps` / `docker start mysql-final` if connection is refused. Ecosystem tools connect on alternate ports (cluster: 3307, router: 8443, proxysql: 6032). See `test-tools.md` for details.
 
-## Agent Workflow for Tests
+## Execute Agent Test Workflow
 
-1. Read `mysql://help` resource (via MCP — critical gotchas, aliases, Code Mode API) and relevant group help (`mysql://help/{group}`).
-2. Read `test-tools.md` for the entry-point protocol: Split Schema, Zod validation, P154, and structured error patterns.
-3. **Standard tests**: Read the relevant `test-tool-groups/test-tool-group-{name}.md` for direct MCP tool call validation.
-4. **Code Mode tests**: Read the relevant `test-tool-groups-codemode/test-tool-group-codemode-{name}.md` for `mysql_execute_code` validation.
-5. **Advanced tests**: After group checklists pass, read `test-advanced/test-tools-advanced-{name}.md` for stress testing.
+1. Read `mysql://help` resource and relevant group help. This covers gotchas, aliases, and APIs.
+2. Read `test-tools.md` for entry-point protocol details. This includes Split Schema, Zod validation, and structured errors.
+3. **Standard tests**: Read the relevant `test-tool-groups/` file. This validates direct MCP tool calls.
+4. **Code Mode tests**: Read the relevant `test-codemode/` file. This validates the `mysql_execute_code` tool.
+5. **Advanced tests**: Read `test-advanced/` files for stress testing. Only do this after group checklists pass.
 6. Execute the checklist items first (minimum bar), then freeform exploration.
 7. Clean up all `temp_*` / `stress_*` tables using `DROP TABLE IF EXISTS`.
-8. Report findings using ❌/⚠️/📦 format. Error paths MUST return enriched `ErrorResponse` (`{success: false, error, code, category, recoverable}`). Raw MCP errors = ❌.
+8. Report findings using ❌/⚠️/📦 format. Error paths MUST return enriched `ErrorResponse`. Raw MCP errors = ❌.

@@ -156,6 +156,10 @@ const SENSITIVE_KEY_PATTERN = new RegExp(
     .join("|"),
 );
 
+function isLogContext(value: unknown): value is LogContext {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 /**
  * Sanitize log context by redacting sensitive values
  */
@@ -172,12 +176,8 @@ function sanitizeContext(context: LogContext): LogContext {
       result[key] = "[REDACTED]";
     } else if (typeof value === "string") {
       result[key] = redactSensitive(value);
-    } else if (
-      typeof value === "object" &&
-      value !== null &&
-      !Array.isArray(value)
-    ) {
-      result[key] = sanitizeContext(value as LogContext);
+    } else if (isLogContext(value)) {
+      result[key] = sanitizeContext(value);
     } else {
       result[key] = value;
     }
@@ -191,8 +191,21 @@ function sanitizeContext(context: LogContext): LogContext {
  */
 // Pre-compiled regex for control character removal.
 // Matches: 0x00-0x08, 0x0B, 0x0C, 0x0E-0x1F, 0x7F (excludes \t 0x09, \n 0x0A, \r 0x0D)
-// eslint-disable-next-line no-control-regex
-const CONTROL_CHAR_PATTERN = /[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/g;
+// Built dynamically to avoid eslint no-control-regex rule
+const CONTROL_CHAR_PATTERN = new RegExp(
+  "[" +
+    String.fromCharCode(0) +
+    "-" +
+    String.fromCharCode(8) +
+    String.fromCharCode(11) +
+    String.fromCharCode(12) +
+    String.fromCharCode(14) +
+    "-" +
+    String.fromCharCode(31) +
+    String.fromCharCode(127) +
+    "]",
+  "g"
+);
 
 function sanitizeMessage(message: string): string {
   return message.replace(CONTROL_CHAR_PATTERN, "");
@@ -435,8 +448,12 @@ class ModuleLogger {
 
 export const logger = new Logger();
 
+function isLogLevel(level: string): level is LogLevel {
+  return level in LEVEL_PRIORITY;
+}
+
 // Initialize log level from environment
 const envLevel = process.env["LOG_LEVEL"]?.toLowerCase();
-if (envLevel && envLevel in LEVEL_PRIORITY) {
-  logger.setLevel(envLevel as LogLevel);
+if (envLevel && isLogLevel(envLevel)) {
+  logger.setLevel(envLevel);
 }

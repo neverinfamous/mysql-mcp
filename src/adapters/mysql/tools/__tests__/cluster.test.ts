@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getClusterTools } from "../cluster/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -19,7 +19,7 @@ describe("getClusterTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getClusterTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -68,7 +68,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getClusterTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getClusterTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -87,8 +87,8 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       // Returns enabled, groupName, members etc
-      expect((result as any).data).toHaveProperty("enabled");
-      expect((result as any).data).toHaveProperty("members");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("enabled");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("members");
     });
   });
 
@@ -109,10 +109,10 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string; // Second call is the query
+      const call = mockAdapter.executeQuery.mock.calls[1][0]; // Second call is the query
       expect(call).toContain("replication_group_members");
-      expect((result as any).data).toHaveProperty("members");
-      expect((result as any).data).toHaveProperty("count");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("members");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("count");
     });
 
     it("should accept memberId parameter", async () => {
@@ -156,8 +156,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect((result as any).data).toHaveProperty("primary");
-      expect((result as any).data).toHaveProperty("hasPrimary");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("primary");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("hasPrimary");
     });
   });
 
@@ -177,8 +177,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect((result as any).data).toHaveProperty("memberStats");
-      expect((result as any).data).toHaveProperty("gtid");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("memberStats");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("gtid");
     });
   });
 
@@ -198,9 +198,9 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect((result as any).data).toHaveProperty("configuration");
-      expect((result as any).data).toHaveProperty("memberQueues");
-      expect((result as any).data).toHaveProperty("isThrottling");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("configuration");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("memberQueues");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("isThrottling");
     });
   });
 
@@ -231,7 +231,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect((result as any).data).toHaveProperty("instances");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("instances");
     });
 
     it("should fallback to GR members if metadata query fails", async () => {
@@ -250,11 +250,11 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_cluster_instances")!;
       const result = await tool.handler({}, mockContext);
 
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "source",
         "group_replication",
       );
-      expect((result as any).data).toHaveProperty("instances");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("instances");
       // Two calls: 1. metadata query, 2. fallback query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
     });
@@ -272,8 +272,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect((result as any).data).toHaveProperty("topology");
-      expect((result as any).data).toHaveProperty("visualization");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("topology");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("visualization");
     });
 
     it("should visualize all member states correctly", async () => {
@@ -353,7 +353,11 @@ describe("Handler Execution", () => {
 
   describe("mysql_cluster_switchover", () => {
     it("should get switchover recommendation", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+        )
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -368,8 +372,8 @@ describe("Handler Execution", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      expect((result as any).data).toHaveProperty("candidates");
-      expect((result as any).data).toHaveProperty("canSwitchover");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("candidates");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("canSwitchover");
     });
 
     it("should categorize candidates by lag suitability", async () => {
@@ -377,7 +381,11 @@ describe("Handler Execution", () => {
       // uuid1: 0 queue (GOOD)
       // uuid2: 50 queue (ACCEPTABLE)
       // uuid3: 200 queue (NOT_RECOMMENDED)
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+        )
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",
@@ -436,7 +444,11 @@ describe("Handler Execution", () => {
     });
 
     it("should warn if all candidates are not recommended", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+        )
+        .mockResolvedValueOnce(
         createMockQueryResult([
           {
             memberId: "uuid1",

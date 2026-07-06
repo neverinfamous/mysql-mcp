@@ -6,12 +6,11 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  createIndexRecommendationTool,
   createQueryRewriteTool,
   createForceIndexTool,
   createOptimizerTraceTool,
 } from "../optimization.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -29,121 +28,17 @@ describe("Performance Optimization Tools", () => {
     mockContext = createMockRequestContext();
   });
 
-  describe("createIndexRecommendationTool", () => {
-    it("should create tool with correct definition", () => {
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-
-      expect(tool.name).toBe("mysql_index_recommendation");
-      expect(tool.group).toBe("optimization");
-      expect(tool.requiredScopes).toContain("read");
-    });
-
-    it("should recommend indexes for ID and foreign key columns", async () => {
-      const mockTableInfo = createMockTableInfo("orders");
-      mockTableInfo.columns = [
-        { name: "id", type: "int", nullable: false, primaryKey: true },
-        { name: "user_id", type: "int", nullable: false, primaryKey: false },
-        { name: "status", type: "varchar", nullable: false, primaryKey: false },
-        {
-          name: "created_at",
-          type: "datetime",
-          nullable: false,
-          primaryKey: false,
-        },
-      ];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-
-      // Return only primary key index
-      mockAdapter.getTableIndexes.mockResolvedValue([
-        {
-          name: "PRIMARY",
-          tableName: "orders",
-          columns: ["id"],
-          unique: true,
-          type: "BTREE",
-        },
-      ]);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        data: { recommendations: unknown[] };
-      };
-
-      expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
-      expect(result.data.recommendations).toHaveLength(3);
-
-      // Check specific recommendations
-      const recs = result.data.recommendations as {
-        column: string;
-        reason: string;
-      }[];
-      expect(recs.find((r) => r.column === "user_id")).toBeDefined(); // Foreign key pattern
-      expect(recs.find((r) => r.column === "status")).toBeDefined(); // Status column
-      expect(recs.find((r) => r.column === "created_at")).toBeDefined(); // Timestamp
-    });
-
-    it("should not recommend indexes for already indexed columns", async () => {
-      const mockTableInfo = createMockTableInfo("orders");
-      mockTableInfo.columns = [
-        { name: "user_id", type: "int", nullable: false, primaryKey: false },
-      ];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-
-      // user_id is already indexed
-      mockAdapter.getTableIndexes.mockResolvedValue([
-        {
-          name: "idx_user_id",
-          tableName: "orders",
-          columns: ["user_id"],
-          unique: false,
-          type: "BTREE",
-        },
-      ]);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "orders" }, mockContext)) as {
-        data: { recommendations: unknown[] };
-      };
-
-      expect(result.data.recommendations).toHaveLength(0);
-    });
-
-    it("should return structured error for nonexistent table", async () => {
-      const mockTableInfo = createMockTableInfo("ghost");
-      mockTableInfo.columns = [];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "ghost" }, mockContext)) as {
-        success: boolean;
-        error: string;
-      };
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Table 'ghost' does not exist");
-      expect(mockAdapter.getTableIndexes).not.toHaveBeenCalled();
-    });
-  });
-
   describe("createQueryRewriteTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_query_rewrite");
     });
 
     it("should suggest optimizations for SELECT *", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
@@ -157,7 +52,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should suggest optimizations for missing LIMIT", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT id FROM users" },
@@ -171,7 +66,7 @@ describe("Performance Optimization Tools", () => {
 
     it("should suggest optimizations for leading wildcard LIKE", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT id FROM users WHERE name LIKE '%Bob'" },
@@ -193,7 +88,7 @@ describe("Performance Optimization Tools", () => {
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
@@ -204,28 +99,28 @@ describe("Performance Optimization Tools", () => {
       expect(result.data.explainPlan).toBeDefined();
     });
 
-    it("should handle explain failure gracefully with explainError", async () => {
+    it("should return structured error on explain failure", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent" },
         mockContext,
-      )) as { data: { explainPlan: unknown; explainError: string } };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.explainPlan).toBeNull();
-      expect(result.data.explainError).toBe(
-        "Table 'testdb.nonexistent' doesn't exist",
+      expect(result.success).toBe(false);
+      expect(result.error).toContain(
+        "Table 'testdb.nonexistent' does not exist",
       );
     });
 
     it("should accept sql alias for query parameter", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { sql: "SELECT * FROM users" },
@@ -241,7 +136,7 @@ describe("Performance Optimization Tools", () => {
 
   describe("createForceIndexTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       expect(tool.name).toBe("mysql_force_index");
     });
 
@@ -249,6 +144,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "PRIMARY",
+    title: "PRIMARY",
           tableName: "users",
           columns: ["id"],
           unique: true,
@@ -256,7 +152,7 @@ describe("Performance Optimization Tools", () => {
         },
       ]);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -275,6 +171,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "idx_name",
+    title: "Idx Name",
           tableName: "users",
           columns: ["name"],
           unique: false,
@@ -282,7 +179,7 @@ describe("Performance Optimization Tools", () => {
         },
       ]);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -302,6 +199,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "PRIMARY",
+    title: "PRIMARY",
           tableName: "users",
           columns: ["id"],
           unique: true,
@@ -314,7 +212,7 @@ describe("Performance Optimization Tools", () => {
       ];
       mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -335,7 +233,7 @@ describe("Performance Optimization Tools", () => {
       mockTableInfo.columns = [];
       mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "ghost",
@@ -354,7 +252,7 @@ describe("Performance Optimization Tools", () => {
   describe("createOptimizerTraceTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_optimizer_trace");
     });
@@ -365,7 +263,7 @@ describe("Performance Optimization Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: "{}" }])); // The trace
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { query: "SELECT * FROM users", summary: false },
@@ -389,26 +287,25 @@ describe("Performance Optimization Tools", () => {
         'SET optimizer_trace="enabled=off"',
       );
 
-      expect((result as any).data).toHaveProperty("trace");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("trace");
     });
 
     it("should handle query execution failure gracefully", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
         { query: "SELECT * FROM nonexistent", summary: false },
         mockContext,
-      )) as { data: { query: string; trace: null }; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.query).toBe("SELECT * FROM nonexistent");
-      expect(result.data.trace).toBeNull();
-      expect(result.error).toBe("Table 'testdb.nonexistent' doesn't exist");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
 
       // Verify optimizer trace is still disabled
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -418,21 +315,20 @@ describe("Performance Optimization Tools", () => {
 
     it("should handle query failure gracefully in summary mode", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.ghost' doesn't exist"),
+        new Error("Table 'testdb.ghost' does not exist"),
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost", summary: true },
         mockContext,
-      )) as { data: { query: string; decisions: unknown[] }; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.query).toBe("SELECT * FROM ghost");
-      expect(result.data.decisions).toEqual([]);
-      expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
 
       // Verify optimizer trace is still disabled
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
@@ -443,22 +339,21 @@ describe("Performance Optimization Tools", () => {
     it("should strip adapter prefix from query execution error", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error(
-          "Query failed: Execute failed: Table 'testdb.ghost' doesn't exist",
+          "Query failed: Execute failed: Table 'testdb.ghost' does not exist",
         ),
       );
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost", summary: false },
         mockContext,
-      )) as { data: { query: string; trace: null }; error: string };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.query).toBe("SELECT * FROM ghost");
-      expect(result.data.trace).toBeNull();
-      expect(result.error).toBe("Table 'testdb.ghost' doesn't exist");
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("does not exist");
     });
 
     it("should accept sql alias for query parameter", async () => {
@@ -467,7 +362,7 @@ describe("Performance Optimization Tools", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ TRACE: "{}" }])); // The trace
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { sql: "SELECT * FROM users", summary: false },
@@ -478,7 +373,7 @@ describe("Performance Optimization Tools", () => {
         1,
         "SELECT * FROM users",
       );
-      expect((result as any).data).toHaveProperty("trace");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("trace");
     });
 
     it("should return structured error when trace fetch fails", async () => {
@@ -487,7 +382,7 @@ describe("Performance Optimization Tools", () => {
         .mockRejectedValueOnce(new Error("Access denied for OPTIMIZER_TRACE")); // The trace fetch fails
 
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM users" },
@@ -505,35 +400,6 @@ describe("Performance Optimization Tools", () => {
   });
 
   describe("alias support", () => {
-    it("mysql_index_recommendation should accept tableName alias", async () => {
-      const mockTableInfo = createMockTableInfo("orders");
-      mockTableInfo.columns = [
-        { name: "id", type: "int", nullable: false, primaryKey: true },
-      ];
-      mockAdapter.describeTable.mockResolvedValue(mockTableInfo);
-      mockAdapter.getTableIndexes.mockResolvedValue([
-        {
-          name: "PRIMARY",
-          tableName: "orders",
-          columns: ["id"],
-          unique: true,
-          type: "BTREE",
-        },
-      ]);
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler(
-        { tableName: "orders" },
-        mockContext,
-      )) as { data: { exists: boolean; table: string } };
-
-      expect(result.data.exists).toBe(true);
-      expect(result.data.table).toBe("orders");
-      expect(mockAdapter.describeTable).toHaveBeenCalledWith("orders");
-    });
-
     it("mysql_force_index should accept tableName alias", async () => {
       const mockTableInfo = createMockTableInfo("users");
       mockTableInfo.columns = [
@@ -543,6 +409,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([
         {
           name: "idx_name",
+    title: "Idx Name",
           tableName: "users",
           columns: ["name"],
           unique: false,
@@ -550,7 +417,7 @@ describe("Performance Optimization Tools", () => {
         },
       ]);
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           tableName: "users",
@@ -566,25 +433,10 @@ describe("Performance Optimization Tools", () => {
   });
 
   describe("try/catch error handling", () => {
-    it("mysql_index_recommendation should return structured error on adapter throw", async () => {
-      mockAdapter.describeTable.mockRejectedValue(new Error("Connection lost"));
-
-      const tool = createIndexRecommendationTool(
-        mockAdapter as unknown as MySQLAdapter,
-      );
-      const result = (await tool.handler({ table: "users" }, mockContext)) as {
-        success: boolean;
-        error: string;
-      };
-
-      expect(result.success).toBe(false);
-      expect(result.error).toBe("Connection lost");
-    });
-
     it("mysql_force_index should return structured error on adapter throw", async () => {
       mockAdapter.describeTable.mockRejectedValue(new Error("Connection lost"));
 
-      const tool = createForceIndexTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createForceIndexTool(mockAdapter);
       const result = (await tool.handler(
         {
           table: "users",
@@ -600,7 +452,7 @@ describe("Performance Optimization Tools", () => {
 
     it("mysql_query_rewrite should return structured error on parse failure", async () => {
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -613,7 +465,7 @@ describe("Performance Optimization Tools", () => {
 
     it("mysql_optimizer_trace should return structured error on missing query", async () => {
       const tool = createOptimizerTraceTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -628,24 +480,24 @@ describe("Performance Optimization Tools", () => {
       );
     });
 
-    it("mysql_query_rewrite should strip adapter prefix from explainError", async () => {
+    it("mysql_query_rewrite should strip adapter prefix from error", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
         new Error(
-          "Query failed: Execute failed: Table 'testdb.ghost' doesn't exist",
+          "Query failed: Execute failed: Table 'testdb.ghost' does not exist",
         ),
       );
 
       const tool = createQueryRewriteTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { query: "SELECT * FROM ghost" },
         mockContext,
-      )) as { data: { explainPlan: unknown; explainError: string } };
+      )) as { success: boolean; error: string };
 
-      expect(result.data.explainPlan).toBeNull();
-      expect(result.data.explainError).toBe(
-        "Table 'testdb.ghost' doesn't exist",
+      expect(result.success).toBe(false);
+      expect(result.error).toBe(
+        "Table 'testdb.ghost' does not exist",
       );
     });
   });

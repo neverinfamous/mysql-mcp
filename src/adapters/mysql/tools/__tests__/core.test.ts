@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getCoreTools } from "../core.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import { getCoreTools } from "../core/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -20,12 +20,12 @@ describe("getCoreTools", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    adapter = createMockMySQLAdapter() as unknown as MySQLAdapter;
+    adapter = createMockMySQLAdapter();
     tools = getCoreTools(adapter);
   });
 
-  it("should return 8 core tools", () => {
-    expect(tools).toHaveLength(8);
+  it("should return 12 core tools", () => {
+    expect(tools).toHaveLength(12);
   });
 
   it("should include all expected tool names", () => {
@@ -63,7 +63,7 @@ describe("Tool Annotations", () => {
   let tools: ReturnType<typeof getCoreTools>;
 
   beforeEach(() => {
-    tools = getCoreTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getCoreTools(createMockMySQLAdapter());
   });
 
   it("mysql_read_query should be read-only", () => {
@@ -101,7 +101,7 @@ describe("Required Scopes", () => {
   let tools: ReturnType<typeof getCoreTools>;
 
   beforeEach(() => {
-    tools = getCoreTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getCoreTools(createMockMySQLAdapter());
   });
 
   it("read_query should require read scope", () => {
@@ -130,7 +130,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getCoreTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getCoreTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -146,7 +146,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT * FROM users",
+        "SELECT * FROM users LIMIT 50",
         undefined,
         undefined,
       );
@@ -161,7 +161,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT * FROM users WHERE id = ?",
+        "SELECT * FROM users WHERE id = ? LIMIT 50",
         [1],
         undefined,
       );
@@ -175,7 +175,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-        "SELECT * FROM users",
+        "SELECT * FROM users LIMIT 50",
         undefined,
         "txn-123",
       );
@@ -183,7 +183,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_read_query")!;
@@ -194,7 +194,7 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("success", false);
       expect((result as Record<string, unknown>).error).toContain(
-        "doesn't exist",
+        "does not exist",
       );
     });
 
@@ -260,7 +260,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_write_query")!;
@@ -271,7 +271,7 @@ describe("Handler Execution", () => {
 
       expect(result).toHaveProperty("success", false);
       expect((result as Record<string, unknown>).error).toContain(
-        "doesn't exist",
+        "does not exist",
       );
     });
 
@@ -359,7 +359,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("tableName", "new_table");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("tableName", "new_table");
     });
 
     it("should handle column defaults correctly", async () => {
@@ -387,7 +387,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("CURRENT_TIMESTAMP");
     });
 
@@ -408,7 +408,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("IF NOT EXISTS");
     });
 
@@ -430,7 +430,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("UNIQUE");
     });
 
@@ -447,10 +447,10 @@ describe("Handler Execution", () => {
       );
 
       // First call should be USE statement
-      const useCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const useCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(useCall).toBe("USE `db`");
       // Second call should be CREATE TABLE
-      const sqlCall = mockAdapter.executeQuery.mock.calls[1]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[1]?.[0];
       expect(sqlCall).toContain("`db`.`table`");
       expect(result).toHaveProperty("success", true);
     });
@@ -510,8 +510,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("skipped", true);
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "reason",
         "Table already exists",
       );
@@ -528,7 +528,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ table: "old_table" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("DROP TABLE");
       expect(result).toHaveProperty("success", true);
     });
@@ -539,7 +539,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_drop_table")!;
       await tool.handler({ table: "old_table", ifExists: true }, mockContext);
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("IF EXISTS");
     });
 
@@ -559,7 +559,7 @@ describe("Handler Execution", () => {
 
       await tool.handler({ table: "db.table" }, mockContext);
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("DROP TABLE `db`.`table`");
     });
 
@@ -592,8 +592,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("skipped", true);
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "reason",
         "Table did not exist",
       );
@@ -632,7 +632,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "indexName",
         "idx_users_email",
       );
@@ -653,7 +653,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("UNIQUE");
     });
 
@@ -678,7 +678,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect((result as any).data).toHaveProperty("skipped", true);
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
 
@@ -730,7 +730,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0] as string;
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("ON `db`.`table`");
     });
 
@@ -750,9 +750,9 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect((result as any).data).toHaveProperty("warning");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("warning");
       expect(
-        ((result as any).data as Record<string, unknown>).warning,
+        (Reflect.get(result || {}, "data") as Record<string, unknown>).warning,
       ).toContain("MEMORY");
     });
 
@@ -780,7 +780,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error when table does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
@@ -820,7 +820,7 @@ describe("Handler Execution", () => {
 
     it("should return column-specific error for invalid column names", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Key column 'nonexistent_col' doesn't exist in table"),
+        new Error("Key column 'nonexistent_col' does not exist in table"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
@@ -905,7 +905,7 @@ describe("Handler Execution", () => {
       );
       const sqlCall = mockAdapter.executeQuery.mock.calls[
         mockAdapter.executeQuery.mock.calls.length - 1
-      ][0] as string;
+      ][0];
       expect(sqlCall).toContain("DEFAULT 1");
     });
 
@@ -928,7 +928,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(true);
-      expect((result as any).data.skipped).toBe(true);
+      expect(Reflect.get(result || {}, "data").skipped).toBe(true);
     });
 
     it("mysql_drop_table should format error on unknown table", async () => {
@@ -1001,12 +1001,12 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(true);
-      expect((result as any).data.skipped).toBe(true);
+      expect(Reflect.get(result || {}, "data").skipped).toBe(true);
     });
 
     it("mysql_create_index should return error for Key column doesnt exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Key column 'nonexistent' doesn't exist in table"),
+        new Error("Key column 'nonexistent' does not exist in table"),
       );
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
       const result = await tool.handler(
@@ -1021,7 +1021,7 @@ describe("Handler Execution", () => {
 
     it("mysql_create_index should return error for Key column doesnt exist no regex", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Key column doesn't exist"),
+        new Error("Key column does not exist"),
       );
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
       const result = await tool.handler(

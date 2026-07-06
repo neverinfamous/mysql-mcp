@@ -5,7 +5,7 @@
  * 20 tools total (5 descriptive + 3 comparative + 6 window + 2 analytical + 4 advanced).
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules
@@ -15,13 +15,13 @@ import {
   createDistributionTool,
   createTimeSeriesToolStats,
   createSamplingTool,
-} from "./descriptive.js";
+} from "./descriptive/index.js";
 
 import {
   createCorrelationTool,
   createRegressionTool,
   createHistogramTool,
-} from "./comparative.js";
+} from "./comparative/index.js";
 
 import {
   createStatsRowNumberTool,
@@ -30,7 +30,7 @@ import {
   createStatsRunningTotalTool,
   createStatsMovingAvgTool,
   createStatsNtileTool,
-} from "./window.js";
+} from "./window/index.js";
 
 import { createStatsHypothesisTool } from "./hypothesis.js";
 import { createStatsOutliersTool } from "./outlier.js";

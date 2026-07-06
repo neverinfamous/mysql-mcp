@@ -4,7 +4,7 @@
  * AI-powered prompts for query building, schema design, and optimization.
  * 19 prompts total.
  */
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type {
   PromptDefinition,
   RequestContext,
@@ -93,6 +93,11 @@ export function getMySQLPrompts(adapter: MySQLAdapter): PromptDefinition[] {
 // Core Prompts (inline for simplicity)
 // =============================================================================
 
+export function getSkillDirective(): string {
+  const skillPath = process.env["MYSQL_SKILL_PATH"] || "C:\\Users\\chris\\Desktop\\adamic\\skills\\mysql\\SKILL.md";
+  return `\n\n> **CRITICAL**: Before proceeding, you MUST read the MySQL production standards skill file located at: \`${skillPath}\`. Adhere strictly to its rules for query safety, connection pooling, and schema configurations.`;
+}
+
 function createQueryBuilderPrompt(): PromptDefinition {
   return {
     name: "mysql_query_builder",
@@ -130,7 +135,7 @@ Use MySQL best practices:
 - Use prepared statement placeholders (?)
 - Include appropriate WHERE clauses
 - Consider using LIMIT for large result sets
-`);
+${getSkillDirective()}`);
     },
   };
 }
@@ -271,7 +276,7 @@ Provide a CREATE TABLE statement with:
 Follow these conventions: underscore_case columns, created_at/updated_at timestamps, UNSIGNED for positive integers, JSON columns where appropriate.
 
 Briefly explain key design decisions.
-`);
+${getSkillDirective()}`);
     },
   };
 }
@@ -322,7 +327,7 @@ Use these MySQL tools to analyze:
 - mysql_explain_analyze for actual timing
 - mysql_index_usage to check index utilization
 - mysql_table_stats for data volume
-`);
+${getSkillDirective()}`);
     },
   };
 }
@@ -370,7 +375,7 @@ Best practices:
 - Backup before migration
 - Run during low-traffic periods
 - Monitor for lock contention
-`);
+${getSkillDirective()}`);
     },
   };
 }

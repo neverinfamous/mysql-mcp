@@ -10,11 +10,11 @@ export {
   createServer,
   DEFAULT_CONFIG,
   parseMySQLConnectionString,
-} from "./server/mcp-server.js";
+} from "./server/mcp-server/index.js";
 
 // Adapters
-export { DatabaseAdapter } from "./adapters/database-adapter.js";
-export { MySQLAdapter } from "./adapters/mysql/mysql-adapter.js";
+export { DatabaseAdapter } from "./adapters/database-adapter/index.js";
+export { MySQLAdapter } from "./adapters/mysql/mysql-adapter/index.js";
 
 // Pool
 export { ConnectionPool } from "./pool/connection-pool.js";
@@ -83,4 +83,4 @@ export {
 export { logger } from "./utils/logger.js";
 
 // Version
-export { VERSION } from "./utils/version.js";
+export { VERSION } from "./version.js";

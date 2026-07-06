@@ -5,12 +5,16 @@
  * 2 tools total.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { ValidationError } from "../../../../types/index.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import {
   checkSchemaExists,
   checkTableExists,
@@ -23,6 +27,8 @@ import {
   ConstraintAnalysisSchema,
   MigrationRisksSchemaBase,
   MigrationRisksSchema,
+  ConstraintAnalysisOutputSchema,
+  MigrationRisksOutputSchema,
 } from "../../schemas/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -35,14 +41,20 @@ export function createConstraintAnalysisTool(
 ): ToolDefinition {
   return {
     name: "mysql_constraint_analysis",
+    title: "Constraint Analysis",
     description:
       "Analyze all constraints for issues: missing NOT NULL, missing primary keys.",
     group: "introspection",
     inputSchema: ConstraintAnalysisSchemaBase,
+    outputSchema: ConstraintAnalysisOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = ConstraintAnalysisSchema.parse(params);
+
+        if (!parsed.schema && !parsed.table) {
+          throw new ValidationError("schema or table parameter is required");
+        }
 
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
@@ -96,8 +108,8 @@ export function createConstraintAnalysisTool(
               type: "missing_pk",
               severity: "error",
               table: qualifiedName(
-                row["schema_name"] as string,
-                row["table_name"] as string,
+                typeof row["schema_name"] === "string" ? row["schema_name"] : "",
+                typeof row["table_name"] === "string" ? row["table_name"] : "",
               ),
               description: "Table has no primary key",
               suggestion:
@@ -181,11 +193,11 @@ export function createConstraintAnalysisTool(
               type: "missing_not_null",
               severity: "info",
               table: qualifiedName(
-                row["schema_name"] as string,
-                row["table_name"] as string,
+                typeof row["schema_name"] === "string" ? row["schema_name"] : "",
+                typeof row["table_name"] === "string" ? row["table_name"] : "",
               ),
-              description: `Column '${row["column_name"] as string}' (${row["type"] as string}) is nullable but commonly expected to be NOT NULL`,
-              suggestion: `ALTER TABLE ${qualifiedName(row["schema_name"] as string, row["table_name"] as string)} MODIFY COLUMN \`${row["column_name"] as string}\` ${row["type"] as string} NOT NULL`,
+              description: `Column '${typeof row["column_name"] === "string" ? row["column_name"] : ""}' (${typeof row["type"] === "string" ? row["type"] : ""}) is nullable but commonly expected to be NOT NULL`,
+              suggestion: `ALTER TABLE ${qualifiedName(typeof row["schema_name"] === "string" ? row["schema_name"] : "", typeof row["table_name"] === "string" ? row["table_name"] : "")} MODIFY COLUMN \`${typeof row["column_name"] === "string" ? row["column_name"] : ""}\` ${typeof row["type"] === "string" ? row["type"] : ""} NOT NULL`,
             });
           }
         }
@@ -209,7 +221,7 @@ export function createConstraintAnalysisTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }
@@ -365,14 +377,23 @@ export function createMigrationRisksTool(
 ): ToolDefinition {
   return {
     name: "mysql_migration_risks",
+    title: "Migration Risks",
     description:
       "Analyze proposed DDL statements for risks: data loss, lock contention, constraint violations, and breaking changes. Pre-flight check before executing migrations.",
     group: "introspection",
     inputSchema: MigrationRisksSchemaBase,
+    outputSchema: MigrationRisksOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const parsed = MigrationRisksSchema.parse(params);
+        const parsed = MigrationRisksSchema.parse(params) as {
+          statements: string[];
+          schema?: string;
+        };
+
+        if (parsed.statements.length === 0) {
+          throw new ValidationError("statements parameter is required");
+        }
 
         if (parsed.schema) {
           await checkSchemaExists(adapter, parsed.schema);
@@ -434,7 +455,7 @@ export function createMigrationRisksTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

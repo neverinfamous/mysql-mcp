@@ -5,16 +5,21 @@
  * 1 tool total.
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
+import { ValidationError } from "../../../../types/index.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
 import { checkSchemaExists } from "./helpers.js";
 import {
   SchemaSnapshotSchemaBase,
   SchemaSnapshotSchema,
+  SchemaSnapshotOutputSchema,
 } from "../../schemas/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -27,14 +32,20 @@ export function createSchemaSnapshotTool(
 ): ToolDefinition {
   return {
     name: "mysql_schema_snapshot",
+    title: "Schema Snapshot",
     description:
       "Get a complete schema snapshot in a single agent-optimized JSON structure. Includes tables, columns, constraints, indexes, views, routines, and triggers.",
     group: "introspection",
     inputSchema: SchemaSnapshotSchemaBase,
+    outputSchema: SchemaSnapshotOutputSchema,
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = SchemaSnapshotSchema.parse(params);
+
+        if (!parsed.schema) {
+          throw new ValidationError("schema parameter is required");
+        }
 
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
@@ -207,7 +218,17 @@ export function createSchemaSnapshotTool(
             }
             return obj;
           };
-          return rows.map((r) => clean(r) as Record<string, unknown>);
+          return rows.map((r) => {
+            const cleaned = clean(r);
+            if (cleaned !== null && typeof cleaned === "object" && !Array.isArray(cleaned)) {
+              const result: Record<string, unknown> = {};
+              for (const [k, v] of Object.entries(cleaned)) {
+                result[k] = v;
+              }
+              return result;
+            }
+            return {};
+          });
         };
 
         // If not compact mode, query columns and append them to tables
@@ -225,7 +246,7 @@ export function createSchemaSnapshotTool(
           );
 
           for (const row of colsResult.rows ?? []) {
-            const key = `${row["TABLE_SCHEMA"] as string}.${row["TABLE_NAME"] as string}`;
+            const key = `${typeof row["TABLE_SCHEMA"] === "string" ? row["TABLE_SCHEMA"] : ""}.${typeof row["TABLE_NAME"] === "string" ? row["TABLE_NAME"] : ""}`;
             if (!columnsMap.has(key)) columnsMap.set(key, []);
             columnsMap.get(key)?.push({
               name: row["COLUMN_NAME"],
@@ -237,7 +258,7 @@ export function createSchemaSnapshotTool(
           }
 
           for (const row of tablesResult.rows) {
-            const key = `${row["schema_name"] as string}.${row["name"] as string}`;
+            const key = `${typeof row["schema_name"] === "string" ? row["schema_name"] : ""}.${typeof row["name"] === "string" ? row["name"] : ""}`;
             if (columnsMap.has(key)) {
               row["columns"] = columnsMap.get(key);
             }
@@ -290,7 +311,7 @@ export function createSchemaSnapshotTool(
             : undefined;
 
         const data = {
-          ...(Object.keys(snapshot).length > 0 ? { snapshot } : {}),
+          ...snapshot,
           ...(Object.keys(finalStats).length > 0 ? { stats: finalStats } : {}),
           ...(finalHint ? { hint: finalHint } : {}),
           generatedAt: new Date().toISOString(),
@@ -298,7 +319,7 @@ export function createSchemaSnapshotTool(
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(data), "utf8") / 4,
         );
-        return { success: true, data, metrics: { tokenEstimate } };
+        return withTokenEstimate({ success: true, data, metrics: { tokenEstimate } });
       } catch (error: unknown) {
         return formatHandlerErrorResponse(error);
       }

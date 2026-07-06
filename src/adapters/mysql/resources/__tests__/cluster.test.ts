@@ -4,7 +4,7 @@ import {
   createMockQueryResult,
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { createClusterResource } from "../cluster.js";
 
 describe("Cluster Resource", () => {
@@ -58,10 +58,10 @@ describe("Cluster Resource", () => {
     const resource = createClusterResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://cluster",
       mockContext,
-    )) as any;
+    );
 
     expect(result.groupReplicationEnabled).toBe(true);
     expect(result.groupName).toBe("aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee");
@@ -80,10 +80,10 @@ describe("Cluster Resource", () => {
     const resource = createClusterResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://cluster",
       mockContext,
-    )) as any;
+    );
 
     expect(result.groupReplicationEnabled).toBe(false);
     expect(result.message).toContain("not configured");
@@ -96,25 +96,25 @@ describe("Cluster Resource", () => {
     const resource = createClusterResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://cluster",
       mockContext,
-    )) as any;
+    );
 
     expect(result.groupReplicationEnabled).toBe(false);
   });
 
   it("should handle undefined rows gracefully", async () => {
     // Mock empty result with undefined rows
-    mockAdapter.executeQuery.mockResolvedValueOnce({} as any);
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
     const resource = createClusterResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://cluster",
       mockContext,
-    )) as any;
+    );
 
     expect(result.groupReplicationEnabled).toBe(false);
   });
@@ -138,10 +138,10 @@ describe("Cluster Resource", () => {
     const resource = createClusterResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://cluster",
       mockContext,
-    )) as any;
+    );
 
     expect(result.groupReplicationEnabled).toBe(true);
     expect(result.primary).toBeNull();
@@ -153,10 +153,10 @@ describe("Cluster Resource", () => {
     const resource = createClusterResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://cluster",
       mockContext,
-    )) as any;
+    );
 
     expect(result.groupReplicationEnabled).toBe(false);
     expect(result.message).toContain("Unable to retrieve");

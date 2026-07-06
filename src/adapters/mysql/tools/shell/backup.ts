@@ -10,34 +10,48 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  ValidationError,
+  MySQLMcpError,
+  ErrorCategory,
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../types/index.js";
+import { assertSafeIoPath } from "../../../../utils/security-utils.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   ShellDumpInstanceInputSchema,
+  ShellDumpInstanceInputSchemaBase,
   ShellDumpSchemasInputSchema,
   ShellDumpSchemasInputSchemaBase,
   ShellDumpTablesInputSchema,
   ShellDumpTablesInputSchemaBase,
-} from "../../schemas/shell.js";
+  ShellDumpInstanceOutputSchema,
+  ShellDumpSchemasOutputSchema,
+  ShellDumpTablesOutputSchema,
+} from "../../schemas/shell/index.js";
 import { escapeForJS, execShellJS } from "./common.js";
 
 /**
  * Dump entire MySQL instance
  */
-export function createShellDumpInstanceTool(): ToolDefinition {
+export function createShellDumpInstanceTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_dump_instance",
     title: "MySQL Shell Dump Instance",
     description:
       "Dump entire MySQL instance using util.dumpInstance(). Creates a compressed, parallel dump of all schemas (excluding system schemas). Ideal for full backups and migrations.",
     group: "shell",
-    inputSchema: ShellDumpInstanceInputSchema,
+    inputSchema: ShellDumpInstanceInputSchemaBase,
+    outputSchema: ShellDumpInstanceOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -55,11 +69,13 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: outputDir or outputUrl is required",
-          });
+          throw new ValidationError("outputDir or outputUrl is required");
         }
+
+        if (!dryRun) {
+          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        }
+
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -110,20 +126,30 @@ export function createShellDumpInstanceTool(): ToolDefinition {
           errorMessage.includes("privilege") ||
           errorMessage.includes("Access denied")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            suggestion:
-              "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed due to missing privileges: ${errorMessage}.`,
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              {
+                suggestion:
+                  "Instance dumps require broad privileges (SELECT, RELOAD, REPLICATION CLIENT, etc.). Use mysqlsh_dump_schemas or mysqlsh_dump_tables for more targeted dumps with fewer privilege requirements.",
+              }
+            )
+          );
         }
         if (errorMessage.includes("Fatal error during dump")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Dump failed: ${errorMessage}.`,
-            suggestion:
-              "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed: ${errorMessage}.`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY,
+              {
+                suggestion:
+                  "This may be caused by missing privileges. Use mysqlsh_dump_schemas with ddlOnly: true or mysqlsh_dump_tables with all: false for fewer privilege requirements.",
+              }
+            )
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -134,7 +160,9 @@ export function createShellDumpInstanceTool(): ToolDefinition {
 /**
  * Dump selected schemas
  */
-export function createShellDumpSchemasTool(): ToolDefinition {
+export function createShellDumpSchemasTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_dump_schemas",
     title: "MySQL Shell Dump Schemas",
@@ -142,10 +170,13 @@ export function createShellDumpSchemasTool(): ToolDefinition {
       "Dump selected schemas using util.dumpSchemas(). Creates a compressed, parallel dump of specified schemas. Use for partial backups.",
     group: "shell",
     inputSchema: ShellDumpSchemasInputSchemaBase,
+    outputSchema: ShellDumpSchemasOutputSchema,
     requiredScopes: ["admin"],
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -162,19 +193,18 @@ export function createShellDumpSchemasTool(): ToolDefinition {
         } = ShellDumpSchemasInputSchema.parse(params);
 
         if (schemas.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "At least one schema name is required",
-          });
+          throw new ValidationError("At least one schema name is required");
         }
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: outputDir or outputUrl is required",
-          });
+          throw new ValidationError("outputDir or outputUrl is required");
         }
+
+        if (!dryRun) {
+          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        }
+
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -227,12 +257,16 @@ export function createShellDumpSchemasTool(): ToolDefinition {
           errorMessage.includes("TRIGGER") ||
           errorMessage.includes("privilege")
         ) {
-          return withTokenEstimate({
-            success: false,
-            error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            suggestion:
-              "Set ddlOnly: true to skip events, triggers, and routines.",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed due to missing privileges: ${errorMessage}.`,
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              {
+                suggestion: "Set ddlOnly: true to skip events, triggers, and routines.",
+              }
+            )
+          );
         }
         return formatHandlerErrorResponse(error);
       }
@@ -243,7 +277,9 @@ export function createShellDumpSchemasTool(): ToolDefinition {
 /**
  * Dump specific tables
  */
-export function createShellDumpTablesTool(): ToolDefinition {
+export function createShellDumpTablesTool(
+  adapter: MySQLAdapter,
+): ToolDefinition {
   return {
     name: "mysqlsh_dump_tables",
     title: "MySQL Shell Dump Tables",
@@ -251,10 +287,13 @@ export function createShellDumpTablesTool(): ToolDefinition {
       "Dump specific tables using util.dumpTables(). Creates a compressed, parallel dump of specified tables from a schema.",
     group: "shell",
     inputSchema: ShellDumpTablesInputSchemaBase,
+    outputSchema: ShellDumpTablesOutputSchema,
     requiredScopes: ["read"],
     annotations: {
       readOnlyHint: true,
       openWorldHint: true,
+      destructiveHint: false,
+      sensitiveHint: false,
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
@@ -271,19 +310,18 @@ export function createShellDumpTablesTool(): ToolDefinition {
         } = ShellDumpTablesInputSchema.parse(params);
 
         if (tables.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "At least one table name is required",
-          });
+          throw new ValidationError("At least one table name is required");
         }
 
         const finalOutputDir = outputDir ?? outputUrl;
         if (!finalOutputDir) {
-          return withTokenEstimate({
-            success: false,
-            error: "Validation error: outputDir or outputUrl is required",
-          });
+          throw new ValidationError("outputDir or outputUrl is required");
         }
+
+        if (!dryRun) {
+          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
+        }
+
         const resolvedPath = path.resolve(finalOutputDir);
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
@@ -297,7 +335,7 @@ export function createShellDumpTablesTool(): ToolDefinition {
         if (dryRun) {
           options.push("dryRun: true");
         }
-        if (where && Object.keys(where).length > 0) {
+        if (where !== undefined && Object.keys(where).length > 0) {
           const whereEntries = Object.entries(where)
             .map(
               ([tbl, cond]) => `"${escapeForJS(tbl)}": "${escapeForJS(cond)}"`,
@@ -344,26 +382,35 @@ export function createShellDumpTablesTool(): ToolDefinition {
           const privilegeMatch = privilegeRegex.exec(errorMessage);
           const specificPrivilege = privilegeMatch ? privilegeMatch[1] : null;
 
-          return withTokenEstimate({
-            success: false,
-            error: `Dump failed due to missing privileges: ${errorMessage}.`,
-            suggestion:
-              specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
-                ? `Set all: false to skip ${specificPrivilege.toLowerCase()}s.`
-                : "Set all: false to skip metadata that requires extra privileges.",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed due to missing privileges: ${errorMessage}.`,
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              {
+                suggestion:
+                  specificPrivilege === "EVENT" || specificPrivilege === "TRIGGER"
+                    ? `Set all: false to skip ${specificPrivilege.toLowerCase()}s.`
+                    : "Set all: false to skip metadata that requires extra privileges.",
+              }
+            )
+          );
         }
 
         // Generic fatal error - provide actionable guidance
         if (errorMessage.includes("Fatal error during dump")) {
-          return withTokenEstimate({
-            success: false,
-            error: errorMessage.includes("Writing schema metadata")
-              ? `Dump failed while writing schema metadata: ${errorMessage}.`
-              : `Dump failed: ${errorMessage}.`,
-            suggestion:
-              "Set all: false to skip metadata that requires extra privileges.",
-          });
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage.includes("Writing schema metadata")
+                ? `Dump failed while writing schema metadata: ${errorMessage}.`
+                : `Dump failed: ${errorMessage}.`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY,
+              {
+                suggestion: "Set all: false to skip metadata that requires extra privileges.",
+              }
+            )
+          );
         }
 
         return formatHandlerErrorResponse(error);

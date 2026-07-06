@@ -7,7 +7,6 @@
 import type { DatabaseConfig } from "./database.js";
 import type { OAuthConfig } from "./oauth.js";
 import type { AuditConfig } from "../../audit/types.js";
-import type { InstructionLevel } from "./tools.js";
 
 /**
  * Transport type for MCP communication
@@ -50,12 +49,15 @@ export interface McpServerConfig {
   /** Trust X-Forwarded-For header for client IP (behind reverse proxy) */
   trustProxy?: boolean;
 
+  /** Enable prometheus metrics export */
+  metricsExport?: "prometheus" | boolean;
+
   /** Tool filtering configuration */
   toolFilter?: string;
 
-  /** Level of detail for generated instructions */
-  instructionLevel?: InstructionLevel;
-
   /** Audit logging and snapshot configuration */
   auditConfig?: AuditConfig;
+
+  /** Allowed file paths for import/export and backup operations */
+  allowedIoRoots?: string[];
 }

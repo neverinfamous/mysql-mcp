@@ -56,14 +56,14 @@ export class TokenValidator {
       // Extract claims
       const claims: TokenClaims = {
         sub: payload.sub ?? "",
-        scopes: parseScopes(payload["scope"] as string | undefined),
+        scopes: parseScopes(typeof payload["scope"] === "string" ? payload["scope"] : undefined),
         exp: payload.exp ?? 0,
         iat: payload.iat ?? 0,
         iss: payload.iss,
         aud: payload.aud,
         nbf: payload.nbf,
         jti: payload.jti,
-        client_id: payload["client_id"] as string | undefined,
+        client_id: typeof payload["client_id"] === "string" ? payload["client_id"] : undefined,
       };
 
       logger.debug("Token validated successfully", { sub: claims.sub });

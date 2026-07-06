@@ -1,13 +1,54 @@
-# mysql-mcp — Quick Reference
+# mysql-mcp (MySQL MCP Server)
 
-**Tool prefix**: `mysql_` (e.g., `mysql_read_query`, `mysql_json_extract`)
-**Resource URI scheme**: `mysql://` (e.g., `mysql://schema`, `mysql://tables`)
+## Quick Access
+
+| Purpose         | Action                    |
+| --------------- | ------------------------- |
+| Database schema | `mysql://schema` resource |
+| Server health   | `mysql://capabilities`    |
+| Live Metrics    | `mysql://metrics` resource|
+| Tool help       | `mysql://help` resource   |
+
+## Help Resources
+
+Read `mysql://help` for gotchas and critical usage patterns.
+Read `mysql://help/{group}` for group-specific tool reference.
+Only help resources for your enabled tool groups are registered.
+If available in your workspace, refer to the `/mysql-mcp` agent skill for core architectural guidelines and operational directives.
 
 ## Structured Errors
 
 All tools return `{success: false, error, code, category, suggestion, recoverable}` — never raw MCP exceptions.
 Table-querying tools return `{exists: false, table}` for nonexistent tables (P154 pattern).
 
-## Architecture
+Error codes include: `CONNECTION_ERROR`, `QUERY_ERROR`, `VALIDATION_ERROR`, `AUTHENTICATION_ERROR`,
+`AUTHORIZATION_ERROR`, `TRANSACTION_ERROR`, `TIMEOUT_ERROR`, `RATE_LIMIT_ERROR`, `CONFLICT_ERROR`,
+`EXTENSION_MISSING`, plus auto-refined codes like `TABLE_NOT_FOUND`, `DUPLICATE_KEY`, `DEADLOCK`.
 
-`mysql-mcp` utilizes a highly modular architecture spanning 224 tools across 23 distinct groups (including specialized `introspection` and `migration` tools). The schema definitions are decentralized within the `src/adapters/mysql/schemas/` directory, ensuring strict type-safety and optimal build times.
+## Subscriptions
+
+The server supports MCP `resources/subscribe` for live updates. Subscribable URIs include:
+- `mysql://health`: Polled every 60 seconds for health changes.
+- `mysql://schema`, `mysql://tables`, `mysql://table/{name}`: Event-driven notifications on DDL changes.
+
+## Security Sandbox
+
+Tools interacting with the filesystem (like `backup` or `shell` tools) operate within a strict sandbox. All file paths provided as arguments must be absolute and reside within the directories explicitly permitted by the `ALLOWED_IO_ROOTS` server configuration.
+
+## Session Lifecycle (HTTP Mode)
+
+HTTP sessions have a **30-minute idle timeout** and a **24-hour absolute TTL**. Sessions expire automatically — clients should expect `401` responses if a session has been idle or has exceeded its maximum lifetime, and must re-initialize.
+
+## Configuration
+
+The server supports `.yaml` or `.json` configuration files via the `--config <path>` flag. Configuration follows a strict precedence hierarchy:
+1. **CLI flags** (highest priority)
+2. **Environment variables**
+3. **Configuration file**
+4. **Defaults** (lowest priority)
+
+You can verify the final merged configuration the server will use by running with the `--dump-config` flag.
+
+## Skill Injection
+
+When AI agents use the MCP prompts to generate database queries or schema designs, the server can dynamically inject a directive pointing to the \`mysql\` agent skill. This ensures that consuming agents strictly adhere to production boundaries (e.g., parameterized queries, connection pooling). This behavior is driven by the \`MYSQL_SKILL_PATH\` environment variable, which defines the absolute path to the skill markdown file.

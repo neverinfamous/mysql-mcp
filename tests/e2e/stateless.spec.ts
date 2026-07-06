@@ -1,8 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
+import { tmpdir } from "node:os";
 
-const STATELESS_PORT = 3102;
+const STATELESS_PORT = 3103;
 const STATELESS_BASE = `http://localhost:${String(STATELESS_PORT)}`;
 
 let statelessServer: ChildProcess;
@@ -29,6 +30,7 @@ test.describe("Stateless HTTP Mode", () => {
         env: {
           ...process.env,
           MCP_RATE_LIMIT_MAX: "10000",
+          ALLOWED_IO_ROOTS: `C:/temp,/tmp,${tmpdir()}`,
         },
       },
     );

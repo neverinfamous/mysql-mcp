@@ -1,5 +1,5 @@
 ---
-description: "Weekly audit of CI workflows for deprecations, outdated actions, and health issues"
+description: 'Weekly audit of CI workflows for deprecations, outdated actions, and health issues'
 private: true
 labels: [maintenance, ci-cd]
 
@@ -10,7 +10,7 @@ on:
 
 engine:
   id: copilot
-  model: claude-opus-4-20250514
+  model: claude-3-5-sonnet-latest
 
 network:
   allowed:
@@ -18,6 +18,14 @@ network:
     - node
 
 permissions: read-all
+
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 safe-outputs:
   report-failure-as-issue: false
@@ -34,7 +42,7 @@ concurrency: ci-health-monitor
 
 # CI Health Monitor
 
-You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your job is to check all GitHub Actions workflows for deprecations, outdated action versions, and health issues.
+You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your job is to check workflows. Look for deprecations, outdated actions, and health issues.
 
 ## Important Rules
 
@@ -47,7 +55,7 @@ You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your jo
 List all `.yml` files in `.github/workflows/`. For each workflow file:
 
 1. **Check action versions** — for each `uses:` line, note the action name and version/tag. Check if a newer major or minor version exists by reading the action's releases.
-2. **Check Node.js runtime** — look for `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` workarounds or actions known to use deprecated Node.js versions (16, 18, 20). Flag any that will break after the June 2026 deadline.
+2. **Check Node.js runtime** — look for `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` workarounds or actions known to use deprecated Node.js versions (16, 18, 20). Flag any that blocks Node.js 26 compatibility.
 3. **Check for deprecated features** — `set-output`, `save-state`, `::set-output::` commands, or other deprecated GitHub Actions features.
 4. **Check Dependabot config** — read `dependabot.yml` and verify it covers all ecosystems in use (npm, GitHub Actions, Docker).
 
@@ -61,7 +69,7 @@ Check recent workflow runs (last 7 days):
 
 ## Step 3: Report
 
-Before creating a new issue, check if an existing open issue with the `[ci-health]` prefix already exists. If so, add a comment to that issue instead of creating a duplicate. Only create a new issue if none exists.
+Before creating a new issue, check for existing open issues with the `[ci-health]` prefix. Add comments to existing issues instead of creating duplicates. Create a new issue only if none exists.
 
 ### If issues are found:
 
@@ -70,8 +78,8 @@ Create an issue via safe-output with this structure:
 ```
 ## 🏥 CI Health Report — [DATE]
 
-### 🔴 Critical (blocks before June 2026)
-- [action@version] in [workflow.yml] — needs update to [version] for Node.js 24
+### 🔴 Critical (blocks Node.js 26 compatibility)
+- [action@version] in [workflow.yml] — needs update to [version] for Node.js 26
 
 ### 🟡 Warnings
 - [description of warning/deprecation]

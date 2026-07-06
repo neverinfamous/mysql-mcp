@@ -51,7 +51,7 @@ for (const file of helpFiles) {
   helpEntries.push({ key, content });
 }
 
-// Use backtick char for building string to avoid nesting issues
+/// Use backtick char for building string to avoid nesting issues
 const BT = "`";
 
 // Build the TypeScript file using string concatenation
@@ -74,158 +74,13 @@ lines.push(
 );
 lines.push(" */");
 lines.push("");
-lines.push("import type { ToolGroup } from '../types/index.js'");
-lines.push("");
 lines.push("/**");
-lines.push(" * Instruction detail level for token efficiency");
+lines.push(" * Slim instructions for the MCP instructions field (~600-800 chars).");
 lines.push(
-  " * - essential: Core quick access only (for token-constrained clients)",
-);
-lines.push(" * - standard: + dynamic help pointers for enabled groups");
-lines.push(" * - full: + active groups summary");
-lines.push(" */");
-lines.push("export type InstructionLevel = 'essential' | 'standard' | 'full'");
-lines.push("");
-lines.push(
-  "// =============================================================================",
-);
-lines.push("// Composable Instruction Segments");
-lines.push(
-  "// =============================================================================",
-);
-lines.push("");
-lines.push("/**");
-lines.push(
-  " * Core instructions — always included regardless of enabled groups.",
-);
-lines.push(
-  " * Contains quick access table, built-in tools, and base help pointer.",
+  " * Points agents to mysql://help resources for detailed reference.",
 );
 lines.push(" */");
-lines.push("const CORE_INSTRUCTIONS = " + BT + overviewEscaped + BT);
-lines.push("");
-lines.push("/**");
-lines.push(
-  " * Code Mode summary — only included when codemode group is enabled.",
-);
-lines.push(" * Provides API mapping and sandbox constraints.");
-lines.push(" */");
-lines.push(
-  "const CODE_MODE_INSTRUCTIONS = " +
-    BT +
-    escapeForTemplateLiteral(
-      [
-        "",
-        "## Code Mode",
-        "",
-        "API: `mysql_execute_code` → `mysql.core.executeCode()`",
-        "Tools: `mysql.readQuery()`, `mysql.writeQuery()`, `mysql.listTables()`, `mysql.describeTable()`, `mysql.upsert()`, etc.",
-        'Positional: `readQuery("SELECT...")`, `exists("users", "id=1")`, `createIndex("users", ["email"])`',
-        "Discovery: `mysql.help()` → `{group: methods[]}`. `mysql.core.help()`, `mysql.json.help()` for group-specific.",
-        "Sandbox: No `setTimeout`, `setInterval`, `fetch`, or network access.",
-      ].join("\n"),
-    ) +
-    BT,
-);
-lines.push("");
-
-// Identify group-specific help entries (everything except gotchas and core)
-const groupHelpKeys = helpEntries
-  .filter((e) => e.key !== "gotchas" && e.key !== "core")
-  .map((e) => e.key);
-
-lines.push("/**");
-lines.push(
-  " * All group keys that have help content (for dynamic help pointer generation).",
-);
-lines.push(" */");
-lines.push(
-  "const HELP_GROUP_KEYS: readonly string[] = " + JSON.stringify(groupHelpKeys),
-);
-lines.push("");
-lines.push("/**");
-lines.push(" * Build dynamic help pointers listing only the enabled groups.");
-lines.push(" */");
-lines.push("function buildHelpPointers(groups: Set<ToolGroup>): string {");
-lines.push(
-  "    const enabledHelpGroups = HELP_GROUP_KEYS.filter((k) => groups.has(k as ToolGroup))",
-);
-lines.push("    if (enabledHelpGroups.length === 0) {");
-lines.push(
-  "        return '\\n\\nRead `mysql://help` for gotchas and critical usage patterns.'",
-);
-lines.push("    }");
-lines.push("    return '\\n\\n## Help Resources\\n\\n' +");
-lines.push(
-  "        'Read `mysql://help` for gotchas and critical usage patterns.\\n' +",
-);
-lines.push(
-  "        'Read `mysql://help/{group}` for: ' + enabledHelpGroups.join(', ') + '.'",
-);
-lines.push("}");
-lines.push("");
-lines.push("/**");
-lines.push(
-  " * Build active groups summary listing enabled group names with tool counts.",
-);
-lines.push(" */");
-lines.push(
-  "function buildActiveGroupsSummary(groups: Set<ToolGroup>, enabledToolCount: number): string {",
-);
-lines.push("    const groupList = [...groups].sort().join(', ')");
-lines.push(
-  "    return `\\n\\n## Active Tools (${String(enabledToolCount)})\\n\\nGroups: ${groupList}`",
-);
-lines.push("}");
-lines.push("");
-lines.push(
-  "// =============================================================================",
-);
-lines.push("// Public API");
-lines.push(
-  "// =============================================================================",
-);
-lines.push("");
-lines.push("/**");
-lines.push(
-  " * Generate dynamic instructions based on enabled tool groups and instruction level.",
-);
-lines.push(" */");
-lines.push("export function generateInstructions(");
-lines.push("    enabledGroups: Set<ToolGroup>,");
-lines.push("    level: InstructionLevel = 'standard',");
-lines.push("    enabledToolCount?: number,");
-lines.push("): string {");
-lines.push("    let instructions = CORE_INSTRUCTIONS");
-lines.push("");
-lines.push("    if (enabledGroups.has('codemode')) {");
-lines.push("        instructions += CODE_MODE_INSTRUCTIONS");
-lines.push("    }");
-lines.push("");
-lines.push("    if (level === 'essential') {");
-lines.push(
-  "        instructions += '\\n\\nRead `mysql://help` for gotchas and critical usage patterns.'",
-);
-lines.push("    } else {");
-lines.push("        instructions += buildHelpPointers(enabledGroups)");
-lines.push("    }");
-lines.push("");
-lines.push("    if (level === 'full' && enabledToolCount !== undefined) {");
-lines.push(
-  "        instructions += buildActiveGroupsSummary(enabledGroups, enabledToolCount)",
-);
-lines.push("    }");
-lines.push("");
-lines.push("    return instructions");
-lines.push("}");
-lines.push("");
-lines.push("/**");
-lines.push(" * Static instructions for backward compatibility.");
-lines.push(
-  " * @deprecated Use generateInstructions() instead for dynamic content",
-);
-lines.push(" */");
-lines.push("export const INSTRUCTIONS = CORE_INSTRUCTIONS;");
+lines.push("export const INSTRUCTIONS = " + BT + overviewEscaped + BT + ";");
 lines.push("");
 lines.push("/**");
 lines.push(" * Help content keyed by group name.");

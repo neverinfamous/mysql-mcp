@@ -1,0 +1,48 @@
+{
+  "host": "127.0.0.1",
+  "port": 3000,
+  "transport": "stdio",
+  "enableHSTS": false,
+  "trustProxy": false,
+  "toolFilter": "starter",
+  "allowedIoRoots": [
+    "C:/temp/mcp-sandbox",
+    "/tmp/mcp-sandbox",
+    "/app/data"
+  ],
+  "auditConfig": {
+    "enabled": true,
+    "logPath": "/app/data/audit.jsonl",
+    "redact": true,
+    "auditReads": false,
+    "maxSizeBytes": 10485760,
+    "backup": {
+      "enabled": true,
+      "includeData": false,
+      "maxDataSizeBytes": 1048576
+    }
+  },
+  "databases": [
+    {
+      "type": "mysql",
+      "host": "localhost",
+      "port": 3306,
+      "username": "mcp_user",
+      "password": "secure_password",
+      "database": "testdb",
+      "pool": {
+        "connectionLimit": 10,
+        "acquireTimeout": 10000,
+        "waitForConnections": true,
+        "queueLimit": 0
+      }
+    }
+  ],
+  "oauth": {
+    "enabled": false,
+    "issuer": "https://auth.example.com",
+    "audience": "mysql-mcp-client",
+    "jwksUri": "https://auth.example.com/.well-known/jwks.json",
+    "clockTolerance": 60
+  }
+}

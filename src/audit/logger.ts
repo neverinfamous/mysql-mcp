@@ -11,7 +11,24 @@
 
 import { appendFile, mkdir, open, rename, stat } from "node:fs/promises";
 import { dirname } from "node:path";
-import type { AuditConfig, AuditEntry } from "./types.js";
+import type { AuditConfig, AuditEntry, AuditCategory } from "./types.js";
+import type { SystemDb } from "../observability/system-db.js";
+
+interface AuditLogRow {
+  timestamp: string;
+  requestId: string;
+  tool: string;
+  category: string;
+  scope: string;
+  user: string | null;
+  scopesJson: string | null;
+  durationMs: number;
+  success: number;
+  tokenEstimate: number | null;
+  error: string | null;
+  argsJson: string | null;
+  backupPath: string | null;
+}
 
 /** Maximum entries to buffer before forcing a flush */
 const BUFFER_HIGH_WATER = 50;
@@ -41,6 +58,7 @@ export class AuditLogger {
   private closed = false;
   private dirEnsured = false;
   private readonly stderrMode: boolean;
+  private systemDb: SystemDb | null = null;
 
   constructor(config: AuditConfig) {
     this.config = config;
@@ -72,7 +90,14 @@ export class AuditLogger {
   }
 
   /**
-   * Flush the buffer to disk.
+   * Set the SystemDb instance for persisting audit logs.
+   */
+  setSystemDb(systemDb: SystemDb): void {
+    this.systemDb = systemDb;
+  }
+
+  /**
+   * Flush the buffer to disk and SystemDb.
    * Safe to call concurrently — serialises via `this.activeFlush` Promise.
    */
   async flush(): Promise<void> {
@@ -105,6 +130,37 @@ export class AuditLogger {
             lines.join("\n") + "\n",
             "utf-8",
           );
+        }
+
+        if (this.systemDb) {
+          const db = this.systemDb.getDb();
+          const stmt = db.prepare(`
+            INSERT INTO audit_logs (timestamp, requestId, tool, category, scope, user, scopesJson, durationMs, success, tokenEstimate, error, argsJson, backupPath)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          `);
+
+          const transaction = db.transaction((entries: string[]) => {
+            for (const line of entries) {
+              const log = JSON.parse(line) as AuditEntry;
+              stmt.run(
+                log.timestamp,
+                log.requestId,
+                log.tool,
+                log.category,
+                log.scope,
+                log.user ?? null,
+                JSON.stringify(log.scopes),
+                log.durationMs,
+                log.success ? 1 : 0,
+                log.tokenEstimate ?? null,
+                log.error ?? null,
+                log.args ? JSON.stringify(log.args) : null,
+                log.backup ?? null,
+              );
+            }
+          });
+
+          transaction(lines);
         }
       } catch (err) {
         // Never throw — audit must not break tool execution
@@ -151,6 +207,41 @@ export class AuditLogger {
 
     // Force flush buffered entries to ensure the read includes up-to-the-millisecond events
     await this.flush();
+
+    if (this.systemDb) {
+      try {
+        const db = this.systemDb.getDb();
+        const rows = db
+          .prepare(
+            `
+          SELECT * FROM audit_logs
+          ORDER BY timestamp DESC
+          LIMIT ?
+        `,
+          )
+          .all(count) as AuditLogRow[];
+
+        return rows.map((row) => ({
+          timestamp: row.timestamp,
+          requestId: row.requestId,
+          tool: row.tool,
+          category: row.category as AuditCategory,
+          scope: row.scope,
+          user: row.user,
+          scopes: row.scopesJson ? (JSON.parse(row.scopesJson) as string[]) : [],
+          durationMs: row.durationMs,
+          success: row.success === 1,
+          tokenEstimate: row.tokenEstimate ?? undefined,
+          error: row.error ?? undefined,
+          args: row.argsJson
+            ? (JSON.parse(row.argsJson) as Record<string, unknown>)
+            : undefined,
+          backup: row.backupPath ?? undefined,
+        }));
+      } catch {
+        // Fall back to file
+      }
+    }
 
     try {
       // Open directly — avoids TOCTOU race between stat() and open()
@@ -227,7 +318,7 @@ export class AuditLogger {
       for (let i = 4; i >= 1; i--) {
         const oldFile = `${this.config.logPath}.${String(i)}`;
         const newFile = `${this.config.logPath}.${String(i + 1)}`;
-        await rename(oldFile, newFile).catch(() => null); // ignore if .i doesn't exist
+        await rename(oldFile, newFile).catch(() => null); // ignore if .i does not exist
       }
 
       // Rename current to .1
@@ -237,4 +328,101 @@ export class AuditLogger {
       // Rotation failure must not block logging
     }
   }
+
+  /**
+   * Search and filter audit entries from the SystemDb.
+   */
+  async search(filters: {
+    tool?: string | undefined;
+    category?: string | undefined;
+    success?: boolean | undefined;
+    requestId?: string | undefined;
+    fromTimestamp?: string | undefined;
+    toTimestamp?: string | undefined;
+    search?: string | undefined;
+    limit?: number | undefined;
+    offset?: number | undefined;
+  }): Promise<{ entries: AuditEntry[]; totalCount: number }> {
+    if (this.stderrMode || !this.systemDb) {
+      return { entries: [], totalCount: 0 };
+    }
+
+    await this.flush();
+
+    try {
+      const db = this.systemDb.getDb();
+      let sql = "SELECT * FROM audit_logs WHERE 1=1";
+      let countSql = "SELECT COUNT(*) as c FROM audit_logs WHERE 1=1";
+      const params: unknown[] = [];
+
+      if (filters.tool) {
+        sql += " AND tool = ?";
+        countSql += " AND tool = ?";
+        params.push(filters.tool);
+      }
+      if (filters.category) {
+        sql += " AND category = ?";
+        countSql += " AND category = ?";
+        params.push(filters.category);
+      }
+      if (filters.success !== undefined) {
+        sql += " AND success = ?";
+        countSql += " AND success = ?";
+        params.push(filters.success ? 1 : 0);
+      }
+      if (filters.requestId) {
+        sql += " AND requestId = ?";
+        countSql += " AND requestId = ?";
+        params.push(filters.requestId);
+      }
+      if (filters.fromTimestamp) {
+        sql += " AND timestamp >= ?";
+        countSql += " AND timestamp >= ?";
+        params.push(filters.fromTimestamp);
+      }
+      if (filters.toTimestamp) {
+        sql += " AND timestamp <= ?";
+        countSql += " AND timestamp <= ?";
+        params.push(filters.toTimestamp);
+      }
+      if (filters.search) {
+        sql += " AND (error LIKE ? OR args LIKE ? OR tool LIKE ?)";
+        countSql += " AND (error LIKE ? OR args LIKE ? OR tool LIKE ?)";
+        const searchTerm = `%${filters.search}%`;
+        params.push(searchTerm, searchTerm, searchTerm);
+      }
+
+      const totalCount = (db.prepare(countSql).get(...params) as { c: number })
+        .c;
+
+      sql += " ORDER BY timestamp DESC LIMIT ? OFFSET ?";
+      params.push(filters.limit ?? 50);
+      params.push(filters.offset ?? 0);
+
+      const rows = db.prepare(sql).all(...params) as AuditLogRow[];
+
+      const entries = rows.map((row) => ({
+        timestamp: row.timestamp,
+        requestId: row.requestId,
+        tool: row.tool,
+        category: row.category as AuditCategory,
+        scope: row.scope,
+        user: row.user,
+        scopes: row.scopesJson ? (JSON.parse(row.scopesJson) as string[]) : [],
+        durationMs: row.durationMs,
+        success: row.success === 1,
+        tokenEstimate: row.tokenEstimate ?? undefined,
+        error: row.error ?? undefined,
+        args: row.argsJson
+          ? (JSON.parse(row.argsJson) as Record<string, unknown>)
+          : undefined,
+        backup: row.backupPath ?? undefined,
+      }));
+
+      return { entries, totalCount };
+    } catch {
+      return { entries: [], totalCount: 0 };
+    }
+  }
 }
+

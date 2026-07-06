@@ -12,6 +12,10 @@ import {
   type ExecutionRecord,
   type SandboxResult,
 } from "./types.js";
+import { createClient, type RedisClientType } from "redis";
+
+const SENSITIVE_KEY_PATTERN = /password|secret|token|key|auth|cred/i;
+const MAX_RATE_LIMIT_ENTRIES = 10000;
 
 /**
  * Security manager for Code Mode executions
@@ -22,9 +26,19 @@ export class CodeModeSecurityManager {
     string,
     { count: number; resetTime: number }
   >();
+  private redisClient?: RedisClientType;
 
   constructor(config?: Partial<SecurityConfig>) {
     this.config = { ...DEFAULT_SECURITY_CONFIG, ...config };
+    setInterval(() => this.cleanupRateLimits(), 5 * 60 * 1000).unref();
+    if (process.env["REDIS_URL"]) {
+      this.redisClient = createClient({ url: process.env["REDIS_URL"] });
+      this.redisClient.connect().catch((err: unknown) => {
+        logger.error("Redis connection failed in CodeModeSecurityManager", {
+          error: err instanceof Error ? err : new Error(String(err)),
+        });
+      });
+    }
   }
 
   /**
@@ -46,10 +60,25 @@ export class CodeModeSecurityManager {
       return { valid: false, errors };
     }
 
+    // Check for unicode escapes
+    const hasUnicodeEscapes = /\\u[0-9a-fA-F]{4}|\\u\{[0-9a-fA-F]+\}|\\x[0-9a-fA-F]{2}/i.test(code);
+    if (hasUnicodeEscapes) {
+      errors.push("Unicode escape sequences in identifiers are not allowed");
+      return { valid: false, errors };
+    }
+
+    // Normalize and strip comments/template literals before pattern matching
+    const strippedCode = code
+      .normalize("NFKC")
+      .replace(/\/\*[\s\S]*?\*\//g, " ")  // block comments
+      .replace(/\/\/[^\n]*/g, " ")        // line comments
+      .replace(/`(?:[^`\\]|\\.)*`/g, '``'); // Template literals
+
     // Check for blocked patterns
     for (const pattern of this.config.blockedPatterns) {
-      if (pattern.test(code)) {
+      if (pattern.test(strippedCode)) {
         errors.push(`Blocked pattern detected: ${pattern.source}`);
+        break; // Early exit on first match
       }
     }
 
@@ -63,7 +92,23 @@ export class CodeModeSecurityManager {
    * Check rate limit for a client
    * @returns true if within limits, false if rate limited
    */
-  checkRateLimit(clientId: string): boolean {
+  async checkRateLimit(clientId: string): Promise<boolean> {
+    if (this.redisClient?.isOpen) {
+      try {
+        const windowMs = 60000;
+        const key = `codemode:rl:${clientId}`;
+        const current = await this.redisClient.incr(key);
+        if (current === 1) {
+          await this.redisClient.pExpire(key, windowMs);
+        }
+        return current <= this.config.maxExecutionsPerMinute;
+      } catch (err) {
+        logger.error("Redis rate limit error, falling back to memory", {
+          error: err instanceof Error ? err : new Error(String(err)),
+        });
+      }
+    }
+
     const now = Date.now();
     const windowMs = 60000; // 1 minute window
 
@@ -71,6 +116,10 @@ export class CodeModeSecurityManager {
 
     if (!existing || now >= existing.resetTime) {
       // Start new window
+      if (this.rateLimitMap.size >= MAX_RATE_LIMIT_ENTRIES) {
+        const firstKey = this.rateLimitMap.keys().next().value;
+        if (firstKey) this.rateLimitMap.delete(firstKey);
+      }
       this.rateLimitMap.set(clientId, {
         count: 1,
         resetTime: now + windowMs,
@@ -89,7 +138,18 @@ export class CodeModeSecurityManager {
   /**
    * Get remaining rate limit for a client
    */
-  getRateLimitRemaining(clientId: string): number {
+  async getRateLimitRemaining(clientId: string): Promise<number> {
+    if (this.redisClient?.isOpen) {
+      try {
+        const key = `codemode:rl:${clientId}`;
+        const current = await this.redisClient.get(key);
+        const count = current ? parseInt(current, 10) : 0;
+        return Math.max(0, this.config.maxExecutionsPerMinute - count);
+      } catch {
+        // Fall back to memory
+      }
+    }
+
     const existing = this.rateLimitMap.get(clientId);
     if (!existing || Date.now() >= existing.resetTime) {
       return this.config.maxExecutionsPerMinute;
@@ -120,6 +180,13 @@ export class CodeModeSecurityManager {
     }
   }
 
+  private redactCode(code: string): string {
+    if (SENSITIVE_KEY_PATTERN.test(code)) {
+      return "<REDACTED DUE TO SENSITIVE PATTERN MATCH>";
+    }
+    return code;
+  }
+
   /**
    * Log execution for audit purposes
    */
@@ -137,9 +204,11 @@ export class CodeModeSecurityManager {
       memoryUsedMb: result.metrics.memoryUsedMb,
     };
 
+    const redactedPreview = this.redactCode(codePreview);
+
     if (result.success) {
       logger.info(
-        `Code execution completed: ${codePreview.substring(0, 50)}...`,
+        `Code execution completed: ${redactedPreview.substring(0, 50)}...`,
         logContext,
       );
     } else {
@@ -168,7 +237,7 @@ export class CodeModeSecurityManager {
       id: crypto.randomUUID(),
       clientId,
       timestamp: new Date(),
-      codePreview: code.length > 200 ? code.substring(0, 200) + "..." : code,
+      codePreview: this.redactCode(code.length > 200 ? code.substring(0, 200) + "..." : code),
       result,
       readonly,
     };

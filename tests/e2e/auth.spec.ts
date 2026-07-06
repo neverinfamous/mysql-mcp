@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { spawn, type ChildProcess } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
+import { tmpdir } from "node:os";
 
 const AUTH_PORT = 3101;
 const AUTH_BASE = `http://localhost:${String(AUTH_PORT)}`;
@@ -31,6 +32,7 @@ test.describe("Bearer Token Authentication", () => {
         env: {
           ...process.env,
           MCP_RATE_LIMIT_MAX: "10000",
+          ALLOWED_IO_ROOTS: `C:/temp,/tmp,${tmpdir()}`,
         },
       },
     );

@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { HttpTransport, createHttpTransport } from "../server.js";
+import { HttpTransport, createHttpTransport } from "../server/index.js";
 import {
   setSecurityHeaders,
   setCorsHeaders,
@@ -127,46 +127,46 @@ function createMockResponse(): ServerResponse {
 // =============================================================================
 
 describe("getClientIp()", () => {
-  it("should return socket address when trustProxy is disabled", () => {
+  it("should return socket address when trustProxy is disabled", async () => {
     const req = createMockRequest({
       headers: { "x-forwarded-for": "1.2.3.4" },
     });
     expect(getClientIp(req, false)).toBe("127.0.0.1");
   });
 
-  it("should return X-Forwarded-For when trustProxy is enabled", () => {
+  it("should return X-Forwarded-For when trustProxy is enabled", async () => {
     const req = createMockRequest({
       headers: { host: "localhost", "x-forwarded-for": "1.2.3.4, 5.6.7.8" },
     });
     expect(getClientIp(req, true)).toBe("1.2.3.4");
   });
 
-  it("should fall back to socket address when no X-Forwarded-For", () => {
+  it("should fall back to socket address when no X-Forwarded-For", async () => {
     const req = createMockRequest();
     expect(getClientIp(req, true)).toBe("127.0.0.1");
   });
 });
 
 describe("getSafeCorsOrigin()", () => {
-  it("should match exact origins", () => {
+  it("should match exact origins", async () => {
     expect(
       getSafeCorsOrigin("https://example.com", "https://example.com"),
     ).toBe("https://example.com");
   });
 
-  it("should not match different origins", () => {
+  it("should not match different origins", async () => {
     expect(
       getSafeCorsOrigin("https://evil.com", "https://example.com"),
     ).toBeNull();
   });
 
-  it("should match wildcard subdomain patterns", () => {
+  it("should match wildcard subdomain patterns", async () => {
     expect(getSafeCorsOrigin("https://app.example.com", "*.example.com")).toBe(
       "https://app.example.com",
     );
   });
 
-  it("should not match bare domain against wildcard subdomain", () => {
+  it("should not match bare domain against wildcard subdomain", async () => {
     expect(
       getSafeCorsOrigin("https://example.com", "*.example.com"),
     ).toBeNull();
@@ -174,14 +174,14 @@ describe("getSafeCorsOrigin()", () => {
 });
 
 describe("checkRateLimit()", () => {
-  it("should allow requests when rate limiting disabled", () => {
+  it("should allow requests when rate limiting disabled", async () => {
     const config: HttpTransportConfig = { port: 3000, enableRateLimit: false };
     const map = new Map<string, RateLimitEntry>();
     const req = createMockRequest();
-    expect(checkRateLimit(req, config, map).allowed).toBe(true);
+    expect((await checkRateLimit(req, config, map)).allowed).toBe(true);
   });
 
-  it("should block after max requests and return retryAfterSeconds", () => {
+  it("should block after max requests and return retryAfterSeconds", async () => {
     const config: HttpTransportConfig = {
       port: 3000,
       enableRateLimit: true,
@@ -191,17 +191,82 @@ describe("checkRateLimit()", () => {
     const map = new Map<string, RateLimitEntry>();
     const req = createMockRequest();
 
-    const r1 = checkRateLimit(req, config, map);
+    const r1 = await checkRateLimit(req, config, map);
     expect(r1.allowed).toBe(true);
 
-    const r2 = checkRateLimit(req, config, map);
+    const r2 = await checkRateLimit(req, config, map);
     expect(r2.allowed).toBe(false);
     expect(r2.retryAfterSeconds).toBeGreaterThan(0);
+  });
+
+  it("should use Redis when available", async () => {
+    const config: HttpTransportConfig = {
+      port: 3000,
+      enableRateLimit: true,
+      rateLimitMaxRequests: 1,
+      rateLimitWindowMs: 60000,
+    };
+    const map = new Map<string, RateLimitEntry>();
+    const req = createMockRequest();
+    
+    const mockRedisClient = {
+      isOpen: true,
+      incr: vi.fn().mockResolvedValue(1),
+      pExpire: vi.fn().mockResolvedValue(true),
+      pTTL: vi.fn().mockResolvedValue(50000),
+    };
+
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    expect(r1.allowed).toBe(true);
+    expect(mockRedisClient.incr).toHaveBeenCalledWith("http:rl:127.0.0.1");
+    expect(mockRedisClient.pExpire).toHaveBeenCalledWith("http:rl:127.0.0.1", 60000);
+  });
+
+  it("should fallback to memory when Redis fails", async () => {
+    const config: HttpTransportConfig = {
+      port: 3000,
+      enableRateLimit: true,
+      rateLimitMaxRequests: 1,
+      rateLimitWindowMs: 60000,
+    };
+    const map = new Map<string, RateLimitEntry>();
+    const req = createMockRequest();
+    
+    const mockRedisClient = {
+      isOpen: true,
+      incr: vi.fn().mockRejectedValue(new Error("Redis error")),
+      pExpire: vi.fn(),
+      pTTL: vi.fn(),
+    };
+
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    expect(r1.allowed).toBe(true); // Should fallback to memory map (which is empty) and allow
+  });
+
+  it("should fallback to memory when Redis fails with non-Error", async () => {
+    const config: HttpTransportConfig = {
+      port: 3000,
+      enableRateLimit: true,
+      rateLimitMaxRequests: 1,
+      rateLimitWindowMs: 60000,
+    };
+    const map = new Map<string, RateLimitEntry>();
+    const req = createMockRequest();
+    
+    const mockRedisClient = {
+      isOpen: true,
+      incr: vi.fn().mockRejectedValue("Redis string error"),
+      pExpire: vi.fn(),
+      pTTL: vi.fn(),
+    };
+
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    expect(r1.allowed).toBe(true);
   });
 });
 
 describe("setSecurityHeaders()", () => {
-  it("should set 6 base headers (HSTS disabled)", () => {
+  it("should set 6 base headers (HSTS disabled)", async () => {
     const mockRes = createMockResponse();
     const config: HttpTransportConfig = { port: 3000, enableHSTS: false };
     setSecurityHeaders(mockRes, config);
@@ -231,7 +296,7 @@ describe("setSecurityHeaders()", () => {
     expect(mockRes.setHeader).toHaveBeenCalledTimes(6);
   });
 
-  it("should include HSTS header when enabled (7 total)", () => {
+  it("should include HSTS header when enabled (7 total)", async () => {
     const mockRes = createMockResponse();
     const config: HttpTransportConfig = { port: 3000, enableHSTS: true };
     setSecurityHeaders(mockRes, config);
@@ -245,7 +310,7 @@ describe("setSecurityHeaders()", () => {
 });
 
 describe("setCorsHeaders()", () => {
-  it("should not set CORS headers when origin not in allowed list", () => {
+  it("should not set CORS headers when origin not in allowed list", async () => {
     const mockReq = createMockRequest({
       headers: { origin: "https://notallowed.example.com" },
     });
@@ -259,7 +324,7 @@ describe("setCorsHeaders()", () => {
     expect(mockRes.setHeader).not.toHaveBeenCalled();
   });
 
-  it("should set CORS headers when origin is allowed", () => {
+  it("should set CORS headers when origin is allowed", async () => {
     const mockReq = createMockRequest({
       headers: { origin: "https://allowed.example.com" },
     });
@@ -280,7 +345,7 @@ describe("setCorsHeaders()", () => {
     );
   });
 
-  it("should not set CORS when no origin header", () => {
+  it("should not set CORS when no origin header", async () => {
     const mockReq = createMockRequest({ headers: {} });
     const mockRes = createMockResponse();
     const config: HttpTransportConfig = {
@@ -292,7 +357,7 @@ describe("setCorsHeaders()", () => {
     expect(mockRes.setHeader).not.toHaveBeenCalled();
   });
 
-  it("should set credentials header when configured", () => {
+  it("should set credentials header when configured", async () => {
     const mockReq = createMockRequest({
       headers: { origin: "https://allowed.example.com" },
     });
@@ -310,7 +375,7 @@ describe("setCorsHeaders()", () => {
     );
   });
 
-  it("should match wildcard subdomain origin", () => {
+  it("should match wildcard subdomain origin", async () => {
     const mockReq = createMockRequest({
       headers: { origin: "https://app.example.com" },
     });
@@ -346,6 +411,47 @@ describe("readBody()", () => {
     const result = await readBody(mockReq);
     expect(result).toBeUndefined();
   });
+
+  it("should parse valid JSON body", async () => {
+    const mockReq = new (await import("node:events")).EventEmitter();
+    mockReq.method = "POST";
+    // Mock the data events
+    setTimeout(() => {
+      mockReq.emit("data", Buffer.from('{"test": true}'));
+      mockReq.emit("end");
+    }, 10);
+    const result = await readBody(mockReq as any);
+    expect(result).toEqual({ test: true });
+  });
+
+  it("should reject invalid JSON body", async () => {
+    const mockReq = new (await import("node:events")).EventEmitter();
+    mockReq.method = "POST";
+    setTimeout(() => {
+      mockReq.emit("data", Buffer.from('invalid json'));
+      mockReq.emit("end");
+    }, 10);
+    await expect(readBody(mockReq as any)).rejects.toThrow("Invalid JSON");
+  });
+
+  it("should return undefined if body is empty", async () => {
+    const mockReq = new (await import("node:events")).EventEmitter();
+    mockReq.method = "POST";
+    setTimeout(() => {
+      mockReq.emit("end");
+    }, 10);
+    const result = await readBody(mockReq as any);
+    expect(result).toBeUndefined();
+  });
+
+  it("should reject on req error", async () => {
+    const mockReq = new (await import("node:events")).EventEmitter();
+    mockReq.method = "POST";
+    setTimeout(() => {
+      mockReq.emit("error", new Error("Req error"));
+    }, 10);
+    await expect(readBody(mockReq as any)).rejects.toThrow("Req error");
+  });
 });
 
 // =============================================================================
@@ -353,7 +459,7 @@ describe("readBody()", () => {
 // =============================================================================
 
 describe("handleHealthCheck()", () => {
-  it("should return healthy status", () => {
+  it("should return healthy status", async () => {
     const mockRes = createMockResponse();
     const config: HttpTransportConfig = { port: 3000 };
     handleHealthCheck(mockRes, config);
@@ -368,7 +474,7 @@ describe("handleHealthCheck()", () => {
     expect(response).toHaveProperty("timestamp");
   });
 
-  it("should include ISO timestamp", () => {
+  it("should include ISO timestamp", async () => {
     const mockRes = createMockResponse();
     const config: HttpTransportConfig = { port: 3000 };
     handleHealthCheck(mockRes, config);
@@ -380,7 +486,7 @@ describe("handleHealthCheck()", () => {
 });
 
 describe("handleProtectedResourceMetadata()", () => {
-  it("should return 404 when OAuth not configured", () => {
+  it("should return 404 when OAuth not configured", async () => {
     const mockRes = createMockResponse();
     const config: HttpTransportConfig = { port: 3000 };
     handleProtectedResourceMetadata(mockRes, config);
@@ -391,7 +497,7 @@ describe("handleProtectedResourceMetadata()", () => {
     expect(response).toHaveProperty("error");
   });
 
-  it("should return metadata when OAuth configured", () => {
+  it("should return metadata when OAuth configured", async () => {
     const mockResourceServer = {
       getMetadata: () => ({
         resource: "https://mysql-mcp.example.com",
@@ -470,42 +576,40 @@ describe("HttpTransport", () => {
     });
 
     it("should close all transports on stop()", async () => {
-      const transports = transport.getTransports();
       const mockT1 = { close: vi.fn().mockResolvedValue(undefined) };
       const mockT2 = { close: vi.fn().mockResolvedValue(undefined) };
-      transports.set("session-1", mockT1 as never);
-      transports.set("session-2", mockT2 as never);
+      (transport as any).sessionManager.register("session-1", mockT1 as never);
+      (transport as any).sessionManager.register("session-2", mockT2 as never);
 
       await transport.stop();
 
       expect(mockT1.close).toHaveBeenCalled();
       expect(mockT2.close).toHaveBeenCalled();
-      expect(transports.size).toBe(0);
+      expect((transport as any).sessionManager.size).toBe(0);
     });
 
     it("should handle close errors gracefully during stop()", async () => {
-      const transports = transport.getTransports();
       const mockT = {
         close: vi.fn().mockRejectedValue(new Error("close error")),
       };
-      transports.set("session-err", mockT as never);
+      (transport as any).sessionManager.register("session-err", mockT as never);
 
       await transport.stop();
-      expect(transports.size).toBe(0);
+      expect((transport as any).sessionManager.size).toBe(0);
     });
   });
 
   describe("Construction", () => {
-    it("should create transport with config", () => {
+    it("should create transport with config", async () => {
       expect(transport).toBeInstanceOf(HttpTransport);
     });
 
-    it("should use default host when not provided", () => {
+    it("should use default host when not provided", async () => {
       const t = new HttpTransport({ port: 8080 });
       expect(t).toBeInstanceOf(HttpTransport);
     });
 
-    it("should apply default configuration values", () => {
+    it("should apply default configuration values", async () => {
       const t = new HttpTransport({ port: 3000 });
       expect(t).toBeInstanceOf(HttpTransport);
     });
@@ -566,6 +670,49 @@ describe("handleRequest()", () => {
     });
     const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
     expect(JSON.parse(endCall as string)).toHaveProperty("status", "healthy");
+  });
+
+  it("should route to metrics endpoint when prometheus is enabled", async () => {
+    const transportWithMetrics = new HttpTransport({
+      port: 3000,
+      metricsExport: "prometheus",
+    });
+    
+    const mockReq = createMockRequest({ method: "GET", url: "/metrics" });
+    const mockRes = createMockResponse();
+
+    await (
+      transportWithMetrics as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest(mockReq, mockRes);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
+      "Content-Type": "text/plain",
+    });
+    const endCall = (mockRes.end as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(typeof endCall).toBe("string");
+  });
+
+  it("should route to root endpoint", async () => {
+    const mockReq = createMockRequest({ method: "GET", url: "/" });
+    const mockRes = createMockResponse();
+
+    await (
+      transport as unknown as {
+        handleRequest: (
+          req: IncomingMessage,
+          res: ServerResponse,
+        ) => Promise<void>;
+      }
+    ).handleRequest(mockReq, mockRes);
+
+    expect(mockRes.writeHead).toHaveBeenCalledWith(200, {
+      "Content-Type": "application/json",
+    });
   });
 
   it("should route to OAuth metadata endpoint", async () => {
@@ -826,7 +973,7 @@ describe("handleRequest()", () => {
       const mockTokenValidator = {
         validate: vi.fn().mockResolvedValue({
           valid: true,
-          claims: { scopes: ["write"] }, // mysql_read_query requires 'write'
+          claims: { scopes: ["write"] }, // mysql_write_query requires 'write'
         }),
       };
       const mockResourceServer = {
@@ -843,7 +990,7 @@ describe("handleRequest()", () => {
         "/messages",
         createMockResponse(),
       );
-      t.getTransports().set("mock-session", mockTransport as never);
+      (t as any).sessionManager.register("mock-session", mockTransport as never);
 
       const mockReqStream = new PassThrough();
       const mockReq = mockReqStream as unknown as IncomingMessage;
@@ -860,7 +1007,7 @@ describe("handleRequest()", () => {
           jsonrpc: "2.0",
           id: 1,
           method: "tools/call",
-          params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
+          params: { name: "mysql_write_query", arguments: { sql: "SELECT 1" } },
         }),
       );
       mockReqStream.end();
@@ -894,7 +1041,7 @@ describe("handleRequest()", () => {
         "/messages",
         createMockResponse(),
       );
-      t.getTransports().set("mock-session", mockTransport as never);
+      (t as any).sessionManager.register("mock-session", mockTransport as never);
 
       const mockReqStream = new PassThrough();
       const mockReq = mockReqStream as unknown as IncomingMessage;
@@ -911,7 +1058,7 @@ describe("handleRequest()", () => {
           jsonrpc: "2.0",
           id: 2,
           method: "tools/call",
-          params: { name: "mysql_read_query", arguments: { sql: "SELECT 1" } },
+          params: { name: "mysql_write_query", arguments: { sql: "SELECT 1" } },
         }),
       );
       mockReqStream.end();
@@ -933,7 +1080,7 @@ describe("handleRequest()", () => {
       expect(responseBody).toHaveProperty("error", "insufficient_scope");
       expect(responseBody).toHaveProperty("error_description");
       expect(responseBody.error_description).toContain("Insufficient scope");
-      expect(responseBody).toHaveProperty("tool", "mysql_read_query");
+      expect(responseBody).toHaveProperty("tool", "mysql_write_query");
       expect(mockTransport.handlePostMessage).not.toHaveBeenCalled();
     });
   });
@@ -944,7 +1091,7 @@ describe("handleRequest()", () => {
 // =============================================================================
 
 describe("getTransports()", () => {
-  it("should return the transport map", () => {
+  it("should return the transport map", async () => {
     const transport = new HttpTransport({ port: 3000 });
     const map = transport.getTransports();
     expect(map).toBeInstanceOf(Map);
@@ -953,12 +1100,12 @@ describe("getTransports()", () => {
 });
 
 describe("createHttpTransport()", () => {
-  it("should create HttpTransport instance", () => {
+  it("should create HttpTransport instance", async () => {
     const transport = createHttpTransport({ port: 8080 });
     expect(transport).toBeInstanceOf(HttpTransport);
   });
 
-  it("should pass config to transport", () => {
+  it("should pass config to transport", async () => {
     const transport = createHttpTransport({
       port: 3000,
       host: "0.0.0.0",
@@ -967,7 +1114,7 @@ describe("createHttpTransport()", () => {
     expect(transport).toBeInstanceOf(HttpTransport);
   });
 
-  it("should accept onConnect callback", () => {
+  it("should accept onConnect callback", async () => {
     const onConnect = vi.fn();
     const transport = createHttpTransport({ port: 3000 }, onConnect);
     expect(transport).toBeInstanceOf(HttpTransport);

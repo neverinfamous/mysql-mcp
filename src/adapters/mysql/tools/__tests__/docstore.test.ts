@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getDocStoreTools } from "../docstore/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -19,7 +19,7 @@ describe("getDocStoreTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     tools = getDocStoreTools(
-      createMockMySQLAdapter() as unknown as MySQLAdapter,
+      createMockMySQLAdapter(),
     );
   });
 
@@ -67,7 +67,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getDocStoreTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getDocStoreTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -136,7 +136,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ name: "products" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("CREATE TABLE");
       expect(call).toContain("doc JSON");
       expect(result).toHaveProperty("success", true);
@@ -150,6 +150,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -166,7 +168,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("JSON_SCHEMA_VALID");
     });
 
@@ -176,7 +178,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
       await tool.handler({ name: "default_val" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).not.toContain("JSON_SCHEMA_VALID");
     });
 
@@ -192,7 +194,7 @@ describe("Handler Execution", () => {
       );
 
       const calls = mockAdapter.executeQuery.mock.calls;
-      const createCall = calls[calls.length - 1][0] as string;
+      const createCall = calls[calls.length - 1][0];
       expect(createCall).toContain("CREATE TABLE IF NOT EXISTS");
     });
 
@@ -226,7 +228,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
       await tool.handler({ name: "my_collection" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("CREATE TABLE");
       expect(call).toContain("`my_collection`");
       expect(call).not.toContain("IF NOT EXISTS");
@@ -274,17 +276,15 @@ describe("Handler Execution", () => {
   });
 
   describe("mysql_doc_drop_collection", () => {
-    it("should drop collection with IF EXISTS by default", async () => {
-      mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // pre-check: collection exists
-        .mockResolvedValueOnce(createMockQueryResult([])); // DROP TABLE
+    it("should drop collection without IF EXISTS by default", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([])); // DROP TABLE
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
       const result = await tool.handler({ name: "users" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      expect(dropCall).toContain("DROP TABLE IF EXISTS `users`");
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
+      const dropCall = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(dropCall).toContain("DROP TABLE `users`");
       expect(result).toHaveProperty("success", true);
       expect(result).not.toHaveProperty("message");
     });
@@ -294,24 +294,26 @@ describe("Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
       const result = (await tool.handler(
-        { name: "nonexistent" },
+        { name: "nonexistent", ifExists: true },
         mockContext,
-      )) as { success: boolean; collection: string; message: string };
+      )) as { success: boolean; data: { collection: string; reason: string } };
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.collection", "nonexistent");
-      expect(result).toHaveProperty("data.message", "Collection did not exist");
+      expect(result).toHaveProperty("data.reason", "Collection did not exist");
     });
 
-    it("should drop collection without IF EXISTS when requested", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+    it("should drop collection with IF EXISTS when requested", async () => {
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // pre-check
+        .mockResolvedValueOnce(createMockQueryResult([])); // drop
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
-      await tool.handler({ name: "users", ifExists: false }, mockContext);
+      await tool.handler({ name: "users", ifExists: true }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toBe("DROP TABLE `users`");
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
+      expect(call).toBe("DROP TABLE IF EXISTS `users`");
     });
 
     it("should reject invalid collection names", async () => {
@@ -323,6 +325,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -383,8 +387,8 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(call).toContain("WHERE JSON_EXTRACT(doc, ?) IS NOT NULL");
       expect(params).toContain("$.age");
       expect(result).toHaveProperty("data.documents");
@@ -455,7 +459,7 @@ describe("Handler Execution", () => {
         ["otherdb", "my_coll"],
       );
       // Query should use qualified table ref
-      const queryCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
+      const queryCall = mockAdapter.executeQuery.mock.calls[2][0];
       expect(queryCall).toContain("`otherdb`.`my_coll`");
     });
 
@@ -505,8 +509,8 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      const params = mockAdapter.executeQuery.mock.calls[1][1] as unknown[];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
+      const params = mockAdapter.executeQuery.mock.calls[1][1];
       expect(call).toContain("JSON_EXTRACT");
       expect(params).toContain("$.name");
     });
@@ -525,7 +529,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       // Verify exact SQL generation for projection
       expect(call).toContain(
         "JSON_OBJECT('name', JSON_EXTRACT(doc, '$.name'), 'email', JSON_EXTRACT(doc, '$.email')) as doc",
@@ -542,6 +546,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -638,6 +644,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -718,7 +726,7 @@ describe("Handler Execution", () => {
         ["otherdb", "my_coll"],
       );
       // Insert should use qualified table ref
-      const insertCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
+      const insertCall = mockAdapter.executeQuery.mock.calls[2][0];
       expect(insertCall).toContain("`otherdb`.`my_coll`");
     });
   });
@@ -739,7 +747,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("JSON_SET");
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.modified");
@@ -760,7 +768,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("JSON_REMOVE");
     });
 
@@ -780,7 +788,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("JSON_SET");
       expect(call).toContain("JSON_REMOVE");
       expect(call).toContain("UPDATE `users` SET");
@@ -799,6 +807,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "No modifications specified",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -816,6 +826,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -886,7 +898,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const updateCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
+      const updateCall = mockAdapter.executeQuery.mock.calls[2][0];
       expect(updateCall).toContain("`otherdb`.`my_coll`");
     });
   });
@@ -906,7 +918,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("DELETE FROM");
       expect(call).toContain("JSON_EXTRACT");
       expect(result).toHaveProperty("success", true);
@@ -925,6 +937,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -992,7 +1006,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const deleteCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
+      const deleteCall = mockAdapter.executeQuery.mock.calls[2][0];
       expect(deleteCall).toContain("`otherdb`.`my_coll`");
     });
   });
@@ -1041,7 +1055,7 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
 
       const calls = mockAdapter.executeQuery.mock.calls;
-      const indexCall = calls[calls.length - 1][0] as string;
+      const indexCall = calls[calls.length - 1][0];
       expect(indexCall).toContain("CREATE INDEX `idx_name_age`");
       expect(indexCall).toContain("_idx_name");
       expect(indexCall).toContain("_idx_age");
@@ -1064,7 +1078,7 @@ describe("Handler Execution", () => {
       );
 
       const calls = mockAdapter.executeQuery.mock.calls;
-      const lastCall = calls[calls.length - 1][0] as string;
+      const lastCall = calls[calls.length - 1][0];
       expect(lastCall).toContain("UNIQUE INDEX");
     });
 
@@ -1081,6 +1095,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -1098,6 +1114,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid index name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -1169,9 +1187,9 @@ describe("Handler Execution", () => {
       );
 
       // ALTER TABLE and CREATE INDEX should use qualified table ref
-      const alterCall = mockAdapter.executeQuery.mock.calls[2][0] as string;
+      const alterCall = mockAdapter.executeQuery.mock.calls[2][0];
       expect(alterCall).toContain("`otherdb`.`my_coll`");
-      const indexCall = mockAdapter.executeQuery.mock.calls[3][0] as string;
+      const indexCall = mockAdapter.executeQuery.mock.calls[3][0];
       expect(indexCall).toContain("`otherdb`.`my_coll`");
     });
 
@@ -1212,8 +1230,8 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
       expect(result).toHaveProperty("data.collection", "users");
-      expect(result).toHaveProperty("data.stats");
-      expect(result).toHaveProperty("data.indexes");
+      expect(result).toHaveProperty("data.info");
+      expect(result).toHaveProperty("data.info.indexes");
     });
 
     it("should reject invalid collection names", async () => {
@@ -1225,6 +1243,8 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: false,
         error: "Invalid collection name",
+        code: "VALIDATION_ERROR",
+        category: "validation",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });

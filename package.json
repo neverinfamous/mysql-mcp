@@ -1,7 +1,7 @@
 {
   "name": "@neverinfamous/mysql-mcp",
-  "version": "3.2.2",
-  "description": "Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling & tool filtering",
+  "version": "4.0.0",
+  "description": "Enterprise-grade MySQL MCP Server with OAuth 2.1 authentication, connection pooling & tool filtering",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -9,18 +9,24 @@
     "mysql-mcp": "dist/cli.js"
   },
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "pnpm run build:js && pnpm run build:types",
+    "build:js": "tsup",
+    "build:types": "tsc --project tsconfig.build.json --emitDeclarationOnly",
+    "dev": "tsx watch src/index.ts",
     "lint": "eslint src/",
     "lint:fix": "eslint src/ --fix",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage && npx tsx scripts/update-badges.ts",
-    "test:e2e": "playwright test && npx tsx scripts/update-badges.ts",
-    "check": "npm run lint && npm run typecheck",
+    "test:coverage": "vitest run --coverage && pnpm exec tsx scripts/update-badges.ts",
+    "test:e2e": "playwright test && pnpm exec tsx scripts/update-badges.ts",
+    "test:zod": "node scripts/test-zod-errors.mjs",
+    "check": "pnpm run lint && pnpm run typecheck && pnpm run build && pnpm run test && pnpm run test:e2e",
+    "clean": "rimraf dist",
     "generate:instructions": "node scripts/generate-server-instructions.ts",
-    "bench": "vitest bench --run"
+    "generate:code-map": "tsx scripts/update-code-map.ts",
+    "bench": "vitest bench --run",
+    "prepublishOnly": "pnpm run build"
   },
   "keywords": [
     "mcp",
@@ -34,7 +40,7 @@
     "oauth",
     "typescript"
   ],
-  "author": "Adamic.tech",
+  "author": "neverinfamous",
   "license": "MIT",
   "repository": {
     "type": "git",
@@ -47,26 +53,41 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "packageManager": "pnpm@9.15.4",
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "acorn": "^8.17.0",
+    "better-sqlite3": "^12.11.1",
+    "isolated-vm": "7.0.0",
     "jose": "^6.2.3",
-    "mysql2": "^3.22.2",
+    "mysql2": "^3.22.5",
+    "redis": "^6.1.0",
+    "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "@playwright/test": "^1.59.1",
-    "@types/node": "^25.6.0",
-    "@vitest/coverage-v8": "^4.1.5",
-    "eslint": "^10.3.0",
-    "globals": "^17.6.0",
+    "@playwright/test": "1.61.1",
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^26.1.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "dotenv": "^17.4.2",
+    "esbuild": "^0.28.1",
+    "eslint": "^10.6.0",
+    "globals": "^17.7.0",
+    "picocolors": "^1.1.1",
+    "ts-pattern": "^5.9.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.0",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.59.2",
-    "vitest": "^4.1.5"
+    "typescript-eslint": "^8.63.0",
+    "vitest": "^4.1.10"
   },
   "overrides": {
-    "@modelcontextprotocol/sdk": {
-      "ajv": "8.18.0"
-    }
+    "@modelcontextprotocol/sdk>ajv": "8.18.0",
+    "hono": "^4.12.25",
+    "tsup>esbuild": "^0.28.1",
+    "bundle-require>esbuild": "^0.28.1",
+    "esbuild": "^0.28.1"
   }
 }

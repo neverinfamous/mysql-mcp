@@ -1,8 +1,11 @@
-import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
+import type { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition } from "../../types/index.js";
 import type { AuditInterceptor } from "../../audit/interceptor.js";
-import { METHOD_ALIASES } from "./constants.js";
+import { METHOD_ALIASES } from "./constants/index.js";
 import { normalizeParams } from "./params.js";
+import { formatHandlerErrorResponse } from "../../adapters/mysql/tools/core/error-helpers.js";
+
+import { z } from "zod";
 
 /**
  * Dynamic API generator for tool groups.
@@ -29,19 +32,38 @@ export function createGroupApi(
     api[methodName] = async (...args: unknown[]) => {
       // Normalize positional arguments to object parameters
       const normalizedParams = normalizeParams(methodName, args) ?? {};
-      const context = adapter.createContext();
-
-      // §1: Wrap with audit interceptor when available
-      if (auditInterceptor) {
-        return auditInterceptor.around(
-          tool.name,
-          normalizedParams,
-          context.requestId,
-          () => tool.handler(normalizedParams, context),
-          { logAs: "mysql_execute_code" },
-        );
+      
+      // Perform Zod validation on normalized params before calling the handler
+      let schema: z.ZodType;
+      if (typeof (tool.inputSchema as z.ZodType).safeParse === "function") {
+        schema = tool.inputSchema as z.ZodType;
+      } else {
+        schema = z.object(tool.inputSchema as z.ZodRawShape);
       }
-      return tool.handler(normalizedParams, context);
+
+      const validationResult = schema.safeParse(normalizedParams);
+      if (!validationResult.success) {
+        return formatHandlerErrorResponse(validationResult.error);
+      }
+
+      const context = adapter.createContext();
+      context.isCodeMode = true;
+
+      try {
+        // §1: Wrap with audit interceptor when available
+        if (auditInterceptor) {
+          return await auditInterceptor.around(
+            tool.name,
+            validationResult.data,
+            context.requestId,
+            () => tool.handler(validationResult.data, context),
+            { logAs: "mysql_execute_code" },
+          );
+        }
+        return await tool.handler(validationResult.data, context);
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
     };
   }
 
@@ -54,6 +76,13 @@ export function createGroupApi(
       }
     }
   }
+
+  // Add help method for this group
+  api["help"] = () => Promise.resolve({
+    success: true,
+    data: { methods: Object.keys(api) },
+    metrics: { tokenEstimate: 20 },
+  });
 
   return api;
 }
@@ -97,6 +126,7 @@ export function toolNameToMethodName(
     "roles",
     "events",
     "replication",
+    "vector",
   ]);
 
   if (!keepPrefix.has(groupName) && name.startsWith(groupPrefix)) {

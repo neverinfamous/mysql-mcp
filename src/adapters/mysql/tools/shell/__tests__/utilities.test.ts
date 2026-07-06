@@ -14,7 +14,7 @@ describe("Shell Utilities Tools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
-    mockSpawn = child_process.spawn as any;
+    mockSpawn = child_process.spawn;
   });
 
   afterEach(() => {
@@ -52,16 +52,15 @@ describe("Shell Utilities Tools", () => {
   describe("mysqlsh_check_upgrade", () => {
     it("should run upgrade check and return JSON result", async () => {
       const successJson = JSON.stringify({
-        success: true,
-        result: { status: "OK" },
+        status: "OK",
       });
       setupMockSpawn(`${successJson}\n`, "");
 
       const tool = createShellCheckUpgradeTool();
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { targetVersion: "8.0.35" },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(true);
       expect(result.data.upgradeCheck).toEqual({ status: "OK" });
@@ -77,10 +76,10 @@ describe("Shell Utilities Tools", () => {
       setupMockSpawn("Raw text output", "", 0);
 
       const tool = createShellCheckUpgradeTool();
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(true);
-      expect(result.data.upgradeCheck).toEqual({ raw: "Raw text output" });
+      expect(result.data.upgradeCheck).toBe("Raw text output");
     });
 
     it("should return structured error for failed execution", async () => {
@@ -89,12 +88,12 @@ describe("Shell Utilities Tools", () => {
 
       const tool = createShellCheckUpgradeTool();
 
-      const result = (await tool.handler(
+      const result = await tool.handler(
         {
           targetVersion: "8.4.0",
         },
         mockContext,
-      )) as any;
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBeDefined();
@@ -104,12 +103,12 @@ describe("Shell Utilities Tools", () => {
       setupMockSpawn("Non-JSON output", "", 0);
 
       const tool = createShellCheckUpgradeTool();
-      const result = (await tool.handler(
+      const result = await tool.handler(
         { targetVersion: "8.0.0" },
         mockContext,
-      )) as any;
+      );
 
-      expect(result.data.upgradeCheck.raw).toBe("Non-JSON output");
+      expect(result.data.upgradeCheck).toBe("Non-JSON output");
     });
 
     it("should always use JSON outputFormat internally for reliable parsing", async () => {
@@ -135,7 +134,7 @@ describe("Shell Utilities Tools", () => {
       const tool = createShellCheckUpgradeTool();
       await tool.handler({ targetVersion: "8.4.0" }, mockContext);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4] as string;
+      const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('targetVersion: "8.4.0"');
     });
 
@@ -145,7 +144,7 @@ describe("Shell Utilities Tools", () => {
       const tool = createShellCheckUpgradeTool();
       await tool.handler({ outputFormat: "JSON" }, mockContext);
 
-      const jsArg = mockSpawn.mock.calls[0][1][4] as string;
+      const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('outputFormat: "JSON"');
     });
 
@@ -158,7 +157,7 @@ describe("Shell Utilities Tools", () => {
         mockContext,
       );
 
-      const jsArg = mockSpawn.mock.calls[0][1][4] as string;
+      const jsArg = mockSpawn.mock.calls[0][1][4];
       expect(jsArg).toContain('targetVersion: "9.0.0"');
       // We always force JSON internally for reliable parsing
       expect(jsArg).toContain('outputFormat: "JSON"');

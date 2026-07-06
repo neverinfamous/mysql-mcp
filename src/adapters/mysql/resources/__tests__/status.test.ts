@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStatusResource } from "../status.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -52,7 +52,7 @@ describe("Status Resource", () => {
 
   it("should handle null query results", async () => {
     mockAdapter.executeQuery.mockResolvedValueOnce(
-      createMockQueryResult(null as any),
+      createMockQueryResult(null ),
     );
 
     const resource = createStatusResource(

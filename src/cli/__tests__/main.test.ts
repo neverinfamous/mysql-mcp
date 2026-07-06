@@ -8,13 +8,13 @@ import {
   type Mock,
 } from "vitest";
 import { main } from "../../cli.js";
-import { createServer } from "../../server/mcp-server.js";
-import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter.js";
+import { createServer } from "../../server/mcp-server/index.js";
+import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 
 // Mock dependencies
-vi.mock("../../server/mcp-server.js");
-vi.mock("../../adapters/mysql/mysql-adapter.js");
-vi.mock("../args.js", () => ({
+vi.mock("../../server/mcp-server/index.js");
+vi.mock("../../adapters/mysql/mysql-adapter/index.js");
+vi.mock("../args/index.js", () => ({
   parseArgs: vi.fn(() => ({
     config: { name: "test-server", version: "1.0.0" },
     databases: [],
@@ -27,11 +27,11 @@ vi.mock("../args.js", () => ({
 const originalExit = process.exit;
 
 describe("CLI Main", () => {
-  let mockServer: any;
-  let mockAdapter: any;
-  let mockExit: any;
-  let mockConsoleError: any;
-  let mockProcessOn: any;
+  let mockServer: { start: Mock; stop: Mock; registerAdapter: Mock };
+  let mockAdapter: { connect: Mock; disconnect: Mock; getCapabilities: Mock; isConnected: Mock };
+  let mockExit: Mock;
+  let mockConsoleError: Mock;
+  let mockProcessOn: Mock;
 
   // Custom error to simulate process.exit
   class ExitError extends Error {
@@ -164,21 +164,22 @@ describe("CLI Main", () => {
     );
   });
 
-  it("should handle adapter connection errors", async () => {
-    const dbConfig = { type: "mysql" as const };
+  it("should handle adapter connection errors without exiting", async () => {
+    const dbConfig = { type: "mysql" as const, database: "test_db" };
     const error = new Error("Connection failed");
     mockAdapter.connect.mockRejectedValue(error);
 
-    await expect(
-      main({
-        config: {},
-        databases: [dbConfig],
-        oauth: undefined,
-      }),
-    ).rejects.toThrow(/Process exited with code 1/);
+    await main({
+      config: {},
+      databases: [dbConfig],
+      oauth: undefined,
+    });
 
-    expect(mockConsoleError).toHaveBeenCalledWith("Fatal error:", error);
-    expect(mockExit).toHaveBeenCalledWith(1);
+    // We have to wait a tick for the unhandled promise rejection catch block to run
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(mockExit).not.toHaveBeenCalled();
+    expect(mockServer.start).toHaveBeenCalled();
   });
 
   it("should register signal handlers for graceful shutdown", async () => {
@@ -205,7 +206,7 @@ describe("CLI Main", () => {
 
     // Get the shutdown handler
     const shutdownHandler = mockProcessOn.mock.calls.find(
-      (call: any[]) => call[0] === "SIGINT",
+      (call: unknown[]) => call[0] === "SIGINT",
     )[1];
 
     // Override mockExit to not throw for this test to avoid Unhandled Rejection in the void wrapper

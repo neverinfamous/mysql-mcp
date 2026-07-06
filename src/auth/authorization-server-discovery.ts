@@ -10,6 +10,20 @@ import type {
 } from "./types.js";
 import { AuthServerDiscoveryError } from "./errors.js";
 import { logger } from "../utils/logger.js";
+import { z } from "zod";
+
+const MetadataSchema = z.object({
+  issuer: z.string(),
+  authorization_endpoint: z.string().optional(),
+  token_endpoint: z.string(),
+  jwks_uri: z.string().optional(),
+  registration_endpoint: z.string().optional(),
+  scopes_supported: z.array(z.string()).optional(),
+  response_types_supported: z.array(z.string()).optional(),
+  grant_types_supported: z.array(z.string()).optional(),
+  token_endpoint_auth_methods_supported: z.array(z.string()).optional(),
+  code_challenge_methods_supported: z.array(z.string()).optional(),
+}).loose();
 
 /**
  * Authorization Server Discovery (RFC 8414)
@@ -64,12 +78,8 @@ export class AuthorizationServerDiscovery {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const metadata = (await response.json()) as AuthorizationServerMetadata;
-
-      // Validate required fields
-      if (!metadata.issuer || !metadata.token_endpoint) {
-        throw new Error("Invalid metadata: missing required fields");
-      }
+      const rawData = await response.json();
+      const metadata: AuthorizationServerMetadata = MetadataSchema.parse(rawData);
 
       // Cache the metadata
       this.metadataCache = metadata;

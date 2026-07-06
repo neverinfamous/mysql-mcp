@@ -5,7 +5,7 @@ import {
   createMockRequestContext,
 } from "../../../../__tests__/mocks/index.js";
 import { createHealthResource } from "../health.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 describe("Health Resource", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -26,10 +26,10 @@ describe("Health Resource", () => {
     const resource = createHealthResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://health",
       mockContext,
-    )) as any;
+    );
 
     expect(result.status).toBe("healthy");
     expect(result.uptime_seconds).toBe(0);
@@ -52,10 +52,10 @@ describe("Health Resource", () => {
     const resource = createHealthResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://health",
       mockContext,
-    )) as any;
+    );
 
     expect(result.performance.buffer_pool_hit_ratio).toBe(100);
   });
@@ -74,10 +74,10 @@ describe("Health Resource", () => {
     const resource = createHealthResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://health",
       mockContext,
-    )) as any;
+    );
 
     expect(result.performance.table_lock_contention_percent).toBe(0);
   });
@@ -100,10 +100,10 @@ describe("Health Resource", () => {
     const resource = createHealthResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://health",
       mockContext,
-    )) as any;
+    );
 
     expect(result.uptime_seconds).toBe(3600);
     expect(result.connections.usage_percent).toBe(50); // 50/100
@@ -117,15 +117,15 @@ describe("Health Resource", () => {
     const mockPool = {
       getStats: vi.fn().mockReturnValue({ total: 10, active: 5, idle: 5 }),
     };
-    (mockAdapter.getPool as any).mockReturnValue(mockPool);
+    mockAdapter.getPool.mockReturnValue(mockPool);
 
     const resource = createHealthResource(
       mockAdapter as unknown as MySQLAdapter,
     );
-    const result = (await resource.handler(
+    const result = await resource.handler(
       "mysql://health",
       mockContext,
-    )) as any;
+    );
 
     expect(result.pool).toEqual({ total: 10, active: 5, idle: 5 });
   });

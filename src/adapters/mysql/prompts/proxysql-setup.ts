@@ -4,6 +4,7 @@
  * Complete ProxySQL configuration guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupProxysqlPrompt(): PromptDefinition {
   return {
@@ -109,7 +110,7 @@ Use \`proxysql_query_digest\` to find:
 3. **Health checks**: Configure proper health check intervals
 4. **Monitor**: Watch query digest for performance issues
 
-Start by checking ProxySQL connection with \`proxysql_status\`.`);
+Start by checking ProxySQL connection with \`proxysql_status\`.${getSkillDirective()}`);
     },
   };
 }

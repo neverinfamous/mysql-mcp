@@ -5,19 +5,32 @@
  * 6 tools total.
  */
 
-import { z, ZodError } from "zod";
+import { ZodError } from "zod";
+import { ValidationError, QueryError } from "../../../types/modules/errors.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "./core/error-helpers.js";
 import {
+  EventCreateSchemaBase,
   EventCreateSchema,
+  EventAlterSchemaBase,
   EventAlterSchema,
+  EventDropSchemaBase,
   EventDropSchema,
+  EventListSchemaBase,
   EventListSchema,
+  EventStatusSchemaBase,
   EventStatusSchema,
+  SchedulerStatusSchemaBase,
+  EventCreateOutputSchema,
+  EventAlterOutputSchema,
+  EventDropOutputSchema,
+  EventListOutputSchema,
+  EventStatusOutputSchema,
+  SchedulerStatusOutputSchema,
 } from "../schemas/events.js";
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
 import { WRITE, DESTRUCTIVE, READ_ONLY } from "../../../utils/annotations.js";
 
@@ -45,7 +58,8 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Create a scheduled event (one-time or recurring) to execute SQL at specified times.",
     group: "events",
-    inputSchema: EventCreateSchema,
+    inputSchema: EventCreateSchemaBase,
+    outputSchema: EventCreateOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -61,18 +75,14 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         } = EventCreateSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid event name",
-          });
+          return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
         const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
         if (!validOnCompletion.includes(onCompletion)) {
-          return withTokenEstimate({
-            success: false,
-            error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
-          });
+          return formatHandlerErrorResponse(
+            new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
+          );
         }
 
         if (ifNotExists) {
@@ -82,8 +92,8 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (existsCheck.rows && existsCheck.rows.length > 0) {
             return withTokenEstimate({
-              success: false,
-              error: "Event already exists",
+              success: true,
+              data: { eventName: name, skipped: true, reason: "Event already exists" }
             });
           }
         }
@@ -108,10 +118,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("already exists")) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event already exists",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event already exists",));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -129,7 +136,8 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Modify an existing scheduled event schedule, body, or status.",
     group: "events",
-    inputSchema: EventAlterSchema,
+    inputSchema: EventAlterSchemaBase,
+    outputSchema: EventAlterOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -138,20 +146,16 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
           EventAlterSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid event name",
-          });
+          return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
         // Validate enum fields at handler level
         if (onCompletion !== undefined) {
           const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
           if (!validOnCompletion.includes(onCompletion)) {
-            return withTokenEstimate({
-              success: false,
-              error: `Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`,
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
+            );
           }
         }
 
@@ -168,10 +172,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (newName) {
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid new event name",
-            });
+            return formatHandlerErrorResponse(new ValidationError("Invalid new event name",));
           }
           clauses.push(`RENAME TO \`${newName}\``);
         }
@@ -189,10 +190,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (clauses.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "No modifications specified",
-          });
+          return formatHandlerErrorResponse(new ValidationError("No modifications specified",));
         }
 
         sql += "\n" + clauses.join("\n");
@@ -208,10 +206,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event does not exist",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event does not exist",));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -228,7 +223,8 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Drop Event",
     description: "Remove a scheduled event.",
     group: "events",
-    inputSchema: EventDropSchema,
+    inputSchema: EventDropSchemaBase,
+    outputSchema: EventDropOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -236,10 +232,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         const { name, ifExists } = EventDropSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return withTokenEstimate({
-            success: false,
-            error: "Invalid event name",
-          });
+          return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
         if (ifExists) {
@@ -249,8 +242,8 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (!existsCheck.rows || existsCheck.rows.length === 0) {
             return withTokenEstimate({
-              success: false,
-              error: "Event does not exist",
+              success: true,
+              data: { eventName: name, skipped: true, reason: "Event did not exist" }
             });
           }
         }
@@ -265,10 +258,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const message = error instanceof Error ? error.message : String(error);
         if (message.toLowerCase().includes("unknown event")) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event does not exist",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event does not exist",));
         }
         return formatHandlerErrorResponse(error);
       }
@@ -286,12 +276,13 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all scheduled events with status, schedule, and execution info.",
     group: "events",
-    inputSchema: EventListSchema,
+    inputSchema: EventListSchemaBase,
+    outputSchema: EventListOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, includeDisabled } = EventListSchema.parse(params);
+        const { schema, pattern, includeDisabled } = EventListSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -300,10 +291,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return withTokenEstimate({
-              success: false,
-              error: "Schema does not exist",
-            });
+            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
           }
         }
 
@@ -327,6 +315,11 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
             `;
 
         const queryParams: unknown[] = [schema ?? null];
+
+        if (pattern) {
+          query += " AND EVENT_NAME LIKE ?";
+          queryParams.push(pattern);
+        }
 
         if (!includeDisabled) {
           query += " AND STATUS = 'ENABLED'";
@@ -362,7 +355,8 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get detailed status and execution history for a specific event.",
     group: "events",
-    inputSchema: EventStatusSchema,
+    inputSchema: EventStatusSchemaBase,
+    outputSchema: EventStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -376,10 +370,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return withTokenEstimate({
-              success: false,
-              error: "Schema does not exist",
-            });
+            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
           }
         }
 
@@ -413,15 +404,12 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
         ]);
 
         if (!result.rows || result.rows.length === 0) {
-          return withTokenEstimate({
-            success: false,
-            error: "Event does not exist",
-          });
+          return formatHandlerErrorResponse(new QueryError("Event does not exist"));
         }
 
         return withTokenEstimate({
           success: true,
-          data: { event: result.rows[0] },
+          data: { name, event: result.rows[0] },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
@@ -442,7 +430,8 @@ function createSchedulerStatusTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Scheduler Status",
     description: "Get the global Event Scheduler status and event statistics.",
     group: "events",
-    inputSchema: z.object({}),
+    inputSchema: SchedulerStatusSchemaBase,
+    outputSchema: SchedulerStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {

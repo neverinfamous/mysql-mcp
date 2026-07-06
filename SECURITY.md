@@ -1,16 +1,20 @@
 # 🔒 Security Policy
 
-The mysql-mcp MySQL MCP server implements comprehensive security measures to protect your databases across stdio, HTTP, and SSE transports.
+The mysql-mcp server protects your databases. It secures stdio, HTTP, and SSE transports.
 
-## 🛡️ **Database Security**
+## 💎 Value Proposition
 
-### **SQL Injection Prevention**
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+
+## 🛡️ **Secure Your Database**
+
+### Prevent SQL Injection
 
 **Identifier Sanitization** (`src/utils/identifiers.ts`)
 
-- ✅ **Comprehensive coverage** — all table, column, schema, and index names validated and quoted across every tool group (admin, backup, core, jsonb, monitoring, partitioning, performance, postgis, schema, stats, text, vector)
-- ✅ **PostgreSQL identifier rules enforced** — start with letter/underscore, contain only alphanumerics, underscores, or $ signs
-- ✅ **63-character limit** enforced (PostgreSQL maximum)
+- ✅ **Comprehensive coverage** — validates and quotes all table, column, schema, and index names across all 28 tool groups.
+- ✅ **MySQL identifier rules enforced** — start with letter/underscore, contain only alphanumerics, underscores, or $ signs
+- ✅ **64-character limit** enforced (MySQL maximum)
 - ✅ **Invalid identifiers** throw `InvalidIdentifierError`
 
 Key functions:
@@ -22,10 +26,10 @@ Key functions:
 
 **Parameterized Queries**
 
-- ✅ **All user-provided values** use parameterized queries via `pg` library
+- ✅ **All user-provided values** use parameterized queries via `mysql2` library
 - ✅ **Identifier sanitization** complements parameterized values — defense in depth
 
-### **Structured Error Handling**
+### Handle Errors Structurally
 
 Every tool returns structured error responses — never raw exceptions or internal details:
 
@@ -40,45 +44,57 @@ Every tool returns structured error responses — never raw exceptions or intern
 }
 ```
 
-Error codes are module-prefixed (e.g., `PG_CONNECTION_FAILED`, `SCHEMA_NOT_FOUND`). Internal stack traces are logged server-side but never exposed to clients.
+Error logic leverages the `MySQLMcpError` hierarchy (9 distinct categories). It returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
 
-## 🔐 **Input Validation**
+## 🔐 **Validate Your Inputs**
 
 - ✅ **Zod schemas** — all tool inputs validated at tool boundaries before database operations
 - ✅ **Parameterized queries** used throughout — never string interpolation
+- ✅ **Audit filters required** — audit log queries must provide at least one filter to prevent mass data extraction
+- ✅ **Data masking aliases** — validated strictly at the MCP boundary to prevent evasion
 - ✅ **Identifier sanitization** — table, column, schema, and index names validated against injection
 
-## 🧪 **Code Mode Sandbox Security**
+## 📁 **Enforce Filesystem Boundaries**
 
-Code Mode executes user-provided JavaScript in a hardened `worker_threads` + `vm.createContext` sandbox with multiple layers of defense-in-depth:
+A dedicated security sandbox strictly confines all file I/O operations exposed by the server. This includes MySQL Shell operations and Audit Subsystem snapshots.
 
-### **Engine-Level Restrictions**
+- ✅ **`ALLOWED_IO_ROOTS` Enforcement** — operations must target absolute paths within administrator-configured directories. HTTP transports hard-fail on startup if omitted.
+- ✅ **Path Traversal Prevention** — blocks directory traversal sequences (`..`), null bytes, and query parameters in path inputs.
+- ✅ **Symlink Awareness** — resolves and asserts `realpath` to prevent escaping the sandbox via symlink targets.
+- ✅ **Hidden Files Protection** — rejects dotfiles and hidden directories (unless explicitly authorized by the root config).
+- ✅ **Drive Letter Validation** — fully cross-platform compatible with strict Windows drive letter (`C:\`) and UNC path checking.
 
-- ✅ **V8 code generation disabled** — `codeGeneration: { strings: false, wasm: false }` prevents `eval()` and `Function()` construction from strings at the V8 engine level
-- ✅ **Separate V8 isolate** — each worker thread runs in its own V8 instance with enforced heap limits (`maxOldGenerationSizeMb`, `maxYoungGenerationSizeMb`)
-- ✅ **Frozen prototypes** — all built-in prototypes (Object, Function, Array, Error, Map, Set, Promise, etc.) frozen inside the vm context to prevent dynamic constructor chain escapes like `Error()['constructor']['constructor']('return process')()`
-- ✅ **Proxy constructor nullified** — `Proxy: undefined` in the sandbox context prevents meta-object protocol abuse
+## 🧪 **Secure Code Mode Sandbox**
 
-### **Static Code Validation**
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#maximize-efficiency-with-code-mode).**
 
-- ✅ **18 blocked patterns** — regex rules blocking `require()`, `import()`, `eval()`, `Function()`, `__proto__`, `constructor.constructor`, `['constructor']`, `Reflect.*`, `Symbol.*`, `new Proxy()`, and filesystem/network/child_process references
-- ✅ **50KB code input limit** — prevents payload-based resource exhaustion
+### Enforce Engine-Level Restrictions
 
-### **Runtime Protection**
+- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
 
-- ✅ **RPC allowlist** — host-side validation prevents workers from invoking unauthorized API methods
-- ✅ **Execution timeout** — 30s hard limit (configurable) with forced worker termination
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` replacer aborts serialization mid-flight when exceeding `CODE_MODE_MAX_RESULT_SIZE` (default 100KB, cap 50MB), preventing OOM from oversized payloads
-- ✅ **Rate limiting** — 60 executions per minute per client
-- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and code preview (truncated to 200 chars)
-- ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled
+### Validate Code Statically
 
-## 🌐 **HTTP Transport Security**
+- ✅ **29 blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
+- ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
+
+### Protect the Runtime
+
+- ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — 30s hard limit (not configurable, enforced by the isolate engine) to prevent resource exhaustion.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
+- ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
+- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
+- ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
+- ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
+
+## 🌐 **Secure HTTP Transports**
 
 When running in HTTP mode (`--transport http`), the following security measures apply:
 
-### **Security Headers & Protections**
+### Add Security Headers
 
 - ✅ **DNS Rebinding Protection** — `validateHostHeader()` strictly validates `Host` headers
 - ✅ **X-Content-Type-Options: nosniff** — prevents MIME sniffing
@@ -88,51 +104,52 @@ When running in HTTP mode (`--transport http`), the following security measures 
 - ✅ **Referrer-Policy: no-referrer** — prevents referrer leakage
 - ✅ **Permissions-Policy: camera=(), microphone=(), geolocation=()** — restricts browser APIs
 
-### **HSTS Support**
+### Support HSTS
 
 - ✅ **Strict-Transport-Security** header for HTTPS deployments
-- ✅ Enable via `enableHSTS: true` configuration
+- ✅ Enable via `--enable-hsts` flag or `MCP_ENABLE_HSTS=true`
 
-### **CORS Configuration**
+### Configure CORS
 
 - ✅ **Origin whitelist** with `Vary: Origin` header for caching
 - ✅ **Optional credentials support** (`corsAllowCredentials`)
 - ✅ **MCP-specific headers** allowed (`X-Session-ID`, `mcp-session-id`)
 
-### **Rate Limiting & Timeouts**
+### Apply Rate Limiting
 
-- ✅ **Built-in Rate Limiting** — 100 requests/minute per IP
+- ✅ **Built-in Rate Limiting** — 100 requests/minute per IP. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Health Endpoint Bypass** — `/health` bypasses limits to ensure reliable load balancer checks
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
 - ✅ **Slowloris DoS Protection** — configurable read timeouts via `MCP_REQUEST_TIMEOUT` and `MCP_HEADERS_TIMEOUT`
 
-> **Reverse Proxy Note:** Rate limiting uses `req.socket.remoteAddress`. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. Ensure your proxy forwards distinct client IPs, or apply rate limiting at the proxy layer instead.
+> **Reverse Proxy Note:** The server uses `req.socket.remoteAddress` for rate limiting. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. You must ensure your proxy forwards distinct client IPs. Alternatively, you can apply rate limiting at the proxy layer instead.
 
-### **Request Size Limits**
+### Restrict Request Limits
 
-- ✅ **Configurable body limit** via `maxBodySize` (default: 1 MB) — prevents memory exhaustion DoS
+- ✅ **Memory Exhaustion Protection** — Strict request bounds prevent memory exhaustion DoS
 
-## 🔑 **Authentication (OAuth 2.1)**
+## 🔑 **Authenticate with OAuth 2.1**
 
-Full OAuth 2.1 for production multi-tenant deployments:
+Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#secure-access-with-authentication).**
 
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
+- ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
 - ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
-- ✅ **PostgreSQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
+- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 
 > **⚠️ HTTP without OAuth:** When OAuth is not configured, all scope checks are bypassed. If you expose the HTTP transport without enabling OAuth, any client has full unrestricted access. Always enable OAuth for production HTTP deployments.
 
-## 🐳 **Docker Security**
+## 🐳 **Harden Docker Containers**
 
-### **Non-Root User**
+### Run as Non-Root User
 
-- ✅ **Dedicated user**: `appuser` (UID 1001) with minimal privileges
-- ✅ **Restricted group**: `appgroup` (GID 1001)
+- ✅ **Dedicated user**: `app` (UID 1001) with minimal privileges
+- ✅ **Restricted group**: `app` (GID 1001)
 - ✅ **Restricted data directory**: `700` permissions
 
-### **Container Hardening**
+### Harden the Container
 
 - ✅ **Minimal base image**: `node:24-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
@@ -140,71 +157,71 @@ Full OAuth 2.1 for production multi-tenant deployments:
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
 - ✅ **Process isolation** from host system
 
-### **Dependency Patching**
+### Patch Dependencies
 
 The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
 
-- ✅ `diff@8.0.3` — GHSA-73rr-hh4g-fpgx
-- ✅ `@isaacs/brace-expansion@5.0.1` — CVE-2026-25547
-- ✅ `tar@7.5.11` — CVE-2026-23950, CVE-2026-24842
-- ✅ `minimatch@10.2.4` — CVE-2026-27904, CVE-2026-27903
+- ✅ `cross-spawn` — CVE-2024-21538
+- ✅ `glob` — CVE-2025-64756
+- ✅ `@isaacs/brace-expansion@5.0.1` — CVE-2025-5889
+- ✅ `tar@7.5.19` — CVE-2026-26960
+- ✅ `minimatch@10.2.5` — CVE-2026-27904, CVE-2026-27903
 
-### **Volume Mounting Security**
+### Mount Volumes Securely
 
 ```bash
 # Secure volume mounting
-docker run -v ./data:/app/data:rw,noexec,nosuid,nodev neverinfamous/postgres-mcp:latest
+docker run -v ./data:/app/data:rw,noexec,nosuid,nodev writenotenow/mysql-mcp:latest
 ```
 
-### **Resource Limits**
+### Apply Resource Limits
 
 ```bash
 # Apply resource limits
-docker run --memory=1g --cpus=1 neverinfamous/postgres-mcp:latest
+docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 ```
 
-## 🔐 **Logging Security**
+## 🔐 **Secure Your Logs**
 
-### **Audit Subsystem**
+### Enable Audit Subsystem
 
 - ✅ **Full JSONL Audit Trails** — comprehensive logging array capturing mutations, Code Mode executions, and system events
 - ✅ **Session Token Estimates** — robust burn-rate tracking appended to log entries
 - ✅ **Pre-Mutation Snapshots** — interceptor captures table states before destructive administration operations
 
-### **Credential Redaction**
+### Redact Credentials
 
 - ✅ **Sensitive fields automatically redacted** in logs: `password`, `secret`, `token`, `apikey`, `issuer`, `audience`, `jwksUri`, `credentials`, etc.
 - ✅ **Recursive sanitization** for nested objects
 
-### **Log Injection Prevention**
+### Prevent Log Injection
 
 - ✅ **Control character sanitization** (ASCII 0x00-0x1F except tab/newline, 0x7F, C1 characters)
 - ✅ **Prevents log forging** and escape sequence attacks
 
-## 🔄 **CI/CD Security**
+## 🔄 **Secure CI/CD Pipelines**
 
 - ✅ **CodeQL analysis** — automated static analysis on push/PR
-- ✅ **npm audit** — dependency vulnerability checking (audit-level: moderate)
+- ✅ **pnpm audit** — dependency vulnerability checking (audit-level: moderate)
 - ✅ **Dependabot** — automated dependency update PRs (weekly for npm and GitHub Actions)
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
 - ✅ **E2E transport parity** — Playwright suite validates HTTP/SSE security behavior
 
-## 🚨 **Security Best Practices**
+## 🚨 **Follow Security Best Practices**
 
-### **For Users**
+### Follow Best Practices for Users
 
 1. **Never commit database credentials** to version control — use environment variables
 2. **Use OAuth 2.1 authentication** for HTTP transport in production — never expose HTTP transport without OAuth
 3. **Restrict database user permissions** to minimum required
-4. **Enable SSL** for database connections in production (`--ssl` or `ssl=true` in connection string)
-5. **Enable HSTS** when running over HTTPS (`--enableHSTS`)
+4. **Enable SSL** for database connections in production (`ssl=true` in connection string)
+5. **Enable HSTS** when running over HTTPS (`--enable-hsts`)
 6. **Configure CORS origins explicitly** — avoid wildcards
 7. **Use resource limits** — apply Docker `--memory` and `--cpus` limits
 8. **Apply rate limiting at the proxy layer** when deploying behind a reverse proxy
-9. **For cloud-managed databases** with IAM authentication (e.g., AWS RDS), set `POSTGRES_POOL_MIN=2` to reduce connection establishment latency
-10. **Consider SHA-pinning** critical GitHub Actions in CI workflows for supply-chain defense-in-depth
+9. **Consider SHA-pinning** critical GitHub Actions in CI workflows for supply-chain defense-in-depth
 
-### **For Developers**
+### Follow Best Practices for Developers
 
 1. **Parameterized queries only** — never interpolate user input into SQL strings
 2. **Zod validation** — all tool inputs validated via schemas at tool boundaries
@@ -213,44 +230,45 @@ docker run --memory=1g --cpus=1 neverinfamous/postgres-mcp:latest
 5. **Regular updates** — keep Node.js and npm dependencies updated
 6. **Security scanning** — regularly scan Docker images for vulnerabilities
 
-## 📋 **Security Checklist**
+## 📋 **Complete the Security Checklist**
 
 - [x] Parameterized SQL queries throughout
 - [x] Identifier sanitization (table, column, schema, index names)
 - [x] Input validation via Zod schemas
-- [x] Code Mode sandbox isolation (worker_threads V8 isolate + vm.createContext)
+- [x] Filesystem boundary sandbox (`ALLOWED_IO_ROOTS`) for all file I/O operations
+- [x] Code Mode sandbox isolation (true separate V8 isolate via isolated-vm)
 - [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
-- [x] Code Mode frozen built-in prototypes (constructor chain escape prevention)
-- [x] Code Mode blocked patterns (18 static regex rules)
-- [x] Code Mode Proxy constructor nullified in sandbox context
-- [x] Code Mode RPC allowlist validation (host-side method authorization)
+- [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
+- [x] Code Mode blocked patterns (29 static regex rules + Unicode/NFKC validation)
+- [x] Code Mode RPC quotas (100 calls per execution)
 - [x] Code Mode streaming egress boundary (abort serialization on oversized results)
 - [x] Code Mode execution timeout (30s hard limit)
-- [x] Code Mode rate limiting (60 executions/min)
+- [x] Code Mode rate limiting (60 executions/min, Redis-backed with in-memory fallback)
 - [x] Code Mode audit logging
-- [x] HTTP body size limit (configurable, default 1 MB)
+- [x] HTTP bounds limits
 - [x] Configurable CORS with origin whitelist
-- [x] Rate limiting (100 req/min per IP)
+- [x] Rate limiting (100 req/min per IP, Redis-backed with in-memory fallback)
 - [x] Slowloris DoS timeouts (`MCP_REQUEST_TIMEOUT`, `MCP_HEADERS_TIMEOUT`)
 - [x] DNS rebinding protection via Host header validation
 - [x] Security headers (CSP, X-Content-Type-Options, X-Frame-Options, Cache-Control, Referrer-Policy, Permissions-Policy)
 - [x] HSTS (opt-in)
 - [x] OAuth 2.1 with JWT/JWKS validation (RFC 9728, RFC 8414)
-- [x] PostgreSQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:*`, `schema:*`, `table:*:*:*`)
+- [x] MySQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:*`, `schema:*`, `table:*:*`)
 - [x] Per-tool scope enforcement via `AsyncLocalStorage`
 - [x] Credential redaction in logs
 - [x] Log injection prevention
 - [x] Non-root Docker user
 - [x] Multi-stage Docker build with production pruning
 - [x] Transitive dependency CVE patching in Dockerfile
-- [x] CI/CD security pipeline (CodeQL, npm audit, secrets scanning)
+- [x] CI/CD security pipeline (CodeQL, pnpm audit, secrets scanning)
 - [x] Structured error responses (no internal details leaked)
 - [x] Comprehensive security documentation
 
-## 🚨 **Reporting Security Issues**
+## 🚨 **Report Security Issues**
 
 | Version | Supported |
 | ------- | --------- |
+| 3.x.x   | ✅        |
 | 2.x.x   | ✅        |
 | 1.x.x   | ✅        |
 | < 1.0   | ❌        |
@@ -270,11 +288,11 @@ If you discover a security vulnerability:
 
 We appreciate responsible disclosure and will acknowledge your contribution in our release notes (unless you prefer to remain anonymous).
 
-## 🔄 **Security Updates**
+## 🔄 **Apply Security Updates**
 
 - **Container updates**: Rebuild Docker images when base images are updated
-- **Dependency updates**: Keep npm packages updated via `npm audit` and Dependabot
-- **Database maintenance**: Run `ANALYZE` and `VACUUM` regularly for optimal performance
+- **Dependency updates**: Keep npm packages updated via `pnpm audit` and Dependabot
+- **Database maintenance**: Run `OPTIMIZE TABLE` and `ANALYZE TABLE` regularly for optimal performance
 - **Security patches**: Apply host system security updates
 
-The mysql-mcp MySQL MCP server is designed with **security-first principles** to protect your databases while maintaining excellent performance and full MySQL capability.
+The mysql-mcp server is designed with **security-first principles**. It protects your databases. It maintains excellent performance and full MySQL capability.

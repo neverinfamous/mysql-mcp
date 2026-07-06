@@ -10,7 +10,7 @@ import {
   createSecurityFirewallStatusTool,
   createSecurityFirewallRulesTool,
 } from "../audit.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -40,7 +40,7 @@ describe("Security Audit Tools", () => {
       );
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -54,7 +54,7 @@ describe("Security Audit Tools", () => {
       expect(result.data.source).toBe("mysql.audit_log");
       expect(result.data.events).toHaveLength(1);
 
-      const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const queryCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(queryCall).toContain("FROM mysql.audit_log");
       expect(queryCall).toContain("WHERE user LIKE ?");
       expect(queryCall).toContain("WHERE user LIKE ?");
@@ -67,7 +67,7 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -79,8 +79,8 @@ describe("Security Audit Tools", () => {
         mockContext,
       );
 
-      const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
-      const queryParams = mockAdapter.executeQuery.mock.calls[1][1] as any[];
+      const queryCall = mockAdapter.executeQuery.mock.calls[1][0];
+      const queryParams = mockAdapter.executeQuery.mock.calls[1][1];
 
       expect(queryCall).toContain("user LIKE ?");
       expect(queryCall).toContain("event_type = ?");
@@ -98,18 +98,19 @@ describe("Security Audit Tools", () => {
       );
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
           limit: 10,
+          user: "test",
         },
         mockContext,
       )) as { data: { source: string } };
 
       expect(result.data.source).toBe("performance_schema");
 
-      const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const queryCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(queryCall).toContain(
         "FROM performance_schema.events_statements_history",
       );
@@ -123,7 +124,7 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -133,7 +134,7 @@ describe("Security Audit Tools", () => {
         mockContext,
       );
 
-      const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const queryCall = mockAdapter.executeQuery.mock.calls[1][0];
 
       expect(queryCall).toContain("t.PROCESSLIST_USER LIKE '%test_user%'");
     });
@@ -143,7 +144,7 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         {
@@ -153,7 +154,7 @@ describe("Security Audit Tools", () => {
         mockContext,
       );
 
-      const queryCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const queryCall = mockAdapter.executeQuery.mock.calls[1][0];
 
       expect(queryCall).toContain("e.EVENT_NAME LIKE '%CONNECT%'");
     });
@@ -163,7 +164,7 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -183,9 +184,9 @@ describe("Security Audit Tools", () => {
       );
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as {
+      const result = (await tool.handler({ user: "test" }, mockContext)) as {
         success: boolean;
         error: string;
       };
@@ -198,9 +199,9 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as {
+      const result = (await tool.handler({ user: "test" }, mockContext)) as {
         success: boolean;
         error: string;
       };
@@ -213,9 +214,9 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
       const tool = createSecurityAuditTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const result = (await tool.handler({}, mockContext)) as Record<
+      const result = (await tool.handler({ user: "test" }, mockContext)) as Record<
         string,
         unknown
       >;
@@ -243,7 +244,7 @@ describe("Security Audit Tools", () => {
       );
 
       const tool = createSecurityFirewallStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -263,7 +264,7 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = createSecurityFirewallStatusTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         data: {
@@ -277,6 +278,10 @@ describe("Security Audit Tools", () => {
 
   describe("createSecurityFirewallRulesTool", () => {
     it("should list firewall rules", async () => {
+      // Mock plugin check
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+      );
       // Mock users query
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ USERHOST: "user@%", MODE: "PROTECTING" }]),
@@ -288,7 +293,7 @@ describe("Security Audit Tools", () => {
       );
 
       const tool = createSecurityFirewallRulesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         {
@@ -297,7 +302,7 @@ describe("Security Audit Tools", () => {
         mockContext,
       )) as { data: { users: any[]; rules: any[] } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result.data.users).toHaveLength(1);
       expect(result.data.rules).toHaveLength(1);
     });
@@ -306,7 +311,7 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Table missing"));
 
       const tool = createSecurityFirewallRulesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
@@ -321,7 +326,7 @@ describe("Security Audit Tools", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Table missing"));
 
       const tool = createSecurityFirewallRulesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({}, mockContext)) as Record<
         string,

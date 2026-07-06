@@ -210,3 +210,79 @@ export class TransactionError extends MySQLMcpError {
     });
   }
 }
+
+/**
+ * Operation exceeded time limit
+ */
+export class TimeoutError extends MySQLMcpError {
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "TIMEOUT_ERROR", ErrorCategory.CONNECTION, {
+      details,
+      recoverable: true,
+      cause: options?.cause,
+    });
+  }
+}
+
+/**
+ * Too many requests / rate limiting
+ */
+export class RateLimitError extends MySQLMcpError {
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "RATE_LIMIT_ERROR", ErrorCategory.CONNECTION, {
+      suggestion: "Wait before retrying the operation.",
+      details,
+      recoverable: true,
+      cause: options?.cause,
+    });
+  }
+}
+
+/**
+ * Resource version conflict (optimistic concurrency)
+ */
+export class ConflictError extends MySQLMcpError {
+  constructor(
+    message: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(message, "CONFLICT_ERROR", ErrorCategory.QUERY, {
+      suggestion: "The resource was modified by another request. Fetch the latest version and try again.",
+      details,
+      recoverable: true,
+      cause: options?.cause,
+    });
+  }
+}
+
+/**
+ * Required extension/plugin not available
+ */
+export class ExtensionNotAvailableError extends MySQLMcpError {
+  constructor(
+    extensionName: string,
+    details?: Record<string, unknown>,
+    options?: { cause?: Error },
+  ) {
+    super(
+      `Extension '${extensionName}' is not installed or enabled`,
+      "EXTENSION_MISSING",
+      ErrorCategory.CONFIGURATION,
+      {
+        suggestion: `Verify that the '${extensionName}' plugin/extension is loaded on the MySQL server.`,
+        details: { extension: extensionName, ...details },
+        recoverable: false,
+        cause: options?.cause,
+      },
+    );
+  }
+}

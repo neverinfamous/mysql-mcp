@@ -7,5 +7,5 @@
 
 export * from "./types.js";
 export * from "./logger.js";
-export * from "./backup-manager.js";
+export * from "./backup-manager/index.js";
 export * from "./interceptor.js";

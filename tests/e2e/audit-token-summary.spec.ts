@@ -6,7 +6,7 @@
  * directly against the raw tool responses.
  */
 
-import { rm } from "node:fs/promises";
+
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
@@ -16,6 +16,7 @@ import {
   stopServer,
   createClient,
   callToolAndParse,
+  cleanupAuditFiles,
 } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
@@ -114,7 +115,7 @@ test.describe("Audit Token Summary Accuracy", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true }).catch(() => {});
+      await cleanupAuditFiles(logPath);
     }
   });
 
@@ -167,7 +168,8 @@ test.describe("Audit Token Summary Accuracy", () => {
     } finally {
       if (client) await client.close();
       stopServer(port);
-      await rm(logPath, { force: true }).catch(() => {});
+      await cleanupAuditFiles(logPath);
     }
   });
 });
+

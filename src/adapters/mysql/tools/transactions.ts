@@ -5,8 +5,9 @@
  * 7 tools total.
  */
 
-import type { MySQLAdapter } from "../mysql-adapter.js";
+import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
+import { TransactionError } from "../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -14,12 +15,16 @@ import {
 import {
   TransactionBeginSchema,
   TransactionBeginSchemaBase,
+  TransactionBeginOutputSchema,
   TransactionIdSchema,
   TransactionIdSchemaBase,
+  TransactionIdOutputSchema,
   TransactionSavepointSchema,
   TransactionSavepointSchemaBase,
+  TransactionSavepointOutputSchema,
   TransactionExecuteSchema,
   TransactionExecuteSchemaBase,
+  TransactionExecuteOutputSchema,
 } from "../schemas/index.js";
 import { WRITE } from "../../../utils/annotations.js";
 
@@ -49,6 +54,7 @@ function createTransactionBeginTool(adapter: MySQLAdapter): ToolDefinition {
       "Begin a new transaction with optional isolation level. Returns a transaction ID for subsequent operations.",
     group: "transactions",
     inputSchema: TransactionBeginSchemaBase,
+    outputSchema: TransactionBeginOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -81,6 +87,7 @@ function createTransactionCommitTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Commit a transaction, making all changes permanent.",
     group: "transactions",
     inputSchema: TransactionIdSchemaBase,
+    outputSchema: TransactionIdOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -113,6 +120,7 @@ function createTransactionRollbackTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Rollback a transaction, undoing all changes.",
     group: "transactions",
     inputSchema: TransactionIdSchemaBase,
+    outputSchema: TransactionIdOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -146,6 +154,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
       "Create a savepoint within a transaction for partial rollback.",
     group: "transactions",
     inputSchema: TransactionSavepointSchemaBase,
+    outputSchema: TransactionSavepointOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -156,7 +165,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new Error(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`),
           );
         }
 
@@ -190,6 +199,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Release a savepoint, removing it without rolling back.",
     group: "transactions",
     inputSchema: TransactionSavepointSchemaBase,
+    outputSchema: TransactionSavepointOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -200,7 +210,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new Error(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`),
           );
         }
 
@@ -239,6 +249,7 @@ function createTransactionRollbackToTool(
     description: "Rollback to a savepoint, undoing changes after that point.",
     group: "transactions",
     inputSchema: TransactionSavepointSchemaBase,
+    outputSchema: TransactionSavepointOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -249,7 +260,7 @@ function createTransactionRollbackToTool(
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new Error(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`),
           );
         }
 
@@ -287,6 +298,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       "Execute multiple SQL statements atomically. All statements succeed or all are rolled back.",
     group: "transactions",
     inputSchema: TransactionExecuteSchemaBase,
+    outputSchema: TransactionExecuteOutputSchema,
     requiredScopes: ["write"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -299,21 +311,20 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
 
       const { statements, isolationLevel } = parsedParams;
 
-      if (statements.length === 0) {
-        return formatHandlerErrorResponse(
-          new Error(
-            "No statements provided. Pass at least one SQL statement in statements (or queries alias).",
-          ),
-        );
-      }
+      let transactionId: string;
+      let connection;
+      
+      try {
+        transactionId = await adapter.beginTransaction(isolationLevel);
+        connection = adapter.getTransactionConnection(transactionId);
 
-      const transactionId = await adapter.beginTransaction(isolationLevel);
-      const connection = adapter.getTransactionConnection(transactionId);
-
-      if (!connection) {
-        return formatHandlerErrorResponse(
-          new Error("Failed to get transaction connection"),
-        );
+        if (!connection) {
+          return formatHandlerErrorResponse(
+            new TransactionError("Failed to get transaction connection"),
+          );
+        }
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
 
       const results: {
@@ -357,6 +368,9 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: false,
           error: `Transaction failed and was rolled back: ${msg}`,
+          code: "EXECUTION_ERROR",
+          category: "query",
+          recoverable: false,
           rolledBack: true,
         });
       }

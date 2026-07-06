@@ -5,7 +5,7 @@
  * 8 tools total (2 activity + 3 performance + 3 resources).
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules

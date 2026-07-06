@@ -1,4 +1,5 @@
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 
 export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
 
@@ -25,17 +26,17 @@ export function parseDocFilter(filter: string): {
   // Check if it's a stringified JSON object (e.g. from criteria: {"name":"Alice"})
   if (filter.trim().startsWith("{") && filter.trim().endsWith("}")) {
     try {
-      const parsed = JSON.parse(filter) as unknown;
+      const parsed: unknown = JSON.parse(filter);
       if (
         typeof parsed === "object" &&
         parsed !== null &&
         !Array.isArray(parsed)
       ) {
-        const record = parsed as Record<string, unknown>;
-        const keys = Object.keys(record);
+        const keys = Object.keys(parsed);
         const field = keys[0];
         if (typeof field === "string") {
-          const value = record[field];
+          const descriptor = Object.getOwnPropertyDescriptor(parsed, field);
+          const value: unknown = descriptor ? descriptor.value : undefined;
           if (IDENTIFIER_RE.test(field)) {
             const numVal = Number(value);
             if (
@@ -62,19 +63,28 @@ export function parseDocFilter(filter: string): {
   }
 
   // Check for simple field=value pattern
-  const eqMatch = /^([a-zA-Z_][a-zA-Z0-9_]*)=(.+)$/.exec(filter);
+  const eqMatch = /^(?:\$\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$/.exec(filter);
   if (eqMatch) {
     const field = eqMatch[1] ?? "";
-    const value = eqMatch[2] ?? "";
+    let value = eqMatch[2] ?? "";
+    
+    // Strip surrounding quotes if present
+    if (
+      (value.startsWith("'") && value.endsWith("'")) ||
+      (value.startsWith('"') && value.endsWith('"'))
+    ) {
+      value = value.slice(1, -1);
+    }
+    
     // Defense-in-depth: validate field name against identifier regex
     if (!IDENTIFIER_RE.test(field)) {
-      throw new Error(
+      throw new ValidationError(
         `Invalid field name in filter: "${field}". Field names must be valid identifiers.`,
       );
     }
     // Try to parse as number
     const numVal = Number(value);
-    if (!isNaN(numVal)) {
+    if (!isNaN(numVal) && value.trim() !== "") {
       return {
         where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
         params: [`$.${field}`, String(numVal)],
@@ -88,13 +98,13 @@ export function parseDocFilter(filter: string): {
 
   // Default: treat as JSON path existence check
   if (!filter.startsWith("$")) {
-    throw new Error(
+    throw new ValidationError(
       `Invalid filter: "${filter}". Use JSON path ($.field), _id value, or field=value format.`,
     );
   }
   // Validate JSON path against allowlist regex to prevent injection
   if (!JSON_PATH_RE.test(filter)) {
-    throw new Error(
+    throw new ValidationError(
       `Invalid JSON path: "${filter}". Only alphanumeric field names, array indices, and dot notation are allowed.`,
     );
   }

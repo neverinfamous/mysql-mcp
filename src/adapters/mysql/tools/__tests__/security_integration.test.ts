@@ -11,7 +11,7 @@ import {
 } from "../../../../__tests__/mocks/index.js";
 import { getBackupTools } from "../admin/index.js";
 import { getJsonTools } from "../json/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type {} from "../../mysql-adapter/index.js";
 
 describe("Security: Validation Flow Integration", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -25,7 +25,7 @@ describe("Security: Validation Flow Integration", () => {
 
   describe("End-to-End Injection Rejection", () => {
     it("should reject malicious input at validation layer, not database layer", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       // Malicious input should be rejected BEFORE any database call
@@ -46,7 +46,7 @@ describe("Security: Validation Flow Integration", () => {
     });
 
     it("should reject complex injection attempt with multiple vectors", async () => {
-      const tools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getJsonTools(mockAdapter);
       const setTool = tools.find((t) => t.name === "mysql_json_set")!;
 
       // Multiple attack vectors in one request
@@ -74,7 +74,7 @@ describe("Security: Validation Flow Integration", () => {
         rows: [{ id: 1, name: "Test User" }],
       });
 
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = await exportTool.handler(
@@ -94,7 +94,7 @@ describe("Security: Validation Flow Integration", () => {
 
   describe("Error Message Security", () => {
     it("should not leak table name validation patterns in errors", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -113,7 +113,7 @@ describe("Security: Validation Flow Integration", () => {
     });
 
     it("should not expose database schema information in errors", async () => {
-      const tools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getJsonTools(mockAdapter);
       const setTool = tools.find((t) => t.name === "mysql_json_set")!;
 
       try {
@@ -137,7 +137,7 @@ describe("Security: Validation Flow Integration", () => {
     });
 
     it("should provide user-friendly error messages", async () => {
-      const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+      const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
       const result = (await exportTool.handler(
@@ -158,9 +158,9 @@ describe("Security: Validation Flow Integration", () => {
   describe("Validation Consistency", () => {
     it("should validate identifiers consistently across tools", async () => {
       const backupTools = getBackupTools(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
-      const jsonTools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+      const jsonTools = getJsonTools(mockAdapter);
 
       const maliciousTable = "users'; DROP TABLE users; --";
 
@@ -217,7 +217,7 @@ describe("Rate Limiting Preparation", () => {
 
   it("should have tool definitions with metadata for rate limiting rules", () => {
     const mockAdapter = createMockMySQLAdapter();
-    const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+    const tools = getBackupTools(mockAdapter);
 
     const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
 
@@ -229,7 +229,7 @@ describe("Rate Limiting Preparation", () => {
 
   it("should have scope information for tier-based rate limiting", () => {
     const mockAdapter = createMockMySQLAdapter();
-    const tools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
+    const tools = getBackupTools(mockAdapter);
 
     const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
     const importTool = tools.find((t) => t.name === "mysql_import_data")!;
@@ -242,8 +242,8 @@ describe("Rate Limiting Preparation", () => {
 
   it("should distinguish between tool groups for rate limiting categories", () => {
     const mockAdapter = createMockMySQLAdapter();
-    const backupTools = getBackupTools(mockAdapter as unknown as MySQLAdapter);
-    const jsonTools = getJsonTools(mockAdapter as unknown as MySQLAdapter);
+    const backupTools = getBackupTools(mockAdapter);
+    const jsonTools = getJsonTools(mockAdapter);
 
     // All tools have group assignments for category-based limiting
     expect(backupTools.every((t) => t.group === "backup")).toBe(true);

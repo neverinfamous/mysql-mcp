@@ -1,0 +1,42 @@
+services:
+  mysql-mcp:
+    image: writenotenow/mysql-mcp:latest
+    ports:
+      - "3000:3000"
+    command:
+      - --transport
+      - http
+    env_file:
+      - .env # Copy .env.example to .env to configure
+    environment:
+      - MCP_HOST=0.0.0.0
+      - MYSQL_HOST=mysql
+      - REDIS_URL=redis://redis:6379
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_USER: mcp_user
+      MYSQL_PASSWORD: secure_password
+      MYSQL_DATABASE: testdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  mysql-data:
+  redis-data:

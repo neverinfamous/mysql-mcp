@@ -5,7 +5,7 @@
  * 10 tools total (5 GR + 5 Cluster).
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules
@@ -23,7 +23,7 @@ import {
   createClusterTopologyTool,
   createClusterRouterStatusTool,
   createClusterSwitchoverTool,
-} from "./innodb-cluster.js";
+} from "./innodb-cluster/index.js";
 
 /**
  * Get all cluster tools

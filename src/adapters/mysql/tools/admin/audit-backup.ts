@@ -4,59 +4,56 @@
  * Exposes the Audit Subsystem's pre-mutation snapshots to the agent.
  */
 
-import { z } from "zod";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import type { BackupManager } from "../../../../audit/backup-manager.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { progressFactory } from "../../../../progress/index.js";
+import {
+  AuditListBackupsOutputSchema,
+  AuditRestoreBackupOutputSchema,
+  AuditDiffBackupOutputSchema,
+  AuditListBackupsSchemaBase,
+  AuditRestoreBackupSchemaBase,
+  AuditDiffBackupSchemaBase,
+  AuditListBackupsSchema,
+  AuditRestoreBackupSchema,
+  AuditDiffBackupSchema,
+} from "../../schemas/index.js";
+
+
 
 export function createAuditListBackupsTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    limit: z
-      .number()
-      .int()
-      .min(1)
-      .max(100)
-      .default(50)
-      .describe("Max backups to return"),
-    target: z
-      .string()
-      .optional()
-      .describe("Filter by exact target object name (e.g. users)"),
-  });
-
   return {
     name: "mysql_audit_list_backups",
     title: "MySQL Audit List Backups",
     description:
       "List available pre-mutation snapshots captured before destructive operations.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: AuditListBackupsSchemaBase,
+    outputSchema: AuditListBackupsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { limit, target } = schema.parse(params);
+        const { limit, target } = AuditListBackupsSchema.parse(params);
 
-        // This relies on the DatabaseAdapter having the backupManager available
-        // Need to add it to the MySQLAdapter subclass
-        const backupManager = (
-          adapter as unknown as { backupManager?: BackupManager }
-        ).backupManager;
+        const backupManager = adapter.getBackupManager();
         if (!backupManager) {
           return withTokenEstimate({
             success: false,
             error: "Backup Manager is not enabled or available",
+            code: "NOT_SUPPORTED",
+            category: "config",
+            recoverable: false,
           });
         }
 
@@ -69,12 +66,14 @@ export function createAuditListBackupsTool(
 
         return withTokenEstimate({
           success: true,
-          backups: filtered.slice(0, limit),
-          total: filtered.length,
+          data: {
+            backups: filtered.slice(0, limit),
+            total: filtered.length,
+          }
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -84,37 +83,27 @@ export function createAuditListBackupsTool(
 export function createAuditRestoreBackupTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    filename: z.string().describe("Snapshot filename to restore"),
-    includeData: z
-      .boolean()
-      .default(false)
-      .describe("Execute INSERT data if present in snapshot"),
-    dryRun: z
-      .boolean()
-      .default(false)
-      .describe("Return the DDL/DML without executing it"),
-  });
-
   return {
     name: "mysql_audit_restore_backup",
     title: "MySQL Audit Restore Backup",
     description: "Restore a specific pre-mutation snapshot to the database.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: AuditRestoreBackupSchemaBase,
+    outputSchema: AuditRestoreBackupOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { filename, includeData, dryRun } = schema.parse(params);
+        const { filename, includeData, dryRun } = AuditRestoreBackupSchema.parse(params);
 
-        const backupManager = (
-          adapter as unknown as { backupManager?: BackupManager }
-        ).backupManager;
+        const backupManager = adapter.getBackupManager();
         if (!backupManager) {
           return withTokenEstimate({
             success: false,
             error: "Backup Manager is not enabled or available",
+            code: "NOT_SUPPORTED",
+            category: "config",
+            recoverable: false,
           });
         }
 
@@ -123,6 +112,9 @@ export function createAuditRestoreBackupTool(
           return withTokenEstimate({
             success: false,
             error: `Snapshot not found or unreadable: ${filename}`,
+            code: "NOT_FOUND_ERROR",
+            category: "resource",
+            recoverable: false,
           });
         }
 
@@ -136,9 +128,11 @@ export function createAuditRestoreBackupTool(
         if (dryRun) {
           return withTokenEstimate({
             success: true,
-            dryRun: true,
-            sql: combinedSql,
-            metadata: snapshot.metadata,
+            data: {
+              dryRun: true,
+              sql: combinedSql,
+              metadata: snapshot.metadata,
+            }
           });
         }
 
@@ -157,12 +151,14 @@ export function createAuditRestoreBackupTool(
 
         return withTokenEstimate({
           success: true,
-          restoredFilename: filename,
-          metadata: snapshot.metadata,
+          data: {
+            restoredFilename: filename,
+            metadata: snapshot.metadata,
+          }
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },
@@ -172,32 +168,28 @@ export function createAuditRestoreBackupTool(
 export function createAuditDiffBackupTool(
   adapter: MySQLAdapter,
 ): ToolDefinition {
-  const schema = z.object({
-    filename: z
-      .string()
-      .describe("Snapshot filename to compare against current schema"),
-  });
-
   return {
     name: "mysql_audit_diff_backup",
     title: "MySQL Audit Diff Backup",
     description:
       "Compare a snapshot's DDL against the current live schema of the object.",
     group: "backup",
-    inputSchema: schema,
+    inputSchema: AuditDiffBackupSchemaBase,
+    outputSchema: AuditDiffBackupOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { filename } = schema.parse(params);
+        const { filename } = AuditDiffBackupSchema.parse(params);
 
-        const backupManager = (
-          adapter as unknown as { backupManager?: BackupManager }
-        ).backupManager;
+        const backupManager = adapter.getBackupManager();
         if (!backupManager) {
           return withTokenEstimate({
             success: false,
             error: "Backup Manager is not enabled or available",
+            code: "NOT_SUPPORTED",
+            category: "config",
+            recoverable: false,
           });
         }
 
@@ -206,6 +198,9 @@ export function createAuditDiffBackupTool(
           return withTokenEstimate({
             success: false,
             error: `Snapshot not found or unreadable: ${filename}`,
+            code: "NOT_FOUND_ERROR",
+            category: "resource",
+            recoverable: false,
           });
         }
 
@@ -255,13 +250,15 @@ export function createAuditDiffBackupTool(
 
         return withTokenEstimate({
           success: true,
-          snapshotDdl: snapshot.ddl,
-          liveDdl: liveDdl,
-          metadata: snapshot.metadata,
+          data: {
+            snapshotDdl: snapshot.ddl,
+            liveDdl: liveDdl,
+            metadata: snapshot.metadata,
+          }
         });
       } catch (err) {
         return withTokenEstimate(
-          formatHandlerErrorResponse(err) as unknown as Record<string, unknown>,
+          { ...formatHandlerErrorResponse(err) }
         );
       }
     },

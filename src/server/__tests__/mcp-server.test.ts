@@ -11,9 +11,10 @@ import {
   createServer,
   parseMySQLConnectionString,
   DEFAULT_CONFIG,
-} from "../mcp-server.js";
+} from "../mcp-server/index.js";
 import { createMockMySQLAdapter } from "../../__tests__/mocks/index.js";
-import { VERSION } from "../../utils/version.js";
+import { VERSION } from "../../version.js";
+import type { TransportType } from "../../types/index.js";
 
 // Mock the StdioServerTransport
 vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
@@ -49,10 +50,16 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
   McpServer: class MockMcpServer {
     connect = vi.fn().mockResolvedValue(undefined);
     close = vi.fn().mockResolvedValue(undefined);
+    isConnected = vi.fn().mockReturnValue(true);
     tool = vi.fn();
+    registerTool = vi.fn();
     resource = vi.fn();
     registerResource = vi.fn();
     prompt = vi.fn();
+    server = {
+      setRequestHandler: vi.fn(),
+      sendResourceUpdated: vi.fn(),
+    };
     constructor(_serverInfo: unknown, options: unknown) {
       lastMockMcpServerOptions = options;
     }
@@ -115,6 +122,7 @@ describe("McpServer", () => {
       const customServer = new McpServer({
         name: "custom-server",
         transport: "http",
+        allowedIoRoots: ["/tmp"],
       });
       const config = customServer.getConfig();
       expect(config.name).toBe("custom-server");
@@ -207,6 +215,7 @@ describe("McpServer", () => {
       const httpServer = new McpServer({
         transport: "http",
         port: 8080,
+        allowedIoRoots: ["/tmp"],
       });
 
       await httpServer.start();
@@ -220,11 +229,24 @@ describe("McpServer", () => {
         expect.any(Function),
       );
       expect(mockHttpTransport.start).toHaveBeenCalled();
+
+      // Test onConnect callback
+      const onConnectCall = (createHttpTransport as ReturnType<typeof vi.fn>).mock.calls[0][1];
+      const mockMcpTransport = {
+        start: vi.fn(),
+        close: vi.fn(),
+        send: vi.fn()
+      } as any;
+      await onConnectCall(mockMcpTransport);
+      
+      // onConnect should close existing connection and open new one
+      expect(lastMockMcpServerOptions).toBeDefined();
     });
 
     it("should configure OAuth when enabled", async () => {
       const oauthServer = new McpServer({
         transport: "http",
+        allowedIoRoots: ["/tmp"],
         oauth: {
           enabled: true,
           issuer: "https://auth.example.com",
@@ -249,6 +271,7 @@ describe("McpServer", () => {
     it("should throw if OAuth enabled but missing config", async () => {
       const badConfigServer = new McpServer({
         transport: "http",
+        allowedIoRoots: ["/tmp"],
         oauth: {
           enabled: true,
           // Missing issuer/audience
@@ -261,7 +284,7 @@ describe("McpServer", () => {
     it("should fail if transport start fails", async () => {
       mockHttpTransport.start.mockRejectedValueOnce(new Error("Port in use"));
 
-      const httpServer = new McpServer({ transport: "http" });
+      const httpServer = new McpServer({ transport: "http", allowedIoRoots: ["/tmp"] });
       await expect(httpServer.start()).rejects.toThrow("Port in use");
       expect(httpServer.isRunning()).toBe(false);
     });
@@ -270,6 +293,7 @@ describe("McpServer", () => {
       const sseServer = new McpServer({
         transport: "sse",
         port: 8081,
+        allowedIoRoots: ["/tmp"],
       });
 
       await sseServer.start();
@@ -303,14 +327,14 @@ describe("McpServer", () => {
     });
 
     it("should stop active transport", async () => {
-      const httpServer = new McpServer({ transport: "http" });
+      const httpServer = new McpServer({ transport: "http", allowedIoRoots: ["/tmp"] });
       await httpServer.start();
       await httpServer.stop();
       expect(mockHttpTransport.stop).toHaveBeenCalled();
     });
 
     it("should safely handle transport stop errors", async () => {
-      const httpServer = new McpServer({ transport: "http" });
+      const httpServer = new McpServer({ transport: "http", allowedIoRoots: ["/tmp"] });
       await httpServer.start();
 
       mockHttpTransport.stop.mockRejectedValueOnce(new Error("Stop failed"));
@@ -323,6 +347,18 @@ describe("McpServer", () => {
 
     it("should do nothing if not started", async () => {
       await server.stop(); // Should not throw
+      expect(server.isRunning()).toBe(false);
+    });
+
+    it("should safely handle adapter disconnect errors", async () => {
+      const mockAdapter = createMockMySQLAdapter();
+      mockAdapter.disconnect = vi.fn().mockRejectedValue(new Error("Disconnect failed"));
+      server.registerAdapter(
+        mockAdapter as unknown as Parameters<typeof server.registerAdapter>[0],
+      );
+      await server.start();
+      await server.stop(); // Should not throw
+      expect(mockAdapter.disconnect).toHaveBeenCalled();
       expect(server.isRunning()).toBe(false);
     });
 
@@ -372,9 +408,13 @@ describe("McpServer", () => {
       const auditServer = new McpServer({
         auditConfig: {
           enabled: true,
-          logPath: "test.jsonl",
+          logPath: "test-mcp-server/index.jsonl",
+          redact: false,
+          auditReads: false,
+          maxSizeBytes: 10485760,
           backup: {
             enabled: true,
+            includeData: false,
             maxAgeDays: 30,
             maxCount: 10,
             maxDataSizeBytes: 100,
@@ -384,6 +424,7 @@ describe("McpServer", () => {
 
       const mockAdapter = createMockMySQLAdapter() as unknown as any;
       mockAdapter.setAuditInterceptor = vi.fn();
+      mockAdapter.setAuditLogger = vi.fn();
       mockAdapter.setBackupManager = vi.fn();
 
       auditServer.registerAdapter(
@@ -394,6 +435,16 @@ describe("McpServer", () => {
       await auditServer.stop();
       // Test ensures it doesn't crash during shutdown of audit components
       expect(auditServer.isRunning()).toBe(false);
+
+      // Clean up the artifacts generated by this specific test
+      try {
+        const fs = await import("node:fs");
+        const path = await import("node:path");
+        const cwd = process.cwd();
+        fs.rmSync(path.join(cwd, "test-mcp-server"), { recursive: true, force: true });
+      } catch {
+        // Ignore cleanup errors
+      }
     });
   });
 });

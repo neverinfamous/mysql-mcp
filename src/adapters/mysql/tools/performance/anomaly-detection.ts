@@ -13,14 +13,23 @@
  *   - toNum, toStr, safeNum, riskFromScore, RiskLevel
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import { ZodError } from "zod";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  DetectQueryAnomaliesSchemaBase,
+  DetectQueryAnomaliesSchema,
+  DetectQueryAnomaliesOutputSchema,
+  DetectBloatRiskSchemaBase,
+  DetectBloatRiskSchema,
+  DetectBloatRiskOutputSchema,
+} from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ValidationError, ExtensionNotAvailableError } from "../../../../types/index.js";
 
 // =============================================================================
 // Shared Helpers (exported for connection-analysis.ts)
@@ -41,64 +50,7 @@ export function riskFromScore(score: number): RiskLevel {
   return "low";
 }
 
-// =============================================================================
-// Schemas
-// =============================================================================
 
-export const DetectQueryAnomaliesSchemaBase = z.object({
-  threshold: z
-    .unknown()
-    .optional()
-    .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
-  stdDevThreshold: z.unknown().optional().describe("Alias for threshold"),
-  minCalls: z
-    .unknown()
-    .optional()
-    .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.unknown().optional().describe("Alias for minCalls"),
-});
-
-export const DetectQueryAnomaliesSchema = z.object({
-  threshold: z.coerce
-    .number()
-    .optional()
-    .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
-  stdDevThreshold: z.coerce.number().optional().describe("Alias for threshold"),
-  minCalls: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.coerce
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe("Alias for minCalls"),
-});
-
-export const DetectBloatRiskSchemaBase = z.object({
-  schema: z
-    .unknown()
-    .optional()
-    .describe("Filter to a specific database schema"),
-  minSizeMb: z
-    .unknown()
-    .optional()
-    .describe("Minimum table size in MB to include (default: 10)"),
-});
-
-export const DetectBloatRiskSchema = z.object({
-  schema: z
-    .string()
-    .optional()
-    .describe("Filter to a specific database schema"),
-  minSizeMb: z.coerce
-    .number()
-    .optional()
-    .describe("Minimum table size in MB to include (default: 10)"),
-});
 
 // =============================================================================
 // 1. mysql_detect_query_anomalies
@@ -109,9 +61,11 @@ export function createDetectQueryAnomaliesTool(
 ): ToolDefinition {
   return {
     name: "mysql_detect_query_anomalies",
+    title: "Detect Query Anomalies",
     description:
       "Detects queries deviating from their historical execution time norms using MAX/AVG variance analysis. Requires performance_schema.",
     inputSchema: DetectQueryAnomaliesSchemaBase,
+    outputSchema: DetectQueryAnomaliesOutputSchema,
     group: "performance",
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -119,29 +73,8 @@ export function createDetectQueryAnomaliesTool(
       try {
         const parsed = DetectQueryAnomaliesSchema.parse(params);
 
-        const threshold = parsed.stdDevThreshold ?? parsed.threshold ?? 10.0;
-        const minCalls = parsed.minExecutions ?? parsed.minCalls ?? 50;
-
-        if (threshold < 2 || threshold > 10000) {
-          const response = {
-            success: false,
-            error: "threshold (or stdDevThreshold) must be between 2 and 10000",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
-        }
-        if (minCalls < 1 || minCalls > 100000) {
-          const response = {
-            success: false,
-            error: "minCalls (or minExecutions) must be between 1 and 100000",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
-        }
+        const threshold = parsed.threshold;
+        const minCalls = parsed.minCalls;
 
         // Check if performance_schema is available
         try {
@@ -149,14 +82,9 @@ export function createDetectQueryAnomaliesTool(
             `SELECT 1 FROM performance_schema.events_statements_summary_by_digest LIMIT 1`,
           );
         } catch {
-          const response = {
-            success: false,
-            error: "performance_schema is disabled or inaccessible.",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          throw new ExtensionNotAvailableError("performance_schema", {
+            message: "performance_schema is disabled or inaccessible.",
+          });
         }
 
         const countResult = await adapter.executeQuery(
@@ -243,9 +171,11 @@ export function createDetectBloatRiskTool(
 ): ToolDefinition {
   return {
     name: "mysql_detect_bloat_risk",
+    title: "Detect Bloat Risk",
     description:
       "Scores tables by bloat/fragmentation risk using information_schema DATA_FREE vs DATA_LENGTH metrics. Returns per-table risk scores (0-100) with recommendations.",
     inputSchema: DetectBloatRiskSchemaBase,
+    outputSchema: DetectBloatRiskOutputSchema,
     group: "performance",
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -253,19 +183,39 @@ export function createDetectBloatRiskTool(
       try {
         const parsed = DetectBloatRiskSchema.parse(params);
 
-        const minSizeMb = parsed.minSizeMb ?? 10;
+        const minSizeMb = parsed.minSizeMb;
         const schema = parsed.schema;
+        const table = parsed.table;
 
         let schemaFilter = `TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'sys', 'mysql')`;
         if (schema) {
           if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
-            const response = { success: false, error: "Invalid schema name" };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
+            throw new ValidationError("Invalid schema name");
           }
+          
+          const schemaExists = await adapter.executeQuery(
+            `SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = '${schema}'`
+          );
+          if (!schemaExists.rows || schemaExists.rows.length === 0) {
+            throw new ValidationError(`Database '${schema}' does not exist`);
+          }
+          
           schemaFilter = `TABLE_SCHEMA = '${schema}'`;
+        }
+
+        let tableFilter = "1=1";
+        if (table) {
+          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+            throw new ValidationError("Invalid table name");
+          }
+          const schemaCondition = schema ? `TABLE_SCHEMA = '${schema}'` : schemaFilter;
+          const tableExists = await adapter.executeQuery(
+            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_NAME = '${table}' AND ${schemaCondition}`
+          );
+          if (!tableExists.rows || tableExists.rows.length === 0) {
+            throw new ValidationError(`Table '${table}' does not exist`);
+          }
+          tableFilter = `TABLE_NAME = '${table}'`;
         }
 
         const minBytes = minSizeMb * 1024 * 1024;
@@ -286,8 +236,9 @@ export function createDetectBloatRiskTool(
             END AS fragmentation_pct
           FROM information_schema.TABLES
           WHERE TABLE_TYPE = 'BASE TABLE'
-            AND (DATA_LENGTH + INDEX_LENGTH) >= ${String(minBytes)}
+            AND (DATA_LENGTH + INDEX_LENGTH) >= ${table ? 0 : String(minBytes)}
             AND ${schemaFilter}
+            AND ${tableFilter}
           ORDER BY DATA_FREE DESC
           LIMIT 50
         `);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createEventsResource } from "../events.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -91,10 +91,10 @@ describe("createEventsResource", () => {
   });
   it("should handle undefined rows gracefully", async () => {
     // Mock scheduler variable with undefined rows
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any);
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
     // Mock events list with undefined rows
-    mockAdapter.executeQuery.mockResolvedValueOnce({ rows: undefined } as any);
+    mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
     const result = await resource.handler(resource.uri, mockContext);
 

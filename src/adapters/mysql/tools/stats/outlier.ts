@@ -5,15 +5,15 @@
  * 1 tool total.
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import { z } from "zod";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import { OutliersOutputSchema } from "../../schemas/stats.js";
 import {
   formatHandlerErrorResponse,
-  formatMysqlError,
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
@@ -23,17 +23,28 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 export const StatsOutliersSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  database: z.string().optional().describe("Database name"),
+  table: z.string().optional().describe("Table name. Note: Pass table, not tableName."),
+  tableName: z.string().optional().describe("Alias for table"),
+  name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z
     .string()
     .optional()
-    .describe("Numeric column to check for outliers"),
+    .describe("Numeric column to check for outliers. Note: Pass column, not col."),
+  col: z.string().optional().describe("Alias for column"),
+  columnName: z.string().optional().describe("Alias for column"),
+  fieldName: z.string().optional().describe("Alias for column"),
+  c: z.string().optional().describe("Alias for column"),
   method: z.unknown().optional().describe("Detection method to use"),
   threshold: z
     .unknown()
     .optional()
     .describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
-  where: z.string().optional().describe("Filter condition"),
+  where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
@@ -44,15 +55,28 @@ export const StatsOutliersSchemaBase = z.object({
     .describe("Maximum number of outliers to return (default: 50)"),
 });
 
-export const StatsOutliersSchema = z.object({
-  table: z.string().min(1, "table is required"),
-  column: z.string().min(1, "column is required"),
-  method: z.enum(["iqr", "zscore"]).default("iqr"),
-  threshold: z.number().optional(),
-  where: z.string().optional(),
-  limit: z.number().max(100000).default(10000),
-  maxOutliers: z.number().max(1000).default(50),
-});
+export const StatsOutliersSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === null || typeof val !== "object") return val;
+    const obj = val as Record<string, unknown>;
+    return {
+      ...obj,
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      where: obj["where"] ?? obj["sql"] ?? obj["query"],
+    };
+  },
+  z.object({
+    database: z.string().optional(),
+    table: z.string().min(1, "table is required"),
+    column: z.string().min(1, "column is required"),
+    method: z.enum(["iqr", "zscore"]).default("iqr"),
+    threshold: z.number().optional(),
+    where: z.string().optional(),
+    limit: z.number().max(100000).default(10000),
+    maxOutliers: z.number().max(1000).default(50),
+  })
+);
 
 // =============================================================================
 // Tool Definition
@@ -64,28 +88,52 @@ export const StatsOutliersSchema = z.object({
 export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_stats_outliers",
+    title: "Stats Outliers",
     description:
       "Detect statistical outliers in a numeric column using IQR (interquartile range) or Z-score method. IQR is robust against non-normal distributions.",
     group: "stats",
     inputSchema: StatsOutliersSchemaBase,
+    outputSchema: OutliersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsed = StatsOutliersSchema.parse(params);
 
-        const { table, column, method, limit, maxOutliers, where } = parsed;
+        const { database, table, column, method, limit, maxOutliers, where } = parsed;
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+        if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
             error: "Invalid table name",
           });
         }
+        
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({
             success: false,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
             error: "Invalid column name",
+          });
+        }
+
+        // Validate minimum rows to perform outlier detection
+        const countQuery = `SELECT COUNT(\`${column}\`) AS cnt FROM ${fullTableName} ${where ? `WHERE ${where}` : ""}`;
+        const countRes = await adapter.executeQuery(countQuery);
+        const totalRows = Number(countRes.rows?.[0]?.["cnt"] ?? 0);
+        if (totalRows < 3) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+            error: "Insufficient data to calculate outliers (minimum 3 rows required)",
           });
         }
 
@@ -95,7 +143,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate(
             await detectZScoreOutliers(
               adapter,
-              { table, column, whereClause },
+              { table: fullTableName, column, whereClause },
               parsed.threshold ?? 3,
               limit,
               maxOutliers,
@@ -106,22 +154,14 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(
           await detectIqrOutliers(
             adapter,
-            { table, column, whereClause },
+            { table: fullTableName, column, whereClause },
             parsed.threshold ?? 1.5,
             limit,
             maxOutliers,
           ),
         );
-      } catch (error: unknown) {
-        if (error instanceof ZodError) return formatHandlerErrorResponse(error);
-        const msg = formatMysqlError(error);
-        if (msg.includes("doesn't exist")) {
-          return withTokenEstimate({
-            success: false,
-            error: `Table '${((params as Record<string, unknown>)?.["table"] as string) ?? "unknown"}' doesn't exist`,
-          });
-        }
-        return withTokenEstimate({ success: false, error: msg });
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -152,7 +192,7 @@ async function detectZScoreOutliers(
       AVG(\`${column}\`) AS mean,
       STDDEV_SAMP(\`${column}\`) AS stddev,
       COUNT(\`${column}\`) AS total_count
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause}
   `;
   const statsResult = await adapter.executeQuery(statsSql);
@@ -165,8 +205,9 @@ async function detectZScoreOutliers(
       success: true,
       data: {
         method: "zscore",
+        column,
         outlierCount: 0,
-        totalRows: 0,
+        totalCount: 0,
         stats: { mean: 0, stdDev: 0, lowerBound: 0, upperBound: 0 },
       },
     };
@@ -181,9 +222,10 @@ async function detectZScoreOutliers(
       success: true,
       data: {
         method: "zscore",
+        column,
         stats: { mean, stdDev: 0, lowerBound: mean, upperBound: mean },
         outlierCount: 0,
-        totalRows,
+        totalCount: totalRows,
       },
     };
   }
@@ -194,7 +236,7 @@ async function detectZScoreOutliers(
   // Find outliers — values outside threshold standard deviations
   const outlierSql = `
     SELECT \`${column}\` AS value
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause ? whereClause + " AND" : "WHERE"}
       ABS((\`${column}\` - ${String(mean)}) / ${String(stdDev)}) > ${String(threshold)}
     ORDER BY ABS(\`${column}\` - ${String(mean)}) DESC
@@ -211,9 +253,10 @@ async function detectZScoreOutliers(
 
   const data: Record<string, unknown> = {
     method: "zscore",
+    column,
     stats: { mean, stdDev, lowerBound, upperBound },
     outlierCount: outliers.length,
-    totalRows,
+    totalCount: totalRows,
     outliers,
   };
 
@@ -241,7 +284,7 @@ async function detectIqrOutliers(
   // Get count to calculate offsets for Q1 (25th percentile) and Q3 (75th percentile)
   const countSql = `
     SELECT COUNT(\`${column}\`) AS total_count
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause}
   `;
   const countResult = await adapter.executeQuery(countSql);
@@ -256,8 +299,9 @@ async function detectIqrOutliers(
       success: true,
       data: {
         method: "iqr",
+        column,
         outlierCount: 0,
-        totalRows: 0,
+        totalCount: 0,
         stats: { q1: 0, q3: 0, iqr: 0, lowerBound: 0, upperBound: 0 },
       },
     };
@@ -267,7 +311,7 @@ async function detectIqrOutliers(
     const offset = Math.floor((p / 100) * (totalRows - 1));
     const query = `
       SELECT \`${column}\` as value
-      FROM \`${table}\`
+      FROM ${table}
       ${whereClause}
       ORDER BY \`${column}\`
       LIMIT 1 OFFSET ${String(offset)}
@@ -287,7 +331,7 @@ async function detectIqrOutliers(
   // Find outliers — values outside IQR fences
   const outlierSql = `
     SELECT \`${column}\` AS value
-    FROM \`${table}\`
+    FROM ${table}
     ${whereClause ? whereClause + " AND" : "WHERE"}
       (\`${column}\` < ${String(lowerBound)} OR \`${column}\` > ${String(upperBound)})
     ORDER BY ABS(\`${column}\` - ${String((q1 + q3) / 2)}) DESC
@@ -304,9 +348,10 @@ async function detectIqrOutliers(
 
   const data: Record<string, unknown> = {
     method: "iqr",
+    column,
     stats: { q1, q3, iqr, lowerBound, upperBound },
     outlierCount: outliers.length,
-    totalRows,
+    totalCount: totalRows,
     outliers,
   };
 

@@ -10,7 +10,7 @@ import {
   createSysWaitSummaryTool,
   createSysIOSummaryTool,
 } from "../performance.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -30,7 +30,7 @@ describe("Sys Schema Performance Tools", () => {
   describe("createSysStatementSummaryTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysStatementSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_statement_summary");
     });
@@ -46,12 +46,12 @@ describe("Sys Schema Performance Tools", () => {
       );
 
       const tool = createSysStatementSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ limit: 5 }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.statement_analysis");
       expect(result).toHaveProperty("data");
     });
@@ -60,17 +60,17 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysStatementSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ orderBy: "exec_count" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("ORDER BY exec_count DESC");
     });
 
     it("should return structured error for invalid orderBy", async () => {
       const tool = createSysStatementSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { orderBy: "invalid_order" },
@@ -87,7 +87,7 @@ describe("Sys Schema Performance Tools", () => {
   describe("createSysWaitSummaryTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysWaitSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_wait_summary");
     });
@@ -96,11 +96,11 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysWaitSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({}, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.waits_global_by_latency");
     });
 
@@ -108,11 +108,11 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysWaitSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ type: "by_host" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.waits_by_host_by_latency");
     });
 
@@ -120,11 +120,11 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysWaitSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ type: "by_user" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.waits_by_user_by_latency");
     });
 
@@ -132,11 +132,11 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysWaitSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ type: "by_instance" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain(
         "performance_schema.events_waits_summary_by_instance",
       );
@@ -148,7 +148,7 @@ describe("Sys Schema Performance Tools", () => {
 
     it("should return structured error for invalid type", async () => {
       const tool = createSysWaitSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { type: "invalid_type" },
@@ -165,7 +165,7 @@ describe("Sys Schema Performance Tools", () => {
   describe("createSysIOSummaryTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createSysIOSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       expect(tool.name).toBe("mysql_sys_io_summary");
     });
@@ -174,11 +174,11 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysIOSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({}, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.schema_table_statistics");
     });
 
@@ -186,11 +186,11 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysIOSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ type: "file" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.io_global_by_file_by_bytes");
       // Ensure correct column name is used (total_written, not total_write)
       expect(call).toContain("total_written");
@@ -201,18 +201,18 @@ describe("Sys Schema Performance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createSysIOSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ type: "global" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("sys.io_global_by_wait_by_latency");
       expect(call).toContain("event_name");
     });
 
     it("should return structured error for invalid type", async () => {
       const tool = createSysIOSummaryTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { type: "invalid_type" },

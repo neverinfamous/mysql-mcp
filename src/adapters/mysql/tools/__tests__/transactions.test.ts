@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getTransactionTools } from "../transactions.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapterWithTransaction,
   createMockRequestContext,
@@ -18,7 +18,7 @@ describe("getTransactionTools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const adapter = createMockMySQLAdapterWithTransaction();
-    tools = getTransactionTools(adapter as unknown as MySQLAdapter);
+    tools = getTransactionTools(adapter);
   });
 
   it("should return 7 transaction tools", () => {
@@ -61,7 +61,7 @@ describe("Transaction Tool Annotations", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const adapter = createMockMySQLAdapterWithTransaction();
-    tools = getTransactionTools(adapter as unknown as MySQLAdapter);
+    tools = getTransactionTools(adapter);
   });
 
   it("mysql_transaction_begin should not be read-only", () => {
@@ -92,7 +92,7 @@ describe("Required Scopes", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const adapter = createMockMySQLAdapterWithTransaction();
-    tools = getTransactionTools(adapter as unknown as MySQLAdapter);
+    tools = getTransactionTools(adapter);
   });
 
   it("all transaction tools should require write scope", () => {
@@ -110,7 +110,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapterWithTransaction();
-    tools = getTransactionTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getTransactionTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 

@@ -10,7 +10,11 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  SysUserSummaryOutputSchema,
+  SysHostSummaryOutputSchema,
+} from "../../schemas/sysschema.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -26,40 +30,62 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const UserSummarySchemaBase = z.object({
-  user: z.string().optional().describe("Filter by specific user"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  user: z.string().optional().describe("Filter by specific user. Anti-Hallucination: Pass 'user', not 'userName' or 'account'."),
+  username: z.string().optional().describe("Alias for user"),
+  userName: z.string().optional().describe("Alias for user"),
+  account: z.string().optional().describe("Alias for user"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const UserSummarySchema = z
-  .object({
+const UserSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown };
+    return {
+      user: v.user ?? v.username ?? v.userName ?? v.account,
+      limit: v.limit,
+    };
+  },
+  z.object({
     user: z.string().optional(),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    user: data.user,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+    limit: z.coerce.number().int().positive().default(5),
+    username: z.any().optional(),
+    userName: z.any().optional(),
+    account: z.any().optional(),
+  }).strict()
+);
 
 const HostSummarySchemaBase = z.object({
-  host: z.string().optional().describe("Filter by specific host"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  host: z.string().optional().describe("Filter by specific host. Anti-Hallucination: Pass 'host', not 'hostName' or 'ip'."),
+  hostname: z.string().optional().describe("Alias for host"),
+  hostName: z.string().optional().describe("Alias for host"),
+  ip: z.string().optional().describe("Alias for host"),
+  address: z.string().optional().describe("Alias for host"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const HostSummarySchema = z
-  .object({
+const HostSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
+    return {
+      host: v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address,
+      limit: v.limit,
+    };
+  },
+  z.object({
     host: z.string().optional(),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    host: data.host,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+    limit: z.coerce.number().int().positive().default(5),
+    hostname: z.any().optional(),
+    hostName: z.any().optional(),
+    ip: z.any().optional(),
+    address: z.any().optional(),
+  }).strict()
+);
 
 /**
  * Get user activity summary
@@ -74,6 +100,7 @@ export function createSysUserSummaryTool(
       "Get user activity summary including statements, connections, and latency from sys schema.",
     group: "sysschema",
     inputSchema: UserSummarySchemaBase,
+    outputSchema: SysUserSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -102,11 +129,31 @@ export function createSysUserSummaryTool(
 
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query, queryParams);
+
+        if (user && (!result.rows || result.rows.length === 0)) {
+          return withTokenEstimate({
+            success: false,
+            error: `User '${user}' not found`,
+            code: "NOT_FOUND_ERROR",
+            category: "not_found",
+          });
+        }
+
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             count: result.rows?.length ?? 0,
           },
         });
@@ -132,6 +179,7 @@ export function createSysHostSummaryTool(
     description: "Get connection and activity summary by host from sys schema.",
     group: "sysschema",
     inputSchema: HostSummarySchemaBase,
+    outputSchema: SysHostSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -160,11 +208,31 @@ export function createSysHostSummaryTool(
 
         query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query, queryParams);
+
+        if (host && (!result.rows || result.rows.length === 0)) {
+          return withTokenEstimate({
+            success: false,
+            error: `Host '${host}' not found`,
+            code: "NOT_FOUND_ERROR",
+            category: "not_found",
+          });
+        }
+
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             count: result.rows?.length ?? 0,
           },
         });

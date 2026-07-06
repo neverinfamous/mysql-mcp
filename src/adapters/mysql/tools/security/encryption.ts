@@ -9,7 +9,12 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  SecuritySslStatusOutputSchema,
+  SecurityEncryptionStatusOutputSchema,
+  SecurityPasswordValidateOutputSchema,
+} from "../../schemas/security.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -26,11 +31,24 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 const PasswordValidateSchemaBase = z.object({
   password: z.string().optional().describe("Password to validate"),
+  pass: z.string().optional().describe("Alias for password"),
+  pwd: z.string().optional().describe("Alias for password"),
 });
 
-const PasswordValidateSchema = z.object({
-  password: z.string().min(1, "Password cannot be empty"),
-});
+const PasswordValidateSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val;
+    const obj = val as Record<string, unknown>;
+    if (!("password" in obj)) {
+      if ("pass" in obj) return { ...obj, password: obj["pass"] };
+      if ("pwd" in obj) return { ...obj, password: obj["pwd"] };
+    }
+    return val;
+  },
+  z.object({
+    password: z.string().min(1, "Password cannot be empty"),
+  })
+);
 
 // =============================================================================
 // Tool Creation Functions
@@ -48,6 +66,7 @@ export function createSecuritySSLStatusTool(
     description: "Get SSL/TLS connection and certificate status.",
     group: "security",
     inputSchema: z.object({}),
+    outputSchema: SecuritySslStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -129,6 +148,7 @@ export function createSecurityEncryptionStatusTool(
     description: "Get Transparent Data Encryption (TDE) and keyring status.",
     group: "security",
     inputSchema: z.object({}),
+    outputSchema: SecurityEncryptionStatusOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
@@ -212,9 +232,10 @@ export function createSecurityPasswordValidateTool(
     name: "mysql_security_password_validate",
     title: "MySQL Password Validation",
     description:
-      "Validate password strength using MySQL validate_password component.",
+      "Validate password strength using MySQL validate_password component. Note: Requires validate_password component to be installed.",
     group: "security",
     inputSchema: PasswordValidateSchemaBase,
+    outputSchema: SecurityPasswordValidateOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -249,12 +270,12 @@ export function createSecurityPasswordValidateTool(
 
         // Use validate_password function
         const result = await adapter.executeQuery(
-          "SELECT VALIDATE_PASSWORD_STRENGTH(?) as strength",
+          "SELECT VALIDATE_PASSWORD_STRENGTH(?) AS strength",
           [password],
         );
 
         const row = result.rows?.[0];
-        const strength = (row?.["strength"] as number) ?? 0;
+        const strength = typeof row?.["strength"] === "number" ? row["strength"] : 0;
 
         let interpretation: string;
         if (strength >= 100) interpretation = "Very Strong";

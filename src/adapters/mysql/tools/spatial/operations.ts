@@ -5,12 +5,12 @@
  * 4 tools: intersection, buffer, transform, geojson.
  */
 
-import { ZodError } from "zod";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -24,6 +24,10 @@ import {
   TransformSchema,
   GeoJSONSchemaBase,
   GeoJSONSchema,
+  SpatialIntersectionOutputSchema,
+  SpatialBufferOutputSchema,
+  SpatialTransformOutputSchema,
+  SpatialGeoJSONOutputSchema,
 } from "../../schemas/spatial.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -42,7 +46,8 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
   }
   if (typeof value === "string") {
     try {
-      return JSON.parse(value) as Record<string, unknown>;
+      const parsed: unknown = JSON.parse(value);
+      return (parsed !== null) ? (parsed as Record<string, unknown>) : {};
     } catch {
       return null;
     }
@@ -51,6 +56,20 @@ function parseGeoJsonResult(value: unknown): Record<string, unknown> | null {
     return value as Record<string, unknown>;
   }
   return null;
+}
+
+/**
+ * Truncate coordinate precision in WKT strings to save tokens
+ */
+function truncateWktPrecision(wkt: unknown, decimals = 5): unknown {
+  if (typeof wkt !== "string") return wkt;
+  return wkt.replace(/-?\d+(?:\.\d+)?(?:e[-+]\d+)?/gi, (match) => {
+    const parts = match.split('.');
+    if (match.toLowerCase().includes('e') || (parts.length > 1 && parts[1] && parts[1].length > decimals)) {
+      return parseFloat(parseFloat(match).toFixed(decimals)).toString();
+    }
+    return match;
+  });
 }
 
 // =============================================================================
@@ -67,6 +86,7 @@ export function createSpatialIntersectionTool(
     description: "Calculate the intersection of two geometries.",
     group: "spatial",
     inputSchema: IntersectionSchemaBase,
+    outputSchema: SpatialIntersectionOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -86,7 +106,7 @@ export function createSpatialIntersectionTool(
                     ST_AsGeoJSON(ST_Intersection(
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'),
                         ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
-                    )) as intersection_geojson`,
+                    ), 5) as intersection_geojson`,
           [geometry1, geometry2, geometry1, geometry2, geometry1, geometry2],
         );
 
@@ -95,18 +115,14 @@ export function createSpatialIntersectionTool(
           success: true,
           data: {
             intersects: Boolean(row?.["intersects"]),
-            intersectionWkt: row?.["intersection_wkt"],
+            intersectionWkt: truncateWktPrecision(row?.["intersection_wkt"]),
             intersectionGeoJson: parseGeoJsonResult(
               row?.["intersection_geojson"],
             ),
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -122,20 +138,13 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
     description: "Create a buffer (expanded area) around a geometry.",
     group: "spatial",
     inputSchema: BufferSchemaBase,
+    outputSchema: SpatialBufferOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { geometry, distance, srid, segments } =
           BufferSchema.parse(params);
-
-        // Handler-level validation for segments (replaces schema .min(1))
-        if (segments < 1) {
-          return withTokenEstimate({
-            success: false,
-            error: "segments must be >= 1",
-          });
-        }
 
         // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
         // Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm.
@@ -152,7 +161,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: true,
           data: {
-            bufferWkt: row?.["buffer_wkt"],
+            bufferWkt: truncateWktPrecision(row?.["buffer_wkt"]),
             bufferDistance: distance,
             segments,
             segmentsApplied: !isGeographic,
@@ -160,11 +169,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -183,6 +188,7 @@ export function createSpatialTransformTool(
       "Transform a geometry from one spatial reference system to another.",
     group: "spatial",
     inputSchema: TransformSchemaBase,
+    outputSchema: SpatialTransformOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -192,7 +198,7 @@ export function createSpatialTransformTool(
         const result = await adapter.executeQuery(
           `SELECT
                     ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 'axis-order=long-lat') as transformed_wkt,
-                    ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)})) as transformed_geojson`,
+                    ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 5) as transformed_geojson`,
           [geometry, geometry],
         );
 
@@ -200,8 +206,8 @@ export function createSpatialTransformTool(
         return withTokenEstimate({
           success: true,
           data: {
-            originalWkt: geometry,
-            transformedWkt: row?.["transformed_wkt"],
+            originalWkt: truncateWktPrecision(geometry),
+            transformedWkt: truncateWktPrecision(row?.["transformed_wkt"]),
             transformedGeoJson: parseGeoJsonResult(
               row?.["transformed_geojson"],
             ),
@@ -210,11 +216,7 @@ export function createSpatialTransformTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };
@@ -232,6 +234,7 @@ export function createSpatialGeoJSONTool(
     description: "Convert geometry between WKT and GeoJSON formats.",
     group: "spatial",
     inputSchema: GeoJSONSchemaBase,
+    outputSchema: SpatialGeoJSONOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -241,7 +244,7 @@ export function createSpatialGeoJSONTool(
         if (geometry) {
           // Convert WKT to GeoJSON
           const result = await adapter.executeQuery(
-            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) as geoJson`,
+            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), 5) as geoJson`,
             [geometry],
           );
 
@@ -249,7 +252,7 @@ export function createSpatialGeoJSONTool(
           return withTokenEstimate({
             success: true,
             data: {
-              wkt: geometry,
+              wkt: truncateWktPrecision(geometry),
               geoJson: parseGeoJsonResult(row?.["geoJson"]),
               conversion: "WKT to GeoJSON",
             },
@@ -265,23 +268,16 @@ export function createSpatialGeoJSONTool(
           return withTokenEstimate({
             success: true,
             data: {
-              wkt: row?.["wkt"],
-              geoJson: JSON.parse(geoJson) as Record<string, unknown>,
+              wkt: truncateWktPrecision(row?.["wkt"]),
+              geoJson: typeof JSON.parse(geoJson) === "object" && JSON.parse(geoJson) !== null ? (JSON.parse(geoJson) as Record<string, unknown>) : {},
               conversion: "GeoJSON to WKT",
             },
           });
         }
-
-        return withTokenEstimate({
-          success: false,
-          error: "Either geometry or geoJson must be provided",
-        });
+        
+        throw new Error("Unreachable");
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
-        }
-        const msg = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(new Error(msg));
+        return formatHandlerErrorResponse(error);
       }
     },
   };

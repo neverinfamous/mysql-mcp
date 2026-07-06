@@ -1,14 +1,25 @@
 name: Publish to NPM
 
 on:
-  release:
-    types: [published]
+  workflow_call:
+    secrets:
+      NPM_TOKEN:
+        required: true
   workflow_dispatch:
     inputs:
       version:
         description: "Version to publish (must match VERSION file or package.json)"
         required: false
         default: ""
+      emergency_bypass:
+        description: 'Bypass upstream gatekeeper checks (EMERGENCY ONLY)'
+        type: boolean
+        required: true
+        default: false
+      bypass_reason:
+        description: 'Justification for bypassing upstream safety gates (required when emergency_bypass is true)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -16,24 +27,47 @@ permissions:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     environment:
       name: npm
       url: https://www.npmjs.com/package/@neverinfamous/mysql-mcp
 
     steps:
+      - name: Require emergency bypass acknowledgment
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          BYPASS_REASON: ${{ inputs.bypass_reason }}
+        run: |
+          if [ "${{ inputs.emergency_bypass }}" != "true" ]; then
+            echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
+            echo "To proceed, you must explicitly check the 'emergency_bypass' option."
+            exit 1
+          fi
+          if [ ${#BYPASS_REASON} -lt 10 ]; then
+            echo "❌ Error: Emergency bypass requires a justification reason of at least 10 characters."
+            exit 1
+          fi
+          echo "⚠️ Emergency Bypass Acknowledged"
+          echo "Justification: $BYPASS_REASON"
+
       - name: Checkout code
-        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
+        with:
+          version: 9.15.4
+          run_install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
-          node-version: "24.x"
+          node-version-file: ".node-version"
           registry-url: "https://registry.npmjs.org"
-          cache: "npm"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile
 
       - name: Read version
         id: version
@@ -47,37 +81,37 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
 
-      - name: Verify version matches release tag
-        if: github.event_name == 'release'
+      - name: Verify version parameter
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          RELEASE_VERSION="${GITHUB_REF#refs/tags/}"
-          RELEASE_VERSION="${RELEASE_VERSION#v}"
-          PKG_VERSION="${{ steps.version.outputs.version }}"
-          echo "Package version: $PKG_VERSION"
-          echo "Release version: $RELEASE_VERSION"
-          if [ "$PKG_VERSION" != "$RELEASE_VERSION" ]; then
-            echo "Error: Version mismatch!"
-            echo "Expected: $PKG_VERSION"
-            echo "Got: $RELEASE_VERSION"
-            exit 1
+          if [ -n "${{ github.event.inputs.version }}" ]; then
+            PKG_VERSION="${{ steps.version.outputs.version }}"
+            if [ "$PKG_VERSION" != "${{ github.event.inputs.version }}" ]; then
+              echo "Error: Version mismatch!"
+              echo "Expected: ${{ github.event.inputs.version }}"
+              echo "Got: $PKG_VERSION"
+              exit 1
+            fi
           fi
 
       - name: Build package
-        run: npm run build
+        run: pnpm run build
 
       - name: Publish to NPM
-        run: npm publish --access public --provenance
+        # Note: tests and QA gates are expected to be run by the caller (gatekeeper.yml)
+        # on the workflow_call path. The emergency path skips them.
+        # Bypass logic is deliberately absent on the workflow_call path because upstream gatekeeper validates all safety gates.
+        run: pnpm publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Verify publication
-        continue-on-error: true
         run: |
           echo "Waiting for npm registry propagation..."
           for i in 1 2 3; do
             sleep 30
             echo "Attempt $i: Checking npm registry..."
-            if npm view @neverinfamous/mysql-mcp version --registry https://registry.npmjs.org 2>/dev/null; then
+            if pnpm view @neverinfamous/mysql-mcp@${{ steps.version.outputs.version }} version --registry https://registry.npmjs.org 2>/dev/null; then
               echo "✅ Package verified on npm registry"
               exit 0
             fi

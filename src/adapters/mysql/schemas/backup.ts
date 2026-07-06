@@ -18,17 +18,19 @@ export const ExportTableSchemaBase = z.object({
     .describe("Export format"),
   where: z.string().optional().describe("WHERE clause to filter rows"),
   filter: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .number()
     .optional()
     .describe(
       "Maximum number of rows to export (default: 5). Set higher to export more rows.",
     ),
   batch: z
-    .unknown()
+    .number()
     .optional()
     .describe(
-      "Rows per INSERT statement (default: 1). Higher values produce multi-row INSERT ... VALUES (...), (...) for smaller payloads.",
+      "Rows per INSERT statement (default: 50). Higher values produce multi-row INSERT ... VALUES (...), (...) for smaller payloads.",
     ),
 });
 
@@ -46,6 +48,8 @@ export const ExportTableSchema = z
         .default("SQL"),
       where: z.string().optional(),
       filter: z.string().optional(),
+      query: z.string().optional(),
+      condition: z.string().optional(),
       limit: z.unknown().optional(),
       batch: z.unknown().optional(),
     }),
@@ -53,9 +57,9 @@ export const ExportTableSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     format: data.format,
-    where: data.where ?? data.filter,
+    where: data.where ?? data.filter ?? data.query ?? data.condition,
     limit: data.limit !== undefined ? Number(data.limit) : 5,
-    batch: data.batch !== undefined ? Number(data.batch) : 1,
+    batch: data.batch !== undefined ? Number(data.batch) : 50,
   }))
   .refine(
     (data) =>
@@ -80,9 +84,14 @@ export const ImportDataSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
   data: z
     .array(z.record(z.string(), z.unknown()))
-    .describe("Array of row objects to insert"),
+    .optional()
+    .describe("Array of row objects to insert. (Do NOT pass a filepath string. To import a .sql file, use shell.importTable)"),
+  rows: z.array(z.record(z.string(), z.unknown())).optional().describe("Alias for data"),
+  values: z.array(z.record(z.string(), z.unknown())).optional().describe("Alias for data"),
+  items: z.array(z.record(z.string(), z.unknown())).optional().describe("Alias for data"),
 });
 
 export const ImportDataSchema = z
@@ -92,13 +101,47 @@ export const ImportDataSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
-      data: z.array(z.record(z.string(), z.unknown())),
+      tbl: z.string().optional(),
+      data: z.array(z.record(z.string(), z.unknown())).optional(),
+      rows: z.array(z.record(z.string(), z.unknown())).optional(),
+      values: z.array(z.record(z.string(), z.unknown())).optional(),
+      items: z.array(z.record(z.string(), z.unknown())).optional(),
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
-    data: data.data,
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? "",
+    data: data.data ?? data.rows ?? data.values ?? data.items ?? [],
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "table (or tableName/name/tbl alias) is required",
   });
+
+// =============================================================================
+// Output Schemas
+// =============================================================================
+
+import { BaseOutputSchema } from "./output-schemas.js";
+
+export const ExportTableOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    csv: z.string().optional(),
+    json: z.string().optional(),
+    sql: z.string().optional(),
+    rowCount: z.number()
+  }).optional()
+});
+
+export const ImportDataOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    rowsInserted: z.number()
+  }).optional()
+});
+
+export const CreateDumpOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    command: z.string(),
+    note: z.string()
+  }).optional()
+});
+
+export const RestoreDumpOutputSchema = CreateDumpOutputSchema;

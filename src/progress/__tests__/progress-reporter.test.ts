@@ -95,6 +95,41 @@ describe("ProgressReporter", () => {
     });
   });
 
+  describe("start() and progress() aliases", () => {
+    it("start() should call report() with 0 progress", () => {
+      const reporter = new ProgressReporter(mockServer as never, "token-start");
+      reporter.start(100, "Starting");
+      
+      expect(mockServer.server.notification).toHaveBeenCalledWith({
+        method: "notifications/progress",
+        params: {
+          progressToken: "token-start",
+          progress: 0,
+          total: 100,
+          message: "Starting",
+        },
+      });
+    });
+
+    it("progress() should correctly parse total and message arguments", () => {
+      const reporter = new ProgressReporter(mockServer as never, "token-prog");
+      
+      // With total and message
+      reporter.progress(10, 100, "Step 1");
+      expect(mockServer.server.notification).toHaveBeenCalledWith({
+        method: "notifications/progress",
+        params: expect.objectContaining({ progress: 10, total: 100, message: "Step 1" }),
+      });
+      
+      // With just message
+      reporter.progress(20, "Step 2");
+      expect(mockServer.server.notification).toHaveBeenCalledWith({
+        method: "notifications/progress",
+        params: expect.objectContaining({ progress: 20, total: undefined, message: "Step 2" }),
+      });
+    });
+  });
+
   describe("complete()", () => {
     it("should send completion notification with default message", () => {
       const reporter = new ProgressReporter(mockServer as never, "token");

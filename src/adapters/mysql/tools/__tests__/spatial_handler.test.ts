@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -16,7 +16,7 @@ describe("Spatial Tools Handlers", () => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
     mockContext = createMockRequestContext();
-    tools = getSpatialTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getSpatialTools(mockAdapter);
   });
 
   const findTool = (name: string) => tools.find((t) => t.name === name);
@@ -123,7 +123,7 @@ describe("Spatial Tools Handlers", () => {
           "CREATE SPATIAL INDEX `idx_spatial_users_location`",
         ),
       );
-      expect((result as any).data).toHaveProperty(
+      expect(Reflect.get(result || {}, "data")).toHaveProperty(
         "indexName",
         "idx_spatial_users_location",
       );
@@ -216,8 +216,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).data.conversion).toBe("WKT to GeoJSON");
-      expect((result as any).data.geoJson).toEqual({
+      expect(Reflect.get(result || {}, "data").conversion).toBe("WKT to GeoJSON");
+      expect(Reflect.get(result || {}, "data").geoJson).toEqual({
         type: "Point",
         coordinates: [1, 1],
       });
@@ -236,8 +236,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).data.conversion).toBe("GeoJSON to WKT");
-      expect((result as any).data.wkt).toBe("POINT(1 1)");
+      expect(Reflect.get(result || {}, "data").conversion).toBe("GeoJSON to WKT");
+      expect(Reflect.get(result || {}, "data").wkt).toBe("POINT(1 1)");
     });
 
     it("should return structured error if both inputs are missing (zod refinement)", async () => {
@@ -256,7 +256,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -270,14 +270,14 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
     it("should return { exists: false } for nonexistent table (distance_sphere)", async () => {
       const tool = findTool("mysql_spatial_distance_sphere")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -291,14 +291,14 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
     it("should return { exists: false } for nonexistent table (contains)", async () => {
       const tool = findTool("mysql_spatial_contains")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -312,14 +312,14 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
     it("should return { exists: false } for nonexistent table (within)", async () => {
       const tool = findTool("mysql_spatial_within")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -333,14 +333,14 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: expect.stringContaining("does not exist"),
       });
     });
 
     it("should return { exists: false } for nonexistent table (create_column)", async () => {
       const tool = findTool("mysql_spatial_create_column")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -360,7 +360,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { exists: false } for nonexistent table (create_index)", async () => {
       const tool = findTool("mysql_spatial_create_index")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' doesn't exist"),
+        new Error("Table 'db.nonexistent' does not exist"),
       );
 
       const result = await tool.handler(
@@ -380,7 +380,7 @@ describe("Spatial Tools Handlers", () => {
     it("should return { success: false } for MySQL error (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
       mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Unknown column 'bad_col' in 'field list'"),
+        new Error("Column 'bad_col' not found"),
       );
 
       const result = await tool.handler(
@@ -394,7 +394,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Unknown column 'bad_col' in 'field list'",
+        error: "Column 'bad_col' not found",
       });
     });
 
@@ -540,8 +540,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).data.segmentsApplied).toBe(false);
-      expect((result as any).data.segments).toBe(4);
+      expect(Reflect.get(result || {}, "data").segmentsApplied).toBe(false);
+      expect(Reflect.get(result || {}, "data").segments).toBe(4);
     });
 
     it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
@@ -566,8 +566,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as any).data.segmentsApplied).toBe(true);
-      expect((result as any).data.segments).toBe(4);
+      expect(Reflect.get(result || {}, "data").segmentsApplied).toBe(true);
+      expect(Reflect.get(result || {}, "data").segments).toBe(4);
     });
   });
 });

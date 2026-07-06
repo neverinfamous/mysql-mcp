@@ -16,8 +16,8 @@ function getBadgeColor(percentage: number): string {
 }
 
 function updateBadges() {
-  const summaryPath = path.join(ROOT_DIR, "coverage/coverage-summary.json");
-  const playwrightPath = path.join(ROOT_DIR, "playwright-results.json");
+  const summaryPath = path.join(ROOT_DIR, ".test-output/coverage/coverage-summary.json");
+  const playwrightPath = path.join(ROOT_DIR, ".test-output/playwright-results.json");
 
   let linesPct = 0;
   let coverageColor = "red";
@@ -47,12 +47,12 @@ function updateBadges() {
 
   // ![Coverage](https://img.shields.io/badge/Coverage-96.7%25-brightgreen.svg)
   const covRegex =
-    /!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[0-9.]+.*?\.svg\)/g;
+    /!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[^)]+\)/g;
   const newCovBadge = `![Coverage](https://img.shields.io/badge/Coverage-${linesPct}%25-${coverageColor}.svg)`;
 
   // ![E2E](https://img.shields.io/badge/E2E-179%20tests%20%C2%B7%20224%20tools-blue.svg)
   const e2eRegex =
-    /!\[E2E\]\(https:\/\/img\.shields\.io\/badge\/E2E-[a-zA-Z0-9%.-]+.*?\.svg\)/g;
+    /!\[E2E\]\(https:\/\/img\.shields\.io\/badge\/E2E-[^)]+\)/g;
   const newE2eBadge = `![E2E](https://img.shields.io/badge/E2E-${e2ePassing}%20passing%20%C2%B7%20${e2eSkipped}%20skipped-blue.svg)`;
 
   const filesToUpdate = ["README.md", "DOCKER_README.md"];
@@ -70,6 +70,13 @@ function updateBadges() {
           content = content.replace(covRegex, newCovBadge);
           changed = true;
           console.log(`Updated coverage badge in ${file} to ${linesPct}%`);
+        } else {
+          const licenseRegex = /(\[!\[License: MIT\].*?\))/;
+          if (licenseRegex.test(content)) {
+            content = content.replace(licenseRegex, `$1 ${newCovBadge}`);
+            changed = true;
+            console.log(`Inserted coverage badge in ${file} to ${linesPct}%`);
+          }
         }
       }
 
@@ -82,6 +89,19 @@ function updateBadges() {
           console.log(
             `Updated E2E badge in ${file} to ${e2ePassing} passing, ${e2eSkipped} skipped`,
           );
+        } else {
+          if (content.includes(newCovBadge)) {
+            content = content.replace(newCovBadge, `${newCovBadge} ${newE2eBadge}`);
+            changed = true;
+            console.log(`Inserted E2E badge in ${file}`);
+          } else {
+            const licenseRegex = /(\[!\[License: MIT\].*?\))/;
+            if (licenseRegex.test(content)) {
+              content = content.replace(licenseRegex, `$1 ${newE2eBadge}`);
+              changed = true;
+              console.log(`Inserted E2E badge in ${file}`);
+            }
+          }
         }
       }
 

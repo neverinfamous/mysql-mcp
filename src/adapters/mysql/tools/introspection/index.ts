@@ -2,14 +2,14 @@
  * MySQL Introspection Tools - Index
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 import {
   createDependencyGraphTool,
   createTopologicalSortTool,
   createCascadeSimulatorTool,
-} from "./graph.js";
+} from "./graph/index.js";
 
 import {
   createConstraintAnalysisTool,

@@ -16,9 +16,9 @@ const mocks = vi.hoisted(() => ({
 }));
 
 // Mock McpServer partially
-vi.mock("../server/mcp-server.js", async (importOriginal) => {
+vi.mock("../server/mcp-server/index.js", async (importOriginal) => {
   const actual =
-    await importOriginal<typeof import("../server/mcp-server.js")>();
+    await importOriginal<typeof import("../server/mcp-server/index.js")>();
   return {
     ...actual,
     createServer: mocks.createServer,
@@ -26,7 +26,7 @@ vi.mock("../server/mcp-server.js", async (importOriginal) => {
 });
 
 // Mock MySQLAdapter
-vi.mock("../adapters/mysql/mysql-adapter.js", () => ({
+vi.mock("../adapters/mysql/mysql-adapter/index.js", () => ({
   MySQLAdapter: mocks.MySQLAdapter,
 }));
 
@@ -64,7 +64,7 @@ describe("CLI", () => {
     delete process.env["MYSQL_USER"];
     delete process.env["MYSQL_PASSWORD"];
     delete process.env["MYSQL_DATABASE"];
-    delete process.env["MYSQL_MCP_TOOL_FILTER"];
+
     delete process.env["OAUTH_ENABLED"];
   });
 
@@ -73,7 +73,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "router" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -87,7 +87,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "proxysql" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -99,7 +99,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "shell" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -111,7 +111,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "ecosystem" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -124,7 +124,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "router,proxysql,shell" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -136,7 +136,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "starter" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -148,7 +148,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "dev-power" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -160,7 +160,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "router,core" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -172,7 +172,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "-router" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -199,7 +199,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "base-core" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -211,7 +211,7 @@ describe("CLI", () => {
       await main({
         config: { toolFilter: "ai-data" },
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -223,7 +223,7 @@ describe("CLI", () => {
       await main({
         config: {},
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -251,7 +251,7 @@ describe("CLI", () => {
       await main({
         config: {},
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });
@@ -270,7 +270,7 @@ describe("CLI", () => {
         main({
           config: {},
           databases: [
-            { type: "mysql", host: "localhost", database: "test" } as any,
+            { type: "mysql", host: "localhost", database: "test" },
           ],
           oauth: undefined,
         }),
@@ -286,7 +286,7 @@ describe("CLI", () => {
       await main({
         config: {},
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: {
           enabled: true,
@@ -333,7 +333,7 @@ describe("CLI", () => {
       await main({
         config: {},
         databases: [
-          { type: "mysql", host: "localhost", database: "test" } as any,
+          { type: "mysql", host: "localhost", database: "test" },
         ],
         oauth: undefined,
       });

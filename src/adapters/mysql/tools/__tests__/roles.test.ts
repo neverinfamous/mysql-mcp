@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { getRoleTools } from "../roles.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import { getRoleTools } from "../roles/index.js";
+import type {} from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -18,7 +18,7 @@ describe("getRoleTools", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    tools = getRoleTools(createMockMySQLAdapter() as unknown as MySQLAdapter);
+    tools = getRoleTools(createMockMySQLAdapter());
   });
 
   it("should return 8 role tools", () => {
@@ -52,7 +52,7 @@ describe("Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    tools = getRoleTools(mockAdapter as unknown as MySQLAdapter);
+    tools = getRoleTools(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
@@ -76,8 +76,11 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_list")!;
       await tool.handler({ pattern: "admin%" }, mockContext);
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
-      expect(call).toContain("LIKE 'admin%'");
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const params = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(call).toContain("LIKE ?");
+      expect(call).toContain("LIMIT 50");
+      expect(params).toEqual(["admin%"]);
     });
   });
 
@@ -92,7 +95,7 @@ describe("Handler Execution", () => {
       await tool.handler({ name: "test_role", ifNotExists: true }, mockContext);
 
       // Second call should be the CREATE ROLE
-      const createCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const createCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(createCall).toContain("CREATE ROLE IF NOT EXISTS");
     });
 
@@ -104,7 +107,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("CREATE ROLE 'test_role'");
     });
 
@@ -112,7 +115,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name" }),
+        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
       );
     });
 
@@ -157,7 +160,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("GRANT SELECT ON `testdb`.* TO 'test_role'");
     });
 
@@ -169,7 +172,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain(
         "GRANT SELECT ON `testdb`.`mytable` TO 'test_role'",
       );
@@ -182,7 +185,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name" }),
+        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
       );
     });
   });
@@ -202,7 +205,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("REVOKE");
     });
 
@@ -241,7 +244,7 @@ describe("Handler Execution", () => {
       await tool.handler({ name: "test_role", ifExists: true }, mockContext);
 
       // Second call should be the DROP ROLE
-      const dropCall = mockAdapter.executeQuery.mock.calls[1][0] as string;
+      const dropCall = mockAdapter.executeQuery.mock.calls[1][0];
       expect(dropCall).toContain("DROP ROLE IF EXISTS");
     });
 
@@ -250,7 +253,7 @@ describe("Handler Execution", () => {
       await tool.handler({ name: "test_role", ifExists: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("DROP ROLE 'test_role'");
     });
 
@@ -258,7 +261,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name" }),
+        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
       );
     });
 
@@ -296,7 +299,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("GRANT");
     });
 
@@ -312,7 +315,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("WITH ADMIN OPTION");
     });
   });
@@ -327,7 +330,7 @@ describe("Handler Execution", () => {
       await tool.handler({ role: "test_role" }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("SHOW GRANTS");
     });
   });
@@ -342,7 +345,7 @@ describe("Handler Execution", () => {
       await tool.handler({ user: "testuser", host: "localhost" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
       expect(call).toContain("mysql.user");
     });
 
@@ -358,7 +361,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User does not exist",
+          error: "User 'nonexistent' does not exist",
         }),
       );
     });
@@ -408,14 +411,10 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_assign - error handling", () => {
     it("should return graceful error for nonexistent user", async () => {
-      // Role exists check succeeds
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ "1": 1 }]),
-      );
-      // GRANT rawQuery fails with unknown user
-      mockAdapter.rawQuery.mockRejectedValue(
-        new Error("Unknown authorization ID `baduser`@`%`"),
-      );
+      // 1: role exists; 2: user does NOT exist
+      mockAdapter.executeQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_role_assign")!;
       const result = await tool.handler(
@@ -426,9 +425,10 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User does not exist",
+          error: "User 'baduser' does not exist",
         }),
       );
+      expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
   });
 
@@ -448,7 +448,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User does not exist",
+          error: "User 'baduser' does not exist",
         }),
       );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
@@ -463,7 +463,7 @@ describe("Handler Execution", () => {
       );
       // GRANT rawQuery fails with table not found
       mockAdapter.rawQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' doesn't exist"),
+        new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_role_grant")!;
@@ -480,8 +480,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          role: "test_role",
-          error: "Table 'testdb.nonexistent' doesn't exist",
+          error: "Table 'testdb.nonexistent' does not exist",
         }),
       );
     });
@@ -492,7 +491,7 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_list")!;
       const result = await tool.handler({ pattern: 123 }, mockContext); // invalid pattern type
       expect(result).toEqual(expect.objectContaining({ success: false }));
-      expect((result as any).error).toContain("pattern");
+      expect(Reflect.get(result || {}, "error")).toContain("pattern");
     });
 
     it("should handle Zod validation errors for mysql_role_create", async () => {

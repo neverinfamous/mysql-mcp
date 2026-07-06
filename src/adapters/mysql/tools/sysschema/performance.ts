@@ -10,7 +10,12 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  SysStatementSummaryOutputSchema,
+  SysWaitSummaryOutputSchema,
+  SysIoSummaryOutputSchema,
+} from "../../schemas/sysschema.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -25,76 +30,103 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Zod Schemas
 // =============================================================================
 
-const VALID_ORDER_BY = [
+const VALID_ORDER_BY: readonly string[] = [
   "total_latency",
   "exec_count",
   "avg_latency",
   "rows_sent",
   "rows_examined",
-] as const;
+];
 
 const StatementSummarySchemaBase = z.object({
-  orderBy: z.string().optional().describe("Order results by"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  orderBy: z.string().optional().describe("Order results by. Anti-Hallucination: Pass 'orderBy', not 'sort' or 'order'."),
+  order: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
+  order_by: z.string().optional().describe("Alias for orderBy"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const StatementSummarySchema = z
-  .object({
+const StatementSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; order_by?: unknown; limit?: unknown };
+    return {
+      ...val,
+      orderBy: v.orderBy ?? v.order_by ?? v.sortBy ?? v.order ?? v.sort,
+      limit: v.limit,
+    };
+  },
+  z.object({
     orderBy: z.string().default("total_latency"),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    orderBy: data.orderBy,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+    limit: z.coerce.number().int().positive().default(5),
+    order: z.any().optional(),
+    sort: z.any().optional(),
+    sortBy: z.any().optional(),
+    order_by: z.any().optional(),
+  }).strict()
+);
 
-const VALID_WAIT_TYPES = [
+const VALID_WAIT_TYPES: readonly string[] = [
   "global",
   "by_host",
   "by_user",
   "by_instance",
-] as const;
+];
 
 const WaitSummarySchemaBase = z.object({
-  type: z.string().optional().describe("Type of wait summary"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  type: z.string().optional().describe("Type of wait summary. Anti-Hallucination: Valid values are 'global', 'by_host', 'by_user', 'by_instance'."),
+  waitType: z.string().optional().describe("Alias for type"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const WaitSummarySchema = z
-  .object({
+const WaitSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { type?: unknown; waitType?: unknown; limit?: unknown };
+    return {
+      ...val,
+      type: v.type ?? v.waitType,
+      limit: v.limit,
+    };
+  },
+  z.object({
     type: z.string().default("global"),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    type: data.type,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+    limit: z.coerce.number().int().positive().default(5),
+    waitType: z.any().optional(),
+  }).strict()
+);
 
-const VALID_IO_TYPES = ["file", "table", "global"] as const;
+const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
 
 const IOSummarySchemaBase = z.object({
-  type: z.string().optional().describe("Type of I/O summary"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  type: z.string().optional().describe("Type of I/O summary. Anti-Hallucination: Valid values are 'file', 'table', 'global'."),
+  ioType: z.string().optional().describe("Alias for type"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const IOSummarySchema = z
-  .object({
+const IOSummarySchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { type?: unknown; ioType?: unknown; limit?: unknown };
+    return {
+      ...val,
+      type: v.type ?? v.ioType,
+      limit: v.limit,
+    };
+  },
+  z.object({
     type: z.string().default("table"),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    type: data.type,
-    limit: data.limit !== undefined ? Number(data.limit) : 5,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+    limit: z.coerce.number().int().positive().default(5),
+    ioType: z.any().optional(),
+  }).strict()
+);
 
 /**
  * Get statement execution summary
@@ -109,6 +141,7 @@ export function createSysStatementSummaryTool(
       "Get statement execution statistics including latency and row counts from sys schema.",
     group: "sysschema",
     inputSchema: StatementSummarySchemaBase,
+    outputSchema: SysStatementSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -116,11 +149,13 @@ export function createSysStatementSummaryTool(
         const { orderBy, limit } = StatementSummarySchema.parse(params);
 
         if (
-          !VALID_ORDER_BY.includes(orderBy as (typeof VALID_ORDER_BY)[number])
+          !VALID_ORDER_BY.includes(orderBy)
         ) {
           return withTokenEstimate({
             success: false,
             error: `Invalid orderBy: '${orderBy}' — expected one of: ${VALID_ORDER_BY.join(", ")}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
           });
         }
 
@@ -143,11 +178,21 @@ export function createSysStatementSummaryTool(
                 LIMIT ${String(actualLimit)}
             `;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             orderedBy: orderBy,
             count: result.rows?.length ?? 0,
           },
@@ -175,6 +220,7 @@ export function createSysWaitSummaryTool(
       "Get wait event summary for performance analysis from sys schema.",
     group: "sysschema",
     inputSchema: WaitSummarySchemaBase,
+    outputSchema: SysWaitSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -182,11 +228,13 @@ export function createSysWaitSummaryTool(
         const { type, limit } = WaitSummarySchema.parse(params);
 
         if (
-          !VALID_WAIT_TYPES.includes(type as (typeof VALID_WAIT_TYPES)[number])
+          !VALID_WAIT_TYPES.includes(type)
         ) {
           return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_WAIT_TYPES.join(", ")}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
           });
         }
 
@@ -249,11 +297,21 @@ export function createSysWaitSummaryTool(
             throw new Error(`Unexpected type: ${type}`);
         }
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             type,
             count: result.rows?.length ?? 0,
           },
@@ -279,16 +337,19 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
       "Get I/O usage summary by file, table, or global from sys schema.",
     group: "sysschema",
     inputSchema: IOSummarySchemaBase,
+    outputSchema: SysIoSummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { type, limit } = IOSummarySchema.parse(params);
 
-        if (!VALID_IO_TYPES.includes(type as (typeof VALID_IO_TYPES)[number])) {
+        if (!VALID_IO_TYPES.includes(type)) {
           return withTokenEstimate({
             success: false,
             error: `Invalid type: '${type}' — expected one of: ${VALID_IO_TYPES.join(", ")}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
           });
         }
 
@@ -348,11 +409,21 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             throw new Error(`Unexpected type: ${type}`);
         }
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows ?? [],
+            rows: (result.rows ?? []).map(cleanRow),
             type,
             count: result.rows?.length ?? 0,
           },

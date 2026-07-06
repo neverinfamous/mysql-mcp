@@ -10,7 +10,12 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  SysSchemaStatsOutputSchema,
+  SysInnoDBLockWaitsOutputSchema,
+  SysMemorySummaryOutputSchema,
+} from "../../schemas/sysschema.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -26,40 +31,60 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const LimitSchemaBase = z.object({
-  limit: z.unknown().optional().describe("Maximum number of results to return"),
+  limit: z.number().optional().describe("Maximum number of results to return"),
+  max: z.number().optional().describe("Alias for limit"),
+  count: z.number().optional().describe("Alias for limit"),
 });
 
-const LimitSchema = z
-  .object({
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    limit: data.limit !== undefined ? Number(data.limit) : 2,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+const LimitSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { limit?: unknown; max?: unknown; count?: unknown };
+    return {
+      ...val,
+      limit: v.limit ?? v.max ?? v.count,
+    };
+  },
+  z.object({
+    limit: z.coerce.number().int().positive().default(5),
+    max: z.any().optional(),
+    count: z.any().optional(),
+  }).strict()
+);
 
 const SchemaStatsSchemaBase = z.object({
   schema: z
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
-  limit: z.unknown().optional().describe("Maximum number of results"),
+  database: z.string().optional().describe("Alias for schema"),
+  db: z.string().optional().describe("Alias for schema"),
+  schemaName: z.string().optional().describe("Alias for schema"),
+  limit: z.number().optional().describe("Maximum number of results"),
 });
 
-const SchemaStatsSchema = z
-  .object({
+const SchemaStatsSchema = z.preprocess(
+  (val: unknown) => {
+    if (val === undefined || val === null || typeof val !== "object") {
+      return val;
+    }
+    const v = val as { schema?: unknown; database?: unknown; db?: unknown; schemaName?: unknown; limit?: unknown };
+    return {
+      ...val,
+      schema: v.schema ?? v.database ?? v.db ?? v.schemaName,
+      limit: v.limit,
+    };
+  },
+  z.object({
     schema: z.string().optional(),
-    limit: z.unknown().optional(),
-  })
-  .transform((data) => ({
-    schema: data.schema,
-    limit: data.limit !== undefined ? Number(data.limit) : 2,
-  }))
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
-    message: "limit must be a positive number",
-  });
+    limit: z.coerce.number().int().positive().default(5),
+    database: z.any().optional(),
+    db: z.any().optional(),
+    schemaName: z.any().optional(),
+  }).strict()
+);
 
 /**
  * Get schema object statistics
@@ -74,6 +99,7 @@ export function createSysSchemaStatsTool(
       "Get aggregated statistics for a schema including tables, indexes, and auto-increment status.",
     group: "sysschema",
     inputSchema: SchemaStatsSchemaBase,
+    outputSchema: SysSchemaStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -90,6 +116,8 @@ export function createSysSchemaStatsTool(
             return withTokenEstimate({
               success: false,
               error: `Schema '${schema}' does not exist`,
+              code: "NOT_FOUND_ERROR",
+              category: "not_found",
             });
           }
         }
@@ -102,7 +130,7 @@ export function createSysSchemaStatsTool(
           );
           const rows = dbResult.rows ?? [];
           const dbRow = rows[0];
-          resolvedSchema = (dbRow?.["db"] as string) ?? "unknown";
+          resolvedSchema = typeof dbRow?.["db"] === "string" ? dbRow["db"] : "unknown";
         }
 
         // Get table statistics
@@ -117,13 +145,7 @@ export function createSysSchemaStatsTool(
                     rows_updated,
                     update_latency,
                     rows_deleted,
-                    delete_latency,
-                    io_read_requests,
-                    io_read,
-                    io_read_latency,
-                    io_write_requests,
-                    io_write,
-                    io_write_latency
+                    delete_latency
                 FROM sys.schema_table_statistics
                 WHERE table_schema = COALESCE(?, DATABASE())
                 ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
@@ -171,11 +193,21 @@ export function createSysSchemaStatsTool(
           adapter.executeQuery(autoIncQuery, [schema ?? null]),
         ]);
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         return withTokenEstimate({
           success: true,
           data: {
-            tableStatistics: tableStats.rows ?? [],
-            indexStatistics: indexStats.rows ?? [],
+            tableStatistics: (tableStats.rows ?? []).map(cleanRow),
+            indexStatistics: (indexStats.rows ?? []).map(cleanRow),
             autoIncrementStatus: autoIncStats.rows ?? [],
             tableStatisticsCount: (tableStats.rows ?? []).length,
             indexStatisticsCount: (indexStats.rows ?? []).length,
@@ -206,6 +238,7 @@ export function createSysInnoDBLockWaitsTool(
       "Get current InnoDB lock contention information from sys schema.",
     group: "sysschema",
     inputSchema: LimitSchemaBase,
+    outputSchema: SysInnoDBLockWaitsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -238,11 +271,21 @@ export function createSysInnoDBLockWaitsTool(
                 LIMIT ${String(limit)}
             `;
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         const result = await adapter.executeQuery(query);
         return withTokenEstimate({
           success: true,
           data: {
-            rows: result.rows,
+            rows: (result.rows ?? []).map(cleanRow),
             count: result.rows?.length ?? 0,
             hasContention: (result.rows?.length ?? 0) > 0,
           },
@@ -269,6 +312,7 @@ export function createSysMemorySummaryTool(
     description: "Get memory usage summary by allocation type from sys schema.",
     group: "sysschema",
     inputSchema: LimitSchemaBase,
+    outputSchema: SysMemorySummaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -309,11 +353,21 @@ export function createSysMemorySummaryTool(
           adapter.executeQuery(userQuery),
         ]);
 
+        const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
+          const cleaned: Record<string, unknown> = {};
+          for (const [key, value] of Object.entries(row)) {
+            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+              cleaned[key] = value;
+            }
+          }
+          return cleaned;
+        };
+
         return withTokenEstimate({
           success: true,
           data: {
-            globalMemory: globalStats.rows ?? [],
-            memoryByUser: userStats.rows ?? [],
+            globalMemory: (globalStats.rows ?? []).map(cleanRow),
+            memoryByUser: (userStats.rows ?? []).map(cleanRow),
             globalMemoryCount: (globalStats.rows ?? []).length,
             memoryByUserCount: (userStats.rows ?? []).length,
           },

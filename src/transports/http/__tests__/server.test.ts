@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { HttpTransport } from "../server.js";
+import { HttpTransport } from "../server/index.js";
 import { IncomingMessage, ServerResponse } from "node:http";
 import { Socket } from "node:net";
 

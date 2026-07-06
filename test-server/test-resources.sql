@@ -1,7 +1,7 @@
 -- =============================================================================
 -- MySQL-MCP Resource Testing Seed Data
 -- =============================================================================
--- This file warms up MySQL internal statistics views so that all 18 resources
+-- This file warms up MySQL internal statistics views so that all 19 resources
 -- return meaningful data. Run AFTER test-seed.sql.
 --
 -- Target: testdb database on mysql-final Docker container
@@ -130,7 +130,7 @@ ORDER BY revenue DESC;
 -- test_documents has doc (JSON) + _id columns — detected as X DevAPI collections.
 
 -- =============================================================================
--- SCHEMA, TABLES, VARIABLES, PROCESSLIST, POOL, CAPABILITIES:
+-- SCHEMA, TABLES, TABLE/{NAME}, VARIABLES, PROCESSLIST, POOL, CAPABILITIES:
 -- =============================================================================
 -- These resources query SHOW commands, information_schema, or internal pool
 -- state — they return meaningful data with no additional seeding.

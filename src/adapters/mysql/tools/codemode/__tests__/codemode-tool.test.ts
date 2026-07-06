@@ -10,7 +10,7 @@ import {
   getCodeModeTools,
   cleanupCodeMode,
 } from "../index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import type { ToolDefinition } from "../../../../../types/index.js";
 
 // Suppress logger
@@ -57,7 +57,7 @@ function createCodeModeMockAdapter(): MySQLAdapter {
     getActiveTransactionIds: vi.fn().mockReturnValue([]),
     rollbackTransaction: vi.fn().mockResolvedValue(undefined),
     getAuditInterceptor: vi.fn().mockReturnValue(null),
-  } as unknown as MySQLAdapter;
+  };
 }
 
 describe("Code Mode Tool", () => {
@@ -110,7 +110,7 @@ describe("Code Mode Tool", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("validation failed");
+      expect(result.error).toContain("code (or alias like script/query) is required");
     });
 
     it("should execute valid code successfully", async () => {

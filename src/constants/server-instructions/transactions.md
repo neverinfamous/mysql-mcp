@@ -1,7 +1,10 @@
-# Transactions & Safety (`mysql_transaction_*`)
+# Transactions & Safety
+
+Tools: `mysql_transaction_begin`, `mysql_transaction_commit`, `mysql_transaction_rollback`, `mysql_transaction_savepoint`, `mysql_transaction_release`, `mysql_transaction_rollback_to`, `mysql_transaction_execute`
 
 - **Interactive transactions**: Use `mysql_transaction_begin` → get `transactionId` → pass it to `mysql_read_query` or `mysql_write_query` for queries within the transaction → `mysql_transaction_commit` or `mysql_transaction_rollback`.
 - **Atomic execution**: `mysql_transaction_execute` runs multiple SQL statements in a single atomic transaction. All succeed or all are rolled back. Returns `rows` and `rowCount` for SELECT statements, `rowsAffected` for write statements. Returns `{ success: false, error }` if the `statements` array is empty. Returns `{ success: false, error, rolledBack: true }` if any statement fails.
+  - *Code Mode Hint*: You can use positional arguments like `mysql.transactions.execute(["SELECT 1", "SELECT 2"])` or `mysql.transactions.execute("SELECT 1", "READ COMMITTED")`.
 - **Isolation levels**: `mysql_transaction_begin` and `mysql_transaction_execute` accept optional `isolationLevel`: `READ UNCOMMITTED`, `READ COMMITTED`, `REPEATABLE READ` (default), `SERIALIZABLE`.
 - **Savepoints**: Within an active transaction, use `mysql_transaction_savepoint` to create checkpoints, `mysql_transaction_rollback_to` for partial rollback, and `mysql_transaction_release` to remove a savepoint.
 - **Graceful error handling**: `mysql_transaction_commit` and `mysql_transaction_rollback` return `{ success: false, error }` for invalid or expired transaction IDs. Savepoint tools (`mysql_transaction_savepoint`, `mysql_transaction_release`, `mysql_transaction_rollback_to`) return `{ success: false, error }` when the transaction or savepoint does not exist.

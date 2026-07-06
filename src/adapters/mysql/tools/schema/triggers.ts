@@ -1,20 +1,55 @@
 import { z } from "zod";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-const ListTriggersSchema = z.object({
+const ListTriggersSchemaBase = z.object({
   table: z.string().optional().describe("Filter by table name"),
+  tableName: z.string().optional().describe("Alias for table"),
   schema: z
     .string()
-    .optional()
-    .describe("Schema name (defaults to current database)"),
+    .default("")
+    .describe("Schema name to list triggers for"),
   database: z.string().optional().describe("Alias for schema"),
+  dbName: z.string().optional().describe("Alias for schema"),
+  limit: z.number().default(50).describe("Maximum number of results to return"),
+  offset: z.number().default(0).describe("Number of results to skip"),
+});
+
+const ListTriggersSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        table: (obj['table'] === "" ? undefined : obj['table']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']) ?? (obj['dbName'] === "" ? undefined : obj['dbName']),
+      };
+    }
+    return val;
+  },
+  z.object({
+    table: z.string().optional(),
+    schema: z.string().min(1, "Schema parameter is required"),
+    limit: z.number().default(50),
+    offset: z.number().default(0),
+  })
+);
+
+const ListTriggersOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    triggers: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
 });
 
 /**
@@ -26,16 +61,17 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL List Triggers",
     description: "List all triggers with event timing, action, and definition.",
     group: "schema",
-    inputSchema: ListTriggersSchema,
+    inputSchema: ListTriggersSchemaBase,
+    outputSchema: ListTriggersOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const parsedParams = ListTriggersSchema.parse(params);
-        const targetSchema = parsedParams.schema ?? parsedParams.database;
+        const targetSchema = parsedParams.schema;
         const table = parsedParams.table;
 
-        // P154: Schema existence check when explicitly provided
+        // P154: Schema existence check
         if (targetSchema !== undefined && targetSchema !== "") {
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
@@ -50,9 +86,10 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
 
         // P154: Table existence check when explicitly provided
         if (table !== undefined && table !== "") {
+          const tableCheckQuery = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
           const tableCheck = await adapter.executeQuery(
-            "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?",
-            [targetSchema ?? null, table],
+            tableCheckQuery,
+            [targetSchema, table],
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
@@ -71,34 +108,31 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
                     DEFINER as definer,
                     CREATED as created
                 FROM information_schema.TRIGGERS
-                WHERE TRIGGER_SCHEMA = COALESCE(?, DATABASE())
+                WHERE TRIGGER_SCHEMA = ?
             `;
 
-        const queryParams: unknown[] = [targetSchema ?? null];
+        const queryParams: unknown[] = [targetSchema];
 
         if (table !== undefined && table !== "") {
-          query += " AND EVENT_OBJECT_TABLE = ?";
-          queryParams.push(table);
+            query += " AND EVENT_OBJECT_TABLE = ?";
+            queryParams.push(table);
         }
 
         query +=
-          " ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION";
-
+          ` ORDER BY EVENT_OBJECT_TABLE, ACTION_TIMING, EVENT_MANIPULATION LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}`;
+        
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             triggers: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
     },
   };
 }
+

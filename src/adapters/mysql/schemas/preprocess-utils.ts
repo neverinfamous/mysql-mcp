@@ -15,17 +15,257 @@ export function defaultToEmpty(input: unknown): unknown {
 }
 
 /**
+ * Preprocess database parameters:
+ * - Alias: db/schema → database
+ */
+export function preprocessDatabaseParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input;
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["database"] === undefined) {
+    if (result["db"] !== undefined) result["database"] = result["db"];
+    else if (result["schema"] !== undefined) result["database"] = result["schema"];
+  }
+  return result;
+}
+
+/**
+ * Preprocess execute code params:
+ * - Alias: script/query/sql -> code
+ */
+export function preprocessExecuteCodeParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input ?? {};
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["code"] === undefined) {
+    if (result["script"] !== undefined) result["code"] = result["script"];
+    else if (result["query"] !== undefined) result["code"] = result["query"];
+    else if (result["sql"] !== undefined) result["code"] = result["sql"];
+    else if (result["javascript"] !== undefined) result["code"] = result["javascript"];
+    else if (result["js"] !== undefined) result["code"] = result["js"];
+    else if (result["command"] !== undefined) result["code"] = result["command"];
+    else if (result["execute"] !== undefined) result["code"] = result["execute"];
+    else if (result["eval"] !== undefined) result["code"] = result["eval"];
+  }
+  return result;
+}
+
+/**
+ * Preprocess document collection params:
+ * - Alias: collection -> name
+ */
+export function preprocessDocCollectionParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input;
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["name"] === undefined) {
+    if (result["collection"] !== undefined) result["name"] = result["collection"];
+    else if (result["collectionName"] !== undefined) result["name"] = result["collectionName"];
+    else if (result["table"] !== undefined) result["name"] = result["table"];
+    else if (result["tableName"] !== undefined) result["name"] = result["tableName"];
+    else if (result["tbl"] !== undefined) result["name"] = result["tbl"];
+  }
+  if (result["collection"] === undefined && result["name"] !== undefined) {
+    result["collection"] = result["name"];
+  }
+  if (result["schema"] === undefined && result["database"] !== undefined) {
+    result["schema"] = result["database"];
+  }
+  if (result["documents"] === undefined && result["document"] !== undefined) {
+    result["documents"] = Array.isArray(result["document"]) ? result["document"] : [result["document"]];
+  }
+  return result;
+}
+
+/**
  * Preprocess table parameters:
- * - Alias: tableName/name → table
+ * - Alias: tableName/name/tbl → table
  */
 export function preprocessTableParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
   if (result["table"] === undefined) {
-    if (result["tableName"] !== undefined)
-      result["table"] = result["tableName"];
+    if (result["tableName"] !== undefined) result["table"] = result["tableName"];
     else if (result["name"] !== undefined) result["table"] = result["name"];
+    else if (result["tbl"] !== undefined) result["table"] = result["tbl"];
+    else if (result["table_name"] !== undefined) result["table"] = result["table_name"];
   }
+  return result;
+}
+
+/**
+ * Preprocess check version parameters:
+ * - Alias: id -> rowId
+ */
+export function preprocessCheckVersionParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+  
+  if (result["rowId"] === undefined && result["id"] !== undefined) {
+    result["rowId"] = result["id"];
+  }
+  
+  return result;
+}
+
+/**
+ * Preprocess index parameters:
+ * - Alias: column -> columns
+ * - Coerce string to array
+ */
+export function preprocessIndexParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["columns"] === undefined && result["column"] !== undefined) {
+    result["columns"] = result["column"];
+  }
+
+  if (typeof result["columns"] === "string") {
+    result["columns"] = [result["columns"]];
+  }
+
+  return result;
+}
+
+/**
+ * Preprocess conditional update parameters:
+ * - Alias: condition -> conditions
+ * - Normalizes string/object condition to array
+ */
+export function preprocessConditionalUpdateParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  // Helper to normalize condition items
+  const normalizeConditionItem = (c: unknown): unknown => {
+    if (typeof c === "object" && c !== null && !Array.isArray(c)) {
+      const obj = c as Record<string, unknown>;
+      if ("column" in obj) return obj;
+      // Convert { id: 1 } to [{ column: "id", value: 1 }]
+      const keys = Object.keys(obj);
+      if (keys.length > 0) {
+        return keys.map((k) => ({ column: k, value: obj[k] }));
+      }
+    }
+    return c;
+  };
+
+  const conditions = result["conditions"];
+  const condition = result["condition"];
+  
+  if (result["data"] === undefined && result["updates"] !== undefined) {
+    result["data"] = result["updates"];
+  }
+  
+  let rawConditions: unknown[] = [];
+  
+  if (conditions !== undefined) {
+    rawConditions = Array.isArray(conditions) ? conditions : [conditions];
+  } else if (condition !== undefined) {
+    rawConditions = Array.isArray(condition) ? condition : [condition];
+  } else if (result["rowId"] !== undefined || result["id"] !== undefined) {
+    const val = result["rowId"] ?? result["id"];
+    const idCol = result["idColumn"] ?? "id";
+    rawConditions = [{ column: idCol, value: val }];
+  }
+
+  if (rawConditions.length > 0) {
+    // Flatten in case normalizeConditionItem returned an array
+    result["conditions"] = rawConditions.flatMap(normalizeConditionItem);
+  }
+
+  if (result["expectedVersion"] === undefined && result["version"] !== undefined) {
+    result["expectedVersion"] = result["version"];
+  }
+
+  return result;
+}
+
+/**
+ * Preprocess vector parameters:
+ * - Alias: vector → queryVector
+ * - Alias: distance → maxDistance
+ * - Alias: query → queryText
+ */
+export function preprocessVectorParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+  
+  if (result["queryVector"] === undefined) {
+    if (result["vector"] !== undefined) result["queryVector"] = result["vector"];
+    else if (result["query"] !== undefined) result["queryVector"] = result["query"];
+    else if (result["sql"] !== undefined) result["queryVector"] = result["sql"];
+    else if (result["search"] !== undefined) result["queryVector"] = result["search"];
+  }
+  
+  if (result["vector"] === undefined && result["queryVector"] !== undefined) {
+    result["vector"] = result["queryVector"];
+  }
+
+  if (result["id"] === undefined) {
+    if (result["rowId"] !== undefined) result["id"] = result["rowId"];
+    else if (result["recordId"] !== undefined) result["id"] = result["recordId"];
+  }
+
+  if (result["idColumn"] === undefined) {
+    if (result["idCol"] !== undefined) result["idColumn"] = result["idCol"];
+    else if (result["primaryKey"] !== undefined) result["idColumn"] = result["primaryKey"];
+  }
+
+  if (result["column"] === undefined) {
+    if (result["vectorColumn"] !== undefined) result["column"] = result["vectorColumn"];
+    else if (result["col"] !== undefined) result["column"] = result["col"];
+  }
+
+  if (result["vectorColumn"] === undefined && result["column"] !== undefined) {
+    result["vectorColumn"] = result["column"];
+  }
+
+  // Coerce vector/queryVector from string to array if agent hallucinated a stringified array
+  if (typeof result["queryVector"] === "string") {
+    try {
+      const parsed = JSON.parse(result["queryVector"]) as unknown;
+      if (Array.isArray(parsed)) {
+        result["queryVector"] = parsed;
+      } else if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["queryVector"] === undefined) {
+        delete result["queryVector"];
+      }
+    } catch {
+      // Ignore parse error, but if it came from an alias, it's likely meant for queryText
+      if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["queryVector"] === undefined) {
+        delete result["queryVector"];
+      }
+    }
+  }
+  if (typeof result["vector"] === "string") {
+    try {
+      const parsed = JSON.parse(result["vector"]) as unknown;
+      if (Array.isArray(parsed)) {
+        result["vector"] = parsed;
+      } else if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["vector"] === undefined) {
+        delete result["vector"];
+      }
+    } catch {
+      // Ignore parse error, but if it came from an alias, it's likely meant for queryText
+      if (typeof input === "object" && input !== null && (input as Record<string, unknown>)["vector"] === undefined) {
+        delete result["vector"];
+      }
+    }
+  }
+
+  if (result["maxDistance"] === undefined) {
+    if (result["distance"] !== undefined) result["maxDistance"] = result["distance"];
+    else if (result["radius"] !== undefined) result["maxDistance"] = result["radius"];
+  }
+  
+  if (result["queryText"] === undefined) {
+    if (result["query"] !== undefined) result["queryText"] = result["query"];
+    else if (result["sql"] !== undefined) result["queryText"] = result["sql"];
+    else if (result["search"] !== undefined) result["queryText"] = result["search"];
+  }
+  
+  if (typeof result["metric"] === "string") {
+    result["metric"] = result["metric"].toUpperCase();
+  }
+  
   return result;
 }
 
@@ -74,8 +314,10 @@ export function preprocessSavepointParams(input: unknown): unknown {
     if (result["txId"] !== undefined) result["transactionId"] = result["txId"];
     else if (result["tx"] !== undefined) result["transactionId"] = result["tx"];
   }
-  if (result["savepoint"] === undefined && result["name"] !== undefined) {
-    result["savepoint"] = result["name"];
+  if (result["savepoint"] === undefined) {
+    if (result["name"] !== undefined) result["savepoint"] = result["name"];
+    else if (result["savepointName"] !== undefined) result["savepoint"] = result["savepointName"];
+    else if (result["id"] !== undefined) result["savepoint"] = result["id"];
   }
   return result;
 }
@@ -92,17 +334,22 @@ export function preprocessCreateTableParams(input: unknown): unknown {
     else if (result["tableName"] !== undefined)
       result["name"] = result["tableName"];
   }
+
+  if (result["columns"] !== undefined && !Array.isArray(result["columns"])) {
+    if (typeof result["columns"] === "string") {
+      result["columns"] = [{ name: result["columns"], type: "VARCHAR(255)" }];
+    }
+  }
+
   return result;
 }
 
 export function preprocessTransactionBeginParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input ?? {};
   const result = { ...(input as Record<string, unknown>) };
-  if (
-    result["isolationLevel"] === undefined &&
-    result["isolation_level"] !== undefined
-  ) {
-    result["isolationLevel"] = result["isolation_level"];
+  if (result["isolationLevel"] === undefined) {
+    if (result["isolation_level"] !== undefined) result["isolationLevel"] = result["isolation_level"];
+    else if (result["level"] !== undefined) result["isolationLevel"] = result["level"];
   }
   return result;
 }
@@ -116,11 +363,9 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
 
-  if (
-    result["isolationLevel"] === undefined &&
-    result["isolation_level"] !== undefined
-  ) {
-    result["isolationLevel"] = result["isolation_level"];
+  if (result["isolationLevel"] === undefined) {
+    if (result["isolation_level"] !== undefined) result["isolationLevel"] = result["isolation_level"];
+    else if (result["level"] !== undefined) result["isolationLevel"] = result["level"];
   }
 
   if (result["statements"] === undefined) {
@@ -128,6 +373,15 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
       result["statements"] = result["queries"];
     else if (result["sqls"] !== undefined)
       result["statements"] = result["sqls"];
+    else if (result["query"] !== undefined)
+      result["statements"] = result["query"];
+    else if (result["sql"] !== undefined)
+      result["statements"] = result["sql"];
+  }
+
+  // Wrap singular string in array
+  if (typeof result["statements"] === "string") {
+    result["statements"] = [result["statements"]];
   }
 
   // Handle arrays of {sql: "..."} objects gracefully
@@ -157,11 +411,27 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
 export function preprocessJsonColumnParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = val as Record<string, unknown>;
+  
+  let where = v["where"] ?? v["filter"] ?? v["condition"] ?? v["query"] ?? v["sql"];
+  if (where === undefined && v["idColumn"] !== undefined && v["rowId"] !== undefined) {
+    const idCol = v["idColumn"] as string;
+    const rowId = v["rowId"];
+    let formattedRowId = "''";
+    if (typeof rowId === 'string') {
+      formattedRowId = `'${rowId}'`;
+    } else if (typeof rowId === 'number' || typeof rowId === 'boolean') {
+      formattedRowId = String(rowId);
+    }
+    where = `\`${idCol}\` = ${formattedRowId}`;
+  }
+  
   return {
     ...v,
-    table: v["table"] ?? v["tableName"] ?? v["name"],
-    column: v["column"] ?? v["col"],
-    where: v["where"] ?? v["filter"],
+    table: v["table"] ?? v["tableName"] ?? v["name"] ?? v["tbl"] ?? v["table_name"],
+    column: v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"] ?? v["c"],
+    path: v["path"] ?? v["json_path"] ?? v["jsonPath"],
+    where,
+    searchValue: v["searchValue"] ?? v["searchString"],
   };
 }
 
@@ -180,18 +450,27 @@ export function preprocessQueryOnlyParams(val: unknown): unknown {
 
 export function preprocessAdminTableParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
-  const v = val as Record<string, unknown>;
-  // If 'table' is passed as a string and 'tables' is not set, wrap it into an array
-  if (typeof v["table"] === "string" && !Array.isArray(v["tables"])) {
-    return { ...v, tables: [v["table"]] };
+  const v = { ...(val as Record<string, unknown>) };
+  
+  // If 'tables' is passed as a string (e.g. via codemode positional arg), wrap it into an array
+  if (typeof v["tables"] === "string") {
+    v["tables"] = [v["tables"]];
   }
-  // Also support tableName/name aliases → tables
-  if (typeof v["tableName"] === "string" && !Array.isArray(v["tables"])) {
-    return { ...v, tables: [v["tableName"]] };
+  
+  if (!Array.isArray(v["tables"])) {
+    if (Array.isArray(v["table"])) v["tables"] = v["table"];
+    else if (typeof v["table"] === "string") v["tables"] = [v["table"]];
+    else if (Array.isArray(v["tableName"])) v["tables"] = v["tableName"];
+    else if (typeof v["tableName"] === "string") v["tables"] = [v["tableName"]];
+    else if (Array.isArray(v["name"])) v["tables"] = v["name"];
+    else if (typeof v["name"] === "string") v["tables"] = [v["name"]];
   }
-  if (typeof v["name"] === "string" && !Array.isArray(v["tables"])) {
-    return { ...v, tables: [v["name"]] };
-  }
+
+  // Remove alias fields so they don't fail their own Zod validation
+  delete v["table"];
+  delete v["tableName"];
+  delete v["name"];
+  
   return v;
 }
 
@@ -201,19 +480,55 @@ export function preprocessAdminTableParams(val: unknown): unknown {
 
 export function preprocessDocFilterParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
-  const v = val as Record<string, unknown>;
+  // Call preprocessDocCollectionParams to handle collection/name aliases
+  const v = preprocessDocCollectionParams(val) as Record<string, unknown>;
   const result = { ...v };
 
-  // Aliases
-  if (result["filter"] === undefined && result["criteria"] !== undefined) {
-    // Stringify if criteria is an object, because filter expects a string
-    result["filter"] =
-      typeof result["criteria"] === "object" && result["criteria"] !== null
-        ? JSON.stringify(result["criteria"])
-        : result["criteria"];
+  if (result["schema"] === undefined && result["database"] !== undefined) {
+    result["schema"] = result["database"];
   }
-  if (result["set"] === undefined && result["update"] !== undefined) {
-    result["set"] = result["update"];
+
+  // Aliases
+  if (result["filter"] === undefined) {
+    if (result["documentId"] !== undefined) {
+      if (typeof result["documentId"] === "string") {
+        result["filter"] = result["documentId"];
+      } else if (typeof result["documentId"] === "number" || typeof result["documentId"] === "boolean") {
+        result["filter"] = String(result["documentId"]);
+      } else {
+        result["filter"] = JSON.stringify(result["documentId"]);
+      }
+    } else if (result["criteria"] !== undefined) {
+      // Stringify if criteria is an object, because filter expects a string
+      result["filter"] =
+        typeof result["criteria"] === "object" && result["criteria"] !== null
+          ? JSON.stringify(result["criteria"])
+          : result["criteria"];
+    } else if (result["condition"] !== undefined) {
+      result["filter"] =
+        typeof result["condition"] === "object" && result["condition"] !== null
+          ? JSON.stringify(result["condition"])
+          : result["condition"];
+    } else if (result["query"] !== undefined) {
+      result["filter"] = typeof result["query"] === "object" && result["query"] !== null
+          ? JSON.stringify(result["query"])
+          : result["query"];
+    } else if (result["sql"] !== undefined) {
+      result["filter"] = typeof result["sql"] === "object" && result["sql"] !== null
+          ? JSON.stringify(result["sql"])
+          : result["sql"];
+    } else if (result["where"] !== undefined) {
+      result["filter"] = typeof result["where"] === "object" && result["where"] !== null
+          ? JSON.stringify(result["where"])
+          : result["where"];
+    }
+  }
+  if (result["set"] === undefined) {
+    if (result["patch"] !== undefined) {
+      result["set"] = result["patch"];
+    } else if (result["update"] !== undefined) {
+      result["set"] = result["update"];
+    }
   }
 
   if (result["filter"] !== undefined) {
@@ -233,7 +548,159 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   }
 
   delete result["criteria"];
+  delete result["condition"];
   delete result["update"];
+  delete result["query"];
+  delete result["sql"];
+  delete result["where"];
 
   return result;
 }
+
+export function preprocessEventParams(input: unknown): unknown {
+  if (typeof input !== "object" || input === null) return input ?? {};
+  const result = { ...(input as Record<string, unknown>) };
+  if (result["name"] === undefined && result["eventName"] !== undefined) {
+    result["name"] = result["eventName"];
+  }
+  return result;
+}
+
+export function preprocessDocIndexParams(val: unknown): unknown {
+  if (val == null || typeof val !== "object") return val ?? {};
+  const result = { ...(val as Record<string, unknown>) };
+
+  if (result["collection"] === undefined) {
+    if (result["collectionName"] !== undefined) result["collection"] = result["collectionName"];
+    else if (result["table"] !== undefined) result["collection"] = result["table"];
+    else if (result["tableName"] !== undefined) result["collection"] = result["tableName"];
+    else if (result["tbl"] !== undefined) result["collection"] = result["tbl"];
+  }
+
+  if (result["schema"] === undefined && result["database"] !== undefined) {
+    result["schema"] = result["database"];
+  }
+
+  if (result["name"] === undefined) {
+    if (result["indexName"] !== undefined) result["name"] = result["indexName"];
+    else if (result["index"] !== undefined) result["name"] = result["index"];
+  }
+
+  if (typeof result["fields"] === "string") {
+    result["fields"] = [{ path: result["fields"] }];
+  }
+
+  if (Array.isArray(result["fields"])) {
+    result["fields"] = result["fields"].map((f: unknown) => {
+      if (typeof f === "string") return { path: f };
+      if (typeof f !== "object" || f === null) return f;
+      const fieldObj = { ...(f as Record<string, unknown>) };
+      if (fieldObj["path"] === undefined && fieldObj["field"] !== undefined) {
+        fieldObj["path"] = fieldObj["field"];
+        delete fieldObj["field"];
+      }
+      if (typeof fieldObj["type"] === "string") {
+        const upType = fieldObj["type"].toUpperCase();
+        if (upType === "INTEGER") fieldObj["type"] = "INT";
+        else fieldObj["type"] = upType;
+      }
+      return fieldObj;
+    });
+  }
+
+  return result;
+}
+
+export function preprocessBinlogEventsParams(input: unknown): unknown {
+  const result = defaultToEmpty(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["logFile"] === undefined) {
+    if (result["file"] !== undefined) result["logFile"] = result["file"];
+    else if (result["filename"] !== undefined) result["logFile"] = result["filename"];
+    else if (result["fileName"] !== undefined) result["logFile"] = result["fileName"];
+    else if (result["binlog"] !== undefined) result["logFile"] = result["binlog"];
+    else if (result["log_file"] !== undefined) result["logFile"] = result["log_file"];
+    else if (result["name"] !== undefined) result["logFile"] = result["name"];
+  }
+  
+  if (result["position"] === undefined) {
+    if (result["pos"] !== undefined) result["position"] = result["pos"];
+    else if (result["start"] !== undefined) result["position"] = result["start"];
+  }
+
+  return result;
+}
+
+export function preprocessSpatialParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["spatialColumn"] === undefined) {
+    if (result["geometryColumn"] !== undefined) result["spatialColumn"] = result["geometryColumn"];
+    else if (result["column"] !== undefined) result["spatialColumn"] = result["column"];
+    else if (result["columnName"] !== undefined) result["spatialColumn"] = result["columnName"];
+    else if (result["geomColumn"] !== undefined) result["spatialColumn"] = result["geomColumn"];
+    else if (result["col"] !== undefined) result["spatialColumn"] = result["col"];
+  }
+
+  if (result["polygon"] === undefined) {
+    if (result["wkt"] !== undefined) result["polygon"] = result["wkt"];
+    else if (result["geometry"] !== undefined) result["polygon"] = result["geometry"];
+    else if (result["value"] !== undefined) result["polygon"] = result["value"];
+    else if (result["point"] !== undefined) {
+      result["polygon"] = Array.isArray(result["point"]) ? JSON.stringify(result["point"]) : result["point"];
+    }
+  }
+
+  if (result["geometry"] === undefined) {
+    if (result["wkt"] !== undefined) result["geometry"] = result["wkt"];
+    else if (result["polygon"] !== undefined) result["geometry"] = result["polygon"];
+    else if (result["point"] !== undefined) {
+      result["geometry"] = Array.isArray(result["point"]) ? JSON.stringify(result["point"]) : result["point"];
+    }
+  }
+  
+  if (result["geometry1"] === undefined && result["geomColumn1"] !== undefined) result["geometry1"] = result["geomColumn1"];
+  if (result["geometry2"] === undefined && result["geomColumn2"] !== undefined) result["geometry2"] = result["geomColumn2"];
+
+  return result;
+}
+
+export function preprocessStatsParams(input: unknown): unknown {
+  const result = preprocessTableParams(input) as Record<string, unknown>;
+  if (typeof result !== "object" || result === null) return result;
+
+  if (result["column"] === undefined) {
+    if (result["columnName"] !== undefined) result["column"] = result["columnName"];
+    else if (result["col"] !== undefined) result["column"] = result["col"];
+    else if (result["fieldName"] !== undefined) result["column"] = result["fieldName"];
+  }
+
+  if (result["timeColumn"] === undefined) {
+    if (result["time"] !== undefined) result["timeColumn"] = result["time"];
+    else if (result["dateColumn"] !== undefined) result["timeColumn"] = result["dateColumn"];
+    else if (result["timestamp"] !== undefined) result["timeColumn"] = result["timestamp"];
+  }
+
+  if (result["valueColumn"] === undefined) {
+    if (result["val"] !== undefined) result["valueColumn"] = result["val"];
+    else if (result["value"] !== undefined) result["valueColumn"] = result["value"];
+    else if (result["valColumn"] !== undefined) result["valueColumn"] = result["valColumn"];
+  }
+
+  if (result["xColumn"] === undefined) {
+    if (result["columnX"] !== undefined) result["xColumn"] = result["columnX"];
+    else if (result["colX"] !== undefined) result["xColumn"] = result["colX"];
+    else if (result["x"] !== undefined) result["xColumn"] = result["x"];
+  }
+
+  if (result["yColumn"] === undefined) {
+    if (result["columnY"] !== undefined) result["yColumn"] = result["columnY"];
+    else if (result["colY"] !== undefined) result["yColumn"] = result["colY"];
+    else if (result["y"] !== undefined) result["yColumn"] = result["y"];
+  }
+
+  return result;
+}
+

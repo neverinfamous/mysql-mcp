@@ -1,21 +1,39 @@
 {
   "mcpServers": {
-    "user-mysql": {
-      "command": "node",
-      "args": ["/absolute/path/to/mysql-mcp/dist/cli.js"],
+    "mysql-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@neverinfamous/mysql-mcp",
+        "--transport",
+        "stdio"
+      ],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "root",
-        "MYSQL_PASSWORD": "password",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
         "MYSQL_POOL_SIZE": "10",
-        "OAUTH_ENABLED": "false",
-        "LOG_LEVEL": "info",
-        "MYSQL_MCP_TOOL_FILTER": "starter",
+        "TOOL_FILTER": "starter",
+        "ALLOWED_IO_ROOTS": "/app/data,C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
-        "CODEMODE_ISOLATION": "worker",
-        "CODE_MODE_MAX_RESULT_SIZE": "102400"
+        "CODE_MODE_MAX_RESULT_SIZE": "102400",
+        "AUDIT_LOG_PATH": "/app/data/audit.jsonl",
+        "MCP_REQUEST_TIMEOUT": "30000",
+        "REDIS_URL": "redis://localhost:6379",
+        "MYSQL_ROUTER_URL": "https://localhost:8443",
+        "MYSQL_ROUTER_USER": "rest_api",
+        "MYSQL_ROUTER_PASSWORD": "password",
+        "MYSQL_ROUTER_INSECURE": "true",
+        "PROXYSQL_HOST": "localhost",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin",
+        "MYSQL_XPORT": "33060",
+        "MYSQLSH_PATH": "mysqlsh",
+        "CODEMODE_ISOLATION": "sandbox",
+        "LOG_LEVEL": "info"
       }
     }
   }

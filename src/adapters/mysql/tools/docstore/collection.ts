@@ -3,7 +3,7 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -22,6 +22,10 @@ import {
   DropCollectionSchemaBase,
   CollectionInfoSchema,
   CollectionInfoSchemaBase,
+  ListCollectionsOutputSchema,
+  CreateCollectionOutputSchema,
+  DropCollectionOutputSchema,
+  CollectionInfoOutputSchema,
 } from "../../schemas/index.js";
 import {
   READ_ONLY,
@@ -37,6 +41,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "List JSON document collections in a schema.",
       group: "docstore",
       inputSchema: ListCollectionsSchemaBase,
+      outputSchema: ListCollectionsOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -95,21 +100,30 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Create a new JSON document collection.",
       group: "docstore",
       inputSchema: CreateCollectionSchemaBase,
+      outputSchema: CreateCollectionOutputSchema,
       requiredScopes: ["write"],
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
+        let name: string | undefined;
+        let schema: string | undefined;
         try {
-          const { name, schema, ifNotExists, validation } =
-            CreateCollectionSchema.parse(params);
+          const parsed = CreateCollectionSchema.parse(params);
+          name = parsed.name;
+          schema = parsed.schema;
+          const { ifNotExists, validation } = parsed;
           if (!IDENTIFIER_RE.test(name))
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const tableRef = escapeTableRef(name, schema);
@@ -127,7 +141,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 },
               });
             }
-            // If schema doesn't exist, report it even with ifNotExists
+            // If schema does not exist, report it even with ifNotExists
             if (check.reason === "schema") {
               return withTokenEstimate({
                 success: false,
@@ -172,7 +186,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (message.toLowerCase().includes("unknown database")) {
             return withTokenEstimate({
               success: false,
-              error: `Schema '${(params as { schema?: string })?.schema ?? "unknown"}' does not exist`,
+              error: `Schema '${schema ?? "unknown"}' does not exist`,
               code: "SCHEMA_NOT_FOUND",
               category: "domain",
             });
@@ -180,10 +194,17 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (message.toLowerCase().includes("already exists")) {
             return withTokenEstimate({
               success: false,
-              error: `Collection '${(params as { name?: string })?.name ?? "unknown"}' already exists`,
+              error: `Collection '${name ?? "unknown"}' already exists`,
+              code: "CONFLICT_ERROR",
+              category: "domain",
             });
           }
-          return withTokenEstimate({ success: false, error: message });
+          return withTokenEstimate({
+              success: false,
+              error: message,
+              code: "EXECUTION_ERROR",
+              category: "execution",
+            });
         }
       },
     },
@@ -193,20 +214,30 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Drop a document collection.",
       group: "docstore",
       inputSchema: DropCollectionSchemaBase,
+      outputSchema: DropCollectionOutputSchema,
       requiredScopes: ["admin"],
       annotations: DESTRUCTIVE,
       handler: async (params: unknown, _context: RequestContext) => {
+        let name: string | undefined;
+        let schema: string | undefined;
         try {
-          const { name, schema, ifExists } = DropCollectionSchema.parse(params);
+          const parsed = DropCollectionSchema.parse(params);
+          name = parsed.name;
+          schema = parsed.schema;
+          const { ifExists } = parsed;
           if (!IDENTIFIER_RE.test(name))
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
           if (schema && !IDENTIFIER_RE.test(schema))
             return withTokenEstimate({
               success: false,
               error: "Invalid schema name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           const tableRef = escapeTableRef(name, schema);
@@ -235,7 +266,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 success: true,
                 data: {
                   collection: name,
-                  message: "Collection did not exist",
+                  skipped: true,
+                  reason: "Collection did not exist",
                 },
               });
             }
@@ -258,10 +290,17 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (message.toLowerCase().includes("unknown table")) {
             return withTokenEstimate({
               success: false,
-              error: `Collection '${(params as { name?: string })?.name ?? "unknown"}' does not exist`,
+              error: `Collection '${name ?? "unknown"}' does not exist`,
+              code: "TABLE_NOT_FOUND",
+              category: "domain",
             });
           }
-          return withTokenEstimate({ success: false, error: message });
+          return withTokenEstimate({
+              success: false,
+              error: message,
+              code: "EXECUTION_ERROR",
+              category: "execution",
+            });
         }
       },
     },
@@ -271,6 +310,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       description: "Get collection statistics.",
       group: "docstore",
       inputSchema: CollectionInfoSchemaBase,
+      outputSchema: CollectionInfoOutputSchema,
       requiredScopes: ["read"],
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
@@ -280,6 +320,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             return withTokenEstimate({
               success: false,
               error: "Invalid collection name",
+              code: "VALIDATION_ERROR",
+              category: "validation",
             });
 
           // Check collection existence (with schema detection)
@@ -311,8 +353,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const countResult = await adapter.executeQuery(
             `SELECT COUNT(*) as rowCount FROM ${schemaClause}`,
           );
+          const countFirstRow = countResult.rows?.[0];
           const rowCount =
-            (countResult.rows?.[0] as { rowCount: number })?.rowCount ?? 0;
+            countFirstRow && typeof countFirstRow === "object" && "rowCount" in countFirstRow
+              ? Number(countFirstRow["rowCount"])
+              : 0;
 
           const tableInfo = await adapter.executeQuery(
             `
@@ -337,8 +382,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             success: true,
             data: {
               collection,
-              stats: { rowCount, ...stats },
-              indexes: indexInfo.rows ?? [],
+              info: {
+                rowCount,
+                ...stats,
+                indexes: indexInfo.rows ?? [],
+              },
             },
           });
         } catch (error: unknown) {

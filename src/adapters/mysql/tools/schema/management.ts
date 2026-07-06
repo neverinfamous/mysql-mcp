@@ -1,7 +1,11 @@
 import { z } from "zod";
 
-import { formatHandlerErrorResponse } from "../core/error-helpers.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import {
+  formatHandlerErrorResponse,
+  withTokenEstimate,
+} from "../core/error-helpers.js";
+import { BaseOutputSchema } from "../../schemas/output-schemas.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -12,47 +16,107 @@ import {
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
 
-const ListSchemasSchema = z.object({
+const ListSchemasSchemaBase = z.object({
   pattern: z
     .string()
     .optional()
     .describe('Filter pattern (LIKE syntax, e.g. "app_%")'),
 });
 
+const ListSchemasSchema = z.preprocess(
+  (val: unknown) => val,
+  z.object({
+    pattern: z.string().optional(),
+  })
+);
+
+const ListSchemasOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schemas: z.array(z.record(z.string(), z.unknown())),
+    count: z.number(),
+  }).optional()
+});
+
 const CreateSchemaSchemaBase = z.object({
-  name: z.string().optional().describe("Schema/database name"),
+  name: z.string().optional().describe("Schema/database name. Note: Use 'name' property."),
+  schema: z.string().optional().describe("Alias for name"),
+  database: z.string().optional().describe("Alias for name"),
+  schemaName: z.string().optional().describe("Alias for name"),
   charset: z.string().optional().describe("Character set"),
   collation: z.string().optional().describe("Collation"),
   ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
 });
 
-const CreateSchemaSchema = z.object({
-  name: z.string().describe("Schema/database name"),
-  charset: z.string().optional().default("utf8mb4").describe("Character set"),
-  collation: z
-    .string()
-    .optional()
-    .default("utf8mb4_unicode_ci")
-    .describe("Collation"),
-  ifNotExists: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe("Add IF NOT EXISTS clause"),
+const CreateSchemaSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'],
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().min(1, "Schema name is required").describe("Schema/database name"),
+    charset: z.string().optional().default("utf8mb4").describe("Character set"),
+    collation: z
+      .string()
+      .optional()
+      .default("utf8mb4_unicode_ci")
+      .describe("Collation"),
+    ifNotExists: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe("Add IF NOT EXISTS clause"),
+  })
+);
+
+const CreateSchemaOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schemaName: z.string().optional(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).optional()
 });
 
 const DropSchemaSchemaBase = z.object({
-  name: z.string().optional().describe("Schema/database name to drop"),
+  name: z.string().optional().describe("Schema/database name to drop. Note: Use 'name' property."),
+  schema: z.string().optional().describe("Alias for name"),
+  database: z.string().optional().describe("Alias for name"),
+  schemaName: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
 });
 
-const DropSchemaSchema = z.object({
-  name: z.string().describe("Schema/database name to drop"),
-  ifExists: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe("Add IF EXISTS clause"),
+const DropSchemaSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'],
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().min(1, "Schema name is required").describe("Schema/database name to drop"),
+    ifExists: z
+      .boolean()
+      .optional()
+      .default(false)
+      .describe("Add IF EXISTS clause"),
+  })
+);
+
+const DropSchemaOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    schemaName: z.string().optional(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
+  }).optional()
 });
 
 /**
@@ -65,7 +129,8 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "List all databases/schemas with metadata including charset and collation.",
     group: "schema",
-    inputSchema: ListSchemasSchema,
+    inputSchema: ListSchemasSchemaBase,
+    outputSchema: ListSchemasOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -89,17 +154,13 @@ export function createListSchemasTool(adapter: MySQLAdapter): ToolDefinition {
         query += " ORDER BY SCHEMA_NAME";
 
         const result = await adapter.executeQuery(query, queryParams);
-        const response = {
-          success: true as const,
+        return withTokenEstimate({
+          success: true,
           data: {
             schemas: result.rows,
             count: result.rows?.length ?? 0,
           },
-        };
-        const tokenEstimate = Math.ceil(
-          Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-        );
-        return { ...response, metrics: { tokenEstimate } };
+        });
       } catch (err) {
         return formatHandlerErrorResponse(err);
       }
@@ -118,6 +179,7 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       "Create a new database/schema with specified charset and collation.",
     group: "schema",
     inputSchema: CreateSchemaSchemaBase,
+    outputSchema: CreateSchemaOutputSchema,
     requiredScopes: ["admin"],
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -149,17 +211,13 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (schemaExists) {
           if (ifNotExists) {
-            const response = {
-              success: true as const,
+            return withTokenEstimate({
+              success: true,
               data: {
                 skipped: true,
                 reason: `Schema already exists`,
               },
-            };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
+            });
           } else {
             return formatHandlerErrorResponse(
               new Error(`Schema '${name}' already exists`),
@@ -172,14 +230,10 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           await adapter.executeQuery(sql);
-          const response = {
-            success: true as const,
+          return withTokenEstimate({
+            success: true,
             data: { schemaName: name },
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
           if (message.toLowerCase().includes("database exists")) {
@@ -207,6 +261,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       "Drop a database/schema. WARNING: This permanently deletes all data.",
     group: "schema",
     inputSchema: DropSchemaSchemaBase,
+    outputSchema: DropSchemaOutputSchema,
     requiredScopes: ["admin"],
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
@@ -239,17 +294,13 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (schemaAbsent) {
           if (ifExists) {
-            const response = {
-              success: true as const,
+            return withTokenEstimate({
+              success: true,
               data: {
                 skipped: true,
                 reason: `Schema did not exist`,
               },
-            };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return { ...response, metrics: { tokenEstimate } };
+            });
           } else {
             return formatHandlerErrorResponse(
               new Error(`Schema '${name}' does not exist`),
@@ -263,20 +314,13 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
             `DROP DATABASE ${ifExistsClause}\`${name}\``,
           );
 
-          const response = {
-            success: true as const,
+          return withTokenEstimate({
+            success: true,
             data: { schemaName: name },
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          });
         } catch (err: unknown) {
           const message = err instanceof Error ? err.message : String(err);
-          if (
-            message.toLowerCase().includes("database doesn't exist") ||
-            message.toLowerCase().includes("database does not exist")
-          ) {
+          if (message.toLowerCase().includes("database does not exist")) {
             return formatHandlerErrorResponse(
               new Error(`Schema '${name}' does not exist`),
             );

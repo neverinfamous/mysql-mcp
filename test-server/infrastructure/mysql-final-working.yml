@@ -1,0 +1,21 @@
+services:
+  mysql-final:
+    image: mysql:latest
+    container_name: mysql-final
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+      - "33060:33060"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: testdb
+      TZ: UTC
+    volumes:
+      - mysql-final-data:/var/lib/mysql
+      - mysql-logs:/var/log/mysql
+    command: --slow-query-log=ON --long-query-time=2 --log-output=FILE --general-log=ON --general-log-file=/var/log/mysql/mysql-general.log --slow-query-log-file=/var/log/mysql/mysql-slow.log
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
+volumes:
+  mysql-final-data:
+  mysql-logs:

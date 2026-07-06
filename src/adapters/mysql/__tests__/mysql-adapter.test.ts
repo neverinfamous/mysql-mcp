@@ -13,7 +13,7 @@ import {
   afterEach,
   type Mock,
 } from "vitest";
-import { MySQLAdapter } from "../mysql-adapter.js";
+import { MySQLAdapter } from "../mysql-adapter/index.js";
 import { ConnectionPool } from "../../../pool/connection-pool.js";
 import {
   ConnectionError,
@@ -121,7 +121,7 @@ describe("MySQLAdapter", () => {
         rollback: vi.fn().mockResolvedValue(undefined),
         release: vi.fn(),
       };
-      (adapter as any).activeTransactions.set("tx-1", mockConn);
+      (adapter ).activeTransactions.set("tx-1", mockConn);
 
       await adapter.disconnect();
 
@@ -135,7 +135,7 @@ describe("MySQLAdapter", () => {
         rollback: vi.fn().mockRejectedValue(new Error("Rollback failed")),
         release: vi.fn(),
       };
-      (adapter as any).activeTransactions.set("tx-1", mockConn);
+      (adapter ).activeTransactions.set("tx-1", mockConn);
 
       // Should not throw
       await expect(adapter.disconnect()).resolves.not.toThrow();
@@ -153,7 +153,7 @@ describe("MySQLAdapter", () => {
           database: "",
           charset: "utf8mb4",
           timezone: "local",
-          connectTimeout: 10000,
+          connectTimeout: 30000,
         }),
       );
     });
@@ -613,7 +613,7 @@ describe("MySQLAdapter", () => {
       const first = adapter.getToolDefinitions();
       const second = adapter.getToolDefinitions();
       expect(first).toBe(second); // Same reference = cached
-      expect(first.length).toBe(224);
+      expect(first.length).toBe(241);
     });
   });
 

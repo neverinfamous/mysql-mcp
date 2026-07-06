@@ -1,32 +1,35 @@
-# Server Instructions Overview
+# Understand Server Instructions
 
-**🤖 AGENT OPTIMIZED README**
+## 💎 Value Proposition
 
-This directory contains the Markdown files that serve as the foundation for the `mysql-mcp` dynamic help system. These files are presented directly to AI agents making context-gathering queries.
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
-## ⚠️ Critical Workflow
+**🤖 AGENT INSTRUCTIONS**
 
-**DO NOT** edit `src/constants/server-instructions.ts` directly. It is auto-generated.
+This directory contains Markdown files that serve as the foundation for the dynamic help system. The system presents these files directly to AI agents. Agents use them for context-gathering queries.
 
-If you need to update a tool group's instructions or the general gotchas, follow these steps:
+## ⚠️ Protect Generated Instructions for System Stability
 
-1. Modify the relevant `.md` file in this directory (e.g., `gotchas.md`, `core.md`, etc.).
-2. Run the generator script to compile these markdown files into the TypeScript constant map:
+**DO NOT** edit `src/constants/server-instructions.ts` directly. The system auto-generates this file.
+
+To update instructions or gotchas, follow these steps:
+
+1. Modify the relevant `.md` file in this directory.
+2. Run the generator script. It compiles markdown files into the TypeScript constant map:
    ```bash
-   npm run generate:instructions
+   pnpm run generate:instructions
    ```
    _(or `npx tsx scripts/generate-server-instructions.ts`)_
-3. The generator script converts your markdown into escaped strings embedded in the `server-instructions.ts` generated code.
-4. **Never** attempt to add `README.md` into the generator logic. The generation script automatically ignores any file ending in `.md` and starting with `readme` (case-insensitive).
+3. The script converts your markdown into escaped strings. It embeds them in `server-instructions.ts`.
 
-## File Structure
+## Navigate the File Structure for Rapid Context
 
-- `overview.md`: The minimal core instructions sent to all clients on initialization. Keep this extremely short (~150 tokens) to preserve context limits.
-- `gotchas.md`: The core help payload returned for `mysql://help`. Contains critical usage patterns across the entire extension.
-- `[group-name].md`: Group-specific hints returned by `mysql://help/[group-name]` (e.g., `mysql://help/json`).
+- `overview.md`: The server sends these minimal instructions on initialization. Keep this short (~150 tokens). It preserves context limits.
+- `gotchas.md`: The server returns this core payload for `mysql://help`. It contains critical usage patterns.
+- `[group-name].md`: The server returns group-specific hints for `mysql://help/[group-name]`.
 
-## Guidelines
+## Write Effective Instructions to Empower AI Agents
 
-- Write strictly for AI consumption (concise, rule-based, clear mappings).
-- Use code blocks for specific exact schemas/examples.
-- Watch payload sizes; do not put the entire documentation in here.
+- Write strictly for AI consumption. Be concise and rule-based.
+- Use code blocks for exact schemas and examples.
+- Watch payload sizes. Do not include the entire documentation.

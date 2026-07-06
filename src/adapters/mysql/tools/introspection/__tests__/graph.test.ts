@@ -3,8 +3,8 @@ import {
   createDependencyGraphTool,
   createTopologicalSortTool,
   createCascadeSimulatorTool,
-} from "../graph.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+} from "../graph/index.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -70,13 +70,13 @@ describe("Graph Tools", () => {
     let tool: ReturnType<typeof createDependencyGraphTool>;
 
     beforeEach(() => {
-      tool = createDependencyGraphTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createDependencyGraphTool(mockAdapter);
     });
 
     it("should generate a dependency graph", async () => {
       const result = await tool.handler({ schema: "testdb" }, mockContext);
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.nodes).toBeDefined();
       expect(data.edges).toBeDefined();
       expect(data.stats).toBeDefined();
@@ -89,8 +89,8 @@ describe("Graph Tools", () => {
         { schema: "testdb", compact: true },
         mockContext,
       );
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.nodes[0].rowCount).toBeUndefined(); // Compact mode should not have rowCount
       expect(data.edges[0].constraint).toBeUndefined(); // Compact mode should not have constraint details
     });
@@ -100,8 +100,8 @@ describe("Graph Tools", () => {
         { schema: "testdb", maxDepth: 0 },
         mockContext,
       );
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.nodes).toBeDefined();
     });
 
@@ -110,8 +110,8 @@ describe("Graph Tools", () => {
         { schema: "testdb", limit: 1 },
         mockContext,
       );
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.nodes.length).toBe(1);
       expect(data.hint).toContain("Result truncated");
     });
@@ -121,7 +121,7 @@ describe("Graph Tools", () => {
     let tool: ReturnType<typeof createTopologicalSortTool>;
 
     beforeEach(() => {
-      tool = createTopologicalSortTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createTopologicalSortTool(mockAdapter);
     });
 
     it("should return tables in dependency order", async () => {
@@ -129,8 +129,8 @@ describe("Graph Tools", () => {
         { schema: "testdb", direction: "create" },
         mockContext,
       );
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
       expect(data.order).toBeDefined();
       expect(data.direction).toBe("create");
 
@@ -146,8 +146,8 @@ describe("Graph Tools", () => {
         { schema: "testdb", direction: "drop" },
         mockContext,
       );
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
 
       // B has no dependencies, A depends on B.
       // So A should be before B in "drop" direction
@@ -191,8 +191,8 @@ describe("Graph Tools", () => {
       });
 
       const result = await tool.handler({ schema: "testdb" }, mockContext);
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("Circular dependency");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("Circular dependency");
     });
   });
 
@@ -200,7 +200,7 @@ describe("Graph Tools", () => {
     let tool: ReturnType<typeof createCascadeSimulatorTool>;
 
     beforeEach(() => {
-      tool = createCascadeSimulatorTool(mockAdapter as unknown as MySQLAdapter);
+      tool = createCascadeSimulatorTool(mockAdapter);
     });
 
     it("should simulate delete cascades", async () => {
@@ -208,10 +208,10 @@ describe("Graph Tools", () => {
         { schema: "testdb", table: "B", operation: "DELETE" },
         mockContext,
       );
-      if (!(result as any).success)
-        console.log("CASCADE ERROR:", (result as any).error);
-      expect((result as any).success).toBe(true);
-      const data = (result as any).data;
+      if (!Reflect.get(result || {}, "success"))
+        console.log("CASCADE ERROR:", Reflect.get(result || {}, "error"));
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      const data = Reflect.get(result || {}, "data");
 
       console.log("CASCADE DATA:", JSON.stringify(data, null, 2));
 
@@ -226,8 +226,8 @@ describe("Graph Tools", () => {
         { schema: "testdb", table: "nonexistent", operation: "DELETE" },
         mockContext,
       );
-      expect((result as any).success).toBe(false);
-      expect((result as any).error).toContain("does not exist");
+      expect(Reflect.get(result || {}, "success")).toBe(false);
+      expect(Reflect.get(result || {}, "error")).toContain("does not exist");
     });
 
     it("should fallback to database schema if no schema provided", async () => {
@@ -235,8 +235,8 @@ describe("Graph Tools", () => {
         { table: "B", operation: "DELETE" },
         mockContext,
       );
-      expect((result as any).success).toBe(true);
-      expect((result as any).data.sourceTable).toBe("testdb.B");
+      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect(Reflect.get(result || {}, "data").sourceTable).toBe("testdb.B");
     });
   });
 });

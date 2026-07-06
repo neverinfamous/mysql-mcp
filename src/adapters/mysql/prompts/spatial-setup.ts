@@ -4,6 +4,7 @@
  * Complete Spatial data and GIS setup guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupSpatialPrompt(): PromptDefinition {
   return {
@@ -103,7 +104,7 @@ WHERE ST_Contains(
 2. **Coordinate order**: MySQL 8.0+ with SRID 4326 uses (X, Y) = (latitude, longitude) per EPSG standard
 3. **Index not used**: Check column is NOT NULL
 
-Start by creating a spatial column with \`mysql_spatial_create_column\`.`);
+Start by creating a spatial column with \`mysql_spatial_create_column\`.${getSkillDirective()}`);
     },
   };
 }

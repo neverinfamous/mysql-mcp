@@ -5,7 +5,7 @@
  * 15 tools total (8 performance + 4 optimization + 3 anomaly).
  */
 
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition } from "../../../../types/index.js";
 
 // Import from submodules
@@ -18,10 +18,11 @@ import {
   createTableStatsTool,
   createBufferPoolStatsTool,
   createThreadStatsTool,
-} from "./analysis.js";
+} from "./analysis/index.js";
+
+import { createIndexRecommendationTool } from "./index-audit/index.js";
 
 import {
-  createIndexRecommendationTool,
   createQueryRewriteTool,
   createForceIndexTool,
   createOptimizerTraceTool,

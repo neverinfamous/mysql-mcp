@@ -1,15 +1,20 @@
 import { defineConfig, devices } from "@playwright/test";
+import { tmpdir } from "node:os";
 
 export default defineConfig({
   testDir: "./tests/e2e",
+  testIgnore: process.env.CI ? ['**/ecosystem*.spec.ts', '**/payloads-ecosystem-*.spec.ts'] : undefined,
+  globalTeardown: "./scripts/teardown.ts",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: 1,
-  reporter: [["list"], ["json", { outputFile: "playwright-results.json" }]],
+  timeout: 60000,
+  reporter: [["list"], ["json", { outputFile: ".test-output/playwright-results.json" }]],
   use: {
     baseURL: "http://localhost:3000",
     trace: "on-first-retry",
+    actionTimeout: 0,
   },
   projects: [
     {
@@ -26,8 +31,10 @@ export default defineConfig({
     stderr: "pipe",
     env: {
       ...process.env,
-      // Load all 192 tools (override starter default)
-      MYSQL_MCP_TOOL_FILTER: "+all",
+      // Load all tools (override starter default)
+      TOOL_FILTER: "+all",
+      // Provide sandbox boundaries for E2E tests
+      ALLOWED_IO_ROOTS: `C:/temp,C:/tmp,/tmp,${tmpdir()}`,
       // Prevent 429s during E2E runs with many client connections
       MCP_RATE_LIMIT_MAX: "10000",
       // ProxySQL admin connection

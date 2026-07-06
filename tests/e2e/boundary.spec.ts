@@ -187,6 +187,12 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
   test("create table, drop, recreate with different schema", async ({}, testInfo) => {
     const client = await createClient();
     try {
+      // Clean up orphaned table if any
+      await callToolAndParse(client, "mysql_drop_table", {
+        table: "_e2e_boundary_recreate",
+        ifExists: true,
+      }).catch(() => {});
+
       // Create v1
       const c1 = await callToolAndParse(client, "mysql_create_table", {
         table: "_e2e_boundary_recreate",
@@ -258,7 +264,7 @@ test.describe("Boundary: View Lifecycle", () => {
       expectSuccess(create);
 
       // List views — should include our view
-      const list = await callToolAndParse(client, "mysql_list_views", {});
+      const list = await callToolAndParse(client, "mysql_list_views", { schema: "testdb" });
       expectSuccess(list);
       const views = (list.data?.views ?? list.views) as Array<{ name: string }>;
       expect(
@@ -305,6 +311,38 @@ test.describe("Boundary: Data Integrity", () => {
       expectSuccess(p);
       const rows = (p.data?.rows ?? p.rows) as Array<{ cnt: number }>;
       expect(Number(rows[0].cnt)).toBeGreaterThan(0);
+    } finally {
+      await client.close();
+    }
+  });
+});
+
+// =============================================================================
+// Security Sandbox
+// =============================================================================
+
+test.describe("Boundary: Security Sandbox", () => {
+  test("filesystem tools reject paths outside ALLOWED_IO_ROOTS", async ({}, testInfo) => {
+    const client = await createClient();
+    try {
+      const badPath = process.platform === "win32" ? "C:/Windows/System32/config/SAM" : "/etc/passwd";
+      
+      const result = await callToolAndParse(client, "mysqlsh_export_table", {
+        schema: "testdb",
+        table: "test_products",
+        outputPath: badPath
+      });
+
+      // Assert that we don't get a raw MCP error but a structured domain error
+      expect(result.success).toBe(false);
+      expect(result.code).toBe("SECURITY_ERROR");
+      
+      // Also verify another tool that touches the filesystem
+      const dumpResult = await callToolAndParse(client, "mysqlsh_dump_instance", {
+        outputUrl: badPath
+      });
+      expect(dumpResult.success).toBe(false);
+      expect(dumpResult.code).toBe("SECURITY_ERROR");
     } finally {
       await client.close();
     }

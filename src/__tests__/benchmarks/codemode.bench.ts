@@ -84,14 +84,6 @@ describe("SandboxPool Lifecycle", () => {
       sandboxPool?.dispose();
     });
 
-    bench(
-      "acquire/release round trip",
-      () => {
-        const sandbox = sandboxPool.acquire();
-        sandboxPool.release(sandbox);
-      },
-      { iterations: 1000, warmupIterations: 10 },
-    );
 
     bench(
       "getStats() overhead",

@@ -4,6 +4,7 @@
  * Complete Document Store / X DevAPI setup guide.
  */
 import type { PromptDefinition, RequestContext } from "../../../types/index.js";
+import { getSkillDirective } from "./index.js";
 
 export function createSetupDocstorePrompt(): PromptDefinition {
   return {
@@ -117,7 +118,7 @@ db.users.createIndex("email_idx", {
 2. **Connection refused**: Verify mysqlx plugin is running
 3. **Schema not found**: Create database first
 
-Start by listing collections with \`mysql_doc_list_collections\`.`);
+Start by listing collections with \`mysql_doc_list_collections\`.${getSkillDirective()}`);
     },
   };
 }

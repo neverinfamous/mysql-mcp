@@ -6,7 +6,6 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getMySQLPrompts } from "../index.js";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -19,7 +18,7 @@ describe("getMySQLPrompts", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockAdapter = createMockMySQLAdapter();
-    prompts = getMySQLPrompts(mockAdapter as unknown as MySQLAdapter);
+    prompts = getMySQLPrompts(mockAdapter);
   });
 
   it("should return 19 prompts", () => {
@@ -53,21 +52,32 @@ describe("Prompt Handler Execution", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const mockAdapter = createMockMySQLAdapter();
-    prompts = getMySQLPrompts(mockAdapter as unknown as MySQLAdapter);
+    prompts = getMySQLPrompts(mockAdapter);
     mockContext = createMockRequestContext();
   });
 
   const findPrompt = (name: string) => prompts.find((p) => p.name === name);
+
+  describe("Skill Injection", () => {
+    it("should inject skill directive when MYSQL_SKILL_PATH is set", async () => {
+      process.env.MYSQL_SKILL_PATH = "/custom/skill/path.md";
+      const prompt = findPrompt("mysql_query_builder");
+      const result = String(await prompt!.handler({ operation: "SELECT", table: "users", description: "test" }, mockContext));
+      expect(result).toContain("/custom/skill/path.md");
+      expect(result).toContain("CRITICAL");
+      delete process.env.MYSQL_SKILL_PATH;
+    });
+  });
 
   describe("mysql_query_builder", () => {
     it("should return message with query guidance", async () => {
       const prompt = findPrompt("mysql_query_builder");
       expect(prompt).toBeDefined();
 
-      const result = (await prompt!.handler(
+      const result = await prompt!.handler(
         { query_type: "SELECT", table: "users" },
         mockContext,
-      )) as string;
+      );
       expect(typeof result).toBe("string");
       expect(result).toContain("query");
       expect(result).toContain("table");
@@ -79,7 +89,7 @@ describe("Prompt Handler Execution", () => {
       const prompt = findPrompt("mysql_tool_index");
       expect(prompt).toBeDefined();
 
-      const result = (await prompt!.handler({}, mockContext)) as string;
+      const result = await prompt!.handler({}, mockContext);
       expect(typeof result).toBe("string");
       expect(result).toContain("tool");
     });
@@ -88,19 +98,19 @@ describe("Prompt Handler Execution", () => {
   describe("mysql_quick_query", () => {
     it("should return read query guidance by default", async () => {
       const prompt = findPrompt("mysql_quick_query");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { query: "SELECT * FROM users" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("mysql_read_query");
     });
 
     it("should return write query guidance when type is write", async () => {
       const prompt = findPrompt("mysql_quick_query");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { sql: "INSERT INTO users...", type: "write" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("mysql_write_query");
     });
   });
@@ -108,19 +118,19 @@ describe("Prompt Handler Execution", () => {
   describe("mysql_schema_design", () => {
     it("should return schema design guidance", async () => {
       const prompt = findPrompt("mysql_schema_design");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { entity: "User" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("CREATE TABLE");
     });
 
     it("should include specific requirements if provided", async () => {
       const prompt = findPrompt("mysql_schema_design");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { entity: "User", requirements: "Must include email indexing" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("Must include email indexing");
     });
   });
@@ -128,19 +138,19 @@ describe("Prompt Handler Execution", () => {
   describe("mysql_performance_analysis", () => {
     it("should return performance analysis guidance", async () => {
       const prompt = findPrompt("mysql_performance_analysis");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { query: "SELECT * FROM slow_table" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("EXPLAIN");
     });
 
     it("should include context if provided", async () => {
       const prompt = findPrompt("mysql_performance_analysis");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { query: "SELECT * FROM slow_table", context: "Table has 1M rows" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("Table has 1M rows");
     });
   });
@@ -150,10 +160,10 @@ describe("Prompt Handler Execution", () => {
       const prompt = findPrompt("mysql_migration");
       expect(prompt).toBeDefined();
 
-      const result = (await prompt!.handler(
+      const result = await prompt!.handler(
         { change: "Add column", table: "users" },
         mockContext,
-      )) as string;
+      );
       expect(typeof result).toBe("string");
       expect(result).toContain("migration");
     });
@@ -171,10 +181,10 @@ describe("Prompt Handler Execution", () => {
 
     it("should include focus area if provided", async () => {
       const prompt = findPrompt("mysql_database_health_check");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { focus: "security" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("**Focus area:** security");
     });
   });
@@ -194,7 +204,7 @@ describe("Prompt Handler Execution", () => {
 
     it("should handle missing arguments with defaults", async () => {
       const prompt = findPrompt("mysql_backup_strategy");
-      const result = (await prompt!.handler({}, mockContext)) as string;
+      const result = String(await prompt!.handler({}, mockContext));
       expect(result).toContain("to be determined");
       expect(result).toContain("unknown");
     });
@@ -203,16 +213,16 @@ describe("Prompt Handler Execution", () => {
   describe("mysql_quick_schema", () => {
     it("should return schema exploration guidance (list tables) when no table specified", async () => {
       const prompt = findPrompt("mysql_quick_schema");
-      const result = (await prompt!.handler({}, mockContext)) as string;
+      const result = String(await prompt!.handler({}, mockContext));
       expect(result).toContain("mysql_list_tables");
     });
 
     it("should return describe table guidance when table is specified", async () => {
       const prompt = findPrompt("mysql_quick_schema");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { table: "users" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("mysql_describe_table");
       expect(result).toContain("users");
     });
@@ -263,10 +273,10 @@ describe("Prompt Handler Execution", () => {
 
     it("should return semisync configuration when requested", async () => {
       const prompt = findPrompt("mysql_setup_replication");
-      const result = (await prompt!.handler(
+      const result = String(await prompt!.handler(
         { type: "semisync" },
         mockContext,
-      )) as string;
+      ));
       expect(result).toContain("rpl_semi_sync_replica_enabled");
     });
   });

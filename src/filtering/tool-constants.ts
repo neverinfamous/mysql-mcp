@@ -10,7 +10,7 @@ import type { ToolGroup, MetaGroup } from "../types/index.js";
  * Default tool groups and their member tools.
  * This serves as the canonical mapping of tools to groups.
  */
-export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
+export const TOOL_GROUPS = {
   core: [
     "mysql_read_query",
     "mysql_write_query",
@@ -20,6 +20,10 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_drop_table",
     "mysql_create_index",
     "mysql_get_indexes",
+    "mysql_enable_versioning",
+    "mysql_disable_versioning",
+    "mysql_check_version",
+    "mysql_conditional_update",
   ],
   json: [
     "mysql_json_extract",
@@ -83,6 +87,8 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_flush_tables",
     "mysql_kill_query",
     "mysql_append_insight",
+    "mysql_server_config",
+    "mysql_audit_search",
   ],
   monitoring: [
     "mysql_show_processlist",
@@ -288,8 +294,21 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
     "mysql_migration_history",
     "mysql_migration_status",
   ],
+  vector: [
+    "mysql_vector_store",
+    "mysql_vector_batch_store",
+    "mysql_vector_delete",
+    "mysql_vector_get",
+    "mysql_vector_search",
+    "mysql_vector_range_search",
+    "mysql_vector_hybrid_search",
+    "mysql_vector_info",
+    "mysql_vector_create_index",
+    "mysql_vector_optimize",
+    "mysql_vector_stats",
+  ],
   codemode: ["mysql_execute_code"],
-};
+} satisfies Record<ToolGroup, string[]>;
 
 /**
  * Meta-groups that expand to multiple tool groups.
@@ -298,20 +317,24 @@ export const TOOL_GROUPS: Record<ToolGroup, string[]> = {
  * STRICT LIMIT: NO group may exceed 70 tools.
  *
  * Tool counts (verified):
- *   starter:       39 (core:8 + json:17 + transactions:7 + text:6 + codemode:1)
- *   essential:     16 (core:8 + transactions:7 + codemode:1)
- *   dev-power:     63 (core:8 + schema:11 + performance:11 + stats:20 + fulltext:5 + transactions:7 + codemode:1)
- *   ai-data:       46 (core:8 + json:17 + docstore:9 + text:6 + fulltext:5 + codemode:1)
- *   ai-spatial:    59 (core:8 + spatial:12 + stats:20 + performance:11 + transactions:7 + codemode:1)
- *   dba-monitor:   39 (core:8 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
- *   dba-manage:    38 (core:8 + admin:7 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
- *   dba-secure:    33 (core:8 + security:9 + roles:8 + transactions:7 + codemode:1)
- *   dba-schema:    32 (core:8 + schema:11 + introspection:6 + migration:6 + codemode:1)
- *   base-core:     50 (core:8 + json:17 + transactions:7 + text:6 + schema:11 + codemode:1)
- *   base-advanced: 53 (docstore:9 + spatial:12 + stats:20 + fulltext:5 + events:6 + codemode:1)
- *   ecosystem:     41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
+ *   starter:         43 (core:12 + json:17 + transactions:7 + text:6 + codemode:1)
+ *   essential:       20 (core:12 + transactions:7 + codemode:1)
+ *   dev-power:       47 (core:12 + schema:11 + performance:11 + fulltext:5 + transactions:7 + codemode:1)
+ *   dev-analytics:   44 (core:12 + stats:20 + performance:11 + codemode:1)
+ *   ai-data-nosql:   39 (core:12 + json:17 + docstore:9 + codemode:1)
+ *   ai-search:       35 (core:12 + text:6 + fulltext:5 + vector:11 + codemode:1)
+ *   ai-spatial:      32 (core:12 + spatial:12 + transactions:7 + codemode:1)
+ *   ai-vector:       29 (core:12 + vector:11 + fulltext:5 + codemode:1)
+ *   dba-monitor:     43 (core:12 + monitoring:7 + performance:11 + sysschema:8 + optimization:4 + codemode:1)
+ *   dba-manage:      44 (core:12 + admin:9 + backup:7 + replication:5 + partitioning:4 + events:6 + codemode:1)
+ *   dba-secure:      37 (core:12 + security:9 + roles:8 + transactions:7 + codemode:1)
+ *   dba-schema:      36 (core:12 + schema:11 + introspection:6 + migration:6 + codemode:1)
+ *   base-relational: 37 (core:12 + transactions:7 + text:6 + schema:11 + codemode:1)
+ *   base-analytics:  27 (stats:20 + events:6 + codemode:1)
+ *   base-nosql:      33 (docstore:9 + spatial:12 + vector:11 + codemode:1)
+ *   ecosystem:       41 (router:9 + proxysql:11 + shell:10 + cluster:10 + codemode:1)
  */
-export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
+export const META_GROUPS = {
   // 1. General Use
   starter: ["core", "json", "transactions", "text", "codemode"],
   essential: ["core", "transactions", "codemode"],
@@ -319,22 +342,17 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
     "core",
     "schema",
     "performance",
-    "stats",
     "fulltext",
     "transactions",
     "codemode",
   ],
+  "dev-analytics": ["core", "stats", "performance", "codemode"],
 
   // 2. AI Workloads
-  "ai-data": ["core", "json", "docstore", "text", "fulltext", "codemode"],
-  "ai-spatial": [
-    "core",
-    "spatial",
-    "stats",
-    "performance",
-    "transactions",
-    "codemode",
-  ],
+  "ai-data-nosql": ["core", "json", "docstore", "codemode"],
+  "ai-search": ["core", "text", "fulltext", "vector", "codemode"],
+  "ai-spatial": ["core", "spatial", "transactions", "codemode"],
+  "ai-vector": ["core", "vector", "fulltext", "codemode"],
 
   // 3. DBA Workloads
   "dba-monitor": [
@@ -358,16 +376,10 @@ export const META_GROUPS: Record<MetaGroup, ToolGroup[]> = {
   "dba-schema": ["core", "schema", "introspection", "migration", "codemode"],
 
   // 4. Base Blocks (Building Blocks)
-  "base-core": ["core", "json", "transactions", "text", "schema", "codemode"],
-  "base-advanced": [
-    "docstore",
-    "spatial",
-    "stats",
-    "fulltext",
-    "events",
-    "codemode",
-  ],
+  "base-relational": ["core", "transactions", "text", "schema", "codemode"],
+  "base-analytics": ["stats", "events", "codemode"],
+  "base-nosql": ["docstore", "spatial", "vector", "codemode"],
 
   // 5. Ecosystem
   ecosystem: ["router", "proxysql", "shell", "cluster", "codemode"],
-};
+} satisfies Record<MetaGroup, ToolGroup[]>;

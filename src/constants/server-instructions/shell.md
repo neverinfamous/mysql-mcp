@@ -1,5 +1,6 @@
-# MySQL Shell Tools (`mysqlsh_*`)
+# MySQL Shell Tools
 
+Tools: `mysqlsh_version`, `mysqlsh_check_upgrade`, `mysqlsh_export_table`, `mysqlsh_import_table`, `mysqlsh_import_json`, `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables`, `mysqlsh_load_dump`, `mysqlsh_run_script`
 - **Prerequisites**: MySQL Shell must be installed and accessible via `MYSQLSH_PATH` environment variable or system PATH.
 - **Version check**: `mysqlsh_version` verifies MySQL Shell availability before running other shell tools.
 - **Upgrade checking**: `mysqlsh_check_upgrade` analyzes MySQL server for upgrade compatibility issues. Returns `errorCount`, `warningCount`, and `noticeCount` summary with full JSON report. **Note**: Returns `{ success: false, error }` when MySQL Shell's version is lower than the current server version—Shell cannot analyze a server newer than itself. Also fails when `targetVersion` is lower than the current server version (no downgrade analysis).
@@ -9,5 +10,15 @@
 - **JSON import**: `mysqlsh_import_json` uses `util.importJson()` for document import. Supports both NDJSON (one JSON object per line) and multi-line JSON objects. **Does NOT support JSON arrays.** **Requires X Protocol (port 33060)**.
 - **Dump utilities**: `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_dump_tables` create compressed parallel dumps. Use `dryRun: true` to preview. All dump tools return structured error messages for privilege issues with actionable guidance.
 - **Load utility**: `mysqlsh_load_dump` restores dumps. Requires `local_infile` enabled or `updateServerSettings: true`. Use `dryRun: true` to preview what would be loaded without applying changes. Returns `{ success: false, error, hint }` for duplicate object conflicts.
+- **Filesystem Sandbox**: Any tools interacting with the filesystem (`mysqlsh_export_table`, dump/load) strictly enforce absolute paths that must resolve within the configured `ALLOWED_IO_ROOTS`. You may use `outputUrl` instead of `outputPath` or `outputDir`, and `inputUrl` instead of `inputDir` or `inputPath`.
 - **Privilege note**: Dump operations may require EVENT, TRIGGER, or ROUTINE privileges. Use `ddlOnly: true` (schemas) or `all: false` (tables) to skip restricted metadata.
 - **Error handling**: All shell tools return `{ success: false, error }` for operational failures instead of throwing raw exceptions. Privilege, local_infile, and X Protocol errors include a `hint` field with actionable remediation guidance.
+
+### Example: Import JSON
+```json
+{
+  "targetTable": "collection",
+  "inputUrl": "/path/to/data.json",
+  "documentEncoding": "utf8mb4"
+}
+```

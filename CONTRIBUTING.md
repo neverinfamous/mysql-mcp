@@ -1,8 +1,12 @@
 # Contributing to mysql-mcp
 
-Thank you for your interest in contributing to mysql-mcp! This project is built by developers, for developers, and we welcome contributions that make the MySQL MCP experience better for everyone.
+Thank you for your interest in contributing to mysql-mcp! We welcome your contributions.
 
-## 🚀 Quick Start
+## 💎 Value Proposition
+
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+
+## 🚀 Start Quickly
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally
@@ -10,17 +14,18 @@ Thank you for your interest in contributing to mysql-mcp! This project is built 
 4. **Make your changes** and test thoroughly
 5. **Submit a pull request** with a clear description
 
-## 🛠️ Development Setup
+## 🛠️ Setup Your Environment
 
-### Prerequisites
+### Meet Prerequisites
 
-- **Node.js 24+** (see `engines` in `package.json`)
-- **npm** (comes with Node.js)
+- Node.js 24+
+- Bun >= 1.0 (for script execution)
+- pnpm >= 9.x (see `engines` in `package.json`)
 - **Git** (for version control)
-- **MySQL 5.7+ or 8.0+** (local instance or Docker)
+- **MySQL 5.7, 8.0+, or 9.x** (local instance or Docker)
 - **Docker** (optional, for container testing)
 
-### Local Development
+### Develop Locally
 
 ```bash
 # Clone your fork
@@ -28,19 +33,19 @@ git clone https://github.com/YOUR_USERNAME/mysql-mcp.git
 cd mysql-mcp
 
 # Install dependencies
-npm install
+pnpm install
 
 # Build TypeScript
-npm run build
+pnpm run build
 
 # Run the test suite
-npm test
+pnpm test
 
 # Run the full quality check
-npm run check   # Runs ESLint + TypeScript strict-mode type checking
+pnpm run check   # Runs ESLint + TypeScript strict-mode, plus unit and E2E tests
 ```
 
-### Running the Server Locally
+### Run the Server Locally
 
 ```bash
 # Connect to a local MySQL instance via stdio
@@ -52,7 +57,7 @@ node dist/cli.js --transport http --port 3000 --mysql "mysql://user:pass@localho
 
 > **Connection string required.** The server requires a valid MySQL connection string. For local testing, you can use a `.env` file or pass the string directly. Never commit credentials to version control.
 
-### Docker Development (Optional)
+### Develop with Docker
 
 ```bash
 # Build the Docker image locally
@@ -62,69 +67,69 @@ docker build -f Dockerfile -t mysql-mcp-dev .
 docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
 ```
 
-## 📋 What We're Looking For
+## 📋 Discover Contribution Goals
 
 We especially welcome contributions in these areas:
 
-### 🎯 High Priority
+### Tackle High Priority Goals
 
 - **Bug fixes** and stability improvements
 - **Performance improvements** (faster tool dispatch, reduced overhead, connection pool tuning)
 - **New tools** that extend MySQL capabilities within existing groups
 - **Better error messages** with actionable remediation hints
 
-### 🔍 Medium Priority
+### Address Medium Priority Goals
 
-- **Enhanced Code Mode** worker-thread operations and sandbox capabilities
+- **Enhanced Code Mode** `isolated-vm` operations and sandbox capabilities
 - **Additional MySQL 8.0+ feature coverage** (CTEs, window functions, JSON improvements)
 - **New MySQL extension integrations** (e.g., ProxySQL, MySQL Router)
 - **Documentation improvements** and Playwright end-to-end examples
 
-### 💡 Future Features
+### Build Future Features
 
 - **New tool groups** for specialized MySQL workflows
 - **Additional MySQL ecosystem integrations**
 - **Performance benchmarks** for new hot paths
 - **IDE-specific integrations** beyond MCP
 
-## 🧪 Testing Your Changes
+## 🧪 Test Your Changes
 
-### Automated Testing
+### Run Automated Tests
 
 ```bash
 # Run all tests
-npm test
+pnpm test
 
 # Run tests with coverage
-npm run test:coverage
+pnpm run test:coverage
 
 # Run a specific test file
 npx vitest run src/__tests__/your-test-file.test.ts
 
 # Run benchmarks
-npm run bench
+pnpm run bench
 ```
 
-### Quality Checks
+### Run Quality Checks
 
 ```bash
 # Lint + type check (required before submitting)
-npm run check   # ESLint + TypeScript strict-mode
+pnpm run check   # ESLint + TypeScript strict-mode, plus unit and E2E tests
 
 # Or individually
-npm run lint        # ESLint only
-npm run typecheck   # TypeScript strict-mode type checking
+pnpm run lint        # ESLint only
+pnpm run typecheck   # TypeScript strict-mode type checking
 ```
 
-### End-to-End Tests
+### Run End-to-End Tests
 
-The Playwright E2E suite validates HTTP and SSE transport parity:
+The Playwright E2E suite validates Streamable HTTP and SSE transport parity:
 
 ```bash
-npm run test:e2e
+pnpm run test:e2e
 ```
 
-### Manual Testing with MCP Client
+### Test Manually with MCP
 
 Add your local build to `~/.cursor/mcp.json`:
 
@@ -145,7 +150,7 @@ Add your local build to `~/.cursor/mcp.json`:
 }
 ```
 
-### Docker Testing
+### Test with Docker
 
 ```bash
 # Build and run locally
@@ -153,25 +158,25 @@ docker build -f Dockerfile -t mysql-mcp-dev .
 docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
 ```
 
-## 📝 Coding Standards
+## 📝 Follow Coding Standards
 
-### TypeScript Code Style
+### Follow TypeScript Code Style
 
 - **Strict mode** — `tsconfig.json` enforces strict TypeScript
-- **ESLint** — Run `npm run lint` to check, `npm run lint:fix` to auto-fix (when available)
+- **ESLint** — Run `pnpm run lint` to check, `pnpm run lint:fix` to auto-fix (when available)
 - **Prettier** — Formatting is handled automatically during the release workflow
 - **Type safety** — Avoid `any`; use proper types and Zod schemas
 - **Modularity** — Keep files under ~500 lines; split into sub-modules when approaching the limit
 - **Error handling** — Use structured `{success, error, code, category, suggestion, recoverable}` responses in tool handlers
 
-### File Naming
+### Name Files Consistently
 
 All files and directories use **kebab-case** (lowercase with dashes):
 
 - ✅ `database-adapter.ts`, `tool-filter.ts`, `pool-manager/`
 - ❌ `DatabaseAdapter.ts`, `toolFilter.ts`
 
-### Structured Error Handling
+### Handle Errors Structurally
 
 Every tool must return structured error responses — never raw exceptions:
 
@@ -186,29 +191,34 @@ Every tool must return structured error responses — never raw exceptions:
 }
 ```
 
-Error logic should leverage the `MySQLMcpError` hierarchy (e.g., `ValidationError`, `QueryError`). Our Auto-refinement system automatically maps generic codes to specific ones (e.g., `QUERY_ERROR` → `TABLE_NOT_FOUND`) and populates suggestions. Catch at the handler boundary and return `formatHandlerError(error)` to ensure a highly-compliant JSON payload. Always propagate stack traces — don't swallow errors.
+Error logic should leverage the `MySQLMcpError` hierarchy. Our Auto-refinement system automatically maps generic codes to specific ones. It also populates suggestions. Catch at the handler boundary and return `formatHandlerError(error)` for JSON compliance. Always propagate stack traces — don't swallow errors.
 
-### Input Validation
+### Validate Your Inputs
 
-- All parameters are validated via **Zod schemas** with explicit coercion controls (e.g., `z.preprocess(coerceNumber, z.number().optional())` instead of aggressive `z.coerce.number()`)
-- Output schemas are strictly defined to guarantee AI agents receive deterministic P154-compliant structures (using `openWorldHint: false`)
-- Invalid inputs must return structured errors, automatically handled by `formatHandlerError()` without raw Zod validation messages
-- SQL injection is prevented via **parameter binding** — never interpolate user input into SQL strings
+- **Dual-Schema Pattern** — Tools use a plain `z.object()` Base schema for visibility. A `z.preprocess()` wrapper supports aliases without breaking JSON Schema generation.
+- **Zod schemas** validate parameters with explicit coercion controls. Do not use aggressive `z.coerce.number()`.
+- Output schemas are strictly defined. This guarantees agents receive deterministic P154-compliant structures.
+- Invalid inputs must return structured errors. The `formatHandlerError()` helper handles this without raw validation messages.
+- SQL injection is prevented via **parameter binding**. Never interpolate user input into SQL strings.
 
-### Logging
+### Log Structurally
 
 Use the centralized logger with structured payloads. Include: `module`, `operation`, `entityId`, `context`, and `stack` (for errors). Severity levels: `error`, `warning`, `info`, `debug`.
 
-### Docker Considerations
+### Consider Docker Optimization
 
 - **Multi-stage builds** — Keep images lean
 - **Security** — Run as non-root user, minimal privileges
 - **Multi-platform** — Test on both amd64 and arm64 when possible
 - **Documentation** — Update Docker guides if needed
 
-## 🔧 Adding or Modifying Tools
+## 🔧 Add or Modify Tools
 
-mysql-mcp organizes tools into 27 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, and `codemode`. When adding a new tool:
+mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. 
+
+> **Note on Tool Counts:** The project maintains a standard label of **200+ tools** to reduce maintenance overhead. Unless specifically testing for precise counts, you do not need to update every mention of tool counts globally.
+
+When adding a new tool:
 
 1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/mysql/schemas/`
 2. **Implement the handler** in the corresponding adapter directory under `src/adapters/mysql/tools/`
@@ -216,13 +226,12 @@ mysql-mcp organizes tools into 27 groups covering: `core`, `schema`, `introspect
 4. **Write meaningful Vitest tests** and update E2E spec files if making systemic changes
 5. **Add the tool to the group's help resource** (the markdown file under `src/constants/server-instructions/`)
 6. **Verify OAuth Scope** — ensure the new tool aligns with its group's defined OAuth 2.1 scope (`read`, `write`, or `admin`)
-7. **Update `UNRELEASED.md`** with your change (see [Changelog](#-changelog) below)
 
-## 🐛 Bug Reports
+## 🐛 Report Bugs
 
 When reporting bugs, please include:
 
-1. **Environment details** (OS, Node.js version, npm version)
+1. **Environment details** (OS, Node.js version, pnpm version)
 2. **Steps to reproduce** the issue
 3. **Expected vs actual behavior**
 4. **MySQL version** and relevant extensions enabled
@@ -231,7 +240,7 @@ When reporting bugs, please include:
 
 Use our [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md) for consistency.
 
-## 💡 Feature Requests
+## 💡 Request Features
 
 For new features, please provide:
 
@@ -243,32 +252,31 @@ For new features, please provide:
 
 Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
-## 🔄 Pull Request Process
+## 🔄 Submit Pull Requests
 
-### Before Submitting
+### Check Before Submitting
 
 - [ ] **Fork** the repository and create a feature branch
-- [ ] **Test** your changes (`npm run check && npm test`)
+- [ ] **Test** your changes (`pnpm run check && pnpm test`)
 - [ ] **Update documentation** if you changed APIs or behavior
 - [ ] **Add examples** for new features
-- [ ] **Update `UNRELEASED.md`** with your change
 - [ ] **Check** that existing functionality still works
 
-### PR Description Should Include
+### Write a Good PR Description
 
 - **Summary** of changes made
 - **Testing** performed (how did you verify it works?)
 - **Breaking changes** (if any)
 - **Related issues** (fixes #123)
 
-### Review Process
+### Follow the Review Process
 
 1. **Automated checks** must pass (lint, typecheck, tests)
 2. **Maintainer review** — we'll provide feedback
 3. **Address feedback** — make requested changes
 4. **Merge** — once approved, we'll merge your PR
 
-### What CI Will Check
+### Pass CI Checks
 
 | Workflow        | What It Does                                 |
 | --------------- | -------------------------------------------- |
@@ -278,28 +286,38 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
 All checks must pass before merge. Security steps **hard-fail on fixable issues** — this is intentional.
 
-## 📄 Changelog
+## 📄 Commit and Generate Changelogs
 
-Log all changes in **[`UNRELEASED.md`](UNRELEASED.md)** at the project root using [Keep a Changelog](https://keepachangelog.com/) format. Use the appropriate header:
+The project uses `bun ./.agents/scripts/commit.ts` for all commits with explicit file staging. **Do not use raw `git commit`.**
 
-- `### Added` — new features or tools
-- `### Changed` — changes to existing functionality
-- `### Fixed` — bug fixes
-- `### Removed` — removed features
-- `### Security` — vulnerability fixes
+Log all changes directly via the wrapper using git trailers. We use an automated workflow that generates the changelog from commit history.
+
+Example commit message:
+```text
+feat: add Code Mode limits
+
+Changelog-Added: Implement maximum result size for Code Mode executions.
+```
+
+Available trailers:
+- `Changelog-Added` — new features or tools
+- `Changelog-Changed` — changes to existing functionality
+- `Changelog-Fixed` — bug fixes
+- `Changelog-Removed` — removed features
+- `Changelog-Security` — vulnerability fixes
 
 > **Do not edit `CHANGELOG.md` directly** — it is assembled automatically during the release process.
 
-## 🎯 Development Tips
+## 🎯 Master Development Tips
 
-### Working with MCP
+### Work with MCP
 
 - **Test with a real MySQL instance** — behavior varies across versions and configuration
 - **Check tool responses** — Ensure JSON responses are well-formed
 - **Output schemas** — All tools have Zod output schemas; error responses must pass validation
 - **Dual-schema pattern** — Relaxed schemas for SDK validation, strict schemas inside handlers
 
-### Architecture Overview
+### Understand the Architecture
 
 ```
 src/
@@ -310,6 +328,9 @@ src/
 ├── cli.ts          # Entry point
 ├── codemode/       # Sandboxed JavaScript execution (Code Mode — VM & Worker Isolate)
 ├── constants/      # Help content generation and dynamic server instructions
+├── logging/        # Structured logging
+├── observability/  # Tracing and metrics
+├── progress/       # Session progress tracking
 ├── filtering/      # Tool filter parsing, group resolution
 ├── pool/           # Connection pool management
 ├── server/         # MCP server setup, handler registration
@@ -319,30 +340,30 @@ src/
 └── index.ts        # Public API exports
 ```
 
-### Available Scripts
+### Use Available Scripts
 
 | Script                  | Purpose                                              |
 | ----------------------- | ---------------------------------------------------- |
-| `npm run build`         | Production build via tsc                             |
-| `npm run dev`           | Watch mode (incremental builds)                      |
-| `npm run check`         | **Quality gate** — lint + typecheck (run before PRs) |
-| `npm run lint`          | ESLint only                                          |
-| `npm run typecheck`     | TypeScript strict-mode type checking                 |
-| `npm test`              | Run all unit tests (Vitest)                          |
-| `npm run test:coverage` | Tests with V8 coverage report                        |
-| `npm run test:e2e`      | Playwright end-to-end tests (HTTP/SSE transport)     |
-| `npm run bench`         | Performance benchmarks (tinybench via Vitest)        |
-| `npm run bench:verbose` | Benchmarks with detailed timings                     |
+| `pnpm run build`         | Production build via tsup                            |
+| `pnpm run dev`           | Watch mode (fast unbundled hot reloads via tsx)      |
+| `pnpm run check`         | **Quality gate** — lint + typecheck + tests (run before PRs) |
+| `pnpm run lint`          | ESLint only                                          |
+| `pnpm run typecheck`     | TypeScript strict-mode type checking                 |
+| `pnpm test`              | Run all unit tests (Vitest)                          |
+| `pnpm run test:coverage` | Tests with V8 coverage report                        |
+| `pnpm run test:e2e`      | Playwright end-to-end tests (HTTP/SSE transport)     |
+| `pnpm run bench`         | Performance benchmarks (tinybench via Vitest)        |
+| `bun ./.agents/scripts/preview-changelog.mjs` | Preview changelog generation from git history |
 
-### Benchmarks
+### Run Benchmarks
 
-If your change touches a hot path (tool dispatch, schema parsing, auth, Code Mode, connection pool), run benchmarks to verify you haven't introduced a regression:
+If your change touches a hot path, run benchmarks. This verifies you haven't introduced a regression:
 
 ```bash
-npm run bench
+pnpm run bench
 ```
 
-## 🔐 Security
+## 🔐 Report Security Issues
 
 If you discover a security vulnerability, **do not** open a public issue. Please follow our [Security Policy](SECURITY.md) and report it to **admin@adamic.tech**.
 
@@ -354,20 +375,20 @@ When contributing code, follow these security practices:
 - **Typed error classes** with descriptive messages — don't expose internal details to end users
 - **Transport Security** — preserve DNS rebinding protection and Slowloris DoS timeouts in HTTP layers
 
-## 🤝 Community
+## 🤝 Join the Community
 
 - **Be respectful** — Follow our [Code of Conduct](CODE_OF_CONDUCT.md)
 - **Ask questions** — Use GitHub Issues for discussion
 - **Share ideas** — Feature requests and feedback welcome
 - **Help others** — Answer questions and review PRs
 
-## 📞 Getting Help
+## 📞 Get Help
 
 - **GitHub Issues** — Bug reports and feature requests
 - **Documentation** — Check [README.md](README.md), [Wiki](https://github.com/neverinfamous/mysql-mcp/wiki), and Docker guides first
 - **Email** — **admin@adamic.tech**
 
-## 🏆 Recognition
+## 🏆 Gain Recognition
 
 Contributors are recognized in:
 

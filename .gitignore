@@ -22,6 +22,7 @@ lerna-debug.log*
 
 # Audit logs (runtime data — tracked structure via .gitkeep)
 logs/*.jsonl*
+logs/*.sqlite*
 logs/snapshots/
 
 # OS files
@@ -99,6 +100,21 @@ test-server/*.dump
 # Temporary scripts (dev only)
 tmp/
 test-results/
+test.jsonl
+test.sqlite
+history.json
 
 # Playwright
 playwright-results.json
+.playwright-results.json
+
+# Test output directory
+.test-output/
+
+.agents/
+
+# Adamic Workflows Copies
+.agents/workflows/git-audit-trust.md
+.agents/workflows/git-generate-changelog.md
+.agents/workflows/git-impact-search.md
+.agents/workflows/git-velocity-report.md

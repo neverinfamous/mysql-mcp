@@ -1,10 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { normalizeParams } from "../params.js";
 
-vi.mock("../constants.js", () => ({
+vi.mock("../constants/positional.js", () => ({
   POSITIONAL_PARAM_MAP: {
     singleStringMethod: "strParam",
     multiStringMethod: ["firstParam", "secondParam"],
+    restMethod: ["firstParam", "...restParams"],
   },
   ARRAY_WRAP_MAP: {
     arrayWrapMethod: "items",
@@ -67,6 +68,20 @@ describe("normalizeParams", () => {
       expect(normalizeParams("arrayWrapMethod", [arr, opts])).toEqual({
         items: arr,
         extra: "data",
+      });
+    });
+
+    it("should merge trailing options for string paramMapping", () => {
+      expect(normalizeParams("singleStringMethod", ["val", { opt: 123 }])).toEqual({
+        strParam: "val",
+        opt: 123,
+      });
+    });
+
+    it("should map rest parameters", () => {
+      expect(normalizeParams("restMethod", ["val1", "val2", "val3"])).toEqual({
+        firstParam: "val1",
+        restParams: ["val2", "val3"],
       });
     });
 

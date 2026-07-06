@@ -101,7 +101,7 @@ test.describe("Integration: Admin → Introspection Health Check", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           // Step 1: Schema snapshot
-          const snapshot = await mysql.introspection.schemaSnapshot({});
+          const snapshot = await mysql.introspection.schemaSnapshot({ schema: 'testdb' });
 
           // Step 2: Explain a complex join
           const plan = await mysql.performance.explain({

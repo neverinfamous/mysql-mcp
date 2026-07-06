@@ -8,45 +8,22 @@
  *   - mysql_detect_connection_spike: connection concentration detection
  */
 
-import { z, ZodError } from "zod";
-import type { MySQLAdapter } from "../../mysql-adapter.js";
+import { ZodError } from "zod";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
+import {
+  DetectConnectionSpikeSchemaBase,
+  DetectConnectionSpikeSchema,
+  DetectConnectionSpikeOutputSchema,
+} from "../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 import { toNum, toStr, riskFromScore } from "./anomaly-detection.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
-// =============================================================================
-// Schemas
-// =============================================================================
 
-export const DetectConnectionSpikeSchemaBase = z.object({
-  warningPercent: z
-    .unknown()
-    .optional()
-    .describe("Percentage threshold for flagging concentration (default: 70)"),
-  windowMinutes: z
-    .unknown()
-    .optional()
-    .describe("Idle time window in minutes to flag connections (default: 5)"),
-  thresholdPercent: z.unknown().optional().describe("Alias for warningPercent"),
-});
-
-export const DetectConnectionSpikeSchema = z.object({
-  warningPercent: z
-    .number()
-    .optional()
-    .describe("Percentage threshold for flagging concentration (default: 70)"),
-  windowMinutes: z
-    .number()
-    .int()
-    .min(1)
-    .optional()
-    .describe("Idle time window in minutes to flag connections (default: 5)"),
-  thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
-});
 
 // =============================================================================
 // Tool Definition
@@ -64,9 +41,11 @@ export function createDetectConnectionSpikeTool(
 ): ToolDefinition {
   return {
     name: "mysql_detect_connection_spike",
+    title: "Detect Connection Spike",
     description:
       "Detects unusual connection patterns by analyzing concentration by user, host, and state. Flags when a single user monopolizes the pool or idle connections accumulate.",
     inputSchema: DetectConnectionSpikeSchemaBase,
+    outputSchema: DetectConnectionSpikeOutputSchema,
     group: "performance",
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -74,32 +53,9 @@ export function createDetectConnectionSpikeTool(
       try {
         const parsed = DetectConnectionSpikeSchema.parse(params);
 
-        const rawPercent =
-          parsed.thresholdPercent ?? parsed.warningPercent ?? 70;
-        if (rawPercent < 0 || rawPercent > 100) {
-          const response = {
-            success: false,
-            error:
-              "warningPercent (or thresholdPercent) must be between 0 and 100",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
-        }
-        const warningPercent = rawPercent;
-        const windowMinutes = parsed.windowMinutes ?? 5;
+        const warningPercent = parsed.warningPercent;
+        const windowMinutes = parsed.windowMinutes;
 
-        if (windowMinutes < 1 || windowMinutes > 1440) {
-          const response = {
-            success: false,
-            error: "windowMinutes must be between 1 and 1440",
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
-        }
         const idleSeconds = windowMinutes * 60;
 
         // Gather connection data in parallel

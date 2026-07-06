@@ -14,7 +14,7 @@ describe("Shell Info Tools", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockContext = createMockRequestContext();
-    mockSpawn = child_process.spawn as any;
+    mockSpawn = child_process.spawn;
   });
 
   afterEach(() => {
@@ -51,12 +51,12 @@ describe("Shell Info Tools", () => {
       setupMockSpawn("mysqlsh   Ver 8.0.35 for Linux on x86_64");
 
       const tool = createShellVersionTool();
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(true);
       expect(result.data.version).toBe("8.0.35");
       expect(child_process.spawn).toHaveBeenCalledWith(
-        "mysqlsh",
+        expect.stringContaining("mysqlsh"),
         ["--version"],
         expect.any(Object),
       );
@@ -66,7 +66,7 @@ describe("Shell Info Tools", () => {
       setupMockSpawn("Some other output");
 
       const tool = createShellVersionTool();
-      const result = (await tool.handler({}, mockContext)) as any;
+      const result = await tool.handler({}, mockContext);
 
       expect(result.data.version).toBe("unknown");
     });

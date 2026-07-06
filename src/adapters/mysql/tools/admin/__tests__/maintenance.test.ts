@@ -13,7 +13,7 @@ import {
   createFlushTablesTool,
   createKillQueryTool,
 } from "../maintenance.js";
-import type { MySQLAdapter } from "../../../mysql-adapter.js";
+import type {} from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -33,7 +33,7 @@ describe("Admin Maintenance Tools", () => {
   describe("createOptimizeTableTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_optimize_table");
@@ -56,14 +56,14 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "OPTIMIZE TABLE `users`",
       );
-      expect((result as any).data).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
       expect(
         Array.isArray(
           (result as { data: { results: unknown[] } }).data.results,
@@ -75,7 +75,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         { tables: ["users", "orders", "products"] },
@@ -91,11 +91,11 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ tables: ["table-name", "table.name"] }, mockContext);
 
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("`table-name`");
       expect(call).toContain("`table.name`");
     });
@@ -104,7 +104,7 @@ describe("Admin Maintenance Tools", () => {
   describe("createAnalyzeTableTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createAnalyzeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_analyze_table");
@@ -126,33 +126,36 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createAnalyzeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: ["products"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "ANALYZE TABLE `products`",
       );
-      expect((result as any).data).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
     });
 
     it("should execute ANALYZE TABLE for multiple tables", async () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createAnalyzeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ tables: ["table1", "table2"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
-        "ANALYZE TABLE `table1`, `table2`",
+        "ANALYZE TABLE `table1`",
+      );
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
+        "ANALYZE TABLE `table2`",
       );
     });
   });
 
   describe("createCheckTableTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
 
       expect(tool.name).toBe("mysql_check_table");
       expect(tool.group).toBe("admin");
@@ -167,18 +170,18 @@ describe("Admin Maintenance Tools", () => {
         ]),
       );
 
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith("CHECK TABLE `users`");
-      expect((result as any).data).toHaveProperty("results");
-      expect((result as any).data).toHaveProperty("rowCount");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("rowCount");
     });
 
     it("should execute CHECK TABLE with EXTENDED option", async () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       await tool.handler(
         { tables: ["users"], option: "EXTENDED" },
         mockContext,
@@ -192,7 +195,7 @@ describe("Admin Maintenance Tools", () => {
     it("should execute CHECK TABLE with QUICK option", async () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       await tool.handler({ tables: ["orders"], option: "QUICK" }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
@@ -203,21 +206,24 @@ describe("Admin Maintenance Tools", () => {
     it("should execute CHECK TABLE for multiple tables with option", async () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       await tool.handler(
         { tables: ["t1", "t2"], option: "MEDIUM" },
         mockContext,
       );
 
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
-        "CHECK TABLE `t1`, `t2` MEDIUM",
+        "CHECK TABLE `t1` MEDIUM",
+      );
+      expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
+        "CHECK TABLE `t2` MEDIUM",
       );
     });
 
     it("should handle empty result rows", async () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       const result = (await tool.handler(
         { tables: ["users"] },
         mockContext,
@@ -234,7 +240,7 @@ describe("Admin Maintenance Tools", () => {
         executionTimeMs: 5,
       });
 
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       const result = (await tool.handler(
         { tables: ["users"] },
         mockContext,
@@ -245,7 +251,7 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("should return structured error for invalid option value", async () => {
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       const result = await tool.handler(
         { tables: ["users"], option: "INVALID_OPTION" },
         mockContext,
@@ -260,7 +266,7 @@ describe("Admin Maintenance Tools", () => {
   describe("createRepairTableTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_repair_table");
@@ -282,7 +288,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { tables: ["myisam_table"] },
@@ -292,14 +298,14 @@ describe("Admin Maintenance Tools", () => {
       expect(mockAdapter.rawQuery).toHaveBeenCalledWith(
         "REPAIR TABLE `myisam_table`",
       );
-      expect((result as any).data).toHaveProperty("results");
+      expect(Reflect.get(result || {}, "data")).toHaveProperty("results");
     });
 
     it("should execute REPAIR TABLE with QUICK option", async () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ tables: ["old_table"], quick: true }, mockContext);
 
@@ -312,11 +318,11 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ tables: ["table1"] }, mockContext);
 
-      const call = mockAdapter.rawQuery.mock.calls[0][0] as string;
+      const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).not.toContain("QUICK");
     });
 
@@ -324,7 +330,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ tables: ["t1", "t2"], quick: false }, mockContext);
 
@@ -337,7 +343,7 @@ describe("Admin Maintenance Tools", () => {
   describe("createFlushTablesTool", () => {
     it("should create tool with correct definition", () => {
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
 
       expect(tool.name).toBe("mysql_flush_tables");
@@ -350,7 +356,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -362,7 +368,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: undefined }, mockContext);
 
@@ -374,7 +380,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: [] }, mockContext);
 
@@ -389,7 +395,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
@@ -410,7 +416,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         { tables: ["users", "orders", "products"] },
@@ -425,7 +431,7 @@ describe("Admin Maintenance Tools", () => {
 
   describe("createKillQueryTool", () => {
     it("should create tool with correct definition", () => {
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
 
       expect(tool.name).toBe("mysql_kill_query");
       expect(tool.group).toBe("admin");
@@ -437,7 +443,7 @@ describe("Admin Maintenance Tools", () => {
     it("should execute KILL QUERY by default", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
       const result = await tool.handler({ processId: 12345 }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledWith("KILL QUERY 12345");
@@ -450,7 +456,7 @@ describe("Admin Maintenance Tools", () => {
     it("should execute KILL QUERY when connection is false", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
       const result = await tool.handler(
         { processId: 999, connection: false },
         mockContext,
@@ -466,7 +472,7 @@ describe("Admin Maintenance Tools", () => {
     it("should execute KILL CONNECTION when connection is true", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
       const result = await tool.handler(
         { processId: 54321, connection: true },
         mockContext,
@@ -487,7 +493,7 @@ describe("Admin Maintenance Tools", () => {
     it("should handle various process ID formats", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
 
       // Test with number
       await tool.handler({ processId: 1 }, mockContext);
@@ -505,7 +511,7 @@ describe("Admin Maintenance Tools", () => {
         new Error("Unknown thread id: 999999"),
       );
 
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
       const result = await tool.handler({ processId: 999999 }, mockContext);
 
       expect(result).toMatchObject({
@@ -517,7 +523,7 @@ describe("Admin Maintenance Tools", () => {
     it("should return structured error for non-thread-id errors", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
 
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
       const result = await tool.handler({ processId: 123 }, mockContext);
 
       expect(result).toMatchObject({
@@ -534,7 +540,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: ["users"] }, mockContext);
 
@@ -546,7 +552,7 @@ describe("Admin Maintenance Tools", () => {
 
     it("mysql_optimize_table should return structured error on empty tables", async () => {
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -560,7 +566,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createAnalyzeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: ["products"] }, mockContext);
 
@@ -572,7 +578,7 @@ describe("Admin Maintenance Tools", () => {
 
     it("mysql_analyze_table should return structured error on empty tables", async () => {
       const tool = createAnalyzeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -585,7 +591,7 @@ describe("Admin Maintenance Tools", () => {
         new Error("Lock wait timeout exceeded"),
       );
 
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       const result = await tool.handler({ tables: ["orders"] }, mockContext);
 
       expect(result).toMatchObject({
@@ -595,7 +601,7 @@ describe("Admin Maintenance Tools", () => {
     });
 
     it("mysql_check_table should return structured error on empty tables", async () => {
-      const tool = createCheckTableTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createCheckTableTool(mockAdapter);
       const result = await tool.handler({}, mockContext);
 
       expect(result).toHaveProperty("success", false);
@@ -606,7 +612,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockRejectedValue(new Error("Table is read only"));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({ tables: ["broken"] }, mockContext);
 
@@ -618,7 +624,7 @@ describe("Admin Maintenance Tools", () => {
 
     it("mysql_repair_table should return structured error on empty tables", async () => {
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -632,7 +638,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ table: "users" }, mockContext);
 
@@ -643,7 +649,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ tableName: "orders" }, mockContext);
 
@@ -656,7 +662,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler({ name: "products" }, mockContext);
 
@@ -669,7 +675,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.rawQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       await tool.handler(
         { tables: ["t1", "t2"], table: "ignored" },
@@ -692,7 +698,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler(
         { tables: ["t1", "t2"] },
@@ -710,7 +716,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createAnalyzeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
         data: {
@@ -735,7 +741,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createRepairTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = (await tool.handler({ tables: ["t1"] }, mockContext)) as {
         data: {
@@ -756,7 +762,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { tables: ["users", "nonexistent_xyz"] },
@@ -781,7 +787,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { tables: ["nonexistent_a", "nonexistent_b"] },
@@ -810,7 +816,7 @@ describe("Admin Maintenance Tools", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler(
         { tables: ["users", "orders"] },
@@ -825,7 +831,7 @@ describe("Admin Maintenance Tools", () => {
 
     it("should return structured error on Zod validation failure", async () => {
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       // Pass invalid type for tables (number instead of array)
       const result = await tool.handler(
@@ -845,7 +851,7 @@ describe("Admin Maintenance Tools", () => {
       );
 
       const tool = createFlushTablesTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       const result = await tool.handler({}, mockContext);
 
@@ -858,7 +864,7 @@ describe("Admin Maintenance Tools", () => {
 
   describe("kill_query Zod validation", () => {
     it("should return structured error when processId is missing", async () => {
-      const tool = createKillQueryTool(mockAdapter as unknown as MySQLAdapter);
+      const tool = createKillQueryTool(mockAdapter);
       // Pass empty params — processId is required
       const result = await tool.handler({}, mockContext);
 
@@ -871,7 +877,7 @@ describe("Admin Maintenance Tools", () => {
   describe("Zod error human-readability", () => {
     it("should return human-readable error messages, not raw JSON arrays", async () => {
       const tool = createOptimizeTableTool(
-        mockAdapter as unknown as MySQLAdapter,
+        mockAdapter,
       );
       // Empty params triggers Zod validation error
       const result = (await tool.handler({}, mockContext)) as {

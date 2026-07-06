@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import { MySQLAdapter } from "../mysql-adapter.js";
+import { MySQLAdapter } from "../mysql-adapter/index.js";
 
 describe("MySQLAdapter Integration", () => {
   let adapter: MySQLAdapter;
@@ -70,7 +70,7 @@ describe("MySQLAdapter Integration", () => {
     );
     expect(selectResult.rows).toBeDefined();
     expect(selectResult.rows).toHaveLength(1);
-    expect((selectResult.rows![0] as any).name).toBe("test_item");
+    expect((selectResult.rows![0] ).name).toBe("test_item");
   });
 
   it("should handle transactions correctly", async () => {
