@@ -1,6 +1,6 @@
 services:
   mysql-mcp:
-    image: neverinfamous/mysql-mcp:latest
+    image: writenotenow/mysql-mcp:latest
     ports:
       - "3000:3000"
     command:

@@ -166,14 +166,14 @@ The Dockerfile patches npm-bundled transitive dependencies for Docker Scout comp
 
 ```bash
 # Secure volume mounting
-docker run -v ./data:/app/data:rw,noexec,nosuid,nodev neverinfamous/mysql-mcp:latest
+docker run -v ./data:/app/data:rw,noexec,nosuid,nodev writenotenow/mysql-mcp:latest
 ```
 
 ### Apply Resource Limits
 
 ```bash
 # Apply resource limits
-docker run --memory=1g --cpus=1 neverinfamous/mysql-mcp:latest
+docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 ```
 
 ## 🔐 **Secure Your Logs**

@@ -1,8 +1,16 @@
 # mysql-mcp Code Mode Testing Coordinator Workflow
 
-> 🚀 **Core Features Tested:** Oversees testing for **Code Mode** parity, alongside **OAuth 2.1** and **Connection Pooling**.
+> 🚀 **Core Features Tested:** Orchestrates deep validation of our advanced capabilities: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
-We're working on the mysql-mcp project/repository in this thread.
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
+
+We're working in the `mysql-mcp` project in this thread.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 

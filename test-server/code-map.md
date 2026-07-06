@@ -11,17 +11,18 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 ## Value Proposition
 
-- Build AI integrations instantly.
-- Empower agents with secure database access.
-- Execute complex logic via Code Mode.
-- Scale operations with robust connection pooling.
-- Leverage OAuth 2.1 for enterprise security.
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
 > 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, blazing-fast **Code Mode**, and highly-optimized **Connection Pooling**.
->
-> Last updated: July 5, 2026
+> 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, blazing-fast **Code Mode**, and highly-optimized **Connection Pooling**.
+
+Last updated: July 5, 2026
 
 ---
 

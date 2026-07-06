@@ -1,6 +1,6 @@
 # MySQL MCP Server
 
-[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/neverinfamous/mysql-mcp)](https://hub.docker.com/r/neverinfamous/mysql-mcp)
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
@@ -49,7 +49,7 @@
 #### Docker (Recommended)
 
 ```bash
-docker run -i --rm neverinfamous/mysql-mcp:latest \
+docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
@@ -90,7 +90,7 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
         "-e", "MYSQL_PASSWORD",
         "-e", "MYSQL_DATABASE",
         "-e", "REDIS_URL",
-        "neverinfamous/mysql-mcp:latest",
+        "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -133,7 +133,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "run",
         "-i",
         "--rm",
-        "neverinfamous/mysql-mcp:latest",
+        "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--mysql",
@@ -161,7 +161,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "-e", "MYSQL_PASSWORD",
         "-e", "MYSQL_DATABASE",
         "-e", "MYSQL_XPORT",
-        "neverinfamous/mysql-mcp:latest",
+        "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio"
       ],
@@ -195,7 +195,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ```bash
 docker run --rm -p 3000:3000 \
-  neverinfamous/mysql-mcp:latest \
+  writenotenow/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 

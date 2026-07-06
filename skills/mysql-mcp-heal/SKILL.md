@@ -8,12 +8,13 @@ description: Guide for modifying the `mysql-mcp` codebase (schemas, server instr
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-## Value Proposition
-- **Build AI integrations instantly.**
-- **Empower agents with secure database access.**
-- **Execute complex logic via Code Mode.**
-- **Scale operations with robust connection pooling.**
-- **Leverage OAuth 2.1 for enterprise security.**
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 The primary philosophy is: **Automate away as many problems as possible.** Do not work around hallucinations, confusion, or artificial roadblocks. Do not settle for throwing a good error message.
 
