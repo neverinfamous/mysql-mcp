@@ -113,7 +113,7 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
 
 ## Telemetry Collection
 
-When the suite finishes, compile the **Total Token Estimate** and resource metrics (e.g., `memory://metrics/summary`) from all subagents into a final report for the user. Also, report the **Total Number of Issues Fixed** during the entire suite.
+When the suite finishes, compile the **Total Token Estimate** and resource metrics (e.g., `mysql://metrics`) from all subagents into a final report for the user. Also, report the **Total Number of Issues Fixed** during the entire suite.
 
 ## Post-Suite Validation
 

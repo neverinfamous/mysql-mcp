@@ -122,7 +122,7 @@ jobs:
           category: trivy-docker-scan
 
   # Smoke test: verify the Docker image actually starts before pushing
-  # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/db-mcp#149)
+  # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/mysql-mcp#149)
   smoke-test:
     needs: [security-scan]
     if: ${{ needs.security-scan.result == 'success' }}

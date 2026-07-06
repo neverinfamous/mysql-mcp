@@ -20,7 +20,7 @@
 
 ## Setup & Pre-requisites
 
-**Step 1:** Confirm you read the server help content sourced from `C:\Users\chris\Desktop\mysql-mcp\src\constants\server-instructions\gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
+**Step 1:** Confirm you read the server help content sourced from `src/constants/server-instructions/gotchas.md` using `view_file` (not grep or search) — to understand documented behaviors, edge cases, and response structures for this tool group.
 
 **Step 2:** {{EXECUTION_MODE}}
 

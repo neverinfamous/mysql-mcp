@@ -97,7 +97,7 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
 - **Rate limiting** — 60 executions per minute per client, distributed via Redis (if `REDIS_URL` is set) with graceful in-memory fallback
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — synchronous engine-level termination if execution exceeds the configured limit
+- **Hard timeouts** — synchronous engine-level termination if execution exceeds the fixed 30-second hard limit (not configurable)
 - **Full API access** — all 28 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
 ### ⚡ Code Mode Only (Maximum Token Savings)
@@ -662,7 +662,7 @@ This server exposes **23 resources** for database observability and telemetry:
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** You can now configure the server using native JSON or YAML configuration files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `mcp-config-example.yaml` and `mcp-config-example.json` templates at the root of the project for setup details.
+> **Tip:** You can now configure the server using native JSON or YAML configuration files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.yaml` and `server-config-example.json` templates at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 

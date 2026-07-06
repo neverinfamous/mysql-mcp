@@ -37,7 +37,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ### Track Metrics and Progress
 
-- **Scratchpad**: Use `tmp/task.md` as your scratchpad for testing and reporting results. DO NOT modify the testing prompt files directly unless there is an error in them.
+- **Scratchpad**: Use `<appDataDir>\brain\<conversation-id>\scratch\task.md` as your scratchpad for testing and reporting results. DO NOT modify the testing prompt files directly unless there is an error in them.
 - `| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |`
   Never proceed to the final step until every tool in a given group is fully checked off.
 - **Help Resources**: The server uses an Adaptive Instruction Architecture. Tool signatures are NOT injected into your prompt by default. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/schema`) before testing to understand the expected parameters.
@@ -111,4 +111,4 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ## Begin Execution
 
-Begin with any requested group prompt from this folder (e.g. `test-tool-group-admin.md`), and execute the deterministic checklist line-by-line using direct tool calls only.
+Begin with any requested group prompt from this folder (e.g. `test-admin-part1.md`), and execute the deterministic checklist line-by-line using direct tool calls only.
