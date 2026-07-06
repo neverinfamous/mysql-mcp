@@ -27,7 +27,7 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt.
 3. **Local Verification (NO PAUSING)**:
-   - If you or a subagent modifies the codebase, the subagent MUST validate all changes locally by running `pnpm run check`. Ensure the checks pass cleanly and any resulting errors are fixed.
+   - If you or a subagent modifies the codebase, the subagent MUST validate all changes locally by running `pnpm run lint` and `pnpm run typecheck`. Do NOT run `pnpm run test` or `pnpm run check`. Ensure the checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation. The main agent (Coordinator) will fix any broken tests at the end of the test suite.
    - **Quality Gates**: Pay strict attention to ESLint and TypeScript compiler outputs. You MUST fix all lint and typecheck validation issues prior to committing. Do NOT ignore warnings or errors. Follow strict TypeScript guidelines: NEVER use `any` (use `unknown` with type guards), avoid unsafe typecasts, and ensure explicit return types.
    - **WARNING**: Do NOT commit your code and then attempt to use `git commit --amend` to fix a lingering lint or test issue later. Amending a commit rewrites the commit SHA, which will permanently break the changelog tracking workflow.
    - DO NOT perform live server verification. DO NOT wait for a server restart. DO NOT pause or send a message asking the user to refresh the server.

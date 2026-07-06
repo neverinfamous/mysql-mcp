@@ -29,6 +29,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 ### Enforce Execution Strictness
 
 - **Code Mode Exclusive**: Test tools ONLY using `mysql_execute_code`. Do not use the terminal or standalone standard tools unless specifically requested.
+- **Validation Strictness**: If you modify the codebase, run ONLY `pnpm run lint` and `pnpm run typecheck`. Do NOT run `pnpm run test` or `pnpm run check`. Do NOT run validation for documentation-only changes. The coordinator will handle fixing broken tests at the end.
 - **Batching**: Group multiple method calls into a single JavaScript code execution script to save context window tokens and improve speed.
 - **Failures Array Format**: Design your JS script to capture both expected outputs and caught errors, appending assertions to a `failures` array, and returning `{ failures, success: failures.length === 0 }`.
 

@@ -30,6 +30,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 ### Enforce Execution Strictness
 
 - **Direct Calls Exclusive**: Test tools ONLY using direct MCP tool calls (e.g., calling `mysql_analyze_table`). Do not use Code Mode (`mysql_execute_code`) or scripts to batch the tests.
+- **Validation Strictness**: If you modify the codebase, run ONLY `pnpm run lint` and `pnpm run typecheck`. Do NOT run `pnpm run test` or `pnpm run check`. Do NOT run validation for documentation-only changes. The coordinator will handle fixing broken tests at the end.
 - **No Scripted Loops**: Each happy and error path must be tested individually with a distinct tool call. This simulates exact client interaction behavior.
 
 ### Verify Validation Targets

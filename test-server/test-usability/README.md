@@ -32,6 +32,8 @@ Use the optimization layers described in `skills/mysql-mcp-heal/SKILL.md`.
 
 Please defer entirely to `coordinator-workflow.md` for orchestration steps and rules.
 
+> **Validation Strictness Note**: If you or a subagent modifies the codebase, run ONLY `pnpm run lint` and `pnpm run typecheck`. Do NOT run `pnpm run test` or `pnpm run check`. Do NOT run validation for documentation-only changes. The coordinator will handle fixing broken tests at the end of the test suite.
+
 ## Access Available Test Files
 
 - `test-usability-admin-part1.md`
