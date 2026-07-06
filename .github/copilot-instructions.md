@@ -12,7 +12,7 @@
 
 ## Project Overview
 
-mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 22 resources, and 19 prompts.
+mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 23 resources, and 19 prompts.
 > **Architectural Rule:** Tool filtering allows skipping the MySQL connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 **Architecture & Capabilities**:

@@ -33,7 +33,7 @@ concurrency: wiki-drift-detector
 
 # Wiki Documentation Drift Detector
 
-You are auditing the GitHub Wiki documentation for the **mysql-mcp** project. This premier TypeScript MCP server for MySQL databases empowers LLMs with 241 specialized tools. It features 22 resources and 19 prompts. Verify wiki accuracy. Ensure consistency with recent changes.
+You are auditing the GitHub Wiki documentation for the **mysql-mcp** project. This premier TypeScript MCP server for MySQL databases empowers LLMs with 241 specialized tools. It features 23 resources and 19 prompts. Verify wiki accuracy. Ensure consistency with recent changes.
 
 ## Important Rules
 

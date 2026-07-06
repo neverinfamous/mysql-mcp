@@ -25,9 +25,7 @@
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "",
         "MYSQL_XPORT": "33060",
-        "CODEMODE_ISOLATION": "",
         "LOG_LEVEL": "info"
       }
     }

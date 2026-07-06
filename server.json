@@ -1,5 +1,5 @@
 {
-  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-11-25/server.schema.json",
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
   "name": "io.github.neverinfamous/mysql-mcp",
   "title": "MySQL MCP Server",
   "description": "Enterprise MySQL MCP Server with OAuth 2.1, Code Mode, 241 tools, 22 resources, 19 prompts.",

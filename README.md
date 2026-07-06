@@ -9,23 +9,18 @@
 
 ## 💎 Value Proposition
 
-**mysql-mcp** is the ultimate Model Context Protocol server for MySQL. It empowers AI assistants with unmatched database capabilities. It brings production-ready infrastructure to agentic workflows.
-
-**Execute Complex Code**
-Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 sandbox. Slash LLM token overhead by up to 90%. Execute multi-step operations locally.
-
-**Enterprise-Grade Reliability**
-Built for production. Enjoy deterministic error handling and process-isolated code execution. Leverage comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
-
-**Complete Observability**
-Uncover deep database insights instantly. Access 22 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
+Build AI integrations instantly.
+Empower agents with secure database access.
+Execute complex logic via Code Mode.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise security.
 
 ## 🎯 Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
-| **22 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
+| **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by up to 90%. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
@@ -635,12 +630,13 @@ This server includes **19 intelligent prompts** for guided workflows:
 
 ## 📊 Monitor Health with Resources
 
-This server exposes **22 resources** for database observability and telemetry:
+This server exposes **23 resources** for database observability and telemetry:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
 | `mysql://schema`        | Full database schema                        |
 | `mysql://tables`        | Table listing with metadata                 |
+| `mysql://table/{name}`  | Specific Table Schema                       |
 | `mysql://variables`     | Server configuration variables              |
 | `mysql://status`        | Server status metrics                       |
 | `mysql://processlist`   | Active connections and queries              |
@@ -658,7 +654,7 @@ This server exposes **22 resources** for database observability and telemetry:
 | `mysql://spatial`       | Spatial columns and indexes                 |
 | `mysql://docstore`      | Document Store collections                  |
 | `mysql://insights`      | Business insights memo from mysql_append_insight |
-| `mysql://audit`         | Forensic audit trail and pre-mutation snapshot stats |
+| `mysql://audit-log`     | Forensic audit trail and pre-mutation snapshot stats |
 | `mysql://metrics`       | In-memory streaming telemetry (p50/p95/p99 latency) |
 | `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
 

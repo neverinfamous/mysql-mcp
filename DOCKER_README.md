@@ -7,21 +7,16 @@
 
 ## 💎 Value Proposition
 
-**mysql-mcp** is the ultimate Model Context Protocol server for MySQL. It empowers AI assistants with unmatched database capabilities. It brings production-ready infrastructure to agentic workflows.
-
-**Execute Complex Code**
-Experience the revolutionary Code Mode. Access our massive 241-tool ecosystem via a single V8 sandbox. Slash LLM token overhead by up to 90%. Execute multi-step operations locally.
-
-**Enterprise-Grade Reliability**
-Built for production. Enjoy deterministic error handling and process-isolated code execution. Leverage comprehensive OAuth 2.1 access controls. Get enterprise-grade security without sacrificing AI autonomy.
-
-**Complete Observability**
-Uncover deep database insights instantly. Access 22 resources to monitor schema evolution. Track query performance metrics and replication health in real-time. Make your agent a virtual DBA.
+Build AI integrations instantly.
+Empower agents with secure database access.
+Execute complex logic via Code Mode.
+Scale operations with robust connection pooling.
+Leverage OAuth 2.1 for enterprise security.
 
 ## 🎯 Core Benefits
 
 - **241 Specialized Tools**: Access core CRUD, JSON, spatial data, cluster management, and schema migration.
-- **22 Resources**: Monitor real-time schema, performance metrics, and InnoDB diagnostics instantly.
+- **23 Resources**: Monitor real-time schema, performance metrics, and InnoDB diagnostics instantly.
 - **19 AI Prompts**: Execute guided workflows for query building, schema design, and performance tuning.
 - **Code Mode**: Execute complex operations locally. Reduce LLM token overhead by up to 90%.
 - **Dual Transport**: Enforce OAuth 2.1 over streamable HTTP and legacy SSE.
@@ -127,23 +122,6 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 
 ## ⚡ Configure Your MCP Client
 
-### Connect via HTTP/SSE Server
-
-> **When to use HTTP mode:** Use HTTP mode when deploying `mysql-mcp` as a standalone server that multiple clients can connect to remotely. For local development with Claude Desktop or Cursor IDE, use the default `stdio` mode shown below instead.
-
-**Use cases for HTTP mode:**
-
-- Running the server in a Docker container accessible over a network
-- Deploying to cloud platforms (AWS, GCP, Azure)
-- Enabling OAuth 2.1 authentication for enterprise security
-- Allowing multiple AI clients to share one database connection
-
-### Security Features & Utility Endpoints
-
-For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setup (with Keycloak), see the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth).
-
-> **💡 Tip:** Most users should skip this section and use the stdio configuration below for local AI IDE integration.
-
 ### Cursor IDE / Claude Desktop
 
 ```json
@@ -190,6 +168,21 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 > **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Only needed for `mysqlsh_import_json` and `docstore` tools. Set to your MySQL Router X Protocol port (e.g., `6448`) when using InnoDB Cluster.
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
+
+### Connect via HTTP/SSE Server
+
+> **When to use HTTP mode:** Use HTTP mode when deploying `mysql-mcp` as a standalone server that multiple clients can connect to remotely. For local development with Claude Desktop or Cursor IDE, use the default `stdio` mode shown above instead.
+
+**Use cases for HTTP mode:**
+
+- Running the server in a Docker container accessible over a network
+- Deploying to cloud platforms (AWS, GCP, Azure)
+- Enabling OAuth 2.1 authentication for enterprise security
+- Allowing multiple AI clients to share one database connection
+
+### Security Features & Utility Endpoints
+
+For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setup (with Keycloak), see the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth).
 
 ---
 
