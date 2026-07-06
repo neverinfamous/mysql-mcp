@@ -77,7 +77,7 @@ async function run() {
         execFileSync(mysqlshPath, [
             '--uri', uri,
             '--js',
-            '-e', `try { dba.rebootClusterFromCompleteOutage('${clusterName.replace(/'/g, "\\'")}', {force: true}); } catch(e) { if (!e.message.includes('The Cluster is ONLINE')) throw e; print('Cluster is already ONLINE.'); }`
+            '-e', `try { dba.rebootClusterFromCompleteOutage('${clusterName.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}', {force: true}); } catch(e) { if (!e.message.includes('The Cluster is ONLINE')) throw e; print('Cluster is already ONLINE.'); }`
         ], { stdio: 'inherit' });
         console.log(`  Cluster reboot step completed`);
     } catch (e) {
