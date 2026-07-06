@@ -135,7 +135,7 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field (\`null\` when no primary exists, never absent). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist. Note: This tool does NOT execute a switchover.`],
   ["codemode", `# Code Mode (\`mysql_execute_code\`)
 
-- **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 241 MySQL MCP tools via the global \`mysql.*\` API.
+- **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 200+ MySQL MCP tools via the global \`mysql.*\` API.
 - **Capabilities**: The sandbox allows you to script complex multi-step workflows, loops, logic, and data transformations natively on the server, saving 70-90% on token consumption compared to making individual MCP tool calls.
 - **API Access**: 
   - All tools are organized into groups on the \`mysql\` object (e.g., \`mysql.core.readQuery()\`, \`mysql.admin.optimizeTable()\`, \`mysql.json.extract()\`, \`mysql.shell.version()\`).

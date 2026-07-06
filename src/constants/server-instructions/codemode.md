@@ -1,6 +1,6 @@
 # Code Mode (`mysql_execute_code`)
 
-- **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 241 MySQL MCP tools via the global `mysql.*` API.
+- **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 200+ MySQL MCP tools via the global `mysql.*` API.
 - **Capabilities**: The sandbox allows you to script complex multi-step workflows, loops, logic, and data transformations natively on the server, saving 70-90% on token consumption compared to making individual MCP tool calls.
 - **API Access**: 
   - All tools are organized into groups on the `mysql` object (e.g., `mysql.core.readQuery()`, `mysql.admin.optimizeTable()`, `mysql.json.extract()`, `mysql.shell.version()`).

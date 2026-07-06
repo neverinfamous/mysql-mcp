@@ -1,24 +1,13 @@
 services:
   mysql-mcp:
-    image: writenotenow/mysql-mcp:latest
+    image: neverinfamous/mysql-mcp:latest
     ports:
       - "3000:3000"
     command:
       - --transport
       - http
-      - --allowed-io-roots
-      - /tmp/mcp-sandbox
-      - --audit-log
-      - /data/audit.jsonl
-    environment:
-      - MCP_AUTH_TOKEN=your-secure-token # Required for HTTP mode
-      - MYSQL_HOST=mysql
-      - MYSQL_USER=mcp_user
-      - MYSQL_PASSWORD=secure_password
-      - MYSQL_DATABASE=testdb
-      - MYSQL_POOL_SIZE=10
-      - MYSQLMCP_PORT=3000
-      - REDIS_URL=redis://redis:6379
+    env_file:
+      - .env # Copy .env.example to .env to configure
     volumes:
       - ./data:/data
     depends_on:

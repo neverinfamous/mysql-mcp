@@ -1,17 +1,18 @@
 # MySQL MCP Server
 
-[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/neverinfamous/mysql-mcp)](https://hub.docker.com/r/neverinfamous/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## 💎 Value Proposition
 
-- Build AI integrations instantly.
-- Empower agents with secure database access.
-- Execute complex logic via Code Mode.
-- Scale operations with robust connection pooling.
-- Leverage OAuth 2.1 for enterprise security.
+- ⚡ **Build AI Integrations Instantly:** Accelerate development with plug-and-play architecture.
+- 🛡️ **Enterprise-Grade Security:** Fortify your data with robust OAuth 2.1 authentication and strict access controls.
+- 🚀 **Blazing-Fast Code Mode:** Execute complex, sandboxed logic directly within the worker-thread for 70-90% token savings.
+- 📈 **Massive Scalability:** Scale operations effortlessly with high-performance connection pooling.
+- 🐳 **Production-Ready Docker:** Deploy seamlessly with comprehensive containerized environments.
+- 🧠 **Agent-Empowered Data:** Give autonomous agents zero-hallucination, secure database introspection.
 
 ## 🎯 Core Benefits
 
@@ -46,7 +47,7 @@
 #### Docker (Recommended)
 
 ```bash
-docker run -i --rm writenotenow/mysql-mcp:latest \
+docker run -i --rm neverinfamous/mysql-mcp:latest \
   --transport stdio \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
@@ -57,7 +58,7 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 ## ⚡ Maximize Efficiency with Code Mode
 
-Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
+Code Mode reduces token usage up to 90%. It is included by default.
 
 Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. We map all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
@@ -89,7 +90,7 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
         "-e", "MYSQL_PASSWORD=your_password",
         "-e", "MYSQL_DATABASE=your_database",
         "-e", "REDIS_URL=redis://localhost:6379",
-        "writenotenow/mysql-mcp:latest",
+        "neverinfamous/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -124,7 +125,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "run",
         "-i",
         "--rm",
-        "writenotenow/mysql-mcp:latest",
+        "neverinfamous/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--mysql",
@@ -146,7 +147,13 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "run",
         "-i",
         "--rm",
-        "writenotenow/mysql-mcp:latest",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "-e", "MYSQL_XPORT",
+        "neverinfamous/mysql-mcp:latest",
         "--transport",
         "stdio"
       ],
@@ -180,8 +187,8 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ```bash
 docker run --rm -p 3000:3000 \
-  writenotenow/mysql-mcp:latest \
-  --transport http --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
+  neverinfamous/mysql-mcp:latest \
+  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
 ### Security Features & Utility Endpoints
@@ -239,7 +246,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
-| `--audit-log`             | —                       | Path to the audit log file                          |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |

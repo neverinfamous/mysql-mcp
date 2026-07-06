@@ -1,13 +1,12 @@
 {
   "mcpServers": {
     "user-mysql": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "/absolute/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio",
-        "--allowed-io-roots",
-        "C:/temp/mcp-sandbox,/tmp/mcp-sandbox"
+        "stdio"
       ],
       "env": {
         "MYSQL_HOST": "localhost",
@@ -22,7 +21,7 @@
         "MCP_ENABLE_HSTS": "false",
         "TRUST_PROXY": "false",
         "MCP_METRICS_EXPORT": "false",
-        "MCP_AUTH_TOKEN": "your-auth-token-here",
+        "MCP_AUTH_TOKEN": "your-secure-auth-token",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "MCP_REQUEST_TIMEOUT": "60000",
@@ -31,7 +30,7 @@
         "OAUTH_ENABLED": "false",
         "OAUTH_ISSUER": "https://auth.example.com",
         "OAUTH_AUDIENCE": "mysql-mcp-client",
-        "OAUTH_JWKS_URI": "",
+        "OAUTH_JWKS_URI": "https://auth.example.com/.well-known/jwks.json",
         "OAUTH_CLOCK_TOLERANCE": "60",
         "MYSQL_ROUTER_URL": "https://localhost:8443",
         "MYSQL_ROUTER_USER": "rest_api",

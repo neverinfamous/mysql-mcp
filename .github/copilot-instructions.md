@@ -13,7 +13,7 @@
 
 ## Project Overview
 
-mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 23 resources, and 19 prompts.
+mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 200+ tools and extensive resources.
 > **Architectural Rule:** Tool filtering skips MySQL connections when using only ecosystem tools (`router`, `proxysql`, `shell`).
 
 **Architecture & Capabilities**:
@@ -81,7 +81,7 @@ All tool handlers return structured error responses — never raw exceptions:
 }
 ```
 
-> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect 241 tools and current config flags.
+> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the 200+ tools and current config flags.
 > **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts not explicitly listed in the tool-reference or registered in `server/`.
 
 ## Architecture Rules (Recent Changes)
@@ -147,4 +147,4 @@ When reviewing PRs, check for:
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
-- [ ] Schema examples accurately reflect the 241 tool count and current configuration flags
+- [ ] Schema examples accurately reflect the 200+ tool count and current configuration flags

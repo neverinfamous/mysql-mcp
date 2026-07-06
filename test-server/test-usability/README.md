@@ -1,6 +1,6 @@
 # Agent Usability & Hallucination Testing
 
-[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
 [![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>

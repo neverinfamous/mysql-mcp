@@ -2,18 +2,19 @@
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
-[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
+[![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/neverinfamous/mysql-mcp)](https://hub.docker.com/r/neverinfamous/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## 💎 Value Proposition
 
-- Build AI integrations instantly.
-- Empower agents with secure database access.
-- Execute complex logic via Code Mode.
-- Scale operations with robust connection pooling.
-- Leverage OAuth 2.1 for enterprise security.
+- ⚡ **Build AI Integrations Instantly:** Accelerate development with plug-and-play architecture.
+- 🛡️ **Enterprise-Grade Security:** Fortify your data with robust OAuth 2.1 authentication and strict access controls.
+- 🚀 **Blazing-Fast Code Mode:** Execute complex, sandboxed logic directly within the worker-thread for 70-90% token savings.
+- 📈 **Massive Scalability:** Scale operations effortlessly with high-performance connection pooling.
+- 🐳 **Production-Ready Docker:** Deploy seamlessly with comprehensive containerized environments.
+- 🧠 **Agent-Empowered Data:** Give autonomous agents zero-hallucination, secure database introspection.
 
 ## 🎯 Core Benefits
 
@@ -68,7 +69,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@loc
 #### Docker
 
 ```bash
-docker run -i --rm writenotenow/mysql-mcp:latest \
+docker run -i --rm neverinfamous/mysql-mcp:latest \
   --transport stdio \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
@@ -147,6 +148,7 @@ Use the HTTP transport for remote access:
 ```bash
 node dist/cli.js \
   --transport http \
+  --server-host 0.0.0.0 \
   --port 3000 \
   --mysql "mysql://user:pass@localhost:3306/db"
 ```
@@ -155,8 +157,8 @@ node dist/cli.js \
 
 ```bash
 docker run --rm -p 3000:3000 \
-  writenotenow/mysql-mcp:latest \
-  --transport http --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
+  neverinfamous/mysql-mcp:latest \
+  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
 The server supports **two MCP transport protocols simultaneously**. Both modern and legacy clients can connect:
@@ -180,7 +182,7 @@ Sessions are managed via the `Mcp-Session-Id` header.
 Use stateless deployments where sessions are not needed:
 
 ```bash
-node dist/cli.js --transport http --port 3000 --stateless --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --stateless --mysql "mysql://..."
 ```
 
 In stateless mode: `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
@@ -209,11 +211,11 @@ mysql-mcp supports two authentication mechanisms for HTTP transport:
 Use lightweight authentication for development:
 
 ```bash
-node dist/cli.js --transport http --port 3000 --auth-token my-secret --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --auth-token my-secret --mysql "mysql://..."
 
 # Or via environment variable
 export MCP_AUTH_TOKEN=my-secret
-node dist/cli.js --transport http --port 3000 --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://..."
 ```
 
 Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401` with `WWW-Authenticate: Bearer` headers per RFC 6750.
@@ -225,6 +227,7 @@ Use full OAuth 2.1 for production deployments:
 ```bash
 node dist/cli.js \
   --transport http \
+  --server-host 0.0.0.0 \
   --port 3000 \
   --mysql "mysql://user:pass@localhost:3306/db" \
   --oauth-enabled \
@@ -345,7 +348,7 @@ docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:
 Run MCP server on the same network:
 
 ```bash
-docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
+docker run -i --rm --network mynet neverinfamous/mysql-mcp:latest \
   --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
 ```
 
