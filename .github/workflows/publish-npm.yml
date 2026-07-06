@@ -16,6 +16,10 @@ on:
         type: boolean
         required: true
         default: false
+      bypass_reason:
+        description: 'Justification for bypassing upstream safety gates (required when emergency_bypass is true)'
+        required: false
+        default: ''
 
 permissions:
   contents: read
@@ -29,12 +33,20 @@ jobs:
       url: https://www.npmjs.com/package/@neverinfamous/mysql-mcp
 
     steps:
-      - name: Verify emergency bypass
-        if: github.event_name == 'workflow_dispatch' && inputs.emergency_bypass != true
+      - name: Require emergency bypass acknowledgment
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
-          echo "To proceed, you must explicitly check the 'emergency_bypass' option."
-          exit 1
+          if [ "${{ inputs.emergency_bypass }}" != "true" ]; then
+            echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
+            echo "To proceed, you must explicitly check the 'emergency_bypass' option."
+            exit 1
+          fi
+          if [ -z "${{ inputs.bypass_reason }}" ]; then
+            echo "❌ Error: Emergency bypass requires a justification reason."
+            exit 1
+          fi
+          echo "⚠️ Emergency Bypass Acknowledged"
+          echo "Justification: ${{ inputs.bypass_reason }}"
 
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -84,6 +96,8 @@ jobs:
         run: pnpm run build
 
       - name: Publish to NPM
+        # Note: tests and QA gates are expected to be run by the caller (gatekeeper.yml)
+        # on the workflow_call path. The emergency path skips them.
         run: pnpm publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
