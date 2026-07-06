@@ -14,7 +14,7 @@
 ## Project Overview
 
 mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 200+ tools and extensive resources.
-> **Architectural Rule:** Tool filtering skips MySQL connections when using only ecosystem tools (`router`, `proxysql`, `shell`).
+> **Architectural Rule:** Tool filtering skips MySQL connections when using exclusively router, proxysql, or shell tools.
 
 **Architecture & Capabilities**:
 - **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).

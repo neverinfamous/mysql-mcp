@@ -166,14 +166,14 @@ The Dockerfile patches npm-bundled transitive dependencies for Docker Scout comp
 
 ```bash
 # Secure volume mounting
-docker run -v ./data:/app/data:rw,noexec,nosuid,nodev writenotenow/mysql-mcp:latest
+docker run -v ./data:/app/data:rw,noexec,nosuid,nodev neverinfamous/mysql-mcp:latest
 ```
 
 ### Apply Resource Limits
 
 ```bash
 # Apply resource limits
-docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
+docker run --memory=1g --cpus=1 neverinfamous/mysql-mcp:latest
 ```
 
 ## 🔐 **Secure Your Logs**
@@ -214,8 +214,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 6. **Configure CORS origins explicitly** — avoid wildcards
 7. **Use resource limits** — apply Docker `--memory` and `--cpus` limits
 8. **Apply rate limiting at the proxy layer** when deploying behind a reverse proxy
-9. **For cloud-managed databases** with IAM authentication (e.g., AWS RDS), set `MYSQL_POOL_MIN=2` to reduce connection establishment latency
-10. **Consider SHA-pinning** critical GitHub Actions in CI workflows for supply-chain defense-in-depth
+9. **Consider SHA-pinning** critical GitHub Actions in CI workflows for supply-chain defense-in-depth
 
 ### Best Practices for Developers
 

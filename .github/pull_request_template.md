@@ -1,3 +1,11 @@
+## Value Proposition
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
+
 ## Description
 
 Provide a brief, clear description of the changes.

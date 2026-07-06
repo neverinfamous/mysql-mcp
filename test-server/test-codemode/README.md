@@ -2,7 +2,7 @@
 
 [![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-53-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)

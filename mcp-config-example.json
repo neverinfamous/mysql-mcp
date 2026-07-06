@@ -1,6 +1,6 @@
 {
   "mcpServers": {
-    "user-mysql": {
+    "mysql-mcp": {
       "command": "npx",
       "args": [
         "-y",
@@ -16,7 +16,6 @@
         "MYSQL_DATABASE": "testdb",
         "MYSQL_POOL_SIZE": "10",
         "TOOL_FILTER": "starter",
-        "MYSQLMCP_PORT": "3000",
         "MCP_HOST": "127.0.0.1",
         "MCP_ENABLE_HSTS": "false",
         "TRUST_PROXY": "false",

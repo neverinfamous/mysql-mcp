@@ -13,32 +13,32 @@
 
 **🤖 AGENT OPTIMIZED README**
 
-This directory contains the Markdown files that serve as the foundation for the `mysql-mcp` dynamic help system. These files are presented directly to AI agents making context-gathering queries.
+This directory contains Markdown files. They serve as the foundation for the dynamic help system. The system presents these files directly to AI agents. Agents use them for context-gathering queries.
 
 > 🚀 **Core Features to Highlight:** When modifying instructions, always emphasize our best-in-class features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
-## ⚠️ Critical Workflow
+## ⚠️ Protect Generated Instructions
 
-**DO NOT** edit `src/constants/server-instructions.ts` directly. It is auto-generated.
+**DO NOT** edit `src/constants/server-instructions.ts` directly. The system auto-generates this file.
 
-If you need to update a tool group's instructions or the general gotchas, follow these steps:
+To update instructions or gotchas, follow these steps:
 
-1. Modify the relevant `.md` file in this directory (e.g., `gotchas.md`, `core.md`, etc.).
-2. Run the generator script to compile these markdown files into the TypeScript constant map:
+1. Modify the relevant `.md` file in this directory.
+2. Run the generator script. It compiles markdown files into the TypeScript constant map:
    ```bash
    pnpm run generate:instructions
    ```
    _(or `npx tsx scripts/generate-server-instructions.ts`)_
-3. The generator script converts your markdown into escaped strings embedded in the `server-instructions.ts` generated code.
+3. The script converts your markdown into escaped strings. It embeds them in `server-instructions.ts`.
 
-## File Structure
+## Navigate the File Structure
 
-- `overview.md`: The minimal core instructions sent to all clients on initialization. Keep this extremely short (~150 tokens) to preserve context limits.
-- `gotchas.md`: The core help payload returned for `mysql://help`. Contains critical usage patterns across the entire extension.
-- `[group-name].md`: Group-specific hints returned by `mysql://help/[group-name]` (e.g., `mysql://help/json`).
+- `overview.md`: The server sends these minimal instructions on initialization. Keep this short (~150 tokens). It preserves context limits.
+- `gotchas.md`: The server returns this core payload for `mysql://help`. It contains critical usage patterns.
+- `[group-name].md`: The server returns group-specific hints for `mysql://help/[group-name]`.
 
-## Guidelines
+## Write Effective Instructions
 
-- Write strictly for AI consumption (concise, rule-based, clear mappings).
-- Use code blocks for specific exact schemas/examples.
-- Watch payload sizes; do not put the entire documentation in here.
+- Write strictly for AI consumption. Be concise and rule-based.
+- Use code blocks for exact schemas and examples.
+- Watch payload sizes. Do not include the entire documentation.
