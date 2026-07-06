@@ -120,9 +120,9 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 > **Reverse Proxy Note:** Rate limiting uses `req.socket.remoteAddress`. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. Ensure your proxy forwards distinct client IPs, or apply rate limiting at the proxy layer instead.
 
-### **Request Size Limits**
+### **Request Limits**
 
-- ✅ **Configurable body limit** via `maxBodySize` (default: 1 MB) — prevents memory exhaustion DoS
+- ✅ **Memory Exhaustion Protection** — Strict request bounds prevent memory exhaustion DoS
 
 ## 🔑 **Authentication (OAuth 2.1)**
 
@@ -241,7 +241,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Code Mode execution timeout (30s hard limit)
 - [x] Code Mode rate limiting (60 executions/min, Redis-backed with in-memory fallback)
 - [x] Code Mode audit logging
-- [x] HTTP body size limit (configurable, default 1 MB)
+- [x] HTTP bounds limits
 - [x] Configurable CORS with origin whitelist
 - [x] Rate limiting (100 req/min per IP, Redis-backed with in-memory fallback)
 - [x] Slowloris DoS timeouts (`MCP_REQUEST_TIMEOUT`, `MCP_HEADERS_TIMEOUT`)

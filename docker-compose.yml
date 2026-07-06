@@ -6,16 +6,17 @@ services:
     command:
       - --transport
       - http
-      - --port
-      - "3000"
       - --allowed-io-roots
       - /data
       - --audit-log
       - /data/audit.jsonl
-      - --mysql
-      - mysql://root:password@mysql:3306/testdb
     environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=password
+      - MYSQL_DATABASE=testdb
       - MYSQL_POOL_SIZE=20
+      - MYSQLMCP_PORT=3000
     volumes:
       - ./data:/data
     depends_on:

@@ -7,11 +7,11 @@
 
 ## 💎 Value Proposition
 
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 ## 🎯 Core Benefits
 
@@ -244,7 +244,6 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 | —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
-| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes             |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 

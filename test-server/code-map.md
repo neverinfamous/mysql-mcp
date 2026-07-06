@@ -10,11 +10,12 @@
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 ## Value Proposition
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
@@ -261,7 +262,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 | URI                    | Source                                           | Content                                                |
 | ---------------------- | ------------------------------------------------ | ------------------------------------------------------ |
-| `mysql://help`         | `server-instructions/overview.md` + `gotchas.md` | Gotchas, aliases, Code Mode API — always available     |
+| `mysql://help`         | `gotchas.md`                                     | Critical gotchas, parameter aliases, and API reference |
 | `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
 
 28 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
@@ -412,7 +413,7 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
-| `test-server/scripts/standardize-prompts.js`| Script to rebuild all 174 test prompts using the standard template    |
+| `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
 | `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
 | `test-server/test-resources.md`             | Resource testing plan (23 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |

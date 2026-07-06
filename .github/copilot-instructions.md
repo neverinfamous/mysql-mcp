@@ -4,11 +4,12 @@
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Value Proposition
-**Build AI integrations instantly.**
-**Empower agents with secure database access.**
-**Execute complex logic via Code Mode.**
-**Scale operations with robust connection pooling.**
-**Leverage OAuth 2.1 for enterprise security.**
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 ## Project Overview
 
@@ -18,7 +19,6 @@ mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 
 **Architecture & Capabilities**:
 - **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).
 - **Cache**: `METADATA_CACHE_TTL_MS` is the cache TTL (default 30000).
-- **Payload**: `CODE_MODE_MAX_RESULT_SIZE` sets max result payload (default 102400).
 - **Transports**: It supports `stdio`, streamable `http`, and legacy `sse`.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
 - **Audit Logging**: Maintain strict security with comprehensive audit trails.
@@ -89,8 +89,7 @@ All tool handlers return structured error responses — never raw exceptions:
 Ensure PRs adhere to these recent SSoT architectural rules:
 - **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
 - `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
-- `CODE_MODE_MAX_RESULT_SIZE` strictly caps payload at 100KB (default 102400).
-- Supports dual streamable HTTP + SSE transports.
+- Supports `stdio`, streamable `http`, and legacy `sse` transports.
 - Ensure mask data alias validation at the MCP boundary.
 - Audit tool requires at least one filter to prevent bloat.
 

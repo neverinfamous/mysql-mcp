@@ -4,11 +4,12 @@
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 ## Value Proposition
-**Build AI integrations instantly.**
-**Empower agents with secure database access.**
-**Execute complex logic via Code Mode.**
-**Scale operations with robust connection pooling.**
-**Leverage OAuth 2.1 for enterprise security.**
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 **🤖 AGENT OPTIMIZED README**
 

@@ -9,11 +9,11 @@
 
 ## 💎 Value Proposition
 
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 ## 🎯 Core Benefits
 
@@ -682,7 +682,6 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | --------------------------- | -------- | ------------------------------------------------------------------- |
 | `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
 | `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warning`, `error`                  |
-| `CODE_MODE_MAX_RESULT_SIZE` | `102400` | Maximum Code Mode result payload in bytes (default 100KB, cap 50MB) |
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
@@ -742,12 +741,9 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
 | —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
-| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes             |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
-| `--max-body-size`         | `MAX_BODY_SIZE`         | Maximum HTTP request body size in bytes             |
-| —                         | `CODE_MODE_TIMEOUT_MS`  | Code Mode execution hard timeout in ms              |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
