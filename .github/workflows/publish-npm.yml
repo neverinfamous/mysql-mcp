@@ -8,6 +8,11 @@ on:
         description: "Version to publish (must match VERSION file or package.json)"
         required: false
         default: ""
+      emergency_bypass:
+        description: 'Bypass upstream gatekeeper checks (EMERGENCY ONLY)'
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -21,6 +26,13 @@ jobs:
       url: https://www.npmjs.com/package/@neverinfamous/mysql-mcp
 
     steps:
+      - name: Verify emergency bypass
+        if: github.event_name == 'workflow_dispatch' && inputs.emergency_bypass != true
+        run: |
+          echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
+          echo "To proceed, you must explicitly check the 'emergency_bypass' option."
+          exit 1
+
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 

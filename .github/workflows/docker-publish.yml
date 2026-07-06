@@ -3,6 +3,12 @@ name: Build and Push Docker Images
 on:
   workflow_call:
   workflow_dispatch:
+    inputs:
+      emergency_bypass:
+        description: 'Bypass upstream gatekeeper checks (EMERGENCY ONLY)'
+        type: boolean
+        required: true
+        default: false
 
 env:
   REGISTRY: docker.io
@@ -12,7 +18,6 @@ permissions:
   contents: read
   packages: write
   security-events: write
-  pull-requests: write
   id-token: write
   attestations: write
 
@@ -26,6 +31,13 @@ jobs:
       security-events: write
 
     steps:
+      - name: Verify emergency bypass
+        if: github.event_name == 'workflow_dispatch' && inputs.emergency_bypass != true
+        run: |
+          echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
+          echo "To proceed, you must explicitly check the 'emergency_bypass' option."
+          exit 1
+
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
@@ -146,7 +158,7 @@ jobs:
           push: false
           load: true
           tags: smoke-test:latest
-          cache-from: type=gha,scope=smoke-test
+          cache-from: type=gha,scope=linux/amd64
           cache-to: type=gha,scope=smoke-test,mode=max
 
       - name: Smoke test — binary loads without crash
@@ -280,7 +292,7 @@ jobs:
       deployments: write
 
     environment:
-      name: ${{ github.ref == 'refs/heads/main' && 'production' || '' }}
+      name: ${{ startsWith(github.ref, 'refs/tags/v') && 'production' || '' }}
       url: https://hub.docker.com/r/writenotenow/mysql-mcp
 
     steps:
