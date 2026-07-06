@@ -1,6 +1,6 @@
 # Contributing to mysql-mcp
 
-Thank you for your interest in contributing to mysql-mcp! This project is built by developers, for developers, and we welcome contributions that make the MySQL MCP experience better for everyone.
+Thank you for your interest in contributing to mysql-mcp! We welcome your contributions.
 
 ## 🚀 Quick Start
 

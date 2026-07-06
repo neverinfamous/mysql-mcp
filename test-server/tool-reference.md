@@ -19,12 +19,12 @@
 
 Complete list of all **200+ tools** across groups.
 >
-> 🚀 **Core Features:** Enjoy enterprise-grade capabilities like **OAuth 2.1** for robust security, **Code Mode** for execution speed, and advanced **Connection Pooling** for performance.
+> 🚀 **Core Features:** Enjoy enterprise-grade capabilities. Use **OAuth 2.1** for robust security. Use **Code Mode** for execution speed. Rely on advanced **Connection Pooling** for performance.
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
 
 ---
 
-## Core Database (12 tools)
+## Query Core Database (12 tools)
 
 | Tool                   | Description                           |
 | ---------------------- | ------------------------------------- |
@@ -43,7 +43,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Schema Management (11 tools)
+## Manage Schemas (11 tools)
 
 | Tool                           | Description                  |
 | ------------------------------ | ---------------------------- |
@@ -61,7 +61,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Transactions (7 tools)
+## Handle Transactions (7 tools)
 
 | Tool                            | Description                            |
 | ------------------------------- | -------------------------------------- |
@@ -75,7 +75,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## JSON Operations (17 tools)
+## Perform JSON Operations (17 tools)
 
 | Tool                       | Description                            |
 | -------------------------- | -------------------------------------- |
@@ -99,7 +99,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Document Store (9 tools)
+## Utilize Document Store (9 tools)
 
 > Treat MySQL like a NoSQL document database (MySQL 5.7+).
 
@@ -117,7 +117,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Text Processing (6 tools)
+## Process Text (6 tools)
 
 | Tool                      | Description               |
 | ------------------------- | ------------------------- |
@@ -130,7 +130,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## FULLTEXT Search (5 tools)
+## Execute FULLTEXT Search (5 tools)
 
 | Tool                     | Description                                                       |
 | ------------------------ | ----------------------------------------------------------------- |
@@ -142,7 +142,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Spatial / GIS (12 tools)
+## Analyze Spatial / GIS (12 tools)
 
 | Tool                            | Description                        |
 | ------------------------------- | ---------------------------------- |
@@ -161,7 +161,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Statistics (20 tools)
+## Calculate Statistics (20 tools)
 
 | Tool                        | Description                           |
 | --------------------------- | ------------------------------------- |
@@ -188,7 +188,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Performance (11 tools)
+## Monitor Performance (11 tools)
 
 | Tool                            | Description                                                           |
 | ------------------------------- | --------------------------------------------------------------------- |
@@ -206,7 +206,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Optimization (4 tools)
+## Optimize Queries (4 tools)
 
 | Tool                         | Description                                        |
 | ---------------------------- | -------------------------------------------------- |
@@ -217,7 +217,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Admin (9 tools)
+## Perform Admin Tasks (9 tools)
 
 | Tool                   | Description              |
 | ---------------------- | ------------------------ |
@@ -233,7 +233,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Security (9 tools)
+## Enforce Security (9 tools)
 
 | Tool                               | Description                                        |
 | ---------------------------------- | -------------------------------------------------- |
@@ -249,7 +249,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Roles (8 tools)
+## Manage Roles (8 tools)
 
 > MySQL 8.0+ Role Management
 
@@ -266,7 +266,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Monitoring (7 tools)
+## Observe Monitoring (7 tools)
 
 | Tool                       | Description                                         |
 | -------------------------- | --------------------------------------------------- |
@@ -280,7 +280,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## sys Schema (8 tools)
+## Analyze sys Schema (8 tools)
 
 | Tool                          | Description                 |
 | ----------------------------- | --------------------------- |
@@ -295,7 +295,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Backup (7 tools)
+## Manage Backups (7 tools)
 
 | Tool                         | Description                                                         |
 | ---------------------------- | ------------------------------------------------------------------- |
@@ -309,7 +309,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Replication (5 tools)
+## Monitor Replication (5 tools)
 
 | Tool                    | Description               |
 | ----------------------- | ------------------------- |
@@ -321,7 +321,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Cluster (10 tools)
+## Manage Cluster (10 tools)
 
 > Group Replication / InnoDB Cluster
 
@@ -340,7 +340,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Partitioning (4 tools)
+## Handle Partitioning (4 tools)
 
 | Tool                         | Description           |
 | ---------------------------- | --------------------- |
@@ -351,7 +351,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Events (6 tools)
+## Manage Events (6 tools)
 
 > MySQL Event Scheduler
 
@@ -366,7 +366,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## MySQL Router (9 tools)
+## Configure MySQL Router (9 tools)
 
 > **Note:** Requires MySQL Router 8.0.17+ with REST API enabled. For InnoDB Cluster deployments, the cluster must be running for REST API authentication. See [[MySQL-Router]].
 
@@ -386,7 +386,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## ProxySQL (11 tools)
+## Configure ProxySQL (11 tools)
 
 > **Note:** Requires access to ProxySQL admin interface. See [[ProxySQL]].
 
@@ -406,7 +406,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## MySQL Shell (10 tools)
+## Utilize MySQL Shell (10 tools)
 
 > **Note:** Requires MySQL Shell 8.0+ installed. See [[MySQL-Shell]].
 
@@ -425,7 +425,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Vector (11 tools)
+## Manage Vector Embeddings (11 tools)
 
 > Vector embeddings, KNN search, and hybrid search (MySQL 9.0+)
 
@@ -445,7 +445,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Introspection (6 tools)
+## Introspect Schema (6 tools)
 
 > Pre-flight analysis, relationship mapping, and constraint validation tools to ensure schema modifications are safe.
 
@@ -460,7 +460,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Migration (6 tools)
+## Track Migrations (6 tools)
 
 > Integrated schema versioning and deployment tracker built directly into the MCP server.
 
@@ -475,7 +475,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## Code Mode (1 tool)
+## Execute Code Mode (1 tool)
 
 > Execute JavaScript in a worker-thread sandbox (separate V8 isolate). Access all MySQL tools via `mysql.*` API. See [[Code-Mode]] for full API documentation.
 
@@ -485,7 +485,7 @@ Complete list of all **200+ tools** across groups.
 
 ---
 
-## See Also
+## Review See Also
 
 - [[Tool-Filtering]] - Reduce tool count for IDE limits
 - [[Configuration]] - MCP client configuration

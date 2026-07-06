@@ -17,7 +17,7 @@
 - **Scale operations with robust connection pooling**.
 - **Leverage OAuth 2.1** for enterprise security.
 
-> **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
+> **Agent-optimized navigation reference.** Read this before searching the codebase. It covers directory layout and handler→tool mapping. It also covers type/schema locations, error hierarchy, and key constants.
 >
 > 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, **Code Mode**, and highly-optimized **Connection Pooling**.
 
@@ -25,7 +25,7 @@ Last updated: July 5, 2026
 
 ---
 
-## Directory Tree
+## Navigate Directory Tree
 
 ```
 src/
@@ -47,7 +47,7 @@ src/
 │       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
 │       ├── server.ts               # TransportType, McpServerConfig (port, host, toolFilter, metricsExport, name, allowedIoRoots, stateless, enableHSTS, trustProxy, authToken, auditConfig)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
-│       ├── errors.ts               # MySQLMcpError base + 11 subclasses (see § Error Classes)
+│       ├── errors.ts               # MySQLMcpError base + 12 subclasses (see § Error Classes)
 │       ├── error-types.ts          # ErrorCategory enum (9 categories), ErrorResponse interface, ErrorContext
 │       └── tools.ts                # ToolGroup, MetaGroup, RouterConfig, MySQLShellConfig,
 │                                   #   ToolFilterConfig, AdapterCapabilities, ToolDefinition,
@@ -137,7 +137,7 @@ src/
 
 ---
 
-## Handler → Tool Mapping
+## Map Handlers to Tools
 
 200+ tools across groups. Each handler file registers tools with `group` labels.
 
@@ -176,7 +176,7 @@ src/
 
 ---
 
-## Zod Schemas & Types
+## Locate Zod Schemas & Types
 
 mysql-mcp uses a decentralized schema architecture to maintain type safety and minimize bundle sizes:
 
@@ -187,7 +187,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ---
 
-## Prompts (`src/adapters/mysql/prompts/`)
+## Utilize Prompts (`src/adapters/mysql/prompts/`)
 
 19 AI-Powered Prompts across specialized workflow files:
 
@@ -218,7 +218,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ---
 
-## Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
+## Leverage Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
 
 23 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
 
@@ -269,7 +269,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ---
 
-## Error Class Hierarchy
+## Understand Error Class Hierarchy
 
 All errors extend `MySQLMcpError` (defined in `src/types/modules/errors.ts`). Every tool returns an enriched `ErrorResponse` via `formatHandlerError()` — never raw MCP exceptions. `ErrorCategory` enum and `ErrorResponse` interface defined in `src/types/modules/error-types.ts`.
 
@@ -344,7 +344,7 @@ try {
 
 ---
 
-## Key Constants & Config
+## Reference Key Constants & Config
 
 | What                               | Where                                     | Notes                                                                                                           |
 | ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
@@ -359,16 +359,16 @@ try {
 
 ---
 
-## Architecture Patterns (Quick Reference)
+## Understand Architecture Patterns
 
 | Pattern                     | Description                                                                                                                                                                                                                                                                                                                                                                            |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Structured Errors**       | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Uses `ErrorCategory` enum (9 categories) and `ErrorResponse` interface from `error-types.ts`. All tools (including complex domain tools like performance optimizations) explicitly trap errors to return `{ success: false }` rather than leaking MCP exceptions. |
+| **Structured Errors**       | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Uses `ErrorCategory` enum (9 categories) and `ErrorResponse` interface from `error-types.ts`. All tools explicitly trap errors to return `{ success: false }`. This prevents leaking MCP exceptions even for complex domain tools. |
 | **Adapter Pattern**         | `DatabaseAdapter` (abstract) → `MySQLAdapter`. Single adapter (no WASM/Native split).                                                                                                                                                                                                                                                                                                  |
 | **Schema Cache**            | `SchemaManager` caches table/column metadata with configurable TTL. Auto-invalidates on DDL.                                                                                                                                                                                                                                                                                           |
 | **Trace Pruning**           | `mysql_optimizer_trace` uses recursive `deepClean` to aggressively prune AST trace outputs, protecting the LLM from token exhaustion during complex query analysis.                                                                                                                                                                                                           |
 | **Connection Pool**         | `ConnectionPool` wraps mysql2/promise. Managed lifecycle with health checks. Supports `initializationSql` for per-connection session variable setup.                                                                                                                                                                                                                                   |
-| **Code Mode Bridge**        | Code execution (e.g., `mysql.*` API) runs inside a secure `isolated-vm` (for Local/Docker) or `@cloudflare/sandbox` (for Cloudflare) engine with no host IO access. Smart result proxies to prevent missing `await` and destructuring errors. `transformAutoReturn()` prepends `return` to last expression statement (Node REPL semantics).                                                                                                                                   |
+| **Code Mode Bridge**        | Code execution runs inside a secure engine with no host IO access. This uses `isolated-vm` locally or `@cloudflare/sandbox` on Cloudflare. Smart result proxies to prevent missing `await` and destructuring errors. `transformAutoReturn()` prepends `return` to last expression statement (Node REPL semantics).                                                                                                                                   |
 | **Tool Filtering**          | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. Supports meta-groups (`starter`, `dba-monitor`, etc.).                                                                                                                                                                                                                                     |
 | **Modular Schemas**         | All Zod schemas live in `adapters/mysql/schemas/` to keep bundle sizes optimized and isolate group dependencies.                                                                                                                                                                                                                                                                       |
 | **Dual-Schema Pattern**     | Tools use a plain `z.object()` Base schema for MCP parameter visibility. A `z.preprocess()` wrapper handles parsing. This supports aliases without breaking JSON Schema generation. |
@@ -378,11 +378,11 @@ try {
 | **OAuth Scope Enforcement** | Per-tool scope enforcement on `tools/call` JSON-RPC requests. Both Streamable HTTP (`/mcp`) and Legacy SSE (`/messages`) transports intercept and validate `requireToolScope`. Uses `scope-map.ts` for O(1) tool→scope lookup.                                                                                                                                                         |
 | **Admin Maintenance**       | `optimize_table`, `analyze_table`, `check_table`, `repair_table` use `rawQuery` (not `executeQuery`) to avoid prepared-statement corruption of multi-result-set DDL responses. `extractMaintenanceError()` parses domain errors from multi-row results.                                                                                                                                |
 | **Audit Observability**     | `AuditInterceptor` wraps all tool handlers (scope-based filtering, tokenEstimate, redaction). `AuditLogger` writes JSONL with buffered flush + rotation. `BackupManager` captures DDL/data snapshots before destructive ops. `getAuditInterceptor()` exposes interceptor to Code Mode bridge for 100% sandbox audit coverage. Activated via `--audit-log`, `--audit-backup` CLI flags. |
-| **Skill Injection**         | AI prompts that generate SQL dynamically inject a directive referencing the `mysql` agent skill via the `MYSQL_SKILL_PATH` environment variable. This ensures consuming agents strictly adhere to production rules (e.g., parameterization, connection pooling). |
+| **Skill Injection**         | AI prompts generating SQL dynamically inject a directive. This references the `mysql` agent skill via the `MYSQL_SKILL_PATH` environment variable. This ensures consuming agents strictly adhere to production rules (e.g., parameterization, connection pooling). |
 
 ---
 
-## Import Path Conventions
+## Follow Import Path Conventions
 
 - All imports use **`.js` extension** (ESM requirement): `import { x } from "./foo/index.js"`
 - Error classes: import from `../../types/index.js` (barrel re-export)
@@ -390,7 +390,7 @@ try {
 
 ---
 
-## Test Infrastructure
+## Utilize Test Infrastructure
 
 | File / Directory                            | Purpose                                                              |
 | ------------------------------------------- | -------------------------------------------------------------------- |

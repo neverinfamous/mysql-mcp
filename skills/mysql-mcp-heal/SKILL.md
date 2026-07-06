@@ -39,7 +39,7 @@ Explicitly instruct the agent to prevent hallucinations. Use the tools list or i
 
 ### Layer 2: Heal Parameter Normalization
 
-If agents consistently hallucinate inputs that can be logically inferred or normalized, heal them silently via `z.preprocess()` wrappers or positional params (implementing the Dual-Schema Pattern).
+If agents consistently hallucinate inputs, see if they can be logically inferred or normalized. If so, heal them silently via `z.preprocess()` wrappers or positional params. This implements the Dual-Schema Pattern.
 
 * **Parameter Aliases:** If agents pass `tableName` instead of `table`, use the `preprocess-utils.ts` alias resolver to automatically map the keys.
 * **Type Coercion:** If agents pass strings (e.g., `limit: "50"`) instead of numbers, use `coerceNumber` or similar in Zod to heal it before validation throws.

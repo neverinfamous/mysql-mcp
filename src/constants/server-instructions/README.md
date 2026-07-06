@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-## 💎 Value Proposition
+## 💎 Leverage Our Value Proposition
 
 - **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
 - **Build AI integrations instantly**.
@@ -17,7 +17,7 @@ This directory contains Markdown files. They serve as the foundation for the dyn
 
 > 🚀 **Core Features to Highlight:** When modifying instructions, always emphasize our best-in-class features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
-## ⚠️ Protect Generated Instructions
+## ⚠️ Protect Generated Instructions for System Stability
 
 **DO NOT** edit `src/constants/server-instructions.ts` directly. The system auto-generates this file.
 
@@ -31,13 +31,13 @@ To update instructions or gotchas, follow these steps:
    _(or `npx tsx scripts/generate-server-instructions.ts`)_
 3. The script converts your markdown into escaped strings. It embeds them in `server-instructions.ts`.
 
-## Navigate the File Structure
+## Navigate the File Structure for Rapid Context
 
 - `overview.md`: The server sends these minimal instructions on initialization. Keep this short (~150 tokens). It preserves context limits.
 - `gotchas.md`: The server returns this core payload for `mysql://help`. It contains critical usage patterns.
 - `[group-name].md`: The server returns group-specific hints for `mysql://help/[group-name]`.
 
-## Write Effective Instructions
+## Write Effective Instructions to Empower AI Agents
 
 - Write strictly for AI consumption. Be concise and rule-based.
 - Use code blocks for exact schemas and examples.

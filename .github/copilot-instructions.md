@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-## 💎 Value Proposition
+## 💎 Deliver the Value Proposition
 
 - **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
 - **Build AI integrations instantly**.
@@ -11,7 +11,7 @@
 - **Scale operations with robust connection pooling**.
 - **Leverage OAuth 2.1** for enterprise security.
 
-## Project Overview
+## Review the Project Overview
 
 mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 200+ tools and extensive resources.
 > **Architectural Rule:** Tool filtering skips MySQL connections when using exclusively router, proxysql, or shell tools.
@@ -30,9 +30,9 @@ mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 
   - Require at least one filter for audit tool to prevent payload bloat.
 - **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
 
-## Session Context
+## Utilize Session Context
 
-Before starting work on this project, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server for real-time context:
+Before starting work on this project, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. This provides real-time context:
 
 - **Recent journal entries** — what was just worked on by the development agent
 - **GitHub status** — open issues, PRs, CI status, milestones
@@ -43,20 +43,20 @@ For detailed session handoff context, search for entries tagged `session-summary
 
 Log review issues using `create_entry` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
 
-## Coding Standards
+## Enforce Coding Standards
 
-### Naming
+### Format Names Correctly
 
 - **Files and folders**: Always kebab-case (`schema-manager.ts`, `tool-filter.ts`)
 - **Never** PascalCase or camelCase for filenames
 
-### Modularity
+### Maintain Modularity
 
 - **File size limit**: Source files stay under ~500 lines
 - **Split pattern**: `foo.ts` → `foo/` directory with sub-modules + `foo/index.ts` barrel re-export
 - **Logical grouping**: Split by functional cohesion, not arbitrary line counts
 
-### Type Safety
+### Ensure Type Safety
 
 - **Strict TypeScript** — `tsconfig.json` enforces strict mode
 - **Never use `eslint-disable`** to evade standards
@@ -66,7 +66,7 @@ Log review issues using `create_entry` with the `copilot-finding` tag. Agents re
 - **Zod schemas** for all tool input validation at system boundaries
 - **Union types over enums** — use `type Status = "active" | "inactive"` instead of `enum`
 
-### Error Handling
+### Implement Error Handling
 
 All tool handlers return structured error responses — never raw exceptions:
 
@@ -82,9 +82,9 @@ All tool handlers return structured error responses — never raw exceptions:
 ```
 
 > **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the 200+ tools and current config flags.
-> **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts not explicitly listed in the tool-reference or registered in `server/`.
+> **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts. They must be explicitly listed in the tool-reference or registered in `server/`.
 
-## Architecture Rules (Recent Changes)
+## Apply Architecture Rules (Recent Changes)
 
 Ensure PRs adhere to these recent SSoT architectural rules:
 - **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
@@ -93,7 +93,7 @@ Ensure PRs adhere to these recent SSoT architectural rules:
 - Ensure mask data alias validation at the MCP boundary.
 - Audit tool requires at least one filter to prevent bloat.
 
-## Architecture
+## Navigate the Architecture
 
 ```
 src/
@@ -117,7 +117,7 @@ src/
 └── utils/                      # Logger, error helpers, utilities
 ```
 
-## Key Reference Files
+## Consult Key Reference Files
 
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
@@ -127,7 +127,7 @@ src/
 | `DOCKER_README.md`              | Docker Hub documentation            |
 
 
-## Review Checklist
+## Complete the Review Checklist
 
 When reviewing PRs, check for:
 
@@ -136,7 +136,7 @@ When reviewing PRs, check for:
 - [ ] `@ts-ignore` or `as any` — always forbidden
 - [ ] Raw exceptions from tool handlers — must use structured error responses
 - [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
-- [ ] 200+ tools clearly referenced and updated in any markdown list if tools were added/removed
+- [ ] Update the 200+ tools count in markdown lists if tools are added/removed.
 - [ ] Files approaching 500 lines — flag for splitting
 - [ ] New tools missing from tool filtering configuration
 - [ ] Missing Zod schemas on new tools
@@ -144,7 +144,7 @@ When reviewing PRs, check for:
 - [ ] `continue-on-error: true` in workflow files — forbidden per project standards
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Market value proposition blocks prominent in README (ensure strict compliance with exact Value Proposition text)
+- [ ] Display value proposition blocks prominently in README. Ensure strict compliance with exact text.
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`

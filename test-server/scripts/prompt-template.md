@@ -27,12 +27,22 @@
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
-> **Anti-Hallucination Guardrails:** You must maintain a `task.md` checklist, use `list_dir` before accessing directories, and immediately halt on `FAILED_FILE_NOT_FOUND` errors rather than autonomously retrying.
+> **Anti-Hallucination Guardrails:**
+> - Maintain a `task.md` checklist.
+> - Use `list_dir` before accessing directories.
+> - Halt on `FAILED_FILE_NOT_FOUND` errors immediately.
+> - Do not autonomously retry on missing files.
 
-> **Note**: If temp tables are present from a previous test pass, it's because the database is locked. Ignore them. Use existing `test_*` tables for read operations.
+> **Note**:
+> - Temp tables indicate a locked database.
+> - Ignore temp tables.
+> - Use existing `test_*` tables for reads.
 
 > [!IMPORTANT]
-> **Core Features & Config**: When testing, keep in mind the server's core features: **OAuth 2.1, Code Mode, Connection Pooling**. Ensure your tests accommodate the latest architecture changes and any relevant flags (e.g., `--audit-log`, `--metrics-export`).
+> **Core Features & Config**:
+> - Remember core features: OAuth 2.1, Code Mode, Connection Pooling.
+> - Accommodate latest architecture changes in tests.
+> - Support relevant flags (`--audit-log`, `--metrics-export`).
 
 ### Reference the Test Schema
 
@@ -58,18 +68,43 @@
 ## Enforce Testing Standards
 
 > [!NOTE]
-> **Tool Availability & Code Mode**: The `mysql_execute_code` tool is globally injected and always available across all test groups for multi-step test logic or setup. However, if a test step requires a setup tool from a _different_ group (e.g., `mysql_write_query`) that is missing from the active MCP registry due to injection scoping, do not fail the group. Use `mysql_execute_code`, existing seed data, or backups if possible, note the missing tool as an expected ⚠️ finding, and proceed with testing.
+> **Tool Availability & Code Mode**:
+> - `mysql_execute_code` is globally injected.
+> - It is available across all test groups.
+> - Use it for multi-step test logic or setup.
+> - Do not fail groups for missing setup tools.
+> - Missing tools happen due to injection scoping.
+> - Use seed data or backups if possible.
+> - Note missing tools as an expected ⚠️ finding.
 
 > [!IMPORTANT]
-> **Testing Code Mode**: Do NOT write test scripts to the filesystem. Pass your JavaScript snippets directly to the `mysql_execute_code` tool's `code` parameter. Do NOT wrap your tests in monolithic `try/catch` blocks that suppress or transform the server's natural error output. You must allow the server to return its native structured error responses so you can evaluate them against the standards below.
+> **Testing Code Mode**:
+> - Do NOT write test scripts to the filesystem.
+> - Pass JavaScript directly to `code` parameter.
+> - Do NOT use monolithic `try/catch` blocks.
+> - Suppressing natural error output is forbidden.
+> - Evaluate native structured error responses against standards.
 
 > [!CAUTION]
-> **Code Mode Transaction Safety**: When testing transactions in Code Mode via `mysql.transactions.begin()`, you MUST pass the returned `transactionId` (or `txId`) to all subsequent query calls (e.g., `mysql.core.writeQuery({ sql: "...", txId })`) that are part of the transaction. If you omit it, Code Mode will check out a different connection from the pool, which will deadlock on any tables locked by your active transaction and permanently hang the server until it times out and crashes. Always ensure transactions are rolled back or committed in a `finally` block if errors occur.
+> **Code Mode Transaction Safety**:
+> - Pass `txId` to subsequent transaction queries.
+> - Omitting `txId` checks out a new connection.
+> - Missing `txId` causes deadlocks on locked tables.
+> - Deadlocks permanently hang the server until crash.
+> - Always rollback or commit in `finally` block.
 
 > [!CAUTION]
-> **Zero tolerance for raw MCP errors.** ANY response that is a raw MCP error (e.g., `-32602`, or a raw text string wrapped in `isError: true` with no `success` field) is a **bug that must be reported and fixed** — never an acceptable design choice, SDK limitation, or expected behavior. If you see one, report it as ❌ immediately. Do not rationalize it as "the SDK rejecting at the boundary" or "by design for range-constrained params." The handler MUST catch it.
+> **Zero tolerance for raw MCP errors**:
+> - Raw MCP errors are always bugs.
+> - Report them as ❌ immediately.
+> - Never accept them as SDK limitations.
+> - Never accept them as expected behavior.
+> - The handler MUST catch all errors.
 >
-> ⚠️ **ARCHITECTURAL NOTE — `isError: true` rules for tools with `outputSchema`**: The MCP SDK uses `isError` to decide whether to validate `structuredContent` against the `outputSchema`. Getting this wrong causes either raw `-32602` crashes or valid responses wrapped in error frames. **This is now handled automatically by the server framework in `tools.ts`**, but as a tester, you must verify the SDK output matches this rule:
+> ⚠️ **ARCHITECTURAL NOTE**:
+> - `isError` dictates `outputSchema` validation.
+> - Wrong usage causes raw `-32602` crashes.
+> - Verify SDK output matches rules below.
 >
 > | Response         | `isError: true` | SDK behavior                                              | Verdict                                |
 > | ---------------- | --------------- | --------------------------------------------------------- | -------------------------------------- |
@@ -78,13 +113,22 @@
 > | `success: false` | **Present**     | Skips validation (error shape won't match success schema) | ✅ Correct                             |
 > | `success: false` | **Absent**      | Validates error against success schema → fails            | ❌ Bug — raw `-32602`                  |
 >
-> **TL;DR**: `isError: true` on errors, absent on successes. The framework handles this automatically when your handler returns `success: false`.
+> **TL;DR**:
+> - Use `isError: true` on errors.
+> - Omit `isError` on successes.
+> - Framework handles this for `success: false`.
 
 > [!TIP]
-> **Zod Validation & Safe Parsing**: When evaluating schema boundaries and input validation errors, refer to the `/zod` skill for best practices on Standard Schema, `safeParse()`, and ensuring Zod errors are structurally wrapped by the handler rather than leaked to the MCP client.
+> **Zod Validation & Safe Parsing**:
+> - Read `/zod` skill for best practices.
+> - Wrap Zod errors structurally in handlers.
+> - Do not leak errors to MCP client.
 
 > [!TIP]
-> **MySQL Standards**: When constructing queries, evaluating schemas, or interacting with the database, refer to the `/mysql` skill for production standards on query safety, parameterization, and ecosystem configurations.
+> **MySQL Standards**:
+> - Read `/mysql` skill for production standards.
+> - Follow query safety and parameterization rules.
+> - Adhere to ecosystem configurations.
 
 1. **Test Realism**: Test each tool with realistic inputs based on the schema above.
 2. **Error Path Testing**: For **every** tool, test at least **two** invalid inputs:

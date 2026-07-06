@@ -35,6 +35,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation and immediately report back to the Coordinator.
 5. **Finalization and Commit**:
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
+   - **CRITICAL PRIORITY**: NEVER delete a testing prompt or workflow file after success.
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
    - The subagent MUST commit all changes locally (`bun .\.agents\scripts\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`).
@@ -47,7 +48,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_cluster_status`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user as each test proceeds and include the running count: This is test X out of 57. Fixed Z issues [W Prompt / V Code]. Do not wrap the message in quotes or add preamble.
+   - The Coordinator MUST respond to the user as each test proceeds and include the running count: This is test X out of Y. X fixes applied [Y Prompt / Z Code]: <concise description>. Do not wrap the message in quotes or add preamble.
    - The Coordinator is allowed to output additional information and custom messages *only* during phase transitions.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-tool-groups/` BEFORE starting, and cross-reference the actual directory contents against the list below.

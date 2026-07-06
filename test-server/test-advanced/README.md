@@ -22,14 +22,14 @@
 This directory contains advanced stress tests for the tool groups.
 These tests simulate complex edge cases using exclusively Code Mode.
 
-## Fulfill Test Prerequisites
+## Meet Fast Prerequisites
 
 1. Basic deterministic tool group checklists in `../test-codemode/*.md` MUST pass first.
 2. The testing database MUST be freshly seeded or reset. Run `node ../../scripts/reset-database.mjs` to ensure deterministic results.
 
 ## Understand Execution Parts
 
-The original monolithic advanced stress testing suite was split into granular parts to preserve agent attention spans and prevent LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
+The original monolithic advanced stress testing suite was split into granular parts. This preserves agent attention spans and prevents LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
 - `test-codemode-advanced-core-part1.md`
 - `test-codemode-advanced-core-part2.md`

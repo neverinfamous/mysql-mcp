@@ -118,7 +118,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
 - ✅ **Slowloris DoS Protection** — configurable read timeouts via `MCP_REQUEST_TIMEOUT` and `MCP_HEADERS_TIMEOUT`
 
-> **Reverse Proxy Note:** Rate limiting uses `req.socket.remoteAddress`. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. Ensure your proxy forwards distinct client IPs, or apply rate limiting at the proxy layer instead.
+> **Reverse Proxy Note:** The server uses `req.socket.remoteAddress` for rate limiting. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. You must ensure your proxy forwards distinct client IPs. Alternatively, you can apply rate limiting at the proxy layer instead.
 
 ### Restrict Request Limits
 

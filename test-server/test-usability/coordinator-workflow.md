@@ -34,6 +34,7 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
    - If a subagent edits any `server-instructions/*.md` files, they MUST run `npx tsx scripts/generate-server-instructions.ts` before building.
 4. **Commit**:
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
+   - **CRITICAL PRIORITY**: NEVER delete a testing prompt or workflow file after success.
    - Once all local tests pass, the subagent will commit the code (`bun .\.agents\scripts\commit.ts --msg "test(usability): Optimize [group] tool usage" --impact 0.1 --confidence 1.0 --validation passed --journal --add .`), create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes, summarize findings, and exit. If no modifications were needed, no commit or journal entry is required.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
    - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
@@ -43,7 +44,7 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
 6. **Tool Availability Warning**:
    - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user. NOTE: The ecosystem tools (cluster, proxysql, router, shell) are running on a different port/MCP config (`mysql-ecosystem`) than the standard tools/tool groups. Ecosystem should be enabled for them already, but if it isn't working, the subagent MUST let the user know immediately so they can enable it. We want to actively test ecosystem, not just test graceful degradation.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of 89. Fixed Z issues [W Prompt / V Code]. Do not wrap the message in quotes or add preamble.
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of Y. X fixes applied [Y Prompt / Z Code]: <concise description>. Do not wrap the message in quotes or add preamble.
    - Do NOT output any other text to the user during the test sequence.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-usability/` BEFORE starting, and cross-reference the actual directory contents against the list below.

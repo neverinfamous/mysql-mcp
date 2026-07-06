@@ -91,7 +91,7 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage. It is included by default.
 
-Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination. It maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
+Code executes in a **C++ V8 isolate sandbox**. The server uses a physically separate V8 isolate via `isolated-vm`. The server enforces strict heap limits and synchronous termination. The server maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
 ### Enforce Engine-Level Restrictions
 
@@ -489,7 +489,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_username",
+        "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "your_password",
         "MYSQL_DATABASE": "your_database"
       }
@@ -704,7 +704,7 @@ For specialized setups, see these Wiki pages:
 
 ## ⚡ Boost Speed with Performance Tuning
 
-Schema metadata is cached to reduce repeated queries during tool/resource invocations.
+The server caches schema metadata to reduce repeated queries during tool/resource invocations.
 
 | Variable                    | Default  | Description                                                         |
 | --------------------------- | -------- | ------------------------------------------------------------------- |
@@ -713,7 +713,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
-> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses and `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See the code map for per-tool details.
+> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses. They also support `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See the code map for per-tool details.
 
 ---
 
