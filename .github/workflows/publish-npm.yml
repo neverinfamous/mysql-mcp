@@ -2,6 +2,9 @@ name: Publish to NPM
 
 on:
   workflow_call:
+    secrets:
+      NPM_TOKEN:
+        required: true
   workflow_dispatch:
     inputs:
       version:
@@ -91,7 +94,7 @@ jobs:
           for i in 1 2 3; do
             sleep 30
             echo "Attempt $i: Checking npm registry..."
-            if pnpm view @neverinfamous/mysql-mcp version --registry https://registry.npmjs.org 2>/dev/null; then
+            if pnpm view @neverinfamous/mysql-mcp@${{ steps.version.outputs.version }} version --registry https://registry.npmjs.org 2>/dev/null; then
               echo "✅ Package verified on npm registry"
               exit 0
             fi

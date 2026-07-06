@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       emergency_bypass:
-        description: 'Bypass upstream gatekeeper checks (EMERGENCY ONLY)'
+        description: 'Bypass upstream gatekeeper checks AND environment gates (EMERGENCY ONLY)'
         type: boolean
         required: true
         default: false
@@ -159,7 +159,7 @@ jobs:
           load: true
           tags: smoke-test:latest
           cache-from: type=gha,scope=linux/amd64
-          cache-to: type=gha,scope=smoke-test,mode=max
+          cache-to: type=gha,scope=linux/amd64,mode=max
 
       - name: Smoke test — binary loads without crash
         run: |
@@ -193,7 +193,7 @@ jobs:
   # Build each platform on native architecture (only runs if security scan passes)
   build-platform:
     needs: [security-scan, smoke-test]
-    if: always() && needs.security-scan.result == 'success' && needs.smoke-test.result == 'success' && github.event_name != 'pull_request'
+    if: needs.security-scan.result == 'success' && needs.smoke-test.result == 'success' && github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
@@ -209,9 +209,6 @@ jobs:
       packages: write
       id-token: write
       attestations: write
-
-    outputs:
-      version: ${{ steps.version.outputs.version }}
 
     steps:
       - name: Checkout repository
@@ -283,7 +280,7 @@ jobs:
   merge-and-push:
     runs-on: ubuntu-24.04
     needs: [build-platform]
-    if: always() && needs.build-platform.result == 'success' && github.event_name != 'pull_request'
+    if: needs.build-platform.result == 'success' && github.event_name != 'pull_request'
     permissions:
       contents: read
       packages: write
