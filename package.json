@@ -83,7 +83,7 @@
     "typescript-eslint": "^8.63.0",
     "vitest": "^4.1.10"
   },
-  "overrides": {
+  "resolutions": {
     "@modelcontextprotocol/sdk>ajv": "8.18.0",
     "hono": "^4.12.25",
     "tsup>esbuild": "^0.28.1",
