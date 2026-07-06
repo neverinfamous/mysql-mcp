@@ -1,23 +1,8 @@
 # MySQL-MCP Standard Testing Suite
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
-[![Test Prompts](https://img.shields.io/badge/Test%20Prompts-57-purple?style=for-the-badge)](#)
-<br>
-[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
-[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
+**🤖 AGENT INSTRUCTIONS**
 
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
-> 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Direct Tool Calls**, and **Connection Pooling**.
-
-**Directory Purpose**: This folder contains 57 modular test prompts covering every tool group. These prompts are strictly designed for direct MCP tool call validation.
+This folder contains 57 modular test prompts covering every tool group. These prompts are strictly designed for direct MCP tool call validation.
 
 ## Follow Agent Instructions
 

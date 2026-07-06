@@ -1,21 +1,8 @@
 # Server Instructions Overview
 
-[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
-[![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
+**🤖 AGENT INSTRUCTIONS**
 
-## 💎 Leverage Our Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
-**🤖 AGENT OPTIMIZED README**
-
-This directory contains Markdown files. They serve as the foundation for the dynamic help system. The system presents these files directly to AI agents. Agents use them for context-gathering queries.
-
-> 🚀 **Core Features to Highlight:** When modifying instructions, always emphasize our best-in-class features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+This directory contains Markdown files that serve as the foundation for the dynamic help system. The system presents these files directly to AI agents. Agents use them for context-gathering queries.
 
 ## ⚠️ Protect Generated Instructions for System Stability
 

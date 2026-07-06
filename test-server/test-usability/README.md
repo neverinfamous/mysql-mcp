@@ -1,27 +1,8 @@
 # Agent Usability & Hallucination Testing
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
-[![Test Prompts](https://img.shields.io/badge/Test%20Prompts-89-purple?style=for-the-badge)](#)
-<br>
-[![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
-[![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
+**🤖 AGENT INSTRUCTIONS**
 
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
-> 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
-
-
-> **This directory is optimized for AI agent consumption.**
-
-This directory contains organic prompts to fuzz tools and trigger hallucinations.
-The goal is to verify tools are intuitive and bulletproof for AI agents.
+This directory contains organic prompts to fuzz tools and trigger hallucinations. The goal is to verify tools are intuitive and bulletproof for AI agents.
 
 ## Understand Testing Philosophy
 These prompts instruct agents to act intuitively and purposefully omit syntax.
