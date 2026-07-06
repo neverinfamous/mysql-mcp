@@ -70,9 +70,9 @@
     "@playwright/test": "1.61.1",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.1.0",
-    "@vitest/coverage-v8": "^4.1.9",
+    "@vitest/coverage-v8": "^4.1.10",
     "dotenv": "^17.4.2",
-    "esbuild": "0.28.1",
+    "esbuild": "^0.28.1",
     "eslint": "^10.6.0",
     "globals": "^17.7.0",
     "picocolors": "^1.1.1",
@@ -81,7 +81,7 @@
     "tsx": "^4.23.0",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.62.1",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.10"
   },
   "resolutions": {
     "@modelcontextprotocol/sdk>ajv": "8.18.0",
