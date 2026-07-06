@@ -14,7 +14,7 @@
 ## Project Overview
 
 mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 241 tools, 23 resources, and 19 prompts.
-> **Architectural Rule:** Tool filtering allows skipping the MySQL connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
+> **Architectural Rule:** Tool filtering skips MySQL connections when using only ecosystem tools (`router`, `proxysql`, `shell`).
 
 **Architecture & Capabilities**:
 - **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).
@@ -41,7 +41,7 @@ Before starting work on this project, read `memory://briefing/mysql-mcp` from th
 
 For detailed session handoff context, search for entries tagged `session-summary` — these contain end-of-session notes from the development agent.
 
-If you find issues during code review, use `create_entry` with tag `copilot-finding` to record them for the development agent to see in their next session briefing.
+Log review issues using `create_entry` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
 
 ## Coding Standards
 
