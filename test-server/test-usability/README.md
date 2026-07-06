@@ -34,7 +34,7 @@ We test tools by group using separate threads to save context window.
 0. **Anti-Hallucination Guardrails:** The Coordinator MUST maintain a `task.md` checklist, read the exact filenames from `coordinator-workflow.md` and cross-reference them with a live `list_dir` of the directory before beginning. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. The Coordinator MUST halt immediately if a file is not found.
 1. **Pick a test file** (e.g., `test-usability-core.md`).
 2. **Spawn a subagent** (or start a new thread) and feed them the file.
-3. **Local Validation**: The subagent will ONLY run fast static checks (`pnpm run lint && pnpm run typecheck`) whenever they apply a codebase fix. They should explicitly skip `pnpm run test` and `pnpm run test:e2e` to save time.
+3. **Local Validation**: The subagent MUST validate all changes by running `pnpm run check`.
 4. **Commit**: The subagent commits the fix. Kill the subagent before moving on to the next test file.
 5. **Final Testing & Sweep**: Once all tests complete, the Coordinator agent will run `pnpm run check` to validate the full test suite and fix any broken unit/E2E tests. Finally, a live verification run is conducted against a fresh, restarted server.
 

@@ -55,7 +55,7 @@ src/
 │
 ├── constants/
 │   ├── server-instructions.ts      # Generated: slim INSTRUCTIONS constant (~634 chars) + HELP_CONTENT map (per-group help)
-│   └── server-instructions/        # Source .md files for each help resource (31 files: overview, gotchas, core, json, etc.)
+│   └── server-instructions/        # Source .md files for each help resource (30 files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
 │   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (16 Shortcuts), group→tools map
@@ -130,7 +130,7 @@ src/
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
-│       ├── prompts/                # 20 AI-Powered Prompts (see § below)
+│       ├── prompts/                # 19 AI-Powered Prompts (see § below)
 │       ├── resources/              # 19 Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
@@ -414,7 +414,8 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
-| `test-server/test-prompts.sql`              | Prompt testing plan (19 AI-Powered Prompts)                          |
+| `test-server/test-prompts-notes.md`         | Prompt testing plan                                                  |
+| `test-server/test-prompts.sql`              | Seed SQL for prompt testing (19 AI-Powered Prompts)                  |
 | `test-server/test-resources.md`             | Resource testing plan (23 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |

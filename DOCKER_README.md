@@ -83,7 +83,7 @@ If you control your own setup, you can run with **only Code Mode enabled** — a
         "run",
         "-i",
         "--rm",
-        "-e", "MYSQL_HOST=localhost",
+        "-e", "MYSQL_HOST=host.docker.internal",
         "-e", "MYSQL_PORT=3306",
         "-e", "MYSQL_USER=your_user",
         "-e", "MYSQL_PASSWORD=your_password",
@@ -157,7 +157,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "stdio"
       ],
       "env": {
-        "MYSQL_HOST": "localhost",
+        "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "your_user",
         "MYSQL_PASSWORD": "your_password",

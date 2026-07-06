@@ -11,6 +11,7 @@ services:
       - --audit-log
       - /data/audit.jsonl
     environment:
+      - MCP_AUTH_TOKEN=your-secure-token # Required for HTTP mode
       - MYSQL_HOST=mysql
       - MYSQL_USER=root
       - MYSQL_PASSWORD=password

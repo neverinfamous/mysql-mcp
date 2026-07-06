@@ -324,6 +324,9 @@ src/
 ├── cli.ts          # Entry point
 ├── codemode/       # Sandboxed JavaScript execution (Code Mode — VM & Worker Isolate)
 ├── constants/      # Help content generation and dynamic server instructions
+├── logging/        # Structured logging
+├── observability/  # Tracing and metrics
+├── progress/       # Session progress tracking
 ├── filtering/      # Tool filter parsing, group resolution
 ├── pool/           # Connection pool management
 ├── server/         # MCP server setup, handler registration

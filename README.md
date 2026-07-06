@@ -19,7 +19,7 @@
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **Specialized Tools**                 | Access 240 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by up to 90%. |
@@ -367,7 +367,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 240 tools available, you MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -386,7 +386,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
 | `starter`         | **43** | Standard Package    | core, json, transactions, text, codemode                         |
 | `essential`       | 20     | Minimal footprint   | core, transactions, codemode                                     |
-| `dev-power`       | 47     | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
+| `dev-power`       | 46     | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
 | `dev-analytics`   | 44     | Developer Analytics | core, stats, performance, codemode                               |
 | `ai-data-nosql`   | 39     | AI Data NoSQL       | core, json, docstore, codemode                                   |
 | `ai-search`       | 35     | AI Search           | core, text, fulltext, vector, codemode                           |
@@ -395,8 +395,8 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `dba-monitor`     | 43     | DBA Monitoring      | core, monitoring, performance, sysschema, optimization, codemode |
 | `dba-manage`      | 44     | DBA Management      | core, admin, backup, replication, partitioning, events, codemode |
 | `dba-secure`      | 37     | DBA Security        | core, security, roles, transactions, codemode                    |
-| `dba-schema`      | 36     | DBA Schema          | core, schema, introspection, migration, codemode                 |
-| `base-relational` | 37     | Base Relational     | core, transactions, text, schema, codemode                       |
+| `dba-schema`      | 35     | DBA Schema          | core, schema, introspection, migration, codemode                 |
+| `base-relational` | 36     | Base Relational     | core, transactions, text, schema, codemode                       |
 | `base-analytics`  | 27     | Base Analytics      | stats, events, codemode                                          |
 | `base-nosql`      | 33     | Base NoSQL          | docstore, spatial, vector, codemode                              |
 | `ecosystem`       | 41     | External Tools      | cluster, proxysql, router, shell, codemode                       |
@@ -788,7 +788,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:5173** to browse all 241 tools, 23 resources, and 19 prompts interactively.
+Open **http://localhost:5173** to browse all 240 tools, 23 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 

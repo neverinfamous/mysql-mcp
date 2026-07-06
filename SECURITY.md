@@ -79,7 +79,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 ### **Runtime Protection**
 
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — 30s hard limit (configurable) enforced by the isolate engine.
+- ✅ **Execution timeout** — 30s hard limit (not configurable, enforced by the isolate engine) to prevent resource exhaustion.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.

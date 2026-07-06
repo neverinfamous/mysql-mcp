@@ -45,7 +45,7 @@ You are auditing documentation for the **mysql-mcp** project. This premier TypeS
 ## Step 1: Understand Recent Changes
 
 1. Read the PR diff to understand what code changed.
-2. Read the `UNRELEASED.md` file. **Never read the full `CHANGELOG.md`**. It is too long. Only the unreleased section matters.
+2. Run `bun ./.agents/scripts/preview-changelog.mjs`. **Never read the full `CHANGELOG.md`**. It is too long. Only the unreleased section matters.
 3. Read the latest release notes file from `releases/` (the one with the highest version number).
 
 ## Step 2: Audit README.md
