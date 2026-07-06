@@ -18,6 +18,16 @@ jobs:
       matrix:
         node-version: [24.x, 26.x]
 
+    services:
+      mysql:
+        image: mysql:9.1
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: testdb
+        ports:
+          - 3307:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
     steps:
       - name: Checkout code
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -40,8 +50,16 @@ jobs:
       - name: Rebuild native dependencies
         run: pnpm rebuild
 
+      - name: Install Playwright Browsers
+        run: pnpm exec playwright install --with-deps
+
+      - name: Seed Database
+        run: mysql -h 127.0.0.1 -P 3307 -uroot -proot testdb < test-server/test-seed.sql
+
       - name: Run validation check
         run: pnpm run check
+        env:
+          MYSQL_TEST_URL: mysql://root:root@127.0.0.1:3307/testdb
 
   security-scan:
     runs-on: ubuntu-24.04
