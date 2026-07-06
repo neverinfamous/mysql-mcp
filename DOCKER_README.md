@@ -7,11 +7,11 @@
 
 ## 💎 Value Proposition
 
-- Execute complex logic via Code Mode.
-- Build AI integrations instantly.
-- Empower agents with secure database access.
-- Scale operations with robust connection pooling.
-- Leverage OAuth 2.1 for enterprise security.
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 ## 🎯 Core Benefits
 
@@ -47,6 +47,8 @@
 ### Install the Server
 
 #### Docker (Recommended)
+
+> **Note on Namespaces:** The Docker image uses the `writenotenow` namespace (`writenotenow/mysql-mcp`), whereas the GitHub repository and NPM package use `neverinfamous` (`@neverinfamous/mysql-mcp`).
 
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \

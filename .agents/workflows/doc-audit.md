@@ -39,7 +39,7 @@ Divide the target files into logical groups and dispatch multiple parallel `main
 <instructions>
 **Crucial Instructions for the Main Repo Subagent**:
 - Cross-compare all files to spot discrepancies, conflicting claims, or obviously outdated information.
-- **Marketing Compliance**: Maximize the marketing aspect by structuring docs to put best features forward. Ensure READMEs and Wikis have a prominent "Value Proposition" block at the top. Use active voice, benefit-driven headers, and concise sentences (<15 words). Integrate visual layout standards where appropriate (e.g., 3-2 badge grid for MCPs).
+- **Marketing Compliance**: Maximize the marketing aspect by structuring docs to put best features forward. Ensure READMEs and Wikis have a prominent "Value Proposition" block at the top. Use active voice, benefit-driven headers, and concise sentences (<15 words).
 - **Platform Limits**: Ensure `DOCKER_README.md` MUST NOT exceed Docker Hub's 25,000 character limit.
 - **Error Handling**: If you encounter an unexpected error, fail gracefully and report back. Do not enter autonomous retry loops.
 - **Reporting**: Do NOT make any changes. Compile a detailed list of every discrepancy or drift you find, specifying exactly what is wrong and how it should be fixed, and report this back to the primary agent.

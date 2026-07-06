@@ -14,7 +14,7 @@ Thank you for your interest in contributing to mysql-mcp! This project is built 
 
 ### Meet Prerequisites
 
-- Node.js >= 24
+- Node.js 24+
 - Bun >= 1.0 (for script execution)
 - pnpm >= 9.x (see `engines` in `package.json`)
 - **Git** (for version control)

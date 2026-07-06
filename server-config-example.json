@@ -7,7 +7,8 @@
   "toolFilter": "starter",
   "allowedIoRoots": [
     "C:/temp/mcp-sandbox",
-    "/tmp/mcp-sandbox"
+    "/tmp/mcp-sandbox",
+    "/app/data"
   ],
   "auditConfig": {
     "enabled": true,

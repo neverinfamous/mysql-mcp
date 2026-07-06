@@ -1,7 +1,12 @@
 # CI/CD Workflows
 
-> **Value Proposition**
-> **Supercharge your development lifecycle.** **Automate CI/CD effortlessly.** **Secure your code instantly.** **Deploy to Docker and npm seamlessly.** **Experience reliable, rapid releases.** **Accelerate velocity with AI drift detection.**
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers: continuous integration, security scanning, and automated publishing.
 

@@ -7,13 +7,13 @@
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
-## Value Proposition
+## 💎 Value Proposition
 
 - **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly.**
-- **Empower agents with secure database access.**
-- **Scale operations with robust connection pooling.**
-- **Leverage OAuth 2.1 for enterprise security.**
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 **Directory Purpose**: This folder contains 53 modular test prompts. They cover every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
 
