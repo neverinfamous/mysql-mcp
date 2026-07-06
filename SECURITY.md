@@ -62,7 +62,7 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 
 ## 🧪 **Secure Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#maximize-efficiency-with-code-mode).**
 
 ### Enforce Engine-Level Restrictions
 
@@ -126,7 +126,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 ## 🔑 **Authenticate with OAuth 2.1**
 
-Full OAuth 2.1 for production multi-tenant deployments:
+Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#secure-access-with-authentication).**
 
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching

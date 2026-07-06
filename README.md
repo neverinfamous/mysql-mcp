@@ -19,7 +19,7 @@
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
@@ -41,7 +41,7 @@
 
 ### Meet Prerequisites
 
-- Node.js 24+
+- Node.js 26+
 - MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
 - pnpm
 
@@ -89,16 +89,30 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage. It is included by default.
 
-Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination. It maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
+Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination. It maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
-- **Strict Isolate Boundary** — prevents native object cross-talk. It eliminates prototype pollution vectors entirely since objects cannot cross the boundary.
-- **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
-- **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
-- **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
-- **Rate limiting** — 60 executions per minute per client, distributed via Redis (if `REDIS_URL` is set) with graceful in-memory fallback
-- **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — synchronous engine-level termination if execution exceeds the fixed 30-second hard limit (not configurable)
-- **Full API access** — all 28 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
+### Enforce Engine-Level Restrictions
+
+- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
+
+### Validate Code Statically
+
+- ✅ **29 blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
+- ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
+
+### Protect the Runtime
+
+- ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — 30s hard limit (not configurable, enforced by the isolate engine) to prevent resource exhaustion.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
+- ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
+- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
+- ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
+- ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
+- ✅ **Full API access** — all 28 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
 ### ⚡ Run Only Code Mode
 
@@ -250,15 +264,16 @@ Access control is managed through OAuth scopes:
 | `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |
 
-### RFC Compliance
+### RFC Compliance & Enterprise Security
 
-This implementation follows:
+This implementation follows full OAuth 2.1 for production multi-tenant deployments:
 
-- **RFC 9728** — OAuth 2.1 Protected Resource Metadata
-- **RFC 8414** — OAuth 2.1 Authorization Server Metadata
-- **RFC 7591** — OAuth 2.1 Dynamic Client Registration
-
-The server exposes metadata at `/.well-known/oauth-protected-resource`.
+- ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
+- ✅ **RFC 8414** Authorization Server Discovery with caching
+- ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
+- ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
+- ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
+- ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 
 > **Note for Keycloak users:** Add an **Audience mapper** to your client. This includes the correct `aud` claim. (Client → Client scopes → dedicated scope → Add mapper → Audience)
 
@@ -320,7 +335,7 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
 | **MySQL on host machine** | `host.docker.internal`    | `mysql://user:pass@host.docker.internal:3306/db` |
-| **MySQL in Docker**       | Container name or network | `mysql://user:pass@mysql-container:3306/db`      |
+| **MySQL in Docker**       | `host.docker.internal` (Local) or `mysql` (Docker Compose) | `mysql://user:pass@host.docker.internal:3306/db`      |
 | **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://user:pass@db.example.com:3306/db`       |
 
 ### MySQL on Host Machine
@@ -336,7 +351,7 @@ If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 
 ### MySQL in Another Docker Container
 
-Add both containers to the same Docker network, then use the container name:
+For local Docker setups, standardize on `host.docker.internal`. If you are using Docker Compose, you can use the service name `mysql` (or your specific container name) for docker-compose networking:
 
 Create a network and run MySQL:
 
@@ -378,7 +393,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 200+ tools available, you MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
