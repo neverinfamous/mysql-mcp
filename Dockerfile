@@ -19,7 +19,7 @@ RUN apk add --no-cache \
     g++
 
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install ALL dependencies (including devDependencies for build)
 RUN npm install -g pnpm && \
@@ -70,7 +70,7 @@ RUN addgroup -g 1001 app && \
 ENV MCP_HOST=0.0.0.0
 
 # Copy package files
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml ./
 
 # Install production dependencies only
 RUN pnpm install --prod --frozen-lockfile && \
