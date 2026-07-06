@@ -10,7 +10,7 @@
 ## Value Proposition
 **Execute code seamlessly.** Validate advanced scripting instantly. Harness Code Mode for extreme speed. Secure operations with OAuth 2.1. Scale efficiently using connection pooling. Ship faster with total confidence.
 
-**Directory Purpose**: This folder contains 53 self-contained, modular test prompts covering every tool group in `mysql-mcp`. These prompts are strictly designed for **Code Mode (`mysql_execute_code`) validation only**.
+**Directory Purpose**: This folder contains 53 modular test prompts. They cover every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
 
 > 🚀 **Core Features Tested:** This suite rigorously validates our fastest and most capable execution environment: **Code Mode**, along with our secure **OAuth 2.1** and robust **Docker**.
 
