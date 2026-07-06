@@ -16,7 +16,6 @@ import {
   stopServer,
   createClient,
   callToolAndParse,
-  callToolRaw,
   cleanupAuditFiles,
 } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";

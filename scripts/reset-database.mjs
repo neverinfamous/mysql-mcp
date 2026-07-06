@@ -8,7 +8,7 @@ const __dirname = dirname(__filename);
 
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
-const force = args.includes('--Force') || args.includes('--force');
+// force unused
 const cluster = args.includes('--Cluster') || args.includes('--cluster');
 
 const containerName = cluster ? 'mysql-node1' : 'mysql-final';

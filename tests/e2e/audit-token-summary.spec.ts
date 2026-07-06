@@ -6,7 +6,7 @@
  * directly against the raw tool responses.
  */
 
-import { rm } from "node:fs/promises";
+
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 

@@ -237,7 +237,6 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         const lower = stripped.toLowerCase();
         if (
           lower.includes("does not exist") ||
-          lower.includes("does not exist") ||
           lower.includes("access denied")
         ) {
           return formatHandlerErrorResponse(

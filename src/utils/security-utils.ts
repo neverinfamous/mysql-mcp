@@ -186,22 +186,21 @@ export function parseAllowedIoRoots(
   try {
     if (raw.trim().startsWith("[")) {
       const parsed: unknown = JSON.parse(raw);
-      const isAbsoluteStringArray = (arr: unknown[]): arr is string[] => 
-        arr.every((p) => typeof p === "string" && isAbsolute(p));
-        
-      if (Array.isArray(parsed) && isAbsoluteStringArray(parsed)) {
-        paths = parsed;
+      if (Array.isArray(parsed)) {
+        paths = parsed.filter((p) => typeof p === "string" && isAbsolute(p)) as string[];
+        const nonAbsolute = parsed.filter((p) => typeof p !== "string" || !isAbsolute(p));
+        if (nonAbsolute.length > 0) {
+           console.warn(`\n[WARN] ALLOWED_IO_ROOTS ignored non-absolute paths: ${nonAbsolute.join(", ")}\n`);
+        }
       } else {
-        throw new ValidationError("Must be an array of absolute paths");
+        throw new ValidationError("Must be an array of paths");
       }
     } else {
-      paths = raw
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-
-      if (paths.some((p) => !isAbsolute(p))) {
-        throw new ValidationError("All paths must be absolute");
+      const allPaths = raw.split(",").map((s) => s.trim()).filter(Boolean);
+      paths = allPaths.filter(p => isAbsolute(p));
+      const nonAbsolute = allPaths.filter(p => !isAbsolute(p));
+      if (nonAbsolute.length > 0) {
+        console.warn(`\n[WARN] ALLOWED_IO_ROOTS ignored non-absolute paths: ${nonAbsolute.join(", ")}\n`);
       }
     }
   } catch (e: unknown) {

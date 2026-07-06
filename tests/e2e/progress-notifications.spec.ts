@@ -2,7 +2,6 @@ import { test, expect } from "@playwright/test";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import {
   CallToolResultSchema,
-  ProgressNotificationSchema,
 } from "@modelcontextprotocol/sdk/types.js";
 import { createClient } from "./helpers.js";
 

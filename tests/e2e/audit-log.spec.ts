@@ -17,7 +17,7 @@
  * transaction tools (write scope) to generate audit entries.
  */
 
-import { readFile, rm, appendFile } from "node:fs/promises";
+import { readFile, appendFile } from "node:fs/promises";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { setTimeout as delay } from "node:timers/promises";

@@ -1,4 +1,4 @@
-import { execSync, exec } from 'child_process';
+import { execSync, exec, execFileSync } from 'child_process';
 import { promisify } from 'util';
 const sleep = promisify(setTimeout);
 const execAsync = promisify(exec);
@@ -74,7 +74,11 @@ async function run() {
     try {
         // Let errors throw natively so the process exits with a non-zero code if it fails
         // but gracefully catch if the cluster is already online.
-        execSync(`"${mysqlshPath}" --uri ${uri} --js -e "try { dba.rebootClusterFromCompleteOutage('${clusterName}', {force: true}); } catch(e) { if (!e.message.includes('The Cluster is ONLINE')) throw e; print('Cluster is already ONLINE.'); }"`, { stdio: 'inherit' });
+        execFileSync(mysqlshPath, [
+            '--uri', uri,
+            '--js',
+            '-e', `try { dba.rebootClusterFromCompleteOutage('${clusterName}', {force: true}); } catch(e) { if (!e.message.includes('The Cluster is ONLINE')) throw e; print('Cluster is already ONLINE.'); }`
+        ], { stdio: 'inherit' });
         console.log(`  Cluster reboot step completed`);
     } catch (e) {
         console.error(`  Error rebooting cluster. Cannot proceed.`);
@@ -144,7 +148,11 @@ async function run() {
     console.log(`\n[6/6] Verifying cluster status...`);
     await sleep(3000);
     try {
-        execSync(`"${mysqlshPath}" --uri ${uri} --js -e "print(JSON.stringify(dba.getCluster().status(), null, 2))"`, { stdio: 'inherit' });
+        execFileSync(mysqlshPath, [
+            '--uri', uri,
+            '--js',
+            '-e', 'print(JSON.stringify(dba.getCluster().status(), null, 2))'
+        ], { stdio: 'inherit' });
     } catch(e) {
         console.error(`  Error checking status: ${e.message}`);
     }

@@ -28,13 +28,8 @@ describe("security-utils", () => {
       expect(result).toEqual([p1, p2]);
     });
 
-    it("throws ValidationError for non-absolute paths in comma-separated list", () => {
-      expect(() => parseAllowedIoRoots("relative/path")).toThrow(
-        ValidationError
-      );
-      expect(() => parseAllowedIoRoots("relative/path")).toThrow(
-        "All paths must be absolute"
-      );
+    it("ignores non-absolute paths in comma-separated list", () => {
+      expect(parseAllowedIoRoots("relative/path")).toEqual([]);
     });
 
     it("throws ValidationError for invalid JSON", () => {
@@ -43,10 +38,8 @@ describe("security-utils", () => {
       );
     });
 
-    it("throws ValidationError for JSON array with non-absolute paths", () => {
-      expect(() => parseAllowedIoRoots(JSON.stringify(["relative/path"]))).toThrow(
-        ValidationError
-      );
+    it("ignores non-absolute paths in JSON array", () => {
+      expect(parseAllowedIoRoots(JSON.stringify(["relative/path"]))).toEqual([]);
     });
 
     it("throws ValidationError if input exceeds 50KB", () => {
