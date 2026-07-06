@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
 [![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>
@@ -19,7 +19,6 @@
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
-> 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, blazing-fast **Code Mode**, and highly-optimized **Connection Pooling**.
 > 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, blazing-fast **Code Mode**, and highly-optimized **Connection Pooling**.
 
 Last updated: July 5, 2026
@@ -132,7 +131,7 @@ src/
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # 19 AI-Powered Prompts (see § below)
-│       ├── resources/              # 19 Core Observability Resources (see § below)
+│       ├── resources/              # 23 Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -140,7 +139,7 @@ src/
 
 ## Handler → Tool Mapping
 
-200+ tools across groups. Each handler file registers tools with `group` labels.
+241 tools across groups. Each handler file registers tools with `group` labels.
 
 <!-- BEGIN: TOOL_MAPPING -->
 | Group | Tools |
@@ -286,6 +285,7 @@ MySQLMcpError (modules/errors.ts)         code: string, category: ErrorCategory,
 ├── TimeoutError          code: TIMEOUT_ERROR        category: CONNECTION
 ├── RateLimitError        code: RATE_LIMIT_ERROR     category: CONNECTION
 ├── ConflictError         code: CONFLICT_ERROR       category: QUERY
+├── SecurityError         code: SECURITY_ERROR       category: PERMISSION
 └── ExtensionNotAvailableError  code: EXTENSION_MISSING  category: CONFIGURATION
 ```
 

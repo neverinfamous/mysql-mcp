@@ -29,9 +29,6 @@
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:** You must maintain a `task.md` checklist, use `list_dir` before accessing directories, and immediately halt on `FAILED_FILE_NOT_FOUND` errors rather than autonomously retrying.
 
-> [!WARNING]
-> **Stale Build Issues:** The MCP server runs from the compiled `dist/` directory, NOT `src/`. If you encounter inexplicable behavior (e.g., tools executing old logic or throwing validation errors for things already fixed in the source code), the server might be running a stale build. Check if the compiled code in `dist/` matches the source code in `src/`. If out of sync, stop and instruct the user to run `pnpm run build` and restart the server before continuing testing.
-
 > **Note**: If temp tables are present from a previous test pass, it's because the database is locked. Ignore them. Use existing `test_*` tables for read operations.
 
 > [!IMPORTANT]
@@ -197,6 +194,5 @@ During testing, check for these inconsistencies:
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
 5. **Commit**: Stage and commit all changes — do NOT push.
-6. **Validate**: Halt your work and instruct the user to validate the changes by running the test suite (Vitest/Playwright), lint, and typecheck. Do NOT run them yourself. Also instruct the user to rebuild and restart the server.
-7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
-8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.
+6. **Validate**: Run `pnpm run check` to validate your changes via lint, typecheck, and test.
+7. **Final summary**: Provide the final summary of testing and any issues fixed.

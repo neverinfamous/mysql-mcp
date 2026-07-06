@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
 [![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>
@@ -11,13 +11,13 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 ## Value Proposition
 
+- Execute complex logic via Code Mode, reducing token usage by 70-90%.
 - Build AI integrations instantly.
 - Empower agents with secure database access.
-- Execute complex logic via Code Mode.
 - Scale operations with robust connection pooling.
 - Leverage OAuth 2.1 for enterprise security.
 
-Complete list of all **200+ tools** across groups.
+Complete list of all **241 tools** across groups.
 >
 > 🚀 **Core Features:** Enjoy enterprise-grade capabilities like **OAuth 2.1** for robust security, **Code Mode** for execution speed, and advanced **Connection Pooling** for performance.
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
