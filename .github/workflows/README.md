@@ -8,7 +8,7 @@
 - **Scale operations with robust connection pooling**.
 - **Leverage OAuth 2.1** for enterprise security.
 
-This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers: continuous integration, security scanning, and automated publishing.
+This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
 ## Visualize the Workflow Map
 
@@ -85,7 +85,7 @@ flowchart LR
 
 ### Automate with Agentic Workflows
 
-These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks/about-assigning-tasks-to-copilot). Each `.md` file contains the agent prompt; the corresponding `.lock.yml` is the auto-generated compiled workflow (**do not edit `.lock.yml` files**).
+These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.github.com/en/copilot/using-github-copilot/using-copilot-coding-agent-to-work-on-tasks/about-assigning-tasks-to-copilot). Each `.md` file contains the agent prompt. The corresponding `.lock.yml` is the auto-generated compiled workflow (**do not edit `.lock.yml` files**).
 
 | Prompt                                           | Lock File                                                    | Schedule               | Purpose                                                                                 |
 | ------------------------------------------------ | ------------------------------------------------------------ | ---------------------- | --------------------------------------------------------------------------------------- |

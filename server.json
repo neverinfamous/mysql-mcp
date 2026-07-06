@@ -7,7 +7,7 @@
   "packages": [
     {
       "registryType": "oci",
-      "identifier": "docker.io/neverinfamous/mysql-mcp:latest",
+      "identifier": "docker.io/writenotenow/mysql-mcp:latest",
       "transport": {
         "type": "stdio"
       }

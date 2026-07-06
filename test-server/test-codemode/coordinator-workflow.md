@@ -46,19 +46,19 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 6. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-codemode/` BEFORE starting, and cross-reference the actual directory contents against the list below.
-   - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.
+   - The Coordinator MUST explicitly create a checklist in `<appDataDir>\brain\<conversation-id>\task.md` copying the exact Test Sequence Queue to track progress.
    - NEVER rely on memory for filenames or current test counts. ALWAYS read your exact position from the checklist artifact or this file.
    - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND`, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly increment the counter or count it as a successful test.
 
 ## Test Sequence Queue (Dependency DAG)
 
-1. `test-codemode-admin-audit.md`
-2. `test-codemode-admin-maintenance.md`
-3. `test-codemode-backup-audit.md`
-4. `test-codemode-backup-data.md`
-5. `test-codemode-cluster-group-replication.md`
-6. `test-codemode-cluster-innodb.md`
-7. `test-codemode-core-read.md` (**MUST PASS FIRST**)
+1. `test-codemode-core-read.md` (**MUST PASS FIRST**)
+2. `test-codemode-admin-audit.md`
+3. `test-codemode-admin-maintenance.md`
+4. `test-codemode-backup-audit.md`
+5. `test-codemode-backup-data.md`
+6. `test-codemode-cluster-group-replication.md`
+7. `test-codemode-cluster-innodb.md`
 8. `test-codemode-core-write.md`
 9. `test-codemode-docstore-collections.md`
 10. `test-codemode-docstore-documents.md`

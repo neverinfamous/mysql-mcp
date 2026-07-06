@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
 [![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>
@@ -17,7 +17,7 @@
 - **Scale operations with robust connection pooling**.
 - **Leverage OAuth 2.1** for enterprise security.
 
-Complete list of all **241 tools** across groups.
+Complete list of all **200+ tools** across groups.
 >
 > 🚀 **Core Features:** Enjoy enterprise-grade capabilities like **OAuth 2.1** for robust security, **Code Mode** for execution speed, and advanced **Connection Pooling** for performance.
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
@@ -179,7 +179,7 @@ Complete list of all **241 tools** across groups.
 | `mysql_stats_running_total` | Running total window function         |
 | `mysql_stats_moving_avg`    | Moving average window function        |
 | `mysql_stats_ntile`         | NTILE() window function               |
-| `mysql_stats_hypothesis`    | T-Test/Chi-Square hypothesis testing  |
+| `mysql_stats_hypothesis`    | T-Test/Chi-Square hypothesis testing. **v3.2:** alias resolution fixed  |
 | `mysql_stats_outliers`      | Z-Score/IQR outlier detection         |
 | `mysql_stats_top_n`         | Top N items per category              |
 | `mysql_stats_distinct`      | Count distinct values                 |
@@ -477,7 +477,7 @@ Complete list of all **241 tools** across groups.
 
 ## Code Mode (1 tool)
 
-> Execute JavaScript in a worker-thread sandbox (separate V8 isolate) with access to all MySQL tools via `mysql.*` API. See [[Code-Mode]] for full API documentation.
+> Execute JavaScript in a worker-thread sandbox (separate V8 isolate). Access all MySQL tools via `mysql.*` API. See [[Code-Mode]] for full API documentation.
 
 | Tool                 | Description                                                          |
 | -------------------- | -------------------------------------------------------------------- |

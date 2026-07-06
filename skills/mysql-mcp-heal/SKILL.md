@@ -68,15 +68,15 @@ When an agent hallucinates CLI flags or usage patterns for `mysql-mcp` standalon
 * **Help Meta-Prompting:** Use Commander's `addHelpText('after', ...)` to inject explicit `🤖 AI AGENT INSTRUCTIONS` directly into the `--help` output.
 * **Actionable Errors:** Ensure that all CLI validation failures and process exits are prefixed with `🛠️ AUTONOMOUS HEALING: ` to prevent agent loop retries.
 
-### Layer 6: Enforce Environment Tooling Guardrails
+### Layer 6: Collaborative Environment Guidelines
 
 Agents often run into environment-level interceptors or tooling issues that throw hallucinatory errors.
 
-* **Fragile Native Tools:** When attempting to heal global environment files, **DO NOT** use the agent-native `replace_file_content` tool on large, ambiguous code blocks, as it uses loose heuristics that can permanently butcher files.
-* **Safe Rewrites:** Instead, heal environment files by using precise `multi_replace_file_content` targeting single lines, or write a dedicated deterministic script to parse and rebuild the file safely.
-* **Native Tool Priority:** If you trigger a system interceptor for using shell commands like `cat`, `grep`, or `ls`, you MUST autonomously switch to native tools (e.g., `view_file`, `grep_search`, `list_dir`). DO NOT ask the user for help or wait for permission.
-* **Transient IDE Errors:** If shifting lines via code edits triggers IDE typing errors (e.g., "Unsafe argument of type error typed"), ALWAYS verify with `tsc --noEmit` before attempting complex type refactoring, as it may just be a stale ESLint cache.
-* **Coordinator Guardrails:** To mitigate structural hallucinations, you MUST enforce a `task.md` checklist, run a `list_dir` requirement before accessing unknown paths, and halt execution immediately on `FAILED_FILE_NOT_FOUND` rather than autonomously retrying.
+* **Fragile Native Tools:** When attempting to heal global environment files, please avoid using the agent-native `replace_file_content` tool on large, ambiguous code blocks. It uses loose heuristics that can negatively impact files.
+* **Safe Rewrites:** Instead, heal environment files using precise `multi_replace_file_content` targeting single lines. Alternatively, write a dedicated deterministic script to parse and rebuild the file safely.
+* **Native Tool Priority:** If you trigger a system interceptor for using shell commands like `cat`, `grep`, or `ls`, please switch to native tools (e.g., `view_file`, `grep_search`, `list_dir`). It is recommended to do this autonomously.
+* **Transient IDE Errors:** If shifting lines via code edits triggers IDE typing errors, please verify with `tsc --noEmit` before attempting complex type refactoring. It may just be a stale ESLint cache.
+* **Coordinator Guidelines:** To mitigate unexpected structural behaviors, please use a `task.md` checklist. Run a `list_dir` requirement before accessing unknown paths. Halt execution immediately on `FAILED_FILE_NOT_FOUND` rather than retrying.
 * **Audit Tool Payload Bloat:** To prevent payload bloat, the audit tool has a strict security requirement: it MUST receive at least one filter. If an agent hallucinates a blank audit call, the tool should reject it or the schema should enforce it.
 
 ## 2. Phase 2: Implement the Fixes

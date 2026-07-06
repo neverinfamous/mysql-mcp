@@ -1,6 +1,6 @@
 # MySQL-MCP Standard Testing Suite
 
-[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
 [![Test Prompts](https://img.shields.io/badge/Test%20Prompts-57-purple?style=for-the-badge)](#)
 <br>
@@ -43,7 +43,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ### Track Metrics and Progress
 
-- **Scratchpad**: Use `<appDataDir>\brain\<conversation-id>\scratch\task.md` as your scratchpad for testing and reporting results. DO NOT modify the testing prompt files directly unless there is an error in them.
+- **Scratchpad**: Use `<appDataDir>\brain\<conversation-id>\task.md` as your scratchpad for testing and reporting results. DO NOT modify the testing prompt files directly unless there is an error in them.
 - `| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |`
   Never proceed to the final step until every tool in a given group is fully checked off.
 - **Help Resources**: The server uses an Adaptive Instruction Architecture. Tool signatures are NOT injected into your prompt by default. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/schema`) before testing to understand the expected parameters.

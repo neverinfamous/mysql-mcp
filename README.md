@@ -19,7 +19,7 @@
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
@@ -70,7 +70,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@loc
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace (`writenotenow/mysql-mcp`), whereas the GitHub repository and NPM package use `neverinfamous` (`@neverinfamous/mysql-mcp`).
 
 ```bash
-docker run -i --rm neverinfamous/mysql-mcp:latest \
+docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
@@ -172,7 +172,7 @@ npx -y @neverinfamous/mysql-mcp \
 
 ```bash
 docker run --rm -p 3000:3000 \
-  neverinfamous/mysql-mcp:latest \
+  writenotenow/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
@@ -365,7 +365,7 @@ docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:
 Run MCP server on the same network:
 
 ```bash
-docker run -i --rm --network mynet neverinfamous/mysql-mcp:latest \
+docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
   --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
 ```
 
@@ -690,7 +690,7 @@ This server exposes **23 resources** for database observability and telemetry:
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `mcp-config-example.json` template at the root of the project for setup details.
+> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.yaml` template at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 

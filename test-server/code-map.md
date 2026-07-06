@@ -3,7 +3,7 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-[![Tools](https://img.shields.io/badge/Tools-241-blue?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
 [![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>
@@ -19,7 +19,7 @@
 
 > **Agent-optimized navigation reference.** Read this before searching the codebase. Covers directory layout, handler→tool mapping, type/schema locations, error hierarchy, and key constants.
 >
-> 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, blazing-fast **Code Mode**, and highly-optimized **Connection Pooling**.
+> 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, **Code Mode**, and highly-optimized **Connection Pooling**.
 
 Last updated: July 5, 2026
 
@@ -139,7 +139,7 @@ src/
 
 ## Handler → Tool Mapping
 
-241 tools across groups. Each handler file registers tools with `group` labels.
+200+ tools across groups. Each handler file registers tools with `group` labels.
 
 
 | Group | Tools |
@@ -371,7 +371,7 @@ try {
 | **Code Mode Bridge**        | Code execution (e.g., `mysql.*` API) runs inside a secure `isolated-vm` (for Local/Docker) or `@cloudflare/sandbox` (for Cloudflare) engine with no host IO access. Smart result proxies to prevent missing `await` and destructuring errors. `transformAutoReturn()` prepends `return` to last expression statement (Node REPL semantics).                                                                                                                                   |
 | **Tool Filtering**          | `ToolFilter` parses `--tool-filter` string → whitelist/blacklist. `codemode` auto-injected. Supports meta-groups (`starter`, `dba-monitor`, etc.).                                                                                                                                                                                                                                     |
 | **Modular Schemas**         | All Zod schemas live in `adapters/mysql/schemas/` to keep bundle sizes optimized and isolate group dependencies.                                                                                                                                                                                                                                                                       |
-| **Dual-Schema Pattern**     | Tools use a plain `z.object()` Base schema for MCP parameter visibility, and a `z.preprocess()` wrapper for handler parsing to support aliases and coercion without breaking standard JSON Schema generation.                                                                                                                                                            |
+| **Dual-Schema Pattern**     | Tools use a plain `z.object()` Base schema for MCP parameter visibility. A `z.preprocess()` wrapper handles parsing. This supports aliases without breaking JSON Schema generation. |
 | **Help Resources**          | Slim `INSTRUCTIONS` (~634 chars) + on-demand `mysql://help` resources replace old 53KB monolith. `mysql://help/{group}` filtered by `--tool-filter`.                                                                                                                                                                                                                                   |
 | **Barrel Re-exports**       | Import from `./module/index.js` (with `.js` extension for ESM).                                                                                                                                                                                                                                                                                                                        |
 | **Ecosystem Tools**         | Router, ProxySQL, and Shell tools connect to external services on alternate ports. Cluster tools use standard MySQL connections.                                                                                                                                                                                                                                                                                                |
