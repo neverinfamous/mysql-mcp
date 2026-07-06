@@ -9,10 +9,11 @@
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
-Complete list of all **200+ tools** across groups.
->
-> 🚀 **Core Features:** Enjoy enterprise-grade capabilities. Use **OAuth 2.1** for robust security. Use **Code Mode** for execution speed. Rely on advanced **Connection Pooling** for performance.
-> Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.
+## 💎 Value Proposition
+
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+
+View the complete list of all **200+ tools** across groups below. Every tool returns structured `{success, error}` responses.
 
 ---
 

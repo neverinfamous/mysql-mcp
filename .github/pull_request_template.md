@@ -6,26 +6,26 @@
 - **Scale operations with robust connection pooling**.
 - **Leverage OAuth 2.1** for enterprise security.
 
-## Description
+## Describe Your Changes
 
 Provide a brief, clear description of the changes.
 
-## Related Issue
+## Link Related Issues
 
 Closes #
 
-## Type of Change
+## Select Type of Change
 
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature changing existing functionality)
 - [ ] Documentation update
 
-## How Has This Been Tested?
+## Detail How You Tested
 
 Detail the specific tests you ran. Ensure thorough validation.
 
-## Checklist
+## Complete the Checklist
 
 - [ ] My code follows all project style guidelines (kebab-case filenames).
 - [ ] I performed a rigorous self-review of my code.

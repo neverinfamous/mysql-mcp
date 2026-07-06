@@ -16,11 +16,11 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
-| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
+| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **Smart Tool Filtering**              | Use 28 tool groups and 16 shortcuts to stay within IDE tool limits. |
 | **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
 | **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
@@ -85,7 +85,7 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 ## ⚡ Maximize Efficiency with Code Mode
 
-Code Mode (`mysql_execute_code`) dramatically reduces token usage. It is included by default.
+Code Mode (`mysql_execute_code`) reduces token usage by 70-90%. It is included by default.
 
 Code executes in a **C++ V8 isolate sandbox**. The server uses a physically separate V8 isolate via `isolated-vm`. The server enforces strict heap limits and synchronous termination. The server maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
@@ -104,13 +104,13 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 ### Protect the Runtime
 
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — 30s hard limit (not configurable, enforced by the isolate engine) to prevent resource exhaustion.
+- ✅ **Execution timeout** — Enforces a 30s hard limit. It prevents resource exhaustion.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
-- ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
+- ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
-- ✅ **Full API access** — all 28 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
+- ✅ **Full API access** — Exposes all 28 tool groups via the mysql.* namespace.
 
 ### ⚡ Run Only Code Mode
 

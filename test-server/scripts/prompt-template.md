@@ -55,7 +55,7 @@
 - 📦 **Payload**: Unnecessarily large response that should be optimized — **blocking, equally important as ❌ bugs**. Oversized payloads waste LLM context window tokens and degrade downstream tool-calling quality. Report the response size in KB/tokens and suggest a concrete optimization.
 - ✅ **Confirmed**: (Use inline only during testing; omit from Final Summary)
 
-### Error Message Quality Rating
+### Rate Error Message Quality
 
 | Level                                  | Verdict |
 | -------------------------------------- | ------- |
@@ -135,10 +135,10 @@
    - (a) A domain error (e.g., non-existent table).
    - (b) An **empty parameters test** (call the tool with `{}`).
      Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame.
-     > **Note on Aliases & Zod**: Tools that support legacy parameter aliases (e.g. `tableName` instead of `table`) often use `.default("")` in their Zod schema so the SDK validation lets the payload reach the handler's alias-resolution logic. For these tools, calling with `{}` will pass Zod validation and correctly trigger a handler-level domain error (e.g. `TABLE_NOT_FOUND`) instead of a strict Zod `invalid_type` error. **This is expected behavior.** Do NOT remove `.default("")` from schemas to force a Zod error, as this will break alias compatibility.
+     > **Note on Aliases & Zod**: Tools with legacy parameter aliases often use `.default("")` in their Zod schemas. This lets the payload reach the handler's alias-resolution logic. Calling with `{}` passes Zod validation. It triggers a handler-level domain error. This is expected behavior. Do NOT remove `.default("")` from schemas. This breaks alias compatibility.
 3. **Output Schema Testing**: For every tool that has an `outputSchema`, check the `Error` output channel to ensure no exceptions are logged, and confirm that at least one valid happy-path call returns a structured YAML response. Output schema mismatches produce the same `-32602` code as input errors but are only caught with valid inputs.
 4. **Wrong-Type Coercion**: For every tool with optional numeric parameters (e.g., `limit`), call the tool with `param: "abc"` (string instead of number). The tool must NOT return a raw MCP `-32602` error.
-   > **Note on Zod Coercion & Validation Errors**: When passing `"abc"` to a numeric field, receiving a structured handler error like `{ success: false, error: "limit: Expected number, received string", code: "VALIDATION_ERROR" }` is **correct**. This proves the global SDK monkey-patch successfully intercepted Zod's `invalid_type` error and transformed it into a structured domain error. Do NOT attempt to "fix" `coerceNumber` or schema definitions to bypass this Zod validation or force a silent fallback to `undefined`.
+   > **Note on Zod Coercion & Validation Errors**: Passing '"abc"' to a numeric field returns a structured handler error. This is correct. It proves the global SDK monkey-patch intercepted Zod's error. It transformed it into a structured domain error. Do NOT "fix" schemas to bypass this validation. Do NOT force a silent fallback.
 5. **Proactive Improvements**: You are highly encouraged to proactively improve functionality, performance, security, agent experience, and token/payload efficiency whenever you see an opportunity during your testing and handler code review.
    > **CRITICAL**: Architectural consistency is paramount. Do not introduce undocumented architectural deviations. If you implement a structural or architectural improvement in one tool, you must apply it symmetrically to other applicable tools in the group or project.
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
@@ -219,12 +219,12 @@ During testing, check for these inconsistencies:
 
 ## Execute Post-Test Procedures
 
-### Reporting Rules
+### Follow Reporting Rules
 
 - Use ✅ only in inline notes during testing; omit from Final Summary
 - Do not mention what already works well or issues already documented in help resources and runtime hints
 
-### After Testing
+### Perform Steps After Testing
 
 1. **Token Audit**: Use `read_resource` on `mysql://metrics` to retrieve total token usage. Include in your final report.
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
@@ -234,7 +234,7 @@ During testing, check for these inconsistencies:
    - Test database (`scripts/test-seed.sql`)
    - This prompt
 
-### After Implementation
+### Perform Steps After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
 5. **Commit**: Stage and commit all changes — do NOT push.

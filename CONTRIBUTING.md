@@ -6,7 +6,7 @@ Thank you for your interest in contributing to mysql-mcp! We welcome your contri
 
 MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
-## 🚀 Quick Start
+## 🚀 Start Quickly
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally
@@ -357,7 +357,7 @@ src/
 
 ### Run Benchmarks
 
-If your change touches a hot path (tool dispatch, schema parsing, auth, Code Mode, connection pool), run benchmarks to verify you haven't introduced a regression:
+If your change touches a hot path, run benchmarks. This verifies you haven't introduced a regression:
 
 ```bash
 pnpm run bench

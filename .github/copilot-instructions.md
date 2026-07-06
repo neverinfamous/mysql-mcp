@@ -32,7 +32,7 @@ mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 
 
 ## Utilize Session Context
 
-Before starting work on this project, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. This provides real-time context:
+Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. It provides real-time context:
 
 - **Recent journal entries** — what was just worked on by the development agent
 - **GitHub status** — open issues, PRs, CI status, milestones

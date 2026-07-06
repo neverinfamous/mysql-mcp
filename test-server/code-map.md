@@ -9,9 +9,11 @@
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
-> **Agent-optimized navigation reference.** Read this before searching the codebase. It covers directory layout and handler→tool mapping. It also covers type/schema locations, error hierarchy, and key constants.
->
-> 🚀 **Core Features**: Built with enterprise-grade **OAuth 2.1**, **Code Mode**, and highly-optimized **Connection Pooling**.
+## 💎 Value Proposition
+
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+
+> **Agent-optimized navigation reference.** Read this before searching the codebase. It covers directory layout, tool mapping, and error hierarchy.
 
 
 
@@ -263,7 +265,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Understand Error Class Hierarchy
 
-All errors extend `MySQLMcpError` (defined in `src/types/modules/errors.ts`). Every tool returns an enriched `ErrorResponse` via `formatHandlerError()` — never raw MCP exceptions. `ErrorCategory` enum and `ErrorResponse` interface defined in `src/types/modules/error-types.ts`.
+All errors extend `MySQLMcpError`. Tools return an enriched `ErrorResponse` via `formatHandlerError()`. They never return raw MCP exceptions. `ErrorCategory` enum and `ErrorResponse` interface are defined in `src/types/modules/error-types.ts`.
 
 ```
 MySQLMcpError (modules/errors.ts)         code: string, category: ErrorCategory, details?: Record

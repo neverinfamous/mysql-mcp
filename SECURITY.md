@@ -1,6 +1,6 @@
 # 🔒 Security Policy
 
-The mysql-mcp MySQL MCP server implements comprehensive security measures to protect your databases across stdio, HTTP, and SSE transports.
+The mysql-mcp server protects your databases. It secures stdio, HTTP, and SSE transports.
 
 ## 💎 Value Proposition
 
@@ -208,7 +208,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 ## 🚨 **Follow Security Best Practices**
 
-### Best Practices for Users
+### Follow Best Practices for Users
 
 1. **Never commit database credentials** to version control — use environment variables
 2. **Use OAuth 2.1 authentication** for HTTP transport in production — never expose HTTP transport without OAuth
@@ -220,7 +220,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 8. **Apply rate limiting at the proxy layer** when deploying behind a reverse proxy
 9. **Consider SHA-pinning** critical GitHub Actions in CI workflows for supply-chain defense-in-depth
 
-### Best Practices for Developers
+### Follow Best Practices for Developers
 
 1. **Parameterized queries only** — never interpolate user input into SQL strings
 2. **Zod validation** — all tool inputs validated via schemas at tool boundaries
@@ -294,4 +294,4 @@ We appreciate responsible disclosure and will acknowledge your contribution in o
 - **Database maintenance**: Run `OPTIMIZE TABLE` and `ANALYZE TABLE` regularly for optimal performance
 - **Security patches**: Apply host system security updates
 
-The mysql-mcp MySQL MCP server is designed with **security-first principles** to protect your databases while maintaining excellent performance and full MySQL capability.
+The mysql-mcp server is designed with **security-first principles**. It protects your databases. It maintains excellent performance and full MySQL capability.

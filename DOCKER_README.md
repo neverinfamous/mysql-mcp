@@ -26,7 +26,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -58,15 +58,15 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 Code Mode reduces token usage by 70-90%. It is included by default.
 
-Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. We map all `mysql.*` API calls through the boundary using native wrappers. This provides:
+Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. The server maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
-- **Strict Isolate Boundary** — prevents native object cross-talk. It eliminates prototype pollution vectors entirely since objects cannot cross the boundary.
-- **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
-- **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
+- **Strict Isolate Boundary** — Prevents native object cross-talk. It eliminates prototype pollution vectors.
+- **29 blocked patterns** — Blocks system commands and network access. Uses static regex rules.
+- **RPC Quotas** — Limits execution to 100 API calls. It prevents unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
-- **Rate limiting** — 60 executions per minute per client, distributed via Redis (if `REDIS_URL` is set) with graceful in-memory fallback
+- **Rate limiting** — Caps at 60 executions per minute. Supports Redis with in-memory fallback.
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — synchronous engine-level termination if execution exceeds the fixed 30-second hard limit (not configurable)
+- **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after 30 seconds.
 - **Full API access** — all 28 tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
 ### ⚡ Run Only Code Mode
@@ -197,7 +197,7 @@ docker run --rm -p 3000:3000 \
   --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
 ```
 
-### Security Features & Utility Endpoints
+### Access Security Features and Utility Endpoints
 
 For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setup (with Keycloak), see the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth).
 
