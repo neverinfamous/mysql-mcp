@@ -790,7 +790,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:5173** to browse all 241 tools, 22 resources, and 19 prompts interactively.
+Open **http://localhost:5173** to browse all 241 tools, 23 resources, and 19 prompts interactively.
 
 **CLI mode for scripting:**
 
