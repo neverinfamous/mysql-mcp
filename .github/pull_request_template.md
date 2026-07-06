@@ -31,4 +31,5 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`.
 - [ ] No `continue-on-error: true` in workflow files.
 - [ ] All new and existing tests pass locally (`pnpm run check`).
-- [ ] I ensured marketing compliance (prominent Value Proposition, active voice, <15 words) and Docker readme <= 25,000 chars.
+- [ ] I ensured marketing compliance (prominent Value Proposition, active voice, <15 words).
+- [ ] Docker readme <= 25,000 chars.
