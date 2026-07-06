@@ -26,7 +26,7 @@ RUN npm install -g pnpm && \
     pnpm install --frozen-lockfile
 
 # Copy source code
-COPY tsconfig.json ./
+COPY tsconfig*.json tsup.config.ts ./
 COPY src/ ./src/
 
 # Build the application
