@@ -61,7 +61,7 @@ Check recent workflow runs (last 7 days):
 
 ## Step 3: Report
 
-Before creating a new issue, check if an existing open issue with the `[ci-health]` prefix already exists. If so, add a comment to that issue instead of creating a duplicate. Only create a new issue if none exists.
+Before creating a new issue, check for existing open issues with the `[ci-health]` prefix. Add comments to existing issues instead of creating duplicates. Create a new issue only if none exists.
 
 ### If issues are found:
 
