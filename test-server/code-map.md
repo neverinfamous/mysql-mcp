@@ -55,7 +55,7 @@ src/
 │
 ├── constants/
 │   ├── server-instructions.ts      # Generated: slim INSTRUCTIONS constant (~634 chars) + HELP_CONTENT map (per-group help)
-│   └── server-instructions/        # Source .md files for each help resource (30 files: overview, gotchas, core, json, etc.)
+│   └── server-instructions/        # Source .md files for each help resource (31 files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
 │   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (16 Shortcuts), group→tools map
@@ -414,7 +414,7 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
-| `test-server/test-prompts.md`               | Prompt testing plan (19 AI-Powered Prompts)                          |
+| `test-server/test-prompts.sql`              | Prompt testing plan (19 AI-Powered Prompts)                          |
 | `test-server/test-resources.md`             | Resource testing plan (23 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |

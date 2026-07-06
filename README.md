@@ -33,7 +33,7 @@
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. |
-| **Protocol Compliant**                | Support MCP 2025-11-25 with tool safety hints, resource priorities, and progress notifications. |
+| **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
 
@@ -163,7 +163,7 @@ The server supports **two MCP transport protocols simultaneously**, enabling bot
 
 ### Streamable HTTP (Recommended)
 
-Modern protocol (MCP 2025-11-25) — single endpoint, session-based:
+Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 
 | Method   | Endpoint | Purpose                                          |
 | -------- | -------- | ------------------------------------------------ |
