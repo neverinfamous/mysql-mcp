@@ -8,11 +8,11 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 mysql-mcp exposes 23 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
@@ -23,7 +23,7 @@ mysql-mcp exposes 23 core mysql:// observability resources (plus help). Many que
 node scripts/reset-database.mjs
 
 # 2. Seed resource data (warms up statistics, creates test events)
-Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final mysql -uroot -proot testdb
+Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final mysql -uroot -ppassword testdb
 ```
 
 ## Prompt

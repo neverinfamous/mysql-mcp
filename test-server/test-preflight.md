@@ -8,11 +8,11 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 > **Purpose:** Validate that slim instructions, help resources, and data resources are working correctly before running full test passes. Run this in a fresh conversation with the server enabled.
 
@@ -60,7 +60,7 @@ Based on steps 1-4, answer:
 
 | #   | Check                                                      | Result   |
 | --- | ---------------------------------------------------------- | -------- |
-| 1   | Instructions are slim (<900 chars), static, not monolithic | ✅ or ❌ |
+| 1   | Instructions are slim (<3000 chars), static, not monolithic | ✅ or ❌ |
 | 2   | Instructions reference help resources (`mysql://help`)     | ✅ or ❌ |
 | 3   | Main help resource is readable                             | ✅ or ❌ |
 | 4   | Group-specific help resource is readable                   | ✅ or ❌ |

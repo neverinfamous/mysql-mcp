@@ -29,9 +29,7 @@
 
 ### Prerequisites
 
-- Node.js 24+
 - MySQL 5.7+ or 8.0+ server
-- pnpm
 
 ### Installation
 
@@ -70,9 +68,12 @@ If you control your own setup, you can run with **only Code Mode enabled** — a
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
+      "command": "docker",
       "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
+        "run",
+        "-i",
+        "--rm",
+        "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--tool-filter",
@@ -133,7 +134,20 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
   "mcpServers": {
     "mysql-mcp": {
       "command": "docker",
-      "args": ["run", "-i", "--rm", "writenotenow/mysql-mcp:latest", "--transport", "stdio"],
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "-e", "MYSQL_XPORT",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio"
+      ],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",

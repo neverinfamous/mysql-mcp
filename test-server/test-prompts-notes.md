@@ -8,16 +8,16 @@
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## Value Proposition
-Build AI integrations instantly.
-Empower agents with secure database access.
-Execute complex logic via Code Mode.
-Scale operations with robust connection pooling.
-Leverage OAuth 2.1 for enterprise security.
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 Run this command to seed the database for testing all 19 mysql-mcp prompts:
 
 ```powershell
-docker exec mysql-final mysql -uroot -proot testdb -e "DROP TABLE IF EXISTS prompt_order_items, prompt_orders, prompt_users, prompt_transactions, prompt_sessions, prompt_audit_log, prompt_locations, prompt_documents, prompt_events, prompt_daily_reports, prompt_weekly_metrics;" && Get-Content .\test-server\test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -proot testdb
+docker exec mysql-final mysql -uroot -ppassword testdb -e "DROP TABLE IF EXISTS prompt_order_items, prompt_orders, prompt_users, prompt_transactions, prompt_sessions, prompt_audit_log, prompt_locations, prompt_documents, prompt_events, prompt_daily_reports, prompt_weekly_metrics;" && Get-Content .\test-server\test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -ppassword testdb
 ```
 
 ## What This Creates
@@ -41,7 +41,6 @@ Tables prefixed with `prompt_*` to support testing:
 
 ```
 /mysql_tool_index
-/mysql_quick_schema
 /mysql_setup_router
 /mysql_setup_proxysql
 /mysql_setup_shell
