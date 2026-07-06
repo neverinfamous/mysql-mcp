@@ -221,7 +221,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ## 🛠️ Optimize Limits with Tool Filtering
 
-> **Architectural Rule:** Tool filtering allows skipping the `--mysql connection` configuration if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
+> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools are used.
 
 > [!IMPORTANT]
 > **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 200+ tools available, you MUST use tool filtering to stay within your IDE's limits. 
@@ -304,6 +304,6 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-## Contributing & Security
+## 🤝 Contribute and Secure the Server
 
 [Contributing Guidelines](https://github.com/neverinfamous/mysql-mcp/blob/main/CONTRIBUTING.md) • [Security Policy](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) • [MIT License](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) • [Code of Conduct](https://github.com/neverinfamous/mysql-mcp/blob/main/CODE_OF_CONDUCT.md)

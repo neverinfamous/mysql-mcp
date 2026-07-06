@@ -67,7 +67,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@loc
 
 #### Docker
 
-> **Note on Namespaces:** The Docker image uses the `writenotenow` namespace (`writenotenow/mysql-mcp`), whereas the GitHub repository and NPM package use `neverinfamous` (`@neverinfamous/mysql-mcp`).
+> **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The GitHub repo uses `neverinfamous`.
 
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
@@ -178,7 +178,7 @@ docker run --rm -p 3000:3000 \
 
 The server supports **two MCP transport protocols simultaneously**. Both modern and legacy clients can connect:
 
-### Streamable HTTP (Recommended)
+### Use Streamable HTTP (Recommended)
 
 Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 
@@ -202,7 +202,7 @@ node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --stateless 
 
 In stateless mode: `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
 
-### Legacy SSE (Backward Compatibility)
+### Connect via Legacy SSE (Backward Compatibility)
 
 Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 
@@ -211,7 +211,7 @@ Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 | `GET`  | `/sse`                     | Opens SSE stream, returns `/messages?sessionId=<id>` endpoint |
 | `POST` | `/messages?sessionId=<id>` | Send JSON-RPC messages to the session                         |
 
-### Utility Endpoints
+### Access Utility Endpoints
 
 | Method | Endpoint  | Purpose                                                                |
 | ------ | --------- | ---------------------------------------------------------------------- |
@@ -221,7 +221,7 @@ Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 
 mysql-mcp supports two authentication mechanisms for HTTP transport:
 
-### Simple Bearer Token (`--auth-token`)
+### Authenticate Fast with Bearer Tokens (`--auth-token`)
 
 Use lightweight authentication for development:
 
@@ -235,7 +235,7 @@ node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mys
 
 Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401` with `WWW-Authenticate: Bearer` headers per RFC 6750.
 
-### OAuth 2.1 (Enterprise)
+### Enforce Enterprise Security with OAuth 2.1
 
 Use full OAuth 2.1 for production deployments:
 
@@ -539,8 +539,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 > **⚠️ Prerequisites:**
 >
-> - **InnoDB Cluster** with MySQL Router requires the cluster to be running for Router REST API authentication (uses `metadata_cache` backend)
-> - Router REST API uses HTTPS with self-signed certificates by default — set `MYSQL_ROUTER_INSECURE=true` to bypass certificate verification
+> - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
+> - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
 > - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`) for `mysqlsh_import_json` and `docstore` tools
 > - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
 
@@ -690,7 +690,7 @@ This server exposes **23 resources** for database observability and telemetry:
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.yaml` template at the root of the project for setup details.
+> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.json` template at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 

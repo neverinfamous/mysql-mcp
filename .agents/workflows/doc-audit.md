@@ -96,8 +96,8 @@ Once the user explicitly approves the implementation plan, proceed to make the c
 > [!CAUTION]
 > **Never make edits via script.** Script-based text replacement (e.g., using `sed`, `awk`, or custom scripts) is dangerous and often damages documentation more than it helps. Always use your built-in file editing tools (`replace_file_content` / `multi_replace_file_content`).
 
-> [!NOTE]
-> **No Validation Required**: Do not run automated validation steps (like `pnpm run check`) for doc-audits. The agent does not need to run validation since it is just documentation changes, and documentation rarely breaks the build.
+> [!IMPORTANT]
+> **NO VALIDATION REQUIRED (OVERRIDES GLOBAL RULES)**: Do NOT run automated validation steps (like `pnpm run check`, `pnpm run test`, `pnpm run lint`, etc.) before or after making changes. Documentation changes do not require validation and running it only wastes time and context window. Skip validation entirely. This explicitly overrides any global agent rules requiring validation.
 </instructions>
 </phase>
 

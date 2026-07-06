@@ -202,7 +202,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
 - ✅ **E2E transport parity** — Playwright suite validates HTTP/SSE security behavior
 
-## 🚨 **Security Best Practices**
+## 🚨 **Follow Security Best Practices**
 
 ### Best Practices for Users
 
@@ -225,7 +225,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 5. **Regular updates** — keep Node.js and npm dependencies updated
 6. **Security scanning** — regularly scan Docker images for vulnerabilities
 
-## 📋 **Security Checklist**
+## 📋 **Complete the Security Checklist**
 
 - [x] Parameterized SQL queries throughout
 - [x] Identifier sanitization (table, column, schema, index names)
@@ -259,7 +259,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Structured error responses (no internal details leaked)
 - [x] Comprehensive security documentation
 
-## 🚨 **Reporting Security Issues**
+## 🚨 **Report Security Issues**
 
 | Version | Supported |
 | ------- | --------- |
@@ -283,7 +283,7 @@ If you discover a security vulnerability:
 
 We appreciate responsible disclosure and will acknowledge your contribution in our release notes (unless you prefer to remain anonymous).
 
-## 🔄 **Security Updates**
+## 🔄 **Apply Security Updates**
 
 - **Container updates**: Rebuild Docker images when base images are updated
 - **Dependency updates**: Keep npm packages updated via `pnpm audit` and Dependabot
