@@ -15,13 +15,23 @@
 
 ## 🎯 Core Benefits
 
-- **241 Specialized Tools**: Access core CRUD, JSON, spatial data, cluster management, and schema migration.
-- **23 Resources**: Monitor real-time schema, performance metrics, and InnoDB diagnostics instantly.
-- **19 AI Prompts**: Execute guided workflows for query building, schema design, and performance tuning.
-- **Code Mode**: Execute complex operations locally. Reduce LLM token overhead by up to 90%.
-- **Dual Transport**: Enforce OAuth 2.1 over streamable HTTP and legacy SSE.
-- **Deterministic Error Handling**: Receive structured responses with actionable suggestions. Avoid raw exceptions entirely.
-- **Smart Tool Filtering**: Mix 28 tool groups and 16 shortcuts to bypass IDE limits.
+| Feature                               | Description                                                                                                                                                                                                                                                                            |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
+| **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
+| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by up to 90%. |
+| **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
+| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
+| **Smart Tool Filtering**              | Use 28 groups and 16 shortcuts to stay within IDE tool limits. |
+| **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
+| **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
+| **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
+| **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
+| **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
+| **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. |
+| **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
 
@@ -49,9 +59,9 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
 
-Code executes in a **C++ V8 isolate sandbox** (via `isolated-vm`) — a physically separate V8 isolate with strict heap limits and synchronous termination guarantees. All `mysql.*` API calls are mapped through the isolate boundary using native `ivm.Reference` wrappers. This provides:
+Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. We map all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
-- **Strict Isolate Boundary** — prevents native object cross-talk and eliminates prototype pollution vectors entirely since objects cannot cross the C++ boundary.
+- **Strict Isolate Boundary** — prevents native object cross-talk. It eliminates prototype pollution vectors entirely since objects cannot cross the boundary.
 - **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
 - **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
@@ -73,26 +83,24 @@ If you control your own setup, you can run with **only Code Mode enabled** — a
         "run",
         "-i",
         "--rm",
+        "-e", "MYSQL_HOST=localhost",
+        "-e", "MYSQL_PORT=3306",
+        "-e", "MYSQL_USER=your_user",
+        "-e", "MYSQL_PASSWORD=your_password",
+        "-e", "MYSQL_DATABASE=your_database",
+        "-e", "REDIS_URL=redis://localhost:6379",
         "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--tool-filter",
         "codemode"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_user",
-        "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database",
-        "REDIS_URL": "redis://localhost:6379"
-      }
+      ]
     }
   }
 }
 ```
 
-This exposes just `mysql_execute_code`. The agent writes JavaScript against the typed `mysql.*` SDK — composing queries, chaining operations across all 28 tool groups, and returning exactly the data it needs — in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/) pioneered by Cloudflare for their entire API: fixed token cost regardless of how many capabilities exist.
+This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across 28 groups. They return exactly the needed data in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/). It ensures fixed token costs.
 
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
