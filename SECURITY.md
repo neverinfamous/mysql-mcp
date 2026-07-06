@@ -2,13 +2,13 @@
 
 The mysql-mcp MySQL MCP server implements comprehensive security measures to protect your databases across stdio, HTTP, and SSE transports.
 
-## 🛡️ **Database Security**
+## 🛡️ **Secure Your Database**
 
 ### **SQL Injection Prevention**
 
 **Identifier Sanitization** (`src/utils/identifiers.ts`)
 
-- ✅ **Comprehensive coverage** — all table, column, schema, and index names validated and quoted across all 28 tool groups (including codemode, core, json, spatial, vector, cluster, router, proxysql, shell, docstore, sysschema, events, stats, roles, and security)
+- ✅ **Comprehensive coverage** — validates and quotes all table, column, schema, and index names across all 28 tool groups.
 - ✅ **MySQL identifier rules enforced** — start with letter/underscore, contain only alphanumerics, underscores, or $ signs
 - ✅ **64-character limit** enforced (MySQL maximum)
 - ✅ **Invalid identifiers** throw `InvalidIdentifierError`
@@ -40,9 +40,9 @@ Every tool returns structured error responses — never raw exceptions or intern
 }
 ```
 
-Error logic leverages the `MySQLMcpError` hierarchy (9 distinct categories) and returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed (e.g., `CONNECTION_ERROR`, `SCHEMA_NOT_FOUND`). Internal stack traces are logged server-side but never exposed to clients.
+Error logic leverages the `MySQLMcpError` hierarchy (9 distinct categories). It returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
 
-## 🔐 **Input Validation**
+## 🔐 **Validate Your Inputs**
 
 - ✅ **Zod schemas** — all tool inputs validated at tool boundaries before database operations
 - ✅ **Parameterized queries** used throughout — never string interpolation
@@ -50,29 +50,29 @@ Error logic leverages the `MySQLMcpError` hierarchy (9 distinct categories) and 
 - ✅ **Data masking aliases** — validated strictly at the MCP boundary to prevent evasion
 - ✅ **Identifier sanitization** — table, column, schema, and index names validated against injection
 
-## 📁 **Filesystem Boundary Sandbox**
+## 📁 **Enforce Filesystem Boundaries**
 
-A dedicated security sandbox strictly confines all file I/O operations exposed by the server (such as MySQL Shell operations and Audit Subsystem snapshots).
+A dedicated security sandbox strictly confines all file I/O operations exposed by the server. This includes MySQL Shell operations and Audit Subsystem snapshots.
 
-- ✅ **`ALLOWED_IO_ROOTS` Enforcement** — operations must target absolute paths within administrator-configured directories. HTTP transports hard-fail on startup if this is not configured.
+- ✅ **`ALLOWED_IO_ROOTS` Enforcement** — operations must target absolute paths within administrator-configured directories. HTTP transports hard-fail on startup if omitted.
 - ✅ **Path Traversal Prevention** — blocks directory traversal sequences (`..`), null bytes, and query parameters in path inputs.
 - ✅ **Symlink Awareness** — resolves and asserts `realpath` to prevent escaping the sandbox via symlink targets.
 - ✅ **Hidden Files Protection** — rejects dotfiles and hidden directories (unless explicitly authorized by the root config).
 - ✅ **Drive Letter Validation** — fully cross-platform compatible with strict Windows drive letter (`C:\`) and UNC path checking.
 
-## 🧪 **Code Mode Sandbox Security**
+## 🧪 **Secure Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` (C++ V8) sandbox with multiple layers of defense-in-depth and fleet-standard restrictions:
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
 ### **Engine-Level Restrictions**
 
-- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate via `isolated-vm` instead of `node:vm`, ensuring native objects and prototypes cannot cross the execution boundary.
-- ✅ **Memory & CPU Constraints** — enforced at the C++ level (e.g., synchronous timeout enforcement and strict memory heap limits).
+- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
 - ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
 
 ### **Static Code Validation**
 
-- ✅ **29 blocked patterns** — regex rules blocking `require()`, `import()`, `eval()`, `Function()`, `process`, `__proto__`, `constructor.constructor`, filesystem/network access, and system commands.
+- ✅ **29 blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
 - ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
 
@@ -86,7 +86,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` (C++ V8)
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 
-## 🌐 **HTTP Transport Security**
+## 🌐 **Secure HTTP Transports**
 
 When running in HTTP mode (`--transport http`), the following security measures apply:
 
@@ -124,7 +124,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 - ✅ **Memory Exhaustion Protection** — Strict request bounds prevent memory exhaustion DoS
 
-## 🔑 **Authentication (OAuth 2.1)**
+## 🔑 **Authenticate with OAuth 2.1**
 
 Full OAuth 2.1 for production multi-tenant deployments:
 
@@ -136,7 +136,7 @@ Full OAuth 2.1 for production multi-tenant deployments:
 
 > **⚠️ HTTP without OAuth:** When OAuth is not configured, all scope checks are bypassed. If you expose the HTTP transport without enabling OAuth, any client has full unrestricted access. Always enable OAuth for production HTTP deployments.
 
-## 🐳 **Docker Security**
+## 🐳 **Harden Docker Containers**
 
 ### **Non-Root User**
 
@@ -176,7 +176,7 @@ docker run -v ./data:/app/data:rw,noexec,nosuid,nodev writenotenow/mysql-mcp:lat
 docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 ```
 
-## 🔐 **Logging Security**
+## 🔐 **Secure Your Logs**
 
 ### **Audit Subsystem**
 
@@ -194,7 +194,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - ✅ **Control character sanitization** (ASCII 0x00-0x1F except tab/newline, 0x7F, C1 characters)
 - ✅ **Prevents log forging** and escape sequence attacks
 
-## 🔄 **CI/CD Security**
+## 🔄 **Secure CI/CD Pipelines**
 
 - ✅ **CodeQL analysis** — automated static analysis on push/PR
 - ✅ **pnpm audit** — dependency vulnerability checking (audit-level: moderate)
