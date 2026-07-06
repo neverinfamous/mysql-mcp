@@ -126,7 +126,7 @@ export function createSpatialCreateColumnTool(
           });
         }
         if (msg.includes("Duplicate column name")) {
-          const col = paramStr(params, "column");
+          const col = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn");
           const tbl = paramStr(params, "table") || paramStr(params, "tableName") || paramStr(params, "name");
           return withTokenEstimate({
             success: false, error: `Column '${col}' already exists on table '${tbl}'`, code: "QUERY_ERROR", category: "query", recoverable: false,
@@ -245,7 +245,7 @@ export function createSpatialCreateIndexTool(
           msg.includes("Key column") &&
           (msg.includes("does not exist in table") || msg.includes("doesn't exist in table"))
         ) {
-          const col = paramStr(params, "column");
+          const col = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
           return withTokenEstimate({
             success: false, error: `Column '${col}' does not exist on table '${tbl}'`, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false,
           });
@@ -254,8 +254,9 @@ export function createSpatialCreateIndexTool(
           return formatHandlerErrorResponse(error);
         }
         const idxFromParams = paramStr(params, "indexName");
+        const colForIdx = paramStr(params, "column") || paramStr(params, "col") || paramStr(params, "spatialColumn") || paramStr(params, "geometryColumn") || paramStr(params, "columns");
         const idx =
-          idxFromParams || `idx_spatial_${tbl}_${paramStr(params, "column")}`;
+          idxFromParams || `idx_spatial_${tbl}_${colForIdx}`;
         if (msg.includes("Duplicate key name")) {
           return withTokenEstimate({
             success: false, error: `Index '${idx}' already exists on table '${tbl}'`, code: "QUERY_ERROR", category: "query", recoverable: false,

@@ -641,6 +641,7 @@ export function preprocessSpatialParams(input: unknown): unknown {
     else if (result["column"] !== undefined) result["spatialColumn"] = result["column"];
     else if (result["columnName"] !== undefined) result["spatialColumn"] = result["columnName"];
     else if (result["geomColumn"] !== undefined) result["spatialColumn"] = result["geomColumn"];
+    else if (result["col"] !== undefined) result["spatialColumn"] = result["col"];
   }
 
   if (result["polygon"] === undefined) {
