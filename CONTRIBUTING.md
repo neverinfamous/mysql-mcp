@@ -210,7 +210,11 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ## 🔧 Adding or Modifying Tools
 
-mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. When adding a new tool:
+mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. 
+
+> **Note on Tool Counts:** The project maintains a hardcoded tool count of exactly **241 tools** for marketing visibility (documented across `README.md`, the Wiki, and `tool-constants.ts`). When adding or removing tools, you must update these hardcoded constants globally.
+
+When adding a new tool:
 
 1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/mysql/schemas/`
 2. **Implement the handler** in the corresponding adapter directory under `src/adapters/mysql/tools/`

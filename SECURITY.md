@@ -52,7 +52,7 @@ Error logic leverages the `MySQLMcpError` hierarchy (9 distinct categories) and 
 
 ## 📁 **Filesystem Boundary Sandbox**
 
-All file I/O operations exposed by the server (such as MySQL Shell dump, load, import, export tools, and the Audit Subsystem snapshots) are strictly confined to a dedicated security sandbox.
+A dedicated security sandbox strictly confines all file I/O operations exposed by the server (such as MySQL Shell operations and Audit Subsystem snapshots).
 
 - ✅ **`ALLOWED_IO_ROOTS` Enforcement** — operations must target absolute paths within administrator-configured directories. HTTP transports hard-fail on startup if this is not configured.
 - ✅ **Path Traversal Prevention** — blocks directory traversal sequences (`..`), null bytes, and query parameters in path inputs.
@@ -103,7 +103,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 ### **HSTS Support**
 
 - ✅ **Strict-Transport-Security** header for HTTPS deployments
-- ✅ Enable via `enableHSTS: true` configuration
+- ✅ Enable via `--enable-hsts` flag or `MCP_ENABLE_HSTS=true`
 
 ### **CORS Configuration**
 

@@ -35,25 +35,7 @@ Leverage OAuth 2.1 for enterprise security.
 
 ### Installation
 
-#### NPM / PNPM (Recommended)
-
-```bash
-pnpm add -g @neverinfamous/mysql-mcp
-```
-
-Run the server:
-
-```bash
-mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
-```
-
-Or use npx without installing:
-
-```bash
-npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
-```
-
-#### Docker
+#### Docker (Recommended)
 
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
@@ -150,8 +132,8 @@ This exposes just `mysql_execute_code`. The agent writes JavaScript against the 
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
-      "args": ["C:/path/to/mysql-mcp/dist/cli.js", "--transport", "stdio"],
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "writenotenow/mysql-mcp:latest", "--transport", "stdio"],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",

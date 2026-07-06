@@ -19,7 +19,7 @@ Systematically execute all Code Mode tests in `test-server/test-codemode/` to ve
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
 3. **Validation and Immediate Continuation**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint && pnpm run typecheck`. They MUST SKIP `pnpm run test` and `pnpm run test:e2e`. The coordinator will run `pnpm run check` to validate the full suite at the end. Ensure the local checks pass cleanly and any resulting errors are fixed.
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run check`. Ensure the local checks pass cleanly and any resulting errors are fixed.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
 4. **Finalization and Commit**:
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.

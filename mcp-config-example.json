@@ -26,7 +26,13 @@
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
         "MYSQL_XPORT": "33060",
-        "LOG_LEVEL": "info"
+        "LOG_LEVEL": "info",
+        "MCP_HOST": "127.0.0.1",
+        "MCP_AUTH_TOKEN": "your-auth-token-here",
+        "REDIS_URL": "redis://localhost:6379",
+        "OAUTH_ENABLED": "false",
+        "MYSQLSH_PATH": "mysqlsh",
+        "CODEMODE_ISOLATION": "sandbox"
       }
     }
   }

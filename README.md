@@ -89,7 +89,7 @@ node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/
 
 Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and is included by default in all presets.
 
-Code executes in a **C++ V8 isolate sandbox** (via `isolated-vm`) — a physically separate V8 isolate with strict heap limits and synchronous termination guarantees. All `mysql.*` API calls are mapped through the isolate boundary using native `ivm.Reference` wrappers. This provides:
+Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate. It enforces strict heap limits and synchronous termination. We map `mysql.*` API calls through the boundary using native wrappers. This provides:
 
 - **Strict Isolate Boundary** — prevents native object cross-talk and eliminates prototype pollution vectors entirely since objects cannot cross the C++ boundary.
 - **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
@@ -129,7 +129,7 @@ If you control your own setup, you can run with **only Code Mode enabled** — a
 }
 ```
 
-This exposes just `mysql_execute_code`. The agent writes JavaScript against the typed `mysql.*` SDK — composing queries, chaining operations across all 28 tool groups, and returning exactly the data it needs — in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/) pioneered by Cloudflare for their entire API: fixed token cost regardless of how many capabilities exist.
+This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across 28 groups. They return exactly the needed data in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/). It ensures fixed token costs.
 
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
@@ -746,6 +746,8 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
+| `--max-body-size`         | `MAX_BODY_SIZE`         | Maximum HTTP request body size in bytes             |
+| —                         | `CODE_MODE_TIMEOUT_MS`  | Code Mode execution hard timeout in ms              |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
@@ -768,8 +770,7 @@ Schema metadata is cached to reduce repeated queries during tool/resource invoca
 See **[From Source](#from-source)** above for setup. After cloning:
 
 ```bash
-pnpm run lint && pnpm run typecheck  # Run checks
-pnpm test                            # Run tests
+pnpm run check  # Run lint, typecheck, unit tests, and E2E tests
 ```
 
 ### MCP Inspector

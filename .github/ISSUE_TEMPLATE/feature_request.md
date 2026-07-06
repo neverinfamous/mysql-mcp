@@ -5,7 +5,10 @@ title: "[FEATURE] "
 labels: enhancement
 ---
 
-## Feature Description
+> 🚀 **Unleash AI on your Enterprise Data**
+> *Build AI integrations instantly. Empower agents with secure database access. Scale operations with robust connection pooling.*
+
+## ✨ Feature Description
 
 What you'd like to see.
 

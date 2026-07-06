@@ -5,7 +5,10 @@ title: "[BUG] "
 labels: bug
 ---
 
-## Description
+> 🚀 **Unleash AI on your Enterprise Data**
+> *Build AI integrations instantly. Empower agents with secure database access. Scale operations with robust connection pooling.*
+
+## 🐛 Description
 
 What happened?
 

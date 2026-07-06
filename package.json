@@ -1,7 +1,7 @@
 {
   "name": "@neverinfamous/mysql-mcp",
   "version": "3.2.2",
-  "description": "Enterprise-grade MySQL MCP Server with OAuth 2.0 authentication, connection pooling & tool filtering",
+  "description": "Enterprise-grade MySQL MCP Server with OAuth 2.1 authentication, connection pooling & tool filtering",
   "type": "module",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

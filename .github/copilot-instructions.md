@@ -132,7 +132,6 @@ src/
 
 When reviewing PRs, check for:
 
-- [ ] Hardcoded tool/group counts — should be dynamic
 - [ ] Missing barrel exports in `src/types/index.ts` when new types are added
 - [ ] `eslint-disable` usage — always forbidden
 - [ ] `@ts-ignore` or `as any` — always forbidden
@@ -145,7 +144,7 @@ When reviewing PRs, check for:
 - [ ] `continue-on-error: true` in workflow files — forbidden per project standards
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Market value proposition blocks prominent in README (ensure <15 words and active voice)
+- [ ] Market value proposition blocks prominent in README (ensure strict compliance with exact Value Proposition text)
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
