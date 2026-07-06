@@ -5,8 +5,13 @@ title: "[FEATURE] "
 labels: enhancement
 ---
 
-> 🚀 **Unleash AI on your Enterprise Data**
-> *Build AI integrations instantly. Empower agents with secure database access. Scale operations with robust connection pooling.*
+## Value Proposition
+
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 ## ✨ Feature Description
 

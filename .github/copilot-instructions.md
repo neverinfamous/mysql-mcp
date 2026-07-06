@@ -136,6 +136,7 @@ When reviewing PRs, check for:
 - [ ] `@ts-ignore` or `as any` — always forbidden
 - [ ] Raw exceptions from tool handlers — must use structured error responses
 - [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
+- [ ] 241 tools clearly referenced and updated in any markdown list if tools were added/removed
 - [ ] Files approaching 500 lines — flag for splitting
 - [ ] New tools missing from tool filtering configuration
 - [ ] Missing Zod schemas on new tools

@@ -17,7 +17,7 @@
 - Scale operations with robust connection pooling.
 - Leverage OAuth 2.1 for enterprise security.
 
-Complete list of all **200+ tools** across groups.
+Complete list of all **241 tools** across groups.
 >
 > 🚀 **Core Features:** Enjoy enterprise-grade capabilities like **OAuth 2.1** for robust security, **Code Mode** for execution speed, and advanced **Connection Pooling** for performance.
 > Every tool returns structured `{success, error}` responses — no raw exceptions, no silent failures. See the README for details.

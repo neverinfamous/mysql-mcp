@@ -146,7 +146,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 Use the HTTP transport for remote access:
 
 ```bash
-node dist/cli.js \
+npx -y @neverinfamous/mysql-mcp \
   --transport http \
   --server-host 0.0.0.0 \
   --port 3000 \
@@ -275,9 +275,10 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
+      "command": "npx",
       "args": [
-        "C:/path/to/mysql-mcp/dist/cli.js",
+        "-y",
+        "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
         "--mysql",
@@ -294,8 +295,8 @@ The server exposes metadata at `/.well-known/oauth-protected-resource`.
 {
   "mcpServers": {
     "mysql-mcp": {
-      "command": "node",
-      "args": ["C:/path/to/mysql-mcp/dist/cli.js", "--transport", "stdio"],
+      "command": "npx",
+      "args": ["-y", "@neverinfamous/mysql-mcp", "--transport", "stdio"],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",

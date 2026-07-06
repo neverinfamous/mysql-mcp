@@ -23,7 +23,7 @@ The testing infrastructure for `mysql-mcp` is split into four directories, match
 
 ## Standardization
 
-All 174 test prompts are strictly standardized using a template-driven approach.
+All 263 test prompts are strictly standardized using a template-driven approach.
 
 To update or expand tests:
 1. Do not edit boilerplate manually.

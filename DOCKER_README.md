@@ -7,12 +7,11 @@
 
 ## 💎 Value Proposition
 
-- ⚡ **Build AI Integrations Instantly:** Accelerate development with plug-and-play architecture.
-- 🛡️ **Enterprise-Grade Security:** Fortify your data with robust OAuth 2.1 authentication and strict access controls.
-- 🚀 **Blazing-Fast Code Mode:** Execute complex, sandboxed logic directly within the worker-thread for 70-90% token savings.
-- 📈 **Massive Scalability:** Scale operations effortlessly with high-performance connection pooling.
-- 🐳 **Production-Ready Docker:** Deploy seamlessly with comprehensive containerized environments.
-- 🧠 **Agent-Empowered Data:** Give autonomous agents zero-hallucination, secure database introspection.
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 ## 🎯 Core Benefits
 
@@ -52,8 +51,6 @@ docker run -i --rm neverinfamous/mysql-mcp:latest \
   --mysql mysql://user:password@host.docker.internal:3306/database
 ```
 
-
-
 ---
 
 ## ⚡ Maximize Efficiency with Code Mode
@@ -84,18 +81,26 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
         "run",
         "-i",
         "--rm",
-        "-e", "MYSQL_HOST=host.docker.internal",
-        "-e", "MYSQL_PORT=3306",
-        "-e", "MYSQL_USER=your_user",
-        "-e", "MYSQL_PASSWORD=your_password",
-        "-e", "MYSQL_DATABASE=your_database",
-        "-e", "REDIS_URL=redis://localhost:6379",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "-e", "REDIS_URL",
         "neverinfamous/mysql-mcp:latest",
         "--transport",
         "stdio",
         "--tool-filter",
         "codemode"
-      ]
+      ],
+      "env": {
+        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "your_user",
+        "MYSQL_PASSWORD": "your_password",
+        "MYSQL_DATABASE": "your_database",
+        "REDIS_URL": "redis://localhost:6379"
+      }
     }
   }
 }
