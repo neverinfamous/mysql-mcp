@@ -662,7 +662,7 @@ This server exposes **23 resources** for database observability and telemetry:
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** You can now configure the server using native JSON or YAML configuration files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.yaml` and `server-config-example.json` templates at the root of the project for setup details.
+> **Tip:** You can now configure the server using native JSON or YAML configuration files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `mcp-config-example.yaml` and `mcp-config-example.json` templates at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 

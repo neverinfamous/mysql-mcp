@@ -29,7 +29,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
    - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
-   - The subagent MUST commit all changes locally (`bun .\.agents\scripts\commit.ts --msg "test(usability): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`).
+   - The subagent MUST commit all changes locally (`bun .\.agents\scripts\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the current Phase.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
@@ -39,8 +39,8 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "This is test X out of 57. Fixed Z issues [W Prompt / V Code]."
-   - Do NOT output any other text to the user during the test sequence.
+   - The Coordinator MUST respond to the user as each test proceeds and include the running count: "This is test X out of 57. Fixed Z issues [W Prompt / V Code]."
+   - The Coordinator is allowed to output additional information and custom messages (such as Phase transitions) as long as the running count is included.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-tool-groups/` BEFORE starting, and cross-reference the actual directory contents against the list below.
    - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.

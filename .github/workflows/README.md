@@ -79,8 +79,8 @@ flowchart LR
 
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [docker-publish.yml](docker-publish.yml)   | `workflow_run` from lint-and-test (on `main`)       | Security scan (Docker Scout + Trivy), smoke test, multi-arch build (amd64 + arm64), manifest merge, Docker Hub description update                 |
-| [publish-npm.yml](publish-npm.yml)         | release published / manual                          | Version verification, build, publish to npm with `--provenance` (SLSA Build L3)                                                                   |
+| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag)            | Security scan (Docker Scout + Trivy), smoke test, multi-arch build (amd64 + arm64), manifest merge, Docker Hub description update                 |
+| [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Version verification, build, publish to npm with `--provenance` (SLSA Build L3)                                                                   |
 
 ### Automate with Agentic Workflows
 
@@ -104,16 +104,19 @@ push to main
       ├── lint (Node 24.x + 25.x matrix)
       ├── security-scan (pnpm audit)
       └── docker-smoke-test (build + HTTP start)
-            ↓ workflow_run completed
-          docker-publish
-              ├── security-scan (Docker Scout + Trivy)
-              ├── smoke-test (binary load + HTTP start)
-              └── build-platform (amd64 + arm64)
-                    ↓ all platforms built
-                  merge-and-push (multi-arch manifest)
-```
+            ↓ lint-and-test success
+          gatekeeper
+              ├── docker-publish
+              │     ├── security-scan (Docker Scout + Trivy)
+              │     ├── smoke-test (binary load + HTTP start)
+              │     └── build-platform (amd64 + arm64)
+              │           ↓ all platforms built
+              │         merge-and-push (multi-arch manifest)
+              └── publish-npm
+                    ├── Version verification
+                    └── Publish to npm with SLSA provenance
 
-For npm releases, the maintainer creates a GitHub release (tag `vX.Y.Z`), which triggers `publish-npm` with version verification and SLSA provenance.
+For releases, the `gatekeeper.yml` workflow orchestrates both Docker and NPM publishing when a tag (e.g., `vX.Y.Z`) is pushed to the repository.
 
 ---
 
