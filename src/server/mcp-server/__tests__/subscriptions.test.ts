@@ -74,7 +74,7 @@ describe("setupSubscriptions", () => {
         
         expect(() => subscribeHandler(request, extra)).toThrow(McpError);
         expect(() => subscribeHandler(request, extra)).toThrowError(
-          new RegExp(`Resource ${uri} is not subscribable`)
+          `Resource ${uri} is not subscribable`
         );
         expect(subscriptionManager.subscribe).not.toHaveBeenCalledWith(uri, expect.anything());
       }

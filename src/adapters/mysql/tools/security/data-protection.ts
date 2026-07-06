@@ -323,8 +323,7 @@ export function createSecurityUserPrivilegesTool(
           );
         }
         // P154: User existence check when explicitly provided
-        if (user) {
-          const userCheck = await adapter.executeQuery(
+        const userCheck = await adapter.executeQuery(
             "SELECT User FROM mysql.user WHERE User = ? LIMIT 1",
             [user],
           );
@@ -333,7 +332,6 @@ export function createSecurityUserPrivilegesTool(
               new ValidationError(`User '${user}' does not exist.`),
             );
           }
-        }
 
         // Get users
         let usersQuery = `
@@ -350,10 +348,9 @@ export function createSecurityUserPrivilegesTool(
         const conditions: string[] = [];
         const queryParams: unknown[] = [];
 
-        if (user) {
-          conditions.push("User = ?");
-          queryParams.push(user);
-        }
+        conditions.push("User = ?");
+        queryParams.push(user);
+        
         if (host !== "%") {
           conditions.push("Host = ?");
           queryParams.push(host);
@@ -494,8 +491,7 @@ export function createSecuritySensitiveTablesTool(
           );
         }
         // P154: Schema existence check when explicitly provided
-        if (schema) {
-          const schemaCheck = await adapter.executeQuery(
+        const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [schema],
           );
@@ -504,7 +500,6 @@ export function createSecuritySensitiveTablesTool(
               new ValidationError(`Schema '${schema}' does not exist.`),
             );
           }
-        }
 
         // Build pattern conditions
         const patternConditions = patterns
@@ -512,11 +507,9 @@ export function createSecuritySensitiveTablesTool(
           .join(" OR ");
         const patternParams = patterns.map((p) => `%${p}%`);
 
-        // Build schema condition - use explicit schema if provided, otherwise DATABASE()
-        const schemaCondition = schema
-          ? "TABLE_SCHEMA = ?"
-          : "TABLE_SCHEMA = DATABASE()";
-        const schemaParams = schema ? [schema] : [];
+        // Build schema condition - use explicit schema if provided
+        const schemaCondition = "TABLE_SCHEMA = ?";
+        const schemaParams = [schema];
 
         const query = `
                 SELECT
