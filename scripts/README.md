@@ -181,13 +181,7 @@ npx tsx scripts/teardown.ts
 
 ## ⚙️ Maintain and Evolve Your Architecture
 
-### `update-code-map.ts`
 
-Automatically scans `src/adapters/mysql/tools` and `src/adapters/mysql/resources` to generate an updated architectural markdown map (`test-server/code-map.md`). This keeps the repository's documentation synchronized with the actual codebase schema.
-
-```bash
-npx tsx scripts/update-code-map.ts
-```
 
 ### `generate-server-instructions.ts`
 

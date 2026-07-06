@@ -141,7 +141,7 @@ src/
 
 241 tools across groups. Each handler file registers tools with `group` labels.
 
-<!-- BEGIN: TOOL_MAPPING -->
+
 | Group | Tools |
 | **admin** | `mysql_audit_search`, `mysql_append_insight`, `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`, `mysql_server_config` |
 | **backup** | `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump` |
@@ -172,7 +172,7 @@ src/
 | **transactions** | `mysql_transaction_begin`, `mysql_transaction_commit`, `mysql_transaction_rollback`, `mysql_transaction_savepoint`, `mysql_transaction_release`, `mysql_transaction_rollback_to`, `mysql_transaction_execute` |
 | **vector** | `mysql_vector_info`, `mysql_vector_create_index`, `mysql_vector_optimize`, `mysql_vector_stats`, `mysql_vector_search`, `mysql_vector_range_search`, `mysql_vector_hybrid_search`, `mysql_vector_store`, `mysql_vector_batch_store`, `mysql_vector_delete`, `mysql_vector_get` |
 
-<!-- END: TOOL_MAPPING -->
+
 
 ---
 
@@ -191,7 +191,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 19 AI-Powered Prompts across specialized workflow files:
 
-<!-- BEGIN: PROMPTS -->
+
 | Prompt | Description |
 | ------ | ----------- |
 | `mysql_tool_index` | Show all available MySQL tools organized by category |
@@ -214,7 +214,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `mysql_setup_spatial` | Complete MySQL Spatial/GIS setup and usage guide |
 | `mysql_sys_schema_guide` | Complete MySQL sys schema usage guide for diagnostics and troubleshooting |
 
-<!-- END: PROMPTS -->
+
 
 ---
 
@@ -224,7 +224,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ### Data Resources
 
-<!-- BEGIN: RESOURCES -->
+
 | URI | Name |
 | --- | ---- |
 | `mysql://capabilities` | Server Capabilities |
@@ -248,7 +248,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 | `mysql://tables` | Table List |
 | `mysql://variables` | Server Variables |
 
-<!-- END: RESOURCES -->
+
 
 ### Server-Level Resources (`src/server/mcp-server/resources.ts`)
 
