@@ -10,7 +10,7 @@ This guide instructs the Coordinator agent on how to run the `mysql-mcp` Advance
 
 ## Goal
 
-Systematically execute all Advanced Code Mode tests in `test-server/test-advanced/` to verify sandbox isolation, workflow orchestration, payload optimization, and error handling for complex, multi-step agentic sequences. You will delegate testing to subagents, ensuring high-fidelity results and structured error handling, while compiling telemetry.
+Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, workflow orchestration, payload optimization, and error handling. Delegate testing to subagents for high-fidelity results. Compile telemetry during execution.
 
 
 
