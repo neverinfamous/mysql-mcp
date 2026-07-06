@@ -52,15 +52,7 @@ The repository contains an exhaustive suite of testing environments:
 
 ---
 
-## 🧠 Master Orchestration Context & Customizations
-
-This repository is governed by the broader `neverinfamous` ecosystem orchestrated via the **adamic** repository. If you require environmental context regarding commit strategies, CLI execution, or history retrieval, consult the ecosystem tools:
-
-- **Master Orchestration**: `C:\Users\chris\Desktop\adamic\.agents\AGENT_README.md`
-- **CLI Execution Wrapper**: `C:\Users\chris\Desktop\adamic\.agents\scripts\lib-agent-exec\AGENT_README.md` (Explains PowerShell execution boundaries, WSL crossing, and frictionless recovery).
-- **Git History**: `C:\Users\chris\Desktop\adamic\.agents\scripts\lib-git-history\AGENT_README.md`
-
-### 💡 Relevant Agent Skills
+## 💡 Relevant Agent Skills
 
 If available in your workspace customization roots, load these skills (via slash commands or triggers) when performing related work:
 
