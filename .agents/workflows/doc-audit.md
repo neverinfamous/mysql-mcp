@@ -40,6 +40,7 @@ Divide the target files into logical groups and dispatch multiple parallel `main
 **Crucial Instructions for the Main Repo Subagent**:
 - Cross-compare all files to spot discrepancies, conflicting claims, or obviously outdated information.
 - **Marketing Compliance**: Maximize the marketing aspect by structuring docs to put best features forward, but keep rhetoric tasteful, professional, and not hyperbolic or grandiose. Ensure READMEs and Wikis have a prominent "Value Proposition" block at the top. Use active voice, benefit-driven headers, and concise sentences (<15 words).
+- **Maintainability & Version Agnosticism**: Use version-agnostic text whenever possible without a significant loss of value. When documenting MCP servers, conservatively avoid listing exact tool counts, tool group counts, shortcut tool group counts, resource counts, and prompt counts unless the exact number is contextually necessary or provides significant value. This reduces the burden of updating documentation as the repository rapidly evolves.
 - **Platform Limits**: Ensure `DOCKER_README.md` MUST NOT exceed Docker Hub's 25,000 character limit.
 - **Error Handling**: If you encounter an unexpected error, fail gracefully and report back. Do not enter autonomous retry loops.
 - **Reporting**: Do NOT make any changes. Compile a detailed list of every discrepancy or drift you find, specifying exactly what is wrong and how it should be fixed, and report this back to the primary agent.
@@ -64,6 +65,7 @@ If a Wiki Repository exists, do not audit linearly to prevent context exhaustion
      - "Cross-compare your pages to spot discrepancies, conflicting claims, or obviously outdated information."
      - "Enhance the marketing tone of technical docs to emphasize core value, but keep it tasteful, professional, and avoid hyperbolic or grandiose rhetoric."
        > **Note**: When updating schemas or validation logic, please refer to the `/zod` skill for best practices on Standard Schema and Safe Parsing.
+     - "Maintainability & Version Agnosticism: Use version-agnostic text whenever possible without a significant loss of value. When documenting MCP servers, conservatively avoid listing exact tool counts, tool group counts, shortcut tool group counts, resource counts, and prompt counts unless the exact number is contextually necessary or provides significant value."
      - "Error Handling: If you encounter an unexpected error, fail gracefully and report back. Do not enter autonomous retry loops."
      - "Reporting: Do NOT make any changes. Compile a detailed list of every discrepancy or drift you find, specifying exactly what is wrong and how it should be fixed, and report this back to the primary agent."
 </instructions>
@@ -94,7 +96,7 @@ Use the artifact metadata to set `RequestFeedback: true`. **STOP and wait for th
 Once the user explicitly approves the implementation plan, proceed to make the changes to the documentation.
 
 > [!CAUTION]
-> **Never make edits via script.** Script-based text replacement (e.g., using `sed`, `awk`, or custom scripts) is dangerous and often damages documentation more than it helps. Always use your built-in file editing tools (`replace_file_content` / `multi_replace_file_content`).
+> **Never make edits via script.** Script-based text replacement (e.g., using `sed`, `awk`, `python`, or custom scripts) is incredibly dangerous and frequently corrupts documentation or causes unintended data loss. **The agent should NEVER take such risks under any circumstances.** For extensive edits, you MUST dispatch subagents to handle the work in parallel, and all edits must exclusively use the native file editing tools (`replace_file_content` / `multi_replace_file_content`).
 
 > [!IMPORTANT]
 > **NO VALIDATION REQUIRED (OVERRIDES GLOBAL RULES)**: Do NOT run automated validation steps (like `pnpm run check`, `pnpm run test`, `pnpm run lint`, etc.) before or after making changes. Documentation changes do not require validation and running it only wastes time and context window. Skip validation entirely. This explicitly overrides any global agent rules requiring validation.
