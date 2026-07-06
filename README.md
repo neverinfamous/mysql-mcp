@@ -91,7 +91,7 @@ Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%) and
 
 Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate. It enforces strict heap limits and synchronous termination. We map `mysql.*` API calls through the boundary using native wrappers. This provides:
 
-- **Strict Isolate Boundary** — prevents native object cross-talk and eliminates prototype pollution vectors entirely since objects cannot cross the C++ boundary.
+- **Strict Isolate Boundary** — prevents native object cross-talk. It eliminates prototype pollution vectors entirely since objects cannot cross the boundary.
 - **29 blocked patterns** — static regex rules blocking `require()`, `process`, `eval()`, filesystem/network access, and system commands, enforced after NFKC normalization and comment stripping.
 - **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
@@ -367,7 +367,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering to stay within your IDE's limits. All shortcuts and tool groups include **Code Mode** (`mysql_execute_code`) by default for token-efficient operations. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 241 tools available, you MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -580,8 +580,8 @@ If you start with a negative filter (e.g., `-ecosystem`), it assumes you want to
 
 You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
 
-The easiest way to filter is using **whitelist mode** — simply specify the shortcut you want, and everything else is automatically disabled.
-> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
+The easiest way to filter is using **whitelist mode**. Simply specify the shortcut you want. Everything else is automatically disabled.
+> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 ```bash
 # Enable exactly 3 tools (whitelist mode)
