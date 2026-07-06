@@ -9,6 +9,10 @@ on:
         type: boolean
         required: true
         default: false
+      bypass_reason:
+        description: 'Justification for bypassing upstream safety gates (required when emergency_bypass is true)'
+        required: false
+        default: ''
 
 env:
   REGISTRY: docker.io
@@ -27,12 +31,22 @@ jobs:
       security-events: write
 
     steps:
-      - name: Verify emergency bypass
-        if: github.event_name == 'workflow_dispatch' && inputs.emergency_bypass != true
+      - name: Require emergency bypass acknowledgment
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          BYPASS_REASON: ${{ inputs.bypass_reason }}
         run: |
-          echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
-          echo "To proceed, you must explicitly check the 'emergency_bypass' option."
-          exit 1
+          if [ "${{ inputs.emergency_bypass }}" != "true" ]; then
+            echo "❌ Error: Direct execution via workflow_dispatch bypasses upstream safety gates."
+            echo "To proceed, you must explicitly check the 'emergency_bypass' option."
+            exit 1
+          fi
+          if [ ${#BYPASS_REASON} -lt 10 ]; then
+            echo "❌ Error: Emergency bypass requires a justification reason of at least 10 characters."
+            exit 1
+          fi
+          echo "⚠️ Emergency Bypass Acknowledged"
+          echo "Justification: $BYPASS_REASON"
 
       - name: Checkout repository
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -158,7 +172,7 @@ jobs:
   # Build each platform on native architecture (only runs if security scan passes)
   build-platform:
     needs: [security-scan, smoke-test]
-    if: needs.security-scan.result == 'success' && needs.smoke-test.result == 'success' && github.event_name != 'pull_request'
+    if: needs.smoke-test.result == 'success' && github.event_name != 'pull_request'
     strategy:
       fail-fast: false
       matrix:
@@ -254,6 +268,7 @@ jobs:
       deployments: write
 
     environment:
+      # Evaluates to 'production' if tag push OR emergency bypass, otherwise '' (no environment gate)
       name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass) && 'production' || '' }}
       url: https://hub.docker.com/r/writenotenow/mysql-mcp
 

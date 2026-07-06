@@ -43,8 +43,8 @@ jobs:
             echo "To proceed, you must explicitly check the 'emergency_bypass' option."
             exit 1
           fi
-          if [ -z "$BYPASS_REASON" ]; then
-            echo "❌ Error: Emergency bypass requires a justification reason."
+          if [ ${#BYPASS_REASON} -lt 10 ]; then
+            echo "❌ Error: Emergency bypass requires a justification reason of at least 10 characters."
             exit 1
           fi
           echo "⚠️ Emergency Bypass Acknowledged"
@@ -100,6 +100,7 @@ jobs:
       - name: Publish to NPM
         # Note: tests and QA gates are expected to be run by the caller (gatekeeper.yml)
         # on the workflow_call path. The emergency path skips them.
+        # Bypass logic is deliberately absent on the workflow_call path because upstream gatekeeper validates all safety gates.
         run: pnpm publish --access public --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
