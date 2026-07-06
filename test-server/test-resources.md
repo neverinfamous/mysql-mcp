@@ -16,6 +16,8 @@
 
 mysql-mcp exposes 23 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
+> **Note on Resource Counts**: While there are 20 data resource URIs in total, the `src/adapters/mysql/resources/` directory truly contains exactly 19 `.ts` implementation files. The discrepancy exists because one of the implementation files handles a parameterized route (`mysql://table/{name}`), which effectively exposes an extra URI pattern.
+
 ### Setup
 
 ```powershell
