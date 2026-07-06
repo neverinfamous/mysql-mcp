@@ -52,13 +52,13 @@ pnpm add -g @neverinfamous/mysql-mcp
 Run the server:
 
 ```bash
-mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+mysql-mcp --transport stdio --mysql "mysql://user:password@localhost:3306/database"
 ```
 
 Or use npx without installing:
 
 ```bash
-npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@localhost:3306/database
+npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://user:password@localhost:3306/database"
 ```
 
 #### Docker
@@ -68,7 +68,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql mysql://user:password@loc
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
-  --mysql mysql://user:password@host.docker.internal:3306/database
+  --mysql "mysql://user:password@host.docker.internal:3306/database"
 ```
 
 #### From Source
@@ -78,7 +78,7 @@ git clone https://github.com/neverinfamous/mysql-mcp.git
 cd mysql-mcp
 pnpm install
 pnpm run build
-node dist/cli.js --transport stdio --mysql mysql://user:password@localhost:3306/database
+node dist/cli.js --transport stdio --mysql "mysql://user:password@localhost:3306/database"
 ```
 
 ---
@@ -105,7 +105,7 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — Enforces a 30s hard limit. It prevents resource exhaustion.
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
@@ -184,7 +184,7 @@ Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 | `GET`    | `/mcp`   | SSE stream for server notifications              |
 | `DELETE` | `/mcp`   | Session termination                              |
 
-> **Rate Limit:** HTTP transport is limited to 100 requests per minute per IP.
+> **Rate Limit:** HTTP transport is limited to 100 requests per minute per IP. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 
 Sessions are managed via the `Mcp-Session-Id` header.
 
@@ -362,7 +362,7 @@ Run MCP server on the same network:
 
 ```bash
 docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
-  --transport stdio --mysql mysql://root:pass@mysql-db:3306/mysql
+  --transport stdio --mysql "mysql://root:pass@mysql-db:3306/mysql"
 ```
 
 ### Remote/Cloud MySQL (RDS, Cloud SQL, etc.)

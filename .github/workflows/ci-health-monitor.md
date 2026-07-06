@@ -21,13 +21,11 @@ permissions: read-all
 
 ## 💎 Value Proposition
 
-The enterprise-grade MySQL integration for AI agents. Drastically reduce LLM token overhead with sandboxed Code Mode execution, scale seamlessly with built-in connection pooling, and enforce zero-trust security via strict OAuth 2.1 access controls.
-
-- **Execute complex logic natively via Code Mode**, reducing LLM token consumption by 70-90%.
-- **Accelerate agentic workflows** with a comprehensive suite of 200+ specialized tools.
-- **Provision secure, sandboxed database access** engineered specifically for AI agents.
-- **Scale enterprise operations** seamlessly with highly optimized connection pooling.
-- **Ensure uncompromising security** with native OAuth 2.1 integration.
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 safe-outputs:
   report-failure-as-issue: false

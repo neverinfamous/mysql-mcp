@@ -231,7 +231,7 @@ During testing, check for these inconsistencies:
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
    - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
-   - Test database (`scripts/test-seed.sql`)
+   - Test database (`test-server/test-seed.sql`)
    - This prompt
 
 ### Perform Steps After Implementation

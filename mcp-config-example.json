@@ -19,6 +19,8 @@
         "ALLOWED_IO_ROOTS": "/app/data,C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
+        "AUDIT_LOG_PATH": "/app/data/audit.jsonl",
+        "MCP_REQUEST_TIMEOUT": "30000",
         "REDIS_URL": "redis://localhost:6379",
         "MYSQL_ROUTER_URL": "https://localhost:8443",
         "MYSQL_ROUTER_USER": "rest_api",

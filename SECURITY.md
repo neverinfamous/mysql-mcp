@@ -84,7 +84,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — 30s hard limit (not configurable, enforced by the isolate engine) to prevent resource exhaustion.
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
@@ -134,6 +134,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
+- ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
 - ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
 - ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading

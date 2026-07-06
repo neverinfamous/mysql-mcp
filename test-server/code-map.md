@@ -4,7 +4,7 @@
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 [![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
 [![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
@@ -125,7 +125,7 @@ src/
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # 19 AI-Powered Prompts (see § below)
-│       ├── resources/              # 23 Core Observability Resources (see § below)
+│       ├── resources/              # 22 Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -214,7 +214,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Leverage Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
 
-23 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
+22 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -391,6 +391,10 @@ try {
 | `test-server/README.md`                     | Agent testing orchestration doc                                      |
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
+| `test-server/tool-reference.md`             | Categorized tool inventory                                           |
+| `test-server/test-preflight.md`             | Pre-flight test setup checklist                                      |
+| `test-server/test-resources.sql`            | Seed SQL for resource testing                                        |
+| `infrastructure/`                           | Docker Compose and infrastructure config                             |
 | `scripts/reset-database.mjs`                | Reset script - drops + re-seeds `testdb`                             |
 | `test-server/test-tools.md`                 | Entry-point protocol for manual agent testing                        |
 | `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                     |
@@ -411,7 +415,7 @@ try {
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
 | `test-server/test-prompts-notes.md`         | Prompt testing plan                                                  |
 | `test-server/test-prompts.sql`              | Seed SQL for prompt testing (19 AI-Powered Prompts)                  |
-| `test-server/test-resources.md`             | Resource testing plan (23 Observability Resources)                           |
+| `test-server/test-resources.md`             | Resource testing plan (22 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

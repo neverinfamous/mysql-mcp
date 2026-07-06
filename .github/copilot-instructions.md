@@ -123,6 +123,7 @@ src/
 | ------------------------------- | ----------------------------------- |
 | `test-server/code-map.md`       | File → tool/handler mapping         |
 | `test-server/tool-reference.md` | Categorized tool inventory          |
+| `test-server/test-tools.md`     | Test validation reference           |
 | `CONTRIBUTING.md`               | Development setup and PR guidelines |
 | `DOCKER_README.md`              | Docker Hub documentation            |
 
@@ -141,7 +142,8 @@ When reviewing PRs, check for:
 - [ ] New tools missing from tool filtering configuration
 - [ ] Missing Zod schemas on new tools
 - [ ] Kebab-case violations in new filenames
-- [ ] `continue-on-error: true` in workflow files — forbidden per project standards
+- [ ] `continue-on-error: true` in workflow files — forbidden per project standards (except Agentic Workflow `.lock.yml` files)
+- [ ] Verify the author has run tests locally (e.g., via pnpm run check)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
 - [ ] Display value proposition blocks prominently in README. Ensure strict compliance with exact text.
