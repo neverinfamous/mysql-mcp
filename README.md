@@ -9,12 +9,11 @@
 
 ## 💎 Value Proposition
 
-- ⚡ **Build AI Integrations Instantly:** Accelerate development with plug-and-play architecture.
-- 🛡️ **Enterprise-Grade Security:** Fortify your data with robust OAuth 2.1 authentication and strict access controls.
-- 🚀 **Blazing-Fast Code Mode:** Execute complex, sandboxed logic directly within the worker-thread for 70-90% token savings.
-- 📈 **Massive Scalability:** Scale operations effortlessly with high-performance connection pooling.
-- 🐳 **Production-Ready Docker:** Deploy seamlessly with comprehensive containerized environments.
-- 🧠 **Agent-Empowered Data:** Give autonomous agents zero-hallucination, secure database introspection.
+- Build AI integrations instantly.
+- Empower agents with secure database access.
+- Execute complex logic via Code Mode.
+- Scale operations with robust connection pooling.
+- Leverage OAuth 2.1 for enterprise security.
 
 ## 🎯 Core Benefits
 
