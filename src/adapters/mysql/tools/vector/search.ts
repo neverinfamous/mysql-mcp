@@ -32,10 +32,9 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const validated = VectorSearchSchema.parse(params);
-        await ensureVectorSupport(adapter);
-
         const table = sanitizeIdentifier(validated.table);
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        await ensureVectorSupport(adapter);
         const column = sanitizeIdentifier(targetColumn);
         
         let selectCols = `*`;
@@ -121,10 +120,9 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const validated = VectorRangeSearchSchema.parse(params);
-        await ensureVectorSupport(adapter);
-
         const table = sanitizeIdentifier(validated.table);
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
+        await ensureVectorSupport(adapter);
         const column = sanitizeIdentifier(targetColumn);
         
         const vectorStr = formatVector(validated.queryVector);
@@ -208,10 +206,9 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const validated = VectorHybridSearchSchema.parse(params);
-        await ensureVectorSupport(adapter);
-
         const table = sanitizeIdentifier(validated.table);
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.vectorColumn);
+        await ensureVectorSupport(adapter);
         const vCol = sanitizeIdentifier(targetColumn);
         const tCol = sanitizeIdentifier(validated.textColumn);
         

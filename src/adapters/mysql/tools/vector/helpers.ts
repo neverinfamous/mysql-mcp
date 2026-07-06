@@ -92,10 +92,10 @@ export function sanitizeIdentifier(id: string): string {
  * Resolves the vector column if it is omitted
  */
 export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, providedColumn?: string): Promise<string> {
-  if (providedColumn) return providedColumn;
-
   // Pre-check table existence
   await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(table)}\` LIMIT 0`);
+
+  if (providedColumn) return providedColumn;
 
   const infoQuery = `
     SELECT COLUMN_NAME 
