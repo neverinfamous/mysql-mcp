@@ -142,7 +142,8 @@ describe("Shell Data Transfer Tools", () => {
       );
 
       const jsArg = mockSpawn.mock.calls[0][1][4];
-      expect(jsArg).toContain("/tmp/dump\\\\with\\\\backslashes.csv");
+      const expectedPath = path.resolve("/tmp/dump\\with\\backslashes.csv").replace(/\\/g, "\\\\");
+      expect(jsArg).toContain(expectedPath);
     });
     it("should return structured error for privilege errors", async () => {
       setupMockSpawn("", "Access denied for user", 1);
