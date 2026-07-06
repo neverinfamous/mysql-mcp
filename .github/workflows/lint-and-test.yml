@@ -37,6 +37,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Rebuild native dependencies
+        run: pnpm rebuild
+
       - name: Run validation check
         run: pnpm run check
 
@@ -101,7 +104,7 @@ jobs:
       - name: Smoke test — HTTP transport starts
         run: |
           # Start with router filter (no MySQL connection needed)
-          docker run --rm -d --name pr-smoke -p 3000:3000 \
+          docker run -d --name pr-smoke -p 3000:3000 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 \
             -e TOOL_FILTER=router pr-smoke-test:latest \
             --transport http --port 3000 --server-host 0.0.0.0 --tool-filter router

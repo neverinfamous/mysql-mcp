@@ -72,9 +72,11 @@ ENV MCP_HOST=0.0.0.0
 # Copy package files
 COPY package.json pnpm-lock.yaml ./
 
-# Install production dependencies only
-RUN pnpm install --prod --frozen-lockfile && \
-    pnpm store prune
+# Install production dependencies only (needs build tools for better-sqlite3)
+RUN apk add --no-cache python3 make g++ && \
+    pnpm install --prod --frozen-lockfile && \
+    pnpm store prune && \
+    apk del python3 make g++
 
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
