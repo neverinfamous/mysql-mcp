@@ -29,6 +29,7 @@ export const INSTRUCTIONS = `# mysql-mcp (MySQL MCP Server)
 Read \`mysql://help\` for gotchas and critical usage patterns.
 Read \`mysql://help/{group}\` for group-specific tool reference.
 Only help resources for your enabled tool groups are registered.
+If available in your workspace, refer to the \`/mysql-mcp\` agent skill for core architectural guidelines and operational directives.
 
 ## Structured Errors
 
