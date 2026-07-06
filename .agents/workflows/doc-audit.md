@@ -39,7 +39,7 @@ Divide the target files into logical groups and dispatch multiple parallel `main
 <instructions>
 **Crucial Instructions for the Main Repo Subagent**:
 - Cross-compare all files to spot discrepancies, conflicting claims, or obviously outdated information.
-- **Marketing Compliance**: Maximize the marketing aspect by structuring docs to put best features forward. Ensure READMEs and Wikis have a prominent "Value Proposition" block at the top. Use active voice, benefit-driven headers, and concise sentences (<15 words).
+- **Marketing Compliance**: Maximize the marketing aspect by structuring docs to put best features forward, but keep rhetoric tasteful, professional, and not hyperbolic or grandiose. Ensure READMEs and Wikis have a prominent "Value Proposition" block at the top. Use active voice, benefit-driven headers, and concise sentences (<15 words).
 - **Platform Limits**: Ensure `DOCKER_README.md` MUST NOT exceed Docker Hub's 25,000 character limit.
 - **Error Handling**: If you encounter an unexpected error, fail gracefully and report back. Do not enter autonomous retry loops.
 - **Reporting**: Do NOT make any changes. Compile a detailed list of every discrepancy or drift you find, specifying exactly what is wrong and how it should be fixed, and report this back to the primary agent.
@@ -62,7 +62,7 @@ If a Wiki Repository exists, do not audit linearly to prevent context exhaustion
      - "You must read **every single page** assigned to you."
      - "Define a clear stop condition: once you have processed your assigned batch of files, you MUST return and report."
      - "Cross-compare your pages to spot discrepancies, conflicting claims, or obviously outdated information."
-     - "Enhance the marketing tone of technical docs to emphasize core value."
+     - "Enhance the marketing tone of technical docs to emphasize core value, but keep it tasteful, professional, and avoid hyperbolic or grandiose rhetoric."
        > **Note**: When updating schemas or validation logic, please refer to the `/zod` skill for best practices on Standard Schema and Safe Parsing.
      - "Error Handling: If you encounter an unexpected error, fail gracefully and report back. Do not enter autonomous retry loops."
      - "Reporting: Do NOT make any changes. Compile a detailed list of every discrepancy or drift you find, specifying exactly what is wrong and how it should be fixed, and report this back to the primary agent."
@@ -94,10 +94,10 @@ Use the artifact metadata to set `RequestFeedback: true`. **STOP and wait for th
 Once the user explicitly approves the implementation plan, proceed to make the changes to the documentation.
 
 > [!CAUTION]
-> **NO SCRIPTS RULE:** You are strictly forbidden from writing or running scripts (e.g., node, python, bash) to perform bulk string replacements or automated document updates. You must directly edit files using targeted replacement tools (like `replace_file_content`) or spawn subagents with write capabilities to apply surgical edits cleanly.
+> **Never make edits via script.** Script-based text replacement (e.g., using `sed`, `awk`, or custom scripts) is dangerous and often damages documentation more than it helps. Always use your built-in file editing tools (`replace_file_content` / `multi_replace_file_content`).
 
 > [!NOTE]
-> Do not run automated validation steps like `pnpm run check` for doc-audits, as validation is run frequently elsewhere and docs rarely break the build.
+> **No Validation Required**: Do not run automated validation steps (like `pnpm run check`) for doc-audits. The agent does not need to run validation since it is just documentation changes, and documentation rarely breaks the build.
 </instructions>
 </phase>
 
