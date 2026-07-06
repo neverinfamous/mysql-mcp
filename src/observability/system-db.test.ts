@@ -58,8 +58,9 @@ describe("SystemDb", () => {
   });
 
   it("should catch and log initialization errors", async () => {
-    // A path that is completely invalid should cause SQLite or mkdir to throw
-    const invalidDb = new SystemDb({ dbPath: "Z:\\invalid\\path\\that\\throws\\db.sqlite" });
+    // A path that is completely invalid should cause SQLite or mkdir to throw.
+    // By pointing to a file (like package.json) as a directory, it throws ENOTDIR on both OSes.
+    const invalidDb = new SystemDb({ dbPath: path.join(process.cwd(), "package.json", "invalid.sqlite") });
     await expect(invalidDb.init()).rejects.toThrow();
   });
 });
