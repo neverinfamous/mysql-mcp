@@ -21,7 +21,7 @@
 | **Specialized Tools**                 | Access 241 specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
-| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by up to 90%. |
+| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **Smart Tool Filtering**              | Use 28 groups and 16 shortcuts to stay within IDE tool limits. |
@@ -58,7 +58,7 @@ docker run -i --rm neverinfamous/mysql-mcp:latest \
 
 ## ⚡ Maximize Efficiency with Code Mode
 
-Code Mode reduces token usage up to 90%. It is included by default.
+Code Mode reduces token usage by 70-90%. It is included by default.
 
 Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. We map all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
@@ -236,7 +236,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
 | `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
 | `--pool-min`              | `MYSQL_POOL_MIN`        | Minimum connections in pool (default: 0)            |
-| `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 10000)   |
+| `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 30000)   |
 | `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
 | `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
 | `--name`                  | —                       | Server name                                         |

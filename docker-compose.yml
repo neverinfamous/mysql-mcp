@@ -9,6 +9,7 @@ services:
     env_file:
       - .env # Copy .env.example to .env to configure
     environment:
+      - MCP_HOST=0.0.0.0
       - MYSQL_HOST=mysql
       - REDIS_URL=redis://redis:6379
     volumes:

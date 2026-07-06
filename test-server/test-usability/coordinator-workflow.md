@@ -4,6 +4,14 @@
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
+## Value Proposition
+
+- **Build AI integrations instantly.**
+- **Empower agents with secure database access.**
+- **Execute complex logic via Code Mode.**
+- **Scale operations with robust connection pooling.**
+- **Leverage OAuth 2.1 for enterprise security.**
+
 We're working in the `mysql-mcp` project in this thread.
 
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` usability test suite using subagents.
