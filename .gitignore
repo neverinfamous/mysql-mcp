@@ -102,6 +102,7 @@ tmp/
 test-results/
 test.jsonl
 test.sqlite
+history.json
 
 # Playwright
 playwright-results.json
