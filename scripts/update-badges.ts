@@ -70,6 +70,13 @@ function updateBadges() {
           content = content.replace(covRegex, newCovBadge);
           changed = true;
           console.log(`Updated coverage badge in ${file} to ${linesPct}%`);
+        } else {
+          const licenseRegex = /(\[!\[License: MIT\].*?\))/;
+          if (licenseRegex.test(content)) {
+            content = content.replace(licenseRegex, `$1 ${newCovBadge}`);
+            changed = true;
+            console.log(`Inserted coverage badge in ${file} to ${linesPct}%`);
+          }
         }
       }
 
@@ -82,6 +89,19 @@ function updateBadges() {
           console.log(
             `Updated E2E badge in ${file} to ${e2ePassing} passing, ${e2eSkipped} skipped`,
           );
+        } else {
+          if (content.includes(newCovBadge)) {
+            content = content.replace(newCovBadge, `${newCovBadge} ${newE2eBadge}`);
+            changed = true;
+            console.log(`Inserted E2E badge in ${file}`);
+          } else {
+            const licenseRegex = /(\[!\[License: MIT\].*?\))/;
+            if (licenseRegex.test(content)) {
+              content = content.replace(licenseRegex, `$1 ${newE2eBadge}`);
+              changed = true;
+              console.log(`Inserted E2E badge in ${file}`);
+            }
+          }
         }
       }
 
