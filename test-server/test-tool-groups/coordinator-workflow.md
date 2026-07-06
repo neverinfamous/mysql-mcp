@@ -1,6 +1,6 @@
 # mysql-mcp Tool Groups Testing Coordinator Workflow
 
-> 🚀 **Core Features Tested:** Coordinates execution across 200+ tools to ensure robustness of **OAuth 2.1**, **Direct Tool Calls**, and **Docker**.
+> 🚀 **Core Features Tested:** Coordinates execution across 200+ tools to ensure robustness of **OAuth 2.1**, **Direct Tool Calls**, and **Connection Pooling**.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
@@ -69,6 +69,8 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 - `test-json-helpers.md`
 - `test-transactions.md`
 - `test-text.md`
+- `test-versioning-part1.md`
+- `test-versioning-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dev-power` and restart)_
 
@@ -152,8 +154,6 @@ _(Coordinator pauses: Asks user to switch filter to `dba-schema` and restart)_
 
 - `test-introspection.md`
 - `test-migration.md`
-- `test-versioning-part1.md`
-- `test-versioning-part2.md`
 
 _(Coordinator pauses: Asks user to switch testing to the mysql-ecosystem server)_
 

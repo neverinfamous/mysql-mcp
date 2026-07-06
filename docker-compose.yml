@@ -13,7 +13,7 @@ services:
       - MYSQL_HOST=mysql
       - REDIS_URL=redis://redis:6379
     volumes:
-      - ./data:/data
+      - ./data:/app/data
     depends_on:
       - mysql
       - redis

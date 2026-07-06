@@ -81,9 +81,6 @@ jobs:
               echo "❌ Fixable CVEs detected by Docker Scout"
               cat scout_fixable.txt
               exit 1
-            elif [ $exit_code -eq 124 ]; then
-              echo "⚠️ Docker Scout scan timed out"
-              echo "🔄 Continuing build - scan timeout is not a security failure"
             else
               echo "❌ Docker Scout scan failed with exit code $exit_code"
               cat scout_fixable.txt 2>/dev/null || true
@@ -349,7 +346,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "241 tools, 23 resources, 19 prompts. Includes Code Mode, HTTP/SSE, OAuth 2.1, and Audit Logs."
+          short-description: "MySQL MCP server with 241 tools, Code Mode, OAuth 2.1, HTTP/SSE, and Audit Logs."
 
       - name: Deployment Summary
         if: github.ref == 'refs/heads/main'

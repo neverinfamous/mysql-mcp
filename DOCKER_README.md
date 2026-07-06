@@ -7,9 +7,9 @@
 
 ## 💎 Value Proposition
 
+- Execute complex logic via Code Mode.
 - Build AI integrations instantly.
 - Empower agents with secure database access.
-- Execute complex logic via Code Mode.
 - Scale operations with robust connection pooling.
 - Leverage OAuth 2.1 for enterprise security.
 
@@ -23,7 +23,7 @@
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
-| **Smart Tool Filtering**              | Use 28 groups and 16 shortcuts to stay within IDE tool limits. |
+| **Smart Tool Filtering**              | Use 28 tool groups and 16 shortcuts to stay within IDE tool limits. |
 | **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
 | **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
 | **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
@@ -39,7 +39,10 @@
 
 ### Meet Prerequisites
 
+- Docker or Docker Desktop
 - MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
+
+> **Linux Users:** If using `host.docker.internal` on Linux, you may need to run your container with `--add-host host.docker.internal:host-gateway`.
 
 ### Install the Server
 

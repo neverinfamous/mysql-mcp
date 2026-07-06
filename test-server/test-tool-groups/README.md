@@ -15,7 +15,7 @@
 - **Scale operations with robust connection pooling.**
 - **Leverage OAuth 2.1 for enterprise security.**
 
-> 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Direct Tool Calls**, and **Docker**.
+> 🚀 **Core Features Tested:** Validate standard MCP capabilities and ensure compatibility with enterprise-grade **OAuth 2.1**, **Direct Tool Calls**, and **Connection Pooling**.
 
 **Directory Purpose**: This folder contains 57 modular test prompts covering every tool group. These prompts are strictly designed for direct MCP tool call validation.
 

@@ -37,7 +37,7 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] Missing barrel exports added to `src/types/index.ts` if new types were created.
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables.
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`.
-- [ ] No `continue-on-error: true` in workflow files.
+- [ ] No `continue-on-error: true` in workflow files (excluding Agentic Workflow `.lock.yml` files).
 - [ ] All new and existing tests pass locally (`pnpm run check`).
 - [ ] I ensured marketing compliance (prominent Value Proposition, active voice, <15 words).
 - [ ] Docker readme <= 25,000 chars.

@@ -17,7 +17,7 @@
 
 **Directory Purpose**: This folder contains 53 modular test prompts. They cover every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
 
-> 🚀 **Core Features Tested:** This suite rigorously validates our fastest and most capable execution environment: **Code Mode**, along with our secure **OAuth 2.1** and robust **Docker**.
+> 🚀 **Core Features Tested:** This suite rigorously validates our fastest and most capable execution environment: **Code Mode**, along with our secure **OAuth 2.1** and robust **Connection Pooling**.
 
 ## Follow Agent Instructions
 

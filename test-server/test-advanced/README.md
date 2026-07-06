@@ -17,7 +17,7 @@
 
 > **This document is optimized for AI agent consumption.** It provides context and execution rules for the advanced stress testing suite located in this directory.
 >
-> 🚀 **Core Features Tested:** This suite focuses heavily on pushing the limits of our flagship features: **OAuth 2.1**, **Code Mode**, and **Docker**.
+> 🚀 **Core Features Tested:** This suite focuses heavily on pushing the limits of our flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
 This directory contains advanced stress tests for the tool groups.
 These tests simulate complex edge cases using exclusively Code Mode.

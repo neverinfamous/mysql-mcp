@@ -144,7 +144,6 @@ src/
 <!-- BEGIN: TOOL_MAPPING -->
 | Group | Tools |
 | **admin** | `mysql_audit_search`, `mysql_append_insight`, `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`, `mysql_server_config` |
-| **audit** | `mysql_audit_search`, `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_security_audit` |
 | **backup** | `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`, `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump` |
 | **cluster** | `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_instances`, `mysql_cluster_router_status`, `mysql_cluster_status`, `mysql_cluster_switchover`, `mysql_cluster_topology` |
 | **codemode** | `mysql_execute_code` |

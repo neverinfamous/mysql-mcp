@@ -15,7 +15,7 @@
 - **Scale operations with robust connection pooling.**
 - **Leverage OAuth 2.1 for enterprise security.**
 
-> 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Docker**.
+> 🚀 **Core Features Tested:** Evaluate agent experience with our flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
 
 > **This directory is optimized for AI agent consumption.**

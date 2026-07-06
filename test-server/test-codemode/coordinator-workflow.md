@@ -1,6 +1,6 @@
 # mysql-mcp Code Mode Testing Coordinator Workflow
 
-> 🚀 **Core Features Tested:** Oversees testing for **Code Mode** parity, alongside **OAuth 2.1** and **Docker**.
+> 🚀 **Core Features Tested:** Oversees testing for **Code Mode** parity, alongside **OAuth 2.1** and **Connection Pooling**.
 
 We're working on the mysql-mcp project/repository in this thread.
 
@@ -44,13 +44,13 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
 
 ## Test Sequence Queue (Dependency DAG)
 
-1. `test-codemode-core-read.md` (**MUST PASS FIRST**)
-2. `test-codemode-admin-audit.md`
-3. `test-codemode-admin-maintenance.md`
+1. `test-codemode-admin-audit.md`
+2. `test-codemode-admin-maintenance.md`
+3. `test-codemode-backup-audit.md`
 4. `test-codemode-backup-data.md`
-5. `test-codemode-backup-audit.md`
-6. `test-codemode-cluster-group-replication.md`
-7. `test-codemode-cluster-innodb.md`
+5. `test-codemode-cluster-group-replication.md`
+6. `test-codemode-cluster-innodb.md`
+7. `test-codemode-core-read.md` (**MUST PASS FIRST**)
 8. `test-codemode-core-write.md`
 9. `test-codemode-docstore-collections.md`
 10. `test-codemode-docstore-documents.md`
@@ -71,8 +71,8 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
 25. `test-codemode-proxysql-config.md`
 26. `test-codemode-proxysql-status.md`
 27. `test-codemode-replication.md`
-28. `test-codemode-roles-management.md`
-29. `test-codemode-roles-grants.md`
+28. `test-codemode-roles-grants.md`
+29. `test-codemode-roles-management.md`
 30. `test-codemode-router-core.md`
 31. `test-codemode-router-routes.md`
 32. `test-codemode-schema-management.md`
@@ -86,11 +86,11 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
 40. `test-codemode-spatial-queries.md`
 41. `test-codemode-spatial-setup.md`
 42. `test-codemode-stats-advanced.md`
-43. `test-codemode-stats-basic.md`
-44. `test-codemode-stats-analytics.md`
+43. `test-codemode-stats-analytics.md`
+44. `test-codemode-stats-basic.md`
 45. `test-codemode-stats-window.md`
-46. `test-codemode-sys-metrics.md`
-47. `test-codemode-sys-analysis.md`
+46. `test-codemode-sys-analysis.md`
+47. `test-codemode-sys-metrics.md`
 48. `test-codemode-text.md`
 49. `test-codemode-transactions.md`
 50. `test-codemode-vector-management.md`
