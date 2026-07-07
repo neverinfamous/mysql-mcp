@@ -10,7 +10,11 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { READ_ONLY } from "../../../../utils/annotations.js";
+import {
+  validateQualifiedIdentifier,
+  escapeQualifiedTable,
+} from "../../../../utils/validators.js";
+import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../../utils/annotations.js";
 
 const ListTriggersSchemaBase = z.object({
   table: z.string().optional().describe("Filter by table name"),
@@ -49,6 +53,91 @@ const ListTriggersOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     triggers: z.array(z.record(z.string(), z.unknown())),
     count: z.number(),
+  }).optional()
+});
+
+const CreateTriggerSchemaBase = z.object({
+  name: z.string().default("").describe("Trigger name"),
+  triggerName: z.string().default("").describe("Alias for name"),
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
+  table: z.string().default("").describe("Table the trigger is on"),
+  tableName: z.string().default("").describe("Alias for table"),
+  timing: z.enum(["BEFORE", "AFTER"]).describe("Trigger timing"),
+  event: z.enum(["INSERT", "UPDATE", "DELETE"]).describe("Trigger event"),
+  body: z.string().default("").describe("Trigger body SQL (e.g., SET NEW.updated_at = NOW())"),
+  statement: z.string().default("").describe("Alias for body"),
+  definition: z.string().default("").describe("Alias for body"),
+  order: z.enum(["FOLLOWS", "PRECEDES"]).optional().describe("Trigger ordering"),
+  otherTrigger: z.string().optional().describe("Trigger name for FOLLOWS/PRECEDES"),
+  ifNotExists: z.boolean().default(false).describe("Use IF NOT EXISTS (MySQL 8.0.29+)"),
+});
+
+const CreateTriggerSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['triggerName'] === "" ? undefined : obj['triggerName']),
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        table: (obj['table'] === "" ? undefined : obj['table']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
+        body: (obj['body'] === "" ? undefined : obj['body']) ?? (obj['statement'] === "" ? undefined : obj['statement']) ?? (obj['definition'] === "" ? undefined : obj['definition']),
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().min(1, "Trigger name is required"),
+    schema: z.string().optional(),
+    table: z.string().min(1, "Table name is required"),
+    timing: z.enum(["BEFORE", "AFTER"]),
+    event: z.enum(["INSERT", "UPDATE", "DELETE"]),
+    body: z.string().min(1, "Trigger body is required"),
+    order: z.enum(["FOLLOWS", "PRECEDES"]).optional(),
+    otherTrigger: z.string().optional(),
+    ifNotExists: z.boolean().default(false),
+  })
+);
+
+const CreateTriggerOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    triggerName: z.string(),
+  }).optional()
+});
+
+const DropTriggerSchemaBase = z.object({
+  name: z.string().default("").describe("Trigger name"),
+  triggerName: z.string().default("").describe("Alias for name"),
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
+  ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
+});
+
+const DropTriggerSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val === "object" && val !== null) {
+      const obj = val as Record<string, unknown>;
+      return {
+        ...obj,
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['triggerName'] === "" ? undefined : obj['triggerName']),
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+      };
+    }
+    return val;
+  },
+  z.object({
+    name: z.string().min(1, "Trigger name is required"),
+    schema: z.string().optional(),
+    ifExists: z.boolean().default(false),
+  })
+);
+
+const DropTriggerOutputSchema = BaseOutputSchema.extend({
+  data: z.object({
+    triggerName: z.string().optional(),
+    skipped: z.boolean().optional(),
+    reason: z.string().optional(),
   }).optional()
 });
 
@@ -135,4 +224,207 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
     },
   };
 }
+
+/**
+ * Create a trigger
+ */
+export function createCreateTriggerTool(adapter: MySQLAdapter): ToolDefinition {
+  return {
+    name: "mysql_create_trigger",
+    title: "MySQL Create Trigger",
+    description: "Create a new trigger.",
+    group: "schema",
+    inputSchema: CreateTriggerSchemaBase,
+    outputSchema: CreateTriggerOutputSchema,
+    requiredScopes: ["write"],
+    annotations: WRITE,
+    handler: async (params: unknown, _context: RequestContext) => {
+      try {
+        const parsedParams = CreateTriggerSchema.parse(params);
+        let name = parsedParams.name;
+        const targetSchema = parsedParams.schema;
+        const table = parsedParams.table;
+        const timing = parsedParams.timing;
+        const event = parsedParams.event;
+        const body = parsedParams.body;
+        const order = parsedParams.order;
+        const otherTrigger = parsedParams.otherTrigger;
+        const ifNotExists = parsedParams.ifNotExists;
+
+        // P154: Schema existence check when explicitly provided
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
+          );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`),
+            );
+          }
+          // If name is not qualified, qualify it with the schema
+          if (!name.includes('.')) {
+            name = `${targetSchema}.${name}`;
+          }
+        }
+
+        // P154: Table existence check against INFORMATION_SCHEMA
+        const schemaForCheck = targetSchema || null;
+        let unqualifiedTable = table;
+        let tableSchemaForCheck = schemaForCheck;
+        
+        if (table.includes('.')) {
+          const parts = table.split('.');
+          tableSchemaForCheck = parts[0] || schemaForCheck;
+          unqualifiedTable = parts[1] || table;
+        }
+        
+        const tableCheck = await adapter.executeQuery(
+          "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?",
+          [tableSchemaForCheck, unqualifiedTable],
+        );
+        if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
+          return formatHandlerErrorResponse(
+            new Error(`Table '${table}' does not exist`),
+          );
+        }
+
+        try {
+          validateQualifiedIdentifier(name, "trigger");
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
+        }
+
+        const fullTriggerName = escapeQualifiedTable(name);
+        const fullTableName = escapeQualifiedTable(table);
+        const ifNotExistsClause = ifNotExists ? "IF NOT EXISTS " : "";
+        let sql = `CREATE TRIGGER ${ifNotExistsClause}${fullTriggerName} ${timing} ${event} ON ${fullTableName} FOR EACH ROW`;
+
+        if (order && otherTrigger) {
+          try {
+            validateQualifiedIdentifier(otherTrigger, "trigger");
+          } catch (err: unknown) {
+            return formatHandlerErrorResponse(err);
+          }
+          const fullOtherTriggerName = escapeQualifiedTable(otherTrigger);
+          sql += ` ${order} ${fullOtherTriggerName}`;
+        }
+        
+        sql += ` ${body}`;
+
+        try {
+          await adapter.executeQuery(sql);
+          adapter.clearSchemaCache();
+          return withTokenEstimate({
+            success: true,
+            data: { triggerName: name },
+          });
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          if (message.toLowerCase().includes("already exists")) {
+            return formatHandlerErrorResponse(
+              new Error(`Trigger '${name}' already exists`),
+            );
+          }
+          return formatHandlerErrorResponse(err);
+        }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
+    },
+  };
+}
+
+/**
+ * Drop a trigger
+ */
+export function createDropTriggerTool(adapter: MySQLAdapter): ToolDefinition {
+  return {
+    name: "mysql_drop_trigger",
+    title: "MySQL Drop Trigger",
+    description: "Drop a trigger.",
+    group: "schema",
+    inputSchema: DropTriggerSchemaBase,
+    outputSchema: DropTriggerOutputSchema,
+    requiredScopes: ["write"],
+    annotations: DESTRUCTIVE,
+    handler: async (params: unknown, _context: RequestContext) => {
+      try {
+        const parsedParams = DropTriggerSchema.parse(params);
+        let name = parsedParams.name;
+        const targetSchema = parsedParams.schema;
+
+        // P154: Schema existence check when explicitly provided
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
+          );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`),
+            );
+          }
+          // If name is not qualified, qualify it with the schema
+          if (!name.includes('.')) {
+            name = `${targetSchema}.${name}`;
+          }
+        }
+
+        try {
+          validateQualifiedIdentifier(name, "trigger");
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
+        }
+
+        // Pre-check: detect no-op when ifExists is true
+        let unqualifiedName = name;
+        let schemaForCheck = targetSchema;
+        if (name.includes('.')) {
+          const parts = name.split('.');
+          schemaForCheck = parts[0] || targetSchema;
+          unqualifiedName = parts[1] || name;
+        }
+
+        const checkQuery = "SELECT TRIGGER_NAME FROM information_schema.TRIGGERS WHERE TRIGGER_SCHEMA = COALESCE(?, DATABASE()) AND TRIGGER_NAME = ?";
+        const check = await adapter.executeQuery(checkQuery, [schemaForCheck ?? null, unqualifiedName]);
+        const triggerAbsent = check.rows === undefined || check.rows.length === 0;
+
+        if (triggerAbsent) {
+          if (parsedParams.ifExists) {
+            return withTokenEstimate({
+              success: true,
+              data: {
+                skipped: true,
+                reason: "Trigger did not exist",
+              },
+            });
+          } else {
+            return formatHandlerErrorResponse(
+              new Error(`Unknown trigger '${schemaForCheck ? schemaForCheck + '.' : ''}${unqualifiedName}'`),
+            );
+          }
+        }
+
+        const fullTriggerName = escapeQualifiedTable(name);
+        const ifExistsClause = parsedParams.ifExists ? "IF EXISTS " : "";
+        const sql = `DROP TRIGGER ${ifExistsClause}${fullTriggerName}`;
+
+        try {
+          await adapter.executeQuery(sql);
+          adapter.clearSchemaCache();
+          return withTokenEstimate({
+            success: true,
+            data: { triggerName: name },
+          });
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
+        }
+      } catch (err) {
+        return formatHandlerErrorResponse(err);
+      }
+    },
+  };
+}
+
 

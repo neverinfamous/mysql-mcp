@@ -245,6 +245,8 @@ test.describe("Zod Sweep: Schema", () => {
     "mysql_drop_sequence",
     "mysql_create_view",
     "mysql_drop_view",
+    "mysql_create_trigger",
+    "mysql_drop_trigger",
   ];
 
   for (const tool of tools) {

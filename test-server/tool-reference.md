@@ -46,6 +46,8 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_list_stored_procedures` | List stored procedures       |
 | `mysql_list_functions`         | List stored functions        |
 | `mysql_list_triggers`          | List triggers                |
+| `mysql_create_trigger`         | CREATE TRIGGER               |
+| `mysql_drop_trigger`           | DROP TRIGGER                 |
 | `mysql_list_constraints`       | List foreign keys and checks |
 
 ---

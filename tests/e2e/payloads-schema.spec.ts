@@ -1,15 +1,16 @@
 /**
  * Payload Contract Tests: Schema
  *
- * Validates response shapes for schema tools (10):
+ * Validates response shapes for schema tools (12):
  * list_schemas, create_schema, drop_schema,
- * list_views, create_view,
+ * list_views, create_view, drop_view,
  * list_stored_procedures, list_functions,
- * list_triggers, list_constraints, list_events.
+ * list_triggers, create_trigger, drop_trigger,
+ * list_constraints.
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient, callToolAndParse } from "./helpers.js";
+import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -89,6 +90,44 @@ test.describe("Payload Contracts: Schema", () => {
       });
 
       expect(typeof payload).toBe("object");
+    } finally {
+      await client.close();
+    }
+  });
+
+  test("mysql_create_trigger returns { triggerName }", async () => {
+    const client = await createClient();
+    try {
+      const payload = await callToolAndParse(client, "mysql_create_trigger", {
+        name: "test_trg_e2e",
+        table: "test_orders",
+        timing: "BEFORE",
+        event: "INSERT",
+        body: "SET NEW.total = COALESCE(NEW.total, 0)",
+      });
+      expectSuccess(payload);
+      expect((payload as any).data?.triggerName).toBeDefined();
+      
+      // Cleanup
+      await callToolAndParse(client, "mysql_drop_trigger", {
+        name: "test_trg_e2e",
+        ifExists: true,
+      });
+    } finally {
+      await client.close();
+    }
+  });
+
+  test("mysql_drop_trigger returns result", async () => {
+    const client = await createClient();
+    try {
+      // Drop nonexistent with ifExists should succeed with skipped
+      const payload = await callToolAndParse(client, "mysql_drop_trigger", {
+        name: "nonexistent_trigger_e2e",
+        ifExists: true,
+      });
+      expectSuccess(payload);
+      expect((payload as any).data?.skipped).toBe(true);
     } finally {
       await client.close();
     }

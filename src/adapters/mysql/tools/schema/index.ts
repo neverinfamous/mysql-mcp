@@ -24,7 +24,11 @@ import {
   createListFunctionsTool,
 } from "./routines.js";
 
-import { createListTriggersTool } from "./triggers.js";
+import {
+  createListTriggersTool,
+  createCreateTriggerTool,
+  createDropTriggerTool,
+} from "./triggers.js";
 
 import { createListConstraintsTool } from "./constraints.js";
 
@@ -43,6 +47,8 @@ export function getSchemaTools(adapter: MySQLAdapter): ToolDefinition[] {
     createListStoredProceduresTool(adapter),
     createListFunctionsTool(adapter),
     createListTriggersTool(adapter),
+    createCreateTriggerTool(adapter),
+    createDropTriggerTool(adapter),
     createListConstraintsTool(adapter),
   ];
 }

@@ -147,7 +147,7 @@ export function validateMySQLUserHost(
  */
 export function validateQualifiedIdentifier(
   name: string,
-  type: "table" | "column" | "view" = "table",
+  type: "table" | "column" | "view" | "trigger" = "table",
 ): void {
   if (!name || typeof name !== "string") {
     throw new ValidationError(`${type} name must be a non-empty string`, type);

@@ -177,6 +177,8 @@ export const TOOL_GROUPS = {
     "mysql_list_stored_procedures",
     "mysql_list_functions",
     "mysql_list_triggers",
+    "mysql_create_trigger",
+    "mysql_drop_trigger",
     "mysql_list_constraints",
   ],
   events: [

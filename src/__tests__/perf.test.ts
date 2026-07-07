@@ -65,9 +65,9 @@ describe("Performance Tests", () => {
       expect(cachedCallTime.avg).toBeLessThan(2.0);
     });
 
-    it("should return consistent count of 240 tools", () => {
+    it("should return consistent count of 242 tools", () => {
       const tools = getAllToolNames();
-      expect(tools).toHaveLength(240);
+      expect(tools).toHaveLength(242);
     });
   });
 
@@ -159,7 +159,7 @@ describe("Performance Tests", () => {
       expect(dbaSecureConfig.enabledTools.size).toBe(37);
 
       const devPowerConfig = parseToolFilter("dev-power");
-      expect(devPowerConfig.enabledTools.size).toBe(46);
+      expect(devPowerConfig.enabledTools.size).toBe(48);
     });
 
     describe("filterTools performance", () => {
@@ -198,7 +198,7 @@ describe("Performance Tests", () => {
 
         // First call builds the cache
         const firstCall = adapter.getToolDefinitions();
-        expect(firstCall).toHaveLength(240);
+        expect(firstCall).toHaveLength(242);
 
         // Subsequent calls should return same reference (cached)
         const secondCall = adapter.getToolDefinitions();
@@ -213,7 +213,7 @@ describe("Performance Tests", () => {
         expect(timing.avg).toBeLessThan(2.0);
       });
 
-      it("should return consistent tool count of 241 regardless of filter default", () => {
+      it("should return consistent tool count of 242 regardless of filter default", () => {
         const adapter = new MySQLAdapter();
 
         // getToolDefinitions returns ALL definitions available in the adapter,
@@ -221,7 +221,7 @@ describe("Performance Tests", () => {
         // Wait, MySQLAdapter.getToolDefinitions() returns all tools?
         // Yes, checking the implementation... it usually does.
         const tools = adapter.getToolDefinitions();
-        expect(tools).toHaveLength(240);
+        expect(tools).toHaveLength(242);
       });
     });
   });
