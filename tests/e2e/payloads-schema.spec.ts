@@ -103,7 +103,7 @@ test.describe("Payload Contracts: Schema", () => {
         table: "test_orders",
         timing: "BEFORE",
         event: "INSERT",
-        body: "SET NEW.total = COALESCE(NEW.total, 0)",
+        body: "SET NEW.total_price = COALESCE(NEW.total_price, 0)",
       });
       expectSuccess(payload);
       expect((payload as any).data?.triggerName).toBeDefined();

@@ -14,7 +14,7 @@ import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 // Mock dependencies
 vi.mock("../../server/mcp-server/index.js");
 vi.mock("../../adapters/mysql/mysql-adapter/index.js");
-vi.mock("../args/index.js", () => ({
+vi.mock("../../cli/args/index.js", () => ({
   parseArgs: vi.fn(() => ({
     config: { name: "test-server", version: "1.0.0" },
     databases: [],
@@ -23,6 +23,21 @@ vi.mock("../args/index.js", () => ({
   })),
 }));
 
+// Mock output module — cliError/cliInfo write to stderr, cliFatal throws (simulating process.exit)
+vi.mock("../../cli/output.js", () => ({
+  cliError: vi.fn(),
+  cliInfo: vi.fn(),
+  cliWarn: vi.fn(),
+  cliVersion: vi.fn(),
+  cliFatal: vi.fn((_msg: string, _err?: unknown) => {
+    throw new Error(`process.exit(1)`);
+  }),
+}));
+
+import { cliError, cliInfo, cliFatal } from "../../cli/output.js";
+// Ensure TS sees these mocked imports as used (they're passed to expect())
+void cliError; void cliInfo; void cliFatal;
+
 // Mock process methods
 const originalExit = process.exit;
 
@@ -30,7 +45,6 @@ describe("CLI Main", () => {
   let mockServer: { start: Mock; stop: Mock; registerAdapter: Mock };
   let mockAdapter: { connect: Mock; disconnect: Mock; getCapabilities: Mock; isConnected: Mock };
   let mockExit: Mock;
-  let mockConsoleError: Mock;
   let mockProcessOn: Mock;
 
   // Custom error to simulate process.exit
@@ -69,10 +83,6 @@ describe("CLI Main", () => {
     });
     Object.defineProperty(process, "exit", { value: mockExit });
 
-    // Mock console.error
-    mockConsoleError = vi.fn();
-    console.error = mockConsoleError;
-
     // Mock process.on
     mockProcessOn = vi.fn();
     process.on = mockProcessOn;
@@ -108,8 +118,9 @@ describe("CLI Main", () => {
       }),
     ).rejects.toThrow(/Process exited with code 1/);
 
-    expect(mockConsoleError).toHaveBeenCalledWith(
-      expect.stringContaining("Error: No database connection specified"),
+    expect(cliError).toHaveBeenCalledWith(
+      "No database connection specified",
+      expect.stringContaining("--mysql"),
     );
     expect(mockExit).toHaveBeenCalledWith(1);
     expect(createServer).not.toHaveBeenCalled();
@@ -159,7 +170,7 @@ describe("CLI Main", () => {
       oauth: oauthConfig,
     });
 
-    expect(mockConsoleError).toHaveBeenCalledWith(
+    expect(cliInfo).toHaveBeenCalledWith(
       "OAuth authentication enabled",
     );
   });
@@ -218,10 +229,50 @@ describe("CLI Main", () => {
     // Wait for async shutdown to loop
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(mockConsoleError).toHaveBeenCalledWith(
-      expect.stringContaining("Shutting down"),
-    );
+    expect(cliInfo).toHaveBeenCalledWith("Shutting down...");
     expect(mockServer.stop).toHaveBeenCalled();
     expect(mockExit).toHaveBeenCalledWith(0);
+  });
+
+  it("should handle fatal startup error via cliFatal", async () => {
+    const dbConfig = { type: "mysql" as const, database: "test" };
+    mockServer.start.mockRejectedValue(new Error("Startup failed"));
+
+    await expect(
+      main({
+        config: {},
+        databases: [dbConfig],
+        oauth: undefined,
+      }),
+    ).rejects.toThrow("process.exit(1)");
+
+    expect(cliFatal).toHaveBeenCalledWith(
+      "Server startup failed",
+      expect.any(Error),
+    );
+  });
+
+  it("should dump config with redacted secrets", async () => {
+    const mockStdoutWrite = vi.spyOn(process.stdout, "write").mockImplementation(() => true);
+
+    await expect(
+      main({
+        config: { authToken: "super-secret" },
+        databases: [
+          { type: "mysql" as const, database: "db", password: "secret-pw" },
+        ],
+        oauth: { enabled: true, jwksUri: "https://jwks-url" },
+        dumpConfig: true,
+      }),
+    ).rejects.toThrow(/Process exited with code 0/);
+
+    expect(mockStdoutWrite).toHaveBeenCalled();
+    const output = (mockStdoutWrite.mock.calls[0] as [string])[0];
+    const parsed = JSON.parse(output) as { config?: { authToken?: string }; databases?: { password?: string }[]; oauth?: { jwksUri?: string } };
+    expect(parsed.config?.authToken).toBe("***REDACTED***");
+    expect(parsed.databases?.[0]?.password).toBe("***REDACTED***");
+    expect(parsed.oauth?.jwksUri).toBe("***REDACTED***");
+
+    mockStdoutWrite.mockRestore();
   });
 });
