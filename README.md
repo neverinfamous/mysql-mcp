@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.91%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-441%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-442%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -17,7 +17,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
-| **19 AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
+| **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
@@ -629,7 +629,7 @@ This is useful for scripted or automated clients that need a minimal, precise se
 
 ## 🤖 Automate Workflows with AI Prompts
 
-This server includes **19 intelligent prompts** for guided workflows:
+This server includes **intelligent prompts** for guided workflows:
 
 | Prompt                        | Description                                            |
 | ----------------------------- | ------------------------------------------------------ |
@@ -816,7 +816,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://user:password@localhost:3306/database
 ```
 
-Open **http://localhost:5173** to browse all 241 tools, 23 resources, and 19 prompts interactively.
+Open **http://localhost:5173** to browse all tools, resources, and prompts interactively.
 
 **CLI mode for scripting:**
 

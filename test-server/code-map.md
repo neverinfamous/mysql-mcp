@@ -5,7 +5,7 @@
 
 [![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-20-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
@@ -124,7 +124,7 @@ src/
 │       ├── schema-manager.ts        # Schema cache + metadata (TTL-based)
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
-│       ├── prompts/                # 19 AI-Powered Prompts (see § below)
+│       ├── prompts/                # AI-Powered Prompts (see § below)
 │       ├── resources/              # 22 Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
@@ -183,7 +183,7 @@ mysql-mcp uses a decentralized schema architecture to maintain type safety and m
 
 ## Utilize Prompts (`src/adapters/mysql/prompts/`)
 
-19 AI-Powered Prompts across specialized workflow files:
+AI-Powered Prompts across specialized workflow files:
 
 
 | Prompt | Description |
@@ -414,7 +414,7 @@ try {
 | `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
 | `test-server/test-prompts-notes.md`         | Prompt testing plan                                                  |
-| `test-server/test-prompts.sql`              | Seed SQL for prompt testing (19 AI-Powered Prompts)                  |
+| `test-server/test-prompts.sql`              | Seed SQL for prompt testing (AI-Powered Prompts)                  |
 | `test-server/test-resources.md`             | Resource testing plan (22 Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
