@@ -139,7 +139,7 @@ Add your local build to `~/.cursor/mcp.json`:
     "mysql-mcp-dev": {
       "command": "node",
       "args": [
-        "path/to/your/mysql-mcp/dist/cli.js",
+        "/absolute/path/to/your/mysql-mcp/dist/cli.js",
         "--transport",
         "stdio",
         "--mysql",

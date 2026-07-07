@@ -1,16 +1,8 @@
-# mysql-mcp Usability Testing Coordinator Workflow
+# MySQL MCP Usability Testing Coordinator Workflow
 
 > 🚀 **Core Features Tested:** Validates the agent interaction experience with **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
-
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
 
 We're working in the `mysql-mcp` project in this thread.
 
@@ -42,7 +34,8 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
 5. **Code Mode Error Testing Protocol**:
    - Subagents executing Code Mode test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting sandbox crashes or thrown raw exceptions.
 6. **Tool Availability Warning**:
-   - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user. NOTE: The ecosystem tools (cluster, proxysql, router, shell) are running on a different port/MCP config (`mysql-ecosystem`) than the standard tools/tool groups. Ecosystem should be enabled for them already, but if it isn't working, the subagent MUST let the user know immediately so they can enable it. We want to actively test ecosystem, not just test graceful degradation.
+   - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
+   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 7. **Coordinator Progress Reporting**:
    - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of Y. X fixes applied [Y Prompt / Z Code]: <concise description>. Do not wrap the message in quotes or add preamble.
    - Do NOT output any other text to the user during the test sequence.

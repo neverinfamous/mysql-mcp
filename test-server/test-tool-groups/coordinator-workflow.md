@@ -1,16 +1,8 @@
-# mysql-mcp Tool Groups Testing Coordinator Workflow
+# MySQL MCP Tool Groups Testing Coordinator Workflow
 
 > 🚀 **Core Features Tested:** Coordinates execution across 200+ tools to ensure robustness of **OAuth 2.1**, **Direct Tool Calls**, and **Connection Pooling**.
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
-
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
 
 We're working in the `mysql-mcp` project in this thread.
 

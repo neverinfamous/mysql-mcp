@@ -49,7 +49,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
-  --mysql mysql://mcp_user:secure_password@host.docker.internal:3306/testdb
+  --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ---

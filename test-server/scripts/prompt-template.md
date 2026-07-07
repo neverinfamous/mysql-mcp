@@ -201,7 +201,7 @@ During testing, check for these inconsistencies:
 - **Temporary views**: `test_view_*` prefix
 - **Temporary procedures**: `test_proc_*` prefix
 - Drop at the end of the script. If DROP fails due to lock, note and move on.
-- **Scratch Data:** **[WHEN]** generating temporary files, test data, or export/dump artifacts -> **[NEVER]** write scratch files to the project workspace. **[ALWAYS]** write them to `<appDataDir>\brain\<conversation-id>\scratch\`.
+- **Scratch Data:** **[WHEN]** generating temporary files, test data, or export/dump artifacts -> **[NEVER]** write scratch files to the project workspace. **[ALWAYS]** write them to a designated temporary agent scratch directory outside the workspace.
 - **Cleanup:** Make sure to clean up any generated files in the scratch directory or elsewhere before committing.
 
 ---

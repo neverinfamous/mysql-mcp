@@ -1,4 +1,4 @@
-# Agent Usability & Hallucination Testing
+# MySQL MCP Usability Testing Suite
 
 **🤖 AGENT INSTRUCTIONS**
 

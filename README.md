@@ -114,34 +114,9 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 
 ### ⚡ Run Only Code Mode
 
-Run with **only Code Mode enabled**. A single tool provides full capability access:
+Run with **only Code Mode enabled**. A single tool provides full capability access. See **[Option 1: Code Mode](#option-1-code-mode-maximum-token-savings--recommended)** below for the recommended IDE configuration.
 
-```json
-{
-  "mcpServers": {
-    "mysql-mcp": {
-      "command": "node",
-      "args": [
-        "/path/to/mysql-mcp/dist/cli.js",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "codemode"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "mcp_user",
-        "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb",
-        "REDIS_URL": "redis://localhost:6379"
-      }
-    }
-  }
-}
-```
-
-This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/). It ensures fixed token costs.
+This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors standard serverless edge execution patterns. It ensures fixed token costs.
 
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:

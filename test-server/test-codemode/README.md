@@ -1,4 +1,4 @@
-# MySQL-MCP Code Mode Testing Suite
+# MySQL MCP Code Mode Testing Suite
 
 **🤖 AGENT INSTRUCTIONS**
 

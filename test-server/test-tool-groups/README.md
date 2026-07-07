@@ -1,4 +1,4 @@
-# MySQL-MCP Standard Testing Suite
+# MySQL MCP Tool Groups Testing Suite
 
 **🤖 AGENT INSTRUCTIONS**
 

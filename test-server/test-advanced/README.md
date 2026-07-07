@@ -1,4 +1,4 @@
-# MySQL-MCP Advanced Stress Tests
+# MySQL MCP Advanced Code Mode Testing Suite
 
 **🤖 AGENT INSTRUCTIONS**
 
