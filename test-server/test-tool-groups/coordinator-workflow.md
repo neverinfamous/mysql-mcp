@@ -22,7 +22,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 
 ## Workflow Rules
 
-1. **Batched Sequential Execution**: Tests MUST be executed sequentially (one subagent at a time). Because the `mysql-mcp` server uses a Tool Filter (shortcuts) to prevent exceeding IDE limits, the tests are grouped into 11 **Phases** based on the required shortcut.
+1. **Batched Sequential Execution**: Tests MUST be executed sequentially (one subagent at a time). Because the `mysql-mcp` server uses a Tool Filter (shortcuts) to prevent exceeding IDE limits, the tests are grouped into multiple **Phases** based on the required shortcut.
 2. **Subagent Delegation**:
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file within the current Phase.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.

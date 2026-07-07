@@ -214,9 +214,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ## 🔧 Add or Modify Tools
 
-mysql-mcp organizes tools into 28 groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. 
-
-> **Note on Tool Counts:** The project maintains a standard label of **200+ tools** to reduce maintenance overhead. Unless specifically testing for precise counts, you do not need to update every mention of tool counts globally.
+mysql-mcp organizes tools into groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. 
 
 When adding a new tool:
 

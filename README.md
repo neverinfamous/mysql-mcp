@@ -16,12 +16,12 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
-| **23 Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
+| **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
-| **Smart Tool Filtering**              | Use 28 tool groups and 16 shortcuts to stay within IDE tool limits. |
+| **Smart Tool Filtering**              | Use tool groups and shortcuts to stay within IDE tool limits. |
 | **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
 | **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
 | **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
@@ -110,7 +110,7 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
-- ✅ **Full API access** — Exposes all 28 tool groups via the mysql.* namespace.
+- ✅ **Full API access** — Exposes all tool groups via the mysql.* namespace.
 
 ### ⚡ Run Only Code Mode
 
@@ -141,7 +141,7 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
 }
 ```
 
-This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across 28 groups. They return exactly the needed data in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/). It ensures fixed token costs.
+This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/). It ensures fixed token costs.
 
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
@@ -397,68 +397,68 @@ Use the remote hostname directly:
 
 The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
 
-| Filter Pattern   | Example                     | Tools | Description               |
-| ---------------- | --------------------------- | ----- | ------------------------- |
-| Shortcut only    | `starter`                   | 43    | Use a predefined bundle   |
-| Groups only      | `core,json,transactions`    | 36    | Combine individual groups |
-| Shortcut + Group | `starter,spatial`           | 55    | Extend a shortcut         |
-| Shortcut - Tool  | `starter,-mysql_drop_table` | 42    | Remove specific tools     |
+| Filter Pattern   | Example                     | Description               |
+| ---------------- | --------------------------- | ------------------------- |
+| Shortcut only    | `starter`                   | Use a predefined bundle   |
+| Groups only      | `core,json,transactions`    | Combine individual groups |
+| Shortcut + Group | `starter,spatial`           | Extend a shortcut         |
+| Shortcut - Tool  | `starter,-mysql_drop_table` | Remove specific tools     |
 
 ### Shortcuts (Predefined Bundles)
 
-| Shortcut        | Tools  | Use Case           | What's Included                                                    |
-| --------------- | ------ | ------------------ | ------------------------------------------------------------------ |
-| `starter`         | **43** | Standard Package    | core, json, transactions, text, codemode                         |
-| `essential`       | 20     | Minimal footprint   | core, transactions, codemode                                     |
-| `dev-power`       | 47     | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
-| `dev-analytics`   | 44     | Developer Analytics | core, stats, performance, codemode                               |
-| `ai-data-nosql`   | 39     | AI Data NoSQL       | core, json, docstore, codemode                                   |
-| `ai-search`       | 35     | AI Search           | core, text, fulltext, vector, codemode                           |
-| `ai-spatial`      | 32     | AI Spatial Analyst  | core, spatial, transactions, codemode                            |
-| `ai-vector`       | 29     | AI Vector Analyst   | core, vector, fulltext, codemode                                 |
-| `dba-monitor`     | 43     | DBA Monitoring      | core, monitoring, performance, sysschema, optimization, codemode |
-| `dba-manage`      | 44     | DBA Management      | core, admin, backup, replication, partitioning, events, codemode |
-| `dba-secure`      | 37     | DBA Security        | core, security, roles, transactions, codemode                    |
-| `dba-schema`      | 36     | DBA Schema          | core, schema, introspection, migration, codemode                 |
-| `base-relational` | 37     | Base Relational     | core, transactions, text, schema, codemode                       |
-| `base-analytics`  | 27     | Base Analytics      | stats, events, codemode                                          |
-| `base-nosql`      | 33     | Base NoSQL          | docstore, spatial, vector, codemode                              |
-| `ecosystem`       | 41     | External Tools      | cluster, proxysql, router, shell, codemode                       |
+| Shortcut        | Use Case           | What's Included                                                    |
+| --------------- | ------------------ | ------------------------------------------------------------------ |
+| `starter`         | Standard Package    | core, json, transactions, text, codemode                         |
+| `essential`       | Minimal footprint   | core, transactions, codemode                                     |
+| `dev-power`       | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
+| `dev-analytics`   | Developer Analytics | core, stats, performance, codemode                               |
+| `ai-data-nosql`   | AI Data NoSQL       | core, json, docstore, codemode                                   |
+| `ai-search`       | AI Search           | core, text, fulltext, vector, codemode                           |
+| `ai-spatial`      | AI Spatial Analyst  | core, spatial, transactions, codemode                            |
+| `ai-vector`       | AI Vector Analyst   | core, vector, fulltext, codemode                                 |
+| `dba-monitor`     | DBA Monitoring      | core, monitoring, performance, sysschema, optimization, codemode |
+| `dba-manage`      | DBA Management      | core, admin, backup, replication, partitioning, events, codemode |
+| `dba-secure`      | DBA Security        | core, security, roles, transactions, codemode                    |
+| `dba-schema`      | DBA Schema          | core, schema, introspection, migration, codemode                 |
+| `base-relational` | Base Relational     | core, transactions, text, schema, codemode                       |
+| `base-analytics`  | Base Analytics      | stats, events, codemode                                          |
+| `base-nosql`      | Base NoSQL          | docstore, spatial, vector, codemode                              |
+| `ecosystem`       | External Tools      | cluster, proxysql, router, shell, codemode                       |
 
-### Tool Groups (28 Available)
+### Tool Groups (Available)
 
 > Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-| Group           | Tools | Description                                             |
-| --------------- | ----- | ------------------------------------------------------- |
-| `codemode`      | 1     | Code Mode (sandboxed code execution) 🌟 **Recommended** |
-| `core`          | 12    | Read/write queries, tables, indexes                     |
-| `transactions`  | 7     | BEGIN, COMMIT, ROLLBACK, savepoints                     |
-| `json`          | 17    | JSON functions, merge, diff, stats                      |
-| `text`          | 6     | REGEXP, LIKE, SOUNDEX                                   |
-| `fulltext`      | 5     | Natural language & boolean search                       |
-| `performance`   | 11    | EXPLAIN, query analysis, anomaly detection              |
-| `optimization`  | 4     | Index hints, database-wide audits, EXPLAIN recommendations |
-| `admin`         | 9     | OPTIMIZE, ANALYZE, CHECK, insights                      |
-| `monitoring`    | 7     | PROCESSLIST, status variables                           |
-| `backup`        | 7     | Export, import, mysqldump, audit backups                |
-| `replication`   | 5     | Master/slave, binlog                                    |
-| `partitioning`  | 4     | Partition management                                    |
-| `schema`        | 11    | Views, procedures, triggers, constraints                |
-| `introspection` | 6     | Dependency graphs, cascade simulation, snapshots        |
-| `migration`     | 6     | Schema versioning, apply, rollback, history             |
-| `shell`         | 10    | MySQL Shell utilities                                   |
-| `events`        | 6     | Event Scheduler management                              |
-| `sysschema`     | 8     | sys schema diagnostics                                  |
-| `stats`         | 20    | Statistical analysis, window functions, sampling        |
-| `spatial`       | 12    | Spatial/GIS operations                                  |
-| `security`      | 9     | Audit, SSL, encryption, masking                         |
-| `roles`         | 8     | MySQL 8.0 role management                               |
-| `docstore`      | 9     | Document Store collections                              |
-| `cluster`       | 10    | Group Replication, InnoDB Cluster                       |
-| `proxysql`      | 11    | ProxySQL management                                     |
-| `router`        | 9     | MySQL Router REST API                                   |
-| `vector`        | 11    | Vector embeddings, KNN search, hybrid search (MySQL 9.0+)|
+| Group           | Description                                             |
+| --------------- | ------------------------------------------------------- |
+| `codemode`      | Code Mode (sandboxed code execution) 🌟 **Recommended** |
+| `core`          | Read/write queries, tables, indexes                     |
+| `transactions`  | BEGIN, COMMIT, ROLLBACK, savepoints                     |
+| `json`          | JSON functions, merge, diff, stats                      |
+| `text`          | REGEXP, LIKE, SOUNDEX                                   |
+| `fulltext`      | Natural language & boolean search                       |
+| `performance`   | EXPLAIN, query analysis, anomaly detection              |
+| `optimization`  | Index hints, database-wide audits, EXPLAIN recommendations |
+| `admin`         | OPTIMIZE, ANALYZE, CHECK, insights                      |
+| `monitoring`    | PROCESSLIST, status variables                           |
+| `backup`        | Export, import, mysqldump, audit backups                |
+| `replication`   | Master/slave, binlog                                    |
+| `partitioning`  | Partition management                                    |
+| `schema`        | Views, procedures, triggers, constraints                |
+| `introspection` | Dependency graphs, cascade simulation, snapshots        |
+| `migration`     | Schema versioning, apply, rollback, history             |
+| `shell`         | MySQL Shell utilities                                   |
+| `events`        | Event Scheduler management                              |
+| `sysschema`     | sys schema diagnostics                                  |
+| `stats`         | Statistical analysis, window functions, sampling        |
+| `spatial`       | Spatial/GIS operations                                  |
+| `security`      | Audit, SSL, encryption, masking                         |
+| `roles`         | MySQL 8.0 role management                               |
+| `docstore`      | Document Store collections                              |
+| `cluster`       | Group Replication, InnoDB Cluster                       |
+| `proxysql`      | ProxySQL management                                     |
+| `router`        | MySQL Router REST API                                   |
+| `vector`        | Vector embeddings, KNN search, hybrid search (MySQL 9.0+)|
 
 ---
 
@@ -495,7 +495,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 2: Cluster (11 Tools for InnoDB Cluster Monitoring)
+#### Option 2: Cluster (Tools for InnoDB Cluster Monitoring)
 
 **Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
 
@@ -531,7 +531,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 3: Ecosystem (41 Tools for InnoDB Cluster Deployments)
+#### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
 
 **Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 

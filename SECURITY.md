@@ -12,7 +12,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 
 **Identifier Sanitization** (`src/utils/identifiers.ts`)
 
-- ✅ **Comprehensive coverage** — validates and quotes all table, column, schema, and index names across all 28 tool groups.
+- ✅ **Comprehensive coverage** — validates and quotes all table, column, schema, and index names across all tool groups.
 - ✅ **MySQL identifier rules enforced** — start with letter/underscore, contain only alphanumerics, underscores, or $ signs
 - ✅ **64-character limit** enforced (MySQL maximum)
 - ✅ **Invalid identifiers** throw `InvalidIdentifierError`

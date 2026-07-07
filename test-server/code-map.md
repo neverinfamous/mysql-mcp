@@ -4,8 +4,8 @@
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 [![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-20-purple?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
@@ -42,17 +42,17 @@ src/
 │       ├── server.ts               # TransportType, McpServerConfig (port, host, toolFilter, metricsExport, name, allowedIoRoots, stateless, enableHSTS, trustProxy, authToken, auditConfig)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
 │       ├── errors.ts               # MySQLMcpError base + 12 subclasses (see § Error Classes)
-│       ├── error-types.ts          # ErrorCategory enum (9 categories), ErrorResponse interface, ErrorContext
+│       ├── error-types.ts          # ErrorCategory enum (Multiple categories), ErrorResponse interface, ErrorContext
 │       └── tools.ts                # ToolGroup, MetaGroup, RouterConfig, MySQLShellConfig,
 │                                   #   ToolFilterConfig, AdapterCapabilities, ToolDefinition,
 │                                   #   ResourceDefinition, PromptDefinition
 │
 ├── constants/
 │   ├── server-instructions.ts      # Generated: slim INSTRUCTIONS constant (~634 chars) + HELP_CONTENT map (per-group help)
-│   └── server-instructions/        # Source .md files for each help resource (30 files: overview, gotchas, core, json, etc.)
+│   └── server-instructions/        # Source .md files for each help resource (Multiple files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
-│   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (16 Shortcuts), group→tools map
+│   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (Multiple Shortcuts), group→tools map
 │   └── tool-filter.ts               # ToolFilter class — parse/apply --tool-filter expressions
 │
 ├── utils/
@@ -81,7 +81,7 @@ src/
 │   ├── logger.ts                   # AuditLogger — JSONL file I/O, buffered flush, rotation, recent()
 │   └── backup-manager/             # BackupManager — pre-mutation DDL/data snapshots, diff, restore
 │
-├── auth/                           # OAuth 2.1 implementation (10 files)
+├── auth/                           # OAuth 2.1 implementation (Multiple files)
 │   ├── middleware.ts               # Express-style OAuth middleware
 │   ├── token-validator.ts           # JWT/JWKS token validation
 │   ├── scopes.ts                   # Scope parsing, enforcement
@@ -125,7 +125,7 @@ src/
 │       ├── schemas/                # Modular Zod schemas by tool group (e.g., core.ts, admin.ts)
 │       ├── index.ts                # Barrel
 │       ├── prompts/                # AI-Powered Prompts (see § below)
-│       ├── resources/              # 22 Core Observability Resources (see § below)
+│       ├── resources/              # Core Observability Resources (see § below)
 │       └── tools/                  # Tool handler files (see § Handler Map below)
 ```
 
@@ -214,7 +214,7 @@ AI-Powered Prompts across specialized workflow files:
 
 ## Leverage Resources (`src/adapters/mysql/resources/` & `src/server/mcp-server/resources.ts`)
 
-22 Observability Resources + 28 help resources providing read-only metadata and agent guidance:
+Core Observability Resources + multiple help resources providing read-only metadata and agent guidance:
 
 ### Data Resources
 
@@ -259,7 +259,7 @@ AI-Powered Prompts across specialized workflow files:
 | `mysql://help`         | `gotchas.md`                                     | Critical gotchas, parameter aliases, and API reference |
 | `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
 
-28 group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
+Multiple group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
 ---
 
@@ -283,7 +283,7 @@ MySQLMcpError (modules/errors.ts)         code: string, category: ErrorCategory,
 └── ExtensionNotAvailableError  code: EXTENSION_MISSING  category: CONFIGURATION
 ```
 
-**ErrorCategory object** (9 categories) — `src/types/modules/error-types.ts`:
+**ErrorCategory object** (Multiple categories) — `src/types/modules/error-types.ts`:
 
 ```typescript
 const ErrorCategory = {
@@ -342,9 +342,9 @@ try {
 
 | What                               | Where                                     | Notes                                                                                                           |
 | ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (30 files) |
+| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (Multiple files) |
 | Generator script                   | `scripts/generate-server-instructions.ts` | Reads per-group `.md` files → produces `server-instructions.ts`                                                 |
-| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (16 predefined shortcuts)                                                                      |
+| Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (Multiple predefined shortcuts)                                                                      |
 | Tool filter logic                  | `src/filtering/tool-filter.ts`            | `ToolFilter` class                                                                                              |
 | Connection pool                    | `src/pool/connection-pool.ts`             | mysql2/promise pool wrapper                                                                                     |
 | Progress reporter                  | `src/progress/progress-reporter.ts`       | MCP progress notification helpers                                                                               |
@@ -357,7 +357,7 @@ try {
 
 | Pattern                     | Description                                                                                                                                                                                                                                                                                                                                                                            |
 | --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Structured Errors**       | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Uses `ErrorCategory` enum (9 categories) and `ErrorResponse` interface from `error-types.ts`. All tools explicitly trap errors to return `{ success: false }`. This prevents leaking MCP exceptions even for complex domain tools. |
+| **Structured Errors**       | Every tool returns enriched `ErrorResponse` via `formatHandlerError()` — never raw exceptions. Uses `ErrorCategory` enum (Multiple categories) and `ErrorResponse` interface from `error-types.ts`. All tools explicitly trap errors to return `{ success: false }`. This prevents leaking MCP exceptions even for complex domain tools. |
 | **Adapter Pattern**         | `DatabaseAdapter` (abstract) → `MySQLAdapter`. Single adapter (no WASM/Native split).                                                                                                                                                                                                                                                                                                  |
 | **Schema Cache**            | `SchemaManager` caches table/column metadata with configurable TTL. Auto-invalidates on DDL.                                                                                                                                                                                                                                                                                           |
 | **Trace Pruning**           | `mysql_optimizer_trace` uses recursive `deepClean` to aggressively prune AST trace outputs, protecting the LLM from token exhaustion during complex query analysis.                                                                                                                                                                                                           |
@@ -415,7 +415,7 @@ try {
 | `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
 | `test-server/test-prompts-notes.md`         | Prompt testing plan                                                  |
 | `test-server/test-prompts.sql`              | Seed SQL for prompt testing (AI-Powered Prompts)                  |
-| `test-server/test-resources.md`             | Resource testing plan (22 Observability Resources)                           |
+| `test-server/test-resources.md`             | Resource testing plan (Multiple Observability Resources)                           |
 | `scripts/README.md`                         | Agent-optimized cluster management reference                         |
 | `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
 | `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |

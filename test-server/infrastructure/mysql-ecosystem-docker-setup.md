@@ -185,7 +185,7 @@ docker restart mysql-router
 
 ## MCP Configuration Examples
 
-### Option 1: Cluster Tools Only (10 tools)
+### Option 1: Cluster Tools Only
 
 Use this configuration to test **Group Replication and InnoDB Cluster monitoring tools**:
 
@@ -219,7 +219,7 @@ Use this configuration to test **Group Replication and InnoDB Cluster monitoring
 > - InnoDB Cluster must be running with Group Replication enabled
 > - Use `cluster_admin` or `root` user with appropriate privileges
 
-### Option 2: Full Ecosystem (31 tools)
+### Option 2: Full Ecosystem
 
 Use this configuration to test **Router, ProxySQL, Shell, and Cluster tools**:
 
@@ -269,15 +269,15 @@ Use this configuration to test **Router, ProxySQL, Shell, and Cluster tools**:
 
 ## Tool Filtering Options
 
-### Cluster Tools Only (10 tools)
+### Cluster Tools Only
 
 ```json
 "--tool-filter", "cluster"
 ```
 
-Enables: 10 Group Replication and InnoDB Cluster monitoring tools
+Enables: Group Replication and InnoDB Cluster monitoring tools
 
-### Ecosystem Tools (31 tools)
+### Ecosystem Tools
 
 ```json
 "--tool-filter", "ecosystem"
@@ -285,11 +285,11 @@ Enables: 10 Group Replication and InnoDB Cluster monitoring tools
 
 Enables:
 
-- 9 Router tools (`mysql_router_*`)
-- 12 ProxySQL tools (`proxysql_*`)
-- 10 Shell tools (`mysqlsh_*`)
+- Router tools (`mysql_router_*`)
+- ProxySQL tools (`proxysql_*`)
+- Shell tools (`mysqlsh_*`)
 
-### Combined: Cluster + Ecosystem (41 tools)
+### Combined: Cluster + Ecosystem
 
 ```json
 "--tool-filter", "+cluster,+ecosystem"
@@ -464,7 +464,7 @@ For visual management and real-time log debugging of the MySQL cluster, the foll
 
 ## mysql-mcp Tools Available
 
-### Cluster Tools (10)
+### Cluster Tools
 
 - `mysql_gr_status` - Group Replication status
 - `mysql_gr_members` - List GR members
@@ -477,7 +477,7 @@ For visual management and real-time log debugging of the MySQL cluster, the foll
 - `mysql_cluster_router_status` - Router registrations
 - `mysql_cluster_switchover` - Initiate switchover
 
-### Router Tools (9)
+### Router Tools
 
 > **Note:** Router REST API uses file-based authentication (`rest_users` file). The `[rest_connection_pool]` plugin and `connection_sharing=1` are required for `pool_status`.
 
@@ -491,7 +491,7 @@ For visual management and real-time log debugging of the MySQL cluster, the foll
 - `mysql_router_metadata_status` - Cluster metadata cache status (use `metadataName: "bootstrap"`)
 - `mysql_router_pool_status` - Connection pool stats (use `poolName: "main"`, requires `[rest_connection_pool]` + `connection_sharing=1`)
 
-### ProxySQL Tools (12)
+### ProxySQL Tools
 
 - `proxysql_status` - Version and runtime stats
 - `proxysql_servers` - Backend MySQL servers
@@ -506,7 +506,7 @@ For visual management and real-time log debugging of the MySQL cluster, the foll
 - `proxysql_commands` - Admin commands (LOAD/SAVE)
 - `proxysql_process_list` - Active sessions
 
-### Shell Tools (10)
+### Shell Tools
 
 - `mysqlsh_version` - Shell version and status
 - `mysqlsh_check_upgrade` - Upgrade compatibility

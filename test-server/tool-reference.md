@@ -4,8 +4,8 @@
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 [![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-22-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-20-purple?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
@@ -17,7 +17,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Query Core Database (12 tools)
+## Query Core Database
 
 | Tool                   | Description                           |
 | ---------------------- | ------------------------------------- |
@@ -36,7 +36,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Manage Schemas (10 tools)
+## Manage Schemas
 
 | Tool                           | Description                  |
 | ------------------------------ | ---------------------------- |
@@ -53,7 +53,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Handle Transactions (7 tools)
+## Handle Transactions
 
 | Tool                            | Description                            |
 | ------------------------------- | -------------------------------------- |
@@ -67,7 +67,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Perform JSON Operations (17 tools)
+## Perform JSON Operations
 
 | Tool                       | Description                            |
 | -------------------------- | -------------------------------------- |
@@ -91,7 +91,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Utilize Document Store (9 tools)
+## Utilize Document Store
 
 > Treat MySQL like a NoSQL document database (MySQL 5.7+).
 
@@ -109,7 +109,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Process Text (6 tools)
+## Process Text
 
 | Tool                      | Description               |
 | ------------------------- | ------------------------- |
@@ -122,7 +122,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Execute FULLTEXT Search (5 tools)
+## Execute FULLTEXT Search
 
 | Tool                     | Description                                                       |
 | ------------------------ | ----------------------------------------------------------------- |
@@ -134,7 +134,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Analyze Spatial / GIS (12 tools)
+## Analyze Spatial / GIS
 
 | Tool                            | Description                        |
 | ------------------------------- | ---------------------------------- |
@@ -153,7 +153,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Calculate Statistics (20 tools)
+## Calculate Statistics
 
 | Tool                        | Description                           |
 | --------------------------- | ------------------------------------- |
@@ -180,7 +180,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Monitor Performance (11 tools)
+## Monitor Performance
 
 | Tool                            | Description                                                           |
 | ------------------------------- | --------------------------------------------------------------------- |
@@ -198,7 +198,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Optimize Queries (4 tools)
+## Optimize Queries
 
 | Tool                         | Description                                        |
 | ---------------------------- | -------------------------------------------------- |
@@ -209,7 +209,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Perform Admin Tasks (9 tools)
+## Perform Admin Tasks
 
 | Tool                   | Description              |
 | ---------------------- | ------------------------ |
@@ -225,7 +225,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Enforce Security (9 tools)
+## Enforce Security
 
 | Tool                               | Description                                        |
 | ---------------------------------- | -------------------------------------------------- |
@@ -241,7 +241,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Manage Roles (8 tools)
+## Manage Roles
 
 > MySQL 8.0+ Role Management
 
@@ -258,7 +258,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Observe Monitoring (7 tools)
+## Observe Monitoring
 
 | Tool                       | Description                                         |
 | -------------------------- | --------------------------------------------------- |
@@ -272,7 +272,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Analyze sys Schema (8 tools)
+## Analyze sys Schema
 
 | Tool                          | Description                 |
 | ----------------------------- | --------------------------- |
@@ -287,7 +287,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Manage Backups (7 tools)
+## Manage Backups
 
 | Tool                         | Description                                                         |
 | ---------------------------- | ------------------------------------------------------------------- |
@@ -301,7 +301,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Monitor Replication (5 tools)
+## Monitor Replication
 
 | Tool                    | Description               |
 | ----------------------- | ------------------------- |
@@ -313,7 +313,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Manage Cluster (10 tools)
+## Manage Cluster
 
 > Group Replication / InnoDB Cluster
 
@@ -332,7 +332,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Handle Partitioning (4 tools)
+## Handle Partitioning
 
 | Tool                         | Description           |
 | ---------------------------- | --------------------- |
@@ -343,7 +343,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Manage Events (6 tools)
+## Manage Events
 
 > MySQL Event Scheduler
 
@@ -358,7 +358,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Configure MySQL Router (9 tools)
+## Configure MySQL Router
 
 > **Note:** Requires MySQL Router 8.0.17+ with REST API enabled. For InnoDB Cluster deployments, the cluster must be running for REST API authentication. See [[MySQL-Router]].
 
@@ -378,7 +378,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Configure ProxySQL (11 tools)
+## Configure ProxySQL
 
 > **Note:** Requires access to ProxySQL admin interface. See [[ProxySQL]].
 
@@ -398,7 +398,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Utilize MySQL Shell (10 tools)
+## Utilize MySQL Shell
 
 > **Note:** Requires MySQL Shell 8.0+ installed. See [[MySQL-Shell]].
 
@@ -417,7 +417,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Manage Vector Embeddings (11 tools)
+## Manage Vector Embeddings
 
 > Vector embeddings, KNN search, and hybrid search (MySQL 9.0+)
 
@@ -437,7 +437,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Introspect Schema (6 tools)
+## Introspect Schema
 
 > Pre-flight analysis, relationship mapping, and constraint validation tools to ensure schema modifications are safe.
 
@@ -452,7 +452,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Track Migrations (6 tools)
+## Track Migrations
 
 > Integrated schema versioning and deployment tracker built directly into the MCP server.
 
@@ -467,7 +467,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Execute Code Mode (1 tool)
+## Execute Code Mode
 
 > Execute JavaScript in a worker-thread sandbox (separate V8 isolate). Access all MySQL tools via `mysql.*` API. See [[Code-Mode]] for full API documentation.
 
