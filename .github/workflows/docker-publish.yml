@@ -155,7 +155,7 @@ jobs:
         run: |
           # Start with router filter (no MySQL connection needed)
           docker run --rm -d --name smoke-http -p 3000:3000 \
-            -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 \
+            -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
             -e TOOL_FILTER=router smoke-test:latest \
             --transport http --port 3000 --server-host 0.0.0.0 --tool-filter router
           sleep 5

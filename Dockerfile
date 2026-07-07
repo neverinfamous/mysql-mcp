@@ -10,6 +10,8 @@
 # -----------------
 FROM node:26-alpine AS builder
 
+ARG PNPM_VERSION=9.15.4
+
 WORKDIR /app
 
 # Install build dependencies
@@ -22,7 +24,7 @@ RUN apk add --no-cache \
 COPY package.json pnpm-lock.yaml ./
 
 # Install ALL dependencies (including devDependencies for build)
-RUN npm install -g pnpm && \
+RUN npm install -g pnpm@${PNPM_VERSION} && \
     pnpm install --frozen-lockfile
 
 # Copy source code
@@ -36,6 +38,8 @@ RUN pnpm run build
 # Stage 2: Runtime
 # -----------------
 FROM node:26-alpine AS runtime
+
+ARG PNPM_VERSION=9.15.4
 
 # MCP Registry label for package validation
 LABEL io.modelcontextprotocol.server.name="io.github.neverinfamous/mysql-mcp"
@@ -51,7 +55,7 @@ RUN apk upgrade --no-cache
 # - CVE-2025-5889: brace-expansion <= 2.0.1
 # - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy with 7.5.19)
 # - CVE-2026-27904: minimatch < 10.2.3 (patch npm's bundled copy with 10.2.5)
-RUN npm install -g npm@latest pnpm && \
+RUN npm install -g npm@latest && \
     npm install -g tar@7.5.19 && \
     rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
     cp -r /usr/local/lib/node_modules/tar /usr/local/lib/node_modules/npm/node_modules/tar && \
@@ -74,6 +78,7 @@ COPY package.json pnpm-lock.yaml ./
 
 # Install production dependencies only (needs build tools for better-sqlite3)
 RUN apk add --no-cache python3 make g++ && \
+    npm install -g pnpm@${PNPM_VERSION} && \
     pnpm install --prod --frozen-lockfile && \
     pnpm store prune && \
     npm uninstall -g pnpm && \
