@@ -2,6 +2,11 @@ name: Build and Push Docker Images
 
 on:
   workflow_call:
+    secrets:
+      DOCKER_USERNAME:
+        required: true
+      DOCKER_PASSWORD:
+        required: true
   workflow_dispatch:
     inputs:
       emergency_bypass:
