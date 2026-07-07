@@ -76,6 +76,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN apk add --no-cache python3 make g++ && \
     pnpm install --prod --frozen-lockfile && \
     pnpm store prune && \
+    npm uninstall -g pnpm && \
     apk del python3 make g++
 
 # Copy built application from builder
