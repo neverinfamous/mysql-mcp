@@ -15,7 +15,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **Specialized Tools**                 | Access an extensive suite of specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
@@ -28,7 +28,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by a comprehensive test suite and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -97,7 +97,7 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 
 ### Validate Code Statically
 
-- ✅ **29 blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
 - ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
 
@@ -333,7 +333,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
 | **MySQL on host machine** | `host.docker.internal`    | `mysql://user:pass@host.docker.internal:3306/db` |
-| **MySQL in Docker**       | `host.docker.internal` (Local) or `mysql` (Docker Compose) | `mysql://user:pass@host.docker.internal:3306/db`      |
+| **MySQL in Docker**       | Container name or network | `mysql://user:pass@mysql-container:3306/db`      |
 | **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://user:pass@db.example.com:3306/db`       |
 
 ### MySQL on Host Machine
@@ -427,7 +427,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Tool Groups (Available)
 
-> Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
+> Note: The tool groups below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
 | Group           | Description                                             |
 | --------------- | ------------------------------------------------------- |
@@ -657,7 +657,7 @@ This server includes **intelligent prompts** for guided workflows:
 
 ## 📊 Monitor Health with Resources
 
-This server exposes **23 resources** for database observability and telemetry:
+This server exposes **a comprehensive set of resources** for database observability and telemetry:
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |

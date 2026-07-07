@@ -19,14 +19,6 @@ network:
 
 permissions: read-all
 
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
 safe-outputs:
   report-failure-as-issue: false
   create-issue:
@@ -39,6 +31,14 @@ safe-outputs:
 timeout-minutes: 15
 concurrency: ci-health-monitor
 ---
+
+## 💎 Value Proposition
+
+- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
+- **Build AI integrations instantly**.
+- **Empower agents with secure database access**.
+- **Scale operations with robust connection pooling**.
+- **Leverage OAuth 2.1** for enterprise security.
 
 # CI Health Monitor
 

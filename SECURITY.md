@@ -44,7 +44,7 @@ Every tool returns structured error responses — never raw exceptions or intern
 }
 ```
 
-Error logic leverages the `MySQLMcpError` hierarchy (9 distinct categories). It returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
+Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categories). It returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
 
 ## 🔐 **Validate Your Inputs**
 
@@ -76,7 +76,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 ### Validate Code Statically
 
-- ✅ **29 blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
 - ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
 
@@ -239,7 +239,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Code Mode sandbox isolation (true separate V8 isolate via isolated-vm)
 - [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
 - [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
-- [x] Code Mode blocked patterns (29 static regex rules + Unicode/NFKC validation)
+- [x] Code Mode blocked patterns (comprehensive static regex rules + Unicode/NFKC validation)
 - [x] Code Mode RPC quotas (100 calls per execution)
 - [x] Code Mode streaming egress boundary (abort serialization on oversized results)
 - [x] Code Mode execution timeout (30s hard limit)

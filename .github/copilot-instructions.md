@@ -13,21 +13,17 @@
 
 ## Review the Project Overview
 
-mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with 200+ tools and extensive resources.
-> **Architectural Rule:** Tool filtering skips MySQL connections when using exclusively router, proxysql, or shell tools.
+mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with an extensive suite of specialized tools and resources.
 
-**Architecture & Capabilities**:
-- **Execution**: Code Mode (`mysql_execute_code`) dramatically reduces token usage (70–90%).
-- **Cache**: `METADATA_CACHE_TTL_MS` is the cache TTL (default 30000).
-- **Transports**: It supports `stdio`, streamable `http`, and legacy `sse`.
+## Apply Architecture Rules
+Ensure PRs adhere to these SSoT architectural rules:
+- **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
+- **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
+- **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
+- **Transports**: Supports `stdio`, streamable `http`, and legacy `sse` transports.
+- **Validation**: Ensure mask data alias validation at the MCP boundary.
+- **Audit Tool**: Requires at least one filter to prevent payload bloat.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
-- **Audit Logging**: Maintain strict security with comprehensive audit trails.
-- **Recent Architecture**:
-  - Added conditional update aliases for data and conditions.
-  - Fix alias resolution in stats hypothesis tool.
-  - Added streamable and HTTP transport tests.
-  - Mask data alias validation at MCP boundary.
-  - Require at least one filter for audit tool to prevent payload bloat.
 - **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
 
 ## Utilize Session Context
@@ -81,17 +77,8 @@ All tool handlers return structured error responses — never raw exceptions:
 }
 ```
 
-> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the 200+ tools and current config flags.
+> **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the comprehensive toolset and current config flags.
 > **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts. They must be explicitly listed in the tool-reference or registered in `server/`.
-
-## Apply Architecture Rules (Recent Changes)
-
-Ensure PRs adhere to these recent SSoT architectural rules:
-- **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
-- `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
-- Supports `stdio`, streamable `http`, and legacy `sse` transports.
-- Ensure mask data alias validation at the MCP boundary.
-- Audit tool requires at least one filter to prevent bloat.
 
 ## Navigate the Architecture
 
@@ -149,4 +136,4 @@ When reviewing PRs, check for:
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
-- [ ] Schema examples accurately reflect the 200+ tool count and current configuration flags
+- [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags

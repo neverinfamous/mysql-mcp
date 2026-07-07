@@ -1,21 +1,17 @@
 # Reset Prompts Test Database
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-20-purple?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-Available-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-Available-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-Available-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## 💎 Value Proposition
 
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
-Run this command to seed the database for testing all 20 mysql-mcp prompts:
+Run this command to seed the database for testing all mysql-mcp prompts:
 
 ```powershell
 docker exec mysql-final mysql -uroot -ppassword testdb -e "DROP TABLE IF EXISTS prompt_order_items, prompt_orders, prompt_users, prompt_transactions, prompt_sessions, prompt_audit_log, prompt_locations, prompt_documents, prompt_events, prompt_daily_reports, prompt_weekly_metrics;" && Get-Content .\test-server\test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -ppassword testdb
@@ -38,7 +34,7 @@ Tables prefixed with `prompt_*` to support testing:
 
 ## Testing Prompts
 
-### No-Argument Prompts (11 — complete immediately)
+### No-Argument Prompts (complete immediately)
 
 ```
 /mysql_tool_index
@@ -53,7 +49,7 @@ Tables prefixed with `prompt_*` to support testing:
 /mysql_mcp_heal
 ```
 
-### Optional-Argument Prompts (4)
+### Optional-Argument Prompts
 
 #### mysql_database_health_check (focus: connections, performance, replication, storage)
 
@@ -90,7 +86,7 @@ Tables prefixed with `prompt_*` to support testing:
 /mysql_setup_replication type:group
 ```
 
-### Required-Argument Prompts (6)
+### Required-Argument Prompts
 
 #### mysql_query_builder (operation, table, description)
 
@@ -175,4 +171,4 @@ Each prompt invocation should:
 
 ### Final Summary
 
-Provide a summary table of all 20 prompts with their pass/partial/fail status. Separately list any issues requiring code fixes vs. documentation improvements.
+Provide a summary table of all prompts with their pass/partial/fail status. Separately list any issues requiring code fixes vs. documentation improvements.

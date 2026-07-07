@@ -3,9 +3,9 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-purple?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-Available-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-Available-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-Available-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
@@ -133,7 +133,7 @@ src/
 
 ## Map Handlers to Tools
 
-200+ tools across groups. Each handler file registers tools with `group` labels.
+Available tools across groups. Each handler file registers tools with `group` labels.
 
 
 | Group | Tools |
@@ -188,6 +188,7 @@ AI-Powered Prompts across specialized workflow files:
 
 | Prompt | Description |
 | ------ | ----------- |
+| `mysql_mcp_heal` | Diagnose and heal tool connection or execution issues |
 | `mysql_tool_index` | Show all available MySQL tools organized by category |
 | `mysql_quick_query` | Quickly run a SQL query - shortcut for mysql_read_query or mysql_write_query |
 | `mysql_quick_schema` | Quickly explore database schema - lists tables or describes a specific table |

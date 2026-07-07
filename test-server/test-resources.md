@@ -1,23 +1,19 @@
 # Resource Testing Plan
 
-[![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
-[![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+[![Tools](https://img.shields.io/badge/Tools-Available-blue?style=for-the-badge)](#)
+[![Resources](https://img.shields.io/badge/Resources-Available-green?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-Available-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
 ## 💎 Value Proposition
 
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
+MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
-mysql-mcp exposes 23 core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
+mysql-mcp exposes core mysql:// observability resources (plus help). Many query internal views (`performance_schema`, `sys`, `information_schema`) that need prior activity to return meaningful data.
 
-> **Note on Resource Counts**: While there are 20 data resource URIs in total, the `src/adapters/mysql/resources/` directory truly contains exactly 19 `.ts` implementation files. The discrepancy exists because one of the implementation files handles a parameterized route (`mysql://table/{name}`), which effectively exposes an extra URI pattern.
+> **Note on Resource Counts**: The number of exposed data resource URIs differs from the exact number of implementation files in the `src/adapters/mysql/resources/` directory. The discrepancy exists because one of the implementation files handles a parameterized route (`mysql://table/{name}`), which effectively exposes an extra URI pattern.
 
 ### Setup
 
@@ -33,7 +29,7 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 
 **Step 1:** Read `C:\Users\chris\Desktop\mysql-mcp\test-server\test-resources.sql` to understand what resource seed data has been set up.
 
-**Step 2:** Test all 23 resource URIs by reading the core resource URIs. For each resource, validate the output against the expected structure documented below.
+**Step 2:** Test all resource URIs by reading the core resource URIs. For each resource, validate the output against the expected structure documented below.
 
 ### Core Resources
 
@@ -82,4 +78,4 @@ For each resource, report:
 
 ### Final Summary
 
-Provide a summary table of all 23 resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.
+Provide a summary table of all resources with their pass/partial/fail status. List any issues that require code fixes (e.g., resource handler bugs, missing error handling) separately from infrastructure-dependent limitations.

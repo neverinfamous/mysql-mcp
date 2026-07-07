@@ -13,7 +13,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access 200+ specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **Specialized Tools**                 | Access an extensive suite of specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
@@ -26,7 +26,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by over 2100 tests and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
+| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by a comprehensive test suite and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -61,7 +61,7 @@ Code Mode reduces token usage by 70-90%. It is included by default.
 Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. The server maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
 - **Strict Isolate Boundary** — Prevents native object cross-talk. It eliminates prototype pollution vectors.
-- **29 blocked patterns** — Blocks system commands and network access. Uses static regex rules.
+- **comprehensive blocked patterns** — Blocks system commands and network access. Uses static regex rules.
 - **RPC Quotas** — Limits execution to 100 API calls. It prevents unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
 - **Rate limiting** — Caps at 60 executions per minute. Supports Redis with in-memory fallback.
