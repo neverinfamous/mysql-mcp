@@ -2,7 +2,7 @@
 
 [![Tools](https://img.shields.io/badge/Tools-200%2B-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-23-green?style=for-the-badge)](#)
-[![Prompts](https://img.shields.io/badge/Prompts-19-purple?style=for-the-badge)](#)
+[![Prompts](https://img.shields.io/badge/Prompts-20-purple?style=for-the-badge)](#)
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
@@ -15,7 +15,7 @@
 - **Scale operations with robust connection pooling**.
 - **Leverage OAuth 2.1** for enterprise security.
 
-Run this command to seed the database for testing all 19 mysql-mcp prompts:
+Run this command to seed the database for testing all 20 mysql-mcp prompts:
 
 ```powershell
 docker exec mysql-final mysql -uroot -ppassword testdb -e "DROP TABLE IF EXISTS prompt_order_items, prompt_orders, prompt_users, prompt_transactions, prompt_sessions, prompt_audit_log, prompt_locations, prompt_documents, prompt_events, prompt_daily_reports, prompt_weekly_metrics;" && Get-Content .\test-server\test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -ppassword testdb
@@ -38,7 +38,7 @@ Tables prefixed with `prompt_*` to support testing:
 
 ## Testing Prompts
 
-### No-Argument Prompts (10 — complete immediately)
+### No-Argument Prompts (11 — complete immediately)
 
 ```
 /mysql_tool_index
@@ -50,6 +50,7 @@ Tables prefixed with `prompt_*` to support testing:
 /mysql_setup_spatial
 /mysql_setup_cluster
 /mysql_setup_docstore
+/mysql_mcp_heal
 ```
 
 ### Optional-Argument Prompts (4)
@@ -174,4 +175,4 @@ Each prompt invocation should:
 
 ### Final Summary
 
-Provide a summary table of all 19 prompts with their pass/partial/fail status. Separately list any issues requiring code fixes vs. documentation improvements.
+Provide a summary table of all 20 prompts with their pass/partial/fail status. Separately list any issues requiring code fixes vs. documentation improvements.
