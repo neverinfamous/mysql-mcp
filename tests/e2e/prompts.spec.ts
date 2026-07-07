@@ -1,7 +1,7 @@
 /**
  * E2E Tests: MCP Prompt Reads via SDK Client
  *
- * Verifies all 19 prompts are registered and return structured
+ * Verifies all 20 prompts are registered and return structured
  * content when invoked via the MCP SDK client.
  */
 
@@ -49,13 +49,14 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     "mysql_setup_spatial",
     "mysql_setup_cluster",
     "mysql_setup_docstore",
+    "mysql_mcp_heal",
   ];
 
-  test("should list all 19 prompts", async () => {
+  test("should list all 20 prompts", async () => {
     const listResponse = await client.listPrompts();
 
     expect(listResponse.prompts).toBeDefined();
-    expect(listResponse.prompts.length).toBe(19);
+    expect(listResponse.prompts.length).toBe(20);
 
     const names = listResponse.prompts.map((p) => p.name);
     for (const expected of EXPECTED_PROMPTS) {
@@ -272,5 +273,16 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     expect(response.messages).toBeDefined();
     const text = (response.messages[0].content as any).text as string;
     expect(text).toContain("document");
+  });
+
+  test("should get mysql_mcp_heal prompt", async () => {
+    const response = await client.getPrompt({
+      name: "mysql_mcp_heal",
+      arguments: {},
+    });
+
+    expect(response.messages).toBeDefined();
+    const text = (response.messages[0].content as any).text as string;
+    expect(text).toContain("lib-agent-exec");
   });
 });

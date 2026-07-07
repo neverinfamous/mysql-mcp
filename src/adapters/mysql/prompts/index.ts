@@ -2,7 +2,7 @@
  * MySQL MCP Prompts
  *
  * AI-powered prompts for query building, schema design, and optimization.
- * 19 prompts total.
+ * 20 prompts total.
  */
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type {
@@ -23,15 +23,16 @@ import { createSetupRouterPrompt } from "./router-setup.js";
 import { createSetupProxysqlPrompt } from "./proxysql-setup.js";
 import { createSetupReplicationPrompt } from "./replication-setup.js";
 import { createSetupMysqlshPrompt } from "./mysqlsh-setup.js";
-// New prompts (5)
+// New prompts (6)
 import { createSetupEventsPrompt } from "./event-scheduler.js";
 import { createSysSchemaGuidePrompt } from "./sys-schema.js";
 import { createSetupSpatialPrompt } from "./spatial-setup.js";
 import { createSetupClusterPrompt } from "./cluster-setup.js";
 import { createSetupDocstorePrompt } from "./docstore-setup.js";
+import { createMcpHealPrompt } from "./mcp-heal.js";
 
 /**
- * Get all MySQL prompts (19 total)
+ * Get all MySQL prompts (20 total)
  *
  * Core (7):
  * - mysql_tool_index - Lazy hydration tool index
@@ -51,12 +52,13 @@ import { createSetupDocstorePrompt } from "./docstore-setup.js";
  * - mysql_setup_replication - Replication setup guide
  * - mysql_setup_shell - MySQL Shell usage guide
  *
- * New (5):
+ * New (6):
  * - mysql_setup_events - Event Scheduler setup guide
  * - mysql_sys_schema_guide - sys schema usage and diagnostics
  * - mysql_setup_spatial - Spatial/GIS data setup guide
  * - mysql_setup_cluster - InnoDB Cluster/Group Replication guide
  * - mysql_setup_docstore - Document Store / X DevAPI guide
+ * - mysql_mcp_heal - Codebase healing and anti-hallucination guardrails
  */
 export function getMySQLPrompts(adapter: MySQLAdapter): PromptDefinition[] {
   // Get tool definitions for generating indexes
@@ -80,12 +82,13 @@ export function getMySQLPrompts(adapter: MySQLAdapter): PromptDefinition[] {
     createSetupProxysqlPrompt(),
     createSetupReplicationPrompt(),
     createSetupMysqlshPrompt(),
-    // New prompts (5)
+    // New prompts (6)
     createSetupEventsPrompt(),
     createSysSchemaGuidePrompt(),
     createSetupSpatialPrompt(),
     createSetupClusterPrompt(),
     createSetupDocstorePrompt(),
+    createMcpHealPrompt(),
   ];
 }
 
