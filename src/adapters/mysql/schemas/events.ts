@@ -124,11 +124,12 @@ export const EventListSchemaBase = z.object({
   name: z.string().optional().describe("Alias for pattern"),
   eventName: z.string().optional().describe("Alias for pattern"),
   event: z.string().optional().describe("Alias for pattern"),
-  includeDisabled: z
-    .boolean()
+  status: z
+    .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
     .optional()
-    .default(true)
-    .describe("Include disabled events"),
+    .describe("Filter by status"),
+  limit: z.number().default(50).describe("Maximum number of results to return"),
+  offset: z.number().default(0).describe("Number of results to skip"),
 });
 
 export const EventListSchema = z.object({
@@ -138,11 +139,15 @@ export const EventListSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
   event: z.string().optional(),
-  includeDisabled: z.boolean().default(true),
+  status: z.enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"]).optional(),
+  limit: z.number().default(50),
+  offset: z.number().default(0),
 }).transform(data => ({
   schema: data.schema ?? data.database,
   pattern: data.pattern ?? data.name ?? data.eventName ?? data.event,
-  includeDisabled: data.includeDisabled,
+  status: data.status,
+  limit: data.limit,
+  offset: data.offset,
 }));
 
 

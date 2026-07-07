@@ -274,21 +274,33 @@ describe("Handler Execution", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Schema does not exist",
+        error: "Schema 'nonexistent_db' does not exist",
         metrics: expect.any(Object),
       });
       // Should only have the schema check query, no event list query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
-    it("should exclude disabled events when includeDisabled is false", async () => {
+    it("should accept status filter", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_event_list")!;
-      await tool.handler({ includeDisabled: false }, mockContext);
+      await tool.handler({ status: "ENABLED" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("ENABLED");
+      expect(call).toContain("AND STATUS = ?");
+      const params = mockAdapter.executeQuery.mock.calls[0][1] as unknown[];
+      expect(params).toContain("ENABLED");
+    });
+
+    it("should apply limit and offset", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+
+      const tool = tools.find((t) => t.name === "mysql_event_list")!;
+      await tool.handler({ limit: 10, offset: 20 }, mockContext);
+
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(call).toContain("LIMIT 10 OFFSET 20");
     });
   });
 

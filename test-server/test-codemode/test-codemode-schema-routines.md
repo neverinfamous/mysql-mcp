@@ -163,22 +163,9 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: schema-routines
-
-schema Tool Group (4 tools +1 code mode):
-
-1. `mysql_list_stored_procedures` 2. `mysql_list_functions` 3. `mysql_list_triggers`
-4. `mysql_list_events`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.schema.help()` → verify method listing
-2. `mysql.schema.listTriggers({database: "testdb"})` → verify structure
-3. `mysql.schema.listStoredProcedures({database: "testdb"})` → verify structure
 4. `mysql.schema.listFunctions({database: "testdb"})` → verify structure
-5. `mysql.schema.listEvents({database: "testdb"})` → verify structure
-6. 🔴 `mysql.schema.listTriggers({database: "nonexistent_db_xyz"})` → `{success: false}`
-7. ✅ `mysql.schema.listStoredProcedures({})` → `{success: true}` (schema is optional)
+5. 🔴 `mysql.schema.listTriggers({database: "nonexistent_db_xyz"})` → `{success: false}`
+6. ✅ `mysql.schema.listStoredProcedures({})` → `{success: true}` (schema is optional)
 
 ---
 

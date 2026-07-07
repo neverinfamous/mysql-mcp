@@ -6,7 +6,7 @@
 - **Event status**: `mysql_event_status` returns a structured error `{ success: false, error: ... }` gracefully when the event is not found, instead of throwing an error.
 - **Event lifecycle**: Use `status: "DISABLE"` when creating/testing events. `onCompletion: "PRESERVE"` keeps events after expiry.
 - **Alter operations**: `mysql_event_alter` can enable/disable, change schedule/body, change `onCompletion` (PRESERVE/NOT PRESERVE), update comment, or rename (via `newName`).
-- **Listing events**: `mysql_event_list` accepts `includeDisabled` (default: true) to filter out disabled events.
+- **Listing events**: `mysql_event_list` accepts a `status` enum (`ENABLED`, `DISABLED`, `SLAVESIDE_DISABLED`) to filter events, along with `limit` and `offset` for pagination.
 - **Cross-schema**: Both `mysql_event_list` and `mysql_event_status` accept `schema` parameter to query other databases. Both return a structured error `{ success: false, error: ... }` when the specified schema does not exist.
 
 ### Example: Creating a Recurring Event

@@ -157,22 +157,21 @@ During testing, check for these inconsistencies:
 
 schema-routines-part2 Tool Group (2 tools +1 for code mode):
 
-1. 'mysql_list_triggers'
-2. 'mysql_list_events'
-3. 'mysql_execute_code' (codemode, auto-added)
+1. `mysql_list_constraints`
+2. `mysql_list_triggers`
+3. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
 
-1. `mysql_list_triggers({database: "testdb"})` → verify response structure (may be empty)
-2. `mysql_list_events({database: "testdb"})` → verify response structure
+**Commands:**
+1. `mysql_list_constraints({database: "testdb"})` → verify response structure
+2. `mysql_list_triggers({database: "testdb"})` → verify response structure
 
 **Domain error paths (🔴):**
-
-3. 🔴 `mysql_list_triggers({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
-4. 🔴 `mysql_list_events({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
+3. 🔴 `mysql_list_constraints({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
+4. 🔴 `mysql_list_triggers({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
 
 **Wrong-type numeric param coercion (🔴):**
-
 5. 🔴 `mysql_list_triggers({limit: "abc"})` → must NOT return raw MCP `-32602` error
 
 ---

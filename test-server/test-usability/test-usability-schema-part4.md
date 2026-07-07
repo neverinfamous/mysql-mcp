@@ -8,7 +8,7 @@ This prompt instructs you to organically test the `schema` tool group using Code
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `schema` group:
 - `mysql_list_constraints`
-- `mysql_list_events`
+- `mysql_list_triggers`
 
 **Instructions:**
 

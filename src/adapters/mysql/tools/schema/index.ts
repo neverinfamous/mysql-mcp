@@ -28,7 +28,6 @@ import { createListTriggersTool } from "./triggers.js";
 
 import { createListConstraintsTool } from "./constraints.js";
 
-import { createListEventsTool } from "./scheduled_events.js";
 
 /**
  * Get all schema management tools
@@ -45,6 +44,5 @@ export function getSchemaTools(adapter: MySQLAdapter): ToolDefinition[] {
     createListFunctionsTool(adapter),
     createListTriggersTool(adapter),
     createListConstraintsTool(adapter),
-    createListEventsTool(adapter),
   ];
 }

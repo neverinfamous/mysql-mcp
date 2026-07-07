@@ -36,7 +36,7 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 
 ---
 
-## Manage Schemas (11 tools)
+## Manage Schemas (10 tools)
 
 | Tool                           | Description                  |
 | ------------------------------ | ---------------------------- |
@@ -50,7 +50,6 @@ View the complete list of all **200+ tools** across groups below. Every tool ret
 | `mysql_list_functions`         | List stored functions        |
 | `mysql_list_triggers`          | List triggers                |
 | `mysql_list_constraints`       | List foreign keys and checks |
-| `mysql_list_events`            | List scheduled events        |
 
 ---
 

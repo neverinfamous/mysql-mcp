@@ -282,16 +282,16 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { schema, pattern, includeDisabled } = EventListSchema.parse(params);
+        const { schema, pattern, status, limit, offset } = EventListSchema.parse(params);
 
         // P154: Schema existence check when explicitly provided
-        if (schema) {
+        if (schema !== undefined && schema !== "") {
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
+            return formatHandlerErrorResponse(new QueryError(`Schema '${schema}' does not exist`));
           }
         }
 
@@ -300,6 +300,7 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
                     EVENT_NAME as name,
                     EVENT_SCHEMA as schemaName,
                     DEFINER as definer,
+                    TIME_ZONE as timeZone,
                     EVENT_TYPE as eventType,
                     EXECUTE_AT as executeAt,
                     INTERVAL_VALUE as intervalValue,
@@ -308,6 +309,8 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
                     ENDS as ends,
                     STATUS as status,
                     ON_COMPLETION as onCompletion,
+                    CREATED as created,
+                    LAST_ALTERED as lastAltered,
                     LAST_EXECUTED as lastExecuted,
                     EVENT_COMMENT as comment
                 FROM information_schema.EVENTS
@@ -316,16 +319,17 @@ function createEventListTool(adapter: MySQLAdapter): ToolDefinition {
 
         const queryParams: unknown[] = [schema ?? null];
 
-        if (pattern) {
+        if (status !== undefined) {
+          query += " AND STATUS = ?";
+          queryParams.push(status);
+        }
+
+        if (pattern !== undefined) {
           query += " AND EVENT_NAME LIKE ?";
           queryParams.push(pattern);
         }
 
-        if (!includeDisabled) {
-          query += " AND STATUS = 'ENABLED'";
-        }
-
-        query += " ORDER BY EVENT_NAME";
+        query += ` ORDER BY EVENT_NAME LIMIT ${limit} OFFSET ${offset}`;
 
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
