@@ -108,3 +108,6 @@ social-preview.png
 # Observability Configurations
 grafana/
 prometheus/
+
+# Data mounts
+data/

@@ -118,3 +118,6 @@ playwright-results.json
 .agents/workflows/git-generate-changelog.md
 .agents/workflows/git-impact-search.md
 .agents/workflows/git-velocity-report.md
+
+# Data mounts
+data/
