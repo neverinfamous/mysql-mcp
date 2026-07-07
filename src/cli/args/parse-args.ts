@@ -6,7 +6,7 @@
  */
 import { parseArgs as nodeParseArgs } from "node:util";
 
-import { PARSE_ARGS_CONFIG } from "./cli-options.js";
+import { PARSE_ARGS_CONFIG, CLI_OPTIONS } from "./cli-options.js";
 import { validateCliArgs } from "./cli-schema.js";
 import {
   parseMySQLConnectionString,
@@ -38,7 +38,11 @@ export async function parseArgs(argv: string[] = process.argv.slice(2)): Promise
   // ── Early exits (before strict parsing) ──────────────────────
   // Check --help / -h first so strict mode doesn't reject unknown combos
   if (argv.includes("--help") || argv.includes("-h")) {
-    printHelp();
+    if (argv.includes("--json")) {
+      process.stdout.write(JSON.stringify(CLI_OPTIONS, null, 2) + "\n");
+    } else {
+      printHelp();
+    }
     return { config: {}, databases: [], oauth: undefined, shouldExit: true };
   }
   if (argv.includes("--version") || argv.includes("-v")) {

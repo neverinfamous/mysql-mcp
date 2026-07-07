@@ -242,6 +242,11 @@ export const CLI_OPTIONS: Record<string, CliOptionDef> = {
     description: "Show this help",
     group: "other",
   },
+  "json": {
+    long: "json", type: "boolean",
+    description: "Output in JSON format (e.g. --help --json)",
+    group: "other",
+  },
 } as const satisfies Record<string, CliOptionDef>;
 
 /**

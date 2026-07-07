@@ -68,6 +68,7 @@ const cliArgsSchema = z
     // Other
     version: z.boolean().optional(),
     help: z.boolean().optional(),
+    json: z.boolean().optional(),
   })
   .partial();
 
