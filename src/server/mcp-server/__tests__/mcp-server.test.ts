@@ -66,7 +66,7 @@ describe("McpServer", () => {
   });
 
   it("should reject HTTP transport without allowedIoRoots", async () => {
-    const server = new McpServer({ transport: "http", allowedIoRoots: [] });
+    const server = new McpServer({ transport: "http", allowedIoRoots: [], port: 3333 });
     
     // We expect process.exit(1) to be called. We can mock it.
     const mockExit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any);

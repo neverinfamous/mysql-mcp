@@ -29,7 +29,7 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
 
   test.beforeAll(async () => {
     const transport = new SSEClientTransport(
-      new URL("http://localhost:3000/sse"),
+      new URL("http://localhost:3002/sse"),
     );
     client = new Client(
       { name: "playwright-resource-test", version: "1.0.0" },

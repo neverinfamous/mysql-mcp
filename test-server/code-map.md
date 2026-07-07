@@ -95,7 +95,7 @@ src/
 │   └── http/
 │       ├── server.ts               # HTTP/SSE transport (Streamable HTTP + legacy SSE + bearer auth + stateless mode
 │       │                           #   + OAuth scope enforcement on tools/call for both transports)
-│       ├── handlers.ts             # Route handlers (POST /mcp, GET /sse, health, etc.)
+│       ├── handlers.ts             # Route handlers (POST /mcp, GET /sse, health, metrics, etc.)
 │       ├── security.ts             # Security headers, rate limiting, CORS, body parsing
 │       ├── types.ts                # HTTP transport types (authToken, stateless)
 │       └── index.ts                # Barrel
@@ -392,6 +392,7 @@ try {
 | `test-server/tool-reference.md`             | Categorized tool inventory                                           |
 | `test-server/test-preflight.md`             | Pre-flight test setup checklist                                      |
 | `test-server/test-resources.sql`            | Seed SQL for resource testing                                        |
+| `docker-compose.yml`                        | Root compose file for spinning up Prometheus and Grafana             |
 | `infrastructure/`                           | Docker Compose and infrastructure config                             |
 | `scripts/reset-database.mjs`                | Reset script - drops + re-seeds `testdb`                             |
 | `test-server/test-tools.md`                 | Entry-point protocol for manual agent testing                        |

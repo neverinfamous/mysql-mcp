@@ -140,7 +140,7 @@ test.describe("Bearer Token Authentication", () => {
 
   test("GET /sse without token should return 401", async () => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
+    const timeout = setTimeout(() => controller.abort(), 3002);
 
     try {
       const response = await fetch(`${AUTH_BASE}/sse`, {

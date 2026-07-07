@@ -25,7 +25,7 @@ COPY package.json pnpm-lock.yaml ./
 
 # Install ALL dependencies (including devDependencies for build)
 RUN npm install -g pnpm@${PNPM_VERSION} && \
-    pnpm install --frozen-lockfile
+    pnpm install --frozen-lockfile > /dev/null 2>&1
 
 # Copy source code
 COPY tsconfig*.json tsup.config.ts ./
@@ -79,7 +79,7 @@ COPY package.json pnpm-lock.yaml ./
 # Install production dependencies only (needs build tools for better-sqlite3)
 RUN apk add --no-cache python3 make g++ && \
     npm install -g pnpm@${PNPM_VERSION} && \
-    pnpm install --prod --frozen-lockfile && \
+    pnpm install --prod --frozen-lockfile > /dev/null 2>&1 && \
     pnpm store prune && \
     npm uninstall -g pnpm && \
     apk del python3 make g++

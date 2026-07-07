@@ -16,7 +16,7 @@ test.describe("Structured Error Responses", () => {
 
   test.beforeAll(async () => {
     const transport = new SSEClientTransport(
-      new URL("http://localhost:3000/sse"),
+      new URL("http://localhost:3002/sse"),
     );
     client = new Client(
       { name: "playwright-errors-test", version: "1.0.0" },

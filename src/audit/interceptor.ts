@@ -121,16 +121,26 @@ export function createAuditInterceptor(
       try {
         const result = await fn();
 
-        // Extract success/error from structured handler responses
-        if (
-          typeof result === "object" &&
-          result !== null &&
-          "success" in result &&
-          result.success === false
-        ) {
-          success = false;
-          if ("error" in result) {
-            error = typeof result.error === "string" ? result.error : String(result.error);
+        // Extract success/error from structured handler responses (or CallToolResult)
+        if (typeof result === "object" && result !== null) {
+          // If it's a CallToolResult (which the new execFn returns)
+          if ("isError" in result && result.isError === true) {
+            success = false;
+            if ("structuredContent" in result && typeof result.structuredContent === "object" && result.structuredContent !== null) {
+              const sc = result.structuredContent as Record<string, unknown>;
+              if ("error" in sc) {
+                error = typeof sc["error"] === "string" ? sc["error"] : String(sc["error"]);
+              }
+            } else {
+              error = "Tool call failed (isError: true)";
+            }
+          }
+          // Legacy check in case we ever wrap the handler directly again
+          else if ("success" in result && result.success === false) {
+            success = false;
+            if ("error" in result) {
+              error = typeof result.error === "string" ? result.error : String(result.error);
+            }
           }
         }
 

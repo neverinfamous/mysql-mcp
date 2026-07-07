@@ -61,7 +61,7 @@ test.describe("HTTP/SSE Streaming", () => {
 
       // Open SSE stream with session ID — use raw fetch with AbortController
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 3000);
+      const timeout = setTimeout(() => controller.abort(), 3002);
 
       try {
         const sseResponse = await fetch(`${STREAM_BASE}/mcp`, {
@@ -91,7 +91,7 @@ test.describe("HTTP/SSE Streaming", () => {
   test.describe("Legacy SSE (GET /sse)", () => {
     test("should return text/event-stream from /sse endpoint", async () => {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 3000);
+      const timeout = setTimeout(() => controller.abort(), 3002);
 
       try {
         const response = await fetch(`${STREAM_BASE}/sse`, {

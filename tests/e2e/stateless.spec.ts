@@ -92,7 +92,7 @@ test.describe("Stateless HTTP Mode", () => {
 
   test("GET /sse should return 404 (legacy SSE unavailable in stateless)", async () => {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 3000);
+    const timeout = setTimeout(() => controller.abort(), 3002);
 
     try {
       const response = await fetch(`${STATELESS_BASE}/sse`, {

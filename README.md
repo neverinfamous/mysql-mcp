@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-90.1%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-446%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-446%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -28,6 +28,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
+| **Observability**                     | Prometheus Metrics Export (`/metrics`) and Pre-configured Grafana Dashboard out-of-the-box. |
 | **Strict TypeScript**                 | Strict TypeScript codebase backed by robust Vitest and Playwright test suites. Maintains high test coverage and executes with zero skipped tests. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
@@ -70,6 +71,18 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
   --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
+
+#### Observability via Docker Compose
+
+Launch the full stack, including the MCP server, Prometheus, and a pre-configured Grafana dashboard out-of-the-box:
+
+```bash
+docker-compose up -d
+```
+
+- **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
+- **Prometheus:** Available at `http://localhost:9090`.
+- **MCP Server:** Available at `http://localhost:3000`.
 
 #### From Source
 
@@ -184,9 +197,10 @@ Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 
 ### Access Utility Endpoints
 
-| Method | Endpoint  | Purpose                                                                |
-| ------ | --------- | ---------------------------------------------------------------------- |
-| `GET`  | `/health` | Health check (bypasses rate limiting, always available for monitoring) |
+| Method | Endpoint   | Purpose                                                                |
+| ------ | ---------- | ---------------------------------------------------------------------- |
+| `GET`  | `/health`  | Health check (bypasses rate limiting, always available for monitoring) |
+| `GET`  | `/metrics` | Exports Prometheus metrics (available when `--metrics-export` is enabled) |
 
 ## 🔐 Secure Access with Authentication
 

@@ -12,7 +12,7 @@ export default defineConfig({
   timeout: 60000,
   reporter: [["list"], ["json", { outputFile: ".test-output/playwright-results.json" }]],
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "http://localhost:3002",
     trace: "on-first-retry",
     actionTimeout: 0,
   },
@@ -23,8 +23,8 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node dist/cli.js --transport http --port 3000 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"}`,
-    url: "http://localhost:3000/health",
+    command: `node dist/cli.js --transport http --port 3002 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"}`,
+    url: "http://localhost:3002/health",
     reuseExistingServer: !process.env.CI,
     timeout: 30000,
     stdout: "pipe",
