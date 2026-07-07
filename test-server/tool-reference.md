@@ -9,9 +9,6 @@
 <br>
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
-## 💎 Value Proposition
-
-MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 View the complete list of all **available tools** across groups below. Every tool returns structured `{success, error}` responses.
 
@@ -32,7 +29,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_enable_versioning`  | Enable OCC on a table                   |
 | `mysql_disable_versioning` | Disable OCC on a table                  |
 | `mysql_check_version`      | Get current _version of a row           |
-| `mysql_conditional_update` | Update row conditionally based on version. **v3.2:** aliases for data and conditions |
+| `mysql_conditional_update` | Update row conditionally based on version. Aliases for data and conditions |
 
 ---
 
@@ -105,7 +102,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_doc_modify`            | Modify documents matching criteria    |
 | `mysql_doc_remove`            | Remove documents matching criteria    |
 | `mysql_doc_create_index`      | Create index on JSON path             |
-| `mysql_doc_collection_info`   | Get collection stats. **v3.2:** alias handling for collectionName |
+| `mysql_doc_collection_info`   | Get collection stats |
 
 ---
 
@@ -128,9 +125,9 @@ View the complete list of all **available tools** across groups below. Every too
 | ------------------------ | ----------------------------------------------------------------- |
 | `mysql_fulltext_create`  | Create FULLTEXT index                                             |
 | `mysql_fulltext_drop`    | Drop FULLTEXT index                                               |
-| `mysql_fulltext_search`  | MATCH...AGAINST natural language. **v2.2:** `maxLength` parameter |
-| `mysql_fulltext_boolean` | Boolean mode search. **v2.2:** `maxLength` parameter              |
-| `mysql_fulltext_expand`  | WITH QUERY EXPANSION. **v2.2:** `maxLength` parameter             |
+| `mysql_fulltext_search`  | MATCH...AGAINST natural language with `maxLength` parameter |
+| `mysql_fulltext_boolean` | Boolean mode search with `maxLength` parameter              |
+| `mysql_fulltext_expand`  | WITH QUERY EXPANSION with `maxLength` parameter             |
 
 ---
 
@@ -171,7 +168,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_stats_running_total` | Running total window function         |
 | `mysql_stats_moving_avg`    | Moving average window function        |
 | `mysql_stats_ntile`         | NTILE() window function               |
-| `mysql_stats_hypothesis`    | T-Test/Chi-Square hypothesis testing. **v3.2:** alias resolution fixed  |
+| `mysql_stats_hypothesis`    | T-Test/Chi-Square hypothesis testing |
 | `mysql_stats_outliers`      | Z-Score/IQR outlier detection         |
 | `mysql_stats_top_n`         | Top N items per category              |
 | `mysql_stats_distinct`      | Count distinct values                 |
@@ -184,12 +181,12 @@ View the complete list of all **available tools** across groups below. Every too
 
 | Tool                            | Description                                                           |
 | ------------------------------- | --------------------------------------------------------------------- |
-| `mysql_explain`                 | EXPLAIN query execution plan. **v2.2:** JSON/TREE/TRADITIONAL formats |
+| `mysql_explain`                 | EXPLAIN query execution plan with JSON/TREE/TRADITIONAL formats |
 | `mysql_explain_analyze`         | EXPLAIN ANALYZE (MySQL 8.0)                                           |
 | `mysql_slow_queries`            | Query slow query log                                                  |
 | `mysql_query_stats`             | Performance schema stats                                              |
 | `mysql_index_usage`             | Index usage statistics                                                |
-| `mysql_table_stats`             | Table statistics. **v2.2:** P154 existence check                      |
+| `mysql_table_stats`             | Table statistics with P154 existence check                      |
 | `mysql_buffer_pool_stats`       | InnoDB buffer pool info                                               |
 | `mysql_thread_stats`            | Thread activity stats                                                 |
 | `mysql_detect_query_anomalies`  | Detect unusual query execution patterns                               |
@@ -202,10 +199,10 @@ View the complete list of all **available tools** across groups below. Every too
 
 | Tool                         | Description                                        |
 | ---------------------------- | -------------------------------------------------- |
-| `mysql_index_recommendation` | Suggest missing indexes. **v2.2:** `queries`, `includeRedundant`, `includeUnindexed` params. **v3.2:** allow database-wide index audit |
+| `mysql_index_recommendation` | Suggest missing indexes. Supports `queries`, `includeRedundant`, `includeUnindexed` parameters and database-wide index audit |
 | `mysql_query_rewrite`        | Query optimization hints                           |
 | `mysql_force_index`          | Generate FORCE INDEX hints                         |
-| `mysql_optimizer_trace`      | View optimizer decisions. **v2.2:** `summary` mode |
+| `mysql_optimizer_trace`      | View optimizer decisions with `summary` mode |
 
 ---
 
@@ -220,8 +217,8 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_flush_tables`   | FLUSH TABLES             |
 | `mysql_kill_query`     | KILL connection/query    |
 | `mysql_append_insight` | Append insight to log    |
-| `mysql_server_config`  | Manage server configs. **v3.2:** action required, audit default limit fixed |
-| `mysql_audit_search`   | Search and filter system audit logs. **v3.2:** requires at least one filter |
+| `mysql_server_config`  | Manage server configs |
+| `mysql_audit_search`   | Search and filter system audit logs. Requires at least one filter |
 
 ---
 
@@ -232,10 +229,10 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_security_audit`             | Audit user privileges and settings                 |
 | `mysql_security_firewall_status`   | Firewall status (Enterprise/MariaDB)               |
 | `mysql_security_firewall_rules`    | List firewall rules                                |
-| `mysql_security_mask_data`         | Mask PII data patterns. **v3.2:** alias validation at MCP boundary |
+| `mysql_security_mask_data`         | Mask PII data patterns |
 | `mysql_security_password_validate` | Check password strength policy                     |
 | `mysql_security_ssl_status`        | SSL/TLS connection status                          |
-| `mysql_security_user_privileges`   | List privileges for user. **v2.2:** `summary` mode |
+| `mysql_security_user_privileges`   | List privileges for user with `summary` mode |
 | `mysql_security_sensitive_tables`  | Scan for sensitive table names                     |
 | `mysql_security_encryption_status` | TDE/Encryption-at-rest status                      |
 
@@ -276,13 +273,13 @@ View the complete list of all **available tools** across groups below. Every too
 
 | Tool                          | Description                 |
 | ----------------------------- | --------------------------- |
-| `mysql_sys_user_summary`      | Resource usage by user. **v3.2:** strict validation and aliases      |
+| `mysql_sys_user_summary`      | Resource usage by user      |
 | `mysql_sys_io_summary`        | I/O usage by thread/file    |
 | `mysql_sys_statement_summary` | Statement analysis          |
 | `mysql_sys_wait_summary`      | Wait events analysis        |
 | `mysql_sys_innodb_lock_waits` | Blocked transactions info   |
 | `mysql_sys_schema_stats`      | Table/index sizes and bloat |
-| `mysql_sys_host_summary`      | Metrics by source host. **v3.2:** strict validation and aliases      |
+| `mysql_sys_host_summary`      | Metrics by source host      |
 | `mysql_sys_memory_summary`    | Memory usage breakdown      |
 
 ---
@@ -291,7 +288,7 @@ View the complete list of all **available tools** across groups below. Every too
 
 | Tool                         | Description                                                         |
 | ---------------------------- | ------------------------------------------------------------------- |
-| `mysql_export_table`         | Export table to SQL/CSV. **v2.2:** `limit` parameter (default: 5) |
+| `mysql_export_table`         | Export table to SQL/CSV with `limit` parameter (default: 5) |
 | `mysql_import_data`          | LOAD DATA INFILE                                                    |
 | `mysql_create_dump`          | mysqldump command generation                                        |
 | `mysql_restore_dump`         | Restore from dump                                                   |
@@ -324,10 +321,10 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_gr_primary`            | Get/Set primary member                                           |
 | `mysql_gr_transactions`       | Check distributed transactions                                   |
 | `mysql_gr_flow_control`       | Tuning flow control                                              |
-| `mysql_cluster_status`        | InnoDB Cluster overall status. **v2.2:** `summary` mode          |
-| `mysql_cluster_instances`     | List instance details. **v2.2:** offline node reporting          |
-| `mysql_cluster_topology`      | View cluster topology map. **v2.2:** offline instance visibility |
-| `mysql_cluster_router_status` | Connected Routers. **v2.2:** `summary` mode                      |
+| `mysql_cluster_status`        | InnoDB Cluster overall status with `summary` mode          |
+| `mysql_cluster_instances`     | List instance details. Includes offline node reporting          |
+| `mysql_cluster_topology`      | View cluster topology map with offline instance visibility |
+| `mysql_cluster_router_status` | Connected Routers with `summary` mode                      |
 | `mysql_cluster_switchover`    | Validates switchover readiness                                   |
 
 ---
@@ -384,14 +381,14 @@ View the complete list of all **available tools** across groups below. Every too
 
 | Tool                        | Description                                                                                        |
 | --------------------------- | -------------------------------------------------------------------------------------------------- |
-| `proxysql_status`           | Get ProxySQL version, uptime, and runtime stats. **v2.2:** `summary` mode                          |
+| `proxysql_status`           | Get ProxySQL version, uptime, and runtime stats with `summary` mode                          |
 | `proxysql_servers`          | List configured backend MySQL servers                                                              |
 | `proxysql_query_rules`      | List query routing rules                                                                           |
 | `proxysql_query_digest`     | Get query digest statistics (top queries)                                                          |
 | `proxysql_connection_pool`  | Get connection pool statistics per server                                                          |
 | `proxysql_users`            | List configured MySQL users                                                                        |
-| `proxysql_global_variables` | Get global variables (mysql-_ and admin-_). **v2.2:** `limit`, `like` params; credential redaction |
-| `proxysql_runtime_status`   | Get runtime configuration status. **v2.2:** `summary` mode; credential redaction                   |
+| `proxysql_global_variables` | Get global variables (mysql-_ and admin-_) with `limit`, `like` parameters and credential redaction |
+| `proxysql_runtime_status`   | Get runtime configuration status with `summary` mode and credential redaction                   |
 | `proxysql_memory_stats`     | Get memory usage metrics                                                                           |
 | `proxysql_commands`         | Execute LOAD/SAVE admin commands                                                                   |
 | `proxysql_process_list`     | Get active sessions                                                                                |
@@ -407,12 +404,12 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysqlsh_version`       | Get MySQL Shell version and installation status                                     |
 | `mysqlsh_check_upgrade` | Check server upgrade compatibility                                                  |
 | `mysqlsh_export_table`  | Export table to file (CSV, TSV)                                                     |
-| `mysqlsh_import_table`  | Parallel table import. **v2.1:** `updateServerSettings` auto-enables `local_infile` |
+| `mysqlsh_import_table`  | Parallel table import. `updateServerSettings` auto-enables `local_infile` |
 | `mysqlsh_import_json`   | Import JSON documents to collection or table                                        |
 | `mysqlsh_dump_instance` | Dump entire MySQL instance                                                          |
-| `mysqlsh_dump_schemas`  | Dump selected schemas. **v2.1:** `ddlOnly` dumps only DDL                           |
-| `mysqlsh_dump_tables`   | Dump specific tables. **v2.1:** `all` controls trigger inclusion                    |
-| `mysqlsh_load_dump`     | Load MySQL Shell dump. **v2.1:** `updateServerSettings` auto-enables `local_infile` |
+| `mysqlsh_dump_schemas`  | Dump selected schemas. `ddlOnly` dumps only DDL                           |
+| `mysqlsh_dump_tables`   | Dump specific tables. `all` controls trigger inclusion                    |
+| `mysqlsh_load_dump`     | Load MySQL Shell dump. `updateServerSettings` auto-enables `local_infile` |
 | `mysqlsh_run_script`    | Execute JS/Python/SQL script via MySQL Shell                                        |
 
 ---
@@ -429,7 +426,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_vector_get`             | Retrieve a vector by primary key                                            |
 | `mysql_vector_search`          | Top-k nearest neighbors (KNN) search                                        |
 | `mysql_vector_range_search`    | Find all vectors within a distance threshold                                |
-| `mysql_vector_hybrid_search`   | Combine vector distance with FULLTEXT relevance using Reciprocal Rank Fusion. **v3.1:** `metric`, `rrfK`, `select`, `filter` parameters|
+| `mysql_vector_hybrid_search`   | Combine vector distance with FULLTEXT relevance using Reciprocal Rank Fusion. Supports `metric`, `rrfK`, `select`, `filter` parameters|
 | `mysql_vector_info`            | View table vector columns and dimensions                                    |
 | `mysql_vector_create_index`    | Create HNSW vector index (MySQL 9.1+)                                       |
 | `mysql_vector_optimize`        | Optimize vector index statistics                                            |

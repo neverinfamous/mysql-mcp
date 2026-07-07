@@ -7,7 +7,7 @@
 
 ## 💎 Value Proposition
 
-MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 ## 🎯 Core Benefits
 
@@ -16,7 +16,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | **Specialized Tools**                 | Access an extensive suite of specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
 | **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
-| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduce LLM token overhead by 70-90%. |
+| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduces LLM token consumption by consolidating operations via sandboxed Code Mode. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **Smart Tool Filtering**              | Use tool groups and shortcuts to stay within IDE tool limits. |
@@ -26,12 +26,12 @@ MySQL MCP is a production-ready integration engineered for AI agents. It minimiz
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Strict TypeScript**                 | Deploy a 100% type-safe codebase backed by a comprehensive test suite and high coverage. Backed by robust Vitest and Playwright suites. Features zero skipped tests. Guarantees deterministic reliability in production. |
+| **Strict TypeScript**                 | Strict TypeScript codebase backed by robust Vitest and Playwright test suites. Maintains high test coverage and executes with zero skipped tests. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
 
-## 🚀 Deploy in Minutes
+## 🚀 Installation and Deployment
 
 ### Meet Prerequisites
 
@@ -54,9 +54,9 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 ---
 
-## ⚡ Maximize Efficiency with Code Mode
+## ⚡ Code Mode (`mysql_execute_code`)
 
-Code Mode reduces token usage by 70-90%. It is included by default.
+Code Mode reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It is included by default.
 
 Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. The server maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
 

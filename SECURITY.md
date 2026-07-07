@@ -4,7 +4,7 @@ The mysql-mcp server protects your databases. It secures stdio, HTTP, and SSE tr
 
 ## 💎 Value Proposition
 
-MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 ## 🛡️ **Secure Your Database**
 
@@ -151,7 +151,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 ### Harden the Container
 
-- ✅ **Minimal base image**: `node:24-alpine`
+- ✅ **Minimal base image**: `node:26-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: `npm prune --omit=dev` after build
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
@@ -161,11 +161,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
 
-- ✅ `cross-spawn` — CVE-2024-21538
-- ✅ `glob` — CVE-2025-64756
-- ✅ `@isaacs/brace-expansion@5.0.1` — CVE-2025-5889
-- ✅ `tar@7.5.19` — CVE-2026-26960
-- ✅ `minimatch@10.2.5` — CVE-2026-27904, CVE-2026-27903
+- ✅ Transitive dependencies (such as npm bundled packages) are explicitly patched during container build to maintain Docker Scout compliance.
 
 ### Mount Volumes Securely
 
@@ -268,10 +264,9 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 | Version | Supported |
 | ------- | --------- |
-| 3.x.x   | ✅        |
-| 2.x.x   | ✅        |
-| 1.x.x   | ✅        |
-| < 1.0   | ❌        |
+| Current Major Version (4.x) | ✅        |
+| Previous Major Version (3.x) | ✅        |
+| < 3.0   | ❌        |
 
 If you discover a security vulnerability:
 

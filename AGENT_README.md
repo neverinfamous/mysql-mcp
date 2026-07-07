@@ -2,7 +2,7 @@
 
 > **[System Instruction]** You are reading the `AGENT_README.md` for the `mysql-mcp` repository. This file serves as the master index for autonomous AI agents navigating, auditing, or developing this codebase. 
 
-`mysql-mcp` is an advanced Model Context Protocol (MCP) server providing AI agents with deeply integrated, highly token-optimized access to MySQL. The server implements a dual-transport model (stdio + HTTP), full OAuth 2.1 authentication, and a C++ V8 isolate engine for sandboxed JavaScript execution (Code Mode).
+`mysql-mcp` is an advanced Model Context Protocol (MCP) server providing AI agents with deeply integrated, token-optimized access to MySQL. The server implements a dual-transport model (stdio + HTTP), full OAuth 2.1 authentication, and a C++ V8 isolate engine for sandboxed JavaScript execution (Code Mode).
 
 ---
 
@@ -41,7 +41,7 @@ When committing changes to `mysql-mcp`, you **MUST** adhere to the following rul
 
 ## 🧪 Testing Matrices
 
-The repository contains an exhaustive suite of testing environments:
+The repository contains a comprehensive suite of testing environments:
 
 - **E2E & Unit**: `src/__tests__/`, `src/audit/*.test.ts`, and `tests/e2e/`. Run via `pnpm check`.
 - **Advanced Agent Testing**:

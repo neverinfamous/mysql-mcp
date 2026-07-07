@@ -100,7 +100,7 @@ The full release flow for pushes to `main`:
 ```
 push to main
   → lint-and-test
-      ├── lint (Node 24.x + 25.x matrix)
+      ├── lint (Node 24.x + 26.x matrix)
       ├── security-scan (pnpm audit)
       └── docker-smoke-test (build + HTTP start)
             ↓ lint-and-test success

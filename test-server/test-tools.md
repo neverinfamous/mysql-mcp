@@ -1,4 +1,4 @@
-# MySQL-MCP Testing Guide
+# MySQL MCP Testing Guide
 
 [![Tools](https://img.shields.io/badge/Tools-Available-blue?style=for-the-badge)](#)
 [![Resources](https://img.shields.io/badge/Resources-Available-green?style=for-the-badge)](#)
@@ -7,9 +7,6 @@
 [![OAuth 2.1](https://img.shields.io/badge/OAuth-2.1-red?style=for-the-badge)](#)
 [![Code Mode](https://img.shields.io/badge/Code-Mode-orange?style=for-the-badge)](#)
 
-## 💎 Value Proposition
-
-MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 The testing infrastructure for `mysql-mcp` is split into four directories, matching the `db-mcp` gold standard:
 
