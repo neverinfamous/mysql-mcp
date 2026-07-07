@@ -52,13 +52,13 @@ pnpm add -g @neverinfamous/mysql-mcp
 Run the server:
 
 ```bash
-mysql-mcp --transport stdio --mysql "mysql://user:password@localhost:3306/database"
+mysql-mcp --transport stdio --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
 Or use npx without installing:
 
 ```bash
-npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://user:password@localhost:3306/database"
+npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
 #### Docker
@@ -68,7 +68,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://user:password@lo
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
-  --mysql "mysql://user:password@host.docker.internal:3306/database"
+  --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 #### From Source
@@ -78,14 +78,14 @@ git clone https://github.com/neverinfamous/mysql-mcp.git
 cd mysql-mcp
 pnpm install
 pnpm run build
-node dist/cli.js --transport stdio --mysql "mysql://user:password@localhost:3306/database"
+node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
 ---
 
 ## ⚡ Code Mode (`mysql_execute_code`)
 
-Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It is included by default.
+Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations within a secure JavaScript sandbox. It is included by default.
 
 Code executes in a **C++ V8 isolate sandbox**. The server uses a physically separate V8 isolate via `isolated-vm`. The server enforces strict heap limits and synchronous termination. The server maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
@@ -131,9 +131,9 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_user",
-        "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "testdb",
         "REDIS_URL": "redis://localhost:6379"
       }
     }
@@ -161,7 +161,7 @@ npx -y @neverinfamous/mysql-mcp \
   --transport http \
   --server-host 0.0.0.0 \
   --port 3000 \
-  --mysql "mysql://user:pass@localhost:3306/db"
+  --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
 **Docker:**
@@ -169,7 +169,7 @@ npx -y @neverinfamous/mysql-mcp \
 ```bash
 docker run --rm -p 3000:3000 \
   writenotenow/mysql-mcp:latest \
-  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
+  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 The server supports **two MCP transport protocols simultaneously**. Both modern and legacy clients can connect:
@@ -193,7 +193,7 @@ Sessions are managed via the `Mcp-Session-Id` header.
 Use stateless deployments where sessions are not needed:
 
 ```bash
-node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --stateless --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --stateless --mysql "mysql://mcp_user:secure_password@..."
 ```
 
 In stateless mode: `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
@@ -222,11 +222,11 @@ mysql-mcp supports two authentication mechanisms for HTTP transport:
 Use lightweight authentication for development:
 
 ```bash
-node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --auth-token my-secret --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --auth-token my-secret --mysql "mysql://mcp_user:secure_password@..."
 
 # Or via environment variable
 export MCP_AUTH_TOKEN=my-secret
-node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@..."
 ```
 
 Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401` with `WWW-Authenticate: Bearer` headers per RFC 6750.
@@ -240,7 +240,7 @@ node dist/cli.js \
   --transport http \
   --server-host 0.0.0.0 \
   --port 3000 \
-  --mysql "mysql://user:pass@localhost:3306/db" \
+  --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb" \
   --oauth-enabled \
   --oauth-issuer http://localhost:8080/realms/mysql-mcp \
   --oauth-audience mysql-mcp-client
@@ -294,7 +294,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
         "--transport",
         "stdio",
         "--mysql",
-        "mysql://user:password@localhost:3306/database"
+        "mysql://mcp_user:secure_password@localhost:3306/testdb"
       ]
     }
   }
@@ -312,9 +312,9 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_user",
-        "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "testdb",
         "MYSQL_XPORT": "33060"
       }
     }
@@ -332,9 +332,9 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
-| **MySQL on host machine** | `host.docker.internal`    | `mysql://user:pass@host.docker.internal:3306/db` |
-| **MySQL in Docker**       | Container name or network | `mysql://user:pass@mysql-container:3306/db`      |
-| **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://user:pass@db.example.com:3306/db`       |
+| **MySQL on host machine** | `host.docker.internal`    | `mysql://mcp_user:secure_password@host.docker.internal:3306/testdb` |
+| **MySQL in Docker**       | Container name or network | `mysql://mcp_user:secure_password@mysql-container:3306/testdb`      |
+| **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://mcp_user:secure_password@db.example.com:3306/testdb`       |
 
 ### MySQL on Host Machine
 
@@ -343,7 +343,7 @@ If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 ```json
 [
   "--mysql",
-  "mysql://user:password@host.docker.internal:3306/database"
+  "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ]
 ```
 
@@ -362,7 +362,7 @@ Run MCP server on the same network:
 
 ```bash
 docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
-  --transport stdio --mysql "mysql://root:pass@mysql-db:3306/mysql"
+  --transport stdio --mysql "mysql://mcp_user:secure_password@mysql-db:3306/testdb"
 ```
 
 ### Remote/Cloud MySQL (RDS, Cloud SQL, etc.)
@@ -372,7 +372,7 @@ Use the remote hostname directly:
 ```json
 [
   "--mysql",
-  "mysql://user:password@your-instance.region.rds.amazonaws.com:3306/database"
+  "mysql://mcp_user:secure_password@your-instance.region.rds.amazonaws.com:3306/testdb"
 ]
 ```
 
@@ -391,7 +391,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 200+ tools available, you MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** You MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 

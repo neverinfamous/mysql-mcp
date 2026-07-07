@@ -49,14 +49,14 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
-  --mysql mysql://user:password@host.docker.internal:3306/database
+  --mysql mysql://mcp_user:secure_password@host.docker.internal:3306/testdb
 ```
 
 ---
 
 ## ⚡ Code Mode (`mysql_execute_code`)
 
-Code Mode reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It is included by default.
+Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations within a secure JavaScript sandbox. It is included by default.
 
 Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. The server maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
@@ -97,9 +97,9 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
       "env": {
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_user",
-        "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "testdb",
         "REDIS_URL": "redis://localhost:6379"
       }
     }
@@ -135,7 +135,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "--transport",
         "stdio",
         "--mysql",
-        "mysql://user:password@host.docker.internal:3306/database"
+        "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
       ]
     }
   }
@@ -166,9 +166,9 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
       "env": {
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3306",
-        "MYSQL_USER": "your_user",
-        "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "testdb",
         "MYSQL_XPORT": "33060"
       }
     }
@@ -194,7 +194,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 ```bash
 docker run --rm -p 3000:3000 \
   writenotenow/mysql-mcp:latest \
-  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://user:pass@host.docker.internal:3306/db"
+  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ### Access Security Features and Utility Endpoints
@@ -207,9 +207,9 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
-| **MySQL on host machine** | `host.docker.internal`    | `mysql://user:pass@host.docker.internal:3306/db` |
-| **MySQL in Docker**       | Container name or network | `mysql://user:pass@mysql-container:3306/db`      |
-| **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://user:pass@db.example.com:3306/db`       |
+| **MySQL on host machine** | `host.docker.internal`    | `mysql://mcp_user:secure_password@host.docker.internal:3306/testdb` |
+| **MySQL in Docker**       | Container name or network | `mysql://mcp_user:secure_password@mysql-container:3306/testdb`      |
+| **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://mcp_user:secure_password@db.example.com:3306/testdb`       |
 
 > **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
 
@@ -220,7 +220,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 > **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools are used.
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** With 200+ tools available, you MUST use tool filtering to stay within your IDE's limits. 
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** You MUST use tool filtering to stay within your IDE's limits. 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available groups and predefined bundles.
 
 ---

@@ -4,7 +4,7 @@ Thank you for your interest in contributing to mysql-mcp! We welcome your contri
 
 ## 💎 Value Proposition
 
-MySQL MCP is a production-ready integration engineered for AI agents. It minimizes LLM token consumption by up to 90% via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 ## 🚀 Start Quickly
 
@@ -49,10 +49,10 @@ pnpm run check   # Runs ESLint + TypeScript strict-mode, plus unit and E2E tests
 
 ```bash
 # Connect to a local MySQL instance via stdio
-node dist/cli.js --transport stdio --mysql "mysql://user:pass@localhost:3306/mydb"
+node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 
 # HTTP transport (for testing with an MCP client)
-node dist/cli.js --transport http --port 3000 --mysql "mysql://user:pass@localhost:3306/mydb"
+node dist/cli.js --transport http --port 3000 --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
 > **Connection string required.** The server requires a valid MySQL connection string. For local testing, you can use a `.env` file or pass the string directly. Never commit credentials to version control.
@@ -64,7 +64,7 @@ node dist/cli.js --transport http --port 3000 --mysql "mysql://user:pass@localho
 docker build -f Dockerfile -t mysql-mcp-dev .
 
 # Run with a connection string
-docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
+docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host:3306/testdb"
 ```
 
 ## 📋 Discover Contribution Goals
@@ -143,7 +143,7 @@ Add your local build to `~/.cursor/mcp.json`:
         "--transport",
         "stdio",
         "--mysql",
-        "mysql://user:pass@localhost:3306/mydb"
+        "mysql://mcp_user:secure_password@localhost:3306/testdb"
       ]
     }
   }
@@ -155,7 +155,7 @@ Add your local build to `~/.cursor/mcp.json`:
 ```bash
 # Build and run locally
 docker build -f Dockerfile -t mysql-mcp-dev .
-docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://user:pass@host:3306/mydb"
+docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host:3306/testdb"
 ```
 
 ## 📝 Follow Coding Standards
@@ -214,7 +214,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ## 🔧 Add or Modify Tools
 
-mysql-mcp organizes tools into groups covering: `core`, `schema`, `introspection`, `migration`, `monitoring`, `performance`, `stats`, `text`, `json`, `spatial`, `admin`, `transactions`, `partitioning`, `backup`, `security`, `roles`, `docstore`, `sysschema`, `cluster`, `proxysql`, `router`, `shell`, `events`, `fulltext`, `optimization`, `vector`, `replication`, and `codemode`. 
+mysql-mcp organizes tools into various functional groups (e.g., core, schema, performance, security, ecosystem, and codemode).
 
 When adding a new tool:
 
