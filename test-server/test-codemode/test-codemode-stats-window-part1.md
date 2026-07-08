@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_stats_row_number` |   |   |
+| `mysql_stats_rank` |   |   |
+| `mysql_stats_lag_lead` |   |   |
 
 ---
 
@@ -71,6 +73,7 @@
 - `mysql_stats_row_number`
 - `mysql_stats_rank`
 - `mysql_stats_lag_lead`
+
 
 ## Group Focus:stats-window (Part 1)
 
@@ -87,11 +90,11 @@ stats-window Tool Group (6 tools +1 code mode):
 
 1. `mysql.stats_help()` → verify method listing
 2. `mysql.stats_rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
-3. `mysql.stats_rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
 4. `mysql.stats_lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
 5. `mysql.stats_runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
 6. `mysql.stats_movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
-7. `mysql.stats_ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
 
 **Domain error paths (🔴):**
 
@@ -100,7 +103,7 @@ stats-window Tool Group (6 tools +1 code mode):
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql.stats_ntile({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
 11. 🔴 `mysql.stats_lagLead({})` → `{success: false, error: "Validation error: ..."}`
 
 ---

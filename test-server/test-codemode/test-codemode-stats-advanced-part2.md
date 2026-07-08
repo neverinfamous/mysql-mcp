@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_stats_distinct` |   |   |
+| `mysql_stats_frequency` |   |   |
+| `mysql_stats_summary` |   |   |
 
 ---
 
@@ -71,6 +73,7 @@
 - `mysql_stats_distinct`
 - `mysql_stats_frequency`
 - `mysql_stats_summary`
+
 
 ## Group Focus:stats-advanced (Part 2)
 
@@ -86,22 +89,22 @@ stats-advanced Tool Group (6 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.stats_help()` → verify method listing
-2. `mysql.stats_hypothesis({table: "test_products", column: "price", testType: "t_test", hypothesizedMean: 100})` → verify t-test results
-3. `mysql.stats_outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
+2. `mysql.stats.hypothesis({table: "test_products", column: "price", testType: "t_test", hypothesizedMean: 100})` → verify t-test results
+3. `mysql.stats.outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
 4. `mysql.stats_topN({table: "test_measurements", column: "temperature", n: 5, direction: "desc"})` → verify top 5
-5. `mysql.stats_distinct({table: "test_events", column: "event_type"})` → verify distinct counts
-6. `mysql.stats_frequency({table: "test_events", column: "event_type"})` → verify frequency distribution
-7. `mysql.stats_summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → verify multivariable summary
+5. `mysql.stats.distinct({table: "test_events", column: "event_type"})` → verify distinct counts
+6. `mysql.stats.frequency({table: "test_events", column: "event_type"})` → verify frequency distribution
+7. `mysql.stats.summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → verify multivariable summary
 
 **Domain error paths (🔴):**
 
 8. 🔴 `mysql.stats_topN({table: "nonexistent_xyz", column: "temperature"})` → `{success: false}`
-9. 🔴 `mysql.stats_hypothesis({table: "test_products", column: "nonexistent", testType: "t_test", hypothesizedMean: 100})` → `{success: false}`
+9. 🔴 `mysql.stats.hypothesis({table: "test_products", column: "nonexistent", testType: "t_test", hypothesizedMean: 100})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql.stats_outliers({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.stats_summary({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.stats.outliers({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.summary({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

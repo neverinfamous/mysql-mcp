@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,10 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_sys_statement_summary` |   |   |
+| `mysql_sys_wait_summary` |   |   |
+| `mysql_sys_innodb_lock_waits` |   |   |
+| `mysql_sys_schema_stats` |   |   |
 
 ---
 
@@ -72,6 +75,7 @@
 - `mysql_sys_wait_summary`
 - `mysql_sys_innodb_lock_waits`
 - `mysql_sys_schema_stats`
+
 
 ## Group Focus:sysschema
 
@@ -85,18 +89,18 @@ sysschema Tool Group (4 tools +1 code mode):
 > **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
 
 1. `mysql.sys.help()` -> verify method listing
-4. `mysql.sys.sysStatementSummary({ orderBy: "total_latency" })` -> verify success
-5. `mysql.sys.sysWaitSummary({ type: "global" })` -> verify success
-6. `mysql.sys.sysInnodbLockWaits({ limit: 5 })` -> verify success
-7. `mysql.sys.sysSchemaStats({ schema: "testdb" })` -> verify success
+2. `mysql.sysschema.statementSummary({ orderBy: "total_latency" })` -> verify success
+3. `mysql.sysschema.waitSummary({ type: "global" })` -> verify success
+4. `mysql.sysschema.innodbLockWaits({ limit: 5 })` -> verify success
+5. `mysql.sysschema.schemaStats({ schema: "testdb" })` -> verify success
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+10. 🔴 `mysql.sysschema.schemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.sysschema.statementSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 

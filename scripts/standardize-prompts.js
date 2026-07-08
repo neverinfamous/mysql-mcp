@@ -102,7 +102,7 @@ function processDirectory(dirName) {
     const colCount = coverageMatrix.split("|").length - 2;
     const divider = "|" + Array(colCount).fill("---").join("|") + "|";
 
-    if ((dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability") && toolMap[file] && toolMap[file].length > 0) {
+    if ((dirName === "test-codemode" || dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability") && toolMap[file] && toolMap[file].length > 0) {
         const tools = toolMap[file];
         explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n`;
         explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";
@@ -188,14 +188,52 @@ function processDirectory(dirName) {
 
     // Apply specific corrections for parameter drift and nested namespaces dynamically
     testContent = testContent
-      // Fix nested namespaces in test-advanced
-      .replace(/mysql\.events\./g, "mysql.event_")
-      .replace(/mysql\.partitioning\./g, "mysql.partition_")
-      .replace(/mysql\.replication\.masterStatus/g, "mysql.master_status")
-      .replace(/mysql\.replication\.slaveStatus/g, "mysql.slave_status")
-      .replace(/mysql\.replication\.lag/g, "mysql.replication_lag")
-      .replace(/mysql\.shell\./g, "mysqlsh_")
-      .replace(/mysql\.stats\./g, "mysql.stats_")
+      // Fix nested namespaces in test-advanced by enforcing correct Code Mode API namespaces
+      .replace(/mysql\.event_create/g, "mysql.events.create")
+      .replace(/mysql\.event_alter/g, "mysql.events.alter")
+      .replace(/mysql\.event_drop/g, "mysql.events.drop")
+      .replace(/mysql\.event_list/g, "mysql.events.list")
+      .replace(/mysql\.event_status/g, "mysql.events.status")
+      .replace(/mysql\.event_schedulerStatus/g, "mysql.events.schedulerStatus")
+      .replace(/mysql\.partition_partitionInfo/g, "mysql.partitioning.partitionInfo")
+      .replace(/mysql\.partition_addPartition/g, "mysql.partitioning.addPartition")
+      .replace(/mysql\.partition_dropPartition/g, "mysql.partitioning.dropPartition")
+      .replace(/mysql\.partition_reorganizePartition/g, "mysql.partitioning.reorganizePartition")
+      .replace(/mysql\.master_status/g, "mysql.replication.masterStatus")
+      .replace(/mysql\.slave_status/g, "mysql.replication.slaveStatus")
+      .replace(/mysql\.replication_lag/g, "mysql.replication.replicationLag")
+      .replace(/mysqlsh_version/g, "mysql.shell.version")
+      .replace(/mysqlsh_check_upgrade/g, "mysql.shell.checkUpgrade")
+      .replace(/mysqlsh_export_table/g, "mysql.shell.exportTable")
+      .replace(/mysqlsh_import_table/g, "mysql.shell.importTable")
+      .replace(/mysqlsh_import_json/g, "mysql.shell.importJson")
+      .replace(/mysqlsh_dump_instance/g, "mysql.shell.dumpInstance")
+      .replace(/mysqlsh_dump_schemas/g, "mysql.shell.dumpSchemas")
+      .replace(/mysqlsh_dump_tables/g, "mysql.shell.dumpTables")
+      .replace(/mysqlsh_load_dump/g, "mysql.shell.loadDump")
+      .replace(/mysqlsh_run_script/g, "mysql.shell.runScript")
+      .replace(/mysql\.stats_descriptive/g, "mysql.stats.descriptive")
+      .replace(/mysql\.stats_percentiles/g, "mysql.stats.percentiles")
+      .replace(/mysql\.stats_correlation/g, "mysql.stats.correlation")
+      .replace(/mysql\.stats_distribution/g, "mysql.stats.distribution")
+      .replace(/mysql\.stats_time_series/g, "mysql.stats.timeSeries")
+      .replace(/mysql\.stats_regression/g, "mysql.stats.regression")
+      .replace(/mysql\.stats_sampling/g, "mysql.stats.sampling")
+      .replace(/mysql\.stats_histogram/g, "mysql.stats.histogram")
+      .replace(/mysql\.stats_row_number/g, "mysql.stats.rowNumber")
+      .replace(/mysql\.stats_rank/g, "mysql.stats.rank")
+      .replace(/mysql\.stats_lag_lead/g, "mysql.stats.lagLead")
+      .replace(/mysql\.stats_running_total/g, "mysql.stats.runningTotal")
+      .replace(/mysql\.stats_moving_avg/g, "mysql.stats.movingAvg")
+      .replace(/mysql\.stats_ntile/g, "mysql.stats.ntile")
+      .replace(/mysql\.stats_hypothesis/g, "mysql.stats.hypothesis")
+      .replace(/mysql\.stats_outliers/g, "mysql.stats.outliers")
+      .replace(/mysql\.stats_top_n/g, "mysql.stats.topN")
+      .replace(/mysql\.stats_distinct/g, "mysql.stats.distinct")
+      .replace(/mysql\.stats_frequency/g, "mysql.stats.frequency")
+      .replace(/mysql\.stats_summary/g, "mysql.stats.summary")
+      .replace(/mysql\.sys\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
+      .replace(/mysql\.sysschema\.([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
       // Fix fulltext parameters in test-codemode
       .replace(/mysql\.fulltext\.search\(\{(.*?)\}\)/g, (match, p1) => {
           if (!p1.includes("maxLength")) return `mysql.fulltext.search({${p1}, maxLength: 200})`;
@@ -213,7 +251,16 @@ function processDirectory(dirName) {
       .replace(/mysql\.optimization\.indexRecommendation\(\{table: "([^"]+)"\}\)/g, 'mysql.optimization.indexRecommendation({table: "$1", includeRedundant: true, includeUnindexed: true})')
       .replace(/mysql\.optimization\.indexRecommendation\(\{queries: \[([^\]]+)\]\}\)/g, 'mysql.optimization.indexRecommendation({queries: [$1], includeRedundant: true, includeUnindexed: true})')
       // Fix vector parameters
-      .replace(/mysql\.vector\.hybridSearch\(\{\.\.\.\}\)/g, 'mysql.vector.hybridSearch({table: "test_articles", column: "vector", matchColumn: "body", queryVector: [0.1, 0.2], matchQuery: "test", metric: "L2", rrfK: 60, select: ["id"], filter: {}})');
+      .replace(/mysql\.vector\.hybridSearch\(\{\.\.\.\}\)/g, 'mysql.vector.hybridSearch({table: "test_articles", column: "vector", matchColumn: "body", queryVector: [0.1, 0.2], matchQuery: "test", metric: "L2", rrfK: 60, select: ["id"], filter: {}})')
+      // Fix sys-metrics numbering gaps
+      .replace(/8\. `mysql\.sysschema\.hostSummary/g, "4. `mysql.sysschema.hostSummary")
+      .replace(/9\. `mysql\.sysschema\.memorySummary/g, "5. `mysql.sysschema.memorySummary")
+      // Fix sys-analysis numbering gaps and Zod error
+      .replace(/4\. `mysql\.sysschema\.statementSummary/g, "2. `mysql.sysschema.statementSummary")
+      .replace(/5\. `mysql\.sysschema\.waitSummary/g, "3. `mysql.sysschema.waitSummary")
+      .replace(/6\. `mysql\.sysschema\.innodbLockWaits/g, "4. `mysql.sysschema.innodbLockWaits")
+      .replace(/7\. `mysql\.sysschema\.schemaStats/g, "5. `mysql.sysschema.schemaStats")
+      .replace(/11\. 🔴 `mysql\.sysschema\.ioSummary\(\{ limit: "abc" \}\)/g, "11. 🔴 `mysql.sysschema.statementSummary({ limit: \"abc\" })");
 
     if (file === "test-codemode-versioning.md" && !testContent.includes("mysql.versioning.enable")) {
         testContent = testContent.replace(

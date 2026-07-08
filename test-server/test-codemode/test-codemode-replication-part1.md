@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_master_status` |   |   |
+| `mysql_slave_status` |   |   |
+| `mysql_binlog_events` |   |   |
 
 ---
 
@@ -71,6 +73,7 @@
 - `mysql_master_status`
 - `mysql_slave_status`
 - `mysql_binlog_events`
+
 
 ## Group Focus:replication
 
@@ -83,8 +86,8 @@ replication Tool Group (3 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.replication.help()` → verify method listing
-2. `mysql.master_status()` → binlog file, position
-3. `mysql.slave_status()` → structured response (may indicate no replication)
+2. `mysql.replication.masterStatus()` → binlog file, position
+3. `mysql.replication.slaveStatus()` → structured response (may indicate no replication)
 4. `mysql.replication.binlogEvents({limit: 5})` → binlog events
 
 **Domain error paths (🔴):**

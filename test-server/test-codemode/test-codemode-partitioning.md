@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,10 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_partition_info` |   |   |
+| `mysql_add_partition` |   |   |
+| `mysql_drop_partition` |   |   |
+| `mysql_reorganize_partition` |   |   |
 
 ---
 
@@ -72,6 +75,7 @@
 - `mysql_add_partition`
 - `mysql_drop_partition`
 - `mysql_reorganize_partition`
+
 
 ## Group Focus:partitioning
 
@@ -85,19 +89,19 @@ partitioning Tool Group (4 tools +1 code mode):
 > **Instructions**: Use `mysql.partition_*` namespace, push deviations to `failures` array.
 
 1. `mysql.partition_help()` → verify method listing
-2. `mysql.partition_partitionInfo({ table: "test_partitioned" })` → verify success
-3. `mysql.partition_addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
-4. `mysql.partition_reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_east"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_east1", value: "'east'"}, {name: "p_east2", value: "'northeast'"}] })` → verify success
-5. `mysql.partition_dropPartition({ table: "test_partitioned", partitionName: "p_intl" })` → verify success
+2. `mysql.partitioning.partitionInfo({ table: "test_partitioned" })` → verify success
+3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
+4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_east"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_east1", value: "'east'"}, {name: "p_east2", value: "'northeast'"}] })` → verify success
+5. `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "p_intl" })` → verify success
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.partition_partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
-7. 🔴 `mysql.partition_dropPartition({ table: "test_partitioned", partitionName: "nonexistent_p" })` → `{success: false}`
+6. 🔴 `mysql.partitioning.partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
+7. 🔴 `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "nonexistent_p" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-8. 🔴 `mysql.partition_addPartition({})` → `{success: false, error: "Validation error: ..."}`
+8. 🔴 `mysql.partitioning.addPartition({})` → `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 

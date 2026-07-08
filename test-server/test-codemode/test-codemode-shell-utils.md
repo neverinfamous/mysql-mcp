@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysqlsh_version` |   |   |
+| `mysqlsh_check_upgrade` |   |   |
+| `mysqlsh_run_script` |   |   |
 
 ---
 
@@ -72,16 +74,17 @@
 - `mysqlsh_check_upgrade`
 - `mysqlsh_run_script`
 
+
 ## Group Focus:shell-utils
 
 shell Tool Group (3 tools +1 code mode):
 
-1. `mysqlsh_version` 2. `mysqlsh_check_upgrade` 3. `mysqlsh_run_script`
+1. `mysql.shell.version` 2. `mysql.shell.checkUpgrade` 3. `mysql.shell.runScript`
 
 > **Instructions**: Use `mysqlsh_*` namespace, push deviations to `failures` array.
 
 1. `mysqlsh_help()` → verify method listing
-2. `mysqlsh_version()` → verify success
+2. `mysql.shell.version()` → verify success
 3. `mysqlsh_checkUpgrade()` → verify success
 4. `mysqlsh_runScript({ script: "print('hello')", language: "javascript", dryRun: true })` → verify success
 

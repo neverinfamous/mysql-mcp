@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_stats_descriptive` |   |   |
+| `mysql_stats_percentiles` |   |   |
+| `mysql_stats_distribution` |   |   |
 
 ---
 
@@ -71,6 +73,7 @@
 - `mysql_stats_descriptive`
 - `mysql_stats_percentiles`
 - `mysql_stats_distribution`
+
 
 ## Group Focus:stats-descriptive (Part 1)
 
@@ -83,19 +86,19 @@ stats-descriptive Tool Group (3 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.stats_help()` → verify method listing
-2. `mysql.stats_descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
-3. `mysql.stats_percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
-5. `mysql.stats_distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
+2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
+3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
+5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.stats_descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-13. 🔴 `mysql.stats_descriptive({})` → `{success: false, error: "Validation error: ..."}`
-14. 🔴 `mysql.stats_percentiles({})` → `{success: false, error: "Validation error: ..."}`
-15. 🔴 `mysql.stats_distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
+13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
+14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

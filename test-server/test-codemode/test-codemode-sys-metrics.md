@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,10 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_sys_user_summary` |   |   |
+| `mysql_sys_io_summary` |   |   |
+| `mysql_sys_host_summary` |   |   |
+| `mysql_sys_memory_summary` |   |   |
 
 ---
 
@@ -72,6 +75,7 @@
 - `mysql_sys_io_summary`
 - `mysql_sys_host_summary`
 - `mysql_sys_memory_summary`
+
 
 ## Group Focus:sysschema
 
@@ -85,18 +89,18 @@ sysschema Tool Group (4 tools +1 code mode):
 > **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
 
 1. `mysql.sys.help()` -> verify method listing
-2. `mysql.sys.sysUserSummary({ limit: 5 })` -> verify success
-3. `mysql.sys.sysIoSummary({ type: "table" })` -> verify success
-8. `mysql.sys.sysHostSummary({ limit: 5 })` -> verify success
-9. `mysql.sys.sysMemorySummary({ limit: 5 })` -> verify success
+2. `mysql.sysschema.userSummary({ limit: 5 })` -> verify success
+3. `mysql.sysschema.ioSummary({ type: "table" })` -> verify success
+4. `mysql.sysschema.hostSummary({ limit: 5 })` -> verify success
+5. `mysql.sysschema.memorySummary({ limit: 5 })` -> verify success
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.sys.sysUserSummary({ user: "nonexistent_user_xyz" })` -> `{success: false}`
+10. 🔴 `mysql.sysschema.userSummary({ user: "nonexistent_user_xyz" })` -> `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.sysschema.statementSummary({ limit: "abc" })`` -> `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 

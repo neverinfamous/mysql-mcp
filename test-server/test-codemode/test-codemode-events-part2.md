@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_event_list` |   |   |
+| `mysql_event_status` |   |   |
+| `mysql_scheduler_status` |   |   |
 
 ---
 
@@ -72,6 +74,7 @@
 - `mysql_event_status`
 - `mysql_scheduler_status`
 
+
 ## Group Focus:events (Part 2)
 
 events Tool Group (6 tools +1 code mode):
@@ -82,24 +85,24 @@ events Tool Group (6 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.event_help()` → verify method listing
-2. `mysql.event_schedulerStatus()` → ON/OFF
-3. `mysql.event_list()` → event listing
+2. `mysql.events.schedulerStatus()` → ON/OFF
+3. `mysql.events.list()` → event listing
 
 **Create → Use → Drop lifecycle:**
 
-4. `mysql.event_create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
-5. `mysql.event_status({name: "temp_cm_event"})` → event status
-6. `mysql.event_alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
-7. `mysql.event_drop({name: "temp_cm_event"})` → `success: true`
+4. `mysql.events.create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
+5. `mysql.events.status({name: "temp_cm_event"})` → event status
+6. `mysql.events.alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
+7. `mysql.events.drop({name: "temp_cm_event"})` → `success: true`
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql.event_status({name: "nonexistent_xyz"})` → `{success: false}`
-9. 🔴 `mysql.event_drop({name: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.events.status({name: "nonexistent_xyz"})` → `{success: false}`
+9. 🔴 `mysql.events.drop({name: "nonexistent_xyz"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql.event_create({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.events.create({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

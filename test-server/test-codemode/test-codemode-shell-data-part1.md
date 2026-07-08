@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,10 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysqlsh_export_table` |   |   |
+| `mysqlsh_import_table` |   |   |
+| `mysqlsh_import_json` |   |   |
+| `mysqlsh_dump_instance` |   |   |
 
 ---
 
@@ -73,13 +76,14 @@
 - `mysqlsh_import_json`
 - `mysqlsh_dump_instance`
 
+
 ## Group Focus:shell-data (Part 1)
 
 shell Tool Group (7 tools +1 code mode):
 
-1. `mysqlsh_export_table` 2. `mysqlsh_import_table` 3. `mysqlsh_import_json`
-4. `mysqlsh_dump_instance` 5. `mysqlsh_dump_schemas` 6. `mysqlsh_dump_tables`
-7. `mysqlsh_load_dump`
+1. `mysql.shell.exportTable` 2. `mysql.shell.importTable` 3. `mysql.shell.importJson`
+4. `mysql.shell.dumpInstance` 5. `mysql.shell.dumpSchemas` 6. `mysql.shell.dumpTables`
+7. `mysql.shell.loadDump`
 
 > **Instructions**: Use `mysqlsh_*` namespace, push deviations to `failures` array.
 

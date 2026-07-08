@@ -17,7 +17,7 @@
 
 **Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -60,7 +60,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-
+| `mysql_stats_correlation` |   |   |
+| `mysql_stats_time_series` |   |   |
+| `mysql_stats_regression` |   |   |
 
 ---
 
@@ -71,6 +73,7 @@
 - `mysql_stats_correlation`
 - `mysql_stats_time_series`
 - `mysql_stats_regression`
+
 
 ## Group Focus:stats-descriptive
 
@@ -83,19 +86,19 @@ stats-analytics Tool Group (3 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.stats_help()` → verify method listing
-4. `mysql.stats_correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → between -1 and 1
+4. `mysql.stats.correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → between -1 and 1
 6. `mysql.stats_timeSeries({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
-7. `mysql.stats_regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
+7. `mysql.stats.regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.stats_descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
-11. 🔴 `mysql.stats_correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
-12. 🔴 `mysql.stats_regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-15. 🔴 `mysql.stats_distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
