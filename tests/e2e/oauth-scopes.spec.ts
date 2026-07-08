@@ -125,7 +125,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
         "--port",
         String(MCP_PORT),
         "--mysql",
-        process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3306/testdb",
+        process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb",
         "--stateless",
         "--log-level",
         "debug",

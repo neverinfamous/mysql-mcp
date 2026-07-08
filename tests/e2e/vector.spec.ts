@@ -28,11 +28,17 @@ test.describe("Vector Tools", () => {
     await startServer(PORT, ["--tool-filter", "vector,core"], "vector");
     client = await createClient(`http://localhost:${PORT}`);
 
-    // Create a temporary test table
-    await callToolAndParse(client, "mysql_write_query", {
+    // Try to create a temporary test table
+    const result = await callToolAndParse(client, "mysql_write_query", {
       query:
         "CREATE TABLE IF NOT EXISTS temp_e2e_vectors (id INT PRIMARY KEY, text_content TEXT, embedding VECTOR(3))",
     });
+
+    if (result.success === false) {
+      test.skip(true, "Vector type not supported by this MySQL version");
+      return;
+    }
+
     // Add FULLTEXT index for hybrid search testing
     await callToolAndParse(client, "mysql_write_query", {
       query: "ALTER TABLE temp_e2e_vectors ADD FULLTEXT(text_content)",
