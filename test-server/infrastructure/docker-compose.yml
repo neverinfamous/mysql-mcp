@@ -124,21 +124,21 @@ services:
   # ==========================================
   # MONITORING
   # ==========================================
-  dozzle-test:
+  dozzle:
     image: amir20/dozzle:latest
-    container_name: dozzle-test
+    container_name: dozzle
     restart: unless-stopped
     ports:
-      - "8888:8080"
+      - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
 
-  adminer-test:
+  adminer:
     image: adminer:latest
-    container_name: adminer-test
+    container_name: adminer
     restart: unless-stopped
     ports:
-      - "8889:8080"
+      - "8081:8080"
 
   prometheus:
     image: prom/prometheus:latest

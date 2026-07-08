@@ -101,6 +101,6 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 |---|---|
 | Prometheus | `http://localhost:9090` |
 | Grafana | `http://localhost:3001` (admin/admin) |
-| Dozzle (Logs) | `http://localhost:8888` |
-| Adminer (DB UI) | `http://localhost:8889` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
+| Dozzle (Logs) | `http://localhost:8080` |
+| Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
