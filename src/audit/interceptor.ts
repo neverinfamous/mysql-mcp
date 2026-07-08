@@ -147,12 +147,9 @@ export function createAuditInterceptor(
         // Compute token estimate from result
         if (typeof result === "object" && result !== null) {
           try {
-            // Match mcp-registry.ts payload structure for estimation
-            const mockPayload = {
-              ...result,
-              _meta: { tokenEstimate: 0 },
-            };
-            tokenEstimate = estimateObjectTokens(mockPayload);
+            // Avoid spreading result into a mockPayload to prevent GC pressure
+            // on the hot-path. 12 tokens roughly covers the _meta wrapper.
+            tokenEstimate = estimateObjectTokens(result) + 12;
           } catch {
             // Serialization failure must not block tool execution
           }

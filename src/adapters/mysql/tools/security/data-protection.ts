@@ -362,93 +362,102 @@ export function createSecurityUserPrivilegesTool(
 
         const usersResult = await adapter.executeQuery(usersQuery, queryParams);
 
-        // For each user, get their grants
-        const userPrivileges = [];
-        for (const userRow of usersResult.rows ?? []) {
-          const u = userRow;
-          const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
-          const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
-
-          const grantsResult = await adapter.executeQuery(
-            `SHOW GRANTS FOR \`${userName}\`@\`${userHost}\``,
-          );
-
-          const grants = (grantsResult.rows ?? []).map((r) => {
-            const values = Object.values(r);
-            return typeof values[0] === "string" ? values[0] : String(values[0]);
-          });
-
-          let roles: string[] = [];
-          if (includeRoles) {
-            try {
-              const rolesResult = await adapter.executeQuery(
-                `
-                            SELECT FROM_USER, FROM_HOST
-                            FROM mysql.role_edges
-                            WHERE TO_USER = ? AND TO_HOST = ?
-                        `,
-                [userName, userHost],
-              );
-
-              roles = (rolesResult.rows ?? []).map((r) => {
-                const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
-                const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
-                return `${fromUser}@${fromHost}`;
-              });
-            } catch {
-              // Role edges table might not exist in older versions
-            }
-          }
-
-          if (summary) {
-            // Extract global privileges from GRANT statements
-            const globalPrivileges: string[] = [];
-            let hasAllPrivileges = false;
-            let hasWithGrantOption = false;
-
-            for (const grant of grants) {
-              // Check for ALL PRIVILEGES
-              if (grant.includes("ALL PRIVILEGES")) {
-                hasAllPrivileges = true;
-              }
-              // Check for WITH GRANT OPTION
-              if (grant.includes("WITH GRANT OPTION")) {
-                hasWithGrantOption = true;
-              }
-              // Extract specific privileges from global grants (ON *.*)
-              const globalPattern = /GRANT\s+(.+?)\s+ON\s+\*\.\*\s+TO/i;
-              const globalMatch = globalPattern.exec(grant);
-              if (globalMatch?.[1]) {
-                const privs = globalMatch[1].split(",").map((p) => p.trim());
-                globalPrivileges.push(...privs);
+        // For each user, get their grants (executed in batches to avoid N+1 bottleneck)
+        const userPrivileges: Record<string, unknown>[] = [];
+        const userRows = usersResult.rows ?? [];
+        const BATCH_SIZE = 10;
+        
+        for (let i = 0; i < userRows.length; i += BATCH_SIZE) {
+          const chunk = userRows.slice(i, i + BATCH_SIZE);
+          
+          const chunkResults = await Promise.all(chunk.map(async (userRow) => {
+            const u = userRow;
+            const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+            const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
+  
+            const grantsResult = await adapter.executeQuery(
+              `SHOW GRANTS FOR \`${userName}\`@\`${userHost}\``,
+            );
+  
+            const grants = (grantsResult.rows ?? []).map((r) => {
+              const values = Object.values(r);
+              return typeof values[0] === "string" ? values[0] : String(values[0]);
+            });
+  
+            let roles: string[] = [];
+            if (includeRoles) {
+              try {
+                const rolesResult = await adapter.executeQuery(
+                  `
+                              SELECT FROM_USER, FROM_HOST
+                              FROM mysql.role_edges
+                              WHERE TO_USER = ? AND TO_HOST = ?
+                          `,
+                  [userName, userHost],
+                );
+  
+                roles = (rolesResult.rows ?? []).map((r) => {
+                  const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
+                  const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
+                  return `${fromUser}@${fromHost}`;
+                });
+              } catch {
+                // Role edges table might not exist in older versions
               }
             }
-
-            const deduped = [...new Set(globalPrivileges)];
-            userPrivileges.push({
-              user: userName,
-              host: userHost,
-              authPlugin: u["authPlugin"],
-              accountLocked: u["accountLocked"] === "Y",
-              passwordExpired: u["passwordExpired"] === "Y",
-              grantCount: grants.length,
-              roleCount: roles.length,
-              hasAllPrivileges,
-              hasWithGrantOption,
-              globalPrivileges: deduped.slice(0, 10),
-              totalGlobalPrivileges: deduped.length,
-            });
-          } else {
-            userPrivileges.push({
-              user: userName,
-              host: userHost,
-              authPlugin: u["authPlugin"],
-              accountLocked: u["accountLocked"] === "Y",
-              passwordExpired: u["passwordExpired"] === "Y",
-              grants,
-              roles,
-            });
-          }
+  
+            if (summary) {
+              // Extract global privileges from GRANT statements
+              const globalPrivileges: string[] = [];
+              let hasAllPrivileges = false;
+              let hasWithGrantOption = false;
+  
+              for (const grant of grants) {
+                // Check for ALL PRIVILEGES
+                if (grant.includes("ALL PRIVILEGES")) {
+                  hasAllPrivileges = true;
+                }
+                // Check for WITH GRANT OPTION
+                if (grant.includes("WITH GRANT OPTION")) {
+                  hasWithGrantOption = true;
+                }
+                // Extract specific privileges from global grants (ON *.*)
+                const globalPattern = /GRANT\s+(.+?)\s+ON\s+\*\.\*\s+TO/i;
+                const globalMatch = globalPattern.exec(grant);
+                if (globalMatch?.[1]) {
+                  const privs = globalMatch[1].split(",").map((p) => p.trim());
+                  globalPrivileges.push(...privs);
+                }
+              }
+  
+              const deduped = [...new Set(globalPrivileges)];
+              return {
+                user: userName,
+                host: userHost,
+                authPlugin: u["authPlugin"],
+                accountLocked: u["accountLocked"] === "Y",
+                passwordExpired: u["passwordExpired"] === "Y",
+                grantCount: grants.length,
+                roleCount: roles.length,
+                hasAllPrivileges,
+                hasWithGrantOption,
+                globalPrivileges: deduped.slice(0, 10),
+                totalGlobalPrivileges: deduped.length,
+              };
+            } else {
+              return {
+                user: userName,
+                host: userHost,
+                authPlugin: u["authPlugin"],
+                accountLocked: u["accountLocked"] === "Y",
+                passwordExpired: u["passwordExpired"] === "Y",
+                grants,
+                roles,
+              };
+            }
+          }));
+          
+          userPrivileges.push(...chunkResults);
         }
 
         return withTokenEstimate({

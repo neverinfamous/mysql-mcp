@@ -73,12 +73,15 @@ export function estimateObjectBytes(obj: unknown, depth = 0): number {
   
   if (typeof obj === "object") {
     let bytes = 2; // { and }
-    const keys = Object.keys(obj);
-    for (const key of keys) {
-      bytes += Buffer.byteLength(key, "utf8") + 3; // "key":
-      bytes += estimateObjectBytes((obj as Record<string, unknown>)[key], depth + 1);
+    let keyCount = 0;
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        bytes += Buffer.byteLength(key, "utf8") + 3; // "key":
+        bytes += estimateObjectBytes((obj as Record<string, unknown>)[key], depth + 1);
+        keyCount++;
+      }
     }
-    return bytes + (keys.length > 0 ? keys.length - 1 : 0); // commas
+    return bytes + (keyCount > 0 ? keyCount - 1 : 0); // commas
   }
   
   return 0;
