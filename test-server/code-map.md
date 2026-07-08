@@ -410,8 +410,9 @@ try {
 | `test-server/test-advanced/test-codemode-advanced-types-binary.md`| Code Mode binary data type stress testing                            |
 | `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |
 | `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
-| `test-server/scripts/prompt-template.md`    | Standardized template for all test prompts                           |
-| `test-server/scripts/standardize-prompts.js`| Script to rebuild all test prompts from the test directories         |
+| `scripts/prompt-template.md`                | Standardized template for all test prompts                           |
+| `scripts/standardize-prompts.js`            | Script to rebuild all test prompts from the test directories         |
+| `scripts/tool-map.json`                     | Tool mapping config for prompt standardization                       |
 | `test-server/test-prompts-notes.md`         | Prompt testing plan                                                  |
 | `test-server/test-prompts.sql`              | Seed SQL for prompt testing (AI-Powered Prompts)                  |
 | `test-server/test-resources.md`             | Resource testing plan (Multiple Observability Resources)                           |

@@ -6,7 +6,7 @@ const directories = ["test-codemode", "test-advanced", "test-tool-groups", "test
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const basePath = path.join(__dirname, "..");
+const basePath = path.join(__dirname, "..", "test-server");
 const templatePath = path.join(__dirname, "prompt-template.md");
 
 if (!fs.existsSync(templatePath)) {
