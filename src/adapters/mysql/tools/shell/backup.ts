@@ -72,12 +72,10 @@ export function createShellDumpInstanceTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
-        }
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
         const resolvedPath = path.resolve(finalOutputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (threads) {
@@ -201,12 +199,10 @@ export function createShellDumpSchemasTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
-        }
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
         const resolvedPath = path.resolve(finalOutputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (threads) {
@@ -318,12 +314,10 @@ export function createShellDumpTablesTool(
           throw new ValidationError("outputDir or outputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
-        }
+        assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
         const resolvedPath = path.resolve(finalOutputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (threads) {
@@ -350,7 +344,7 @@ export function createShellDumpTablesTool(
 
         const optionsStr =
           options.length > 0 ? `, { ${options.join(", ")} }` : "";
-        const jsCode = `return util.dumpTables("${schema}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
+        const jsCode = `return util.dumpTables("${escapeForJS(schema ?? "")}", ${JSON.stringify(tables)}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode, { timeout: 3600000 });
         return withTokenEstimate({

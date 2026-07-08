@@ -29,7 +29,7 @@ import {
   ShellLoadDumpOutputSchema,
   ShellRunScriptOutputSchema,
 } from "../../schemas/shell/index.js";
-import { getShellConfig, execShellJS, execMySQLShell } from "./common.js";
+import { getShellConfig, execShellJS, execMySQLShell, escapeForJS } from "./common.js";
 
 /**
  * Load dump to instance
@@ -75,12 +75,10 @@ export function createShellLoadDumpTool(
           throw new ValidationError("inputDir or inputUrl is required");
         }
 
-        if (!dryRun) {
-          assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
-        }
+        assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
 
         const resolvedPath = resolve(finalInputDir);
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (threads) {
