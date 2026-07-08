@@ -53,7 +53,7 @@ test.describe("Payload Contracts: Versioning", () => {
     }
 
     expect(payload.success).toBe(true);
-    const data = payload as Record<string, unknown>;
+    const data = payload.data as Record<string, unknown>;
     expect(typeof data.message).toBe("string");
     expect(typeof data.alreadyEnabled).toBe("boolean");
   });
@@ -65,7 +65,7 @@ test.describe("Payload Contracts: Versioning", () => {
     });
 
     expect(payload.success).toBe(true);
-    const data = payload as Record<string, unknown>;
+    const data = payload.data as Record<string, unknown>;
     expect(typeof data.version).toBe("number");
     expect(data.version).toBe(1); // Default is 1
     expect(typeof data.row).toBe("object");
@@ -84,7 +84,7 @@ test.describe("Payload Contracts: Versioning", () => {
     );
 
     expect(payload.success).toBe(true);
-    const data = payload as Record<string, unknown>;
+    const data = payload.data as Record<string, unknown>;
     expect(data.rowsAffected).toBe(1);
     expect(data.currentVersion).toBe(2);
   });
@@ -102,7 +102,8 @@ test.describe("Payload Contracts: Versioning", () => {
     );
 
     expect(payload.success).toBe(false);
-    expect(payload.error).toContain("Version conflict");
+    expect(typeof payload.error).toBe("string");
+    expect((payload.error as string)).toContain("Version conflict");
   });
 
   test("mysql_disable_versioning removes _version column and trigger", async () => {
@@ -113,7 +114,7 @@ test.describe("Payload Contracts: Versioning", () => {
     );
 
     expect(payload.success).toBe(true);
-    const data = payload as Record<string, unknown>;
+    const data = payload.data as Record<string, unknown>;
     expect(typeof data.message).toBe("string");
   });
 });

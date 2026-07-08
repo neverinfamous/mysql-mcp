@@ -39,14 +39,14 @@ test.describe("Boundary: Empty Tables", () => {
       });
       expectSuccess(desc);
       /* desc.name not checked */
-      expect(Array.isArray(desc?.columns ?? desc.columns)).toBe(true);
+      expect(Array.isArray(desc.data?.columns ?? desc.columns)).toBe(true);
 
       // Read — should return 0 rows
       const read = await callToolAndParse(client, "mysql_read_query", {
         query: "SELECT * FROM _e2e_boundary_empty",
       });
       expectSuccess(read);
-      expect(read?.rowCount ?? read.rowCount).toBe(0);
+      expect(read.data?.rowCount ?? read.rowCount).toBe(0);
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {
@@ -119,7 +119,7 @@ test.describe("Boundary: NULL Values", () => {
         query: "SELECT * FROM _e2e_boundary_nulls",
       });
       expectSuccess(read);
-      expect(read?.rowCount ?? read.rowCount).toBe(3);
+      expect(read.data?.rowCount ?? read.rowCount).toBe(3);
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {
@@ -159,7 +159,7 @@ test.describe("Boundary: Single Row", () => {
       });
       // Single row: min == max == mean == 42.0
       if (stats.success) {
-        const s = (stats?.statistics ??
+        const s = (stats.data?.statistics ??
           stats.data ??
           stats.statistics) as Record<string, unknown>;
         expect(s.count).toBeGreaterThanOrEqual(1);
@@ -225,7 +225,7 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
         table: "_e2e_boundary_recreate",
       });
       expectSuccess(desc);
-      const cols = (desc?.columns ?? desc.columns) as Array<{
+      const cols = (desc.data?.columns ?? desc.columns) as Array<{
         name: string;
       }>;
       const colNames = cols.map((c) => c.name);
@@ -269,7 +269,7 @@ test.describe("Boundary: View Lifecycle", () => {
       // List views — should include our view
       const list = await callToolAndParse(client, "mysql_list_views", { schema: "testdb" });
       expectSuccess(list);
-      const views = (list?.views ?? list.views) as Array<{ name: string }>;
+      const views = (list.data?.views ?? list.views) as Array<{ name: string }>;
       expect(
         views.some((v) => v.name === viewName),
       ).toBe(true);
@@ -281,9 +281,9 @@ test.describe("Boundary: View Lifecycle", () => {
       expectSuccess(query);
       expect(
         typeof (
-          query?.rowCount ??
+          query.data?.rowCount ??
           query.rowCount ??
-          query?.count ??
+          query.data?.count ??
           query.count
         ),
       ).toBe("number");
@@ -312,7 +312,7 @@ test.describe("Boundary: Data Integrity", () => {
         query: "SELECT COUNT(*) AS cnt FROM test_products",
       });
       expectSuccess(p);
-      const rows = (p?.rows ?? p.rows) as Array<{ cnt: number }>;
+      const rows = (p.data?.rows ?? p.rows) as Array<{ cnt: number }>;
       expect(Number(rows[0].cnt)).toBeGreaterThan(0);
     } finally {
       await client.close();

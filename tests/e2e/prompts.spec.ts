@@ -8,6 +8,7 @@
 import { test, expect } from "@playwright/test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { BASE_URL } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -16,7 +17,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
 
   test.beforeAll(async () => {
     const transport = new SSEClientTransport(
-      new URL("http://localhost:3002/sse"),
+      new URL(`${BASE_URL}/sse`),
     );
     client = new Client(
       { name: "playwright-prompt-test", version: "1.0.0" },

@@ -13,6 +13,7 @@ import {
   callToolAndParse,
   expectSuccess,
   expectHandlerError,
+  TIMEOUTS,
 } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
@@ -72,7 +73,7 @@ test.describe("Code Mode: Sandbox Basics", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.core.readQuery({ query: "SELECT 1 AS val" });
-          return (result?.rows ?? result.rows)[0].val;
+          return (result.data?.rows ?? result.rows)[0].val;
         `,
       });
       expectSuccess(p);
@@ -195,7 +196,7 @@ test.describe("Code Mode: Security", () => {
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: "while (true) {}",
-        timeout: 2000,
+        timeout: TIMEOUTS.SHORT,
       });
       expectHandlerError(p);
     } finally {
@@ -215,7 +216,7 @@ test.describe("Code Mode: Readonly Mode", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.core.readQuery({ query: "SELECT COUNT(*) AS cnt FROM test_products" });
-          return (result?.rows ?? result.rows)[0].cnt;
+          return (result.data?.rows ?? result.rows)[0].cnt;
         `,
         readonly: true,
       });
@@ -263,8 +264,8 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
           await mysql.core.dropTable({ table: "_e2e_codemode_etl" });
 
           return {
-            rowCount: (result?.rows ?? result.rows)?.length ?? 0,
-            firstItem: (result?.rows ?? result.rows)[0]?.name,
+            rowCount: (result.data?.rows ?? result.rows)?.length ?? 0,
+            firstItem: (result.data?.rows ?? result.rows)[0]?.name,
           };
         `,
       });
@@ -284,7 +285,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
         code: `
           // List tables
           const tables = await mysql.core.listTables({});
-          const hasProducts = (tables?.tables ?? tables.tables).some(t => t.name === "test_products");
+          const hasProducts = (tables.data?.tables ?? tables.tables).some(t => t.name === "test_products");
 
           // Describe
           const desc = await mysql.core.describeTable({ table: "test_products" });
@@ -296,8 +297,8 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
 
           return {
             productsExists: hasProducts,
-            columnCount: (desc?.columns ?? desc.columns).length,
-            rowCount: (count?.rows ?? count.rows)[0].cnt,
+            columnCount: (desc.data?.columns ?? desc.columns).length,
+            rowCount: (count.data?.rows ?? count.rows)[0].cnt,
           };
         `,
       });
@@ -330,7 +331,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
             query: "INSERT INTO _e2e_codemode_binary (bin_col, varbin_col, blob_col) VALUES (X'DEADBEEF', X'68656C6C6F2062696E', X'AAAAAAAA')"
           });
           
-          const insertId = insertRes?.lastInsertId ?? insertRes?.insertId ?? 1;
+          const insertId = insertRes.data?.lastInsertId ?? insertRes.data?.insertId ?? 1;
 
           // Query
           const result = await mysql.core.readQuery({
@@ -341,7 +342,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
           // Cleanup
           await mysql.core.writeQuery({ query: "DROP TABLE _e2e_codemode_binary" });
 
-          const row = (result?.rows ?? result.rows)[0];
+          const row = (result.data?.rows ?? result.rows)[0];
           return {
             hasBinType: Buffer.isBuffer(row?.bin_col),
             hasVarBinType: Buffer.isBuffer(row?.varbin_col),

@@ -19,7 +19,7 @@ test.describe.configure({ mode: "serial" });
  * Send {} to a tool and assert we get a structured handler error,
  * not a raw MCP error frame.
  */
-async function assertZodHandlerError(baseURL: string, toolName: string) {
+async function assertZodHandlerError(toolName: string, baseURL?: string) {
   const client = await createClient(baseURL);
   try {
     const response = await callToolRaw(client, toolName, {});
@@ -88,7 +88,7 @@ test.describe("Zod Sweep: Core", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -116,7 +116,7 @@ test.describe("Zod Sweep: Text", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -139,7 +139,7 @@ test.describe("Zod Sweep: Stats", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -158,7 +158,7 @@ test.describe("Zod Sweep: Performance", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -177,7 +177,7 @@ test.describe("Zod Sweep: Transactions", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -196,7 +196,7 @@ test.describe("Zod Sweep: Admin", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -219,7 +219,7 @@ test.describe("Zod Sweep: Schema", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -233,7 +233,7 @@ test.describe("Zod Sweep: Backup", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -261,7 +261,7 @@ test.describe("Zod Sweep: Vector", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -281,7 +281,7 @@ test.describe("Zod Sweep: Introspection", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -300,7 +300,7 @@ test.describe("Zod Sweep: Partitioning", () => {
 
   for (const tool of tools) {
     test(`${tool}({}) → handler error`, async () => {
-      await assertZodHandlerError(undefined, tool);
+      await assertZodHandlerError(tool);
     });
   }
 });
@@ -312,7 +312,7 @@ test.describe("Zod Sweep: Partitioning", () => {
 
 test.describe("Zod Sweep: Code Mode", () => {
   test("mysql_execute_code({}) → handler error", async () => {
-    await assertZodHandlerError(undefined, "mysql_execute_code");
+    await assertZodHandlerError("mysql_execute_code");
   });
 });
 

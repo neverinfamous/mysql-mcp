@@ -64,7 +64,7 @@ test.describe("Integration: Core → JSON → Stats Pipeline", () => {
         column: "score",
       });
       expectSuccess(stats);
-      const s = (stats?.statistics ??
+      const s = (stats.data?.statistics ??
         stats.data ??
         stats.statistics ??
         stats.stats) as Record<string, unknown> | undefined;
@@ -112,8 +112,8 @@ test.describe("Integration: Admin → Introspection Health Check", () => {
           const constraints = await mysql.schema.listConstraints({ table: "test_products" });
 
           return {
-            tableCount: (snapshot?.snapshot?.tables ?? snapshot?.tables ?? snapshot.snapshot?.tables ?? snapshot.tables)?.length ?? 0,
-            hasPlan: !!(plan?.plan ?? plan?.executionPlan ?? plan.plan ?? plan.data),
+            tableCount: (snapshot.data?.snapshot?.tables ?? snapshot.data?.tables ?? snapshot.snapshot?.tables ?? snapshot.tables)?.length ?? 0,
+            hasPlan: !!(plan.data?.plan ?? plan.data?.executionPlan ?? plan.plan ?? plan.data),
             constraintCount: constraints.constraints?.length ?? 0,
           };
         `,

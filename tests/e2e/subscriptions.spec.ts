@@ -4,6 +4,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { ResourceUpdatedNotificationSchema } from "@modelcontextprotocol/sdk/types.js";
 import { randomUUID } from "node:crypto";
+import { BASE_URL } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -13,7 +14,7 @@ test.describe("E2E MCP Subscriptions", () => {
 
   test.beforeAll(async () => {
     const transport = new SSEClientTransport(
-      new URL("http://localhost:3002/sse"),
+      new URL(`${BASE_URL}/sse`),
     );
     client = new Client(
       { name: "playwright-subscription-test", version: "1.0.0" },

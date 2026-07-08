@@ -22,7 +22,9 @@ import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 const AUDIT_PORT_BASE = 3170;
 const AUDIT_FILTER = "transactions";
 
-test.describe.configure({ mode: "serial", timeout: 60000 });
+import { TIMEOUTS } from "./helpers.js";
+
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.DEFAULT });
 
 test.describe("Audit Log Rotation Stress", () => {
   test("maintains 5 rotated files under high write throughput", async () => {
@@ -57,7 +59,7 @@ test.describe("Audit Log Rotation Stress", () => {
           "mysql_transaction_begin",
           {},
         );
-        const txId = (beginRes as Record<string, unknown>)?.transactionId as
+        const txId = (beginRes.data as Record<string, unknown>)?.transactionId as
           | string
           | undefined;
         if (txId) {

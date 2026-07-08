@@ -20,9 +20,9 @@ test.describe("Payload Contracts: Schema", () => {
     try {
       const payload = await callToolAndParse(client, "mysql_list_schemas", {});
 
-      expect(Array.isArray((payload as Record<string, unknown>)?.schemas)).toBe(true);
+      expect(Array.isArray((payload as Record<string, unknown>).data?.schemas)).toBe(true);
       expect(
-        ((payload as Record<string, unknown>)?.schemas as unknown[]).length,
+        ((payload as Record<string, unknown>).data?.schemas as unknown[]).length,
       ).toBeGreaterThan(0);
     } finally {
       await client.close();
@@ -106,7 +106,7 @@ test.describe("Payload Contracts: Schema", () => {
         body: "SET NEW.total_price = COALESCE(NEW.total_price, 0)",
       });
       expectSuccess(payload);
-      expect((payload as Record<string, unknown>)?.triggerName).toBeDefined();
+      expect((payload as Record<string, unknown>).data?.triggerName).toBeDefined();
       
       // Cleanup
       await callToolAndParse(client, "mysql_drop_trigger", {
@@ -127,7 +127,7 @@ test.describe("Payload Contracts: Schema", () => {
         ifExists: true,
       });
       expectSuccess(payload);
-      expect((payload as Record<string, unknown>)?.skipped).toBe(true);
+      expect((payload as Record<string, unknown>).data?.skipped).toBe(true);
     } finally {
       await client.close();
     }

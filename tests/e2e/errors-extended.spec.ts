@@ -254,7 +254,7 @@ test.describe("Errors: Stats", () => {
         column: "price",
         n: -1,
       });
-      const text = (response as Record<string, unknown>).content[0]?.text;
+      const text = response.content[0]?.text;
       expect(text).toBeDefined();
       expect(text).toContain("Validation error");
     } finally {

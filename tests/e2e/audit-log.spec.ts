@@ -34,7 +34,9 @@ import {
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
-test.describe.configure({ mode: "serial", timeout: 120_000 });
+import { TIMEOUTS } from "./helpers.js";
+
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.LONG });
 
 const AUDIT_PORT_BASE = 3150;
 

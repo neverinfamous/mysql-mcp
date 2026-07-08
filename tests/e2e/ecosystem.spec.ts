@@ -1,6 +1,7 @@
 import { test, expect } from "@playwright/test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { BASE_URL } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -9,7 +10,7 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
 
   test.beforeAll(async () => {
     const transport = new SSEClientTransport(
-      new URL("http://localhost:3002/sse"),
+      new URL(`${BASE_URL}/sse`),
     );
     client = new Client(
       { name: "playwright-ecosystem-client", version: "1.0.0" },
@@ -31,15 +32,15 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
     // Router status nests data under .data
     expect(parsed).toHaveProperty("data");
-    expect(parsed).toHaveProperty("hostname");
-    expect(parsed).toHaveProperty("version");
+    expect(parsed.data).toHaveProperty("hostname");
+    expect(parsed.data).toHaveProperty("version");
   });
 
   test("should list router routes (router: mysql_router_routes)", async () => {
@@ -49,10 +50,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
     expect(parsed).toHaveProperty("data");
   });
@@ -64,10 +65,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
   });
 
@@ -78,10 +79,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
   });
 
@@ -92,10 +93,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
   });
 
@@ -108,10 +109,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
   });
 
@@ -122,10 +123,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
   });
 
@@ -136,9 +137,9 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     // ProxySQL hostgroups may return empty/error if no hostgroups configured
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
-    expect((response as Record<string, unknown>).content[0].type).toBe("text");
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
+    expect(response.content[0].type).toBe("text");
   });
 
   test("should get proxysql connection pool (proxysql: proxysql_connection_pool)", async () => {
@@ -148,10 +149,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
   });
 
@@ -162,10 +163,10 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
   });
 
@@ -178,13 +179,13 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed).toHaveProperty("enabled");
-    expect(parsed).toHaveProperty("groupName");
+    expect(parsed.data).toHaveProperty("enabled");
+    expect(parsed.data).toHaveProperty("groupName");
   });
 
   test("should list GR members (cluster: mysql_gr_members)", async () => {
@@ -194,13 +195,13 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed).toHaveProperty("members");
-    expect(parsed).toHaveProperty("count");
+    expect(parsed.data).toHaveProperty("members");
+    expect(parsed.data).toHaveProperty("count");
   });
 
   test("should get GR primary (cluster: mysql_gr_primary)", async () => {
@@ -210,12 +211,12 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed).toHaveProperty("hasPrimary");
+    expect(parsed.data).toHaveProperty("hasPrimary");
   });
 
   test("should get cluster status (cluster: mysql_cluster_status)", async () => {
@@ -225,12 +226,12 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed).toHaveProperty("isInnoDBCluster");
+    expect(parsed.data).toHaveProperty("isInnoDBCluster");
   });
 
   test("should list cluster instances (cluster: mysql_cluster_instances)", async () => {
@@ -240,12 +241,12 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     });
 
     expect(response.isError).toBeUndefined();
-    expect(Array.isArray((response as Record<string, unknown>).content)).toBe(true);
-    expect((response as Record<string, unknown>).content.length).toBeGreaterThan(0);
+    expect(Array.isArray(response.content)).toBe(true);
+    expect(response.content.length).toBeGreaterThan(0);
 
-    const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
+    const parsed = JSON.parse((response.content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed).toHaveProperty("instances");
-    expect(parsed).toHaveProperty("count");
+    expect(parsed.data).toHaveProperty("instances");
+    expect(parsed.data).toHaveProperty("count");
   });
 });

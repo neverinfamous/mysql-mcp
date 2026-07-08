@@ -16,7 +16,9 @@ import {
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 // Force sequential execution
-test.describe.configure({ mode: "serial", timeout: 60_000 });
+import { TIMEOUTS } from "./helpers.js";
+
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.DEFAULT });
 
 const PORT = 3161;
 
@@ -60,7 +62,7 @@ test.describe("Vector Tools", () => {
       table: "temp_e2e_vectors",
     });
     expectSuccess(result);
-    const data = result as Record<string, unknown>;
+    const data = result.data as Record<string, unknown>;
     expect(data.columns).toBeInstanceOf(Array);
     const embeddingCol = (data.columns as Array<{ name: string; dimensions?: number }>).find(
       (c) => c.name === "embedding"
@@ -80,7 +82,7 @@ test.describe("Vector Tools", () => {
       ],
     });
     expectSuccess(result);
-    expect((result as Record<string, unknown>).count).toBe(3);
+    expect(result.data?.count).toBe(3);
   });
 
   test("mysql_vector_store inserts a single vector", async () => {
@@ -109,7 +111,7 @@ test.describe("Vector Tools", () => {
       id: 1,
     });
     expectSuccess(result);
-    expect((result as Record<string, unknown>).vector).toEqual([0.1, 0.2, 0.3]);
+    expect(result.data?.vector).toEqual([0.1, 0.2, 0.3]);
   });
 
   test("mysql_vector_get returns P154 existence pattern if not found", async () => {
@@ -118,7 +120,7 @@ test.describe("Vector Tools", () => {
       id: 999,
     });
     expectSuccess(result);
-    expect((result as Record<string, unknown>).exists).toBe(false);
+    expect(result.data?.exists).toBe(false);
   });
 
   test("mysql_vector_search finds nearest neighbors", async () => {
@@ -136,8 +138,8 @@ test.describe("Vector Tools", () => {
       expect(result.code).toBe("EXTENSION_MISSING");
     } else {
       expectSuccess(result);
-      expect((result as Record<string, unknown>).count).toBeLessThanOrEqual(2);
-      expect((result as Record<string, unknown>).results[0].id).toBe(3);
+      expect(result.data?.count).toBeLessThanOrEqual(2);
+      expect(result.data?.results[0].id).toBe(3);
     }
   });
 
@@ -154,8 +156,8 @@ test.describe("Vector Tools", () => {
       expect(result.code).toBe("EXTENSION_MISSING");
     } else {
       expectSuccess(result);
-      expect((result as Record<string, unknown>).count).toBeGreaterThanOrEqual(1);
-      expect((result as Record<string, unknown>).results[0].id).toBe(1);
+      expect(result.data?.count).toBeGreaterThanOrEqual(1);
+      expect(result.data?.results[0].id).toBe(1);
     }
   });
 
@@ -177,8 +179,8 @@ test.describe("Vector Tools", () => {
       expect(result.code).toBe("EXTENSION_MISSING");
     } else {
       expectSuccess(result);
-      expect((result as Record<string, unknown>).count).toBeGreaterThanOrEqual(1);
-      expect(typeof (result as Record<string, unknown>).results[0].combined_score).toBe("number");
+      expect(result.data?.count).toBeGreaterThanOrEqual(1);
+      expect(typeof result.data?.results[0].combined_score).toBe("number");
     }
   });
 
@@ -188,8 +190,8 @@ test.describe("Vector Tools", () => {
       column: "embedding",
     });
     expectSuccess(result);
-    expect((result as Record<string, unknown>).totalRows).toBe(4);
-    expect(((result as Record<string, unknown>).stats as Record<string, unknown>).dimensions.max).toBe(3);
+    expect(result.data?.totalRows).toBe(4);
+    expect((result.data?.stats as Record<string, unknown>).dimensions.max).toBe(3);
   });
 
   test("mysql_vector_create_index works (or graceful fallback on 9.0+ CE)", async () => {
@@ -212,7 +214,7 @@ test.describe("Vector Tools", () => {
       }
     } else {
       expectSuccess(result);
-      expect((result as Record<string, unknown>).created).toBe(true);
+      expect(result.data?.created).toBe(true);
     }
   });
 
@@ -221,7 +223,7 @@ test.describe("Vector Tools", () => {
       table: "temp_e2e_vectors",
     });
     expectSuccess(result);
-    expect((result as Record<string, unknown>).optimized).toBe(true);
+    expect(result.data?.optimized).toBe(true);
   });
 
   test("mysql_vector_delete removes a vector", async () => {
@@ -236,6 +238,6 @@ test.describe("Vector Tools", () => {
       table: "temp_e2e_vectors",
       id: 4,
     });
-    expect((check as Record<string, unknown>).exists).toBe(false);
+    expect(check.data?.exists).toBe(false);
   });
 });

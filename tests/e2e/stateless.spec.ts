@@ -1,11 +1,9 @@
 import { test, expect } from "@playwright/test";
 import { setTimeout as delay } from "node:timers/promises";
-import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
+import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE, SSE_CONNECT_TIMEOUT_MS } from "./helpers.js";
 
 const STATELESS_PORT = 3103;
 const STATELESS_BASE = `http://localhost:${String(STATELESS_PORT)}`;
-
-const SSE_CONNECT_TIMEOUT_MS = 3000;
 
 test.describe("Stateless HTTP Mode", () => {
   test.beforeAll(async () => {

@@ -21,14 +21,12 @@ import { test, expect } from "@playwright/test";
 import { createServer, type Server } from "node:http";
 import { Buffer } from "node:buffer";
 import * as jose from "jose";
-import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
+import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE, SCOPE_ERROR_MSG } from "./helpers.js";
 
 const MCP_PORT = 3157;
 const JWKS_PORT = 3158;
 const ISSUER = "https://auth.example.com/mysql-scope-test";
 const AUDIENCE = "mysql-mcp-server";
-
-const SCOPE_ERROR_MSG = "insufficient scope";
 
 test.describe.configure({ mode: "serial" });
 

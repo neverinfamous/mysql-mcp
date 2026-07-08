@@ -29,10 +29,10 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
   test("should execute a read tool successfully (mysql_list_tables)", async () => {
     const parsed = await callToolAndParse(client, "mysql_list_tables", {});
-    expect(parsed).toHaveProperty("tables");
-    expect(Array.isArray((parsed as Record<string, unknown>).tables)).toBe(true);
-    expect(parsed).toHaveProperty("count");
-    expect(typeof (parsed as Record<string, unknown>).count).toBe("number");
+    expect(parsed.data).toHaveProperty("tables");
+    expect(Array.isArray(parsed.data?.tables)).toBe(true);
+    expect(parsed.data).toHaveProperty("count");
+    expect(typeof parsed.data?.count).toBe("number");
   });
 
   test("should return formatted MCP error for validation failures (mysql_read_query)", async () => {
@@ -77,8 +77,8 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
       table: "test_products" 
     });
 
-    expect(parsed).toHaveProperty("columns");
-    expect(Array.isArray((parsed as Record<string, unknown>).columns)).toBe(true);
+    expect(parsed.data).toHaveProperty("columns");
+    expect(Array.isArray(parsed.data?.columns)).toBe(true);
   });
 
   test("should extract JSON (json: mysql_json_extract)", async () => {
@@ -96,8 +96,8 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
       table: "test_products" 
     });
 
-    expect(parsed).toHaveProperty("indexes");
-    expect(Array.isArray((parsed as Record<string, unknown>).indexes)).toBe(true);
+    expect(parsed.data).toHaveProperty("indexes");
+    expect(Array.isArray(parsed.data?.indexes)).toBe(true);
   });
 
   test("should begin and rollback transaction (transactions group)", async () => {
@@ -106,7 +106,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
     expect(beginParsed).toHaveProperty("data.transactionId");
 
     const rollbackParsed = await callToolAndParse(client, "mysql_transaction_rollback", { 
-      transactionId: (beginParsed as Record<string, unknown>).transactionId 
+      transactionId: beginParsed.data?.transactionId 
     });
 
     expect(rollbackParsed.success).toBe(true);

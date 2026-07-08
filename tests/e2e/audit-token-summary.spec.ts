@@ -23,7 +23,9 @@ import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 const AUDIT_PORT_BASE = 3180;
 const AUDIT_FILTER = "core,transactions,monitoring";
 
-test.describe.configure({ mode: "serial", timeout: 120_000 });
+import { TIMEOUTS, HEALTH_QUERY } from "./helpers.js";
+
+test.describe.configure({ mode: "serial", timeout: TIMEOUTS.LONG });
 
 test.describe("Audit Token Summary Accuracy", () => {
   test("mysql://audit summary accurately aggregates tool token estimates", async () => {
@@ -131,7 +133,7 @@ test.describe("Audit Token Summary Accuracy", () => {
       client = await createClient(`http://localhost:${port}`);
 
       // Call low cost tools
-      await callToolAndParse(client, "mysql_read_query", { query: "SELECT 1" });
+      await callToolAndParse(client, "mysql_read_query", { query: HEALTH_QUERY });
       await callToolAndParse(client, "mysql_read_query", { query: "SELECT 2" });
 
       // Call a tool that returns more data (list_tables with full schema)

@@ -8,7 +8,9 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient, callToolRaw } from "./helpers.js";
+import { createClient, callToolRaw, expectHandlerError,
+  HEALTH_QUERY
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -87,7 +89,7 @@ test.describe("Numeric Coercion: Performance", () => {
     const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_explain", {
-        query: "SELECT 1",
+        query: HEALTH_QUERY,
         format: 12345,
       });
       const text = response.content[0]?.text;

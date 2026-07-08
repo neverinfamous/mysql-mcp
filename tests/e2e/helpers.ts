@@ -16,6 +16,26 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
 export const BASE_URL = "http://localhost:3002";
+export const SSE_CONNECT_TIMEOUT_MS = 3000;
+export const HEALTH_QUERY = "SELECT 1";
+
+export const TIMEOUTS = {
+  SHORT: 3000,
+  DEFAULT: 60000,
+  LONG: 120_000,
+};
+
+export const SEED_TABLES = {
+  BASIC_TYPES: "_e2e_basic_types",
+  DATE_TYPES: "_e2e_date_types",
+  JSON_TYPES: "_e2e_json_types",
+  UUID_TYPES: "_e2e_uuid_types",
+};
+
+export const SCOPE_ERROR_MSG = "insufficient scope";
+export const BACKUP_DISABLED_PATTERN = /not enabled|not available/i;
+
+export const TEST_DB_NAME = "testdb";
 
 /** MCP protocol versions */
 export const MCP_PROTOCOL_STREAMABLE = "2025-03-26";
@@ -78,11 +98,22 @@ export async function createClient(baseURL?: string): Promise<Client> {
 /**
  * Call a tool and return the parsed JSON payload.
  */
+import { z } from "zod";
+
+export const McpPayloadSchema = z.object({
+  success: z.boolean().optional(),
+  data: z.record(z.string(), z.unknown()).optional(),
+  error: z.string().optional(),
+  _meta: z.record(z.string(), z.unknown()).optional(),
+}).passthrough();
+
+export type McpPayload = z.infer<typeof McpPayloadSchema>;
+
 export async function callToolAndParse(
   client: Client,
   toolName: string,
   args: Record<string, unknown> = {},
-): Promise<Record<string, unknown>> {
+): Promise<McpPayload> {
   const response = await client.callTool({
     name: toolName,
     arguments: args,
@@ -96,7 +127,8 @@ export async function callToolAndParse(
   expect(first.type).toBe("text");
 
   try {
-    return JSON.parse(first.text!) as Record<string, unknown>;
+    const raw = JSON.parse(first.text!);
+    return McpPayloadSchema.parse(raw);
   } catch (err: unknown) {
     throw new Error(
       `Failed to parse tool response as JSON. Response text was:\n${first.text}\n\nOriginal error: ${(err as Error).message}`,
