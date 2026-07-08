@@ -27,7 +27,7 @@ services:
     volumes:
       - mysql-node1-data-v4:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -57,7 +57,7 @@ services:
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -87,7 +87,7 @@ services:
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
       interval: 5s
       timeout: 5s
       retries: 30

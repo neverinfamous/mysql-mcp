@@ -234,21 +234,20 @@ transactions Tool Group (7 tools +1 code mode):
 
 1. `mysql.transactions.help()` → verify method listing
 2. `mysql.transactions.begin()` → capture `transactionId`
-3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
-4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
-5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+3. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+4. `mysql.transactions.rollback({transactionId: <id>})` → `success: true`
+5. `mysql.transactions.begin()` → capture new `transactionId`
 6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
-7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
-9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+7. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+8. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
-11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.commit({})` → `{success: false, error: "..."}`
+10. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
 
 ---
 

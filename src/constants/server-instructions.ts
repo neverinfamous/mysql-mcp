@@ -95,7 +95,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Server Config**: Dynamically updates or fetches runtime variables without restarts (e.g., \`logLevel\`).
 
 ### Auditing & Insights (\`mysql_audit_search\`, \`mysql_append_insight\`)
-- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Requires at least one filter. Defaults to \`limit: 5\` for payload efficiency.
+- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Requires at least one filter. Defaults to \`limit: 5\` for payload efficiency. Falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`).
 - **Insight Append**: Records business insights to an in-memory memo.
   - Access via \`mysql://insights\` resource.
   - Max 1000 chars per insight.`],
@@ -526,7 +526,6 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload. Returns \`{ exists: false, user }\` for nonexistent users (P154). Use \`summary: true\` for condensed output (privilege counts instead of raw GRANT strings). Summary mode caps \`globalPrivileges\` at 10 entries and includes \`totalGlobalPrivileges\` for the full count.
 - **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope. Returns \`{ exists: false, schema }\` for nonexistent schemas (P154).
 - **Enterprise features**: \`mysql_security_firewall_status\` and \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
-- **Audit fallback**: \`mysql_audit_search\` falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`). Default limit is 5.
 - **Anti-Hallucination**: For \`mysql_security_audit\` and \`mysql_security_firewall_rules\`, use the \`user\` parameter to filter by user (do not use \`username\`).
 
 ### Example: Data Masking
@@ -647,7 +646,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 
 **Encapsulated Tools**: \`mysql_transaction_begin\`, \`mysql_transaction_commit\`, \`mysql_transaction_rollback\`, \`mysql_transaction_savepoint\`, \`mysql_transaction_release\`, \`mysql_transaction_rollback_to\`, \`mysql_transaction_execute\`
 
-- **Interactive transactions**: Use \`mysql_transaction_begin\` → get \`transactionId\` → pass it to \`mysql_read_query\` or \`mysql_write_query\` for queries within the transaction → \`mysql_transaction_commit\` or \`mysql_transaction_rollback\`.
+- **Interactive transactions**: Use \`mysql_transaction_begin\` → get \`transactionId\` → pass it to core read/write query tools for queries within the transaction → \`mysql_transaction_commit\` or \`mysql_transaction_rollback\`.
 - **Atomic execution**: \`mysql_transaction_execute\` runs multiple SQL statements in a single atomic transaction. All succeed or all are rolled back. Returns \`rows\` and \`rowCount\` for SELECT statements, \`rowsAffected\` for write statements. Returns \`{ success: false, error }\` if the \`statements\` array is empty. Returns \`{ success: false, error, rolledBack: true }\` if any statement fails.
   - *Code Mode Hint*: You can use positional arguments like \`mysql.transactions.execute(["SELECT 1", "SELECT 2"])\` or \`mysql.transactions.execute("SELECT 1", "READ COMMITTED")\`.
 - **Isolation levels**: \`mysql_transaction_begin\` and \`mysql_transaction_execute\` accept optional \`isolationLevel\`: \`READ UNCOMMITTED\`, \`READ COMMITTED\`, \`REPEATABLE READ\` (default), \`SERIALIZABLE\`.

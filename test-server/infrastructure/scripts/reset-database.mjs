@@ -34,8 +34,8 @@ function invokeMySql(query, noDatabase = false) {
     const db = noDatabase ? '' : mysqlDatabase;
     try {
         const cmd = db 
-            ? `${dockerCmd} exec ${containerName} mysql -uroot -proot ${db} -e "${query}"`
-            : `${dockerCmd} exec ${containerName} mysql -uroot -proot -e "${query}"`;
+            ? `${dockerCmd} exec ${containerName} mysql -h 127.0.0.1 -uroot -proot ${db} -e "${query}"`
+            : `${dockerCmd} exec ${containerName} mysql -h 127.0.0.1 -uroot -proot -e "${query}"`;
         return execSync(cmd, { stdio: 'pipe', encoding: 'utf-8' });
     } catch (e) {
         throw new Error(`Docker exec failed: ${e.message}`);
@@ -47,7 +47,7 @@ function invokeMySqlFile(filePath) {
     try {
         invokeMySql(`CREATE DATABASE IF NOT EXISTS ${mysqlDatabase};`, true);
         const fileContent = readFileSync(filePath);
-        execSync(`${dockerCmd} exec -i ${containerName} mysql -uroot -proot ${mysqlDatabase}`, { input: fileContent, stdio: ['pipe', 'inherit', 'inherit'] });
+        execSync(`${dockerCmd} exec -i ${containerName} mysql -h 127.0.0.1 -uroot -proot ${mysqlDatabase}`, { input: fileContent, stdio: ['pipe', 'inherit', 'inherit'] });
     } catch (e) {
         throw new Error(`Failed to execute seed file: ${e.message}`);
     }
@@ -96,7 +96,7 @@ if (!skipVerify) {
     let allPassed = true;
     for (const [table, expected] of Object.entries(expectedTables)) {
         try {
-            const result = execSync(`${dockerCmd} exec ${containerName} mysql -uroot -proot ${mysqlDatabase} -N -s -e "SELECT COUNT(*) FROM ${table};"`, { encoding: 'utf-8' });
+            const result = execSync(`${dockerCmd} exec ${containerName} mysql -h 127.0.0.1 -uroot -proot ${mysqlDatabase} -N -s -e "SELECT COUNT(*) FROM ${table};"`, { encoding: 'utf-8' });
             const countStr = result.match(/\d+/);
             const count = countStr ? parseInt(countStr[0], 10) : 0;
             

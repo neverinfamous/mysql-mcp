@@ -140,7 +140,6 @@
 | Tool | Focus Area | Code Mode Validation |
 | `mysql_create_index` | | |
 | `mysql_get_indexes` | | |
-| `mysql_enable_versioning` | | |
 
 ### Return Structured Error Responses
 
@@ -215,7 +214,6 @@ During testing, check for these inconsistencies:
 
 - `mysql_create_index`
 - `mysql_get_indexes`
-- `mysql_enable_versioning`
 
 
 ## Tasks
