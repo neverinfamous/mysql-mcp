@@ -17,7 +17,7 @@
 
 **Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -79,10 +79,10 @@
 
 ## Category 2: Schedule Boundary Values (Creation handled via Execute Code context)
 
-5. `mysql.event_create({name: "stress_evt_onetime", schedule: "AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR", body: "SELECT 1", status: "DISABLE"})` → verify accepts one-time schedule
-6. `mysql.event_create({name: "stress_evt_complex", schedule: "EVERY 30 SECOND STARTS CURRENT_TIMESTAMP", body: "SELECT 1", status: "DISABLE"})` → verify complex schedule syntax
-7. `mysql.event_status({name: "stress_evt_onetime"})` → verify status reflects one-time schedule type
-8. `mysql.event_status({name: "stress_evt_complex"})` → verify status reflects recurring schedule
+5. `mysql.events.create({name: "stress_evt_onetime", schedule: "AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR", body: "SELECT 1", status: "DISABLE"})` → verify accepts one-time schedule
+6. `mysql.events.create({name: "stress_evt_complex", schedule: "EVERY 30 SECOND STARTS CURRENT_TIMESTAMP", body: "SELECT 1", status: "DISABLE"})` → verify complex schedule syntax
+7. `mysql.events.status({name: "stress_evt_onetime"})` → verify status reflects one-time schedule type
+8. `mysql.events.status({name: "stress_evt_complex"})` → verify status reflects recurring schedule
 - [ ] Ensure full coverage for mysql_event_list
 - [ ] Ensure full coverage for mysql_event_status
 - [ ] Ensure full coverage for mysql_scheduler_status
@@ -90,8 +90,8 @@
 
 ## Category 4: Scheduler State
 
-11. `mysql.event_schedulerStatus()` → log current scheduler state
-12. `mysql.event_list()` → verify all `stress_*` events appear in listing
+11. `mysql.events.schedulerStatus()` → log current scheduler state
+12. `mysql.events.list()` → verify all `stress_*` events appear in listing
 
 ## Cleanup
 

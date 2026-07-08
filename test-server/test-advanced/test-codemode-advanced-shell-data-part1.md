@@ -17,7 +17,7 @@
 
 **Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -76,7 +76,7 @@
 
 
 ## Category 1: Graceful Degradation (No MySQL Shell)
-1. `mysqlsh_version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)
+1. `mysql.shell.version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)
 2. `mysqlsh_dumpInstance({outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_dump"})` → verify structured error
 3. `mysqlsh_loadDump({inputUrl: "C:/Users/chris/AppData/Local/Temp/nonexistent_dump"})` → verify structured error
 4. `mysqlsh_runScript({script: "print('test')"})` → verify structured error
@@ -103,9 +103,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysqlsh_version
-- [ ] Ensure full coverage for mysqlsh_check_upgrade
-- [ ] Ensure full coverage for mysqlsh_export_table
+- [ ] Ensure full coverage for mysql.shell.version
+- [ ] Ensure full coverage for mysql.shell.checkUpgrade
+- [ ] Ensure full coverage for mysql.shell.exportTable
 
 ---
 

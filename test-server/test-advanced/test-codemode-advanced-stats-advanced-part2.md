@@ -17,7 +17,7 @@
 
 **Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -74,14 +74,14 @@
 
 
 ## Category 1: Frequency & Distinct Boundaries
-1. Run `mysql.stats_frequency` on a column where every row is identical (`test_categories.level` where you might just insert some). Actually, just use `test_events.event_type` with a filter `where: "event_type = 'LOGIN'"`. Verify single-bucket output without division-by-zero crashes.
-2. Run `mysql.stats_distinct` on a table with 0 rows. Verify it returns an empty array gracefully.
+1. Run `mysql.stats.frequency` on a column where every row is identical (`test_categories.level` where you might just insert some). Actually, just use `test_events.event_type` with a filter `where: "event_type = 'LOGIN'"`. Verify single-bucket output without division-by-zero crashes.
+2. Run `mysql.stats.distinct` on a table with 0 rows. Verify it returns an empty array gracefully.
 
 ## Category 2: Hypothesis Testing Edge Cases
 1. Create `stress_arrays` table with columns `group_label VARCHAR(10)`, `val INT`. Insert 10 rows for group 'B' and 0 rows for group 'A'.
-2. Run `mysql.stats_hypothesis` (t-test) with `column: 'val'`, `groupColumn: 'group_label'`, `group1: 'A'`, `group2: 'B'`. Verify structured `{success: false, error: "..."}` regarding insufficient sample size.
-3. Run `mysql.stats_hypothesis` where all values in group 'A' and group 'B' are exactly 0 (e.g. create a `stress_zeros` table). Verify test logic handles zero variance gracefully.
-4. Run `mysql.stats_outliers` on a column with only 2 rows. Verify gracefully handling minimum threshold limits.
+2. Run `mysql.stats.hypothesis` (t-test) with `column: 'val'`, `groupColumn: 'group_label'`, `group1: 'A'`, `group2: 'B'`. Verify structured `{success: false, error: "..."}` regarding insufficient sample size.
+3. Run `mysql.stats.hypothesis` where all values in group 'A' and group 'B' are exactly 0 (e.g. create a `stress_zeros` table). Verify test logic handles zero variance gracefully.
+4. Run `mysql.stats.outliers` on a column with only 2 rows. Verify gracefully handling minimum threshold limits.
 
 ## Category 3: Cleanup Verification
 1. Drop tables `stress_arrays`, `stress_zeros`, etc. Verify clean removal.

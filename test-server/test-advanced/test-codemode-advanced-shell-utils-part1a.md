@@ -17,7 +17,7 @@
 
 **Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -78,9 +78,9 @@
 ## Tasks
 
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysqlsh_import_json
-- [ ] Ensure full coverage for mysqlsh_dump_instance
-- [ ] Ensure full coverage for mysqlsh_dump_schemas
+- [ ] Ensure full coverage for mysql.shell.importJson
+- [ ] Ensure full coverage for mysql.shell.dumpInstance
+- [ ] Ensure full coverage for mysql.shell.dumpSchemas
 
 ---
 

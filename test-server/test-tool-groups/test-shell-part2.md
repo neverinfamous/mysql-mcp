@@ -17,7 +17,7 @@
 
 **Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
-**Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
+**Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
 > [!IMPORTANT]
 > **Anti-Hallucination Guardrails:**
@@ -81,38 +81,38 @@
 
 shell Tool Group (5 tools +1 for code mode):
 
-1. 'mysqlsh_dump_instance'
-2. 'mysqlsh_dump_schemas'
-3. 'mysqlsh_dump_tables'
-4. 'mysqlsh_load_dump'
-5. 'mysqlsh_run_script'
+1. 'mysql.shell.dumpInstance'
+2. 'mysql.shell.dumpSchemas'
+3. 'mysql.shell.dumpTables'
+4. 'mysql.shell.loadDump'
+5. 'mysql.shell.runScript'
 6. 'mysql_execute_code'
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-7. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
-8. `mysqlsh_dump_schemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
-9. `mysqlsh_dump_tables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_dump", all: true, dryRun: true})` → verify table dump command
+7. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", dryRun: true})` → verify dump command generated
+8. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "/tmp/test_dump", ddlOnly: true, dryRun: true})` → verify DDL-only mode
+9. `mysql.shell.dumpTables({schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/test_dump", all: true, dryRun: true})` → verify table dump command
 
-4b. `mysqlsh_check_upgrade()` -> verify success
-4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
-4d. `mysqlsh_import_table({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
-4e. `mysqlsh_load_dump({url: "/tmp/test_dump"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
+4b. `mysql.shell.checkUpgrade()` -> verify success
+4c. `mysql.shell.importJson({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
+4d. `mysql.shell.importTable({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
+4e. `mysql.shell.loadDump({url: "/tmp/test_dump"})` -> ⚠️ fails with SECURITY_ERROR (ALLOWED_IO_ROOTS unconfigured in test MCP instance)
 
 **Domain error paths (🔴):**
 
-1. 🔴 `mysqlsh_dump_schemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test_dump"})` → `{success: false, error: "..."}` handler error
+1. 🔴 `mysql.shell.dumpSchemas({schemas: ["nonexistent_db_xyz"], outputUrl: "/tmp/test_dump"})` → `{success: false, error: "..."}` handler error
 
 **Zod validation error paths (🔴):**
 
-1. 🔴 `mysqlsh_dump_schemas({})` → `{success: false, error: "..."}` (Zod validation)
-2. 🔴 `mysqlsh_run_script({})` → `{success: false, error: "..."}` (missing required params)
+1. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "..."}` (Zod validation)
+2. 🔴 `mysql.shell.runScript({})` → `{success: false, error: "..."}` (missing required params)
 
 **Security boundary validation paths (🔴):**
 
-3. 🔴 `mysqlsh_dump_instance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}` (Directory traversal)
+3. 🔴 `mysql.shell.dumpInstance({outputUrl: "../../etc/shadow"})` → `{success: false, code: "SECURITY_ERROR"}` (Directory traversal)
 
 ---
 
