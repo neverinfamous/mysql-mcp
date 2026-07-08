@@ -96,9 +96,11 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | RW Routing Port | `6446` (→ PRIMARY) |
 | RO Routing Port | `6447` (→ SECONDARY) |
 
-### Observability
+### Observability & Tools
 | Property | URL |
 |---|---|
 | Prometheus | `http://localhost:9090` |
 | Grafana | `http://localhost:3001` (admin/admin) |
+| Dozzle (Logs) | `http://localhost:8080` |
+| Adminer (DB UI) | `http://localhost:8081` |
 | ProxySQL Admin | `localhost:6032` |
