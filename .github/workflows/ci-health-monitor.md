@@ -12,6 +12,9 @@ engine:
   id: copilot
   model: claude-3-5-sonnet-latest
 
+env:
+  GH_TOKEN: ghp_dummy12345678901234567890123456789012
+
 network:
   allowed:
     - defaults
