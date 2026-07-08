@@ -227,6 +227,25 @@ core (versioning) Tool Group:
 
 You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
 
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. ✅ `mysql.versioning.enable({table: "test_articles"})` → happy path
+2. ✅ `mysql.versioning.disable({table: "test_articles"})` → happy path
+3. ✅ `mysql.versioning.check({table: "test_articles", id: 1})` → happy path
+4. ✅ `mysql.versioning.conditionalUpdate({table: "test_articles", id: 1, version: 1, data: {title: "New Title"}, conditions: {}})` → happy path
+
+**Domain error paths (🔴):**
+
+5. ✅ `mysql.versioning.enable({table: "nonexistent_xyz"})` → domain error (TABLE_NOT_FOUND)
+6. ✅ `mysql.versioning.check({table: "test_articles", id: 99999})` → domain error
+
+**Zod validation error paths (🔴):**
+
+7. ✅ `mysql.versioning.enable({})` → validation error
+8. ✅ `mysql.versioning.conditionalUpdate({})` → validation error
+
 ---
 
 ## Execute Post-Test Procedures

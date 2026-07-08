@@ -229,13 +229,13 @@ fulltext-part2 Tool Group (3 tools +1 code mode):
 **Create → Search → Drop lifecycle:**
 
 2. `mysql.fulltext.create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
-3. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer"})` → results
+3. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer", maxLength: 200})` → results
 4. `mysql.fulltext.drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false}`
-6. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false}` (no FTS index)
+5. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test", maxLength: 200})` → `{success: false}`
+6. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test", maxLength: 200})` → `{success: false}` (no FTS index)
 
 **Zod validation error paths (🔴):**
 

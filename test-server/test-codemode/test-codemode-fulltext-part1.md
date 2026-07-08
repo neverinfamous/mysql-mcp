@@ -225,19 +225,19 @@ fulltext-part1 Tool Group (3 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.fulltext.help()` → verify method listing
-2. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → results with relevance
-3. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
-4. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results
-5. `mysql.fulltext.expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
-6. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
-7. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` returned
-8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>"})` → verify pagination works
-9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify sanitization (no syntax error)
+2. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", maxLength: 200})` → results with relevance
+3. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz", maxLength: 200})` → 0 results
+4. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database", maxLength: 200})` → results
+5. `mysql.fulltext.expand({table: "test_articles", columns: ["title", "body"], query: "database", maxLength: 200})` → expanded results
+6. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true, maxLength: 200})` → verify `warnings` array is returned for missing individual index
+7. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1, maxLength: 200})` → verify `nextCursor` returned
+8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>", maxLength: 200})` → verify pagination works
+9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)', maxLength: 200})` → verify sanitization (no syntax error)
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false}`
-11. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false}` (no FTS index)
+10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test", maxLength: 200})` → `{success: false}`
+11. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test", maxLength: 200})` → `{success: false}` (no FTS index)
 
 **Zod validation error paths (🔴):**
 

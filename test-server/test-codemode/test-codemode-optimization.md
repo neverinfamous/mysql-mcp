@@ -225,8 +225,8 @@ optimization Tool Group (4 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.optimization.help()` → verify method listing
-2. `mysql.optimization.indexRecommendation({table: "test_orders"})` → findings with redundant/FK checks
-3. `mysql.optimization.indexRecommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"]})` → EXPLAIN recommendations
+2. `mysql.optimization.indexRecommendation({table: "test_orders", includeRedundant: true, includeUnindexed: true})` → findings with redundant/FK checks
+3. `mysql.optimization.indexRecommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"], includeRedundant: true, includeUnindexed: true})` → EXPLAIN recommendations
 4. `mysql.optimization.indexRecommendation({table: "test_orders", queries: ["SELECT * FROM test_orders WHERE status = 'completed' AND customer_name = 'Alice'"]})` → composite suggestion
 5. `mysql.optimization.indexRecommendation({})` → database-wide audit
 6. `mysql.optimization.queryRewrite({query: "SELECT * FROM test_products WHERE name = 'Laptop'"})` → hints
