@@ -231,6 +231,13 @@ During testing, check for these inconsistencies:
 1. `proxysql_global_variables()` with no limit → log token estimate, flag > 500 tokens as 📦
 2. `proxysql_global_variables({limit: 5})` → log token estimate, verify significant reduction
 
+
+## Tasks
+
+- [ ] Ensure full coverage for proxysql_global_variables
+- [ ] Ensure full coverage for proxysql_runtime_status
+- [ ] Ensure full coverage for proxysql_memory_stats
+
 ---
 
 ## Execute Post-Test Procedures

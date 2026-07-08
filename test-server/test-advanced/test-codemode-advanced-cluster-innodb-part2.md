@@ -228,6 +228,12 @@ During testing, check for these inconsistencies:
 4. `mysql_cluster_router_status({summary: true})` → log token estimate
 5. Flag any response > 500 tokens as 📦
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_cluster_router_status
+- [ ] Ensure full coverage for mysql_cluster_switchover
+
 ---
 
 ## Execute Post-Test Procedures

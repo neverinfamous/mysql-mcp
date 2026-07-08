@@ -224,6 +224,13 @@ Please conduct an exhaustive test of the tool group specified in the checklist b
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_create_trigger
+- [ ] Ensure full coverage for mysql_drop_trigger
+- [ ] Ensure full coverage for mysql_list_constraints
+
 ---
 
 ## Execute Post-Test Procedures

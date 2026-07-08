@@ -241,6 +241,13 @@ json-enhanced Tool Group (5 tools +1 for code mode):
 
 11. 🔴 `mysql_json_merge({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_search
+- [ ] Ensure full coverage for mysql_json_validate
+- [ ] Ensure full coverage for mysql_json_merge
+
 ---
 
 ## Execute Post-Test Procedures

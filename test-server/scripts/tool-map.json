@@ -114,13 +114,7 @@
   ],
   "test-codemode-advanced-core-part2a.md": [
     "mysql_create_index",
-    "mysql_get_indexes",
-    "mysql_enable_versioning"
-  ],
-  "test-codemode-advanced-core-part2b.md": [
-    "mysql_disable_versioning",
-    "mysql_check_version",
-    "mysql_conditional_update"
+    "mysql_get_indexes"
   ],
   "test-codemode-advanced-proxysql-config-part1.md": [
     "proxysql_status",
@@ -447,5 +441,13 @@
   ],
   "test-codemode-advanced-vector-search-part2.md": [
     "mysql_vector_info"
+  ],
+  "test-codemode-advanced-versioning-part1.md": [
+    "mysql_enable_versioning",
+    "mysql_disable_versioning",
+    "mysql_check_version"
+  ],
+  "test-codemode-advanced-versioning-part2.md": [
+    "mysql_conditional_update"
   ]
 }

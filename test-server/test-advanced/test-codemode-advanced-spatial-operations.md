@@ -236,6 +236,13 @@ spatial-operations Tool Group (4 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_spatial_polygon
+- [ ] Ensure full coverage for mysql_spatial_distance
+- [ ] Ensure full coverage for mysql_spatial_distance_sphere
+
 ---
 
 ## Execute Post-Test Procedures

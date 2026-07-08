@@ -218,22 +218,11 @@ During testing, check for these inconsistencies:
 - `mysql_security_sensitive_tables`
 
 
-## Category 2: Sensitive Table Detection
-1. Create `testdb.stress_sensitive` table with columns: `id INT`, `password VARCHAR(255)`, `ssn VARCHAR(11)`, `credit_card VARCHAR(20)`
-2. `mysql_security_sensitive_tables({database: "testdb"})` → verify `stress_sensitive` is flagged
-3. Create `testdb.stress_safe` table with columns: `id INT`, `name VARCHAR(100)`, `quantity INT`
-4. `mysql_security_sensitive_tables({database: "testdb"})` → verify `stress_safe` is NOT flagged
+## Tasks
 
-## Category 3: Privilege Enumeration Edge Cases
-1. `mysql_security_user_privileges({user: "root"})` → log token estimate (full)
-2. `mysql_security_user_privileges({user: "root", summary: true})` → log token estimate (summary)
-3. Verify summary is smaller than full output
-4. `mysql_security_user_privileges({user: "nonexistent_user_xyz"})` → verify structured `{success: false}` or empty result
-
-## Category 4: Payload Monitoring
-2. `mysql_security_ssl_status()` → log token estimate
-## Cleanup
-3. Drop `testdb.stress_sensitive` and `testdb.stress_safe` tables
+- [ ] Ensure full coverage for mysql_security_ssl_status
+- [ ] Ensure full coverage for mysql_security_user_privileges
+- [ ] Ensure full coverage for mysql_security_sensitive_tables
 
 ---
 

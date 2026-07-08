@@ -221,6 +221,9 @@ During testing, check for these inconsistencies:
 ## Tasks
 
 - Implement tests for the tools listed above.
+- [ ] Ensure full coverage for mysql_sys_innodb_lock_waits
+- [ ] Ensure full coverage for mysql_sys_schema_stats
+- [ ] Ensure full coverage for mysql_sys_host_summary
 
 ---
 

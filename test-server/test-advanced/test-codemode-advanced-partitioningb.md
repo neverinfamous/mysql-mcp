@@ -235,6 +235,11 @@ During testing, check for these inconsistencies:
 ## Cleanup
 3. Drop all `stress_*` tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_reorganize_partition
+
 ---
 
 ## Execute Post-Test Procedures

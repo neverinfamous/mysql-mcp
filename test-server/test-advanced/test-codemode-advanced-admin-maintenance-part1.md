@@ -236,6 +236,13 @@ During testing, check for these inconsistencies:
 1. Execute full health check: `serverHealth()` → `analyzeTable()` → `checkTable()` → `tableStats()`
 2. Verify no error accumulation across sequential admin operations
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_kill_query
+- [ ] Ensure full coverage for mysql_append_insight
+- [ ] Ensure full coverage for mysql_server_config
+
 ---
 
 ## Execute Post-Test Procedures

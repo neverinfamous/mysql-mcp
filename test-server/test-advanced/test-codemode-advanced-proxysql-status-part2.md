@@ -226,6 +226,12 @@ During testing, check for these inconsistencies:
 ## Category 3: Payload Monitoring & Filter Boundaries
 3. `proxysql_process_list()` → log token estimate
 
+
+## Tasks
+
+- [ ] Ensure full coverage for proxysql_commands
+- [ ] Ensure full coverage for proxysql_process_list
+
 ---
 
 ## Execute Post-Test Procedures

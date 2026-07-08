@@ -95,27 +95,27 @@ services:
   # ==========================================
   # ROUTING & PROXIES
   # ==========================================
-  mysql-router:
-    image: mysql/mysql-router:8.0
-    container_name: mysql-router
-    restart: unless-stopped
-    depends_on:
-      - mysql-node1
-      - mysql-node2
-      - mysql-node3
-    entrypoint: ["/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh"]
-    volumes:
-      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
-      - mysql-router-data-v1:/tmp/mysqlrouter
-    ports:
-      - "6446:6446"
-      - "6447:6447"
-      - "8443:8443"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+#  mysql-router:
+#    image: mysql/mysql-router:8.0
+#    container_name: mysql-router
+#    restart: unless-stopped
+#    depends_on:
+#      - mysql-node1
+#      - mysql-node2
+#      - mysql-node3
+#    entrypoint: ["/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh"]
+#    volumes:
+#      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
+#      - mysql-router-data-v1:/tmp/mysqlrouter
+#    ports:
+#      - "6446:6446"
+#      - "6447:6447"
+#      - "8443:8443"
+#    healthcheck:
+#      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot"]
+#      interval: 10s
+#      timeout: 5s
+#      retries: 5
 
   proxysql:
     image: proxysql/proxysql:latest

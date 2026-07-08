@@ -214,7 +214,9 @@ During testing, check for these inconsistencies:
 - `mysql_sys_wait_summary`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_sys_wait_summary
 
 ---
 

@@ -229,6 +229,12 @@ During testing, check for these inconsistencies:
 ## Category 3: Cleanup Verification
 1. Drop table `stress_stats_desc`. Verify clean removal.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_row_number
+- [ ] Ensure full coverage for mysql_stats_rank
+
 ---
 
 ## Execute Post-Test Procedures

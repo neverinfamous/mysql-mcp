@@ -235,6 +235,13 @@ During testing, check for these inconsistencies:
 3. `mysql_show_variables({like: "nonexistent_var_xyz_12345"})` → verify empty result set (not error)
 4. `mysql_show_status({like: "Com_%"})` → verify wildcard filter returns subset
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_show_processlist
+- [ ] Ensure full coverage for mysql_show_status
+- [ ] Ensure full coverage for mysql_show_variables
+
 ---
 
 ## Execute Post-Test Procedures

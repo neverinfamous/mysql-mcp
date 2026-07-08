@@ -237,6 +237,13 @@ During testing, check for these inconsistencies:
 ## Category 4: Payload Monitoring
 2. Flag any response > 500 tokens as 📦
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_router_status
+- [ ] Ensure full coverage for mysql_router_routes
+- [ ] Ensure full coverage for mysql_router_route_status
+
 ---
 
 ## Execute Post-Test Procedures

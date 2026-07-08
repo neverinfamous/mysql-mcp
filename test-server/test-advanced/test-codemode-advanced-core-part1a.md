@@ -221,6 +221,9 @@ During testing, check for these inconsistencies:
 ## Tasks
 
 - Implement tests for the tools listed above.
+- [ ] Ensure full coverage for mysql_read_query
+- [ ] Ensure full coverage for mysql_write_query
+- [ ] Ensure full coverage for mysql_list_tables
 
 ---
 

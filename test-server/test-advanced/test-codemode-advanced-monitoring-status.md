@@ -228,6 +228,13 @@ During testing, check for these inconsistencies:
 1. Call `mysql_server_health()` 5 times in rapid succession → verify all return `{success: true}` with no error accumulation
 2. Call `mysql_pool_stats()` between health checks → verify pool metrics remain stable
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_replication_status
+- [ ] Ensure full coverage for mysql_pool_stats
+- [ ] Ensure full coverage for mysql_server_health
+
 ---
 
 ## Execute Post-Test Procedures

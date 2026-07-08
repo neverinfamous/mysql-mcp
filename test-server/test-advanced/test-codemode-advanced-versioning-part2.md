@@ -138,6 +138,7 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_conditional_update` | | |
 
 ### Return Structured Error Responses
 
@@ -212,6 +213,7 @@ During testing, check for these inconsistencies:
 
 - `mysql_conditional_update`
 
+
 ## Group Focus: versioning
 
 This document provides testing instructions to validate the OCC (Optimistic Concurrency Control) versioning tools under Code Mode execution.
@@ -220,15 +222,13 @@ This document provides testing instructions to validate the OCC (Optimistic Conc
 
 ## Tasks
 
-### 1. Enable/Disable Toggle Stress
-
-### 2. Concurrent OCC Modifications
+### 1. Concurrent OCC Modifications
 - Create a test table, enable versioning, insert a row.
 - Simulate a race condition: manually `UPDATE` the row (incrementing the version).
 - Attempt to `mysql_conditional_update` using the old expectedVersion. Verify it fails with a structured Version conflict error.
 - Retrieve the new version and attempt `mysql_conditional_update` again. Verify success.
 
-### 3. Error Handling
+### 2. Error Handling
 - Call `mysql_conditional_update` with an empty condition array or invalid column.
 - Verify structured error responses are returned, not raw exceptions.
 

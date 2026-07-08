@@ -249,6 +249,13 @@ json-core Tool Group (8 tools +1 for code mode):
 23. 🔴 `mysql_json_keys({})` → validation error
 24. 🔴 `mysql_json_array_append({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_contains
+- [ ] Ensure full coverage for mysql_json_keys
+- [ ] Ensure full coverage for mysql_json_array_append
+
 ---
 
 ## Execute Post-Test Procedures

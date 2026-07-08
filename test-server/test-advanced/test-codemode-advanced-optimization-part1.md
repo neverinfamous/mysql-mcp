@@ -240,6 +240,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 5. Drop all `stress_*` tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_index_recommendation
+- [ ] Ensure full coverage for mysql_query_rewrite
+- [ ] Ensure full coverage for mysql_force_index
+
 ---
 
 ## Execute Post-Test Procedures

@@ -223,6 +223,12 @@ During testing, check for these inconsistencies:
 ## Category 2: Type Validation & Cleanup
 1. Drop table `stress_stats_time_series`.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_ntile
+- [ ] Ensure full coverage for mysql_stats_hypothesis
+
 ---
 
 ## Execute Post-Test Procedures

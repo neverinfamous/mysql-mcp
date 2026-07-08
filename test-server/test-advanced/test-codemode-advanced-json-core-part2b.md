@@ -234,6 +234,12 @@ json-core Tool Group (8 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_get
+- [ ] Ensure full coverage for mysql_json_update
+
 ---
 
 ## Execute Post-Test Procedures

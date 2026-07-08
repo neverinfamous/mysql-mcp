@@ -226,6 +226,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 2. Drop all `stress_*` tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_audit_list_backups
+- [ ] Ensure full coverage for mysql_audit_restore_backup
+- [ ] Ensure full coverage for mysql_audit_diff_backup
+
 ---
 
 ## Execute Post-Test Procedures

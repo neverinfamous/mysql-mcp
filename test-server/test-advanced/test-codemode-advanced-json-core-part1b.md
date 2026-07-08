@@ -243,6 +243,12 @@ json-core Tool Group (8 tools +1 for code mode):
 20. 🔴 `mysql_json_replace({})` → validation error
 21. 🔴 `mysql_json_remove({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_replace
+- [ ] Ensure full coverage for mysql_json_remove
+
 ---
 
 ## Execute Post-Test Procedures

@@ -234,6 +234,12 @@ json (helpers) Tool Group (4 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_stats
+- [ ] Ensure full coverage for mysql_json_index_suggest
+
 ---
 
 ## Execute Post-Test Procedures

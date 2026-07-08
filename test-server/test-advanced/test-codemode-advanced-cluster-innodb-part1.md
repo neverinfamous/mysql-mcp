@@ -234,6 +234,13 @@ During testing, check for these inconsistencies:
 2. `mysql_cluster_status({summary: true})` → log token estimate, verify ≥ 30% reduction
 5. Flag any response > 500 tokens as 📦
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_cluster_status
+- [ ] Ensure full coverage for mysql_cluster_instances
+- [ ] Ensure full coverage for mysql_cluster_topology
+
 ---
 
 ## Execute Post-Test Procedures

@@ -237,6 +237,13 @@ During testing, check for these inconsistencies:
 ## Category 4: Cleanup Verification
 1. Drop all test columns generated and explicitly `DROP TABLE _mcp_schema_versions`. Verify clean removal.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_migration_rollback
+- [ ] Ensure full coverage for mysql_migration_history
+- [ ] Ensure full coverage for mysql_migration_status
+
 ---
 
 ## Execute Post-Test Procedures

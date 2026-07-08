@@ -226,6 +226,12 @@ During testing, check for these inconsistencies:
 ## Category 3: Summary Mode & Payload Monitoring
 1. Flag any response > 500 tokens as 📦
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_gr_transactions
+- [ ] Ensure full coverage for mysql_gr_flow_control
+
 ---
 
 ## Execute Post-Test Procedures

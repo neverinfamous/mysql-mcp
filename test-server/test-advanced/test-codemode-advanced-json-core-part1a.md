@@ -249,6 +249,13 @@ json-core Tool Group (8 tools +1 for code mode):
 18. 🔴 `mysql_json_set({})` → validation error
 19. 🔴 `mysql_json_insert({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_extract
+- [ ] Ensure full coverage for mysql_json_set
+- [ ] Ensure full coverage for mysql_json_insert
+
 ---
 
 ## Execute Post-Test Procedures

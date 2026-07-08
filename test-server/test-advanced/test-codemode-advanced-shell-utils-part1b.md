@@ -217,6 +217,7 @@ During testing, check for these inconsistencies:
 ## Tasks
 
 - Implement tests for the tools listed above.
+- [ ] Ensure full coverage for mysqlsh_dump_tables
 
 ---
 

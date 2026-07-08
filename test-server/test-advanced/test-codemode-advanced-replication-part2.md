@@ -241,6 +241,12 @@ During testing, check for these inconsistencies:
 2. `mysql.replication.masterStatus()` → log token estimate
 3. Flag any response > 500 tokens as 📦
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_gtid_status
+- [ ] Ensure full coverage for mysql_replication_lag
+
 ---
 
 ## Execute Post-Test Procedures

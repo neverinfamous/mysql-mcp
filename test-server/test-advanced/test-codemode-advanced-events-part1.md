@@ -230,6 +230,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 3. Drop all `stress_*` events
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_event_create
+- [ ] Ensure full coverage for mysql_event_alter
+- [ ] Ensure full coverage for mysql_event_drop
+
 ---
 
 ## Execute Post-Test Procedures

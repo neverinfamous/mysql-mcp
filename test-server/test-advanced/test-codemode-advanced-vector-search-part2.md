@@ -232,6 +232,11 @@ vector-search Tool Group (3 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_vector_info
+
 ---
 
 ## Execute Post-Test Procedures

@@ -243,6 +243,12 @@ json-enhanced Tool Group (5 tools +1 for code mode):
 12. 🔴 `mysql_json_diff({})` → validation error
 13. 🔴 `mysql_json_normalize({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_diff
+- [ ] Ensure full coverage for mysql_json_normalize
+
 ---
 
 ## Execute Post-Test Procedures

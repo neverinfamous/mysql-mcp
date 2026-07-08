@@ -240,6 +240,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 3. Drop all `stress_*` tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_partition_info
+- [ ] Ensure full coverage for mysql_add_partition
+- [ ] Ensure full coverage for mysql_drop_partition
+
 ---
 
 ## Execute Post-Test Procedures

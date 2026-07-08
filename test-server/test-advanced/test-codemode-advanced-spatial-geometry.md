@@ -241,6 +241,13 @@ spatial-geometry Tool Group (2 tools +1 for code mode):
 
 5. 🔴 `mysql_spatial_point({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_spatial_create_column
+- [ ] Ensure full coverage for mysql_spatial_create_index
+- [ ] Ensure full coverage for mysql_spatial_point
+
 ---
 
 ## Execute Post-Test Procedures

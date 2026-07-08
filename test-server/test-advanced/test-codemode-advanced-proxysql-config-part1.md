@@ -231,6 +231,13 @@ During testing, check for these inconsistencies:
 ## Category 3: Payload Monitoring & Filter Boundaries
 1. `proxysql_status({summary: true})` → log token estimate, verify reduction vs. full
 
+
+## Tasks
+
+- [ ] Ensure full coverage for proxysql_status
+- [ ] Ensure full coverage for proxysql_servers
+- [ ] Ensure full coverage for proxysql_query_rules
+
 ---
 
 ## Execute Post-Test Procedures

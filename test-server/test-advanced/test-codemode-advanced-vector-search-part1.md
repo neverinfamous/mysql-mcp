@@ -249,6 +249,13 @@ vector-search Tool Group (3 tools +1 for code mode):
 8. 🔴 `mysql_vector_range_search({})` → validation error
 9. 🔴 `mysql_vector_hybrid_search({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_vector_search
+- [ ] Ensure full coverage for mysql_vector_range_search
+- [ ] Ensure full coverage for mysql_vector_hybrid_search
+
 ---
 
 ## Execute Post-Test Procedures

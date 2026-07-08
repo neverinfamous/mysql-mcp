@@ -236,6 +236,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 3. Drop `stress_docs` if still exists
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_doc_modify
+- [ ] Ensure full coverage for mysql_doc_remove
+- [ ] Ensure full coverage for mysql_doc_create_index
+
 ---
 
 ## Execute Post-Test Procedures

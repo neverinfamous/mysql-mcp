@@ -228,6 +228,13 @@ During testing, check for these inconsistencies:
 1. `proxysql_query_digest()` with no limit -> log token estimate
 2. `proxysql_query_digest({limit: 1})` → log token estimate
 
+
+## Tasks
+
+- [ ] Ensure full coverage for proxysql_query_digest
+- [ ] Ensure full coverage for proxysql_connection_pool
+- [ ] Ensure full coverage for proxysql_users
+
 ---
 
 ## Execute Post-Test Procedures

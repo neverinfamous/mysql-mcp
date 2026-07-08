@@ -221,6 +221,9 @@ During testing, check for these inconsistencies:
 ## Tasks
 
 - Implement tests for the tools listed above.
+- [ ] Ensure full coverage for mysql_describe_table
+- [ ] Ensure full coverage for mysql_create_table
+- [ ] Ensure full coverage for mysql_drop_table
 
 ---
 

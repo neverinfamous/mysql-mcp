@@ -218,22 +218,11 @@ During testing, check for these inconsistencies:
 - `mysql_role_revoke`
 
 
-## Category 2: Privilege Grant/Revoke Sequences
-1. `mysql_role_grant({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → success
-3. `mysql_role_grant({role: "stress_role_a", privilege: "INSERT", on: "testdb.*"})` → success
-5. `mysql_role_revoke({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → success
+## Tasks
 
-## Category 3: Cascading Assign/Revoke Verification
-1. `mysql_role_grant({role: "stress_role_a", privilege: "SELECT", on: "testdb.*"})` → re-grant
-
-## Category 4: Parameter Alias Parity
-1. `mysql_role_grant` with `privilege` and `on` aliases → verify structured success
-
-## Category 5: Error Quality
-1. `mysql_role_grant({role: "stress_role_nonexist", privilege: "SELECT", on: "testdb.*"})` → verify structured `{success: false}` (role not found)
-2. `mysql_role_revoke({role: "stress_role_nonexist", privilege: "SELECT", on: "testdb.*"})` → verify structured `{success: false}`
-## Cleanup
-3. Drop all `stress_*` roles
+- [ ] Ensure full coverage for mysql_role_grant
+- [ ] Ensure full coverage for mysql_role_assign
+- [ ] Ensure full coverage for mysql_role_revoke
 
 ---
 

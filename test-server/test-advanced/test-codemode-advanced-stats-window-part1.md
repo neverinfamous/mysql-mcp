@@ -225,6 +225,13 @@ During testing, check for these inconsistencies:
 4. Run `mysql.stats.lagLead` on `val1` with `offset: 2`. Verify it safely navigates NULL boundaries.
 5. Drop table `stress_stats_win`. Verify clean removal.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_outliers
+- [ ] Ensure full coverage for mysql_stats_top_n
+- [ ] Ensure full coverage for mysql_stats_distinct
+
 ---
 
 ## Execute Post-Test Procedures

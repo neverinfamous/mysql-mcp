@@ -236,6 +236,13 @@ spatial-setup Tool Group (2 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_spatial_buffer
+- [ ] Ensure full coverage for mysql_spatial_transform
+- [ ] Ensure full coverage for mysql_spatial_geojson
+
 ---
 
 ## Execute Post-Test Procedures

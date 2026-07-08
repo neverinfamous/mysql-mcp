@@ -214,15 +214,9 @@ During testing, check for these inconsistencies:
 - `mysql_user_roles`
 
 
-## Category 2: Privilege Grant/Revoke Sequences
+## Tasks
 
-## Category 3: Cascading Assign/Revoke Verification
-
-## Category 4: Parameter Alias Parity
-
-## Category 5: Error Quality
-## Cleanup
-3. Drop all `stress_*` roles
+- [ ] Ensure full coverage for mysql_user_roles
 
 ---
 

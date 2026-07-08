@@ -245,6 +245,13 @@ spatial-queries Tool Group (4 tools +1 for code mode):
 11. 🔴 `mysql_spatial_contains({})` → validation error
 12. 🔴 `mysql_spatial_within({})` → validation error
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_spatial_contains
+- [ ] Ensure full coverage for mysql_spatial_within
+- [ ] Ensure full coverage for mysql_spatial_intersection
+
 ---
 
 ## Execute Post-Test Procedures

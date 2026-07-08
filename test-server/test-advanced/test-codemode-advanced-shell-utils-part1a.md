@@ -221,6 +221,9 @@ During testing, check for these inconsistencies:
 ## Tasks
 
 - Implement tests for the tools listed above.
+- [ ] Ensure full coverage for mysqlsh_import_json
+- [ ] Ensure full coverage for mysqlsh_dump_instance
+- [ ] Ensure full coverage for mysqlsh_dump_schemas
 
 ---
 

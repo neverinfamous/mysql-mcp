@@ -239,6 +239,11 @@ During testing, check for these inconsistencies:
 2. `mysql.shell.runScript({script: "print('hello world')", language: "javascript"})` → verify success
 3. `mysql.shell.runScript({script: ""})` → verify behavior with empty script
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysqlsh_import_table
+
 ---
 
 ## Execute Post-Test Procedures

@@ -216,7 +216,10 @@ During testing, check for these inconsistencies:
 - `mysql_doc_add`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_doc_find
+- [ ] Ensure full coverage for mysql_doc_add
 
 ---
 

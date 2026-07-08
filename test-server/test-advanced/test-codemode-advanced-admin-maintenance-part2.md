@@ -232,6 +232,11 @@ During testing, check for these inconsistencies:
 1. Execute full health check: `serverHealth()` → `analyzeTable()` → `checkTable()` → `tableStats()`
 2. Verify no error accumulation across sequential admin operations
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_audit_search
+
 ---
 
 ## Execute Post-Test Procedures

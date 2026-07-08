@@ -226,6 +226,11 @@ During testing, check for these inconsistencies:
 ## Cleanup
 3. Drop all `stress_*` tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_restore_dump
+
 ---
 
 ## Execute Post-Test Procedures

@@ -228,6 +228,13 @@ During testing, check for these inconsistencies:
 ## Category 2: Cleanup
 1. Drop `stress_empty` table. Verify clean removal.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_detect_query_anomalies
+- [ ] Ensure full coverage for mysql_detect_bloat_risk
+- [ ] Ensure full coverage for mysql_detect_connection_spike
+
 ---
 
 ## Execute Post-Test Procedures

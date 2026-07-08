@@ -231,6 +231,13 @@ During testing, check for these inconsistencies:
 1. `mysql_router_route_destinations` → log token estimate
 2. Flag any response > 500 tokens as 📦
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_router_route_destinations
+- [ ] Ensure full coverage for mysql_router_route_blocked_hosts
+- [ ] Ensure full coverage for mysql_router_metadata_status
+
 ---
 
 ## Execute Post-Test Procedures

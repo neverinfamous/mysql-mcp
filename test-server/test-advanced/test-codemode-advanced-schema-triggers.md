@@ -228,6 +228,13 @@ Please conduct an exhaustive test of the tool group specified in the checklist b
 | `mysql_list_triggers` | Handle non-existent table | Verified |
 | `mysql_list_triggers` | List triggers happy path | Verified |
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_list_stored_procedures
+- [ ] Ensure full coverage for mysql_list_functions
+- [ ] Ensure full coverage for mysql_list_triggers
+
 ---
 
 ## Execute Post-Test Procedures

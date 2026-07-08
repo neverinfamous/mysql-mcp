@@ -239,6 +239,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 2. Drop all `stress_*` schemas and views
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_list_views
+- [ ] Ensure full coverage for mysql_create_view
+- [ ] Ensure full coverage for mysql_drop_view
+
 ---
 
 ## Execute Post-Test Procedures

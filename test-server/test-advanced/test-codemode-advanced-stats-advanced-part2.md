@@ -229,6 +229,12 @@ During testing, check for these inconsistencies:
 ## Category 3: Cleanup Verification
 1. Drop tables `stress_arrays`, `stress_zeros`, etc. Verify clean removal.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_distribution
+- [ ] Ensure full coverage for mysql_stats_time_series
+
 ---
 
 ## Execute Post-Test Procedures

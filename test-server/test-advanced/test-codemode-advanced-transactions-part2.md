@@ -224,6 +224,9 @@ During testing, check for these inconsistencies:
 
 6. Execute 5 sequential begin/commit cycles — verify no connection pool exhaustion
 7. Execute transaction_execute with 10+ statements — verify all succeed
+- [ ] Ensure full coverage for mysql_transaction_release
+- [ ] Ensure full coverage for mysql_transaction_rollback_to
+
 
 ## Category 4: Mixed Statement Failures
 

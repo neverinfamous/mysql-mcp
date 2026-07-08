@@ -229,6 +229,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 3. Verify no lingering transactions or temp tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_transaction_begin
+- [ ] Ensure full coverage for mysql_transaction_commit
+- [ ] Ensure full coverage for mysql_transaction_rollback
+
 ---
 
 ## Execute Post-Test Procedures

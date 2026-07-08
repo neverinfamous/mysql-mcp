@@ -232,6 +232,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 2. Drop `testdb.stress_sensitive` and `testdb.stress_safe` tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_security_audit
+- [ ] Ensure full coverage for mysql_security_firewall_status
+- [ ] Ensure full coverage for mysql_security_firewall_rules
+
 ---
 
 ## Execute Post-Test Procedures

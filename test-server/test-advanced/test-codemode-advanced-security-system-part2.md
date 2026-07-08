@@ -214,17 +214,9 @@ During testing, check for these inconsistencies:
 - `mysql_security_encryption_status`
 
 
-## Category 2: Sensitive Table Detection
-1. Create `testdb.stress_sensitive` table with columns: `id INT`, `password VARCHAR(255)`, `ssn VARCHAR(11)`, `credit_card VARCHAR(20)`
-3. Create `testdb.stress_safe` table with columns: `id INT`, `name VARCHAR(100)`, `quantity INT`
+## Tasks
 
-## Category 3: Privilege Enumeration Edge Cases
-3. Verify summary is smaller than full output
-
-## Category 4: Payload Monitoring
-1. `mysql_security_encryption_status()` → log token estimate
-## Cleanup
-3. Drop `testdb.stress_sensitive` and `testdb.stress_safe` tables
+- [ ] Ensure full coverage for mysql_security_encryption_status
 
 ---
 

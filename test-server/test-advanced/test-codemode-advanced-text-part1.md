@@ -228,6 +228,13 @@ During testing, check for these inconsistencies:
 2. `mysql_like_search` with `%` only pattern → verify returns all rows
 3. `mysql_like_search` with `_` pattern → verify single-character wildcard behavior
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_regexp_match
+- [ ] Ensure full coverage for mysql_like_search
+- [ ] Ensure full coverage for mysql_collation_convert
+
 ---
 
 ## Execute Post-Test Procedures

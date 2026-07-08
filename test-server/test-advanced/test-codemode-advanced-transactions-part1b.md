@@ -225,6 +225,11 @@ During testing, check for these inconsistencies:
 ## Cleanup
 3. Verify no lingering transactions or temp tables
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_transaction_savepoint
+
 ---
 
 ## Execute Post-Test Procedures

@@ -237,6 +237,13 @@ During testing, check for these inconsistencies:
 ## Cleanup
 7. Drop `stress_fts` table
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_fulltext_create
+- [ ] Ensure full coverage for mysql_fulltext_drop
+- [ ] Ensure full coverage for mysql_fulltext_search
+
 ---
 
 ## Execute Post-Test Procedures

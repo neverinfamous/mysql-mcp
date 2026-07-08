@@ -236,6 +236,13 @@ vector-management Tool Group (4 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_vector_store
+- [ ] Ensure full coverage for mysql_vector_batch_store
+- [ ] Ensure full coverage for mysql_vector_delete
+
 ---
 
 ## Execute Post-Test Procedures

@@ -241,6 +241,13 @@ During testing, check for these inconsistencies:
 ## Category 5: Cleanup Verification
 1. Drop schemas `stress_hierarchies`, `stress_circular`, and `stress_snapshots`. Verify clean removal.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_dependency_graph
+- [ ] Ensure full coverage for mysql_topological_sort
+- [ ] Ensure full coverage for mysql_cascade_simulator
+
 ---
 
 ## Execute Post-Test Procedures

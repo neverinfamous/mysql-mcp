@@ -236,6 +236,13 @@ vector-storage Tool Group (4 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_vector_create_index
+- [ ] Ensure full coverage for mysql_vector_optimize
+- [ ] Ensure full coverage for mysql_vector_stats
+
 ---
 
 ## Execute Post-Test Procedures

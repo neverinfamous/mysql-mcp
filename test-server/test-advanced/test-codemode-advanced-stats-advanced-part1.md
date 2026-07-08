@@ -231,6 +231,13 @@ During testing, check for these inconsistencies:
 ## Category 3: Cleanup Verification
 1. Drop tables `stress_arrays`, `stress_zeros`, etc. Verify clean removal.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_descriptive
+- [ ] Ensure full coverage for mysql_stats_percentiles
+- [ ] Ensure full coverage for mysql_stats_correlation
+
 ---
 
 ## Execute Post-Test Procedures

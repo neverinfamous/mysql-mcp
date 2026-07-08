@@ -222,6 +222,11 @@ During testing, check for these inconsistencies:
 2. Drop all `stress_*` roles
 3. Ensure `root` has no residual stress roles
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_role_grants
+
 ---
 
 ## Execute Post-Test Procedures
