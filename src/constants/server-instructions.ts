@@ -121,13 +121,13 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 
 **Encapsulated Tools**: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`, \`mysql_cluster_status\`, \`mysql_cluster_instances\`, \`mysql_cluster_topology\`, \`mysql_cluster_router_status\`, \`mysql_cluster_switchover\`
 
-## Group Replication (\`mysql_gr_*\`)
+## Group Replication (mysql_gr_*)
 
 - **Tools available**: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`.
 - Tools check for \`group_replication\` plugin status and return a structured \`EXTENSION_NOT_AVAILABLE\` error if the plugin is not active.
 - **Error handling**: All 5 GR tools return structured error responses (with \`error\` field) on query failure instead of throwing raw exceptions. \`mysql_gr_members\` with a nonexistent \`memberId\` filter returns \`{ members: [], count: 0 }\` (empty results, not an error).
 
-## InnoDB Cluster (\`mysql_cluster_*\`)
+## InnoDB Cluster (mysql_cluster_*)
 
 - **Prerequisites**: Requires InnoDB Cluster infrastructure. Connect to a cluster node (typically via MySQL Router or directly). Cluster metadata schema (mysql_innodb_cluster_metadata) must exist.
 - **Cluster status**: \`mysql_cluster_status\` returns cluster metadata. Use \`summary: true\` for condensed output without Router configuration schemas. Returns a structured \`EXTENSION_NOT_AVAILABLE\` error if not in a cluster.
@@ -179,7 +179,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - \`mysql_disable_versioning\`: Disables versioning by dropping the trigger and column.
 - \`mysql_check_version\`: Checks the current \`_version\` of a specific row.
 - \`mysql_conditional_update\`: Conditionally updates a row. Accepts aliases for data and conditions. On conflict, returns \`CONFLICT_ERROR\` ErrorResponse.`],
-  ["docstore", `# Document Store (\`mysql_doc_*\`)
+  ["docstore", `# Document Store (mysql_doc_*)
 
 **Encapsulated Tools**: \`mysql_doc_list_collections\`, \`mysql_doc_create_collection\`, \`mysql_doc_drop_collection\`, \`mysql_doc_find\`, \`mysql_doc_add\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, \`mysql_doc_create_index\`, \`mysql_doc_collection_info\`
 
@@ -196,7 +196,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
   - ✅ Correct: \`filter: "name=Alice"\` (field=value format)
 - **Schema existence**: All docstore tools that accept a \`schema\` parameter return \`{ success: false, code: "SCHEMA_NOT_FOUND" }\` when a nonexistent schema is explicitly provided, matching the P154 pattern used by schema introspection and event tools.
 - **Find Filters** (\`mysql_doc_find\`): The filter parameter shares the same syntax as modify and remove. Supports JSON path for existence (e.g., \`$.address\`), direct \`_id\` match (32-character hex), and \`field=value\` format (e.g., \`name=Alice\`). Accepts optional \`schema\` parameter.`],
-  ["events", `# Events Tools (\`mysql_event_*\`, \`mysql_scheduler_status\`)
+  ["events", `# Events Tools (mysql_event_*, \`mysql_scheduler_status\`)
 
 **Encapsulated Tools**: \`mysql_event_create\`, \`mysql_event_alter\`, \`mysql_event_drop\`, \`mysql_event_list\`, \`mysql_event_status\`, \`mysql_scheduler_status\`
 
@@ -220,7 +220,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
   "ifNotExists": true
 }
 \`\`\``],
-  ["fulltext", `# Fulltext Search (\`mysql_fulltext_*\`)
+  ["fulltext", `# Fulltext Search (mysql_fulltext_*)
 
 **Encapsulated Tools**: \`mysql_fulltext_create\`, \`mysql_fulltext_drop\`, \`mysql_fulltext_search\`, \`mysql_fulltext_boolean\`, \`mysql_fulltext_expand\`
 
@@ -328,7 +328,7 @@ The **Introspection** group provides advanced schema analysis capabilities, spec
 - **Pre-Migration Checks**: Always run \`mysql_migration_risks\` and \`mysql_topological_sort\` before executing any broad schema changes.
 - **Cascade Safety**: If you are planning a \`DELETE\` on a core table (e.g., \`users\` or \`organizations\`), use \`mysql_cascade_simulator\` first to understand the blast radius.
 - **Dependency Awareness**: When writing complex \`JOIN\` queries across unfamiliar schemas, use \`mysql_dependency_graph\` to ensure you understand the optimal traversal paths.`],
-  ["json", `# JSON Tools (\`mysql_json_*\`)
+  ["json", `# JSON Tools (mysql_json_*)
 
 **Encapsulated Tools**: \`mysql_json_extract\`, \`mysql_json_set\`, \`mysql_json_insert\`, \`mysql_json_replace\`, \`mysql_json_remove\`, \`mysql_json_contains\`, \`mysql_json_keys\`, \`mysql_json_array_append\`, \`mysql_json_get\`, \`mysql_json_update\`, \`mysql_json_search\`, \`mysql_json_validate\`, \`mysql_json_merge\`, \`mysql_json_diff\`, \`mysql_json_normalize\`, \`mysql_json_stats\`, \`mysql_json_index_suggest\`
 

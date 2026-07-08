@@ -1,4 +1,4 @@
-# Events Tools (`mysql_event_*`, `mysql_scheduler_status`)
+# Events Tools (mysql_event_*, `mysql_scheduler_status`)
 
 **Encapsulated Tools**: `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status`
 

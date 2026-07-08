@@ -1,4 +1,4 @@
-# JSON Tools (`mysql_json_*`)
+# JSON Tools (mysql_json_*)
 
 **Encapsulated Tools**: `mysql_json_extract`, `mysql_json_set`, `mysql_json_insert`, `mysql_json_replace`, `mysql_json_remove`, `mysql_json_contains`, `mysql_json_keys`, `mysql_json_array_append`, `mysql_json_get`, `mysql_json_update`, `mysql_json_search`, `mysql_json_validate`, `mysql_json_merge`, `mysql_json_diff`, `mysql_json_normalize`, `mysql_json_stats`, `mysql_json_index_suggest`
 

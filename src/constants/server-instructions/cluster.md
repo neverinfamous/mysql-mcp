@@ -2,13 +2,13 @@
 
 **Encapsulated Tools**: `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_status`, `mysql_cluster_instances`, `mysql_cluster_topology`, `mysql_cluster_router_status`, `mysql_cluster_switchover`
 
-## Group Replication (`mysql_gr_*`)
+## Group Replication (mysql_gr_*)
 
 - **Tools available**: `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`.
 - Tools check for `group_replication` plugin status and return a structured `EXTENSION_NOT_AVAILABLE` error if the plugin is not active.
 - **Error handling**: All 5 GR tools return structured error responses (with `error` field) on query failure instead of throwing raw exceptions. `mysql_gr_members` with a nonexistent `memberId` filter returns `{ members: [], count: 0 }` (empty results, not an error).
 
-## InnoDB Cluster (`mysql_cluster_*`)
+## InnoDB Cluster (mysql_cluster_*)
 
 - **Prerequisites**: Requires InnoDB Cluster infrastructure. Connect to a cluster node (typically via MySQL Router or directly). Cluster metadata schema (mysql_innodb_cluster_metadata) must exist.
 - **Cluster status**: `mysql_cluster_status` returns cluster metadata. Use `summary: true` for condensed output without Router configuration schemas. Returns a structured `EXTENSION_NOT_AVAILABLE` error if not in a cluster.
