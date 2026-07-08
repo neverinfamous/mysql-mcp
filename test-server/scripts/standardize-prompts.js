@@ -16,13 +16,20 @@ if (!fs.existsSync(templatePath)) {
 
 const templateStr = fs.readFileSync(templatePath, "utf-8");
 
+const toolMapPath = path.join(__dirname, "tool-map.json");
+let toolMap = {};
+if (fs.existsSync(toolMapPath)) {
+  toolMap = JSON.parse(fs.readFileSync(toolMapPath, "utf-8"));
+}
+
 const getTemplate = (
   titleType,
   groupName,
   schemaRef,
   testContent,
   executionMode,
-  coverageMatrix
+  coverageMatrix,
+  explicitToolsList
 ) => {
   return templateStr
     .replace("{{TITLE_TYPE}}", () => titleType)
@@ -30,6 +37,7 @@ const getTemplate = (
     .replace("{{SCHEMA_REF}}", () => schemaRef.trim())
     .replace("{{EXECUTION_MODE}}", () => executionMode)
     .replace("{{COVERAGE_MATRIX}}", () => coverageMatrix)
+    .replace("{{EXPLICIT_TOOLS}}", () => explicitToolsList || "")
     .replace("{{TEST_CONTENT}}", () => testContent.trim());
 };
 
@@ -49,7 +57,7 @@ function processDirectory(dirName) {
     let content = fs.readFileSync(filePath, "utf-8");
 
     // Extract group name
-    const titleMatch = content.match(/# mysql-mcp .*: \[(.*?)\]/);
+    const titleMatch = content.match(/# mysql[- ]mcp .*: \[(.*?)\]/i);
     if (!titleMatch) {
       console.warn(`Could not find group name in ${file}`);
       continue;
@@ -75,6 +83,17 @@ function processDirectory(dirName) {
       coverageMatrix = "| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |";
     }
 
+    let explicitToolsList = "";
+    if (dirName === "test-advanced" && toolMap[file] && toolMap[file].length > 0) {
+        const tools = toolMap[file];
+        explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n`;
+        explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";
+        
+        // Append rows to the coverage matrix!
+        const rows = tools.map(t => `| \`${t}\` | | |`);
+        coverageMatrix += "\n" + rows.join("\n");
+    }
+
     // Extract Schema Reference
     const schemaMatch = content.match(
       /## Test Database Schema([\s\S]*?)## (Testing Requirements|Structured Error|Reporting Format|Pre-requisites)/
@@ -92,10 +111,10 @@ function processDirectory(dirName) {
     
     if (testStartIdx === -1) {
         // Fallback for some files that might use different headers
-        testStartIdx = lines.findIndex(l => l.startsWith("### " + groupName + " Group-Specific Testing") || l.startsWith("## Tests:"));
+        testStartIdx = lines.findIndex(l => l.startsWith("### " + groupName + " Group-Specific Testing") || l.startsWith("## Tests:") || l.startsWith("## Tasks"));
     }
 
-    let postTestIdx = lines.findIndex((l, i) => i > testStartIdx && l.startsWith("## Post-Test"));
+    let postTestIdx = lines.findIndex((l, i) => i > testStartIdx && (l.startsWith("## Post-Test") || l.startsWith("## Execute Post-Test")));
     let contentEndIdx = lines.length;
 
     // Handle already standardized files (content is between --- blocks before Post-Test)
@@ -140,7 +159,10 @@ function processDirectory(dirName) {
         }
     }
 
-    const testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");
+    let testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");
+
+    // Remove existing explicit tool coverage block if it exists
+    testContent = testContent.replace(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Tasks|## Category|## Post-Test|$)/i, "");
 
     const newContent = getTemplate(
       titleType,
@@ -148,7 +170,8 @@ function processDirectory(dirName) {
       schemaRef,
       testContent,
       executionMode,
-      coverageMatrix
+      coverageMatrix,
+      explicitToolsList
     );
     fs.writeFileSync(filePath, newContent, "utf-8");
     console.log(`Standardized ${file} (${titleType})`);

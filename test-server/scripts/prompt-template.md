@@ -206,6 +206,8 @@ During testing, check for these inconsistencies:
 
 ---
 
+{{EXPLICIT_TOOLS}}
+
 {{TEST_CONTENT}}
 
 ---
