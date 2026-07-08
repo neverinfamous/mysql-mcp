@@ -3,7 +3,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-![Coverage](https://img.shields.io/badge/Coverage-90.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-471%20passing%20%C2%B7%200%20skipped-blue.svg)
+
 
 ## 💎 Value Proposition
 
@@ -31,7 +31,7 @@ node scripts/reboot-cluster.mjs
 node scripts/reboot-cluster.mjs --User cluster_admin --Password cluster_admin
 ```
 
-**What it does (6 steps):**
+**What it does:**
 
 1. Verifies containers `mysql-node1/2/3` are running (starts them if not)
 2. Waits for MySQL readiness on the primary
@@ -50,7 +50,7 @@ node scripts/reboot-cluster.mjs --User cluster_admin --Password cluster_admin
 | Symptom                            | Cause                            | Fix                                           |
 | ---------------------------------- | -------------------------------- | --------------------------------------------- |
 | `super_read_only` errors           | GR offline, no primary elected   | `node scripts/reboot-cluster.mjs`             |
-| E2E tests skip 5 write tests       | Same as above                    | Same as above                                 |
+| E2E tests skip write tests       | Same as above                    | Same as above                                 |
 | All topology members OFFLINE       | Complete outage (machine reboot) | Same as above                                 |
 | Single node MISSING                | Node fell out of group           | Rejoin: `docker exec mysql-node1 mysqlsh ...` |
 | `UNREACHABLE` members after reboot | Docker network not ready         | Wait 30s, then reboot script                  |
@@ -99,7 +99,7 @@ npx tsx scripts/seed.ts
 
 ### `test-zod-errors.mjs`
 
-Starts the MCP server with `--tool-filter +all` and dynamically retrieves the schema for every registered tool. It then hammers each tool with intentionally malformed inputs (e.g., numbers instead of strings) to ensure that the global `McpServer` interceptor correctly catches SDK-level Zod parsing exceptions and formats them into standard `VALIDATION_ERROR` payloads, preventing raw `-32602` SDK errors from leaking to clients.
+Starts the server with `--tool-filter +all`. Retrieves schemas for every registered tool. Tests tools with malformed inputs. Ensures `McpServer` interceptor catches Zod parsing exceptions. Formats errors into `VALIDATION_ERROR` payloads. Prevents raw `-32602` SDK errors from leaking to clients.
 
 ```bash
 node scripts/test-zod-errors.mjs
@@ -107,7 +107,7 @@ node scripts/test-zod-errors.mjs
 
 ### `test-filter-instructions.mjs`
 
-Starts the server with various `--tool-filter` configurations and verifies that instruction sections are slim and that the correct `mysql://help/{group}` resources are registered based on enabled tool groups.
+Starts the server with various `--tool-filter` configurations. Verifies instruction sections are slim. Ensures correct `mysql://help/{group}` resources are registered.
 
 ```bash
 node scripts/test-filter-instructions.mjs
@@ -115,7 +115,7 @@ node scripts/test-filter-instructions.mjs
 
 ### `test-prompts.mjs`
 
-Tests the prompt generation engine (`prompts/get`) by requesting every configured prompt (with varying parameters) and validating that the output messages are correctly populated.
+Tests the prompt generation engine (`prompts/get`). Requests every configured prompt with varying parameters. Validates output messages are populated correctly.
 
 ```bash
 node scripts/test-prompts.mjs
@@ -123,7 +123,7 @@ node scripts/test-prompts.mjs
 
 ### `test-tool-annotations.mjs`
 
-Validates that tools have correct `openWorldHint` annotations (e.g., `openWorldHint=true` for GitHub API tools, `false` for local/core DB tools) in the `tools/list` response.
+Validates tools have correct `openWorldHint` annotations in the `tools/list` response. For example, `true` for web tools, `false` for local database tools.
 
 ```bash
 node scripts/test-tool-annotations.mjs
@@ -131,7 +131,7 @@ node scripts/test-tool-annotations.mjs
 
 ### `test-progress.mjs`
 
-Validates that tools with long-running operations or streaming capabilities correctly emit `notifications/progress` events back to the client. This includes `mysql_read_query` streaming, Code Mode (`mysql_execute_code`), table maintenance, and backups.
+Validates long-running tools correctly emit `notifications/progress` events. This includes `mysql_read_query`, Code Mode (`mysql_execute_code`), maintenance, and backups.
 
 ```bash
 node scripts/test-progress.mjs
@@ -139,7 +139,7 @@ node scripts/test-progress.mjs
 
 ### `test-sessions.mjs`
 
-Starts the MCP server with the HTTP transport and establishes an SSE session via the SDK to validate session lifecycle management, idle timeouts, and the `activeSessions` metric accuracy on the `/health` endpoint.
+Starts server with HTTP transport and establishes an SSE session. Validates session lifecycle and idle timeouts. Ensures `activeSessions` metric accuracy on `/health`.
 
 ```bash
 node scripts/test-sessions.mjs
@@ -147,7 +147,7 @@ node scripts/test-sessions.mjs
 
 ### `test-cli-sessions.mjs`
 
-Tests the compiled CLI entrypoint (`dist/cli.js`) to ensure it correctly establishes HTTP sessions, handles initialize and tool calls, terminates sessions, and updates the `activeSessions` metric properly.
+Tests compiled CLI entrypoint (`dist/cli.js`). Ensures it establishes HTTP sessions and handles calls. Validates it terminates sessions and updates metrics.
 
 ```bash
 node scripts/test-cli-sessions.mjs
@@ -165,7 +165,7 @@ node scripts/test-subscriptions-sdk.mjs
 
 ### `verify-schemas.mjs`
 
-Validates that all standard database tools properly expose their `outputSchema` at the protocol level, allowing clients to introspect structured responses.
+Validates standard database tools properly expose `outputSchema` at protocol level. Allows clients to introspect structured responses.
 
 ```bash
 node scripts/verify-schemas.mjs
@@ -173,7 +173,7 @@ node scripts/verify-schemas.mjs
 
 ### `teardown.ts`
 
-A global teardown script for the E2E testing suite. It cleans up test artifacts (such as SQLite database files and WAL/SHM files) generated by the `SystemDb` and Audit logging during test execution.
+Global teardown script for E2E testing. Cleans up test artifacts like SQLite database files. Removes WAL/SHM files generated during test execution.
 
 ```bash
 npx tsx scripts/teardown.ts
@@ -185,7 +185,7 @@ npx tsx scripts/teardown.ts
 
 ### `generate-server-instructions.ts`
 
-Automatically builds the `src/constants/server-instructions.ts` TypeScript module by reading and compiling the individual markdown files from `src/constants/server-instructions/*.md`. This provides the MCP server with the `mysql://help` resource content.
+Builds `src/constants/server-instructions.ts` module. Reads and compiles markdown files from `src/constants/server-instructions/*.md`. Provides MCP server with `mysql://help` resource content.
 
 ```bash
 npm run generate:instructions
@@ -194,7 +194,7 @@ npm run generate:instructions
 
 ### `update-badges.ts`
 
-Automatically updates test coverage badges in `README.md` and `DOCKER_README.md` based on Vitest's JSON coverage summary output. This script is run automatically as part of `npm run test:coverage`.
+Updates test coverage badges in `README.md` and `DOCKER_README.md`. Uses Vitest's JSON coverage summary output. Runs automatically during `npm run test:coverage`.
 
 ```bash
 npx tsx scripts/update-badges.ts
@@ -202,7 +202,7 @@ npx tsx scripts/update-badges.ts
 
 ### `generate-social.mjs`
 
-Generates the `social-preview.png` branding asset using Playwright and standard web technologies (HTML/CSS) to ensure a consistent, pixel-perfect 1280x640 preview image for GitHub, incorporating the Adamic logo and 3-2 grid badge layout.
+Generates `social-preview.png` branding asset using Playwright. Ensures a pixel-perfect 1280x640 preview image for GitHub. Incorporates logo and 3-2 badge layout.
 
 ```bash
 node scripts/generate-social.mjs

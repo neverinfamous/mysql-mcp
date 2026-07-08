@@ -32,7 +32,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 ---
 
-## 🚀 Installation and Deployment
+## 🚀 Install and Deploy
 
 ### Meet Prerequisites
 
@@ -67,7 +67,7 @@ docker-compose up -d
 
 ---
 
-## ⚡ Code Mode (`mysql_execute_code`)
+## ⚡ Execute Code Mode (`mysql_execute_code`)
 
 Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations within a secure JavaScript sandbox. It is included by default.
 

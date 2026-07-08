@@ -34,7 +34,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 ---
 
-## 🚀 Installation and Deployment
+## 🚀 Install and Deploy
 
 ### Meet Prerequisites
 
@@ -96,7 +96,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ---
 
-## ⚡ Code Mode (`mysql_execute_code`)
+## ⚡ Execute Code Mode (`mysql_execute_code`)
 
 Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations within a secure JavaScript sandbox. It is included by default.
 
@@ -140,7 +140,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ---
 
-## 🌐 HTTP & SSE Transports
+## 🌐 Connect via HTTP & SSE Transports
 
 Use the HTTP transport for remote access:
 
@@ -616,7 +616,7 @@ This is useful for scripted or automated clients that need a minimal, precise se
 
 ---
 
-## 🤖 AI Guided Workflows / Prompts
+## 🤖 Execute AI Guided Workflows / Prompts
 
 This server includes **intelligent prompts** for guided workflows:
 
@@ -844,7 +844,7 @@ pnpm run test:coverage
 **Test Infrastructure:**
 
 - Centralized mock factories in `src/__tests__/mocks/`
-- All 111 test files use shared mocks for consistency
+- All test files use shared mocks for consistency
 - Tests run without database connection (fully mocked)
 
 ### Benchmarking

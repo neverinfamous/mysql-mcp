@@ -264,7 +264,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_show_processlist`   | SHOW PROCESSLIST                                    |
 | `mysql_show_status`        | SHOW STATUS variables                               |
 | `mysql_show_variables`     | SHOW VARIABLES                                      |
-| `mysql_innodb_status`      | SHOW ENGINE INNODB STATUS. **v2.2:** `summary` mode |
+| `mysql_innodb_status`      | SHOW ENGINE INNODB STATUS. `summary` mode |
 | `mysql_replication_status` | SHOW SLAVE STATUS                                   |
 | `mysql_pool_stats`         | Connection pool statistics                          |
 | `mysql_server_health`      | Server health check                                 |
