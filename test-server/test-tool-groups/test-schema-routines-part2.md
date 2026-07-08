@@ -155,24 +155,30 @@ During testing, check for these inconsistencies:
 
 ### schema Group-Specific Testing
 
-schema-routines-part2 Tool Group (2 tools +1 for code mode):
+schema-routines-part2 Tool Group (3 tools +1 for code mode):
 
-1. `mysql_list_constraints`
-2. `mysql_list_triggers`
-3. `mysql_execute_code` (codemode, auto-added)
+1. `mysql_list_triggers`
+2. `mysql_create_trigger`
+3. `mysql_drop_trigger`
+4. `mysql_execute_code` (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
 
 **Commands:**
-1. `mysql_list_constraints({database: "testdb"})` → verify response structure
-2. `mysql_list_triggers({database: "testdb"})` → verify response structure
+1. `mysql_list_triggers({database: "testdb"})` → verify response structure
+2. `mysql_create_trigger({name: "temp_trigger_test", table: "test_orders", timing: "AFTER", event: "INSERT", statement: "SET @x = 1"})` → `{success: true}`
+3. `mysql_drop_trigger({name: "temp_trigger_test", database: "testdb"})` → `{success: true}`
 
 **Domain error paths (🔴):**
-3. 🔴 `mysql_list_constraints({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
 4. 🔴 `mysql_list_triggers({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
+5. 🔴 `mysql_create_trigger({name: "temp_trigger_test", table: "nonexistent_table_xyz", timing: "AFTER", event: "INSERT", statement: "SET @x = 1"})` → `{success: false, error: "..."}`
+6. 🔴 `mysql_drop_trigger({name: "nonexistent_trigger_xyz", database: "testdb"})` → `{success: false, error: "..."}`
+
+**Zod validation error paths (🔴):**
+7. 🔴 `mysql_create_trigger({})` → `{success: false, error: "..."}` (missing required params)
 
 **Wrong-type numeric param coercion (🔴):**
-5. 🔴 `mysql_list_triggers({limit: "abc"})` → must NOT return raw MCP `-32602` error
+8. 🔴 `mysql_list_triggers({limit: "abc"})` → must NOT return raw MCP `-32602` error
 
 ---
 

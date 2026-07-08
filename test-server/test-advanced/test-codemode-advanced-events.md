@@ -163,6 +163,24 @@ During testing, check for these inconsistencies:
 
 ---
 
+## Group Focus: Events
+Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+
+| Tool | Focus Area | Code Mode Validation |
+|---|---|---|
+| `mysql_event_create` | Create one-time event | Verified |
+| `mysql_event_create` | Create recurring event | Verified |
+| `mysql_event_create` | Handle invalid SQL body | Verified |
+| `mysql_event_create` | Handle duplicate event name | Verified |
+| `mysql_event_alter` | Modify existing event | Verified |
+| `mysql_event_alter` | Handle nonexistent event | Verified |
+| `mysql_event_drop` | Drop existing event | Verified |
+| `mysql_event_drop` | Handle nonexistent event | Verified |
+| `mysql_event_list` | List all events | Verified |
+| `mysql_event_status` | Retrieve status of one-time event | Verified |
+| `mysql_event_status` | Retrieve status of recurring event | Verified |
+| `mysql_scheduler_status` | Retrieve global scheduler status | Verified |
+
 ## Category 1: Lifecycle Collisions
 
 1. `mysql.events.create({name: "stress_evt_dup", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → success

@@ -8,12 +8,13 @@ This prompt instructs you to organically test the `schema` tool group using Code
 
 Use the `mysql_execute_code` tool to interact with the following tools in the `schema` group:
 - `mysql_list_constraints`
-- `mysql_list_triggers`
+- `mysql_create_trigger`
+- `mysql_drop_trigger`
 
 **Instructions:**
 
 - Do not perfectly structure your initial calls. Act intuitively as an agent.
-- Guess property names: Pass `tableName` instead of `table`, `sql` instead of `query` to see if they resolve correctly.
+- Guess property names: Pass `tableName` instead of `table`, `triggerName` instead of `name`, `statement` instead of `actionStatement` to see if they resolve correctly.
 - Test positional params: Try `mysql.schema.<method>("value")` if applicable.
 - Test aliases: See if intuitively named methods work (e.g. `mysql.schema.get()`).
 - Test missing properties: Try passing `{}` to verify it throws a structured domain error (e.g., `VALIDATION_ERROR`) instead of a raw Zod/MCP exception.

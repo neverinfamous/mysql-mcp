@@ -168,7 +168,7 @@ During testing, check for these inconsistencies:
 events Tool Group (6 tools +1 code mode):
 
 1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
-2. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
+4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
