@@ -219,8 +219,8 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Single-Server Resilience
-1. `mysql.replication.masterStatus()` → verify structured `{success: true}` with binlog position (works on single server)
-2. `mysql.replication.slaveStatus()` → verify graceful response when no replication is configured (not crash)
+1. `mysql.master_status()` → verify structured `{success: true}` with binlog position (works on single server)
+2. `mysql.slave_status()` → verify graceful response when no replication is configured (not crash)
 3. `mysql.replication.gtidStatus()` → verify structured response (may be empty GTID set)
 4. `mysql.replication.replicationLag()` → verify structured response indicating no replica or 0 lag
 5. All responses must have consistent top-level shape (`success` field present)
@@ -233,14 +233,14 @@ During testing, check for these inconsistencies:
 5. `mysql.replication.binlogEvents({logFile: ""})` → verify structured error for empty filename
 
 ## Category 3: Happy-Path Stress (When Replication IS Available)
-1. `mysql.replication.masterStatus()` → verify binlog file, position, and GTID fields
-2. `mysql.replication.slaveStatus()` → verify replica state, IO/SQL thread status
+1. `mysql.master_status()` → verify binlog file, position, and GTID fields
+2. `mysql.slave_status()` → verify replica state, IO/SQL thread status
 3. `mysql.replication.replicationLag()` → verify lag value is numeric ≥ 0
 4. `mysql.replication.gtidStatus()` → verify GTID set format
 
 ## Category 4: Payload Monitoring
 1. `mysql.replication.binlogEvents()` default → log token estimate
-2. `mysql.replication.masterStatus()` → log token estimate
+2. `mysql.master_status()` → log token estimate
 3. Flag any response > 500 tokens as 📦
 
 

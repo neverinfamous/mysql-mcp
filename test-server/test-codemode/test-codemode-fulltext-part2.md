@@ -240,7 +240,7 @@ fulltext-part2 Tool Group (3 tools +1 code mode):
 **Zod validation error paths (🔴):**
 
 7. 🔴 `mysql.fulltext.create({})` → `{success: false, error: "Validation error: ..."}`
-8. 🔴 `mysql.fulltext.search({})` → `{success: false, error: "Validation error: ..."}`
+8. 🔴 `mysql.fulltext.search({, maxLength: 200})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

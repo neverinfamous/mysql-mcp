@@ -225,8 +225,8 @@ replication Tool Group (3 tools +1 code mode):
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.replication.help()` → verify method listing
-2. `mysql.replication.masterStatus()` → binlog file, position
-3. `mysql.replication.slaveStatus()` → structured response (may indicate no replication)
+2. `mysql.master_status()` → binlog file, position
+3. `mysql.slave_status()` → structured response (may indicate no replication)
 4. `mysql.replication.binlogEvents({limit: 5})` → binlog events
 
 **Domain error paths (🔴):**

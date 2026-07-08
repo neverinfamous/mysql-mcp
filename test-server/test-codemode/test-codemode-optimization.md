@@ -236,8 +236,8 @@ optimization Tool Group (4 tools +1 code mode):
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.optimization.indexRecommendation({table: "nonexistent_xyz"})` → `{success: false}`
-11. 🔴 `mysql.optimization.indexRecommendation({queries: ["INSERT INTO test_products VALUES (999, 'x', 1, 'cat', '{}')"]})` → `{success: false}`
+10. 🔴 `mysql.optimization.indexRecommendation({table: "nonexistent_xyz", includeRedundant: true, includeUnindexed: true})` → `{success: false}`
+11. 🔴 `mysql.optimization.indexRecommendation({queries: ["INSERT INTO test_products VALUES (999, 'x', 1, 'cat', '{}')"], includeRedundant: true, includeUnindexed: true})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 

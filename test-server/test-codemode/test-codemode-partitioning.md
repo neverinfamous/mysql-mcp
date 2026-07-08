@@ -224,22 +224,22 @@ partitioning Tool Group (4 tools +1 code mode):
 3. `mysql_drop_partition`
 4. `mysql_reorganize_partition`
 
-> **Instructions**: Use `mysql.partitioning.*` namespace, push deviations to `failures` array.
+> **Instructions**: Use `mysql.partition_*` namespace, push deviations to `failures` array.
 
-1. `mysql.partitioning.help()` → verify method listing
-2. `mysql.partitioning.partitionInfo({ table: "test_partitioned" })` → verify success
-3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
-4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_east"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_east1", value: "'east'"}, {name: "p_east2", value: "'northeast'"}] })` → verify success
-5. `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "p_intl" })` → verify success
+1. `mysql.partition_help()` → verify method listing
+2. `mysql.partition_partitionInfo({ table: "test_partitioned" })` → verify success
+3. `mysql.partition_addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
+4. `mysql.partition_reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_east"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_east1", value: "'east'"}, {name: "p_east2", value: "'northeast'"}] })` → verify success
+5. `mysql.partition_dropPartition({ table: "test_partitioned", partitionName: "p_intl" })` → verify success
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.partitioning.partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
-7. 🔴 `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "nonexistent_p" })` → `{success: false}`
+6. 🔴 `mysql.partition_partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
+7. 🔴 `mysql.partition_dropPartition({ table: "test_partitioned", partitionName: "nonexistent_p" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-8. 🔴 `mysql.partitioning.addPartition({})` → `{success: false, error: "Validation error: ..."}`
+8. 🔴 `mysql.partition_addPartition({})` → `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 

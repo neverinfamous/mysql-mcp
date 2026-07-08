@@ -154,6 +154,42 @@ function processDirectory(dirName) {
     // Always remove existing explicit tool coverage block from testContent (it will be injected via template)
     testContent = testContent.replace(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Group Focus:|## Tasks|## Category|## Post-Test|## Execute Post-Test|---|$)/ig, "");
 
+    // Apply specific corrections for parameter drift and nested namespaces dynamically
+    testContent = testContent
+      // Fix nested namespaces in test-advanced
+      .replace(/mysql\.events\./g, "mysql.event_")
+      .replace(/mysql\.partitioning\./g, "mysql.partition_")
+      .replace(/mysql\.replication\.masterStatus/g, "mysql.master_status")
+      .replace(/mysql\.replication\.slaveStatus/g, "mysql.slave_status")
+      .replace(/mysql\.replication\.lag/g, "mysql.replication_lag")
+      .replace(/mysql\.shell\./g, "mysqlsh_")
+      .replace(/mysql\.stats\./g, "mysql.stats_")
+      // Fix fulltext parameters in test-codemode
+      .replace(/mysql\.fulltext\.search\(\{(.*?)\}\)/g, (match, p1) => {
+          if (!p1.includes("maxLength")) return `mysql.fulltext.search({${p1}, maxLength: 200})`;
+          return match;
+      })
+      .replace(/mysql\.fulltext\.boolean\(\{(.*?)\}\)/g, (match, p1) => {
+          if (!p1.includes("maxLength")) return `mysql.fulltext.boolean({${p1}, maxLength: 200})`;
+          return match;
+      })
+      .replace(/mysql\.fulltext\.expand\(\{(.*?)\}\)/g, (match, p1) => {
+          if (!p1.includes("maxLength")) return `mysql.fulltext.expand({${p1}, maxLength: 200})`;
+          return match;
+      })
+      // Fix optimization parameters
+      .replace(/mysql\.optimization\.indexRecommendation\(\{table: "([^"]+)"\}\)/g, 'mysql.optimization.indexRecommendation({table: "$1", includeRedundant: true, includeUnindexed: true})')
+      .replace(/mysql\.optimization\.indexRecommendation\(\{queries: \[([^\]]+)\]\}\)/g, 'mysql.optimization.indexRecommendation({queries: [$1], includeRedundant: true, includeUnindexed: true})')
+      // Fix vector parameters
+      .replace(/mysql\.vector\.hybridSearch\(\{\.\.\.\}\)/g, 'mysql.vector.hybridSearch({table: "test_articles", column: "vector", matchColumn: "body", queryVector: [0.1, 0.2], matchQuery: "test", metric: "L2", rrfK: 60, select: ["id"], filter: {}})');
+
+    if (file === "test-codemode-versioning.md" && !testContent.includes("mysql.versioning.enable")) {
+        testContent = testContent.replace(
+            "**Checklist:**\n",
+            "**Checklist:**\n\n1. ✅ `mysql.versioning.enable({table: \"test_articles\"})` → happy path\n2. ✅ `mysql.versioning.disable({table: \"test_articles\"})` → happy path\n3. ✅ `mysql.versioning.check({table: \"test_articles\", id: 1})` → happy path\n4. ✅ `mysql.versioning.conditionalUpdate({table: \"test_articles\", id: 1, version: 1, data: {title: \"New Title\"}, conditions: {}})` → happy path\n\n**Domain error paths (🔴):**\n\n5. ✅ `mysql.versioning.enable({table: \"nonexistent_xyz\"})` → domain error (TABLE_NOT_FOUND)\n6. ✅ `mysql.versioning.check({table: \"test_articles\", id: 99999})` → domain error\n\n**Zod validation error paths (🔴):**\n\n7. ✅ `mysql.versioning.enable({})` → validation error\n8. ✅ `mysql.versioning.conditionalUpdate({})` → validation error\n"
+        );
+    }
+
     const newContent = getTemplate(
       titleType,
       groupName,

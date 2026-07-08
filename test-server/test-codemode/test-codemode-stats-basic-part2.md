@@ -222,14 +222,14 @@ stats-descriptive Tool Group (2 tools + 1 code mode):
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.stats.help()` → verify method listing
-8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
-9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
+1. `mysql.stats_help()` → verify method listing
+8. `mysql.stats_sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
+9. `mysql.stats_histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
-12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
+11. 🔴 `mysql.stats_correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+12. 🔴 `mysql.stats_regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
 
 ---
 

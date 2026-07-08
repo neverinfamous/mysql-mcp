@@ -216,19 +216,19 @@ During testing, check for these inconsistencies:
 
 ## Category 1: Partition Lifecycle Stress
 1. Create `stress_part_range` table with RANGE partitioning on an INT column (p0: <100, p1: <200, p2: MAXVALUE)
-2. `mysql.partitioning.partitionInfo({table: "stress_part_range"})` → verify 3 partitions listed
-3. `mysql.partitioning.addPartition` on a RANGE table that already has MAXVALUE → verify structured `{success: false}` (cannot add past MAXVALUE)
-4. `mysql.partitioning.dropPartition({table: "stress_part_range", partitionName: "nonexistent_p99"})` → verify structured `{success: false}`
-5. `mysql.partitioning.dropPartition({table: "stress_part_range", partitionName: "p0"})` → success
-6. `mysql.partitioning.partitionInfo({table: "stress_part_range"})` → verify only 2 partitions remain
+2. `mysql.partition_partitionInfo({table: "stress_part_range"})` → verify 3 partitions listed
+3. `mysql.partition_addPartition` on a RANGE table that already has MAXVALUE → verify structured `{success: false}` (cannot add past MAXVALUE)
+4. `mysql.partition_dropPartition({table: "stress_part_range", partitionName: "nonexistent_p99"})` → verify structured `{success: false}`
+5. `mysql.partition_dropPartition({table: "stress_part_range", partitionName: "p0"})` → success
+6. `mysql.partition_partitionInfo({table: "stress_part_range"})` → verify only 2 partitions remain
 
 ## Category 2: Non-Partitioned Table Handling
-1. `mysql.partitioning.partitionInfo({table: "test_products"})` → verify `{success: true, data: { partitioned: false }}` response shape
-2. `mysql.partitioning.dropPartition({table: "test_products", partitionName: "p0"})` → verify structured `{success: false}` (not partitioned)
+1. `mysql.partition_partitionInfo({table: "test_products"})` → verify `{success: true, data: { partitioned: false }}` response shape
+2. `mysql.partition_dropPartition({table: "test_products", partitionName: "p0"})` → verify structured `{success: false}` (not partitioned)
 
 ## Category 3: Reorganize Edge Cases
-1. `mysql.partitioning.reorganizePartition({table: "test_partitioned", fromPartitions: ["nonexistent_p99"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_new", value: "'West'"}]})` → verify structured `{success: false}`
-2. `mysql.partitioning.reorganizePartition` with empty `fromPartitions` array → verify structured error
+1. `mysql.partition_reorganizePartition({table: "test_partitioned", fromPartitions: ["nonexistent_p99"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_new", value: "'West'"}]})` → verify structured `{success: false}`
+2. `mysql.partition_reorganizePartition` with empty `fromPartitions` array → verify structured error
 
 ## Category 4: Payload Monitoring
 2. Flag any response > 500 tokens as 📦
