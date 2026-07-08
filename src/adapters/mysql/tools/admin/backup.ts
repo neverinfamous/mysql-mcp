@@ -308,9 +308,13 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Validate all column names upfront (throws for SQL injection - must not be caught)
+        const validatedColumns = new Set<string>();
         for (const row of data) {
           for (const colName of Object.keys(row)) {
-            validateIdentifier(colName, "column");
+            if (!validatedColumns.has(colName)) {
+              validateIdentifier(colName, "column");
+              validatedColumns.add(colName);
+            }
           }
         }
 
@@ -479,13 +483,16 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
 
         // Verify tables exist if provided
         if (tables && tables.length > 0) {
-          for (const table of tables) {
-            try {
-              const tableCheck = await _adapter.executeReadQuery(
-                `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`,
-                [database, table],
-              );
-              if (!tableCheck.rows || tableCheck.rows.length === 0) {
+          try {
+            const placeholders = tables.map(() => "?").join(", ");
+            const tableCheck = await _adapter.executeReadQuery(
+              `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME IN (${placeholders})`,
+              [database, ...tables],
+            );
+            
+            const existingTables = new Set((tableCheck.rows ?? []).map((r) => String(Object.values(r)[0]).toLowerCase()));
+            for (const table of tables) {
+              if (!existingTables.has(table.toLowerCase())) {
                 return withTokenEstimate({
                   success: false,
                   error: `Table '${table}' does not exist in database '${database}'.`,
@@ -495,11 +502,11 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
                   recoverable: false,
                 });
               }
-            } catch (tableErr) {
-              return withTokenEstimate(
-                { ...formatHandlerErrorResponse(tableErr) }
-              );
             }
+          } catch (tableErr) {
+            return withTokenEstimate(
+              { ...formatHandlerErrorResponse(tableErr) }
+            );
           }
         }
 

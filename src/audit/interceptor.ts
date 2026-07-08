@@ -21,7 +21,7 @@ import type { BackupManager, SnapshotQueryAdapter } from "./backup-manager/index
 import type { AuditCategory } from "./types.js";
 import { getAuthContext } from "../auth/auth-context.js";
 import { getRequiredScope } from "../auth/scope-map.js";
-import { estimateTokens } from "../utils/tokens.js";
+import { estimateTokens, estimateObjectTokens } from "../utils/tokens.js";
 import { metrics } from "../observability/metrics.js";
 
 /**
@@ -147,12 +147,12 @@ export function createAuditInterceptor(
         // Compute token estimate from result
         if (typeof result === "object" && result !== null) {
           try {
-            // Match mcp-registry.ts exact payload token calculation (minified + _meta)
-            const json = JSON.stringify({
+            // Match mcp-registry.ts payload structure for estimation
+            const mockPayload = {
               ...result,
               _meta: { tokenEstimate: 0 },
-            });
-            tokenEstimate = estimateTokens(json, "json");
+            };
+            tokenEstimate = estimateObjectTokens(mockPayload);
           } catch {
             // Serialization failure must not block tool execution
           }
@@ -174,11 +174,11 @@ export function createAuditInterceptor(
           category: "internal",
           recoverable: false,
         };
-        const enriched = JSON.stringify({
+        const mockPayload = {
           ...errorResult,
           _meta: { tokenEstimate: 0 },
-        });
-        tokenEstimate = estimateTokens(enriched, "json");
+        };
+        tokenEstimate = estimateObjectTokens(mockPayload);
 
         throw err; // Re-throw — don't swallow
       } finally {
