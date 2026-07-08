@@ -38,8 +38,8 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
     expect(parsed).toHaveProperty("success", true);
     // Router status nests data under .data
     expect(parsed).toHaveProperty("data");
-    expect(parsed.data).toHaveProperty("hostname");
-    expect(parsed.data).toHaveProperty("version");
+    expect(parsed).toHaveProperty("hostname");
+    expect(parsed).toHaveProperty("version");
   });
 
   test("should list router routes (router: mysql_router_routes)", async () => {
@@ -183,8 +183,8 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
 
     const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed.data).toHaveProperty("enabled");
-    expect(parsed.data).toHaveProperty("groupName");
+    expect(parsed).toHaveProperty("enabled");
+    expect(parsed).toHaveProperty("groupName");
   });
 
   test("should list GR members (cluster: mysql_gr_members)", async () => {
@@ -199,8 +199,8 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
 
     const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed.data).toHaveProperty("members");
-    expect(parsed.data).toHaveProperty("count");
+    expect(parsed).toHaveProperty("members");
+    expect(parsed).toHaveProperty("count");
   });
 
   test("should get GR primary (cluster: mysql_gr_primary)", async () => {
@@ -215,7 +215,7 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
 
     const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed.data).toHaveProperty("hasPrimary");
+    expect(parsed).toHaveProperty("hasPrimary");
   });
 
   test("should get cluster status (cluster: mysql_cluster_status)", async () => {
@@ -230,7 +230,7 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
 
     const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed.data).toHaveProperty("isInnoDBCluster");
+    expect(parsed).toHaveProperty("isInnoDBCluster");
   });
 
   test("should list cluster instances (cluster: mysql_cluster_instances)", async () => {
@@ -245,7 +245,7 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
 
     const parsed = JSON.parse(((response as Record<string, unknown>).content[0] as Record<string, unknown>).text);
     expect(parsed).toHaveProperty("success", true);
-    expect(parsed.data).toHaveProperty("instances");
-    expect(parsed.data).toHaveProperty("count");
+    expect(parsed).toHaveProperty("instances");
+    expect(parsed).toHaveProperty("count");
   });
 });

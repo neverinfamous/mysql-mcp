@@ -51,7 +51,7 @@ async function waitForSnapshots(
       "mysql_audit_list_backups",
       {},
     );
-    const data = result.data as Record<string, unknown> | undefined;
+    const data = result as Record<string, unknown> | undefined;
     const total =
       typeof data?.total === "number"
         ? data.total
@@ -116,7 +116,7 @@ test.describe("Audit Backup Snapshots", () => {
       const listResult = await waitForSnapshots(client, 1);
 
       // Response shape: { data: { backups: [...], total: N } }
-      const data = listResult.data as Record<string, unknown>;
+      const data = listResult as Record<string, unknown>;
       expect(typeof data.total).toBe("number");
       expect(data.total as number).toBeGreaterThanOrEqual(1);
 
@@ -138,7 +138,7 @@ test.describe("Audit Backup Snapshots", () => {
           target: TEMP_TABLE,
         },
       );
-      const filteredData = filtered.data as Record<string, unknown>;
+      const filteredData = filtered as Record<string, unknown>;
       expect(typeof filteredData.total).toBe("number");
       expect(filteredData.total as number).toBeGreaterThanOrEqual(1);
     } finally {
@@ -198,7 +198,7 @@ test.describe("Audit Backup Snapshots", () => {
 
       // Wait for snapshot to appear
       const listResult = await waitForSnapshots(client, 1);
-      const data = listResult.data as Record<string, unknown>;
+      const data = listResult as Record<string, unknown>;
       const backups = (
         data.backups as Array<Record<string, unknown>>
       ).filter((s) => s.tool === "mysql_optimize_table");
@@ -214,7 +214,7 @@ test.describe("Audit Backup Snapshots", () => {
       );
 
       // Response shape: { data: { snapshotDdl, liveDdl, metadata } }
-      const diffData = diffResult.data as Record<string, unknown>;
+      const diffData = diffResult as Record<string, unknown>;
       expect(typeof diffData.snapshotDdl).toBe("string");
       expect(typeof diffData.liveDdl).toBe("string");
       expect(diffData.metadata).toBeDefined();
@@ -280,7 +280,7 @@ test.describe("Audit Backup Snapshots", () => {
 
       // Wait for snapshot
       const listResult = await waitForSnapshots(client, 1);
-      const data = listResult.data as Record<string, unknown>;
+      const data = listResult as Record<string, unknown>;
       const backups = (
         data.backups as Array<Record<string, unknown>>
       ).filter((s) => s.tool === "mysql_drop_table");
@@ -294,7 +294,7 @@ test.describe("Audit Backup Snapshots", () => {
       );
 
       // Response shape: { data: { dryRun, sql, metadata } }
-      const restoreData = restoreResult.data as Record<string, unknown>;
+      const restoreData = restoreResult as Record<string, unknown>;
       expect(restoreData.dryRun).toBe(true);
       expect(typeof restoreData.sql).toBe("string");
       expect((restoreData.sql as string).length).toBeGreaterThan(0);

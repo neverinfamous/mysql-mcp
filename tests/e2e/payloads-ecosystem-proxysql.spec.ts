@@ -38,19 +38,19 @@ test.describe("Payload Contracts: Ecosystem — ProxySQL", () => {
   test("proxysql_memory_stats returns { success, memoryStats }", async () => {
     const payload = await callToolAndParse(client, "proxysql_memory_stats", {});
     expectSuccess(payload);
-    expect(Array.isArray((payload as Record<string, unknown>).data.memoryStats)).toBe(true);
+    expect(Array.isArray((payload as Record<string, unknown>).memoryStats)).toBe(true);
   });
 
   test("proxysql_users returns { success, users }", async () => {
     const payload = await callToolAndParse(client, "proxysql_users", {});
     expectSuccess(payload);
-    expect(Array.isArray((payload as Record<string, unknown>).data.users)).toBe(true);
+    expect(Array.isArray((payload as Record<string, unknown>).users)).toBe(true);
   });
 
   test("proxysql_query_rules returns { success, queryRules }", async () => {
     const payload = await callToolAndParse(client, "proxysql_query_rules", {});
     expectSuccess(payload);
-    expect(Array.isArray((payload as Record<string, unknown>).data.queryRules)).toBe(true);
+    expect(Array.isArray((payload as Record<string, unknown>).queryRules)).toBe(true);
   });
 
   test("proxysql_query_digest returns { success }", async () => {
@@ -61,6 +61,6 @@ test.describe("Payload Contracts: Ecosystem — ProxySQL", () => {
   test("proxysql_process_list returns { success, processes }", async () => {
     const payload = await callToolAndParse(client, "proxysql_process_list", {});
     expectSuccess(payload);
-    expect(Array.isArray((payload as Record<string, unknown>).data.processes)).toBe(true);
+    expect(Array.isArray((payload as Record<string, unknown>).processes)).toBe(true);
   });
 });

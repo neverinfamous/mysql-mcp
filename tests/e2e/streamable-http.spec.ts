@@ -40,7 +40,7 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
 
   test("should list and execute tools via Streamable HTTP", async () => {
     const parsed = await callToolAndParse(client, "mysql_list_tables", {});
-    expect(parsed.data).toHaveProperty("tables");
+    expect(parsed).toHaveProperty("tables");
   });
 
   test("should call a read tool via Streamable HTTP", async () => {

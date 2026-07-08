@@ -622,25 +622,11 @@ This server includes **intelligent prompts** for guided workflows:
 
 | Prompt                        | Description                                            |
 | ----------------------------- | ------------------------------------------------------ |
-| `mysql_query_builder`         | Construct SQL queries with security best practices     |
-| `mysql_schema_design`         | Design table schemas with indexes and relationships    |
-| `mysql_performance_analysis`  | Analyze slow queries with optimization recommendations |
-| `mysql_migration`             | Generate migration scripts with rollback options       |
-| `mysql_database_health_check` | Comprehensive database health assessment               |
-| `mysql_backup_strategy`       | Enterprise backup planning with RTO/RPO                |
-| `mysql_index_tuning`          | Index analysis and optimization workflow               |
-| `mysql_setup_router`          | MySQL Router configuration guide                       |
-| `mysql_setup_proxysql`        | ProxySQL configuration guide                           |
-| `mysql_setup_replication`     | Replication setup guide                                |
-| `mysql_setup_shell`           | MySQL Shell usage guide                                |
 | `mysql_tool_index`            | Complete tool index with categories                    |
 | `mysql_quick_query`           | Quick query execution shortcut                         |
 | `mysql_quick_schema`          | Quick schema exploration                               |
-| **`mysql_setup_events`**      | Event Scheduler setup guide                            |
-| **`mysql_sys_schema_guide`**  | sys schema usage and diagnostics                       |
-| **`mysql_setup_spatial`**     | Spatial/GIS data setup guide                           |
-| **`mysql_setup_cluster`**     | InnoDB Cluster/Group Replication guide                 |
-| **`mysql_setup_docstore`**    | Document Store / X DevAPI guide                        |
+
+> **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
 
 ---
 
@@ -653,26 +639,9 @@ This server exposes **a comprehensive set of resources** for database observabil
 | `mysql://schema`        | Full database schema                        |
 | `mysql://tables`        | Table listing with metadata                 |
 | `mysql://table/{name}`  | Specific Table Schema                       |
-| `mysql://variables`     | Server configuration variables              |
-| `mysql://status`        | Server status metrics                       |
-| `mysql://processlist`   | Active connections and queries              |
-| `mysql://pool`          | Connection pool statistics                  |
-| `mysql://capabilities`  | Server version, features, tool categories   |
-| `mysql://health`        | Comprehensive health status                 |
-| `mysql://performance`   | Query performance metrics                   |
-| `mysql://indexes`       | Index usage and statistics                  |
-| `mysql://replication`   | Replication status and lag                  |
-| `mysql://innodb`        | InnoDB buffer pool and engine metrics       |
-| **`mysql://events`**    | Event Scheduler status and scheduled events |
-| **`mysql://sysschema`** | sys schema diagnostics summary              |
-| **`mysql://locks`**     | InnoDB lock contention detection            |
-| `mysql://cluster`       | Group Replication/InnoDB Cluster status     |
-| `mysql://spatial`       | Spatial columns and indexes                 |
-| `mysql://docstore`      | Document Store collections                  |
-| `mysql://insights`      | Business insights memo from mysql_append_insight |
-| `mysql://audit-log`     | Forensic audit trail and pre-mutation snapshot stats |
-| `mysql://metrics`       | In-memory streaming telemetry (p50/p95/p99 latency) |
 | `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
+
+> **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
 
 ---
 

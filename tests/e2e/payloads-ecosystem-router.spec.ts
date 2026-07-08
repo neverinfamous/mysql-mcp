@@ -45,7 +45,7 @@ test.describe("Payload Contracts: Ecosystem — Router", () => {
       { routeName: "bootstrap_rw" },
     );
     expectSuccess(payload);
-    expect((payload as Record<string, unknown>).data.connections).toBeDefined();
+    expect((payload as Record<string, unknown>).connections).toBeDefined();
   });
 
   test("mysql_router_route_destinations returns { success, destinations }", async () => {
@@ -55,7 +55,7 @@ test.describe("Payload Contracts: Ecosystem — Router", () => {
       { routeName: "bootstrap_rw" },
     );
     expectSuccess(payload);
-    expect((payload as Record<string, unknown>).data.destinations).toBeDefined();
+    expect((payload as Record<string, unknown>).destinations).toBeDefined();
   });
 
   test("mysql_router_route_blocked_hosts returns { success, blockedHosts }", async () => {
@@ -65,6 +65,6 @@ test.describe("Payload Contracts: Ecosystem — Router", () => {
       { routeName: "bootstrap_rw" },
     );
     expectSuccess(payload);
-    expect((payload as Record<string, unknown>).data.blockedHosts).toBeDefined();
+    expect((payload as Record<string, unknown>).blockedHosts).toBeDefined();
   });
 });

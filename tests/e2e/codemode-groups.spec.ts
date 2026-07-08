@@ -23,7 +23,7 @@ test.describe("Code Mode Groups: Core", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.core.listTables({});
-          return { tableCount: (result.data?.tables ?? result.tables).length };
+          return { tableCount: (result?.tables ?? result.tables).length };
         `,
       });
       expectSuccess(p);
@@ -41,7 +41,7 @@ test.describe("Code Mode Groups: Core", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.core.readQuery({ query: "SELECT 1 + 1 AS sum" });
-          return (result.data?.rows ?? result.rows)[0].sum;
+          return (result?.rows ?? result.rows)[0].sum;
         `,
       });
       expectSuccess(p);
@@ -84,7 +84,7 @@ test.describe("Code Mode Groups: Performance", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.performance.explain({ query: "SELECT * FROM test_products" });
-          return { hasPlan: !!(result.data?.plan ?? result.plan) };
+          return { hasPlan: !!(result?.plan ?? result.plan) };
         `,
       });
       expectSuccess(p);
@@ -107,7 +107,7 @@ test.describe("Code Mode Groups: Introspection", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.introspection.schemaSnapshot({ schema: 'testdb' });
-          return { hasTables: Array.isArray((result.data?.snapshot ?? result.snapshot)?.tables ?? (result.data?.tables ?? result.tables)) };
+          return { hasTables: Array.isArray((result?.snapshot ?? result.snapshot)?.tables ?? (result?.tables ?? result.tables)) };
         `,
       });
       expectSuccess(p);
@@ -130,7 +130,7 @@ test.describe("Code Mode Groups: Migration", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.migration.history({});
-          return { success: (result.success ?? result.data?.success ?? true) };
+          return { success: (result.success ?? result?.success ?? true) };
         `,
       });
       expectSuccess(p);
@@ -151,7 +151,7 @@ test.describe("Code Mode Groups: Schema", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           const result = await mysql.schema.listViews({});
-          return { success: (result.success ?? result.data?.success ?? true) };
+          return { success: (result.success ?? result?.success ?? true) };
         `,
       });
       expectSuccess(p);

@@ -57,7 +57,7 @@ test.describe("Audit Log Rotation Stress", () => {
           "mysql_transaction_begin",
           {},
         );
-        const txId = (beginRes.data as Record<string, unknown>)?.transactionId as
+        const txId = (beginRes as Record<string, unknown>)?.transactionId as
           | string
           | undefined;
         if (txId) {

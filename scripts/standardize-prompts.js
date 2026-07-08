@@ -53,6 +53,7 @@ function processDirectory(dirName) {
     );
 
   for (const file of files) {
+    if (file === "coordinator-workflow.md" || !file.endsWith(".md")) continue;
     const filePath = path.join(dirPath, file);
     let content = fs.readFileSync(filePath, "utf-8");
 
@@ -234,34 +235,12 @@ function processDirectory(dirName) {
       .replace(/mysql\.stats_summary/g, "mysql.stats.summary")
       .replace(/mysql\.sys\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
       .replace(/mysql\.sysschema\.([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
-      // Fix fulltext parameters in test-codemode
-      .replace(/mysql\.fulltext\.search\(\{(.*?)\}\)/g, (match, p1) => {
-          if (!p1.includes("maxLength")) return `mysql.fulltext.search({${p1}, maxLength: 200})`;
-          return match;
-      })
-      .replace(/mysql\.fulltext\.boolean\(\{(.*?)\}\)/g, (match, p1) => {
-          if (!p1.includes("maxLength")) return `mysql.fulltext.boolean({${p1}, maxLength: 200})`;
-          return match;
-      })
-      .replace(/mysql\.fulltext\.expand\(\{(.*?)\}\)/g, (match, p1) => {
-          if (!p1.includes("maxLength")) return `mysql.fulltext.expand({${p1}, maxLength: 200})`;
-          return match;
-      })
       // Fix optimization parameters
-      .replace(/mysql\.optimization\.indexRecommendation\(\{table: "([^"]+)"\}\)/g, 'mysql.optimization.indexRecommendation({table: "$1", includeRedundant: true, includeUnindexed: true})')
-      .replace(/mysql\.optimization\.indexRecommendation\(\{queries: \[([^\]]+)\]\}\)/g, 'mysql.optimization.indexRecommendation({queries: [$1], includeRedundant: true, includeUnindexed: true})')
       // Fix vector parameters
-      .replace(/mysql\.vector\.hybridSearch\(\{\.\.\.\}\)/g, 'mysql.vector.hybridSearch({table: "test_articles", column: "vector", matchColumn: "body", queryVector: [0.1, 0.2], matchQuery: "test", metric: "L2", rrfK: 60, select: ["id"], filter: {}})')
       // Fix sys-metrics numbering gaps
-      .replace(/8\. `mysql\.sysschema\.hostSummary/g, "4. `mysql.sysschema.hostSummary")
-      .replace(/9\. `mysql\.sysschema\.memorySummary/g, "5. `mysql.sysschema.memorySummary")
       // Fix sys-analysis numbering gaps and Zod error
-      .replace(/4\. `mysql\.sysschema\.statementSummary/g, "2. `mysql.sysschema.statementSummary")
-      .replace(/5\. `mysql\.sysschema\.waitSummary/g, "3. `mysql.sysschema.waitSummary")
-      .replace(/6\. `mysql\.sysschema\.innodbLockWaits/g, "4. `mysql.sysschema.innodbLockWaits")
-      .replace(/7\. `mysql\.sysschema\.schemaStats/g, "5. `mysql.sysschema.schemaStats")
-      .replace('11. 🔴 `mysql.sysschema.statementSummary({ limit: "abc" })``', '11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })`')
-      .replace('11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })``', '11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })`');
+      // Note: Replaced with structural fix instead of hardcoded strings
+      ;
 
     if (file === "test-codemode-versioning.md" && !testContent.includes("mysql.versioning.enable")) {
         testContent = testContent.replace(

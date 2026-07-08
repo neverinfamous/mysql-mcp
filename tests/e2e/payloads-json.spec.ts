@@ -23,7 +23,7 @@ test.describe("Payload Contracts: JSON", () => {
         path: "$.type",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
@@ -40,7 +40,7 @@ test.describe("Payload Contracts: JSON", () => {
         path: "$.type",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
@@ -55,7 +55,7 @@ test.describe("Payload Contracts: JSON", () => {
         column: "doc",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.keys)).toBe(true);
     } finally {
       await client.close();
@@ -87,7 +87,7 @@ test.describe("Payload Contracts: JSON", () => {
         value: '{"key": "value"}',
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(typeof data.valid).toBe("boolean");
     } finally {
       await client.close();
@@ -118,7 +118,7 @@ test.describe("Payload Contracts: JSON", () => {
         searchValue: "report",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();

@@ -21,7 +21,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         pattern: "Pro.*",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
@@ -37,7 +37,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         pattern: "%Pro%",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
@@ -53,7 +53,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         value: "John",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
@@ -69,7 +69,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         query: "MySQL database",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
       expect(typeof data.count).toBe("number");
     } finally {
@@ -86,7 +86,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         query: "+MySQL -Oracle",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
       expect(typeof data.count).toBe("number");
     } finally {
@@ -104,7 +104,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         length: 5,
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();
@@ -120,7 +120,7 @@ test.describe("Payload Contracts: Text + Fulltext", () => {
         separator: " - ",
       });
 
-      const data = payload.data as Record<string, unknown>;
+      const data = payload as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
     } finally {
       await client.close();

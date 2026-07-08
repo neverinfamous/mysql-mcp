@@ -450,9 +450,6 @@
   "test-codemode-advanced-versioning-part2.md": [
     "mysql_conditional_update"
   ],
-  "test-codemode.md": [
-    "mysql_execute_code"
-  ],
   "test-codemode-admin-audit.md": [
     "mysql_append_insight",
     "mysql_server_config",

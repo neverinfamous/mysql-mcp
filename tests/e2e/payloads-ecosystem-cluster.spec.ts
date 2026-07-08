@@ -33,7 +33,7 @@ test.describe("Payload Contracts: Ecosystem — Cluster", () => {
       {},
     );
     expectSuccess(payload);
-    expect(payload.data.topology).toBeDefined();
+    expect(payload.topology).toBeDefined();
   });
 
   test("mysql_cluster_router_status returns { success }", async () => {
