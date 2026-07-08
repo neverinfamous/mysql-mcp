@@ -138,6 +138,13 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
+| `mysql_transaction_begin` | | |
+| `mysql_transaction_commit` | | |
+| `mysql_transaction_rollback` | | |
+| `mysql_transaction_savepoint` | | |
+| `mysql_transaction_release` | | |
+| `mysql_transaction_rollback_to` | | |
+| `mysql_transaction_execute` | | |
 
 ### Return Structured Error Responses
 
@@ -206,6 +213,17 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_transaction_begin`
+- `mysql_transaction_commit`
+- `mysql_transaction_rollback`
+- `mysql_transaction_savepoint`
+- `mysql_transaction_release`
+- `mysql_transaction_rollback_to`
+- `mysql_transaction_execute`
 
 
 ## Group Focus: transactions

@@ -22,15 +22,23 @@ services:
       --binlog_format=ROW
       --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node1
-      --innodb-use-native-aio=0
-      --innodb-flush-method=fsync
+      --innodb-buffer-pool-size=128M
+      --innodb-log-file-size=48M
+      --innodb-flush-log-at-trx-commit=2
     volumes:
-      - mysql-node1-data-v4:/var/lib/mysql
+      - mysql-node1-data-v5:/var/lib/mysql
+    stop_grace_period: 30s
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   mysql-node2:
     image: mysql:8.0
@@ -52,15 +60,23 @@ services:
       --binlog_format=ROW
       --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node2
-      --innodb-use-native-aio=0
-      --innodb-flush-method=fsync
+      --innodb-buffer-pool-size=128M
+      --innodb-log-file-size=48M
+      --innodb-flush-log-at-trx-commit=2
     volumes:
-      - mysql-node2-data-v4:/var/lib/mysql
+      - mysql-node2-data-v5:/var/lib/mysql
+    stop_grace_period: 30s
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   mysql-node3:
     image: mysql:8.0
@@ -82,40 +98,59 @@ services:
       --binlog_format=ROW
       --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node3
-      --innodb-use-native-aio=0
-      --innodb-flush-method=fsync
+      --innodb-buffer-pool-size=128M
+      --innodb-log-file-size=48M
+      --innodb-flush-log-at-trx-commit=2
     volumes:
-      - mysql-node3-data-v4:/var/lib/mysql
+      - mysql-node3-data-v5:/var/lib/mysql
+    stop_grace_period: 30s
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
-      interval: 5s
-      timeout: 5s
-      retries: 30
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   # ==========================================
   # ROUTING & PROXIES
   # ==========================================
-#  mysql-router:
-#    image: mysql/mysql-router:8.0
-#    container_name: mysql-router
-#    restart: unless-stopped
-#    depends_on:
-#      - mysql-node1
-#      - mysql-node2
-#      - mysql-node3
-#    entrypoint: ["/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh"]
-#    volumes:
-#      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
-#      - mysql-router-data-v1:/tmp/mysqlrouter
-#    ports:
-#      - "6446:6446"
-#      - "6447:6447"
-#      - "8443:8443"
-#    healthcheck:
-#      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot"]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+  mysql-router:
+    image: mysql/mysql-router:8.0
+    container_name: mysql-router
+    restart: unless-stopped
+    depends_on:
+      mysql-node1:
+        condition: service_healthy
+      mysql-node2:
+        condition: service_healthy
+      mysql-node3:
+        condition: service_healthy
+    entrypoint: ["/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh"]
+    volumes:
+      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
+    tmpfs:
+      - /tmp/mysqlrouter:uid=999,gid=999
+    ports:
+      - "6446:6446"
+      - "6447:6447"
+      - "8443:8443"
+    stop_grace_period: 15s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   proxysql:
     image: proxysql/proxysql:latest
@@ -124,6 +159,11 @@ services:
     ports:
       - "6032:6032"
       - "6033:6033"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   # ==========================================
   # MONITORING
@@ -136,6 +176,11 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   adminer:
     image: adminer:latest
@@ -143,6 +188,11 @@ services:
     restart: unless-stopped
     ports:
       - "8081:8080"
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   prometheus:
     image: prom/prometheus:latest
@@ -152,6 +202,11 @@ services:
       - "9090:9090"
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   grafana:
     image: grafana/grafana:latest
@@ -162,9 +217,13 @@ services:
     volumes:
       - ./config/grafana/provisioning:/etc/grafana/provisioning
       - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
-  mysql-node1-data-v4:
-  mysql-node2-data-v4:
-  mysql-node3-data-v4:
-  mysql-router-data-v1:
+  mysql-node1-data-v5:
+  mysql-node2-data-v5:
+  mysql-node3-data-v5:

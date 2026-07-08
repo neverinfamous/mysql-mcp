@@ -138,6 +138,11 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
+| `proxysql_status` | | |
+| `proxysql_servers` | | |
+| `proxysql_query_rules` | | |
+| `proxysql_query_digest` | | |
+| `proxysql_connection_pool` | | |
 
 ### Return Structured Error Responses
 
@@ -206,6 +211,15 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `proxysql_status`
+- `proxysql_servers`
+- `proxysql_query_rules`
+- `proxysql_query_digest`
+- `proxysql_connection_pool`
 
 
 ## Group Focus: proxysql-part1

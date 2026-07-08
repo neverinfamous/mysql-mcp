@@ -138,6 +138,12 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
+| `mysql_event_create` | | |
+| `mysql_event_alter` | | |
+| `mysql_event_drop` | | |
+| `mysql_event_list` | | |
+| `mysql_event_status` | | |
+| `mysql_scheduler_status` | | |
 
 ### Return Structured Error Responses
 
@@ -206,6 +212,16 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_event_create`
+- `mysql_event_alter`
+- `mysql_event_drop`
+- `mysql_event_list`
+- `mysql_event_status`
+- `mysql_scheduler_status`
 
 
 ## Group Focus: events

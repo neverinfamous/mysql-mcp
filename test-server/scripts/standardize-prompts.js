@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 
-const directories = ["test-codemode", "test-advanced", "test-tool-groups"];
+const directories = ["test-codemode", "test-advanced", "test-tool-groups", "test-usability"];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,12 +57,19 @@ function processDirectory(dirName) {
     let content = fs.readFileSync(filePath, "utf-8");
 
     // Extract group name
-    const titleMatch = content.match(/# mysql[- ]mcp .*: \[(.*?)\]/i);
+    let titleMatch = content.match(/# mysql[- ]mcp .*: \[(.*?)\]/i);
+    if (!titleMatch) {
+      // Fallback for test-usability files: e.g. # mysql-mcp Usability & Hallucination Test: Core (Part 1)
+      const match2 = content.match(/# mysql[- ]mcp .*: ([^\(\n\r]+)/i);
+      if (match2) {
+        titleMatch = [match2[0], match2[1].trim()];
+      }
+    }
     if (!titleMatch) {
       console.warn(`Could not find group name in ${file}`);
       continue;
     }
-    const groupName = titleMatch[1];
+    const groupName = titleMatch[1].trim().toLowerCase();
 
     let titleType = "Tool Group Testing";
     let executionMode = "Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.";
@@ -81,10 +88,14 @@ function processDirectory(dirName) {
       titleType = "Code Mode Testing";
       executionMode = "Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.";
       coverageMatrix = "| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |";
+    } else if (dirName === "test-usability") {
+      titleType = "Usability & Hallucination Test";
+      executionMode = "Organically test the tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.";
+      coverageMatrix = "| Tool | Fuzz Call | Hallucination Found | Fix Applied |";
     }
 
     let explicitToolsList = "";
-    if (dirName === "test-advanced" && toolMap[file] && toolMap[file].length > 0) {
+    if ((dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability") && toolMap[file] && toolMap[file].length > 0) {
         const tools = toolMap[file];
         explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n`;
         explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";
@@ -119,8 +130,13 @@ function processDirectory(dirName) {
         testStartIdx = lines.findIndex(l => l.startsWith("### Explicit Tool Coverage"));
     }
 
+    if (testStartIdx === -1) {
+        // Fallback for test-usability
+        testStartIdx = lines.findIndex(l => l.startsWith("**Instructions:**") || l.startsWith("## 1. Fuzz Phase"));
+    }
+
     // Properly find the FIRST post-test section to avoid capturing duplicates
-    let postTestIdx = lines.findIndex((l, i) => i > testStartIdx && (l.startsWith("## Post-Test") || l.startsWith("## Execute Post-Test")));
+    let postTestIdx = lines.findIndex((l, i) => i > testStartIdx && (l.startsWith("## Post-Test") || l.startsWith("## Execute Post-Test") || l.startsWith("## 3. Local Verification")));
     let contentEndIdx = lines.length;
 
     // We only want the first block, so if there is a '---' before the first post-test, we cut it there
