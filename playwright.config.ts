@@ -34,7 +34,7 @@ export default defineConfig({
       // Load all tools (override starter default)
       TOOL_FILTER: "+all",
       // Provide sandbox boundaries for E2E tests
-      ALLOWED_IO_ROOTS: `C:/temp,C:/tmp,/tmp,${tmpdir()}`,
+      ALLOWED_IO_ROOTS: `${tmpdir()}`,
       // Prevent 429s during E2E runs with many client connections
       MCP_RATE_LIMIT_MAX: "10000",
       // ProxySQL admin connection
@@ -48,8 +48,7 @@ export default defineConfig({
       MYSQL_ROUTER_PASSWORD: "router_api",
       MYSQL_ROUTER_INSECURE: "true",
       // MySQL Shell
-      MYSQLSH_PATH:
-        "C:\\Program Files\\MySQL\\MySQL Shell 9.5\\bin\\mysqlsh.exe",
+      MYSQLSH_PATH: process.env.MYSQLSH_PATH ?? "",
     },
   },
 });
