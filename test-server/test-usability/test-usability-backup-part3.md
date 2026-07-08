@@ -33,10 +33,15 @@ If you encounter any failures, errors, or hallucinations:
 2. **DO NOT PROCEED** until linting and typechecking pass locally.
 3. You do NOT need to wait for a live server restart.
 
-## 4. Commit
+## 4. Commit & Report
 
-1. If local verification passes, run `git add .` and `bun .\.agents\scripts\commit.ts --msg "test(usability): Optimize backup tool usage" --impact 0.1 --confidence 1.0 --validation passed --journal --add .`.
+1. **ONLY if you made modifications** (code or prompt):
+   - Run `git add .` and `bun .\.agents\scripts\commit.ts --msg "test(usability): Optimize backup tool usage" --impact 0.1 --confidence 1.0 --validation passed --journal --add .`.
+   - Create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt.
 2. Report your findings to the Coordinator.
+3. **CRITICAL**: You MUST format your final result summary with the exact number of fixes applied at the very top:
+   - **`X fixes applied [Y Prompt / Z Code]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code]`**) in bold.
+   - You MUST also include an explicit status line: `STATUS: SUCCESS`
 
 ## 5. Continuous Improvement
 
