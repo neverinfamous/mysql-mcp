@@ -5,15 +5,9 @@
 
 
 
-## 💎 Value Proposition
+## 🚀 Cluster Management
 
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
-## 🚀 Orchestrate Your Ecosystem
+These scripts manage the InnoDB Cluster topology.
 
 ### `reboot-cluster.mjs`
 
@@ -69,7 +63,7 @@ Config: innodb-cluster.yml (gitignored, local only)
 - `group_replication_bootstrap_group=OFF` — no auto-bootstrap (safety)
 - Data volumes: `mysql-node1-data`, `mysql-node2-data`, `mysql-node3-data`
 
-## 🛠️ Validate Your Capabilities
+## 🛠️ MCP Server Validation
 
 These scripts are used to validate MCP server behavior dynamically:
 
@@ -179,7 +173,7 @@ Global teardown script for E2E testing. Cleans up test artifacts like SQLite dat
 npx tsx scripts/teardown.ts
 ```
 
-## ⚙️ Maintain and Evolve Your Architecture
+## ⚙️ Maintenance & Architecture
 
 
 
