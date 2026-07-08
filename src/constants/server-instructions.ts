@@ -101,7 +101,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
   - Max 1000 chars per insight.`],
   ["backup", `# Backup Tools
 
-Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`mysql_restore_dump\`, \`mysql_audit_list_backups\`, \`mysql_audit_restore_backup\`, \`mysql_audit_diff_backup\`
+**Encapsulated Tools**: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`mysql_restore_dump\`, \`mysql_audit_list_backups\`, \`mysql_audit_restore_backup\`, \`mysql_audit_diff_backup\`
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats. CSV export escapes JSON columns with double-quote encoding. Consider SQL format for JSON-heavy tables.
 - **Export pagination & batching**: Returns at most 5 rows by default. Use \`limit\` parameter to override. Use \`batch\` parameter (default: 1) to group rows into multi-row INSERT statements (e.g., \`batch: 50\`).
@@ -119,7 +119,7 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - **Restore backup**: \`mysql_audit_restore_backup\` restores a specific table. Set \`dryRun: true\` (default) to safely view the DDL and DML of a snapshot before actually executing the restoration. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`.`],
   ["cluster", `# Cluster Tools (Group Replication + InnoDB Cluster)
 
-Tools: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`, \`mysql_cluster_status\`, \`mysql_cluster_instances\`, \`mysql_cluster_topology\`, \`mysql_cluster_router_status\`, \`mysql_cluster_switchover\`
+**Encapsulated Tools**: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`, \`mysql_cluster_status\`, \`mysql_cluster_instances\`, \`mysql_cluster_topology\`, \`mysql_cluster_router_status\`, \`mysql_cluster_switchover\`
 
 ## Group Replication (\`mysql_gr_*\`)
 
@@ -137,7 +137,7 @@ Tools: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_
 - **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field (\`null\` when no primary exists, never absent). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist. Note: This tool does NOT execute a switchover.`],
   ["codemode", `# Code Mode (\`mysql_execute_code\`)
 
-Tools: \`mysql_execute_code\`
+**Encapsulated Tools**: \`mysql_execute_code\`
 
 - **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 200+ MySQL MCP tools via the global \`mysql.*\` API.
 - **Capabilities**: The sandbox allows you to script complex multi-step workflows, loops, logic, and data transformations natively on the server, saving 70-90% on token consumption compared to making individual MCP tool calls.
@@ -181,7 +181,7 @@ Tools: \`mysql_execute_code\`
 - \`mysql_conditional_update\`: Conditionally updates a row. Accepts aliases for data and conditions. On conflict, returns \`CONFLICT_ERROR\` ErrorResponse.`],
   ["docstore", `# Document Store (\`mysql_doc_*\`)
 
-Tools: \`mysql_doc_list_collections\`, \`mysql_doc_create_collection\`, \`mysql_doc_drop_collection\`, \`mysql_doc_find\`, \`mysql_doc_add\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, \`mysql_doc_create_index\`, \`mysql_doc_collection_info\`
+**Encapsulated Tools**: \`mysql_doc_list_collections\`, \`mysql_doc_create_collection\`, \`mysql_doc_drop_collection\`, \`mysql_doc_find\`, \`mysql_doc_add\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, \`mysql_doc_create_index\`, \`mysql_doc_collection_info\`
 
 - **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.
 - **Collection drop**: \`mysql_doc_drop_collection\` removes a collection. Returns \`{ success: false, error }\` if collection does not exist (without \`ifExists\`). With \`ifExists: true\` (default), returns \`{ success: true, message: "Collection did not exist" }\` when the collection was already absent. Accepts optional \`schema\` parameter to target a specific database.
@@ -198,7 +198,7 @@ Tools: \`mysql_doc_list_collections\`, \`mysql_doc_create_collection\`, \`mysql_
 - **Find Filters** (\`mysql_doc_find\`): The filter parameter shares the same syntax as modify and remove. Supports JSON path for existence (e.g., \`$.address\`), direct \`_id\` match (32-character hex), and \`field=value\` format (e.g., \`name=Alice\`). Accepts optional \`schema\` parameter.`],
   ["events", `# Events Tools (\`mysql_event_*\`, \`mysql_scheduler_status\`)
 
-Tools: \`mysql_event_create\`, \`mysql_event_alter\`, \`mysql_event_drop\`, \`mysql_event_list\`, \`mysql_event_status\`, \`mysql_scheduler_status\`
+**Encapsulated Tools**: \`mysql_event_create\`, \`mysql_event_alter\`, \`mysql_event_drop\`, \`mysql_event_list\`, \`mysql_event_status\`, \`mysql_scheduler_status\`
 
 - **Scheduler status**: \`mysql_scheduler_status\` shows global scheduler state (ON/OFF), event counts, and recently executed events.
 - **Event types**: \`mysql_event_create\` takes a raw MySQL \`schedule\` string (e.g. \`"EVERY 1 DAY"\`, \`"AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR"\`). Use \`ifNotExists: true\` to skip creation if the event already exists.
@@ -310,7 +310,7 @@ Recoverable errors can be retried. Check \`recoverable: true\` in the response.
 - **Scope**: Requires \`admin\` scope.`],
   ["introspection", `# Introspection Tools
 
-Tools: \`mysql_dependency_graph\`, \`mysql_topological_sort\`, \`mysql_cascade_simulator\`, \`mysql_schema_snapshot\`, \`mysql_constraint_analysis\`, \`mysql_migration_risks\`
+**Encapsulated Tools**: \`mysql_dependency_graph\`, \`mysql_topological_sort\`, \`mysql_cascade_simulator\`, \`mysql_schema_snapshot\`, \`mysql_constraint_analysis\`, \`mysql_migration_risks\`
 
 The **Introspection** group provides advanced schema analysis capabilities, specifically designed to help AI agents understand complex entity relationships, simulate changes, and assess risks before performing database migrations or schema modifications.
 
@@ -361,7 +361,7 @@ The **Introspection** group provides advanced schema analysis capabilities, spec
   \`\`\``],
   ["migration", `# Migration Tools
 
-Tools: \`mysql_migration_init\`, \`mysql_migration_record\`, \`mysql_migration_apply\`, \`mysql_migration_rollback\`, \`mysql_migration_history\`, \`mysql_migration_status\`
+**Encapsulated Tools**: \`mysql_migration_init\`, \`mysql_migration_record\`, \`mysql_migration_apply\`, \`mysql_migration_rollback\`, \`mysql_migration_history\`, \`mysql_migration_status\`
 
 The **Migration** group provides an integrated, structured schema versioning and deployment system directly within the MCP server. It is designed to track schema changes, ensure idempotent deployments, and allow safe rollbacks.
 
@@ -381,7 +381,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Initialization First**: You must run \`mysql_migration_init\` before attempting to use \`mysql_migration_apply\` or track history.`],
   ["monitoring", `# Monitoring Tools
 
-Tools: \`mysql_show_processlist\`, \`mysql_show_status\`, \`mysql_show_variables\`, \`mysql_innodb_status\`, \`mysql_replication_status\`, \`mysql_pool_stats\`, \`mysql_server_health\`
+**Encapsulated Tools**: \`mysql_show_processlist\`, \`mysql_show_status\`, \`mysql_show_variables\`, \`mysql_innodb_status\`, \`mysql_replication_status\`, \`mysql_pool_stats\`, \`mysql_server_health\`
 
 - **Process list**: \`mysql_show_processlist\` shows active queries. Use \`full: true\` for complete query text.
 - **Status/Variables**: \`mysql_show_status\` and \`mysql_show_variables\` accept \`like\` for filtering (e.g., \`like: "%connections%"\`) and \`limit\` to cap rows (default: 10). Response includes \`totalAvailable\` and \`limited: true\` when truncated. RSA public key values in status output are automatically redacted.
@@ -421,7 +421,7 @@ Tools: \`mysql_show_processlist\`, \`mysql_show_status\`, \`mysql_show_variables
   - Standard errors for nonexistent tables or syntax errors.`],
   ["partitioning", `# Partitioning Tools
 
-Tools: \`mysql_partition_info\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`
+**Encapsulated Tools**: \`mysql_partition_info\`, \`mysql_add_partition\`, \`mysql_drop_partition\`, \`mysql_reorganize_partition\`
 
 - **Existence Check**: \`mysql_partition_info\` returns a structured error when the table does not exist. Returns \`{ partitioned: false }\` for existing non-partitioned tables.
 - **Value Parameter**: The \`value\` parameter expects only the boundary value, NOT the full SQL clause.
@@ -436,7 +436,7 @@ Tools: \`mysql_partition_info\`, \`mysql_add_partition\`, \`mysql_drop_partition
 - **Drop Warning**: \`mysql_drop_partition\` permanently deletes all data in the partition.`],
   ["performance", `# Performance Tools
 
-Tools: \`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_slow_queries\`, \`mysql_query_stats\`, \`mysql_index_usage\`, \`mysql_table_stats\`, \`mysql_buffer_pool_stats\`, \`mysql_thread_stats\`, \`mysql_detect_query_anomalies\`, \`mysql_detect_bloat_risk\`, \`mysql_detect_connection_spike\`
+**Encapsulated Tools**: \`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_slow_queries\`, \`mysql_query_stats\`, \`mysql_index_usage\`, \`mysql_table_stats\`, \`mysql_buffer_pool_stats\`, \`mysql_thread_stats\`, \`mysql_detect_query_anomalies\`, \`mysql_detect_bloat_risk\`, \`mysql_detect_connection_spike\`
 
 ### Query Analysis (\`mysql_explain\`, \`mysql_explain_analyze\`)
 - **EXPLAIN**: Supports JSON (default), TREE, and TRADITIONAL formats.
@@ -458,7 +458,7 @@ Tools: \`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_slow_queries\`, \`m
 - **Connection Spikes**: Analyzes recent connection rates against baselines to flag potential spikes or leaks.`],
   ["proxysql", `# ProxySQL Tools
 
-Tools: \`proxysql_status\`, \`proxysql_servers\`, \`proxysql_query_rules\`, \`proxysql_query_digest\`, \`proxysql_connection_pool\`, \`proxysql_users\`, \`proxysql_global_variables\`, \`proxysql_runtime_status\`, \`proxysql_memory_stats\`, \`proxysql_commands\`, \`proxysql_process_list\`
+**Encapsulated Tools**: \`proxysql_status\`, \`proxysql_servers\`, \`proxysql_query_rules\`, \`proxysql_query_digest\`, \`proxysql_connection_pool\`, \`proxysql_users\`, \`proxysql_global_variables\`, \`proxysql_runtime_status\`, \`proxysql_memory_stats\`, \`proxysql_commands\`, \`proxysql_process_list\`
 
 - **Prerequisites**: ProxySQL must be running with admin interface accessible (default port 6032). Environment variables: \`PROXYSQL_HOST\`, \`PROXYSQL_PORT\`, \`PROXYSQL_USER\`, \`PROXYSQL_PASSWORD\`.
 - **Status monitoring**: \`proxysql_status\` returns global status variables. Use \`summary: true\` for key metrics.
@@ -472,7 +472,7 @@ Tools: \`proxysql_status\`, \`proxysql_servers\`, \`proxysql_query_rules\`, \`pr
 - **Error handling**: All ProxySQL tools return \`{ success: false, error }\` instead of throwing raw exceptions. Invalid parameters/patterns return structured errors.`],
   ["replication", `# Replication Tools
 
-Tools: \`mysql_master_status\`, \`mysql_slave_status\`, \`mysql_binlog_events\`, \`mysql_gtid_status\`, \`mysql_replication_lag\`
+**Encapsulated Tools**: \`mysql_master_status\`, \`mysql_slave_status\`, \`mysql_binlog_events\`, \`mysql_gtid_status\`, \`mysql_replication_lag\`
 
 - **Master status**: \`mysql_master_status\` returns current binlog file, position, and GTID set from the source server.
 - **Slave status**: \`mysql_slave_status\` returns detailed replica status. Returns \`configured: false\` if not a replica.
@@ -481,7 +481,7 @@ Tools: \`mysql_master_status\`, \`mysql_slave_status\`, \`mysql_binlog_events\`,
 - **Replication lag**: \`mysql_replication_lag\` calculates delay in seconds. Returns \`lagSeconds: null\` if not a replica.`],
   ["roles", `# Role Management
 
-Tools: \`mysql_role_list\`, \`mysql_role_create\`, \`mysql_role_drop\`, \`mysql_role_grants\`, \`mysql_role_grant\`, \`mysql_role_assign\`, \`mysql_role_revoke\`, \`mysql_user_roles\`
+**Encapsulated Tools**: \`mysql_role_list\`, \`mysql_role_create\`, \`mysql_role_drop\`, \`mysql_role_grants\`, \`mysql_role_grant\`, \`mysql_role_assign\`, \`mysql_role_revoke\`, \`mysql_user_roles\`
 
 - **Privilege requirements**: Role management requires \`CREATE ROLE\`, \`DROP ROLE\`, \`GRANT\`, and \`REVOKE\` privileges.
 - **Role lifecycle**: Create roles with \`mysql_role_create\`, grant privileges with \`mysql_role_grant\`, then assign to users with \`mysql_role_assign\`.
@@ -495,7 +495,7 @@ Tools: \`mysql_role_list\`, \`mysql_role_create\`, \`mysql_role_drop\`, \`mysql_
 - **Existence checks**: \`mysql_role_grants\` returns a structured error (\`OBJECT_NOT_FOUND\`) if the role does not exist, avoiding raw SQL errors. \`mysql_role_grant\`, \`mysql_role_assign\`, and \`mysql_role_revoke\` also check role/user existence and return structured errors gracefully.`],
   ["router", `# MySQL Router Tools
 
-Tools: \`mysql_router_status\`, \`mysql_router_routes\`, \`mysql_router_route_status\`, \`mysql_router_route_health\`, \`mysql_router_route_connections\`, \`mysql_router_route_destinations\`, \`mysql_router_route_blocked_hosts\`, \`mysql_router_metadata_status\`, \`mysql_router_pool_status\`
+**Encapsulated Tools**: \`mysql_router_status\`, \`mysql_router_routes\`, \`mysql_router_route_status\`, \`mysql_router_route_health\`, \`mysql_router_route_connections\`, \`mysql_router_route_destinations\`, \`mysql_router_route_blocked_hosts\`, \`mysql_router_metadata_status\`, \`mysql_router_pool_status\`
 
 - **Prerequisites**: MySQL Router must be running with REST API enabled. The REST API requires an InnoDB Cluster backend for authentication (uses \`metadata_cache\` credentials).
 - **Self-signed certificates**: Set \`MYSQL_ROUTER_INSECURE=true\` to bypass TLS certificate verification.
@@ -508,7 +508,7 @@ Tools: \`mysql_router_status\`, \`mysql_router_routes\`, \`mysql_router_route_st
 - **Unavailability handling**: Returns \`{ available: false, error: "..." }\` or \`{ success: false, error: "..." }\` instead of throwing when the router is unreachable or a component (404) is missing.`],
   ["schema", `# Schema Tools
 
-Tools: \`mysql_list_schemas\`, \`mysql_create_schema\`, \`mysql_drop_schema\`, \`mysql_list_views\`, \`mysql_create_view\`, \`mysql_drop_view\`, \`mysql_list_constraints\`, \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_create_trigger\`, \`mysql_drop_trigger\`
+**Encapsulated Tools**: \`mysql_list_schemas\`, \`mysql_create_schema\`, \`mysql_drop_schema\`, \`mysql_list_views\`, \`mysql_create_view\`, \`mysql_drop_view\`, \`mysql_list_constraints\`, \`mysql_list_stored_procedures\`, \`mysql_list_functions\`, \`mysql_list_triggers\`, \`mysql_create_trigger\`, \`mysql_drop_trigger\`
 - **Schema management**: \`mysql_list_schemas\` lists databases with charset/collation. Use \`pattern\` for LIKE filtering (e.g., \`pattern: "app_%"\`). \`mysql_create_schema\` and \`mysql_drop_schema\` manage databases.
 - **Graceful schema errors**: \`mysql_create_schema\` returns \`{ success: false, error }\` when the schema already exists (with \`ifNotExists: false\`). With \`ifNotExists: true\` (default), returns \`{ success: true, skipped: true, reason: "Schema already exists" }\` for existing schemas. \`mysql_drop_schema\` returns \`{ success: false, error }\` when the schema does not exist (with \`ifExists: false\`). With \`ifExists: true\` (default), returns \`{ success: true, skipped: true, reason: "Schema did not exist" }\` for nonexistent schemas.
 - **Views**: \`mysql_create_view\` supports \`orReplace\` (default: false), \`algorithm\` (UNDEFINED/MERGE/TEMPTABLE), and \`checkOption\` (NONE/CASCADED/LOCAL). Returns \`{ success: false, error }\` when the view already exists without \`orReplace\` or when the SQL definition is invalid (e.g., referencing nonexistent tables). \`mysql_list_views\` shows definitions, security type, check option, and updatability. \`mysql_drop_view\` removes views and accepts \`ifExists: true\` (default: false) to skip dropping if not found.
@@ -518,7 +518,7 @@ Tools: \`mysql_list_schemas\`, \`mysql_create_schema\`, \`mysql_drop_schema\`, \
 - **Triggers**: \`mysql_create_trigger\` creates triggers with \`timing\` (BEFORE/AFTER), \`event\` (INSERT/UPDATE/DELETE), \`table\`, and \`body\` (SQL statement). Supports \`ifNotExists\` (default: false) and \`order\`/\`otherTrigger\` for FOLLOWS/PRECEDES ordering. Returns \`{ success: false, error }\` for invalid names, nonexistent schemas/tables, or duplicate triggers. \`mysql_drop_trigger\` removes triggers; supports \`ifExists: true\` (default: false) for idempotent drops, returning \`{ skipped: true }\` when the trigger doesn't exist.`],
   ["security", `# Security Tools
 
-Tools: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_security_firewall_rules\`, \`mysql_security_mask_data\`, \`mysql_security_password_validate\`, \`mysql_security_ssl_status\`, \`mysql_security_user_privileges\`, \`mysql_security_sensitive_tables\`, \`mysql_security_encryption_status\`
+**Encapsulated Tools**: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_security_firewall_rules\`, \`mysql_security_mask_data\`, \`mysql_security_password_validate\`, \`mysql_security_ssl_status\`, \`mysql_security_user_privileges\`, \`mysql_security_sensitive_tables\`, \`mysql_security_encryption_status\`
 - **SSL status**: \`mysql_security_ssl_status\` returns SSL/TLS connection status, cipher, certificate paths, and session statistics.
 - **Encryption status**: \`mysql_security_encryption_status\` checks TDE availability, keyring plugins, encrypted tablespaces, and encryption settings.
 - **Password validation**: \`mysql_security_password_validate\` uses MySQL \`validate_password\` component to check password strength (0-100 scale). Returns \`available: false\` if component not installed.
@@ -538,7 +538,7 @@ Tools: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_sec
 \`\`\``],
   ["shell", `# MySQL Shell Tools
 
-Tools: \`mysqlsh_version\`, \`mysqlsh_check_upgrade\`, \`mysqlsh_export_table\`, \`mysqlsh_import_table\`, \`mysqlsh_import_json\`, \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\`, \`mysqlsh_load_dump\`, \`mysqlsh_run_script\`
+**Encapsulated Tools**: \`mysqlsh_version\`, \`mysqlsh_check_upgrade\`, \`mysqlsh_export_table\`, \`mysqlsh_import_table\`, \`mysqlsh_import_json\`, \`mysqlsh_dump_instance\`, \`mysqlsh_dump_schemas\`, \`mysqlsh_dump_tables\`, \`mysqlsh_load_dump\`, \`mysqlsh_run_script\`
 - **Prerequisites**: MySQL Shell must be installed and accessible via \`MYSQLSH_PATH\` environment variable or system PATH.
 - **Version check**: \`mysqlsh_version\` verifies MySQL Shell availability before running other shell tools.
 - **Upgrade checking**: \`mysqlsh_check_upgrade\` analyzes MySQL server for upgrade compatibility issues. Returns \`errorCount\`, \`warningCount\`, and \`noticeCount\` summary with full JSON report. **Note**: Returns \`{ success: false, error }\` when MySQL Shell's version is lower than the current server version—Shell cannot analyze a server newer than itself. Also fails when \`targetVersion\` is lower than the current server version (no downgrade analysis).
@@ -562,7 +562,7 @@ Tools: \`mysqlsh_version\`, \`mysqlsh_check_upgrade\`, \`mysqlsh_export_table\`,
 \`\`\``],
   ["spatial", `# Spatial Tools
 
-Tools: \`mysql_spatial_create_column\`, \`mysql_spatial_create_index\`, \`mysql_spatial_point\`, \`mysql_spatial_polygon\`, \`mysql_spatial_distance\`, \`mysql_spatial_distance_sphere\`, \`mysql_spatial_contains\`, \`mysql_spatial_within\`, \`mysql_spatial_intersection\`, \`mysql_spatial_buffer\`, \`mysql_spatial_transform\`, \`mysql_spatial_geojson\`
+**Encapsulated Tools**: \`mysql_spatial_create_column\`, \`mysql_spatial_create_index\`, \`mysql_spatial_point\`, \`mysql_spatial_polygon\`, \`mysql_spatial_distance\`, \`mysql_spatial_distance_sphere\`, \`mysql_spatial_contains\`, \`mysql_spatial_within\`, \`mysql_spatial_intersection\`, \`mysql_spatial_buffer\`, \`mysql_spatial_transform\`, \`mysql_spatial_geojson\`
 - **Coordinate Order**: All spatial tools use standard **longitude, latitude** parameter order (X, Y), matching GeoJSON and common mapping conventions.
   - ✅ Example: \`{ longitude: -122.4194, latitude: 37.7749 }\` for San Francisco
   - MySQL 8.0+ uses EPSG standard axis order (latitude, longitude) internally for SRID 4326, but tools handle this conversion automatically using \`axis-order=long-lat\` option.
@@ -587,7 +587,7 @@ Tools: \`mysql_spatial_create_column\`, \`mysql_spatial_create_index\`, \`mysql_
 \`\`\``],
   ["stats", `# Stats Tools
 
-Tools: \`mysql_stats_descriptive\`, \`mysql_stats_percentiles\`, \`mysql_stats_correlation\`, \`mysql_stats_distribution\`, \`mysql_stats_time_series\`, \`mysql_stats_regression\`, \`mysql_stats_sampling\`, \`mysql_stats_histogram\`, \`mysql_stats_row_number\`, \`mysql_stats_rank\`, \`mysql_stats_lag_lead\`, \`mysql_stats_running_total\`, \`mysql_stats_moving_avg\`, \`mysql_stats_ntile\`, \`mysql_stats_hypothesis\`, \`mysql_stats_outliers\`, \`mysql_stats_top_n\`, \`mysql_stats_distinct\`, \`mysql_stats_frequency\`, \`mysql_stats_summary\`
+**Encapsulated Tools**: \`mysql_stats_descriptive\`, \`mysql_stats_percentiles\`, \`mysql_stats_correlation\`, \`mysql_stats_distribution\`, \`mysql_stats_time_series\`, \`mysql_stats_regression\`, \`mysql_stats_sampling\`, \`mysql_stats_histogram\`, \`mysql_stats_row_number\`, \`mysql_stats_rank\`, \`mysql_stats_lag_lead\`, \`mysql_stats_running_total\`, \`mysql_stats_moving_avg\`, \`mysql_stats_ntile\`, \`mysql_stats_hypothesis\`, \`mysql_stats_outliers\`, \`mysql_stats_top_n\`, \`mysql_stats_distinct\`, \`mysql_stats_frequency\`, \`mysql_stats_summary\`
 - **Descriptive**: \`mysql_stats_descriptive\` (mean, median, stddev, min, max, count), \`mysql_stats_percentiles\` (custom percentiles), \`mysql_stats_distribution\` (histogram buckets), \`mysql_stats_time_series\` (aggregates by time interval), \`mysql_stats_sampling\` (random rows).
 - **Comparative**: \`mysql_stats_correlation\` (Pearson correlation), \`mysql_stats_regression\` (simple linear regression), \`mysql_stats_histogram\` (MySQL 8.0+ optimizer histograms, use \`update: true\` to refresh).
 - **Advanced**: \`mysql_stats_hypothesis\` (one-sample and two-sample t-tests or z-tests), \`mysql_stats_outliers\` (z-score/iqr outlier detection), \`mysql_stats_top_n\` (top N rows excluding long content), \`mysql_stats_distinct\` (distinct counts and values), \`mysql_stats_frequency\` (value frequency distribution), \`mysql_stats_summary\` (summary of multiple numeric columns).
@@ -607,7 +607,7 @@ Tools: \`mysql_stats_descriptive\`, \`mysql_stats_percentiles\`, \`mysql_stats_c
 \`\`\``],
   ["sysschema", `# Sys Schema Tools
 
-Tools: \`mysql_sys_user_summary\`, \`mysql_sys_io_summary\`, \`mysql_sys_statement_summary\`, \`mysql_sys_wait_summary\`, \`mysql_sys_innodb_lock_waits\`, \`mysql_sys_schema_stats\`, \`mysql_sys_host_summary\`, \`mysql_sys_memory_summary\`
+**Encapsulated Tools**: \`mysql_sys_user_summary\`, \`mysql_sys_io_summary\`, \`mysql_sys_statement_summary\`, \`mysql_sys_wait_summary\`, \`mysql_sys_innodb_lock_waits\`, \`mysql_sys_schema_stats\`, \`mysql_sys_host_summary\`, \`mysql_sys_memory_summary\`
 - **User/Host activity**: \`mysql_sys_user_summary\` and \`mysql_sys_host_summary\` show connection counts, statement latency, and I/O metrics. Filter with \`user\` or \`host\` parameters.
 - **Statement analysis**: \`mysql_sys_statement_summary\` returns query digest stats (default \`limit: 5\`). Order by \`total_latency\` (default), \`exec_count\`, \`avg_latency\`, \`rows_sent\`, or \`rows_examined\`.
 - **I/O analysis**: \`mysql_sys_io_summary\` supports \`table\` (default), \`file\`, and \`global\` types for I/O breakdown (default \`limit: 5\`).
@@ -625,7 +625,7 @@ Tools: \`mysql_sys_user_summary\`, \`mysql_sys_io_summary\`, \`mysql_sys_stateme
 \`\`\``],
   ["text", `# Text Tools
 
-Tools: \`mysql_regexp_match\`, \`mysql_like_search\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`
+**Encapsulated Tools**: \`mysql_regexp_match\`, \`mysql_like_search\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`
 
 ### Search & Match (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`)
 - **LIKE patterns**: \`%\` matches any characters, \`_\` matches single character.
@@ -645,7 +645,7 @@ Tools: \`mysql_regexp_match\`, \`mysql_like_search\`, \`mysql_soundex\`, \`mysql
 - **Error Handling**: Nonexistent tables return \`{ exists: false, table: "..." }\`. Query errors (unknown column, invalid regex/charset) return \`{ success: false, error: "..." }\`. Raw MySQL errors are caught and transformed.`],
   ["transactions", `# Transactions & Safety
 
-Tools: \`mysql_transaction_begin\`, \`mysql_transaction_commit\`, \`mysql_transaction_rollback\`, \`mysql_transaction_savepoint\`, \`mysql_transaction_release\`, \`mysql_transaction_rollback_to\`, \`mysql_transaction_execute\`
+**Encapsulated Tools**: \`mysql_transaction_begin\`, \`mysql_transaction_commit\`, \`mysql_transaction_rollback\`, \`mysql_transaction_savepoint\`, \`mysql_transaction_release\`, \`mysql_transaction_rollback_to\`, \`mysql_transaction_execute\`
 
 - **Interactive transactions**: Use \`mysql_transaction_begin\` → get \`transactionId\` → pass it to \`mysql_read_query\` or \`mysql_write_query\` for queries within the transaction → \`mysql_transaction_commit\` or \`mysql_transaction_rollback\`.
 - **Atomic execution**: \`mysql_transaction_execute\` runs multiple SQL statements in a single atomic transaction. All succeed or all are rolled back. Returns \`rows\` and \`rowCount\` for SELECT statements, \`rowsAffected\` for write statements. Returns \`{ success: false, error }\` if the \`statements\` array is empty. Returns \`{ success: false, error, rolledBack: true }\` if any statement fails.
@@ -655,7 +655,7 @@ Tools: \`mysql_transaction_begin\`, \`mysql_transaction_commit\`, \`mysql_transa
 - **Graceful error handling**: \`mysql_transaction_commit\` and \`mysql_transaction_rollback\` return \`{ success: false, error }\` for invalid or expired transaction IDs. Savepoint tools (\`mysql_transaction_savepoint\`, \`mysql_transaction_release\`, \`mysql_transaction_rollback_to\`) return \`{ success: false, error }\` when the transaction or savepoint does not exist.`],
   ["vector", `# Vector Tools
 
-Tools: \`mysql_vector_store\`, \`mysql_vector_batch_store\`, \`mysql_vector_delete\`, \`mysql_vector_get\`, \`mysql_vector_search\`, \`mysql_vector_range_search\`, \`mysql_vector_hybrid_search\`, \`mysql_vector_info\`, \`mysql_vector_create_index\`, \`mysql_vector_optimize\`, \`mysql_vector_stats\`
+**Encapsulated Tools**: \`mysql_vector_store\`, \`mysql_vector_batch_store\`, \`mysql_vector_delete\`, \`mysql_vector_get\`, \`mysql_vector_search\`, \`mysql_vector_range_search\`, \`mysql_vector_hybrid_search\`, \`mysql_vector_info\`, \`mysql_vector_create_index\`, \`mysql_vector_optimize\`, \`mysql_vector_stats\`
 - **Version gate**: ALL vector tools require MySQL 9.0+. Returns \`{ success: false, code: "EXTENSION_MISSING" }\` on older versions. \`mysql_vector_create_index\` requires MySQL 9.1+ specifically.
 - **Store**: \`mysql_vector_store\`({ table, column, id, vector: number[] }) → upserts a single vector. Uses \`STRING_TO_VECTOR()\` internally. Dimensions must match the column's \`VECTOR(N)\` definition.
 - **Batch store**: \`mysql_vector_batch_store\`({ table, column, items: [{ id, vector }] }) → bulk insert. Significantly faster than individual stores. All vectors must have matching dimensions.

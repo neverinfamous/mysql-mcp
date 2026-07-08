@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [docstore-collections]
+# MySQL MCP Code Mode Testing: [json-core-write-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,33 +210,32 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_doc_list_collections`
-- `mysql_doc_create_collection`
-- `mysql_doc_drop_collection`
-- `mysql_doc_create_index`
-- `mysql_doc_collection_info`
+- `mysql_json_set`
+- `mysql_json_insert`
+- `mysql_json_replace`
 
-## Group Focus:docstore-collections
+## Group Focus:json-core-write-part1
 
-docstore-collections Tool Group:
+json-core-write-part1 Tool Group:
 
-1. `mysql_doc_list_collections` 2. `mysql_doc_create_collection` 3. `mysql_doc_drop_collection`
-4. `mysql_doc_create_index` 5. `mysql_doc_collection_info`
+1. `mysql_json_set` 2. `mysql_json_insert` 3. `mysql_json_replace`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.docstore.help()` → verify method listing
-2. `mysql.docstore.listCollections()` → `test_documents` present
-3. `mysql.docstore.createCollection({name: "temp_cm_docs"})` → `success: true`
-4. `mysql.docstore.collectionInfo({collection: "temp_cm_docs"})` → validation status
-5. `mysql.docstore.createIndex({collection: "temp_cm_docs", indexName: "idx_temp", fields: [{field: "$.name", type: "STRING(50)"}]})` → success
-6. `mysql.docstore.dropCollection({name: "temp_cm_docs"})` → `success: true`
+1. `mysql.json.help()` → verify method listing
+2. `mysql.json.set({table: "test_json_docs", column: "doc", path: "$.test", value: "1", condition: "id=1"})` → updated
+3. `mysql.json.insert({table: "test_json_docs", column: "doc", path: "$.new", value: "1", condition: "id=1"})` → inserted
+4. `mysql.json.replace({table: "test_json_docs", column: "doc", path: "$.test", value: "2", condition: "id=1"})` → replaced
 
 **Domain error paths (🔴):**
-7. 🔴 `mysql.docstore.collectionInfo({collection: "nonexistent_xyz"})` → `{success: false}`
+5. 🔴 `mysql.json.set({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
+6. 🔴 `mysql.json.insert({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
+7. 🔴 `mysql.json.replace({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-8. 🔴 `mysql.docstore.createCollection({})` → `{success: false, error: "Validation error: ..."}`
+8. 🔴 `mysql.json.set({})` → `{success: false, error: "Validation error: ..."}`
+9. 🔴 `mysql.json.insert({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.json.replace({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

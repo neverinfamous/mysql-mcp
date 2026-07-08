@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [schema-routines]
+# MySQL MCP Code Mode Testing: [docstore-collections-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,29 +210,27 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_list_stored_procedures`
-- `mysql_list_functions`
-- `mysql_list_triggers`
-- `mysql_create_trigger`
-- `mysql_drop_trigger`
+- `mysql_doc_create_index`
+- `mysql_doc_collection_info`
 
-## Group Focus:schema-routines
+## Group Focus:docstore-collections-part2
 
-schema Tool Group (5 tools +1 code mode):
+docstore-collections-part2 Tool Group:
 
-1. `mysql_list_stored_procedures` 2. `mysql_list_functions` 3. `mysql_list_triggers`
-4. `mysql_create_trigger` 5. `mysql_drop_trigger`
+1. `mysql_doc_create_index` 2. `mysql_doc_collection_info`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.schema.help()` → verify method listing
-2. `mysql.schema.listStoredProcedures({})` → `{success: true}` (schema is optional)
-3. `mysql.schema.listFunctions({database: "testdb"})` → verify structure
-4. `mysql.schema.listTriggers({database: "testdb"})` → verify structure
-5. `mysql.schema.createTrigger({name: "temp_cm_trigger", table: "test_orders", timing: "BEFORE", event: "INSERT", statement: "SET NEW.status = 'PENDING'"})` → `success: true`
-6. `mysql.schema.dropTrigger({name: "temp_cm_trigger"})` → `success: true`
-7. 🔴 `mysql.schema.listTriggers({database: "nonexistent_db_xyz"})` → `{success: false}`
-8. 🔴 `mysql.schema.createTrigger({})` → `{success: false, error: "Validation error: ..."}`
+1. `mysql.docstore.help()` → verify method listing
+2. `mysql.docstore.createCollection({name: "temp_cm_docs_idx"})` → `success: true`
+3. `mysql.docstore.collectionInfo({collection: "temp_cm_docs_idx"})` → validation status
+4. `mysql.docstore.createIndex({collection: "temp_cm_docs_idx", indexName: "idx_temp", fields: [{field: "$.name", type: "STRING(50)"}]})` → success
+5. `mysql.docstore.dropCollection({name: "temp_cm_docs_idx"})` → `success: true`
+
+**Domain error paths (🔴):**
+6. 🔴 `mysql.docstore.collectionInfo({collection: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
 
 ---
 

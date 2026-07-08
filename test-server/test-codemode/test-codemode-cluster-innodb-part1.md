@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Code Mode Testing: [cluster-innodb-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,40 +210,23 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `mysql_cluster_status`
+- `mysql_cluster_instances`
+- `mysql_cluster_topology`
 
-## Group Focus:router
+## Group Focus:cluster-innodb-part1
 
-router Tool Group (5 tools +1 code mode):
+cluster Tool Group (3 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_cluster_status` 2. `mysql_cluster_instances` 3. `mysql_cluster_topology`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+1. `mysql.cluster.help()` → verify method listing
+2. `mysql.cluster.status()` → cluster status or structured error
+3. `mysql.cluster.status({summary: true})` → summarized output
+4. `mysql.cluster.instances()` → instance details
+5. `mysql.cluster.topology()` → topology map
 
 ---
 

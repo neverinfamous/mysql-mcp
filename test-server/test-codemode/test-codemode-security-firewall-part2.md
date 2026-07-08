@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [fulltext]
+# MySQL MCP Code Mode Testing: [security-firewall] (Part 2)
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,46 +210,22 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_fulltext_create`
-- `mysql_fulltext_drop`
-- `mysql_fulltext_search`
-- `mysql_fulltext_boolean`
-- `mysql_fulltext_expand`
+- `mysql_security_ssl_status`
+- `mysql_security_encryption_status`
+- `mysql_security_password_validate`
+- `mysql_execute_code`
 
-## Group Focus:fulltext
+## Group Focus:security (Firewall & SSL) - Part 2
 
-fulltext Tool Group (5 tools +1 code mode):
+security (firewall) Tool Group:
+1. `mysql_security_ssl_status`
+2. `mysql_security_encryption_status`
+3. `mysql_security_password_validate`
+4. `mysql_execute_code` (codemode, auto-added)
 
-1. `mysql_fulltext_create` 2. `mysql_fulltext_drop` 3. `mysql_fulltext_search`
-2. `mysql_fulltext_boolean` 5. `mysql_fulltext_expand`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.fulltext.help()` → verify method listing
-2. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → results with relevance
-3. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
-4. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results
-5. `mysql.fulltext.expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
-6. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
-7. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` returned
-8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>"})` → verify pagination works
-9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify sanitization (no syntax error)
-
-**Create → Search → Drop lifecycle:**
-
-10. `mysql.fulltext.create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
-11. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer"})` → results
-12. `mysql.fulltext.drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false}`
-11. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false}` (no FTS index)
-
-**Zod validation error paths (🔴):**
-
-12. 🔴 `mysql.fulltext.search({})` → `{success: false, error: "Validation error: ..."}`
-13. 🔴 `mysql.fulltext.create({})` → `{success: false, error: "Validation error: ..."}`
+1. `mysql.security.sslStatus()`
+2. `mysql.security.encryptionStatus()`
+3. `mysql.security.passwordValidate({ password: "weak" })`
 
 ---
 

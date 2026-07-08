@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [security-firewall]
+# MySQL MCP Code Mode Testing: [router-routes-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,29 +210,31 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_firewall_status`
-- `mysql_security_firewall_rules`
-- `mysql_security_ssl_status`
-- `mysql_security_encryption_status`
-- `mysql_security_password_validate`
-- `mysql_execute_code`
+- `mysql_router_route_destinations`
+- `mysql_router_route_blocked_hosts`
 
-## Group Focus:security (Firewall & SSL)
+## Group Focus:router
 
-security (firewall) Tool Group:
-1. `mysql_security_firewall_status`
-2. `mysql_security_firewall_rules`
-3. `mysql_security_ssl_status`
-4. `mysql_security_encryption_status`
-5. `mysql_security_password_validate`
-6. `mysql_execute_code` (codemode, auto-added)
+router Tool Group (2 tools +1 code mode):
 
-1. `mysql.security.help()`
-2. `mysql.security.firewallStatus()`
-3. `mysql.security.firewallRules({ limit: 5 })`
-4. `mysql.security.sslStatus()`
-5. `mysql.security.encryptionStatus()`
-6. `mysql.security.passwordValidate({ password: "weak" })`
+1. `mysql_router_route_destinations`
+2. `mysql_router_route_blocked_hosts`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.router.help()` → verify method listing
+2. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
+3. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+
+**Domain error paths (🔴):**
+
+11. 🔴 `mysql.router.routeDestinations({routeName: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+13. 🔴 `mysql.router.routeDestinations({})` → `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance paths (🟢):**
+14. 🟢 `mysql.router.routeDestinations({name: "bootstrap_rw"})` → behaves identically to `routeName`
 
 ---
 

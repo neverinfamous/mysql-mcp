@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [cluster-innodb]
+# MySQL MCP Code Mode Testing: [cluster-group-replication-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,29 +210,20 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_cluster_status`
-- `mysql_cluster_instances`
-- `mysql_cluster_topology`
-- `mysql_cluster_router_status`
-- `mysql_cluster_switchover`
+- `mysql_gr_transactions`
+- `mysql_gr_flow_control`
 
-## Group Focus:cluster-innodb
+## Group Focus:cluster-group-replication (Part 2)
 
-cluster Tool Group (5 tools +1 code mode):
+cluster Tool Group (2 tools +1 code mode):
 
-1. `mysql_cluster_status` 2. `mysql_cluster_instances` 3. `mysql_cluster_topology`
-4. `mysql_cluster_router_status` 5. `mysql_cluster_switchover`
+1. `mysql_gr_transactions` 2. `mysql_gr_flow_control`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
 1. `mysql.cluster.help()` → verify method listing
-2. `mysql.cluster.status()` → cluster status or structured error
-3. `mysql.cluster.status({summary: true})` → summarized output
-4. `mysql.cluster.instances()` → instance details
-5. `mysql.cluster.topology()` → topology map
-6. `mysql.cluster.routerStatus()` → router status
-7. `mysql.cluster.routerStatus({summary: true})` → summarized
-8. `mysql.cluster.switchover()` → switchover analysis
+2. `mysql.cluster.grTransactions()` → transaction metrics
+3. `mysql.cluster.grFlowControl()` → flow control stats
 
 ---
 

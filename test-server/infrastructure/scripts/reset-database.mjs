@@ -20,7 +20,7 @@ const mysqlPassword = 'root';
 const mysqlDatabase = 'testdb';
 const targetLabel = cluster ? 'InnoDB Cluster' : 'Standalone MySQL';
 
-const seedFile = resolve(__dirname, '../test-server/test-seed.sql');
+const seedFile = resolve(__dirname, '../../test-seed.sql');
 
 console.log(`\n=== MySQL-MCP Test Database Reset ===`);
 console.log(`Target: ${targetLabel} (${containerName} @ ${mysqlHost}:${mysqlPort}/${mysqlDatabase})`);

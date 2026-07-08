@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [stats-basic]
+# MySQL MCP Code Mode Testing: [json-enhanced-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,42 +210,36 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_descriptive`
-- `mysql_stats_percentiles`
-- `mysql_stats_distribution`
-- `mysql_stats_sampling`
-- `mysql_stats_histogram`
+- `mysql_json_merge`
+- `mysql_json_diff`
+- `mysql_execute_code`
 
-## Group Focus:stats-descriptive
+## Group Focus:json-enhanced-part1
 
-stats-descriptive Tool Group (5 tools +1 code mode):
+### json-enhanced-part1 Group-Specific Testing
 
-1. `mysql_stats_descriptive`
-2. `mysql_stats_percentiles`
-3. `mysql_stats_distribution`
-4. `mysql_stats_sampling`
-5. `mysql_stats_histogram`
+json-enhanced-part1 Tool Group (2 tools +1 for code mode):
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+1. `mysql_json_merge`
+2. `mysql_json_diff`
+3. `mysql_execute_code` (codemode, auto-added)
 
-1. `mysql.stats.help()` → verify method listing
-2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
-3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
-5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
-8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
-9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. `mysql.json.merge({...})` → happy path
+2. `mysql.json.diff({...})` → happy path
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
-11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
-12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
+3. 🔴 `mysql.json.merge({...})` → domain error
+4. 🔴 `mysql.json.diff({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
-14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
-15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
+5. 🔴 `mysql.json.merge({})` → validation error
+6. 🔴 `mysql.json.diff({})` → validation error
 
 ---
 

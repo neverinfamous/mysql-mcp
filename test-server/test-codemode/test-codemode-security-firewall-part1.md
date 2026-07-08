@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [cluster-group-replication]
+# MySQL MCP Code Mode Testing: [security-firewall] (Part 1)
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,27 +210,20 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_gr_status`
-- `mysql_gr_members`
-- `mysql_gr_primary`
-- `mysql_gr_transactions`
-- `mysql_gr_flow_control`
+- `mysql_security_firewall_status`
+- `mysql_security_firewall_rules`
+- `mysql_execute_code`
 
-## Group Focus:cluster-group-replication
+## Group Focus:security (Firewall & SSL) - Part 1
 
-cluster Tool Group (5 tools +1 code mode):
+security (firewall) Tool Group:
+1. `mysql_security_firewall_status`
+2. `mysql_security_firewall_rules`
+3. `mysql_execute_code` (codemode, auto-added)
 
-1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary`
-4. `mysql_gr_transactions` 5. `mysql_gr_flow_control`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.cluster.help()` → verify method listing
-2. `mysql.cluster.grStatus()` → GR status or structured error
-3. `mysql.cluster.grMembers()` → members or empty
-4. `mysql.cluster.grPrimary()` → primary node details
-5. `mysql.cluster.grTransactions()` → transaction metrics
-6. `mysql.cluster.grFlowControl()` → flow control stats
+1. `mysql.security.help()`
+2. `mysql.security.firewallStatus()`
+3. `mysql.security.firewallRules({ limit: 5 })`
 
 ---
 

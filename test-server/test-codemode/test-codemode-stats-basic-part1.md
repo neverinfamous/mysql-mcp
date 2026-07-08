@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [replication]
+# MySQL MCP Code Mode Testing: [stats-basic-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,37 +210,34 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_master_status`
-- `mysql_slave_status`
-- `mysql_binlog_events`
-- `mysql_gtid_status`
-- `mysql_replication_lag`
+- `mysql_stats_descriptive`
+- `mysql_stats_percentiles`
+- `mysql_stats_distribution`
 
-## Group Focus:replication
+## Group Focus:stats-descriptive (Part 1)
 
-replication Tool Group (5 tools +1 code mode):
+stats-descriptive Tool Group (3 tools +1 code mode):
 
-1. `mysql_master_status` 2. `mysql_slave_status` 3. `mysql_binlog_events`
-2. `mysql_gtid_status` 5. `mysql_replication_lag`
-
-> **Note**: In a single-server test environment, most will return status-only results. Focus on structured error responses.
+1. `mysql_stats_descriptive`
+2. `mysql_stats_percentiles`
+3. `mysql_stats_distribution`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.replication.help()` → verify method listing
-2. `mysql.replication.masterStatus()` → binlog file, position
-3. `mysql.replication.slaveStatus()` → structured response (may indicate no replication)
-4. `mysql.replication.gtidStatus()` → GTID information
-5. `mysql.replication.binlogEvents({limit: 5})` → binlog events
-6. `mysql.replication.replicationLag()` → response (0 lag or no-replica)
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
+3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
+5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
 
 **Domain error paths (🔴):**
 
-7. 🔴 `mysql.replication.binlogEvents({logFile: "nonexistent_binlog.123456"})` → verify structured `{success: false}`
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-8. 🔴 `mysql.replication.binlogEvents({logFile: 123})` → must NOT return raw MCP error (wrong type)
+13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
+14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
