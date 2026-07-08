@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { createListViewsTool, createCreateViewTool } from "../views.js";
 import type {} from "../../../mysql-adapter/index.js";
 import {
@@ -6,15 +6,14 @@ import {
   createMockRequestContext,
   createMockQueryResult,
 } from "../../../../../__tests__/mocks/index.js";
+import { setupSchemaTest } from "./setup.js";
 
 describe("Schema View Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockAdapter = createMockMySQLAdapter();
-    mockContext = createMockRequestContext();
+    ({ mockAdapter, mockContext } = setupSchemaTest());
   });
 
   describe("mysql_list_views", () => {

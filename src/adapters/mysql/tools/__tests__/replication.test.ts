@@ -723,7 +723,7 @@ describe("Replication Fallback Handling", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("status");
+      expect((result as Record<string, unknown>).data).toHaveProperty("status");
     });
 
     it("should return structured error when binary logging is disabled", async () => {
@@ -754,7 +754,7 @@ describe("Replication Fallback Handling", () => {
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("status");
+      expect((result as Record<string, unknown>).data).toHaveProperty("status");
     });
 
     it("should return message when not configured as replica", async () => {

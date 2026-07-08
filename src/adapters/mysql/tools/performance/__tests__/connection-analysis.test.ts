@@ -130,7 +130,6 @@ describe("Connection Analysis Tools", () => {
         { windowMinutes: 5, warningPercent: 70 },
         mockContext,
       );
-      console.log("RESULT USER CONC:", JSON.stringify(result.data, null, 2));
 
       expect(result.success).toBe(true);
       expect(result.data.totalConnections).toBe(10);

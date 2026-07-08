@@ -42,8 +42,8 @@ describe("server-config", () => {
 
       const result = await tool.handler({ action: "get" }, mockContext);
       expect(result.success).toBe(false);
-      expect((result as any).error).toContain("Insufficient scope");
-      expect((result as any).code).toBe("AUTH_INSUFFICIENT_SCOPE");
+      expect((result as Record<string, unknown>).error).toContain("Insufficient scope");
+      expect((result as Record<string, unknown>).code).toBe("AUTH_INSUFFICIENT_SCOPE");
     });
 
     it("should handle 'get' action", async () => {
@@ -56,7 +56,7 @@ describe("server-config", () => {
 
       const result = await tool.handler({ action: "get" }, mockContext);
       expect(result.success).toBe(true);
-      expect((result as any).data.config.logLevel).toBe("info");
+      expect((result as Record<string, unknown>).data.config.logLevel).toBe("info");
       expect(logger.getLevel).toHaveBeenCalled();
     });
 
@@ -73,7 +73,7 @@ describe("server-config", () => {
       );
       
       expect(result.success).toBe(true);
-      expect((result as any).data.message).toContain("Log level successfully updated to debug");
+      expect((result as Record<string, unknown>).data.message).toContain("Log level successfully updated to debug");
       expect(logger.setLevel).toHaveBeenCalledWith("debug");
       expect(logger.info).toHaveBeenCalledWith(
         expect.stringContaining("Log level dynamically changed to debug"),
@@ -94,8 +94,8 @@ describe("server-config", () => {
       );
       
       expect(result.success).toBe(false);
-      expect((result as any).error).toContain("Invalid log level");
-      expect((result as any).category).toBe(ErrorCategory.VALIDATION);
+      expect((result as Record<string, unknown>).error).toContain("Invalid log level");
+      expect((result as Record<string, unknown>).category).toBe(ErrorCategory.VALIDATION);
       expect(logger.setLevel).not.toHaveBeenCalled();
     });
 
@@ -112,7 +112,7 @@ describe("server-config", () => {
       );
       
       expect(result.success).toBe(false);
-      expect((result as any).error).toContain("setting and value are required for 'set' action");
+      expect((result as Record<string, unknown>).error).toContain("setting and value are required for 'set' action");
       expect(logger.setLevel).not.toHaveBeenCalled();
     });
 
@@ -126,7 +126,7 @@ describe("server-config", () => {
       const result = await tool.handler({ action: "unknown" }, mockContext);
       
       expect(result.success).toBe(false);
-      expect((result as any).category).toBe(ErrorCategory.VALIDATION);
+      expect((result as Record<string, unknown>).category).toBe(ErrorCategory.VALIDATION);
     });
 
     it("should catch errors and format them", async () => {
@@ -143,7 +143,7 @@ describe("server-config", () => {
 
       const result = await tool.handler({ action: "get" }, mockContext);
       expect(result.success).toBe(false);
-      expect((result as any).error).toContain("Unexpected error");
+      expect((result as Record<string, unknown>).error).toContain("Unexpected error");
     });
   });
 });

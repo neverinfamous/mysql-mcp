@@ -36,7 +36,7 @@ describe("setupSubscriptions", () => {
 
     beforeEach(() => {
       setupSubscriptions(mcpServer, subscriptionManager);
-      const subscribeCall = (mcpServer.server.setRequestHandler as any).mock.calls.find(
+      const subscribeCall = (mcpServer.server.setRequestHandler as Record<string, unknown>).mock.calls.find(
         (call: any) => call[0] === SubscribeRequestSchema
       );
       subscribeHandler = subscribeCall[1];
@@ -102,7 +102,7 @@ describe("setupSubscriptions", () => {
 
     beforeEach(() => {
       setupSubscriptions(mcpServer, subscriptionManager);
-      const unsubscribeCall = (mcpServer.server.setRequestHandler as any).mock.calls.find(
+      const unsubscribeCall = (mcpServer.server.setRequestHandler as Record<string, unknown>).mock.calls.find(
         (call: any) => call[0] === UnsubscribeRequestSchema
       );
       unsubscribeHandler = unsubscribeCall[1];

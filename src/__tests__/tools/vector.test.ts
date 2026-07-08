@@ -136,7 +136,6 @@ describe("Vector Tools", () => {
         mockContext
       );
       
-      console.log(result);
       expect(result.success).toBe(true);
       expect(result.data.count).toBe(1);
     });
@@ -201,7 +200,6 @@ describe("Vector Tools", () => {
         mockContext
       );
       
-      console.log("TEST RESULT:", result);
       expect(result.success).toBe(true);
       expect(result.data.results[0]).not.toHaveProperty('v1');
       expect(result.data.results[0]).toHaveProperty('id');

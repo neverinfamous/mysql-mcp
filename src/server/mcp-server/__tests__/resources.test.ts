@@ -66,7 +66,7 @@ describe("mcp-server resources", () => {
       // Verify the handler works for gotchas
       const gotchasCall = vi.mocked(mcpServer.registerResource).mock.calls.find(call => call[1] === "mysql://help");
       const gotchasHandler = gotchasCall![3];
-      const gotchasResult = gotchasHandler(undefined as any, undefined as any);
+      const gotchasResult = gotchasHandler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
       
       expect(gotchasResult).toEqual({
         contents: [
@@ -116,7 +116,7 @@ describe("mcp-server resources", () => {
         getStats: vi.fn().mockResolvedValue({ total: 2 })
       };
 
-      registerAuditResource(mcpServer, mockAuditLogger as any, mockBackupManager as any);
+      registerAuditResource(mcpServer, mockAuditLogger as Record<string, unknown>, mockBackupManager as Record<string, unknown>);
       
       expect(mcpServer.registerResource).toHaveBeenCalledWith(
         "mysql_audit",
@@ -126,7 +126,7 @@ describe("mcp-server resources", () => {
       );
 
       const handler = vi.mocked(mcpServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as any, undefined as any);
+      const result: any = await handler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
       
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://audit");
       
@@ -146,10 +146,10 @@ describe("mcp-server resources", () => {
         recent: vi.fn().mockResolvedValue([])
       };
 
-      registerAuditResource(mcpServer, mockAuditLogger as any, null);
+      registerAuditResource(mcpServer, mockAuditLogger as Record<string, unknown>, null);
       
       const handler = vi.mocked(mcpServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as any, undefined as any);
+      const result: any = await handler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
       
       const parsed = JSON.parse(result.contents[0].text);
       expect(parsed.summary.backups).toBeUndefined();
@@ -168,7 +168,7 @@ describe("mcp-server resources", () => {
       );
 
       const handler = vi.mocked(mcpServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as any, undefined as any);
+      const result: any = await handler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
       
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://metrics");
       

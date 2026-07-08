@@ -100,7 +100,7 @@ describe("streamable", () => {
       const transportCall = onConnect.mock.calls[0][0] as StreamableHTTPServerTransport;
       
       // Test onclose with valid session
-      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as any);
+      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as Record<string, unknown>);
       const closeSpy = vi.spyOn(sessionManager, "close").mockResolvedValue(undefined);
       
       if (transportCall.onclose) {
@@ -118,7 +118,7 @@ describe("streamable", () => {
       
       vi.mocked(security.readBody).mockResolvedValueOnce({ method: "ping" });
       
-      const wrongTransport = new SSEServerTransport("/message", {} as any);
+      const wrongTransport = new SSEServerTransport("/message", {} as Record<string, unknown>);
       sessionManager.get = vi.fn().mockReturnValue({ 
         transport: wrongTransport,
         createdAt: Date.now()
@@ -134,7 +134,7 @@ describe("streamable", () => {
       req.method = "GET";
       req.headers = { "mcp-session-id": "test-session" };
       
-      const wrongTransport = new SSEServerTransport("/message", {} as any);
+      const wrongTransport = new SSEServerTransport("/message", {} as Record<string, unknown>);
       sessionManager.get = vi.fn().mockReturnValue({ 
         transport: wrongTransport,
         createdAt: Date.now()
@@ -317,7 +317,7 @@ describe("streamable", () => {
       const transportCall = onConnect.mock.calls[0][0] as StreamableHTTPServerTransport;
       Object.defineProperty(transportCall, 'sessionId', { get: () => undefined });
       
-      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as any);
+      const getSpy = vi.spyOn(sessionManager, "get").mockReturnValue({} as Record<string, unknown>);
       const closeSpy = vi.spyOn(sessionManager, "close").mockResolvedValue(undefined);
       
       if (transportCall.onclose) {

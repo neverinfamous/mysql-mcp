@@ -227,7 +227,7 @@ describe("CodeModeSecurityManager", () => {
       const fakeMap = new Map();
       Object.defineProperty(fakeMap, 'size', { get: () => 10000 });
       fakeMap.set("oldest-client", { count: 1, resetTime: now + 60000 });
-      (manager as any).rateLimitMap = fakeMap;
+      (manager as Record<string, unknown>).rateLimitMap = fakeMap;
       
       await manager.checkRateLimit("new-client");
       
@@ -271,7 +271,7 @@ describe("CodeModeSecurityManager", () => {
         isOpen: true,
         get: vi.fn().mockResolvedValue("5"),
       };
-      (manager as any).redisClient = mockRedis;
+      (manager as Record<string, unknown>).redisClient = mockRedis;
 
       const remaining = await manager.getRateLimitRemaining("client-redis");
       expect(remaining).toBe(55); // 60 - 5
@@ -283,7 +283,7 @@ describe("CodeModeSecurityManager", () => {
         isOpen: true,
         get: vi.fn().mockRejectedValue(new Error("Redis error")),
       };
-      (manager as any).redisClient = mockRedis;
+      (manager as Record<string, unknown>).redisClient = mockRedis;
 
       await manager.checkRateLimit("client-redis-err");
       const remaining = await manager.getRateLimitRemaining("client-redis-err");
@@ -306,7 +306,7 @@ describe("CodeModeSecurityManager", () => {
         pTTL: vi.fn(),
       };
       // Inject mock client via private property bypass
-      (manager as any).redisClient = mockRedisClient;
+      (manager as Record<string, unknown>).redisClient = mockRedisClient;
     });
 
     it("should allow requests and expire on first request", async () => {

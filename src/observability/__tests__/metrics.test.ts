@@ -31,7 +31,7 @@ describe("metrics", () => {
       }
 
       const summary = metrics.getSummary();
-      const toolSummary = (summary.tools as any)["test_tool"];
+      const toolSummary = (summary.tools as Record<string, unknown>)["test_tool"];
       
       expect(toolSummary.calls).toBe(100);
       expect(toolSummary.errors).toBe(0);
@@ -46,7 +46,7 @@ describe("metrics", () => {
     it("should handle error recordings", () => {
       metrics.recordToolCall("test_tool", 50, false, 5);
       
-      const summary = (metrics.getSummary().tools as any)["test_tool"];
+      const summary = (metrics.getSummary().tools as Record<string, unknown>)["test_tool"];
       expect(summary.calls).toBe(1);
       expect(summary.errors).toBe(1);
       expect(summary.tokens).toBe(5);
@@ -55,7 +55,7 @@ describe("metrics", () => {
     it("should return zeros when no samples recorded", () => {
       // Create a new instance via reflection to access ToolMetric directly
       // Or just check that before recording it's empty (wait, it won't be in the map)
-      const emptySummary = (metrics.getSummary().tools as any)["non_existent"];
+      const emptySummary = (metrics.getSummary().tools as Record<string, unknown>)["non_existent"];
       expect(emptySummary).toBeUndefined();
     });
 
@@ -64,7 +64,7 @@ describe("metrics", () => {
         metrics.recordToolCall("test_tool", i, true);
       }
       
-      const summary = (metrics.getSummary().tools as any)["test_tool"];
+      const summary = (metrics.getSummary().tools as Record<string, unknown>)["test_tool"];
       expect(summary.calls).toBe(1500); // Calls keeps incrementing
       // The buffer only holds the latest 1000 items (501 to 1500)
       // p50 of 501-1500 is ~1000
@@ -77,7 +77,7 @@ describe("metrics", () => {
       metrics.recordResourceRead("test_uri");
       metrics.recordResourceRead("test_uri");
       
-      const summary = (metrics.getSummary().resources as any)["test_uri"];
+      const summary = (metrics.getSummary().resources as Record<string, unknown>)["test_uri"];
       expect(summary.reads).toBe(2);
     });
   });
@@ -122,10 +122,10 @@ describe("metrics", () => {
       metrics.setSystemDb(mockSystemDb);
       
       // Call private method directly because fake timers with unref() can be flaky in coverage
-      (metrics as any).loadHistorical();
+      (metrics as Record<string, unknown>).loadHistorical();
       
       expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining("SELECT tool"));
-      const summary = (metrics.getSummary().tools as any)["historical_tool"];
+      const summary = (metrics.getSummary().tools as Record<string, unknown>)["historical_tool"];
       expect(summary.calls).toBe(10);
       expect(summary.errors).toBe(1);
       expect(summary.tokens).toBe(50);
@@ -138,7 +138,7 @@ describe("metrics", () => {
       });
       
       metrics.setSystemDb(mockSystemDb);
-      (metrics as any).loadHistorical();
+      (metrics as Record<string, unknown>).loadHistorical();
       
       expect(logger.warn).toHaveBeenCalledWith("Failed to load historical metrics", expect.any(Object));
     });
@@ -156,7 +156,7 @@ describe("metrics", () => {
       metrics.recordToolCall("test_tool", 10, true);
       
       // Force flush directly
-      (metrics as any).flushToDb();
+      (metrics as Record<string, unknown>).flushToDb();
       
       expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining("INSERT INTO metrics_snapshots"));
       expect(mockDb.transaction).toHaveBeenCalled();
@@ -186,7 +186,7 @@ describe("metrics", () => {
       metrics.recordToolCall("test_tool", 10, true);
       
       // Force flush directly
-      (metrics as any).flushToDb();
+      (metrics as Record<string, unknown>).flushToDb();
       
       expect(logger.warn).toHaveBeenCalledWith("Failed to flush metrics to db", expect.any(Object));
     });

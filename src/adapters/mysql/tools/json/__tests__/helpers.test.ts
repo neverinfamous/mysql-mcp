@@ -226,48 +226,25 @@ describe("JSON Helper Tools", () => {
   describe("P154 Graceful Error Handling", () => {
     const tableError = new Error("Table 'testdb.nonexistent' does not exist");
 
-    it("json_get should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
-      const tool = createJsonGetTool(mockAdapter);
-      const result = await tool.handler(
-        { table: "nonexistent", column: "doc", path: "$.x", where: "`id` = 1" },
-        mockContext,
-      );
-      expect(result).toMatchObject({
-        success: false,
-        error: "Table 'testdb.nonexistent' does not exist",
-      });
-    });
+    const errorTests = [
+      { name: "json_get", toolFn: createJsonGetTool, readQuery: true, args: { table: "nonexistent", column: "doc", path: "$.x", where: "`id` = 1" } },
+      { name: "json_update", toolFn: createJsonUpdateTool, readQuery: false, args: { table: "nonexistent", column: "doc", path: "$.x", value: 1, where: "`id` = 1" } },
+      { name: "json_search", toolFn: createJsonSearchTool, readQuery: true, args: { table: "nonexistent", column: "doc", searchValue: "test" } }
+    ];
 
-    it("json_update should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
-      const tool = createJsonUpdateTool(mockAdapter);
-      const result = await tool.handler(
-        {
-          table: "nonexistent",
-          column: "doc",
-          path: "$.x",
-          value: 1,
-          where: "`id` = 1",
-        },
-        mockContext,
-      );
-      expect(result).toMatchObject({
-        success: false,
-        error: "Table 'testdb.nonexistent' does not exist",
-      });
-    });
-
-    it("json_search should return exists: false for nonexistent table", async () => {
-      mockAdapter.executeReadQuery.mockRejectedValue(tableError);
-      const tool = createJsonSearchTool(mockAdapter);
-      const result = await tool.handler(
-        { table: "nonexistent", column: "doc", searchValue: "test" },
-        mockContext,
-      );
-      expect(result).toMatchObject({
-        success: false,
-        error: "Table 'testdb.nonexistent' does not exist",
+    errorTests.forEach(({ name, toolFn, readQuery, args }) => {
+      it(`${name} should return exists: false for nonexistent table`, async () => {
+        if (readQuery) {
+          mockAdapter.executeReadQuery.mockRejectedValue(tableError);
+        } else {
+          mockAdapter.executeWriteQuery.mockRejectedValue(tableError);
+        }
+        const tool = toolFn(mockAdapter);
+        const result = await tool.handler(args as any, mockContext);
+        expect(result).toMatchObject({
+          success: false,
+          error: "Table 'testdb.nonexistent' does not exist",
+        });
       });
     });
 

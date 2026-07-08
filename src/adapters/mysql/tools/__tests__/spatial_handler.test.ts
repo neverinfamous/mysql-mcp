@@ -123,7 +123,7 @@ describe("Spatial Tools Handlers", () => {
           "CREATE SPATIAL INDEX `idx_spatial_users_location`",
         ),
       );
-      expect(Reflect.get(result || {}, "data")).toHaveProperty(
+      expect((result as Record<string, unknown>).data).toHaveProperty(
         "indexName",
         "idx_spatial_users_location",
       );
@@ -216,8 +216,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "data").conversion).toBe("WKT to GeoJSON");
-      expect(Reflect.get(result || {}, "data").geoJson).toEqual({
+      expect((result as Record<string, unknown>).data.conversion).toBe("WKT to GeoJSON");
+      expect((result as Record<string, unknown>).data.geoJson).toEqual({
         type: "Point",
         coordinates: [1, 1],
       });
@@ -236,8 +236,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "data").conversion).toBe("GeoJSON to WKT");
-      expect(Reflect.get(result || {}, "data").wkt).toBe("POINT(1 1)");
+      expect((result as Record<string, unknown>).data.conversion).toBe("GeoJSON to WKT");
+      expect((result as Record<string, unknown>).data.wkt).toBe("POINT(1 1)");
     });
 
     it("should return structured error if both inputs are missing (zod refinement)", async () => {
@@ -540,8 +540,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "data").segmentsApplied).toBe(false);
-      expect(Reflect.get(result || {}, "data").segments).toBe(4);
+      expect((result as Record<string, unknown>).data.segmentsApplied).toBe(false);
+      expect((result as Record<string, unknown>).data.segments).toBe(4);
     });
 
     it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
@@ -566,8 +566,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "data").segmentsApplied).toBe(true);
-      expect(Reflect.get(result || {}, "data").segments).toBe(4);
+      expect((result as Record<string, unknown>).data.segmentsApplied).toBe(true);
+      expect((result as Record<string, unknown>).data.segments).toBe(4);
     });
   });
 });

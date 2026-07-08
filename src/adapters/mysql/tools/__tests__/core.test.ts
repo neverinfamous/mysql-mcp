@@ -183,7 +183,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for nonexistent table", async () => {
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' does not exist"),
+        new Error("Table `${TEST_DB_NAME}.nonexistent` does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_read_query")!;
@@ -260,7 +260,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error for nonexistent table", async () => {
       mockAdapter.executeWriteQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' does not exist"),
+        new Error("Table `${TEST_DB_NAME}.nonexistent` does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_write_query")!;
@@ -359,7 +359,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("tableName", "new_table");
+      expect((result as Record<string, unknown>).data).toHaveProperty("tableName", "new_table");
     });
 
     it("should handle column defaults correctly", async () => {
@@ -510,8 +510,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty(
+      expect((result as Record<string, unknown>).data).toHaveProperty("skipped", true);
+      expect((result as Record<string, unknown>).data).toHaveProperty(
         "reason",
         "Table already exists",
       );
@@ -565,7 +565,7 @@ describe("Handler Execution", () => {
 
     it("should return graceful error when table does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Unknown table 'testdb.nonexistent'"),
+        new Error("Unknown table `${TEST_DB_NAME}.nonexistent`"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_drop_table")!;
@@ -592,8 +592,8 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty(
+      expect((result as Record<string, unknown>).data).toHaveProperty("skipped", true);
+      expect((result as Record<string, unknown>).data).toHaveProperty(
         "reason",
         "Table did not exist",
       );
@@ -632,7 +632,7 @@ describe("Handler Execution", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toHaveProperty("success", true);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty(
+      expect((result as Record<string, unknown>).data).toHaveProperty(
         "indexName",
         "idx_users_email",
       );
@@ -678,7 +678,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("skipped", true);
+      expect((result as Record<string, unknown>).data).toHaveProperty("skipped", true);
       expect(mockAdapter.executeQuery).not.toHaveBeenCalled();
     });
 
@@ -750,9 +750,9 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", true);
-      expect(Reflect.get(result || {}, "data")).toHaveProperty("warning");
+      expect((result as Record<string, unknown>).data).toHaveProperty("warning");
       expect(
-        (Reflect.get(result || {}, "data") as Record<string, unknown>).warning,
+        ((result as Record<string, unknown>).data as Record<string, unknown>).warning,
       ).toContain("MEMORY");
     });
 
@@ -780,7 +780,7 @@ describe("Handler Execution", () => {
 
     it("should return structured error when table does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValue(
-        new Error("Table 'testdb.nonexistent' does not exist"),
+        new Error("Table `${TEST_DB_NAME}.nonexistent` does not exist"),
       );
 
       const tool = tools.find((t) => t.name === "mysql_create_index")!;
@@ -928,7 +928,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(true);
-      expect(Reflect.get(result || {}, "data").skipped).toBe(true);
+      expect((result as Record<string, unknown>).data.skipped).toBe(true);
     });
 
     it("mysql_drop_table should format error on unknown table", async () => {
@@ -1001,7 +1001,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(true);
-      expect(Reflect.get(result || {}, "data").skipped).toBe(true);
+      expect((result as Record<string, unknown>).data.skipped).toBe(true);
     });
 
     it("mysql_create_index should return error for Key column doesnt exist", async () => {

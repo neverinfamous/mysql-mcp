@@ -69,7 +69,7 @@ describe("McpServer", () => {
     const server = new McpServer({ transport: "http", allowedIoRoots: [], port: 3333 });
     
     // We expect process.exit(1) to be called. We can mock it.
-    const mockExit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as any);
+    const mockExit = vi.spyOn(process, 'exit').mockImplementation((() => {}) as Record<string, unknown>);
     
     await server.start();
     

@@ -24,7 +24,7 @@ describe("Versioning Tools", () => {
       const tool = createEnableVersioningTool(adapter);
       adapter.describeTable.mockResolvedValueOnce({ columns: [] });
 
-      const result = await tool.handler({ table: "missing_table" }, context) as any;
+      const result = await tool.handler({ table: "missing_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("does not exist");
     });
@@ -35,7 +35,7 @@ describe("Versioning Tools", () => {
         columns: [{ name: "id" }],
       });
 
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(true);
       
       // Verify ALTER TABLE was called
@@ -61,7 +61,7 @@ describe("Versioning Tools", () => {
         columns: [{ name: "id" }, { name: "_version" }],
       });
 
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(true);
       
       // Verify ALTER TABLE was NOT called
@@ -81,7 +81,7 @@ describe("Versioning Tools", () => {
       const tool = createEnableVersioningTool(adapter);
       adapter.describeTable.mockRejectedValueOnce(new Error("DB Error"));
 
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });
   });
@@ -91,7 +91,7 @@ describe("Versioning Tools", () => {
       const tool = createDisableVersioningTool(adapter);
       adapter.describeTable.mockResolvedValueOnce({ columns: [] });
 
-      const result = await tool.handler({ table: "missing_table", ifExists: false }, context) as any;
+      const result = await tool.handler({ table: "missing_table", ifExists: false }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });
 
@@ -99,7 +99,7 @@ describe("Versioning Tools", () => {
       const tool = createDisableVersioningTool(adapter);
       adapter.describeTable.mockResolvedValueOnce({ columns: [] });
 
-      const result = await tool.handler({ table: "missing_table", ifExists: true }, context) as any;
+      const result = await tool.handler({ table: "missing_table", ifExists: true }, context) as Record<string, unknown>;
       expect(result.success).toBe(true);
     });
 
@@ -109,7 +109,7 @@ describe("Versioning Tools", () => {
         columns: [{ name: "id" }, { name: "_version" }],
       });
 
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(true);
       
       expect(adapter.executeWriteQuery).toHaveBeenCalledWith(
@@ -128,7 +128,7 @@ describe("Versioning Tools", () => {
         columns: [{ name: "id" }],
       });
 
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(true);
       
       expect(adapter.executeWriteQuery).toHaveBeenCalledWith(
@@ -145,7 +145,7 @@ describe("Versioning Tools", () => {
       const tool = createDisableVersioningTool(adapter);
       adapter.describeTable.mockRejectedValueOnce(new Error("DB Error"));
 
-      const result = await tool.handler({ table: "my_table" }, context) as any;
+      const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });
   });
@@ -155,7 +155,7 @@ describe("Versioning Tools", () => {
       const tool = createCheckVersionTool(adapter);
       adapter.describeTable.mockResolvedValueOnce({ columns: [] });
 
-      const result = await tool.handler({ table: "missing_table", rowId: 1 }, context) as any;
+      const result = await tool.handler({ table: "missing_table", rowId: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });
 
@@ -164,7 +164,7 @@ describe("Versioning Tools", () => {
       adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }] });
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [] });
 
-      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Row not found");
     });
@@ -174,7 +174,7 @@ describe("Versioning Tools", () => {
       adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }] });
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ id: 1 }] });
 
-      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("does not appear to have versioning enabled");
     });
@@ -184,7 +184,7 @@ describe("Versioning Tools", () => {
       adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }, { name: "_version" }] });
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ id: 1, _version: 42 }] });
 
-      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(true);
       expect(result.data).toMatchObject({
         version: 42,
@@ -196,7 +196,7 @@ describe("Versioning Tools", () => {
       const tool = createCheckVersionTool(adapter);
       adapter.describeTable.mockRejectedValueOnce(new Error("DB Error"));
 
-      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", rowId: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });
   });
@@ -204,14 +204,14 @@ describe("Versioning Tools", () => {
   describe("mysql_conditional_update", () => {
     it("should return VALIDATION_ERROR if data is empty", async () => {
       const tool = createConditionalUpdateTool(adapter);
-      const result = await tool.handler({ table: "my_table", data: {}, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: {}, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("data is required");
     });
 
     it("should return VALIDATION_ERROR if conditions are empty", async () => {
       const tool = createConditionalUpdateTool(adapter);
-      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("conditions array is required");
     });
@@ -220,7 +220,7 @@ describe("Versioning Tools", () => {
       const tool = createConditionalUpdateTool(adapter);
       adapter.describeTable.mockResolvedValueOnce({ columns: [] });
 
-      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("does not exist");
     });
@@ -230,7 +230,7 @@ describe("Versioning Tools", () => {
       adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }] });
       adapter.executeWriteQuery.mockResolvedValueOnce({ rowsAffected: 1 });
 
-      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(true);
       expect(result.data).toMatchObject({
         rowsAffected: 1,
@@ -249,7 +249,7 @@ describe("Versioning Tools", () => {
       adapter.executeWriteQuery.mockResolvedValueOnce({ rowsAffected: 0 }); // update failed
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ _version: 2 }] }); // check row version
 
-      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Version conflict");
     });
@@ -260,7 +260,7 @@ describe("Versioning Tools", () => {
       adapter.executeWriteQuery.mockResolvedValueOnce({ rowsAffected: 0 }); // update failed
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [] }); // check row version
 
-      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("Row not found");
     });
@@ -271,7 +271,7 @@ describe("Versioning Tools", () => {
       adapter.executeWriteQuery.mockResolvedValueOnce({ rowsAffected: 0 }); // update failed
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ id: 1 }] }); // check row version (missing _version)
 
-      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
       expect(result.error).toContain("missing _version column");
     });
@@ -280,7 +280,7 @@ describe("Versioning Tools", () => {
       const tool = createConditionalUpdateTool(adapter);
       adapter.describeTable.mockRejectedValueOnce(new Error("DB Error"));
 
-      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as any;
+      const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });
   });

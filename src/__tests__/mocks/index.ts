@@ -41,3 +41,13 @@ export type {
   HealthStatus,
   ColumnInfo,
 } from "../../types/index.js";
+
+
+export interface TestResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+  code?: string;
+  category?: string;
+  [key: string]: any;
+}

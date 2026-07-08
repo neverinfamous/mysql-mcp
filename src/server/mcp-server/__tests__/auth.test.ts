@@ -6,13 +6,13 @@ import type { McpServerConfig } from "../../../types/index.js";
 describe("auth", () => {
   describe("createOAuthResourceServer", () => {
     it("should throw if oauth is not enabled", () => {
-      const config: McpServerConfig = { oauth: { enabled: false } } as any;
+      const config: McpServerConfig = { oauth: { enabled: false } } as Record<string, unknown>;
       expect(() => createOAuthResourceServer(config)).toThrow(McpError);
       expect(() => createOAuthResourceServer(config)).toThrow("OAuth is not enabled");
     });
 
     it("should throw if issuer is missing", () => {
-      const config: McpServerConfig = { oauth: { enabled: true, audience: "test" } } as any;
+      const config: McpServerConfig = { oauth: { enabled: true, audience: "test" } } as Record<string, unknown>;
       expect(() => createOAuthResourceServer(config)).toThrow(McpError);
       expect(() => createOAuthResourceServer(config)).toThrow("OAuth issuer is required");
     });
@@ -20,7 +20,7 @@ describe("auth", () => {
     it("should create OAuthResourceServer with correct config", () => {
       const config: McpServerConfig = {
         oauth: { enabled: true, issuer: "https://example.com", audience: "mysql-mcp" }
-      } as any;
+      } as Record<string, unknown>;
       const server = createOAuthResourceServer(config);
       expect(server).toBeDefined();
     });
@@ -28,13 +28,13 @@ describe("auth", () => {
 
   describe("createTokenValidator", () => {
     it("should throw if oauth is not enabled", () => {
-      const config: McpServerConfig = { oauth: { enabled: false } } as any;
+      const config: McpServerConfig = { oauth: { enabled: false } } as Record<string, unknown>;
       expect(() => createTokenValidator(config)).toThrow(McpError);
       expect(() => createTokenValidator(config)).toThrow("OAuth is not enabled");
     });
 
     it("should throw if jwksUri is missing", () => {
-      const config: McpServerConfig = { oauth: { enabled: true } } as any;
+      const config: McpServerConfig = { oauth: { enabled: true } } as Record<string, unknown>;
       expect(() => createTokenValidator(config)).toThrow(McpError);
       expect(() => createTokenValidator(config)).toThrow("OAuth JWKS URI is required");
     });
@@ -42,13 +42,13 @@ describe("auth", () => {
     it("should throw if issuer or audience is missing", () => {
       const config1: McpServerConfig = {
         oauth: { enabled: true, jwksUri: "https://example.com/jwks", audience: "test" }
-      } as any;
+      } as Record<string, unknown>;
       expect(() => createTokenValidator(config1)).toThrow(McpError);
       expect(() => createTokenValidator(config1)).toThrow("OAuth issuer and audience are required");
 
       const config2: McpServerConfig = {
         oauth: { enabled: true, jwksUri: "https://example.com/jwks", issuer: "https://example.com" }
-      } as any;
+      } as Record<string, unknown>;
       expect(() => createTokenValidator(config2)).toThrow(McpError);
     });
 
@@ -60,7 +60,7 @@ describe("auth", () => {
           issuer: "https://example.com",
           audience: "mysql-mcp"
         }
-      } as any;
+      } as Record<string, unknown>;
       const validator = createTokenValidator(config);
       expect(validator).toBeDefined();
     });

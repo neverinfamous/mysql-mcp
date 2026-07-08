@@ -497,7 +497,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
-    expect(Reflect.get(result || {}, "error")).toContain("401 Unauthorized");
+    expect((result as Record<string, unknown>).error).toContain("401 Unauthorized");
   });
 
   it("should return unavailable response on 404 Not Found", async () => {
@@ -531,7 +531,7 @@ describe("Error Handling", () => {
     );
 
     expect(result).toHaveProperty("success", false);
-    expect(Reflect.get(result || {}, "error")).toContain("Route 'nonexistent' not found");
+    expect((result as Record<string, unknown>).error).toContain("Route 'nonexistent' not found");
   });
 
   it("should return unavailable response on network error", async () => {
@@ -553,7 +553,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
-    expect(Reflect.get(result || {}, "error")).toContain("Network error");
+    expect((result as Record<string, unknown>).error).toContain("Network error");
   });
 
   it("should return unavailable response on connection refused", async () => {
@@ -577,7 +577,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
-    expect(Reflect.get(result || {}, "error")).toContain("Connection refused");
+    expect((result as Record<string, unknown>).error).toContain("Connection refused");
   });
 });
 

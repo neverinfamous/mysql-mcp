@@ -50,7 +50,7 @@ describe("CodeModeSandbox", () => {
   describe("execute", () => {
     it("should execute simple code and return result", async () => {
       const result = await sandbox.execute("return 42", {});
-      console.log('RESULT:', result); expect(result.success).toBe(true);
+      expect(result.success).toBe(true);
       expect(result.result).toBe(42);
       expect(result.metrics.wallTimeMs).toBeGreaterThanOrEqual(0);
     });
@@ -155,13 +155,13 @@ describe("SandboxPool", () => {
 
   describe("static initialization", () => {
     it("should throw if getIvmLib is called before initialization", () => {
-      (SandboxPool as any).cachedIvmLib = null;
+      (SandboxPool as Record<string, unknown>).cachedIvmLib = null;
       expect(() => SandboxPool.getIvmLib()).toThrow("ivmLib not initialized");
     });
 
     it("should silently catch import errors if isolated-vm cannot be loaded", async () => {
-      (SandboxPool as any).ivmPromise = null;
-      (SandboxPool as any).cachedIvmLib = null;
+      (SandboxPool as Record<string, unknown>).ivmPromise = null;
+      (SandboxPool as Record<string, unknown>).cachedIvmLib = null;
       
       // Mock the dynamic import if possible, or just force the Promise to reject
       // This is a bit tricky to mock cleanly since it's an inline import.
@@ -169,14 +169,14 @@ describe("SandboxPool", () => {
       const failingPromise = Promise.reject(new Error("mock error"))
         .catch(() => null as unknown as typeof import("isolated-vm").default);
       
-      (SandboxPool as any).ivmPromise = failingPromise;
+      (SandboxPool as Record<string, unknown>).ivmPromise = failingPromise;
       
       await SandboxPool.initialize();
-      expect((SandboxPool as any).cachedIvmLib).toBeNull();
+      expect((SandboxPool as Record<string, unknown>).cachedIvmLib).toBeNull();
 
       // Reset static state so other tests don't fail!
-      (SandboxPool as any).ivmPromise = null;
-      (SandboxPool as any).cachedIvmLib = null;
+      (SandboxPool as Record<string, unknown>).ivmPromise = null;
+      (SandboxPool as Record<string, unknown>).cachedIvmLib = null;
     });
   });
 
@@ -190,8 +190,8 @@ describe("SandboxPool", () => {
 
     it("should automatically initialize if not already initialized", async () => {
       // Ensure cachedIvmLib is null
-      (SandboxPool as any).cachedIvmLib = null;
-      (SandboxPool as any).ivmPromise = null;
+      (SandboxPool as Record<string, unknown>).cachedIvmLib = null;
+      (SandboxPool as Record<string, unknown>).ivmPromise = null;
 
       const result = await pool.execute("return 43", {});
       expect(result.success).toBe(true);
@@ -271,7 +271,7 @@ describe("SandboxPool", () => {
       expect(pool.getStats().idle).toBe(1);
 
       // Mutate the idle sandbox to be unhealthy
-      const idleSandbox = (pool as any).idlePool[0];
+      const idleSandbox = (pool as Record<string, unknown>).idlePool[0];
       vi.spyOn(idleSandbox, "isHealthy").mockReturnValue(false);
       vi.spyOn(idleSandbox, "dispose");
 

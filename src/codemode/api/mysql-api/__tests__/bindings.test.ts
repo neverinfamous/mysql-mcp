@@ -101,26 +101,26 @@ describe("bindings", () => {
     
     // Write methods should still exist but return an error
     expect(roBindings).toHaveProperty("writeQuery");
-    expect((roBindings.writeQuery as any)()).toEqual({
+    expect((roBindings.writeQuery as (...args: unknown[]) => unknown)()).toEqual({
       success: false,
       error: expect.stringContaining("Readonly mode")
     });
 
     expect(roBindings).toHaveProperty("createTable");
-    expect((roBindings.createTable as any)()).toEqual({
+    expect((roBindings.createTable as (...args: unknown[]) => unknown)()).toEqual({
       success: false,
       error: expect.stringContaining("Readonly mode")
     });
     
     expect(roBindings).toHaveProperty("disableVersioning");
-    expect((roBindings.disableVersioning as any)()).toEqual({
+    expect((roBindings.disableVersioning as (...args: unknown[]) => unknown)()).toEqual({
       success: false,
       error: expect.stringContaining("Readonly mode")
     });
     
     expect(roBindings).toHaveProperty("checkVersion"); // checkVersion is read-only
     expect(roBindings).toHaveProperty("conditionalUpdate"); // write method
-    expect((roBindings.conditionalUpdate as any)()).toEqual({
+    expect((roBindings.conditionalUpdate as (...args: unknown[]) => unknown)()).toEqual({
       success: false,
       error: expect.stringContaining("Readonly mode")
     });
@@ -161,7 +161,7 @@ describe("bindings", () => {
       const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
       const bindings = buildSandboxBindings(mockApi, false);
       
-      const coreGroup = bindings["core"] as any;
+      const coreGroup = bindings["core"] as (...args: unknown[]) => unknown;
       expect(coreGroup).toHaveProperty("help");
       expect(typeof coreGroup.help).toBe("function");
       
@@ -180,7 +180,7 @@ describe("bindings", () => {
       const bindings = buildSandboxBindings(mockApi, false);
       
       expect(bindings).toHaveProperty("help");
-      const helpFn = bindings["help"] as any;
+      const helpFn = bindings["help"] as (...args: unknown[]) => unknown;
       const result = helpFn();
       
       expect(mockHelp).toHaveBeenCalled();
@@ -193,7 +193,7 @@ describe("bindings", () => {
       const mockApi = new Proxy({}, { get() { return {}; } }) as MysqlApi;
       const bindings = buildSandboxBindings(mockApi, false);
       
-      const result = await (bindings as any).reportProgress(50);
+      const result = await (bindings as (...args: unknown[]) => unknown).reportProgress(50);
       expect(result).toEqual({ success: false, error: "No progress token available in context" });
     });
 
@@ -204,7 +204,7 @@ describe("bindings", () => {
       const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
       const bindings = buildSandboxBindings(mockApi, false);
       
-      const result = await (bindings as any).reportProgress(50);
+      const result = await (bindings as (...args: unknown[]) => unknown).reportProgress(50);
       expect(result.success).toBe(true);
     });
 

@@ -216,7 +216,7 @@ describe("checkRateLimit()", () => {
       pTTL: vi.fn().mockResolvedValue(50000),
     };
 
-    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
     expect(r1.allowed).toBe(true);
     expect(mockRedisClient.incr).toHaveBeenCalledWith("http:rl:127.0.0.1");
     expect(mockRedisClient.pExpire).toHaveBeenCalledWith("http:rl:127.0.0.1", 60000);
@@ -239,7 +239,7 @@ describe("checkRateLimit()", () => {
       pTTL: vi.fn(),
     };
 
-    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
     expect(r1.allowed).toBe(true); // Should fallback to memory map (which is empty) and allow
   });
 
@@ -260,7 +260,7 @@ describe("checkRateLimit()", () => {
       pTTL: vi.fn(),
     };
 
-    const r1 = await checkRateLimit(req, config, map, mockRedisClient as any);
+    const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
     expect(r1.allowed).toBe(true);
   });
 });
@@ -420,7 +420,7 @@ describe("readBody()", () => {
       mockReq.emit("data", Buffer.from('{"test": true}'));
       mockReq.emit("end");
     }, 10);
-    const result = await readBody(mockReq as any);
+    const result = await readBody(mockReq as Record<string, unknown>);
     expect(result).toEqual({ test: true });
   });
 
@@ -431,7 +431,7 @@ describe("readBody()", () => {
       mockReq.emit("data", Buffer.from('invalid json'));
       mockReq.emit("end");
     }, 10);
-    await expect(readBody(mockReq as any)).rejects.toThrow("Invalid JSON");
+    await expect(readBody(mockReq as Record<string, unknown>)).rejects.toThrow("Invalid JSON");
   });
 
   it("should return undefined if body is empty", async () => {
@@ -440,7 +440,7 @@ describe("readBody()", () => {
     setTimeout(() => {
       mockReq.emit("end");
     }, 10);
-    const result = await readBody(mockReq as any);
+    const result = await readBody(mockReq as Record<string, unknown>);
     expect(result).toBeUndefined();
   });
 
@@ -450,7 +450,7 @@ describe("readBody()", () => {
     setTimeout(() => {
       mockReq.emit("error", new Error("Req error"));
     }, 10);
-    await expect(readBody(mockReq as any)).rejects.toThrow("Req error");
+    await expect(readBody(mockReq as Record<string, unknown>)).rejects.toThrow("Req error");
   });
 });
 
@@ -578,24 +578,24 @@ describe("HttpTransport", () => {
     it("should close all transports on stop()", async () => {
       const mockT1 = { close: vi.fn().mockResolvedValue(undefined) };
       const mockT2 = { close: vi.fn().mockResolvedValue(undefined) };
-      (transport as any).sessionManager.register("session-1", mockT1 as never);
-      (transport as any).sessionManager.register("session-2", mockT2 as never);
+      (transport as Record<string, unknown>).sessionManager.register("session-1", mockT1 as never);
+      (transport as Record<string, unknown>).sessionManager.register("session-2", mockT2 as never);
 
       await transport.stop();
 
       expect(mockT1.close).toHaveBeenCalled();
       expect(mockT2.close).toHaveBeenCalled();
-      expect((transport as any).sessionManager.size).toBe(0);
+      expect((transport as Record<string, unknown>).sessionManager.size).toBe(0);
     });
 
     it("should handle close errors gracefully during stop()", async () => {
       const mockT = {
         close: vi.fn().mockRejectedValue(new Error("close error")),
       };
-      (transport as any).sessionManager.register("session-err", mockT as never);
+      (transport as Record<string, unknown>).sessionManager.register("session-err", mockT as never);
 
       await transport.stop();
-      expect((transport as any).sessionManager.size).toBe(0);
+      expect((transport as Record<string, unknown>).sessionManager.size).toBe(0);
     });
   });
 
@@ -990,7 +990,7 @@ describe("handleRequest()", () => {
         "/messages",
         createMockResponse(),
       );
-      (t as any).sessionManager.register("mock-session", mockTransport as never);
+      (t as Record<string, unknown>).sessionManager.register("mock-session", mockTransport as never);
 
       const mockReqStream = new PassThrough();
       const mockReq = mockReqStream as unknown as IncomingMessage;
@@ -1000,7 +1000,7 @@ describe("handleRequest()", () => {
         host: "localhost:3000",
         authorization: "Bearer token",
       };
-      (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
+      (mockReq as Record<string, unknown>).socket = { remoteAddress: "127.0.0.1" };
 
       mockReqStream.write(
         JSON.stringify({
@@ -1014,7 +1014,7 @@ describe("handleRequest()", () => {
 
       const mockRes = createMockResponse();
 
-      await (t as any).handleRequest(mockReq, mockRes);
+      await (t as Record<string, unknown>).handleRequest(mockReq, mockRes);
 
       expect(mockRes.writeHead).not.toHaveBeenCalled();
       expect(mockTransport.handlePostMessage).toHaveBeenCalled();
@@ -1041,7 +1041,7 @@ describe("handleRequest()", () => {
         "/messages",
         createMockResponse(),
       );
-      (t as any).sessionManager.register("mock-session", mockTransport as never);
+      (t as Record<string, unknown>).sessionManager.register("mock-session", mockTransport as never);
 
       const mockReqStream = new PassThrough();
       const mockReq = mockReqStream as unknown as IncomingMessage;
@@ -1051,7 +1051,7 @@ describe("handleRequest()", () => {
         host: "localhost:3000",
         authorization: "Bearer token",
       };
-      (mockReq as any).socket = { remoteAddress: "127.0.0.1" };
+      (mockReq as Record<string, unknown>).socket = { remoteAddress: "127.0.0.1" };
 
       mockReqStream.write(
         JSON.stringify({
@@ -1065,7 +1065,7 @@ describe("handleRequest()", () => {
 
       const mockRes = createMockResponse();
 
-      await (t as any).handleRequest(mockReq, mockRes);
+      await (t as Record<string, unknown>).handleRequest(mockReq, mockRes);
 
       expect(mockRes.writeHead).toHaveBeenCalledWith(
         403,

@@ -31,7 +31,7 @@ describe("stream-utils", () => {
 
     it("should stream rows in chunks of STREAM_CHUNK_SIZE", () => {
       const mockReporter = { report: vi.fn() };
-      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as any);
+      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as Record<string, unknown>);
       
       const rows = Array.from({ length: 25 }, (_, i) => ({ id: i }));
       
@@ -51,7 +51,7 @@ describe("stream-utils", () => {
 
     it("should handle custom chunk size", () => {
       const mockReporter = { report: vi.fn() };
-      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as any);
+      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as Record<string, unknown>);
       
       const rows = Array.from({ length: 5 }, (_, i) => ({ id: i }));
       
@@ -63,7 +63,7 @@ describe("stream-utils", () => {
 
     it("should fallback to chunk size 1 if less than 1 is provided", () => {
       const mockReporter = { report: vi.fn() };
-      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as any);
+      vi.mocked(progressFactory.create).mockReturnValue(mockReporter as Record<string, unknown>);
       
       const rows = [{ id: 1 }, { id: 2 }];
       

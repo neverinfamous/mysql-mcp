@@ -236,7 +236,7 @@ describe("McpServer", () => {
         start: vi.fn(),
         close: vi.fn(),
         send: vi.fn()
-      } as any;
+      } as Record<string, unknown>;
       await onConnectCall(mockMcpTransport);
       
       // onConnect should close existing connection and open new one
@@ -275,7 +275,7 @@ describe("McpServer", () => {
         oauth: {
           enabled: true,
           // Missing issuer/audience
-        } as any,
+        } as Record<string, unknown>,
       });
 
       await expect(badConfigServer.start()).rejects.toThrow();
@@ -422,7 +422,7 @@ describe("McpServer", () => {
         },
       });
 
-      const mockAdapter = createMockMySQLAdapter() as unknown as any;
+      const mockAdapter = createMockMySQLAdapter() as unknown as Record<string, unknown>;
       mockAdapter.setAuditInterceptor = vi.fn();
       mockAdapter.setAuditLogger = vi.fn();
       mockAdapter.setBackupManager = vi.fn();

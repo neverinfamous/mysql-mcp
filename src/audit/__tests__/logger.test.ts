@@ -45,7 +45,7 @@ describe("AuditLogger", () => {
 
   it("should not set up timer if disabled", () => {
     const logger = new AuditLogger({ ...mockConfig, enabled: false });
-    expect((logger as any).flushTimer).toBeNull();
+    expect((logger as Record<string, unknown>).flushTimer).toBeNull();
   });
 
   it("should eagerly flush when high water mark is reached", async () => {
@@ -57,7 +57,7 @@ describe("AuditLogger", () => {
     }
     
     // Wait for the asynchronous flush to start and finish
-    await (logger as any).activeFlush;
+    await (logger as Record<string, unknown>).activeFlush;
     
     expect(appendFile).toHaveBeenCalledTimes(1);
     const args = vi.mocked(appendFile).mock.calls[0];
@@ -75,7 +75,7 @@ describe("AuditLogger", () => {
     
     // Fast-forward time to trigger interval
     vi.advanceTimersByTime(150);
-    await (logger as any).activeFlush;
+    await (logger as Record<string, unknown>).activeFlush;
     
     expect(appendFile).toHaveBeenCalledTimes(1);
   });
@@ -105,7 +105,7 @@ describe("AuditLogger", () => {
     };
 
     const logger = new AuditLogger(mockConfig);
-    logger.setSystemDb(mockSystemDb as any);
+    logger.setSystemDb(mockSystemDb as Record<string, unknown>);
     
     logger.log(sampleEntry);
     await logger.flush();
@@ -116,7 +116,7 @@ describe("AuditLogger", () => {
   });
 
   it("should rotate file if size exceeded", async () => {
-    vi.mocked(stat).mockResolvedValue({ size: 2 * 1024 * 1024 } as any); // 2MB
+    vi.mocked(stat).mockResolvedValue({ size: 2 * 1024 * 1024 } as Record<string, unknown>); // 2MB
     
     const logger = new AuditLogger(mockConfig);
     logger.log(sampleEntry);
@@ -144,8 +144,8 @@ describe("AuditLogger", () => {
       close: vi.fn(),
     };
     
-    vi.mocked(open).mockResolvedValue(mockFh as any);
-    vi.mocked(stat).mockResolvedValue({ size: mockContent.length } as any);
+    vi.mocked(open).mockResolvedValue(mockFh as Record<string, unknown>);
+    vi.mocked(stat).mockResolvedValue({ size: mockContent.length } as Record<string, unknown>);
 
     const logger = new AuditLogger(mockConfig);
     const recent = await logger.recent(5);
@@ -162,8 +162,8 @@ describe("AuditLogger", () => {
     
     await logger.close();
     
-    expect((logger as any).closed).toBe(true);
-    expect((logger as any).flushTimer).toBeNull();
+    expect((logger as Record<string, unknown>).closed).toBe(true);
+    expect((logger as Record<string, unknown>).flushTimer).toBeNull();
     expect(appendFile).toHaveBeenCalledTimes(1); // Should flush pending log
   });
 
@@ -205,7 +205,7 @@ describe("AuditLogger", () => {
       };
 
       const logger = new AuditLogger(mockConfig);
-      logger.setSystemDb(mockSystemDb as any);
+      logger.setSystemDb(mockSystemDb as Record<string, unknown>);
 
       const result = await logger.search({ tool: "test_tool", success: true });
       

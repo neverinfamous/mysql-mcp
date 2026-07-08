@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   createListStoredProceduresTool,
   createListFunctionsTool,
@@ -9,15 +9,14 @@ import {
   createMockRequestContext,
   createMockQueryResult,
 } from "../../../../../__tests__/mocks/index.js";
+import { setupSchemaTest } from "./setup.js";
 
 describe("Schema Routine Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    mockAdapter = createMockMySQLAdapter();
-    mockContext = createMockRequestContext();
+    ({ mockAdapter, mockContext } = setupSchemaTest());
   });
 
   describe("mysql_list_stored_procedures", () => {

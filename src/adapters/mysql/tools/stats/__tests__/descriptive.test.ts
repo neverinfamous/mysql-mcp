@@ -63,8 +63,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.count).toBe(10);
       expect(data.mean).toBe(5.5);
       expect(data.median).toBe(5.5);
@@ -88,8 +88,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.count).toBe(0);
       expect(data.mean).toBeNull();
       expect(data.median).toBeNull();
@@ -100,8 +100,8 @@ describe("Descriptive Stats Tools", () => {
         { table: "invalid table", column: "age" },
         mockContext,
       );
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("Invalid table name");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("Invalid table name");
     });
   });
 
@@ -131,8 +131,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.totalCount).toBe(100);
       expect(data.percentiles.p50).toBe(42);
       expect(data.percentiles.p90).toBe(42);
@@ -151,8 +151,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("is not a numeric column");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("is not a numeric column");
     });
   });
 
@@ -185,8 +185,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.bucketCount).toBe(10);
       expect(data.minValue).toBe(0);
       expect(data.maxValue).toBe(100);
@@ -227,8 +227,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.interval).toBe("day");
       expect(data.aggregation).toBe("sum");
       expect(data.dataPoints.length).toBe(1);
@@ -246,8 +246,8 @@ describe("Descriptive Stats Tools", () => {
         },
         mockContext,
       );
-      expect(Reflect.get(result || {}, "success")).toBe(false);
-      expect(Reflect.get(result || {}, "error")).toContain("Invalid interval");
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("Invalid interval");
     });
   });
 
@@ -271,8 +271,8 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
-      const data = Reflect.get(result || {}, "data");
+      expect((result as Record<string, unknown>).success).toBe(true);
+      const data = (result as Record<string, unknown>).data;
       expect(data.sampleSize).toBe(2);
       expect(data.sample.length).toBe(2);
       expect(data.sample[0].name).toBe("Alice");
@@ -290,7 +290,7 @@ describe("Descriptive Stats Tools", () => {
         mockContext,
       );
 
-      expect(Reflect.get(result || {}, "success")).toBe(true);
+      expect((result as Record<string, unknown>).success).toBe(true);
     });
   });
 });

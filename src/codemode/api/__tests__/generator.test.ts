@@ -43,7 +43,7 @@ describe("generator", () => {
           inputSchema: z.object({ query: z.string() }),
           handler: mockHandler,
         }
-      ] as any;
+      ] as Record<string, unknown>;
 
       const api = createGroupApi(mockAdapter, "core", tools);
       
@@ -70,7 +70,7 @@ describe("generator", () => {
           inputSchema: z.object({ id: z.number() }),
           handler: mockHandler,
         }
-      ] as any;
+      ] as Record<string, unknown>;
 
       const api = createGroupApi(mockAdapter, "test", tools);
       
@@ -87,7 +87,7 @@ describe("generator", () => {
           inputSchema: z.object({}),
           handler: mockHandler,
         }
-      ] as any;
+      ] as Record<string, unknown>;
 
       const api = createGroupApi(mockAdapter, "test", tools);
       
@@ -104,13 +104,13 @@ describe("generator", () => {
           inputSchema: z.object({}),
           handler: mockHandler,
         }
-      ] as any;
+      ] as Record<string, unknown>;
 
       const mockInterceptor = {
         around: vi.fn().mockImplementation(async (name, data, reqId, cb) => cb())
       };
 
-      const api = createGroupApi(mockAdapter, "test", tools, mockInterceptor as any);
+      const api = createGroupApi(mockAdapter, "test", tools, mockInterceptor as Record<string, unknown>);
       
       await api.tool({});
       
@@ -133,7 +133,7 @@ describe("generator", () => {
           inputSchema: { id: z.number() },
           handler: mockHandler,
         }
-      ] as any;
+      ] as Record<string, unknown>;
 
       const api = createGroupApi(mockAdapter, "test", tools);
       

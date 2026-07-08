@@ -546,80 +546,38 @@ describe("JSON Enhanced Tools", () => {
     describe("P154 Graceful Error Handling", () => {
       const tableError = new Error("Table 'testdb.nonexistent' does not exist");
 
-      it("json_normalize should return exists: false for nonexistent table", async () => {
-        mockAdapter.executeQuery.mockRejectedValue(tableError);
-        const tool = createJsonNormalizeTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { table: "nonexistent", column: "doc" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
+      const tableTests = [
+        { name: "json_normalize", toolFn: createJsonNormalizeTool, args: { table: "nonexistent", column: "doc" } },
+        { name: "json_stats", toolFn: createJsonStatsTool, args: { table: "nonexistent", column: "doc" } },
+        { name: "json_index_suggest", toolFn: createJsonIndexSuggestTool, args: { table: "nonexistent", column: "doc" } }
+      ];
+
+      tableTests.forEach(({ name, toolFn, args }) => {
+        it(`${name} should return exists: false for nonexistent table`, async () => {
+          mockAdapter.executeQuery.mockRejectedValue(tableError);
+          const tool = toolFn(mockAdapter);
+          const result = await tool.handler(args as any, mockContext);
+          expect(result).toMatchObject({
+            success: false,
+            error: "Table 'testdb.nonexistent' does not exist",
+          });
         });
       });
 
-      it("json_stats should return exists: false for nonexistent table", async () => {
-        mockAdapter.executeQuery.mockRejectedValue(tableError);
-        const tool = createJsonStatsTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { table: "nonexistent", column: "doc" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
-        });
-      });
+      const invalidJsonTests = [
+        { name: "json_merge", toolFn: createJsonMergeTool, args: { json1: "not-json", json2: "{}" } },
+        { name: "json_diff", toolFn: createJsonDiffTool, args: { json1: "not-json", json2: "{}" } }
+      ];
 
-      it("json_index_suggest should return exists: false for nonexistent table", async () => {
-        mockAdapter.executeQuery.mockRejectedValue(tableError);
-        const tool = createJsonIndexSuggestTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { table: "nonexistent", column: "doc" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
-        });
-      });
-
-      it("json_merge should return success: false for invalid input", async () => {
-        mockAdapter.executeReadQuery.mockRejectedValue(
-          new Error("Invalid JSON text"),
-        );
-        const tool = createJsonMergeTool(
-          mockAdapter,
-        );
-        const result = await tool.handler(
-          { json1: "not-json", json2: "{}" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Invalid JSON text",
-        });
-      });
-
-      it("json_diff should return success: false for invalid input", async () => {
-        mockAdapter.executeReadQuery.mockRejectedValue(
-          new Error("Invalid JSON text"),
-        );
-        const tool = createJsonDiffTool(mockAdapter);
-        const result = await tool.handler(
-          { json1: "not-json", json2: "{}" },
-          mockContext,
-        );
-        expect(result).toMatchObject({
-          success: false,
-          error: "Invalid JSON text",
+      invalidJsonTests.forEach(({ name, toolFn, args }) => {
+        it(`${name} should return success: false for invalid input`, async () => {
+          mockAdapter.executeReadQuery.mockRejectedValue(new Error("Invalid JSON text"));
+          const tool = toolFn(mockAdapter);
+          const result = await tool.handler(args as any, mockContext);
+          expect(result).toMatchObject({
+            success: false,
+            error: "Invalid JSON text",
+          });
         });
       });
     });
