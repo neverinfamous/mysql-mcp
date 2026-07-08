@@ -98,7 +98,6 @@ services:
   mysql-router:
     image: mysql/mysql-router:8.0
     container_name: mysql-router
-    restart: unless-stopped
     depends_on:
       - mysql-node1
       - mysql-node2
