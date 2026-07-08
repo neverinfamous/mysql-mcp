@@ -59,13 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_list_schemas` | | | | |
-| `mysql_create_schema` | | | | |
-| `mysql_drop_schema` | | | | |
-| `mysql_list_views` | | | | |
-| `mysql_create_view` | | | | |
-| `mysql_drop_view` | | | | |
-| `mysql_list_constraints` | | | | |
+|---|---|---|---|---|
+
 
 ---
 
@@ -80,7 +75,6 @@
 - `mysql_create_view`
 - `mysql_drop_view`
 - `mysql_list_constraints`
-
 
 ## Group Focus: schema-management
 

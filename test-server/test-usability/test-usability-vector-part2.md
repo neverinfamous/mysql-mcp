@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_vector_get` | | | |
-| `mysql_vector_search` | | | |
-| `mysql_vector_range_search` | | | |
+|---|---|---|---|
+| `mysql_vector_get` |   |   |   |
+| `mysql_vector_search` |   |   |   |
+| `mysql_vector_range_search` |   |   |   |
 
 ---
 

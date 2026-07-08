@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_show_processlist` | | | |
-| `mysql_show_status` | | | |
-| `mysql_show_variables` | | | |
+|---|---|---|---|
+| `mysql_show_processlist` |   |   |   |
+| `mysql_show_status` |   |   |   |
+| `mysql_show_variables` |   |   |   |
 
 ---
 

@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_vector_store` | | |
-| `mysql_vector_batch_store` | | |
-| `mysql_vector_delete` | | |
+|---|---|---|
+| `mysql_vector_store` |   |   |
+| `mysql_vector_batch_store` |   |   |
+| `mysql_vector_delete` |   |   |
 
 ---
 

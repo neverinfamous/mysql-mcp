@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_stats_lag_lead` | | |
-| `mysql_stats_running_total` | | |
-| `mysql_stats_moving_avg` | | |
+|---|---|---|
+| `mysql_stats_lag_lead` |   |   |
+| `mysql_stats_running_total` |   |   |
+| `mysql_stats_moving_avg` |   |   |
 
 ---
 

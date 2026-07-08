@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_role_list` | | | | |
-| `mysql_role_drop` | | | | |
-| `mysql_role_grant` | | | | |
-| `mysql_role_revoke` | | | | |
+|---|---|---|---|---|
+| `mysql_role_list` |   |   |   |   |
+| `mysql_role_drop` |   |   |   |   |
+| `mysql_role_grant` |   |   |   |   |
 
 ---
 
@@ -73,7 +73,6 @@
 - `mysql_role_list`
 - `mysql_role_drop`
 - `mysql_role_grant`
-- `mysql_role_revoke`
 
 
 ## Group Focus: roles

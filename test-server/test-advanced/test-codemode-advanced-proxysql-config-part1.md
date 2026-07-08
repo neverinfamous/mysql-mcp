@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `proxysql_status` | | |
-| `proxysql_servers` | | |
-| `proxysql_query_rules` | | |
+|---|---|---|
+| `proxysql_status` |   |   |
+| `proxysql_servers` |   |   |
+| `proxysql_query_rules` |   |   |
 
 ---
 

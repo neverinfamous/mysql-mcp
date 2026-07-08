@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_explain` | | | | |
-| `mysql_explain_analyze` | | | | |
-| `mysql_slow_queries` | | | | |
-| `mysql_query_stats` | | | | |
+|---|---|---|---|---|
+| `mysql_explain` |   |   |   |   |
+| `mysql_explain_analyze` |   |   |   |   |
+| `mysql_slow_queries` |   |   |   |   |
 
 ---
 
@@ -73,7 +73,6 @@
 - `mysql_explain`
 - `mysql_explain_analyze`
 - `mysql_slow_queries`
-- `mysql_query_stats`
 
 
 ## Group Focus: performance-analysis-part1

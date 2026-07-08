@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_spatial_contains` | | |
-| `mysql_spatial_within` | | |
-| `mysql_spatial_intersection` | | |
+|---|---|---|
+| `mysql_spatial_contains` |   |   |
+| `mysql_spatial_within` |   |   |
+| `mysql_spatial_intersection` |   |   |
 
 ---
 

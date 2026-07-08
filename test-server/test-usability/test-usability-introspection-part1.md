@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_dependency_graph` | | | |
-| `mysql_topological_sort` | | | |
-| `mysql_cascade_simulator` | | | |
+|---|---|---|---|
+| `mysql_dependency_graph` |   |   |   |
+| `mysql_topological_sort` |   |   |   |
+| `mysql_cascade_simulator` |   |   |   |
 
 ---
 

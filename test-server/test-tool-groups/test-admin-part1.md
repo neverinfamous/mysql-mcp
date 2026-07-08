@@ -59,11 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_optimize_table` | | | | |
-| `mysql_check_table` | | | | |
-| `mysql_repair_table` | | | | |
-| `mysql_append_insight` | | | | |
-| `mysql_audit_search` | | | | |
+|---|---|---|---|---|
+| `mysql_optimize_table` |   |   |   |   |
+| `mysql_check_table` |   |   |   |   |
+| `mysql_repair_table` |   |   |   |   |
 
 ---
 
@@ -74,8 +73,6 @@
 - `mysql_optimize_table`
 - `mysql_check_table`
 - `mysql_repair_table`
-- `mysql_append_insight`
-- `mysql_audit_search`
 
 
 ## Group Focus: admin

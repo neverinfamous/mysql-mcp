@@ -6,6 +6,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { MCP_PROTOCOL_STREAMABLE, MCP_PROTOCOL_LEGACY } from "./helpers.js";
 
 test.describe("HTTP Transport Protocols", () => {
   test("should return server metadata on GET /", async ({ request }) => {
@@ -19,7 +20,7 @@ test.describe("HTTP Transport Protocols", () => {
     expect(body.endpoints).toHaveProperty("GET /sse");
   });
 
-  test.describe("Streamable HTTP (MCP 2025-03-26)", () => {
+  test.describe(`Streamable HTTP (MCP ${MCP_PROTOCOL_STREAMABLE})`, () => {
     test("should reject generic payload on /mcp without a session ID", async ({
       request,
     }) => {
@@ -62,7 +63,7 @@ test.describe("HTTP Transport Protocols", () => {
     });
   });
 
-  test.describe("Legacy SSE (MCP 2024-11-05)", () => {
+  test.describe(`Legacy SSE (MCP ${MCP_PROTOCOL_LEGACY})`, () => {
     test("should reject message POSTs without a sessionId parameter", async ({
       request,
     }) => {
@@ -72,7 +73,7 @@ test.describe("HTTP Transport Protocols", () => {
           id: 1,
           method: "initialize",
           params: {
-            protocolVersion: "2024-11-05",
+            protocolVersion: MCP_PROTOCOL_LEGACY,
             capabilities: {},
             clientInfo: { name: "test", version: "1.0" },
           },

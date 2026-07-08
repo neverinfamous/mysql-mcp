@@ -103,7 +103,7 @@ test.describe("Audit Backup Snapshots", () => {
 
       // Insert a row so drop has something to snapshot
       await callToolAndParse(client, "mysql_write_query", {
-        sql: `INSERT INTO ${TEMP_TABLE} (val) VALUES ('test_data')`,
+        query: `INSERT INTO ${TEMP_TABLE} (val) VALUES ('test_data')`,
       });
 
       // Drop triggers a pre-mutation snapshot
@@ -146,7 +146,7 @@ test.describe("Audit Backup Snapshots", () => {
       try {
         if (client) {
           await callToolAndParse(client, "mysql_write_query", {
-            sql: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
+            query: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
           });
         }
       } catch {
@@ -228,7 +228,7 @@ test.describe("Audit Backup Snapshots", () => {
       try {
         if (client) {
           await callToolAndParse(client, "mysql_write_query", {
-            sql: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
+            query: `DROP TABLE IF EXISTS ${TEMP_TABLE}`,
           });
         }
       } catch {

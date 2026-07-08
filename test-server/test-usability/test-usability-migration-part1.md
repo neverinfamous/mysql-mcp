@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_migration_init` | | | |
-| `mysql_migration_record` | | | |
-| `mysql_migration_apply` | | | |
+|---|---|---|---|
+| `mysql_migration_init` |   |   |   |
+| `mysql_migration_record` |   |   |   |
+| `mysql_migration_apply` |   |   |   |
 
 ---
 

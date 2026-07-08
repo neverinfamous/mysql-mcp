@@ -8,6 +8,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 test.describe.serial("Advanced Session Management", () => {
   test("should reject requests after session DELETE", async ({ request }) => {
@@ -19,7 +20,7 @@ test.describe.serial("Advanced Session Management", () => {
         id: 1,
         method: "initialize",
         params: {
-          protocolVersion: "2025-03-26",
+          protocolVersion: MCP_PROTOCOL_STREAMABLE,
           capabilities: {},
           clientInfo: { name: "delete-reuse-test", version: "1.0.0" },
         },

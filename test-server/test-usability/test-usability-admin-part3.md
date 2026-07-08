@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_append_insight` | | | |
-| `mysql_server_config` | | | |
-| `mysql_audit_search` | | | |
+|---|---|---|---|
+| `mysql_append_insight` |   |   |   |
+| `mysql_server_config` |   |   |   |
+| `mysql_audit_search` |   |   |   |
 
 ---
 

@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_sys_innodb_lock_waits` | | |
-| `mysql_sys_schema_stats` | | |
-| `mysql_sys_host_summary` | | |
+|---|---|---|
+| `mysql_sys_innodb_lock_waits` |   |   |
+| `mysql_sys_schema_stats` |   |   |
+| `mysql_sys_host_summary` |   |   |
 
 ---
 

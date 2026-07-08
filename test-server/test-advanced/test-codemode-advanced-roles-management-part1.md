@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_role_grant` | | |
-| `mysql_role_assign` | | |
-| `mysql_role_revoke` | | |
+|---|---|---|
+| `mysql_role_grant` |   |   |
+| `mysql_role_assign` |   |   |
+| `mysql_role_revoke` |   |   |
 
 ---
 

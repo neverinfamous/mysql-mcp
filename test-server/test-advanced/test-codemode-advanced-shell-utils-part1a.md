@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysqlsh_import_json` | | |
-| `mysqlsh_dump_instance` | | |
-| `mysqlsh_dump_schemas` | | |
+|---|---|---|
+| `mysqlsh_import_json` |   |   |
+| `mysqlsh_dump_instance` |   |   |
+| `mysqlsh_dump_schemas` |   |   |
 
 ---
 

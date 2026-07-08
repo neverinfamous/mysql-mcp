@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_router_route_destinations` | | |
-| `mysql_router_route_blocked_hosts` | | |
-| `mysql_router_metadata_status` | | |
+|---|---|---|
+| `mysql_router_route_destinations` |   |   |
+| `mysql_router_route_blocked_hosts` |   |   |
+| `mysql_router_metadata_status` |   |   |
 
 ---
 

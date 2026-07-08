@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_read_query` | | | | |
-| `mysql_write_query` | | | | |
-| `mysql_list_tables` | | | | |
-| `mysql_create_index` | | | | |
+|---|---|---|---|---|
+| `mysql_read_query` |   |   |   |   |
+| `mysql_write_query` |   |   |   |   |
+| `mysql_list_tables` |   |   |   |   |
 
 ---
 
@@ -73,7 +73,6 @@
 - `mysql_read_query`
 - `mysql_write_query`
 - `mysql_list_tables`
-- `mysql_create_index`
 
 
 ## Group Focus: core

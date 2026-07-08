@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_create_trigger` | | |
-| `mysql_drop_trigger` | | |
-| `mysql_list_constraints` | | |
+|---|---|---|
+| `mysql_create_trigger` |   |   |
+| `mysql_drop_trigger` |   |   |
+| `mysql_list_constraints` |   |   |
 
 ---
 

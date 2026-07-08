@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_security_user_privileges` | | | |
-| `mysql_security_sensitive_tables` | | | |
-| `mysql_security_encryption_status` | | | |
+|---|---|---|---|
+| `mysql_security_user_privileges` |   |   |   |
+| `mysql_security_sensitive_tables` |   |   |   |
+| `mysql_security_encryption_status` |   |   |   |
 
 ---
 

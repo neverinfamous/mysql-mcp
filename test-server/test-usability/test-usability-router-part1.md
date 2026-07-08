@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_router_status` | | | |
-| `mysql_router_routes` | | | |
-| `mysql_router_route_status` | | | |
+|---|---|---|---|
+| `mysql_router_status` |   |   |   |
+| `mysql_router_routes` |   |   |   |
+| `mysql_router_route_status` |   |   |   |
 
 ---
 

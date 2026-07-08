@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_security_audit` | | | |
-| `mysql_security_firewall_status` | | | |
-| `mysql_security_firewall_rules` | | | |
+|---|---|---|---|
+| `mysql_security_audit` |   |   |   |
+| `mysql_security_firewall_status` |   |   |   |
+| `mysql_security_firewall_rules` |   |   |   |
 
 ---
 

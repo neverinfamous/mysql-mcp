@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_event_list` | | | |
-| `mysql_event_status` | | | |
-| `mysql_scheduler_status` | | | |
+|---|---|---|---|
+| `mysql_event_list` |   |   |   |
+| `mysql_event_status` |   |   |   |
+| `mysql_scheduler_status` |   |   |   |
 
 ---
 

@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_read_query` | | | |
-| `mysql_write_query` | | | |
-| `mysql_list_tables` | | | |
+|---|---|---|---|
+| `mysql_read_query` |   |   |   |
+| `mysql_write_query` |   |   |   |
+| `mysql_list_tables` |   |   |   |
 
 ---
 

@@ -59,9 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_list_triggers` | | | | |
-| `mysql_create_trigger` | | | | |
-| `mysql_drop_trigger` | | | | |
+|---|---|---|---|---|
+| `mysql_create_trigger` |   |   |   |   |
+| `mysql_drop_trigger` |   |   |   |   |
 
 ---
 
@@ -69,7 +69,6 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_list_triggers`
 - `mysql_create_trigger`
 - `mysql_drop_trigger`
 

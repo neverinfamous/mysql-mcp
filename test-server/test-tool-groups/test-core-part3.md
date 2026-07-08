@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_create_table` | | | | |
-| `mysql_enable_versioning` | | | | |
-| `mysql_check_version` | | | | |
+|---|---|---|---|---|
+| `mysql_create_table` |   |   |   |   |
+| `mysql_enable_versioning` |   |   |   |   |
+| `mysql_check_version` |   |   |   |   |
 
 ---
 

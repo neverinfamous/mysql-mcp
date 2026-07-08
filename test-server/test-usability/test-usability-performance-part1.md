@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_explain` | | | |
-| `mysql_explain_analyze` | | | |
-| `mysql_slow_queries` | | | |
+|---|---|---|---|
+| `mysql_explain` |   |   |   |
+| `mysql_explain_analyze` |   |   |   |
+| `mysql_slow_queries` |   |   |   |
 
 ---
 

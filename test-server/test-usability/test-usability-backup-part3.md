@@ -59,7 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_audit_diff_backup` | | | |
+|---|---|---|---|
+| `mysql_audit_diff_backup` |   |   |   |
 
 ---
 

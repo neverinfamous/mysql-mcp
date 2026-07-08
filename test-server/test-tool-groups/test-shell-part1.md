@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysqlsh_version` | | | | |
-| `mysqlsh_export_table` | | | | |
-| `mysqlsh_import_json` | | | | |
-| `mysqlsh_load_dump` | | | | |
+|---|---|---|---|---|
+| `mysqlsh_version` |   |   |   |   |
+| `mysqlsh_export_table` |   |   |   |   |
+| `mysqlsh_import_json` |   |   |   |   |
 
 ---
 
@@ -73,7 +73,6 @@
 - `mysqlsh_version`
 - `mysqlsh_export_table`
 - `mysqlsh_import_json`
-- `mysqlsh_load_dump`
 
 
 ## Group Focus: shell-part1

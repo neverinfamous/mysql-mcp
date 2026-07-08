@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { setTimeout as delay } from "node:timers/promises";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 import { ResourceUpdatedNotificationSchema } from "@modelcontextprotocol/sdk/types.js";
@@ -58,7 +59,7 @@ test.describe("E2E MCP Subscriptions", () => {
     });
 
     // Wait briefly for notification to arrive
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await delay(500);
 
     expect(receivedNotifications).toContain("mysql://schema");
 
@@ -83,7 +84,7 @@ test.describe("E2E MCP Subscriptions", () => {
       },
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await delay(500);
 
     // Should NOT receive notification
     expect(receivedNotifications).not.toContain("mysql://schema");

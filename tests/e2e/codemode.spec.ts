@@ -220,7 +220,7 @@ test.describe("Code Mode: Readonly Mode", () => {
         readonly: true,
       });
       expectSuccess(p);
-      // PG COUNT returns bigint which may come as string or number
+      // MySQL COUNT returns bigint which may come as string or number
       expect(["number", "string"]).toContain(typeof p.result);
     } finally {
       await client.close();
@@ -263,14 +263,14 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
           await mysql.core.dropTable({ table: "_e2e_codemode_etl" });
 
           return {
-            rowCount: (result.data?.rowCount ?? result.rowCount),
+            rowCount: (result.data?.rows ?? result.rows)?.length ?? 0,
             firstItem: (result.data?.rows ?? result.rows)[0]?.name,
           };
         `,
       });
       expectSuccess(p);
       const result = p.result as Record<string, unknown>;
-      expect(result.data?.rowCount ?? result.rowCount).toBe(3);
+      expect(result.rowCount).toBe(3);
       expect(result.firstItem).toBe("gamma");
     } finally {
       await client.close();
@@ -306,9 +306,9 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
       expect(result.productsExists).toBe(true);
       expect(typeof result.columnCount).toBe("number");
       expect(result.columnCount as number).toBeGreaterThan(0);
-      // PG COUNT returns bigint which may come as string or number
+      // MySQL COUNT returns bigint which may come as string or number
       expect(["number", "string"]).toContain(
-        typeof (result.data?.rowCount ?? result.rowCount),
+        typeof result.rowCount,
       );
     } finally {
       await client.close();

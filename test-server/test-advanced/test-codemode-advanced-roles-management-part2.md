@@ -59,7 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_user_roles` | | |
+|---|---|---|
+| `mysql_user_roles` |   |   |
 
 ---
 

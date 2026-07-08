@@ -11,7 +11,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { startServer, stopServer, MCP_JSON_HEADERS } from "./helpers.js";
+import { startServer, stopServer, MCP_JSON_HEADERS, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 const RATE_PORT_1 = 4104;
 const RATE_PORT_2 = 4105;
@@ -23,7 +23,7 @@ const INIT_BODY = (id: number, clientName: string) =>
     id,
     method: "initialize",
     params: {
-      protocolVersion: "2025-03-26",
+      protocolVersion: MCP_PROTOCOL_STREAMABLE,
       capabilities: {},
       clientInfo: { name: clientName, version: "1.0" },
     },

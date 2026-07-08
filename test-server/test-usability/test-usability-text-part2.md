@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_substring` | | | |
-| `mysql_concat` | | | |
-| `mysql_collation_convert` | | | |
+|---|---|---|---|
+| `mysql_substring` |   |   |   |
+| `mysql_concat` |   |   |   |
+| `mysql_collation_convert` |   |   |   |
 
 ---
 

@@ -1,4 +1,4 @@
-# MySQL MCP Usability & Hallucination Test: [core]
+# MySQL MCP Code Mode Testing: [codemode]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Organically test the tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -58,11 +58,9 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|
-| `mysql_disable_versioning` |   |   |   |
-| `mysql_check_version` |   |   |   |
-| `mysql_conditional_update` |   |   |   |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+|---|---|---|
+
 
 ---
 
@@ -70,12 +68,17 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_disable_versioning`
-- `mysql_check_version`
-- `mysql_conditional_update`
+- `mysql_read_query`
+- `mysql_list_tables`
+- `mysql_describe_table`
+- `mysql_get_indexes`
 
+## Group Focus:
+Testing `mysql_execute_code` directly.
 
-
+**Checklist:**
+1. ✅ `mysql.executeCode({...})` → happy path
+2. 🔴 `mysql.executeCode({...})` → domain error
 
 ---
 

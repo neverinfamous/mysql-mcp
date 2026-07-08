@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_json_search` | | |
-| `mysql_json_validate` | | |
-| `mysql_json_merge` | | |
+|---|---|---|
+| `mysql_json_search` |   |   |
+| `mysql_json_validate` |   |   |
+| `mysql_json_merge` |   |   |
 
 ---
 

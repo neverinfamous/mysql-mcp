@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_list_views` | | |
-| `mysql_create_view` | | |
-| `mysql_drop_view` | | |
+|---|---|---|
+| `mysql_list_views` |   |   |
+| `mysql_create_view` |   |   |
+| `mysql_drop_view` |   |   |
 
 ---
 

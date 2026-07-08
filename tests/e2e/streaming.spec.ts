@@ -12,7 +12,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { startServer, stopServer } from "./helpers.js";
+import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
 test.describe.configure({ mode: "serial" });
@@ -48,7 +48,7 @@ test.describe("HTTP/SSE Streaming", () => {
           id: 1,
           method: "initialize",
           params: {
-            protocolVersion: "2025-03-26",
+            protocolVersion: MCP_PROTOCOL_STREAMABLE,
             capabilities: {},
             clientInfo: { name: "streaming-test", version: "1.0.0" },
           },

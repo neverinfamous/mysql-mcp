@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_doc_list_collections` | | | | |
-| `mysql_doc_create_collection` | | | | |
-| `mysql_doc_drop_collection` | | | | |
-| `mysql_doc_collection_info` | | | | |
+|---|---|---|---|---|
+| `mysql_doc_list_collections` |   |   |   |   |
+| `mysql_doc_create_collection` |   |   |   |   |
+| `mysql_doc_drop_collection` |   |   |   |   |
 
 ---
 
@@ -73,7 +73,6 @@
 - `mysql_doc_list_collections`
 - `mysql_doc_create_collection`
 - `mysql_doc_drop_collection`
-- `mysql_doc_collection_info`
 
 
 ## Group Focus: docstore-part1

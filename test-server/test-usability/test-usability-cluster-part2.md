@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_gr_transactions` | | | |
-| `mysql_gr_flow_control` | | | |
-| `mysql_cluster_status` | | | |
+|---|---|---|---|
+| `mysql_gr_transactions` |   |   |   |
+| `mysql_gr_flow_control` |   |   |   |
+| `mysql_cluster_status` |   |   |   |
 
 ---
 

@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { startServer, stopServer } from "./helpers.js";
+import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
 const OAUTH_PORT = 3131;
 
@@ -102,7 +102,7 @@ test.describe.serial("OAuth 2.1 Discovery", () => {
           id: 1,
           method: "initialize",
           params: {
-            protocolVersion: "2025-03-26",
+            protocolVersion: MCP_PROTOCOL_STREAMABLE,
             capabilities: {},
             clientInfo: { name: "oauth-test", version: "1.0" },
           },

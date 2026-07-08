@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_regexp_match` | | | |
-| `mysql_like_search` | | | |
-| `mysql_soundex` | | | |
+|---|---|---|---|
+| `mysql_regexp_match` |   |   |   |
+| `mysql_like_search` |   |   |   |
+| `mysql_soundex` |   |   |   |
 
 ---
 

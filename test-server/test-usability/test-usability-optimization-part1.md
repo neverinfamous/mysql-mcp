@@ -59,8 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_index_recommendation` | | | |
-| `mysql_query_rewrite` | | | |
+|---|---|---|---|
+| `mysql_index_recommendation` |   |   |   |
+| `mysql_query_rewrite` |   |   |   |
+| `mysql_force_index` |   |   |   |
 
 ---
 
@@ -70,6 +72,7 @@
 
 - `mysql_index_recommendation`
 - `mysql_query_rewrite`
+- `mysql_force_index`
 
 
 

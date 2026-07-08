@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_soundex` | | |
-| `mysql_substring` | | |
-| `mysql_concat` | | |
+|---|---|---|
+| `mysql_soundex` |   |   |
+| `mysql_substring` |   |   |
+| `mysql_concat` |   |   |
 
 ---
 

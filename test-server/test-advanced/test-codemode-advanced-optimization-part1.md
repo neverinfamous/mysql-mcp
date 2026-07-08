@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_index_recommendation` | | |
-| `mysql_query_rewrite` | | |
-| `mysql_force_index` | | |
+|---|---|---|
+| `mysql_index_recommendation` |   |   |
+| `mysql_query_rewrite` |   |   |
+| `mysql_force_index` |   |   |
 
 ---
 

@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_stats_frequency` | | |
-| `mysql_stats_summary` | | |
+|---|---|---|
+| `mysql_stats_frequency` |   |   |
+| `mysql_stats_summary` |   |   |
 
 ---
 

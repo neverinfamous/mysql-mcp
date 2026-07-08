@@ -59,11 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_security_audit` | | | | |
-| `mysql_security_firewall_status` | | | | |
-| `mysql_security_firewall_rules` | | | | |
-| `mysql_security_mask_data` | | | | |
-| `mysql_security_password_validate` | | | | |
+|---|---|---|---|---|
+| `mysql_security_audit` |   |   |   |   |
+| `mysql_security_firewall_status` |   |   |   |   |
+| `mysql_security_firewall_rules` |   |   |   |   |
 
 ---
 
@@ -74,8 +73,6 @@
 - `mysql_security_audit`
 - `mysql_security_firewall_status`
 - `mysql_security_firewall_rules`
-- `mysql_security_mask_data`
-- `mysql_security_password_validate`
 
 
 ## Group Focus: security-part1

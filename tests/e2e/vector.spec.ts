@@ -62,8 +62,8 @@ test.describe("Vector Tools", () => {
     expectSuccess(result);
     const data = result.data as Record<string, unknown>;
     expect(data.columns).toBeInstanceOf(Array);
-    const embeddingCol = data.columns.find(
-      (c: any) => c.name === "embedding"
+    const embeddingCol = (data.columns as Array<{ name: string; dimensions?: number }>).find(
+      (c) => c.name === "embedding"
     );
     expect(embeddingCol).toBeDefined();
     expect(embeddingCol.dimensions).toBe(3);

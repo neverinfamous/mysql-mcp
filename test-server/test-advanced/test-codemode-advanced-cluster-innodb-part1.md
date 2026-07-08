@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_cluster_status` | | |
-| `mysql_cluster_instances` | | |
-| `mysql_cluster_topology` | | |
+|---|---|---|
+| `mysql_cluster_status` |   |   |
+| `mysql_cluster_instances` |   |   |
+| `mysql_cluster_topology` |   |   |
 
 ---
 

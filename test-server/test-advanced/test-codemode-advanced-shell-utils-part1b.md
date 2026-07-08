@@ -59,7 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysqlsh_dump_tables` | | |
+|---|---|---|
+| `mysqlsh_dump_tables` |   |   |
 
 ---
 

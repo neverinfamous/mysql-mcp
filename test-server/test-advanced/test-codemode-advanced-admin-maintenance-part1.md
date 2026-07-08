@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_kill_query` | | |
-| `mysql_append_insight` | | |
-| `mysql_server_config` | | |
+|---|---|---|
+| `mysql_kill_query` |   |   |
+| `mysql_append_insight` |   |   |
+| `mysql_server_config` |   |   |
 
 ---
 

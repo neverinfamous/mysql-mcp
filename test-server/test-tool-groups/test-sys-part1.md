@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_sys_user_summary` | | | | |
-| `mysql_sys_statement_summary` | | | | |
-| `mysql_sys_innodb_lock_waits` | | | | |
-| `mysql_sys_host_summary` | | | | |
+|---|---|---|---|---|
+| `mysql_sys_user_summary` |   |   |   |   |
+| `mysql_sys_statement_summary` |   |   |   |   |
+| `mysql_sys_innodb_lock_waits` |   |   |   |   |
 
 ---
 
@@ -73,7 +73,6 @@
 - `mysql_sys_user_summary`
 - `mysql_sys_statement_summary`
 - `mysql_sys_innodb_lock_waits`
-- `mysql_sys_host_summary`
 
 
 ## Group Focus: sysschema

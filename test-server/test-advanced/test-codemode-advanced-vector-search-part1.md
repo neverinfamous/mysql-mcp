@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_vector_search` | | |
-| `mysql_vector_range_search` | | |
-| `mysql_vector_hybrid_search` | | |
+|---|---|---|
+| `mysql_vector_search` |   |   |
+| `mysql_vector_range_search` |   |   |
+| `mysql_vector_hybrid_search` |   |   |
 
 ---
 

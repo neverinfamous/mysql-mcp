@@ -7,8 +7,8 @@
  */
 
 import { stat, rm } from "node:fs/promises";
-
 import { test, expect } from "@playwright/test";
+import { setTimeout as delay } from "node:timers/promises";
 import {
   startServer,
   stopServer,
@@ -67,12 +67,12 @@ test.describe("Audit Log Rotation Stress", () => {
         }
         // Every few iterations, pause to let background disk writes complete and rotate
         if (i % 5 === 0) {
-          await new Promise((r) => setTimeout(r, 150));
+          await delay(150);
         }
       }
 
       // Wait for all async flushes and final rotations
-      await new Promise((r) => setTimeout(r, 1000));
+      await delay(1000);
 
       // Verify the file retention policy (keeps up to 5 rotations)
       // logPath.1, logPath.2, ..., logPath.5 should exist

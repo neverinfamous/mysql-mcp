@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_role_grants` | | | |
-| `mysql_role_grant` | | | |
-| `mysql_role_assign` | | | |
+|---|---|---|---|
+| `mysql_role_grants` |   |   |   |
+| `mysql_role_grant` |   |   |   |
+| `mysql_role_assign` |   |   |   |
 
 ---
 

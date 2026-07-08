@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_cluster_router_status` | | |
-| `mysql_cluster_switchover` | | |
+|---|---|---|
+| `mysql_cluster_router_status` |   |   |
+| `mysql_cluster_switchover` |   |   |
 
 ---
 

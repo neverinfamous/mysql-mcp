@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_json_stats` | | |
-| `mysql_json_index_suggest` | | |
+|---|---|---|
+| `mysql_json_stats` |   |   |
+| `mysql_json_index_suggest` |   |   |
 
 ---
 

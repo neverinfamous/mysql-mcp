@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_audit_list_backups` | | | | |
-| `mysql_audit_restore_backup` | | | | |
-| `mysql_audit_diff_backup` | | | | |
+|---|---|---|---|---|
+| `mysql_restore_dump` |   |   |   |   |
+| `mysql_audit_list_backups` |   |   |   |   |
+| `mysql_audit_restore_backup` |   |   |   |   |
 
 ---
 
@@ -69,9 +70,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_restore_dump`
 - `mysql_audit_list_backups`
 - `mysql_audit_restore_backup`
-- `mysql_audit_diff_backup`
 
 
 ## Group Focus: backup-part2

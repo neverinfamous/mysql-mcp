@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_optimize_table` | | |
-| `mysql_analyze_table` | | |
-| `mysql_check_table` | | |
+|---|---|---|
+| `mysql_optimize_table` |   |   |
+| `mysql_analyze_table` |   |   |
+| `mysql_check_table` |   |   |
 
 ---
 

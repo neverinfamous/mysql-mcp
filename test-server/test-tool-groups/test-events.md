@@ -59,12 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_event_create` | | | | |
-| `mysql_event_alter` | | | | |
-| `mysql_event_drop` | | | | |
-| `mysql_event_list` | | | | |
-| `mysql_event_status` | | | | |
-| `mysql_scheduler_status` | | | | |
+|---|---|---|---|---|
+
 
 ---
 
@@ -78,7 +74,6 @@
 - `mysql_event_list`
 - `mysql_event_status`
 - `mysql_scheduler_status`
-
 
 ## Group Focus: events
 

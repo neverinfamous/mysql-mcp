@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_explain` | | |
-| `mysql_explain_analyze` | | |
-| `mysql_slow_queries` | | |
+|---|---|---|
+| `mysql_explain` |   |   |
+| `mysql_explain_analyze` |   |   |
+| `mysql_slow_queries` |   |   |
 
 ---
 

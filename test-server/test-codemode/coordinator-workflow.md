@@ -121,6 +121,7 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
 74. `test-codemode-vector-search.md`
 75. `test-codemode-vector-storage.md`
 76. `test-codemode-versioning.md`
+77. `test-codemode-sandbox.md`
 
 
 

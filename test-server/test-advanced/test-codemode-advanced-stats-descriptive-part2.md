@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_stats_row_number` | | |
-| `mysql_stats_rank` | | |
+|---|---|---|
+| `mysql_stats_row_number` |   |   |
+| `mysql_stats_rank` |   |   |
 
 ---
 

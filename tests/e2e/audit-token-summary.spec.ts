@@ -7,6 +7,8 @@
  */
 
 
+import { rm, stat, readFile } from "node:fs/promises";
+import { setTimeout as delay } from "node:timers/promises";
 import { test, expect } from "@playwright/test";
 import {
   startServer,
@@ -44,7 +46,7 @@ test.describe("Audit Token Summary Accuracy", () => {
         args: Record<string, unknown>;
       }> = [
         { name: "mysql_transaction_begin", args: {} },
-        { name: "mysql_read_query", args: { sql: "SELECT 1 AS test_val" } },
+        { name: "mysql_read_query", args: { query: "SELECT 1 AS test_val" } },
         { name: "mysql_list_tables", args: { limit: 2 } },
       ];
 
@@ -70,7 +72,7 @@ test.describe("Audit Token Summary Accuracy", () => {
           (expectedTokensByTool[t.name] ?? 0) + tokens;
 
         // Brief delay to ensure async audit log write
-        await new Promise((r) => setTimeout(r, 100));
+        await delay(100);
       }
 
       // Rollback the transaction
@@ -79,7 +81,7 @@ test.describe("Audit Token Summary Accuracy", () => {
           transactionId: currentTxId,
         });
         // Brief delay for audit flush
-        await new Promise((r) => setTimeout(r, 100));
+        await delay(100);
       }
 
       // Read the audit resource
@@ -129,8 +131,8 @@ test.describe("Audit Token Summary Accuracy", () => {
       client = await createClient(`http://localhost:${port}`);
 
       // Call low cost tools
-      await callToolAndParse(client, "mysql_read_query", { sql: "SELECT 1" });
-      await callToolAndParse(client, "mysql_read_query", { sql: "SELECT 2" });
+      await callToolAndParse(client, "mysql_read_query", { query: "SELECT 1" });
+      await callToolAndParse(client, "mysql_read_query", { query: "SELECT 2" });
 
       // Call a tool that returns more data (list_tables with full schema)
       const largePayload = await callToolAndParse(
@@ -143,7 +145,7 @@ test.describe("Audit Token Summary Accuracy", () => {
       expect(highCostEstimate).toBeGreaterThan(0);
 
       // Flush delay
-      await new Promise((r) => setTimeout(r, 600));
+      await delay(600);
 
       const resource = await client.readResource({ uri: "mysql://audit" });
       const body = JSON.parse(

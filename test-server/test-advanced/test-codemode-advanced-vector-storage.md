@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_vector_create_index` | | |
-| `mysql_vector_optimize` | | |
-| `mysql_vector_stats` | | |
+|---|---|---|
+| `mysql_vector_create_index` |   |   |
+| `mysql_vector_optimize` |   |   |
+| `mysql_vector_stats` |   |   |
 
 ---
 

@@ -59,12 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysqlsh_check_upgrade` | | | | |
-| `mysqlsh_import_table` | | | | |
-| `mysqlsh_dump_instance` | | | | |
-| `mysqlsh_dump_schemas` | | | | |
-| `mysqlsh_dump_tables` | | | | |
-| `mysqlsh_run_script` | | | | |
+|---|---|---|---|---|
+| `mysqlsh_load_dump` |   |   |   |   |
+| `mysqlsh_check_upgrade` |   |   |   |   |
+| `mysqlsh_import_table` |   |   |   |   |
 
 ---
 
@@ -72,12 +70,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysqlsh_load_dump`
 - `mysqlsh_check_upgrade`
 - `mysqlsh_import_table`
-- `mysqlsh_dump_instance`
-- `mysqlsh_dump_schemas`
-- `mysqlsh_dump_tables`
-- `mysqlsh_run_script`
 
 
 ## Group Focus: shell-part2

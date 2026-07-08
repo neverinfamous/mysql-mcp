@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_transaction_begin` | | | |
-| `mysql_transaction_commit` | | | |
-| `mysql_transaction_rollback` | | | |
+|---|---|---|---|
+| `mysql_transaction_begin` |   |   |   |
+| `mysql_transaction_commit` |   |   |   |
+| `mysql_transaction_rollback` |   |   |   |
 
 ---
 

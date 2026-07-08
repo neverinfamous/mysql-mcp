@@ -59,7 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysqlsh_run_script` | | | |
+|---|---|---|---|
+| `mysqlsh_run_script` |   |   |   |
 
 ---
 

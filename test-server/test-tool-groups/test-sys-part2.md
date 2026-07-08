@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_sys_io_summary` | | | | |
-| `mysql_sys_wait_summary` | | | | |
-| `mysql_sys_schema_stats` | | | | |
-| `mysql_sys_memory_summary` | | | | |
+|---|---|---|---|---|
+| `mysql_sys_host_summary` |   |   |   |   |
+| `mysql_sys_io_summary` |   |   |   |   |
+| `mysql_sys_wait_summary` |   |   |   |   |
 
 ---
 
@@ -70,10 +70,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_sys_host_summary`
 - `mysql_sys_io_summary`
 - `mysql_sys_wait_summary`
-- `mysql_sys_schema_stats`
-- `mysql_sys_memory_summary`
 
 
 ## Group Focus: sysschema

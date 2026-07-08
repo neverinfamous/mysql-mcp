@@ -59,12 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_dependency_graph` | | | | |
-| `mysql_topological_sort` | | | | |
-| `mysql_cascade_simulator` | | | | |
-| `mysql_schema_snapshot` | | | | |
-| `mysql_constraint_analysis` | | | | |
-| `mysql_migration_risks` | | | | |
+|---|---|---|---|---|
+
 
 ---
 
@@ -78,7 +74,6 @@
 - `mysql_schema_snapshot`
 - `mysql_constraint_analysis`
 - `mysql_migration_risks`
-
 
 ## Group Focus: introspection
 

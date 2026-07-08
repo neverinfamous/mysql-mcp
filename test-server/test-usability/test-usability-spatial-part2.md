@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_spatial_polygon` | | | |
-| `mysql_spatial_distance` | | | |
-| `mysql_spatial_distance_sphere` | | | |
+|---|---|---|---|
+| `mysql_spatial_polygon` |   |   |   |
+| `mysql_spatial_distance` |   |   |   |
+| `mysql_spatial_distance_sphere` |   |   |   |
 
 ---
 

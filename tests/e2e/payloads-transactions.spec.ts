@@ -67,11 +67,11 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
   test("begin → execute INSERT → rollback → verify row not inserted", async () => {
     // Create a temp table for isolation (force InnoDB for transaction support)
     const dropRes = await callToolAndParse(client, "mysql_write_query", {
-      sql: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
+      query: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
     });
     expectSuccess(dropRes);
     const createRes = await callToolAndParse(client, "mysql_write_query", {
-      sql: "CREATE TABLE _e2e_txn_rollback_test (id INT AUTO_INCREMENT PRIMARY KEY, value TEXT) ENGINE=InnoDB",
+      query: "CREATE TABLE _e2e_txn_rollback_test (id INT AUTO_INCREMENT PRIMARY KEY, value TEXT) ENGINE=InnoDB",
     });
     expectSuccess(createRes);
 
@@ -112,7 +112,7 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
     } finally {
       // Cleanup
       await callToolAndParse(client, "mysql_write_query", {
-        sql: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
+        query: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",
       });
     }
   });

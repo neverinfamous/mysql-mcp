@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_drop_table` | | | | |
-| `mysql_disable_versioning` | | | | |
-| `mysql_conditional_update` | | | | |
+|---|---|---|---|---|
+| `mysql_drop_table` |   |   |   |   |
+| `mysql_disable_versioning` |   |   |   |   |
+| `mysql_conditional_update` |   |   |   |   |
 
 ---
 

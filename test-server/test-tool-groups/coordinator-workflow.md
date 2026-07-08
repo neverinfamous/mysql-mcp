@@ -55,25 +55,34 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 
 - `test-core-part1.md` (**MUST PASS FIRST**)
 - `test-core-part2.md`
+- `test-core-part3.md`
+- `test-core-part4.md`
 - `test-codemode.md`
 - `test-json-core-part1.md`
 - `test-json-core-part2.md`
-- `test-json-enhanced.md`
-- `test-json-helpers.md`
-- `test-transactions.md`
-- `test-text.md`
-- `test-core-part3.md`
-- `test-core-part4.md`
+- `test-json-core-part3.md`
+- `test-json-enhanced-part1.md`
+- `test-json-enhanced-part2.md`
+- `test-json-helpers-part1.md`
+- `test-json-helpers-part2.md`
+- `test-transactions-part1.md`
+- `test-transactions-part2.md`
+- `test-transactions-part3.md`
+- `test-text-part1.md`
+- `test-text-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dev-power` and restart)_
 
 ### Phase 2: `dev-power` shortcut
 
-- `test-schema-management.md`
+- `test-schema-management-part1.md`
+- `test-schema-management-part2.md`
+- `test-schema-management-part3.md`
 - `test-schema-routines-part1.md`
 - `test-schema-routines-part2.md`
 - `test-performance-analysis-part1.md`
 - `test-performance-analysis-part2.md`
+- `test-performance-analysis-part3.md`
 - `test-performance-anomaly.md`
 - `test-fulltext-part1.md`
 - `test-fulltext-part2.md`
@@ -82,10 +91,13 @@ _(Coordinator pauses: Asks user to switch filter to `dev-analytics` and restart)
 
 ### Phase 3: `dev-analytics` shortcut
 
-- `test-stats-advanced.md`
+- `test-stats-advanced-part1.md`
+- `test-stats-advanced-part2.md`
 - `test-stats-descriptive-part1.md`
 - `test-stats-descriptive-part2.md`
-- `test-stats-window.md`
+- `test-stats-descriptive-part3.md`
+- `test-stats-window-part1.md`
+- `test-stats-window-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `ai-data-nosql` and restart)_
 
@@ -93,32 +105,41 @@ _(Coordinator pauses: Asks user to switch filter to `ai-data-nosql` and restart)
 
 - `test-docstore-part1.md`
 - `test-docstore-part2.md`
+- `test-docstore-part3.md`
 
 _(Coordinator pauses: Asks user to switch filter to `ai-search` and restart)_
 
 ### Phase 5: `ai-search` shortcut
 
-- `test-vector-management.md`
+- `test-vector-management-part1.md`
+- `test-vector-management-part2.md`
 - `test-vector-search.md`
-- `test-vector-storage.md`
+- `test-vector-storage-part1.md`
+- `test-vector-storage-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `ai-spatial` and restart)_
 
 ### Phase 6: `ai-spatial` shortcut
 
 - `test-spatial-geometry.md`
-- `test-spatial-operations.md`
-- `test-spatial-queries.md`
+- `test-spatial-operations-part1.md`
+- `test-spatial-operations-part2.md`
+- `test-spatial-queries-part1.md`
+- `test-spatial-queries-part2.md`
 - `test-spatial-setup.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dba-monitor` and restart)_
 
 ### Phase 7: `dba-monitor` shortcut
 
-- `test-monitoring.md`
+- `test-monitoring-part1.md`
+- `test-monitoring-part2.md`
+- `test-monitoring-part3.md`
 - `test-sys-part1.md`
 - `test-sys-part2.md`
-- `test-optimization.md`
+- `test-sys-part3.md`
+- `test-optimization-part1.md`
+- `test-optimization-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dba-manage` and restart)_
 
@@ -126,11 +147,16 @@ _(Coordinator pauses: Asks user to switch filter to `dba-manage` and restart)_
 
 - `test-admin-part1.md`
 - `test-admin-part2.md`
+- `test-admin-part3.md`
 - `test-backup-part1.md`
 - `test-backup-part2.md`
-- `test-replication.md`
-- `test-partitioning.md`
-- `test-events.md`
+- `test-backup-part3.md`
+- `test-replication-part1.md`
+- `test-replication-part2.md`
+- `test-partitioning-part1.md`
+- `test-partitioning-part2.md`
+- `test-events-part1.md`
+- `test-events-part2.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dba-secure` and restart)_
 
@@ -138,28 +164,39 @@ _(Coordinator pauses: Asks user to switch filter to `dba-secure` and restart)_
 
 - `test-security-part1.md`
 - `test-security-part2.md`
+- `test-security-part3.md`
 - `test-roles-part1.md`
 - `test-roles-part2.md`
+- `test-roles-part3.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dba-schema` and restart)_
 
 ### Phase 10: `dba-schema` shortcut
 
-- `test-introspection.md`
-- `test-migration.md`
+- `test-introspection-part1.md`
+- `test-introspection-part2.md`
+- `test-migration-part1.md`
+- `test-migration-part2.md`
 
 _(Coordinator pauses: Asks user to switch testing to the mysql-ecosystem server)_
 
 ### Phase 11: `ecosystem` shortcut
 
 - `test-cluster-gr.md`
-- `test-cluster-innodb.md`
+- `test-cluster-innodb-part1.md`
+- `test-cluster-innodb-part2.md`
+- `test-cluster-innodb-part3.md`
 - `test-proxysql-part1.md`
 - `test-proxysql-part2.md`
+- `test-proxysql-part3.md`
+- `test-proxysql-part4.md`
 - `test-router-part1.md`
 - `test-router-part2.md`
+- `test-router-part3.md`
 - `test-shell-part1.md`
 - `test-shell-part2.md`
+- `test-shell-part3.md`
+- `test-shell-part4.md`
 
 ## Telemetry Collection
 

@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_stats_distribution` | | |
-| `mysql_stats_time_series` | | |
+|---|---|---|
+| `mysql_stats_distribution` |   |   |
+| `mysql_stats_time_series` |   |   |
 
 ---
 

@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_export_table` | | |
-| `mysql_import_data` | | |
-| `mysql_create_dump` | | |
+|---|---|---|
+| `mysql_export_table` |   |   |
+| `mysql_import_data` |   |   |
+| `mysql_create_dump` |   |   |
 
 ---
 

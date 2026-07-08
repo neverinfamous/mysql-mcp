@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_migration_rollback` | | |
-| `mysql_migration_history` | | |
-| `mysql_migration_status` | | |
+|---|---|---|
+| `mysql_migration_rollback` |   |   |
+| `mysql_migration_history` |   |   |
+| `mysql_migration_status` |   |   |
 
 ---
 

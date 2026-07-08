@@ -5,8 +5,6 @@ import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 const AUTH_PORT = 3101;
 const AUTH_BASE = `http://localhost:${String(AUTH_PORT)}`;
 const AUTH_TOKEN = "test-secret-token-e2e";
-
-let AUTH_TOKEN = "test-secret-token-e2e";
 const SSE_CONNECT_TIMEOUT_MS = 3000;
 
 test.describe("Bearer Token Authentication", () => {

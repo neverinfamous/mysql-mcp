@@ -59,10 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_json_extract` | | | | |
-| `mysql_json_insert` | | | | |
-| `mysql_json_remove` | | | | |
-| `mysql_json_keys` | | | | |
+|---|---|---|---|---|
+| `mysql_json_extract` |   |   |   |   |
+| `mysql_json_insert` |   |   |   |   |
+| `mysql_json_remove` |   |   |   |   |
 
 ---
 
@@ -73,7 +73,6 @@
 - `mysql_json_extract`
 - `mysql_json_insert`
 - `mysql_json_remove`
-- `mysql_json_keys`
 
 
 ## Group Focus: json-core

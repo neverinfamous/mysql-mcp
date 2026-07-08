@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_detect_bloat_risk` | | | |
-| `mysql_detect_connection_spike` | | | |
+|---|---|---|---|
+| `mysql_detect_bloat_risk` |   |   |   |
+| `mysql_detect_connection_spike` |   |   |   |
 
 ---
 

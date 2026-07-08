@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_stats_outliers` | | | |
-| `mysql_stats_top_n` | | | |
-| `mysql_stats_distinct` | | | |
+|---|---|---|---|
+| `mysql_stats_outliers` |   |   |   |
+| `mysql_stats_top_n` |   |   |   |
+| `mysql_stats_distinct` |   |   |   |
 
 ---
 

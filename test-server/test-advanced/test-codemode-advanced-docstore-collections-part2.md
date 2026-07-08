@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_doc_find` | | |
-| `mysql_doc_add` | | |
+|---|---|---|
+| `mysql_doc_find` |   |   |
+| `mysql_doc_add` |   |   |
 
 ---
 

@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysqlsh_version` | | | |
-| `mysqlsh_check_upgrade` | | | |
-| `mysqlsh_export_table` | | | |
+|---|---|---|---|
+| `mysqlsh_version` |   |   |   |
+| `mysqlsh_check_upgrade` |   |   |   |
+| `mysqlsh_export_table` |   |   |   |
 
 ---
 

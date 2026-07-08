@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_describe_table` | | |
-| `mysql_create_table` | | |
-| `mysql_drop_table` | | |
+|---|---|---|
+| `mysql_describe_table` |   |   |
+| `mysql_create_table` |   |   |
+| `mysql_drop_table` |   |   |
 
 ---
 

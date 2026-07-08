@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_fulltext_create` | | | | |
-| `mysql_fulltext_drop` | | | | |
+|---|---|---|---|---|
+| `mysql_fulltext_create` |   |   |   |   |
+| `mysql_fulltext_drop` |   |   |   |   |
 
 ---
 

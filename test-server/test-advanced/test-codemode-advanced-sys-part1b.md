@@ -59,7 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_sys_wait_summary` | | |
+|---|---|---|
+| `mysql_sys_wait_summary` |   |   |
 
 ---
 

@@ -59,11 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_router_status` | | | | |
-| `mysql_router_routes` | | | | |
-| `mysql_router_route_connections` | | | | |
-| `mysql_router_route_blocked_hosts` | | | | |
-| `mysql_router_pool_status` | | | | |
+|---|---|---|---|---|
+| `mysql_router_status` |   |   |   |   |
+| `mysql_router_routes` |   |   |   |   |
+| `mysql_router_route_connections` |   |   |   |   |
 
 ---
 
@@ -74,8 +73,6 @@
 - `mysql_router_status`
 - `mysql_router_routes`
 - `mysql_router_route_connections`
-- `mysql_router_route_blocked_hosts`
-- `mysql_router_pool_status`
 
 
 ## Group Focus: router

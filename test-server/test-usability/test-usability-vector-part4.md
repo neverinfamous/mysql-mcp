@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_vector_optimize` | | | |
-| `mysql_vector_stats` | | | |
+|---|---|---|---|
+| `mysql_vector_optimize` |   |   |   |
+| `mysql_vector_stats` |   |   |   |
 
 ---
 

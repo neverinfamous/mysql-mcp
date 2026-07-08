@@ -59,12 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `proxysql_users` | | | | |
-| `proxysql_global_variables` | | | | |
-| `proxysql_runtime_status` | | | | |
-| `proxysql_memory_stats` | | | | |
-| `proxysql_commands` | | | | |
-| `proxysql_process_list` | | | | |
+|---|---|---|---|---|
+| `proxysql_query_digest` |   |   |   |   |
+| `proxysql_connection_pool` |   |   |   |   |
+| `proxysql_users` |   |   |   |   |
 
 ---
 
@@ -72,12 +70,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `proxysql_query_digest`
+- `proxysql_connection_pool`
 - `proxysql_users`
-- `proxysql_global_variables`
-- `proxysql_runtime_status`
-- `proxysql_memory_stats`
-- `proxysql_commands`
-- `proxysql_process_list`
 
 
 ## Group Focus: proxysql-part2

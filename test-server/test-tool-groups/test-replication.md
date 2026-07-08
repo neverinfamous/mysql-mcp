@@ -59,11 +59,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_master_status` | | | | |
-| `mysql_slave_status` | | | | |
-| `mysql_binlog_events` | | | | |
-| `mysql_gtid_status` | | | | |
-| `mysql_replication_lag` | | | | |
+|---|---|---|---|---|
+
 
 ---
 
@@ -76,7 +73,6 @@
 - `mysql_binlog_events`
 - `mysql_gtid_status`
 - `mysql_replication_lag`
-
 
 ## Group Focus: replication
 

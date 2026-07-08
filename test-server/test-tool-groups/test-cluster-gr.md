@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_gr_status` | | | | |
-| `mysql_gr_members` | | | | |
-| `mysql_gr_primary` | | | | |
+|---|---|---|---|---|
+| `mysql_gr_status` |   |   |   |   |
+| `mysql_gr_members` |   |   |   |   |
+| `mysql_gr_primary` |   |   |   |   |
 
 ---
 

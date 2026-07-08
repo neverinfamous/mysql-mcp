@@ -59,11 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_doc_find` | | | | |
-| `mysql_doc_add` | | | | |
-| `mysql_doc_modify` | | | | |
-| `mysql_doc_remove` | | | | |
-| `mysql_doc_create_index` | | | | |
+|---|---|---|---|---|
+| `mysql_doc_collection_info` |   |   |   |   |
+| `mysql_doc_find` |   |   |   |   |
+| `mysql_doc_add` |   |   |   |   |
 
 ---
 
@@ -71,11 +70,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_doc_collection_info`
 - `mysql_doc_find`
 - `mysql_doc_add`
-- `mysql_doc_modify`
-- `mysql_doc_remove`
-- `mysql_doc_create_index`
 
 
 ## Group Focus: docstore-part2

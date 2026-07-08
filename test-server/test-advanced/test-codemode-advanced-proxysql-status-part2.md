@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `proxysql_commands` | | |
-| `proxysql_process_list` | | |
+|---|---|---|
+| `proxysql_commands` |   |   |
+| `proxysql_process_list` |   |   |
 
 ---
 

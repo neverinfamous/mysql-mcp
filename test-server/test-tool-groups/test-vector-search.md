@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
-| `mysql_vector_search` | | | | |
-| `mysql_vector_range_search` | | | | |
-| `mysql_vector_hybrid_search` | | | | |
+|---|---|---|---|---|
+| `mysql_vector_search` |   |   |   |   |
+| `mysql_vector_range_search` |   |   |   |   |
+| `mysql_vector_hybrid_search` |   |   |   |   |
 
 ---
 

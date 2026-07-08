@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_master_status` | | |
-| `mysql_slave_status` | | |
-| `mysql_binlog_events` | | |
+|---|---|---|
+| `mysql_master_status` |   |   |
+| `mysql_slave_status` |   |   |
+| `mysql_binlog_events` |   |   |
 
 ---
 

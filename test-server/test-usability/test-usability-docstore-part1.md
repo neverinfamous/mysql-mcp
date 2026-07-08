@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `mysql_doc_list_collections` | | | |
-| `mysql_doc_create_collection` | | | |
-| `mysql_doc_drop_collection` | | | |
+|---|---|---|---|
+| `mysql_doc_list_collections` |   |   |   |
+| `mysql_doc_create_collection` |   |   |   |
+| `mysql_doc_drop_collection` |   |   |   |
 
 ---
 

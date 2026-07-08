@@ -59,9 +59,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_security_ssl_status` | | |
-| `mysql_security_user_privileges` | | |
-| `mysql_security_sensitive_tables` | | |
+|---|---|---|
+| `mysql_security_ssl_status` |   |   |
+| `mysql_security_user_privileges` |   |   |
+| `mysql_security_sensitive_tables` |   |   |
 
 ---
 

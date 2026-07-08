@@ -59,8 +59,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-| `proxysql_commands` | | | |
-| `proxysql_process_list` | | | |
+|---|---|---|---|
+| `proxysql_commands` |   |   |   |
+| `proxysql_process_list` |   |   |   |
 
 ---
 
