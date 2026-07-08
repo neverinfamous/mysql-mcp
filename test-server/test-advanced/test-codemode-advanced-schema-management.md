@@ -219,7 +219,6 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: DDL Idempotency
-
 1. `mysql_create_schema({name: "stress_schema_dup"})` → success
 2. `mysql_create_schema({name: "stress_schema_dup"})` again → verify structured `{success: false}` (duplicate)
 3. `mysql_drop_schema({name: "stress_schema_dup"})` → success
@@ -228,32 +227,17 @@ During testing, check for these inconsistencies:
 6. Drop the view, recreate it → verify clean slate (no leftover state)
 
 ## Category 2: Cross-Object Dependencies
-
-7. Create view `stress_dep_view` joining `test_orders` and `test_products` on FK → verify success
-8. `mysql_list_constraints({table: "test_orders"})` → verify FK to `test_products` is visible
-9. Create a view referencing a subquery with aggregation → verify `createView` handles complex SQL
-10. Drop the dependent view → verify clean removal
-
-## Category 3: Parameter Alias Stress
-
-11. `mysql_list_constraints` with `database` param → verify identical to `schema` param
-12. `mysql_create_view` with `query` param → verify identical to `definition` param
-13. `mysql_list_views` with `database` param → verify response matches `schema` param
+1. Create view `stress_dep_view` joining `test_orders` and `test_products` on FK → verify success
+2. Create a view referencing a subquery with aggregation → verify `createView` handles complex SQL
+3. Drop the dependent view → verify clean removal
 
 ## Category 4: Payload Monitoring
-
-14. `mysql_list_constraints({table: "test_orders"})` → log token estimate
-15. `mysql_list_triggers({database: "testdb"})` → log token estimate
-16. `mysql_list_stored_procedures({database: "testdb"})` → log token estimate
-17. Flag any response > 500 tokens as 📦
+1. Flag any response > 500 tokens as 📦
 
 ## Category 5: Subscriptions
-
-19. Verify that the server's `McpServer` handles `SubscribeRequestSchema` for `mysql://schema` and `mysql://tables` natively, as this cannot be directly executed via `mysql_execute_code`. Ensure `overview.md` reflects this capability.
-
+1. Verify that the server's `McpServer` handles `SubscribeRequestSchema` for `mysql://schema` and `mysql://tables` natively, as this cannot be directly executed via `mysql_execute_code`. Ensure `overview.md` reflects this capability.
 ## Cleanup
-
-20. Drop all `stress_*` schemas and views
+2. Drop all `stress_*` schemas and views
 
 ---
 

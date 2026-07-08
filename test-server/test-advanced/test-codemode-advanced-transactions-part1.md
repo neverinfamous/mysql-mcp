@@ -221,19 +221,15 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Rollback Recovery
-
 1. Begin transaction, INSERT row, ROLLBACK — verify row does not exist
 2. Begin transaction, INSERT row, SAVEPOINT, INSERT another, ROLLBACK TO SAVEPOINT — verify only first row exists after COMMIT
 3. Begin transaction, COMMIT empty transaction — verify no error
 
 ## Category 2: Abandoned Transactions
-
-4. Begin transaction, check state, and IMMEDIATELY ROLLBACK. (Warning: Deliberately abandoning transactions via Code Mode will exhaust the MCP connection pool and deadlock the testing server; avoid intentional leaks).
-5. Begin transaction with explicit isolation level (READ COMMITTED) — verify it takes effect
-
+1. Begin transaction, check state, and IMMEDIATELY ROLLBACK. (Warning: Deliberately abandoning transactions via Code Mode will exhaust the MCP connection pool and deadlock the testing server; avoid intentional leaks).
+2. Begin transaction with explicit isolation level (READ COMMITTED) — verify it takes effect
 ## Cleanup
-
-11. Verify no lingering transactions or temp tables
+3. Verify no lingering transactions or temp tables
 
 ---
 

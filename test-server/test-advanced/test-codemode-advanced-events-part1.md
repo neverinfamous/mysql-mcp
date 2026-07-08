@@ -219,20 +219,16 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Lifecycle Collisions
-
 1. `mysql.events.create({name: "stress_evt_dup", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → success
 2. `mysql.events.create` with same name again → verify structured `{success: false}` (duplicate)
 3. `mysql.events.alter({name: "stress_evt_nonexist", status: "DISABLE"})` → verify structured `{success: false}`
 4. `mysql.events.drop({name: "stress_evt_nonexist"})` → verify structured `{success: false}`
 
 ## Category 3: Event Body Validation
-
-9. `mysql.events.create({name: "stress_evt_invalid_sql", schedule: "EVERY 1 DAY", body: "INVALID SQL GIBBERISH", status: "DISABLE"})` → verify structured error (malformed SQL body)
-10. `mysql.events.alter({name: "stress_evt_dup", body: "BEGIN SELECT 1; SELECT 2; END"})` → verify compound statement handling
-
+1. `mysql.events.create({name: "stress_evt_invalid_sql", schedule: "EVERY 1 DAY", body: "INVALID SQL GIBBERISH", status: "DISABLE"})` → verify structured error (malformed SQL body)
+2. `mysql.events.alter({name: "stress_evt_dup", body: "BEGIN SELECT 1; SELECT 2; END"})` → verify compound statement handling
 ## Cleanup
-
-13. Drop all `stress_*` events
+3. Drop all `stress_*` events
 
 ---
 

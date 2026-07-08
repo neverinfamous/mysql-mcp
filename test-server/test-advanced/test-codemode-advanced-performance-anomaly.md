@@ -219,16 +219,14 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Anomaly Detection Boundaries
-
-15. `mysql_detect_query_anomalies` with `minExecutions: 0` — verify behavior.
-16. `mysql_detect_query_anomalies` with `stdDevThreshold: 9999` — verify no anomalies match but the tool succeeds.
-17. Create an empty table `stress_empty`. Run `mysql_detect_bloat_risk` on it. Verify it handles 0 rows without division-by-zero crashes.
-18. Run `mysql_detect_connection_spike` with `windowMinutes: -1`. Verify structured `{success: false, error: "..."}` for invalid window bounds.
-19. Run `mysql_detect_connection_spike` with `thresholdPercent: 0`. Verify output logic correctly flags everything as a spike without crashing.
+1. `mysql_detect_query_anomalies` with `minExecutions: 0` — verify behavior.
+2. `mysql_detect_query_anomalies` with `stdDevThreshold: 9999` — verify no anomalies match but the tool succeeds.
+3. Create an empty table `stress_empty`. Run `mysql_detect_bloat_risk` on it. Verify it handles 0 rows without division-by-zero crashes.
+4. Run `mysql_detect_connection_spike` with `windowMinutes: -1`. Verify structured `{success: false, error: "..."}` for invalid window bounds.
+5. Run `mysql_detect_connection_spike` with `thresholdPercent: 0`. Verify output logic correctly flags everything as a spike without crashing.
 
 ## Category 2: Cleanup
-
-20. Drop `stress_empty` table. Verify clean removal.
+1. Drop `stress_empty` table. Verify clean removal.
 
 ---
 

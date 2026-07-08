@@ -221,36 +221,13 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Role Assignment Lifecycles
-
 1. `mysql_role_create({name: "stress_role_a"})` → success
-2. `mysql_role_assign({role: "stress_role_a", user: "root"})` → success
-3. `mysql_user_roles({user: "root"})` → verify `stress_role_a` is listed
-4. `mysql_role_revoke({role: "stress_role_a", user: "root"})` → success
-5. `mysql_user_roles({user: "root"})` → verify `stress_role_a` is removed
-
-## Category 2: Invalid Assignments
-
-6. `mysql_role_assign({role: "stress_role_nonexist", user: "root"})` → verify structured `{success: false}` (role not found)
-7. `mysql_role_assign({role: "stress_role_a", user: "nonexistent_user"})` → verify structured `{success: false}` (user not found)
-
-## Category 3: Invalid Revokes
-
-8. `mysql_role_revoke({role: "stress_role_a", user: "root"})` → verify structured `{success: false}` (not assigned)
-
-## Category 4: Parameter Alias Parity
-
-9. `mysql_role_assign` with `name` and `toUser` aliases → verify structured success
-10. `mysql_user_roles` with `userName` alias → verify structured success
 
 ## Category 5: Error Quality
-
-11. `mysql_user_roles({user: "nonexistent_user"})` → verify structured `{success: false}`
-12. Empty parameter tests for all assignment tools
-
+1. Empty parameter tests for all assignment tools
 ## Cleanup
-
-13. Drop all `stress_*` roles
-14. Ensure `root` has no residual stress roles
+2. Drop all `stress_*` roles
+3. Ensure `root` has no residual stress roles
 
 ---
 

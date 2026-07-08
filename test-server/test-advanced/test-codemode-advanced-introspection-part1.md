@@ -219,36 +219,27 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Deep Hierarchy & Traversal Limits
-
 1. Create a schema `stress_hierarchies` with 10 sequentially linked tables (`t1` -> `t2` -> ... -> `t10`).
 2. Run `mysql_dependency_graph` with `maxDepth: 1` — verify it truncates traversal early.
 3. Run `mysql_dependency_graph` with `maxDepth: 20` — verify it successfully traverses the full chain without stack overflow.
 4. Run `mysql_topological_sort` on `stress_hierarchies` — verify strict creation order `t1, t2, ..., t10` is returned.
 
 ## Category 2: Circular Dependency Handling
-
-5. Create a schema `stress_circular` with tables `A` and `B`, where `A` references `B` and `B` references `A`.
-6. Run `mysql_dependency_graph` on `stress_circular` — verify it terminates cleanly without infinite loops (check output payload size).
-7. Run `mysql_constraint_analysis` on `stress_circular` — verify it explicitly flags the circular reference in its findings.
-8. Run `mysql_topological_sort` on `stress_circular` — verify it returns a structured `{success: false, error: "..."}` explicitly citing a circular dependency cycle.
+1. Create a schema `stress_circular` with tables `A` and `B`, where `A` references `B` and `B` references `A`.
+2. Run `mysql_dependency_graph` on `stress_circular` — verify it terminates cleanly without infinite loops (check output payload size).
+3. Run `mysql_topological_sort` on `stress_circular` — verify it returns a structured `{success: false, error: "..."}` explicitly citing a circular dependency cycle.
 
 ## Category 3: Complex Cascade Simulation
-
-9. In `stress_hierarchies`, add a `ON DELETE CASCADE` rule from `t1` all the way down to `t10`.
-10. Insert 1 row into `t1`, cascading 1 row into each subsequent table.
-11. Run `mysql_cascade_simulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through the 9 subsequent tables.
-12. Modify the constraint on `t5` to `ON DELETE RESTRICT`. Run `mysql_cascade_simulator` again — verify it correctly flags the operation as blocked at `t5`.
+1. In `stress_hierarchies`, add a `ON DELETE CASCADE` rule from `t1` all the way down to `t10`.
+2. Insert 1 row into `t1`, cascading 1 row into each subsequent table.
+3. Run `mysql_cascade_simulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through the 9 subsequent tables.
+4. Modify the constraint on `t5` to `ON DELETE RESTRICT`. Run `mysql_cascade_simulator` again — verify it correctly flags the operation as blocked at `t5`.
 
 ## Category 4: Snapshot & Risk Analysis Stress
-
-13. Create a schema `stress_snapshots` with 50 empty tables (each with 5 columns and 1 index).
-14. Run `mysql_schema_snapshot` on `stress_snapshots`. Verify it returns a comprehensive metadata snapshot. Check payload size for bloat.
-15. Run `mysql_migration_risks` with `ddlQuery: "DROP DATABASE stress_snapshots"`. Verify it correctly identifies the high-risk operation and affected objects.
-16. Run `mysql_migration_risks` with an invalid SQL query (e.g., `ALTER TABLE syntax error`). Note that since this tool is regex-based, it will likely return 0 risks instead of a syntax error. Verify that it processes the query without throwing a raw MCP exception.
+1. Create a schema `stress_snapshots` with 50 empty tables (each with 5 columns and 1 index).
 
 ## Category 5: Cleanup Verification
-
-17. Drop schemas `stress_hierarchies`, `stress_circular`, and `stress_snapshots`. Verify clean removal.
+1. Drop schemas `stress_hierarchies`, `stress_circular`, and `stress_snapshots`. Verify clean removal.
 
 ---
 

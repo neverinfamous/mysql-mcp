@@ -223,7 +223,6 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Window Function NULL Handling
-
 1. Create a table `stress_stats_win` with columns `id INT`, `val1 INT`, `partition_col INT`.
 2. Insert 10 rows: 5 rows with `val1 = NULL`, 5 rows with valid ints.
 3. Run window functions (`mysql.stats.rowNumber`, `mysql.stats.movingAvg`, `mysql.stats.runningTotal`) on `val1` ordered by `id`. Verify NULLs are sorted consistently and don't break averages or totals.

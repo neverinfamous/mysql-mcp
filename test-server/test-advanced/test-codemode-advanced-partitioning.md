@@ -221,7 +221,6 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Partition Lifecycle Stress
-
 1. Create `stress_part_range` table with RANGE partitioning on an INT column (p0: <100, p1: <200, p2: MAXVALUE)
 2. `mysql.partitioning.partitionInfo({table: "stress_part_range"})` → verify 3 partitions listed
 3. `mysql.partitioning.addPartition` on a RANGE table that already has MAXVALUE → verify structured `{success: false}` (cannot add past MAXVALUE)
@@ -230,23 +229,18 @@ During testing, check for these inconsistencies:
 6. `mysql.partitioning.partitionInfo({table: "stress_part_range"})` → verify only 2 partitions remain
 
 ## Category 2: Non-Partitioned Table Handling
-
-7. `mysql.partitioning.partitionInfo({table: "test_products"})` → verify `{success: true, data: { partitioned: false }}` response shape
-8. `mysql.partitioning.dropPartition({table: "test_products", partitionName: "p0"})` → verify structured `{success: false}` (not partitioned)
+1. `mysql.partitioning.partitionInfo({table: "test_products"})` → verify `{success: true, data: { partitioned: false }}` response shape
+2. `mysql.partitioning.dropPartition({table: "test_products", partitionName: "p0"})` → verify structured `{success: false}` (not partitioned)
 
 ## Category 3: Reorganize Edge Cases
-
-9. `mysql.partitioning.reorganizePartition({table: "test_partitioned", fromPartitions: ["nonexistent_p99"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_new", value: "'West'"}]})` → verify structured `{success: false}`
-10. `mysql.partitioning.reorganizePartition` with empty `fromPartitions` array → verify structured error
+1. `mysql.partitioning.reorganizePartition({table: "test_partitioned", fromPartitions: ["nonexistent_p99"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_new", value: "'West'"}]})` → verify structured `{success: false}`
+2. `mysql.partitioning.reorganizePartition` with empty `fromPartitions` array → verify structured error
 
 ## Category 4: Payload Monitoring
-
-11. `mysql_partition_info({table: "test_partitioned"})` → log token estimate
-12. Flag any response > 500 tokens as 📦
-
+1. `mysql_partition_info({table: "test_partitioned"})` → log token estimate
+2. Flag any response > 500 tokens as 📦
 ## Cleanup
-
-13. Drop all `stress_*` tables
+3. Drop all `stress_*` tables
 
 ---
 

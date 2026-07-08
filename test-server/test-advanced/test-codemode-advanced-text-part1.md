@@ -219,16 +219,14 @@ During testing, check for these inconsistencies:
 
 
 ## Category 1: Regex Edge Cases
-
 1. `mysql_regexp_match` with invalid regex pattern (e.g., `"[invalid"`) → verify structured `{success: false}`
 2. `mysql_regexp_match` with empty pattern `""` → verify behavior (empty match or error)
 3. `mysql_regexp_match` with legacy MySQL metacharacters (e.g., `"[[:<:]]"`, which is invalid in MySQL 8+) → verify structured `{success: false}`
 
 ## Category 4: Collation Stress
-
-13. `mysql_collation_convert` with invalid collation name → verify structured `{success: false}`
-14. `mysql_like_search` with `%` only pattern → verify returns all rows
-15. `mysql_like_search` with `_` pattern → verify single-character wildcard behavior
+1. `mysql_collation_convert` with invalid collation name → verify structured `{success: false}`
+2. `mysql_like_search` with `%` only pattern → verify returns all rows
+3. `mysql_like_search` with `_` pattern → verify single-character wildcard behavior
 
 ---
 
