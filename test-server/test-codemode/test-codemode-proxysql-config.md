@@ -215,7 +215,7 @@ During testing, check for these inconsistencies:
 - `proxysql_global_variables`
 - `proxysql_commands`
 
-## Group Focus: proxysql-config
+## Group Focus:proxysql-config
 
 proxysql Tool Group (4 tools +1 code mode):
 
@@ -233,43 +233,7 @@ proxysql Tool Group (4 tools +1 code mode):
 
 ---
 
-## Group Focus: proxysql-config
-
-proxysql Tool Group (4 tools +1 code mode):
-
-1. `proxysql_query_rules` 2. `proxysql_users` 3. `proxysql_global_variables`
-4. `proxysql_commands`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.proxysql.help()` → verify method listing
-2. `mysql.proxysql.queryRules()` → routing rules
-3. `mysql.proxysql.users()` → user listing
-4. `mysql.proxysql.globalVariables({limit: 10})` → first 10
-5. `mysql.proxysql.commands({command: "LOAD MYSQL USERS TO RUNTIME"})` → admin command execution
-6. 🔴 `mysql.proxysql.commands({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: proxysql-config
-
-proxysql Tool Group (4 tools +1 code mode):
-
-1. `proxysql_query_rules` 2. `proxysql_users` 3. `proxysql_global_variables`
-4. `proxysql_commands`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.proxysql.help()` → verify method listing
-2. `mysql.proxysql.queryRules()` → routing rules
-3. `mysql.proxysql.users()` → user listing
-4. `mysql.proxysql.globalVariables({limit: 10})` → first 10
-5. `mysql.proxysql.commands({command: "LOAD MYSQL USERS TO RUNTIME"})` → admin command execution
-6. 🔴 `mysql.proxysql.commands({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: proxysql-config
+## Group Focus:proxysql-config
 
 proxysql Tool Group (4 tools +1 code mode):
 

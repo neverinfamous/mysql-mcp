@@ -215,7 +215,7 @@ During testing, check for these inconsistencies:
 - `mysql_buffer_pool_stats`
 - `mysql_thread_stats`
 
-## Group Focus: performance-analysis-system
+## Group Focus:performance-analysis-system
 
 performance-analysis-system Tool Group:
 
@@ -238,53 +238,7 @@ performance-analysis-system Tool Group:
 
 ---
 
-## Group Focus: performance-analysis-system
-
-performance-analysis-system Tool Group:
-
-1. `mysql_index_usage` 2. `mysql_table_stats` 3. `mysql_buffer_pool_stats`
-4. `mysql_thread_stats`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.performance.help()` → verify method listing
-2. `mysql.performance.tableStats({table: "test_products"})` → estimated_rows, data_size_bytes
-3. `mysql.performance.indexUsage({table: "test_products"})` → index stats
-4. `mysql.performance.bufferPoolStats()` → buffer pool metrics
-5. `mysql.performance.threadStats()` → thread statistics
-
-**Domain error paths (🔴):**
-6. 🔴 `mysql.performance.tableStats({table: "nonexistent_xyz"})` → `{success: false}` (P154)
-
-**Zod validation error paths (🔴):**
-7. 🔴 `mysql.performance.tableStats({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: performance-analysis-system
-
-performance-analysis-system Tool Group:
-
-1. `mysql_index_usage` 2. `mysql_table_stats` 3. `mysql_buffer_pool_stats`
-4. `mysql_thread_stats`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.performance.help()` → verify method listing
-2. `mysql.performance.tableStats({table: "test_products"})` → estimated_rows, data_size_bytes
-3. `mysql.performance.indexUsage({table: "test_products"})` → index stats
-4. `mysql.performance.bufferPoolStats()` → buffer pool metrics
-5. `mysql.performance.threadStats()` → thread statistics
-
-**Domain error paths (🔴):**
-6. 🔴 `mysql.performance.tableStats({table: "nonexistent_xyz"})` → `{success: false}` (P154)
-
-**Zod validation error paths (🔴):**
-7. 🔴 `mysql.performance.tableStats({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: performance-analysis-system
+## Group Focus:performance-analysis-system
 
 performance-analysis-system Tool Group:
 

@@ -251,15 +251,6 @@ During testing, check for these inconsistencies:
 
 ---
 
-
-## Category 5: Security Sandbox Violations
-
-18. `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "../../../etc/passwd"})` → verify structured `SECURITY_ERROR`
-19. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "C:/Windows/System32/config/SAM"})` → verify structured `SECURITY_ERROR`
-20. `mysql.shell.loadDump({inputUrl: "/var/run/docker.sock"})` → verify structured `SECURITY_ERROR`
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

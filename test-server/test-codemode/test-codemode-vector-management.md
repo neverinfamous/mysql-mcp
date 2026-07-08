@@ -216,7 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_vector_stats`
 - `mysql_execute_code`
 
-## Group Focus: vector-management
+## Group Focus:vector-management
 
 ### vector-management Group-Specific Testing
 
@@ -253,81 +253,7 @@ vector-management Tool Group (4 tools +1 for code mode):
 
 ---
 
-## Group Focus: vector-management
-
-### vector-management Group-Specific Testing
-
-vector-management Tool Group (4 tools +1 for code mode):
-
-1. `mysql_vector_info`
-2. `mysql_vector_create_index`
-3. `mysql_vector_optimize`
-4. `mysql_vector_stats`
-5. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. ✅ `mysql.vector.info({...})` → happy path
-2. ✅ `mysql.vector.createIndex({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-3. ✅ `mysql.vector.optimize({...})` → happy path
-4. ✅ `mysql.vector.stats({...})` → happy path
-
-**Domain error paths (🔴):**
-
-5. ✅ `mysql.vector.info({...})` → domain error
-6. ✅ `mysql.vector.createIndex({...})` → domain error
-7. ✅ `mysql.vector.optimize({...})` → domain error
-8. ✅ `mysql.vector.stats({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. ✅ `mysql.vector.info({})` → validation error
-10. ✅ `mysql.vector.createIndex({})` → validation error
-11. ✅ `mysql.vector.optimize({})` → validation error
-12. ✅ `mysql.vector.stats({})` → validation error
-
----
-
-## Group Focus: vector-management
-
-### vector-management Group-Specific Testing
-
-vector-management Tool Group (4 tools +1 for code mode):
-
-1. `mysql_vector_info`
-2. `mysql_vector_create_index`
-3. `mysql_vector_optimize`
-4. `mysql_vector_stats`
-5. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. ✅ `mysql.vector.info({...})` → happy path
-2. ✅ `mysql.vector.createIndex({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-3. ✅ `mysql.vector.optimize({...})` → happy path
-4. ✅ `mysql.vector.stats({...})` → happy path
-
-**Domain error paths (🔴):**
-
-5. ✅ `mysql.vector.info({...})` → domain error
-6. ✅ `mysql.vector.createIndex({...})` → domain error
-7. ✅ `mysql.vector.optimize({...})` → domain error
-8. ✅ `mysql.vector.stats({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. ✅ `mysql.vector.info({})` → validation error
-10. ✅ `mysql.vector.createIndex({})` → validation error
-11. ✅ `mysql.vector.optimize({})` → validation error
-12. ✅ `mysql.vector.stats({})` → validation error
-
----
-
-## Group Focus: vector-management
+## Group Focus:vector-management
 
 ### vector-management Group-Specific Testing
 

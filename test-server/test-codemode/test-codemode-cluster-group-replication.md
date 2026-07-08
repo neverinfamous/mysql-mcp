@@ -216,7 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_gr_transactions`
 - `mysql_gr_flow_control`
 
-## Group Focus: cluster-group-replication
+## Group Focus:cluster-group-replication
 
 cluster Tool Group (5 tools +1 code mode):
 
@@ -234,43 +234,7 @@ cluster Tool Group (5 tools +1 code mode):
 
 ---
 
-## Group Focus: cluster-group-replication
-
-cluster Tool Group (5 tools +1 code mode):
-
-1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary`
-4. `mysql_gr_transactions` 5. `mysql_gr_flow_control`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.cluster.help()` → verify method listing
-2. `mysql.cluster.grStatus()` → GR status or structured error
-3. `mysql.cluster.grMembers()` → members or empty
-4. `mysql.cluster.grPrimary()` → primary node details
-5. `mysql.cluster.grTransactions()` → transaction metrics
-6. `mysql.cluster.grFlowControl()` → flow control stats
-
----
-
-## Group Focus: cluster-group-replication
-
-cluster Tool Group (5 tools +1 code mode):
-
-1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary`
-4. `mysql_gr_transactions` 5. `mysql_gr_flow_control`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.cluster.help()` → verify method listing
-2. `mysql.cluster.grStatus()` → GR status or structured error
-3. `mysql.cluster.grMembers()` → members or empty
-4. `mysql.cluster.grPrimary()` → primary node details
-5. `mysql.cluster.grTransactions()` → transaction metrics
-6. `mysql.cluster.grFlowControl()` → flow control stats
-
----
-
-## Group Focus: cluster-group-replication
+## Group Focus:cluster-group-replication
 
 cluster Tool Group (5 tools +1 code mode):
 

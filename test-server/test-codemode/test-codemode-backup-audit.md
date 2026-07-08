@@ -214,7 +214,7 @@ During testing, check for these inconsistencies:
 - `mysql_audit_restore_backup`
 - `mysql_audit_diff_backup`
 
-## Group Focus: backup-audit
+## Group Focus:backup-audit
 
 backup Tool Group (Audit) (3 tools +1 code mode):
 
@@ -235,49 +235,7 @@ backup Tool Group (Audit) (3 tools +1 code mode):
 
 ---
 
-## Group Focus: backup-audit
-
-backup Tool Group (Audit) (3 tools +1 code mode):
-
-1. `mysql_audit_list_backups`
-2. `mysql_audit_restore_backup`
-3. `mysql_audit_diff_backup`
-
-> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
-
-1. `mysql.backup.help()` -> verify method listing
-2. `mysql.backup.auditListBackups({ limit: 5 })` -> verify success
-3. `mysql.backup.auditRestoreBackup({ filename: "some-backup-file.json", dryRun: true })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
-4. `mysql.backup.auditDiffBackup({ filename: "some-backup-file.json" })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql.backup.auditRestoreBackup({ filename: "nonexistent-file.json" })` -> `{success: false}`
-
----
-
-## Group Focus: backup-audit
-
-backup Tool Group (Audit) (3 tools +1 code mode):
-
-1. `mysql_audit_list_backups`
-2. `mysql_audit_restore_backup`
-3. `mysql_audit_diff_backup`
-
-> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
-
-1. `mysql.backup.help()` -> verify method listing
-2. `mysql.backup.auditListBackups({ limit: 5 })` -> verify success
-3. `mysql.backup.auditRestoreBackup({ filename: "some-backup-file.json", dryRun: true })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
-4. `mysql.backup.auditDiffBackup({ filename: "some-backup-file.json" })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql.backup.auditRestoreBackup({ filename: "nonexistent-file.json" })` -> `{success: false}`
-
----
-
-## Group Focus: backup-audit
+## Group Focus:backup-audit
 
 backup Tool Group (Audit) (3 tools +1 code mode):
 

@@ -216,7 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_doc_create_index`
 - `mysql_doc_collection_info`
 
-## Group Focus: docstore-collections
+## Group Focus:docstore-collections
 
 docstore-collections Tool Group:
 
@@ -240,55 +240,7 @@ docstore-collections Tool Group:
 
 ---
 
-## Group Focus: docstore-collections
-
-docstore-collections Tool Group:
-
-1. `mysql_doc_list_collections` 2. `mysql_doc_create_collection` 3. `mysql_doc_drop_collection`
-4. `mysql_doc_create_index` 5. `mysql_doc_collection_info`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.docstore.help()` → verify method listing
-2. `mysql.docstore.listCollections()` → `test_documents` present
-3. `mysql.docstore.createCollection({name: "temp_cm_docs"})` → `success: true`
-4. `mysql.docstore.collectionInfo({collection: "temp_cm_docs"})` → validation status
-5. `mysql.docstore.createIndex({collection: "temp_cm_docs", indexName: "idx_temp", fields: [{field: "$.name", type: "STRING(50)"}]})` → success
-6. `mysql.docstore.dropCollection({name: "temp_cm_docs"})` → `success: true`
-
-**Domain error paths (🔴):**
-7. 🔴 `mysql.docstore.collectionInfo({collection: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-8. 🔴 `mysql.docstore.createCollection({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: docstore-collections
-
-docstore-collections Tool Group:
-
-1. `mysql_doc_list_collections` 2. `mysql_doc_create_collection` 3. `mysql_doc_drop_collection`
-4. `mysql_doc_create_index` 5. `mysql_doc_collection_info`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.docstore.help()` → verify method listing
-2. `mysql.docstore.listCollections()` → `test_documents` present
-3. `mysql.docstore.createCollection({name: "temp_cm_docs"})` → `success: true`
-4. `mysql.docstore.collectionInfo({collection: "temp_cm_docs"})` → validation status
-5. `mysql.docstore.createIndex({collection: "temp_cm_docs", indexName: "idx_temp", fields: [{field: "$.name", type: "STRING(50)"}]})` → success
-6. `mysql.docstore.dropCollection({name: "temp_cm_docs"})` → `success: true`
-
-**Domain error paths (🔴):**
-7. 🔴 `mysql.docstore.collectionInfo({collection: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-8. 🔴 `mysql.docstore.createCollection({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: docstore-collections
+## Group Focus:docstore-collections
 
 docstore-collections Tool Group:
 

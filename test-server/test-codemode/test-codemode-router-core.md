@@ -215,7 +215,7 @@ During testing, check for these inconsistencies:
 - `mysql_router_metadata_status`
 - `mysql_router_pool_status`
 
-## Group Focus: router
+## Group Focus:router
 
 router Tool Group (4 tools +1 code mode):
 
@@ -242,61 +242,7 @@ router Tool Group (4 tools +1 code mode):
 
 ---
 
-## Group Focus: router
-
-router Tool Group (4 tools +1 code mode):
-
-1. `mysql_router_status`
-2. `mysql_router_routes`
-3. `mysql_router_metadata_status`
-4. `mysql_router_pool_status`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.router.help()` → verify method listing
-2. `mysql.router.status()` → Router version
-3. `mysql.router.routes()` → configured routes
-9. `mysql.router.metadataStatus({metadataName: "bootstrap"})` → metadata cache
-10. `mysql.router.poolStatus({poolName: "main"})` → pool status or structured error
-
-**Domain error paths (🔴):**
-
-12. 🔴 `mysql.router.poolStatus({poolName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-**Alias acceptance paths (🟢):**
-
----
-
-## Group Focus: router
-
-router Tool Group (4 tools +1 code mode):
-
-1. `mysql_router_status`
-2. `mysql_router_routes`
-3. `mysql_router_metadata_status`
-4. `mysql_router_pool_status`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.router.help()` → verify method listing
-2. `mysql.router.status()` → Router version
-3. `mysql.router.routes()` → configured routes
-9. `mysql.router.metadataStatus({metadataName: "bootstrap"})` → metadata cache
-10. `mysql.router.poolStatus({poolName: "main"})` → pool status or structured error
-
-**Domain error paths (🔴):**
-
-12. 🔴 `mysql.router.poolStatus({poolName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-**Alias acceptance paths (🟢):**
-
----
-
-## Group Focus: router
+## Group Focus:router
 
 router Tool Group (4 tools +1 code mode):
 

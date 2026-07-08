@@ -216,7 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_conditional_update`
 - `mysql_execute_code`
 
-## Group Focus: core (Versioning)
+## Group Focus:core (Versioning)
 
 core (versioning) Tool Group:
 1. `mysql_enable_versioning`
@@ -227,7 +227,9 @@ core (versioning) Tool Group:
 
 You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
 
-## Group Focus: core (Versioning)
+---
+
+## Group Focus:core (Versioning)
 
 core (versioning) Tool Group:
 1. `mysql_enable_versioning`
@@ -237,48 +239,6 @@ core (versioning) Tool Group:
 5. `mysql_execute_code` (codemode, auto-added)
 
 You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
-
-## Group Focus: core (Versioning)
-
-core (versioning) Tool Group:
-1. `mysql_enable_versioning`
-2. `mysql_disable_versioning`
-3. `mysql_check_version`
-4. `mysql_conditional_update`
-5. `mysql_execute_code` (codemode, auto-added)
-
-You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
-
-## Group Focus: core (Versioning)
-
-core (versioning) Tool Group:
-1. `mysql_enable_versioning`
-2. `mysql_disable_versioning`
-3. `mysql_check_version`
-4. `mysql_conditional_update`
-5. `mysql_execute_code` (codemode, auto-added)
-
-You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
-
-## Tasks
-
-### 1. Enable Versioning
-- Use `mysql_execute_code` to write a script that calls `mysql.core.enableVersioning({ table: 'temp_write_test' })`.
-- Verify success.
-
-### 2. Check Version
-- Use `mysql_execute_code` to retrieve the current version of the item with `id = 1` in the `temp_write_test` table via `mysql.core.checkVersion({ table: 'temp_write_test', rowId: 1 })`.
-
-### 3. Conditional Update (Success & Conflict)
-- Write a Code Mode script that:
-  1. Uses `mysql.core.conditionalUpdate` to update `temp_write_test` for `id = 1`, passing the version retrieved above.
-  2. Attempts a second `mysql.core.conditionalUpdate` on the same row, reusing the old version.
-  3. Catches the error from the second update and returns it cleanly.
-- Verify the script succeeds overall, but correctly traps and exposes the `Version conflict` error in the output.
-
-### 4. Disable Versioning
-- Use `mysql_execute_code` to call `mysql.core.disableVersioning({ table: 'temp_write_test' })`.
-- Verify success.
 
 ---
 

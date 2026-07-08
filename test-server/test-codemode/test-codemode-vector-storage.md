@@ -216,7 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_vector_get`
 - `mysql_execute_code`
 
-## Group Focus: vector-storage
+## Group Focus:vector-storage
 
 ### vector-storage Group-Specific Testing
 
@@ -253,81 +253,7 @@ vector-storage Tool Group (4 tools +1 for code mode):
 
 ---
 
-## Group Focus: vector-storage
-
-### vector-storage Group-Specific Testing
-
-vector-storage Tool Group (4 tools +1 for code mode):
-
-1. `mysql_vector_store`
-2. `mysql_vector_batch_store`
-3. `mysql_vector_delete`
-4. `mysql_vector_get`
-5. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. ✅ `mysql.vector.store({...})` → happy path (returned structured EXTENSION_MISSING error on MySQL 8, verified handler intercept)
-2. ✅ `mysql.vector.batchStore({...})` → happy path
-3. ✅ `mysql.vector.delete({...})` → happy path
-4. ✅ `mysql.vector.get({...})` → happy path
-
-**Domain error paths (🔴):**
-
-5. ✅ `mysql.vector.store({...})` → domain error
-6. ✅ `mysql.vector.batchStore({...})` → domain error
-7. ✅ `mysql.vector.delete({...})` → domain error
-8. ✅ `mysql.vector.get({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. ✅ `mysql.vector.store({})` → validation error
-10. ✅ `mysql.vector.batchStore({})` → validation error
-11. ✅ `mysql.vector.delete({})` → validation error
-12. ✅ `mysql.vector.get({})` → validation error
-
----
-
-## Group Focus: vector-storage
-
-### vector-storage Group-Specific Testing
-
-vector-storage Tool Group (4 tools +1 for code mode):
-
-1. `mysql_vector_store`
-2. `mysql_vector_batch_store`
-3. `mysql_vector_delete`
-4. `mysql_vector_get`
-5. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. ✅ `mysql.vector.store({...})` → happy path (returned structured EXTENSION_MISSING error on MySQL 8, verified handler intercept)
-2. ✅ `mysql.vector.batchStore({...})` → happy path
-3. ✅ `mysql.vector.delete({...})` → happy path
-4. ✅ `mysql.vector.get({...})` → happy path
-
-**Domain error paths (🔴):**
-
-5. ✅ `mysql.vector.store({...})` → domain error
-6. ✅ `mysql.vector.batchStore({...})` → domain error
-7. ✅ `mysql.vector.delete({...})` → domain error
-8. ✅ `mysql.vector.get({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. ✅ `mysql.vector.store({})` → validation error
-10. ✅ `mysql.vector.batchStore({})` → validation error
-11. ✅ `mysql.vector.delete({})` → validation error
-12. ✅ `mysql.vector.get({})` → validation error
-
----
-
-## Group Focus: vector-storage
+## Group Focus:vector-storage
 
 ### vector-storage Group-Specific Testing
 

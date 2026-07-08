@@ -114,49 +114,26 @@ function processDirectory(dirName) {
         testStartIdx = lines.findIndex(l => l.startsWith("### " + groupName + " Group-Specific Testing") || l.startsWith("## Tests:") || l.startsWith("## Tasks"));
     }
 
+    // Properly find the FIRST post-test section to avoid capturing duplicates
     let postTestIdx = lines.findIndex((l, i) => i > testStartIdx && (l.startsWith("## Post-Test") || l.startsWith("## Execute Post-Test")));
     let contentEndIdx = lines.length;
 
-    // Handle already standardized files (content is between --- blocks before Post-Test)
-    if (testStartIdx === -1 && postTestIdx !== -1) {
-        let lastDashes = -1;
-        for (let i = postTestIdx - 1; i >= 0; i--) {
+    // We only want the first block, so if there is a '---' before the first post-test, we cut it there
+    if (testStartIdx !== -1 && postTestIdx !== -1) {
+        for (let i = testStartIdx + 1; i < postTestIdx; i++) {
             if (lines[i].trim() === "---") {
-                lastDashes = i;
-                break;
+                contentEndIdx = i;
+                break; // Stop at the first '---' to prevent capturing duplicates
             }
         }
-        if (lastDashes !== -1) {
-            let firstDashes = -1;
-            for (let i = lastDashes - 1; i >= 0; i--) {
-                if (lines[i].trim() === "---") {
-                    firstDashes = i;
-                    break;
-                }
-            }
-            if (firstDashes !== -1) {
-                testStartIdx = firstDashes + 1;
-                contentEndIdx = lastDashes;
-            }
+        if (contentEndIdx === lines.length) {
+            contentEndIdx = postTestIdx;
         }
     }
 
     if (testStartIdx === -1) {
       console.warn(`Could not find test content start boundary in ${file}`);
       continue;
-    }
-
-    if (contentEndIdx === lines.length && postTestIdx !== -1) {
-        // Find the `---` before postTestIdx
-        for (let i = postTestIdx - 1; i > testStartIdx; i--) {
-            if (lines[i].trim() === "---") {
-                contentEndIdx = i;
-                break;
-            }
-        }
-        if (contentEndIdx === lines.length) {
-            contentEndIdx = postTestIdx;
-        }
     }
 
     let testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");

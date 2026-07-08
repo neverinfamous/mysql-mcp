@@ -215,7 +215,7 @@ During testing, check for these inconsistencies:
 - `mysql_drop_partition`
 - `mysql_reorganize_partition`
 
-## Group Focus: partitioning
+## Group Focus:partitioning
 
 partitioning Tool Group (4 tools +1 code mode):
 
@@ -247,71 +247,7 @@ partitioning Tool Group (4 tools +1 code mode):
 
 ---
 
-## Group Focus: partitioning
-
-partitioning Tool Group (4 tools +1 code mode):
-
-1. `mysql_partition_info`
-2. `mysql_add_partition`
-3. `mysql_drop_partition`
-4. `mysql_reorganize_partition`
-
-> **Instructions**: Use `mysql.partitioning.*` namespace, push deviations to `failures` array.
-
-1. `mysql.partitioning.help()` → verify method listing
-2. `mysql.partitioning.partitionInfo({ table: "test_partitioned" })` → verify success
-3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
-4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_east"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_east1", value: "'east'"}, {name: "p_east2", value: "'northeast'"}] })` → verify success
-5. `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "p_intl" })` → verify success
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql.partitioning.partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
-7. 🔴 `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "nonexistent_p" })` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-8. 🔴 `mysql.partitioning.addPartition({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance (🟢):**
-
-9. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
-
-## Group Focus: partitioning
-
-partitioning Tool Group (4 tools +1 code mode):
-
-1. `mysql_partition_info`
-2. `mysql_add_partition`
-3. `mysql_drop_partition`
-4. `mysql_reorganize_partition`
-
-> **Instructions**: Use `mysql.partitioning.*` namespace, push deviations to `failures` array.
-
-1. `mysql.partitioning.help()` → verify method listing
-2. `mysql.partitioning.partitionInfo({ table: "test_partitioned" })` → verify success
-3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
-4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_east"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_east1", value: "'east'"}, {name: "p_east2", value: "'northeast'"}] })` → verify success
-5. `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "p_intl" })` → verify success
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql.partitioning.partitionInfo({ table: "nonexistent_xyz" })` → `{success: false}`
-7. 🔴 `mysql.partitioning.dropPartition({ table: "test_partitioned", partitionName: "nonexistent_p" })` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-8. 🔴 `mysql.partitioning.addPartition({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance (🟢):**
-
-9. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
-
-## Group Focus: partitioning
+## Group Focus:partitioning
 
 partitioning Tool Group (4 tools +1 code mode):
 

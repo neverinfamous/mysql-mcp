@@ -214,7 +214,7 @@ During testing, check for these inconsistencies:
 - `mysql_json_contains`
 - `mysql_json_keys`
 
-## Group Focus: json-core-read
+## Group Focus:json-core-read
 
 json-core-read Tool Group:
 
@@ -235,49 +235,7 @@ json-core-read Tool Group:
 
 ---
 
-## Group Focus: json-core-read
-
-json-core-read Tool Group:
-
-1. `mysql_json_extract` 2. `mysql_json_contains` 3. `mysql_json_keys`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.json.help()` → verify method listing
-2. `mysql.json.extract({table: "test_json_docs", column: "doc", path: "$.title"})` → values
-3. `mysql.json.contains({table: "test_json_docs", column: "doc", value: '{"type":"article"}'})` → matches
-4. `mysql.json.keys({table: "test_json_docs", column: "doc", path: "$"})` → keys
-
-**Domain error paths (🔴):**
-5. 🔴 `mysql.json.extract({table: "nonexistent_xyz", column: "doc", path: "$"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-6. 🔴 `mysql.json.extract({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: json-core-read
-
-json-core-read Tool Group:
-
-1. `mysql_json_extract` 2. `mysql_json_contains` 3. `mysql_json_keys`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.json.help()` → verify method listing
-2. `mysql.json.extract({table: "test_json_docs", column: "doc", path: "$.title"})` → values
-3. `mysql.json.contains({table: "test_json_docs", column: "doc", value: '{"type":"article"}'})` → matches
-4. `mysql.json.keys({table: "test_json_docs", column: "doc", path: "$"})` → keys
-
-**Domain error paths (🔴):**
-5. 🔴 `mysql.json.extract({table: "nonexistent_xyz", column: "doc", path: "$"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-6. 🔴 `mysql.json.extract({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: json-core-read
+## Group Focus:json-core-read
 
 json-core-read Tool Group:
 

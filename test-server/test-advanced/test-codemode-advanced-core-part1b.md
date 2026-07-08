@@ -224,8 +224,6 @@ During testing, check for these inconsistencies:
 
 ---
 
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

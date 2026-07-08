@@ -214,7 +214,7 @@ During testing, check for these inconsistencies:
 - `mysql_server_config`
 - `mysql_audit_search`
 
-## Group Focus: admin-audit
+## Group Focus:admin-audit
 
 admin Tool Group (3 tools +1 code mode):
 
@@ -235,49 +235,7 @@ admin Tool Group (3 tools +1 code mode):
 
 ---
 
-## Group Focus: admin-audit
-
-admin Tool Group (3 tools +1 code mode):
-
-1. `mysql_append_insight` 2. `mysql_server_config` 3. `mysql_audit_search`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.admin.help()` → verify method listing
-2. `mysql.admin.appendInsight({insight: "Test insight"})` → `success: true`
-3. `mysql.admin.serverConfig({action: "get"})` → returns current config
-4. `mysql.admin.auditSearch({search: "error"})` → searches error logs
-
-**Domain error paths (🔴):**
-5. 🔴 `mysql.admin.serverConfig({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-6. 🔴 `mysql.admin.appendInsight({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: admin-audit
-
-admin Tool Group (3 tools +1 code mode):
-
-1. `mysql_append_insight` 2. `mysql_server_config` 3. `mysql_audit_search`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.admin.help()` → verify method listing
-2. `mysql.admin.appendInsight({insight: "Test insight"})` → `success: true`
-3. `mysql.admin.serverConfig({action: "get"})` → returns current config
-4. `mysql.admin.auditSearch({search: "error"})` → searches error logs
-
-**Domain error paths (🔴):**
-5. 🔴 `mysql.admin.serverConfig({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-6. 🔴 `mysql.admin.appendInsight({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: admin-audit
+## Group Focus:admin-audit
 
 admin Tool Group (3 tools +1 code mode):
 

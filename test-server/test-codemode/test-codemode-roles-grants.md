@@ -215,7 +215,7 @@ During testing, check for these inconsistencies:
 - `mysql_role_assign`
 - `mysql_role_revoke`
 
-## Group Focus: roles
+## Group Focus:roles
 
 roles Tool Group (4 tools +1 code mode):
 
@@ -246,69 +246,7 @@ roles Tool Group (4 tools +1 code mode):
 
 ---
 
-## Group Focus: roles
-
-roles Tool Group (4 tools +1 code mode):
-
-1. `mysql_role_grants`
-2. `mysql_role_grant`
-3. `mysql_role_assign`
-4. `mysql_role_revoke`
-
-> **Instructions**: Use `mysql.roles.*` namespace, push deviations to `failures` array.
-
-1. `mysql.roles.help()` → verify method listing
-4. `mysql.roles.roleGrant({ roleName: "test_role_x", privileges: ["SELECT"], object: "testdb.*" })` → verify success
-5. `mysql.roles.roleGrants({ roleName: "test_role_x" })` → verify success
-6. `mysql.roles.roleAssign({ roleName: "test_role_x", userName: "root" })` → verify success
-8. `mysql.roles.roleRevoke({ roleName: "test_role_x", userName: "root" })` → verify success
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.roles.roleDrop({ roleName: "nonexistent_role_xyz" })` → `{success: false}`
-11. 🔴 `mysql.roles.roleGrant({ roleName: "nonexistent_role_xyz", privileges: ["SELECT"], object: "testdb.*" })` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-
-**Alias acceptance (🟢):**
-
-13. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
-
-## Group Focus: roles
-
-roles Tool Group (4 tools +1 code mode):
-
-1. `mysql_role_grants`
-2. `mysql_role_grant`
-3. `mysql_role_assign`
-4. `mysql_role_revoke`
-
-> **Instructions**: Use `mysql.roles.*` namespace, push deviations to `failures` array.
-
-1. `mysql.roles.help()` → verify method listing
-4. `mysql.roles.roleGrant({ roleName: "test_role_x", privileges: ["SELECT"], object: "testdb.*" })` → verify success
-5. `mysql.roles.roleGrants({ roleName: "test_role_x" })` → verify success
-6. `mysql.roles.roleAssign({ roleName: "test_role_x", userName: "root" })` → verify success
-8. `mysql.roles.roleRevoke({ roleName: "test_role_x", userName: "root" })` → verify success
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.roles.roleDrop({ roleName: "nonexistent_role_xyz" })` → `{success: false}`
-11. 🔴 `mysql.roles.roleGrant({ roleName: "nonexistent_role_xyz", privileges: ["SELECT"], object: "testdb.*" })` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-
-**Alias acceptance (🟢):**
-
-13. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
-
-## Group Focus: roles
+## Group Focus:roles
 
 roles Tool Group (4 tools +1 code mode):
 

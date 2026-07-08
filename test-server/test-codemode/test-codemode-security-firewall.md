@@ -217,7 +217,7 @@ During testing, check for these inconsistencies:
 - `mysql_security_password_validate`
 - `mysql_execute_code`
 
-## Group Focus: security (Firewall & SSL)
+## Group Focus:security (Firewall & SSL)
 
 security (firewall) Tool Group:
 1. `mysql_security_firewall_status`
@@ -236,45 +236,7 @@ security (firewall) Tool Group:
 
 ---
 
-## Group Focus: security (Firewall & SSL)
-
-security (firewall) Tool Group:
-1. `mysql_security_firewall_status`
-2. `mysql_security_firewall_rules`
-3. `mysql_security_ssl_status`
-4. `mysql_security_encryption_status`
-5. `mysql_security_password_validate`
-6. `mysql_execute_code` (codemode, auto-added)
-
-1. `mysql.security.help()`
-2. `mysql.security.firewallStatus()`
-3. `mysql.security.firewallRules({ limit: 5 })`
-4. `mysql.security.sslStatus()`
-5. `mysql.security.encryptionStatus()`
-6. `mysql.security.passwordValidate({ password: "weak" })`
-
----
-
-## Group Focus: security (Firewall & SSL)
-
-security (firewall) Tool Group:
-1. `mysql_security_firewall_status`
-2. `mysql_security_firewall_rules`
-3. `mysql_security_ssl_status`
-4. `mysql_security_encryption_status`
-5. `mysql_security_password_validate`
-6. `mysql_execute_code` (codemode, auto-added)
-
-1. `mysql.security.help()`
-2. `mysql.security.firewallStatus()`
-3. `mysql.security.firewallRules({ limit: 5 })`
-4. `mysql.security.sslStatus()`
-5. `mysql.security.encryptionStatus()`
-6. `mysql.security.passwordValidate({ password: "weak" })`
-
----
-
-## Group Focus: security (Firewall & SSL)
+## Group Focus:security (Firewall & SSL)
 
 security (firewall) Tool Group:
 1. `mysql_security_firewall_status`

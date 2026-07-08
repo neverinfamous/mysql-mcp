@@ -215,7 +215,7 @@ During testing, check for these inconsistencies:
 - `mysql_kill_query`
 
 
-## Group Focus: admin-maintenance (Part 2)
+## Group Focus:admin-maintenance (Part 2)
 
 admin Tool Group (6 tools +1 code mode):
 
@@ -240,57 +240,7 @@ admin Tool Group (6 tools +1 code mode):
 
 ---
 
-## Group Focus: admin-maintenance (Part 2)
-
-admin Tool Group (6 tools +1 code mode):
-
-1. `mysql_optimize_table` 2. `mysql_analyze_table` 3. `mysql_check_table`
-2. `mysql_repair_table` 5. `mysql_flush_tables` 6. `mysql_kill_query`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.admin.help()` → verify method listing
-2. `mysql.admin.analyzeTable({table: "test_products"})` → `success: true`
-3. `mysql.admin.checkTable({table: "test_products"})` → status OK
-4. `mysql.admin.optimizeTable({table: "test_products"})` → success
-5. `mysql.admin.killQuery({id: 99999})` → structured error (invalid PID)
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql.admin.analyzeTable({table: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql.admin.analyzeTable({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: admin-maintenance (Part 2)
-
-admin Tool Group (6 tools +1 code mode):
-
-1. `mysql_optimize_table` 2. `mysql_analyze_table` 3. `mysql_check_table`
-2. `mysql_repair_table` 5. `mysql_flush_tables` 6. `mysql_kill_query`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.admin.help()` → verify method listing
-2. `mysql.admin.analyzeTable({table: "test_products"})` → `success: true`
-3. `mysql.admin.checkTable({table: "test_products"})` → status OK
-4. `mysql.admin.optimizeTable({table: "test_products"})` → success
-5. `mysql.admin.killQuery({id: 99999})` → structured error (invalid PID)
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql.admin.analyzeTable({table: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql.admin.analyzeTable({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
-## Group Focus: admin-maintenance (Part 2)
+## Group Focus:admin-maintenance (Part 2)
 
 admin Tool Group (6 tools +1 code mode):
 
