@@ -450,6 +450,32 @@ export class CodeModeSandbox {
                     methodFn as (...args: unknown[]) => Promise<unknown>
                   )(...(reviveBuffers(args) as unknown[]));
                   const parsed: unknown = JSON.parse(JSON.stringify(res, (_k, v) => typeof v === 'bigint' ? v.toString() : (v as unknown)));
+                  
+                  // Auto-heal DDL propagation delay (mysql_mcp_heal Layer 3)
+                  const isDDLTool = ["enableVersioning", "disableVersioning", "createTrigger", "dropTrigger", "createIndex", "dropIndex", "dropTable", "renameTable", "truncateTable"].includes(methodName);
+                  let isDDLQuery = false;
+                  if (['readQuery', 'writeQuery', 'execute'].includes(methodName)) {
+                      const firstArg = args[0];
+                      let sql = "";
+                      if (typeof firstArg === 'string') {
+                          sql = firstArg;
+                      } else if (firstArg !== null && typeof firstArg === 'object') {
+                          const record = firstArg as Record<string, unknown>;
+                          if (typeof record['query'] === 'string') {
+                              sql = record['query'];
+                          } else if (typeof record['sql'] === 'string') {
+                              sql = record['sql'];
+                          }
+                      }
+                      
+                      if (sql !== "" && /^\\s*(CREATE|ALTER|DROP|TRUNCATE|RENAME)\\b/i.test(sql)) {
+                          isDDLQuery = true;
+                      }
+                  }
+                  if (isDDLTool || isDDLQuery) {
+                      await new Promise(resolve => setTimeout(resolve, 1200));
+                  }
+
                   return parsed;
                 } catch (e) {
                   return {
