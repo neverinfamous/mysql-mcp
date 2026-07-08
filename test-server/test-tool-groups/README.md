@@ -53,6 +53,8 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - `test-codemode.md`
 - `test-core-part1.md`
 - `test-core-part2.md`
+- `test-core-part3.md`
+- `test-core-part4.md`
 - `test-docstore-part1.md`
 - `test-docstore-part2.md`
 - `test-events.md`
@@ -99,8 +101,6 @@ When tasked with running tests from this folder, adhere to the following optimiz
 - `test-vector-management.md`
 - `test-vector-search.md`
 - `test-vector-storage.md`
-- `test-versioning-part1.md`
-- `test-versioning-part2.md`
 
 ## Begin Execution
 

@@ -35,7 +35,7 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of Y. X fixes applied [Y Prompt / Z Code]: <concise description>. (e.g., This is test 40 out of 53. 1 fixes applied [1 Prompt / 0 Code]: fixed typo in prompt.)
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of Y. X fixes applied [Y Prompt / Z Code]: <concise description>. (e.g., This is test 40 out of 76. 1 fixes applied [1 Prompt / 0 Code]: fixed typo in prompt.)
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 6. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-codemode/` BEFORE starting, and cross-reference the actual directory contents against the list below.

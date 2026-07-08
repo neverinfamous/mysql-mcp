@@ -2,7 +2,7 @@
 
 **🤖 AGENT INSTRUCTIONS**
 
-This folder contains 53 modular test prompts covering every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
+This folder contains 76 modular test prompts covering every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
 
 ## Follow Agent Instructions
 
@@ -44,54 +44,77 @@ Never proceed to the final step until every tool in a given group has both colum
 ## Access Available Test Files
 
 - `test-codemode-admin-audit.md`
-- `test-codemode-admin-maintenance.md`
+- `test-codemode-admin-maintenance-part1.md`
+- `test-codemode-admin-maintenance-part2.md`
 - `test-codemode-backup-audit.md`
 - `test-codemode-backup-data.md`
-- `test-codemode-cluster-group-replication.md`
-- `test-codemode-cluster-innodb.md`
+- `test-codemode-cluster-group-replication-part1.md`
+- `test-codemode-cluster-group-replication-part2.md`
+- `test-codemode-cluster-innodb-part1.md`
+- `test-codemode-cluster-innodb-part2.md`
 - `test-codemode-core-read.md`
 - `test-codemode-core-write.md`
-- `test-codemode-docstore-collections.md`
+- `test-codemode-docstore-collections-part1.md`
+- `test-codemode-docstore-collections-part2.md`
 - `test-codemode-docstore-documents.md`
-- `test-codemode-events.md`
-- `test-codemode-fulltext.md`
-- `test-codemode-introspection.md`
+- `test-codemode-events-part1.md`
+- `test-codemode-events-part2.md`
+- `test-codemode-fulltext-part1.md`
+- `test-codemode-fulltext-part2.md`
+- `test-codemode-introspection-part1.md`
+- `test-codemode-introspection-part2.md`
 - `test-codemode-json-core-read.md`
-- `test-codemode-json-core-write.md`
-- `test-codemode-json-enhanced.md`
+- `test-codemode-json-core-write-part1.md`
+- `test-codemode-json-core-write-part2.md`
+- `test-codemode-json-enhanced-part1.md`
+- `test-codemode-json-enhanced-part2.md`
 - `test-codemode-json-helpers.md`
-- `test-codemode-migration.md`
-- `test-codemode-monitoring.md`
+- `test-codemode-migration-part1.md`
+- `test-codemode-migration-part2.md`
+- `test-codemode-monitoring-part1.md`
+- `test-codemode-monitoring-part2.md`
 - `test-codemode-optimization.md`
 - `test-codemode-partitioning.md`
 - `test-codemode-performance-analysis-queries.md`
 - `test-codemode-performance-analysis-system.md`
 - `test-codemode-performance-anomaly.md`
 - `test-codemode-proxysql-config.md`
-- `test-codemode-proxysql-status.md`
-- `test-codemode-replication.md`
+- `test-codemode-proxysql-status-part1.md`
+- `test-codemode-proxysql-status-part2.md`
+- `test-codemode-replication-part1.md`
+- `test-codemode-replication-part2.md`
 - `test-codemode-roles-grants.md`
 - `test-codemode-roles-management.md`
 - `test-codemode-router-core.md`
-- `test-codemode-router-routes.md`
-- `test-codemode-schema-management.md`
-- `test-codemode-schema-routines.md`
+- `test-codemode-router-routes-part1.md`
+- `test-codemode-router-routes-part2.md`
+- `test-codemode-schema-management-part1.md`
+- `test-codemode-schema-management-part2.md`
+- `test-codemode-schema-routines-part1.md`
+- `test-codemode-schema-routines-part2.md`
 - `test-codemode-security-audit.md`
-- `test-codemode-security-firewall.md`
-- `test-codemode-shell-data.md`
+- `test-codemode-security-firewall-part1.md`
+- `test-codemode-security-firewall-part2.md`
+- `test-codemode-shell-data-part1.md`
+- `test-codemode-shell-data-part2.md`
 - `test-codemode-shell-utils.md`
 - `test-codemode-spatial-geometry.md`
 - `test-codemode-spatial-operations.md`
 - `test-codemode-spatial-queries.md`
 - `test-codemode-spatial-setup.md`
-- `test-codemode-stats-advanced.md`
+- `test-codemode-stats-advanced-part1.md`
+- `test-codemode-stats-advanced-part2.md`
 - `test-codemode-stats-analytics.md`
-- `test-codemode-stats-basic.md`
-- `test-codemode-stats-window.md`
+- `test-codemode-stats-basic-part1.md`
+- `test-codemode-stats-basic-part2.md`
+- `test-codemode-stats-window-part1.md`
+- `test-codemode-stats-window-part2.md`
 - `test-codemode-sys-analysis.md`
 - `test-codemode-sys-metrics.md`
-- `test-codemode-text.md`
-- `test-codemode-transactions.md`
+- `test-codemode-text-part1.md`
+- `test-codemode-text-part2.md`
+- `test-codemode-transactions-part1.md`
+- `test-codemode-transactions-part2.md`
 - `test-codemode-vector-management.md`
 - `test-codemode-vector-search.md`
 - `test-codemode-vector-storage.md`
