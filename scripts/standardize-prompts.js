@@ -82,7 +82,11 @@ function processDirectory(dirName) {
         coverageMatrix = "| Endpoint | Focus Area | HTTP Validation |";
       } else {
         executionMode = "Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.";
-        coverageMatrix = "| Tool | Focus Area | Code Mode Validation |";
+        if (toolMap[file] && toolMap[file].length === 0) {
+          coverageMatrix = "| Scenario | Focus Area | Code Mode Validation |";
+        } else {
+          coverageMatrix = "| Tool | Focus Area | Code Mode Validation |";
+        }
       }
     } else if (dirName === "test-codemode") {
       titleType = "Code Mode Testing";
@@ -95,16 +99,21 @@ function processDirectory(dirName) {
     }
 
     let explicitToolsList = "";
+    const colCount = coverageMatrix.split("|").length - 2;
+    const divider = "|" + Array(colCount).fill("---").join("|") + "|";
+
     if ((dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability") && toolMap[file] && toolMap[file].length > 0) {
         const tools = toolMap[file];
         explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n`;
         explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";
         
         // Append rows to the coverage matrix!
-        const colCount = coverageMatrix.split("|").length - 2;
-        const emptyCols = Array(colCount - 1).fill(" ").join("|");
+        const emptyCols = Array(colCount - 1).fill("   ").join("|");
         const rows = tools.map(t => `| \`${t}\` |${emptyCols}|`);
-        coverageMatrix += "\n" + rows.join("\n");
+        coverageMatrix += "\n" + divider + "\n" + rows.join("\n");
+    } else {
+        // Just add the divider so the table is valid markdown
+        coverageMatrix += "\n" + divider + "\n";
     }
 
     // Extract Schema Reference
@@ -165,7 +174,12 @@ function processDirectory(dirName) {
     if (!explicitToolsList) {
         const match = content.match(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Group Focus:|## Tasks|## Category|## Post-Test|## Execute Post-Test|---|$)/i);
         if (match) {
-            explicitToolsList = match[0].trim();
+            if (toolMap[file] && toolMap[file].length === 0) {
+                // If it's explicitly empty in toolMap, we intentionally don't want specific tool constraints.
+                explicitToolsList = "";
+            } else {
+                explicitToolsList = match[0].trim();
+            }
         }
     }
 
