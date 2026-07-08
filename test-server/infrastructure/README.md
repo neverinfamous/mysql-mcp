@@ -47,8 +47,9 @@ This environment spins up the following components:
 - **ProxySQL**: `localhost:6033` (Data), `localhost:6032` (Admin)
 - **Prometheus**: `http://localhost:9090` (Metrics scraping)
 - **Grafana**: `http://localhost:3001` (Dashboards - login: admin/admin)
-- **Dozzle**: `http://localhost:8080` (Real-time container logs viewer)
-- **Adminer**: `http://localhost:8081` (Web-based database management UI)
+- **Dozzle**: `http://localhost:8888` (Real-time container logs viewer)
+- **Adminer**: `http://localhost:8889` (Web-based database management UI)
+  - *Login details:* System: **MySQL**, Server: **mysql-node1**, Username: **root**, Password: **root**
 
 All components share the `infrastructure_default` Docker network.
 
