@@ -260,7 +260,8 @@ function processDirectory(dirName) {
       .replace(/5\. `mysql\.sysschema\.waitSummary/g, "3. `mysql.sysschema.waitSummary")
       .replace(/6\. `mysql\.sysschema\.innodbLockWaits/g, "4. `mysql.sysschema.innodbLockWaits")
       .replace(/7\. `mysql\.sysschema\.schemaStats/g, "5. `mysql.sysschema.schemaStats")
-      .replace(/11\. 🔴 `mysql\.sysschema\.ioSummary\(\{ limit: "abc" \}\)/g, "11. 🔴 `mysql.sysschema.statementSummary({ limit: \"abc\" })");
+      .replace('11. 🔴 `mysql.sysschema.statementSummary({ limit: "abc" })``', '11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })`')
+      .replace('11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })``', '11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })`');
 
     if (file === "test-codemode-versioning.md" && !testContent.includes("mysql.versioning.enable")) {
         testContent = testContent.replace(

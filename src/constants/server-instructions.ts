@@ -123,7 +123,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 
 ## Group Replication (mysql_gr_*)
 
-- **Tools available**: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`.
+- **Tools available**: \`mysql_gr_status\` (Group Replication status), \`mysql_gr_members\` (List cluster members), \`mysql_gr_primary\` (Get/Set primary member), \`mysql_gr_transactions\` (Check distributed transactions), \`mysql_gr_flow_control\` (Tuning flow control).
 - Tools check for \`group_replication\` plugin status and return a structured \`EXTENSION_NOT_AVAILABLE\` error if the plugin is not active.
 - **Error handling**: All 5 GR tools return structured error responses (with \`error\` field) on query failure instead of throwing raw exceptions. \`mysql_gr_members\` with a nonexistent \`memberId\` filter returns \`{ members: [], count: 0 }\` (empty results, not an error).
 
@@ -164,6 +164,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **DDL & Errors**: DDL (e.g., \`CREATE TABLE\`) automatically falls back to text protocol in \`mysql_write_query\`. Returns \`{ success: false, error }\` instead of throwing raw errors on query failures.
 
 ### Schema Management (\`mysql_create_table\`, \`mysql_drop_table\`, \`mysql_describe_table\`, \`mysql_list_tables\`)
+- **Metadata**: \`mysql_list_tables\` lists tables with metadata, and \`mysql_describe_table\` gets column definitions.
 - **Boolean Defaults**: \`mysql_create_table\` auto-converts \`default: true\` to \`1\` and \`default: false\` to \`0\`.
 - **Create/Drop Safety**: Returns \`{ success: false, error }\` on exists/missing unless using \`ifNotExists: true\` or \`ifExists: true\` respectively, which return \`{ success: true, skipped: true, reason: "..." }\`.
 - **Existence Checks**: Standard \`{ success: false, error: "..." }\` returned if target tables/databases don't exist.
@@ -186,6 +187,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.
 - **Collection drop**: \`mysql_doc_drop_collection\` removes a collection. Returns \`{ success: false, error }\` if collection does not exist (without \`ifExists\`). With \`ifExists: true\` (default), returns \`{ success: true, message: "Collection did not exist" }\` when the collection was already absent. Accepts optional \`schema\` parameter to target a specific database.
 - **Collection detection**: \`mysql_doc_list_collections\` identifies document collections as tables containing a \`doc JSON\` column with an \`_id\` field. Manually created JSON tables may appear in collection listings.
+- **Collection info**: \`mysql_doc_collection_info\` retrieves collection stats and metadata.
 - **Nonexistent collection handling**: \`mysql_doc_collection_info\`, \`mysql_doc_add\`, \`mysql_doc_find\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, and \`mysql_doc_create_index\` return \`{ success: false, code: "TABLE_NOT_FOUND" }\` when the target collection does not exist, and \`{ success: false, code: "SCHEMA_NOT_FOUND" }\` when a nonexistent schema is explicitly provided. All six tools accept an optional \`schema\` parameter for cross-database collection access.
 - **Index creation**: \`mysql_doc_create_index\` returns \`{ success: false, error }\` if the index or its generated columns already exist. Accepts optional \`schema\` parameter.
 - **Filter Syntax** (for \`mysql_doc_modify\`, \`mysql_doc_remove\`):

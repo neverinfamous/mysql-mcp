@@ -11,6 +11,7 @@
 - **DDL & Errors**: DDL (e.g., `CREATE TABLE`) automatically falls back to text protocol in `mysql_write_query`. Returns `{ success: false, error }` instead of throwing raw errors on query failures.
 
 ### Schema Management (`mysql_create_table`, `mysql_drop_table`, `mysql_describe_table`, `mysql_list_tables`)
+- **Metadata**: `mysql_list_tables` lists tables with metadata, and `mysql_describe_table` gets column definitions.
 - **Boolean Defaults**: `mysql_create_table` auto-converts `default: true` to `1` and `default: false` to `0`.
 - **Create/Drop Safety**: Returns `{ success: false, error }` on exists/missing unless using `ifNotExists: true` or `ifExists: true` respectively, which return `{ success: true, skipped: true, reason: "..." }`.
 - **Existence Checks**: Standard `{ success: false, error: "..." }` returned if target tables/databases don't exist.

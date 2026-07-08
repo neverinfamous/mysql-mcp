@@ -100,7 +100,7 @@ sysschema Tool Group (4 tools +1 code mode):
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.sysschema.statementSummary({ limit: "abc" })`` -> `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 

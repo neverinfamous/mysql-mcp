@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 
-const ssotPath = 'C:/Users/chris/.gemini/antigravity/brain/c26c89da-67b7-401d-833e-0cac69937a8b/scratch/ssot-mapping.md';
+const ssotPath = 'C:/Users/chris/.gemini/antigravity/brain/7faf2655-1fdb-48b3-a4b3-f081a5b80ed0/scratch/ssot-mapping.md';
 const toolMapPath = 'C:/Users/chris/Desktop/mysql-mcp/scripts/tool-map.json';
 
 const ssotContent = fs.readFileSync(ssotPath, 'utf-8');
