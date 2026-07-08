@@ -42,65 +42,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ## Access Available Test Files
 
-> **Note**: These files are standard prompt outlines intended to be fed directly to subagents for parallel execution.
-
-- `test-admin-part1.md`
-- `test-admin-part2.md`
-- `test-backup-part1.md`
-- `test-backup-part2.md`
-- `test-cluster-gr.md`
-- `test-cluster-innodb.md`
-- `test-codemode.md`
-- `test-core-part1.md`
-- `test-core-part2.md`
-- `test-core-part3.md`
-- `test-core-part4.md`
-- `test-docstore-part1.md`
-- `test-docstore-part2.md`
-- `test-events.md`
-- `test-fulltext-part1.md`
-- `test-fulltext-part2.md`
-- `test-introspection.md`
-- `test-json-core-part1.md`
-- `test-json-core-part2.md`
-- `test-json-enhanced.md`
-- `test-json-helpers.md`
-- `test-migration.md`
-- `test-monitoring.md`
-- `test-optimization.md`
-- `test-partitioning.md`
-- `test-performance-analysis-part1.md`
-- `test-performance-analysis-part2.md`
-- `test-performance-anomaly.md`
-- `test-proxysql-part1.md`
-- `test-proxysql-part2.md`
-- `test-replication.md`
-- `test-roles-part1.md`
-- `test-roles-part2.md`
-- `test-router-part1.md`
-- `test-router-part2.md`
-- `test-schema-management.md`
-- `test-schema-routines-part1.md`
-- `test-schema-routines-part2.md`
-- `test-security-part1.md`
-- `test-security-part2.md`
-- `test-shell-part1.md`
-- `test-shell-part2.md`
-- `test-spatial-geometry.md`
-- `test-spatial-operations.md`
-- `test-spatial-queries.md`
-- `test-spatial-setup.md`
-- `test-stats-advanced.md`
-- `test-stats-descriptive-part1.md`
-- `test-stats-descriptive-part2.md`
-- `test-stats-window.md`
-- `test-sys-part1.md`
-- `test-sys-part2.md`
-- `test-text.md`
-- `test-transactions.md`
-- `test-vector-management.md`
-- `test-vector-search.md`
-- `test-vector-storage.md`
+> **Note**: Please refer to the Test Sequence Queue in [`coordinator-workflow.md`](./coordinator-workflow.md) for the complete and up-to-date list of all testing prompts to execute.
 
 ## Begin Execution
 
