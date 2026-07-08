@@ -43,168 +43,24 @@
 
 ## Standardize the Reporting Format
 
-- ❌ **Fail**: Tool errors or produces incorrect results (include error message)
+- ❌ **Fail**: Tool errors or produces incorrect results
 - ⚠️ **Issue**: Unexpected behavior or improvement opportunity
-- 📦 **Payload**: Unnecessarily large response that should be optimized — **blocking, equally important as ❌ bugs**. Oversized payloads waste LLM context window tokens and degrade downstream tool-calling quality. Report the response size in KB/tokens and suggest a concrete optimization.
+- 📦 **Payload**: Unnecessarily large response that should be optimized (blocking)
 - ✅ **Confirmed**: (Use inline only during testing; omit from Final Summary)
 
-### Rate Error Message Quality
-
-| Level                                  | Verdict |
-| -------------------------------------- | ------- |
-| 5 - Excellent (name + code + context)  | ✅      |
-| 4 - Good (name)                        | ✅      |
-| 3 - Adequate (raw MySQL, informative)  | ⚠️      |
-| 2 - Poor (no object name)              | ⚠️      |
-| 1 - Useless (generic)                  | ❌      |
-
-## Enforce Testing Standards
-
-> [!NOTE]
-> **Tool Availability & Code Mode**:
-> - `mysql_execute_code` is globally injected.
-> - It is available across all test groups.
-> - Use it for multi-step test logic or setup.
-> - Do not fail groups for missing setup tools.
-> - Missing tools happen due to injection scoping.
-> - Use seed data or backups if possible.
-> - Note missing tools as an expected ⚠️ finding.
+## Testing Standards & Execution Rules
 
 > [!IMPORTANT]
-> **Testing Code Mode**:
-> - Do NOT write test scripts to the filesystem.
-> - Pass JavaScript directly to `code` parameter.
-> - Do NOT use monolithic `try/catch` blocks.
-> - Suppressing natural error output is forbidden.
-> - Evaluate native structured error responses against standards.
+> **Avoid Context Exhaustion:** To save context window tokens, the detailed rules for Code Mode execution, Structured Error Formatting, Dual-Schema verification, and Test Cleanup have been moved to the central READMEs.
+> 
+> You **MUST** adhere to the testing standards defined in `test-server/test-codemode/README.md` and `test-server/test-advanced/README.md`.
+> - Always return structured error responses (never raw MCP `-32602`).
+> - Always verify proper type coercions and structured domain errors.
+> - Track progress in your own `task.md` scratchpad.
 
-> [!CAUTION]
-> **Code Mode Transaction Safety**:
-> - Pass `txId` to subsequent transaction queries.
-> - Omitting `txId` checks out a new connection.
-> - Missing `txId` causes deadlocks on locked tables.
-> - Deadlocks permanently hang the server until crash.
-> - Always rollback or commit in `finally` block.
-
-> [!CAUTION]
-> **Zero tolerance for raw MCP errors**:
-> - Raw MCP errors are always bugs.
-> - Report them as ❌ immediately.
-> - Never accept them as SDK limitations.
-> - Never accept them as expected behavior.
-> - The handler MUST catch all errors.
->
-> ⚠️ **ARCHITECTURAL NOTE**:
-> - `isError` dictates `outputSchema` validation.
-> - Wrong usage causes raw `-32602` crashes.
-> - Verify SDK output matches rules below.
->
-> | Response         | `isError: true` | SDK behavior                                              | Verdict                                |
-> | ---------------- | --------------- | --------------------------------------------------------- | -------------------------------------- |
-> | `success: true`  | **Absent**      | Validates `structuredContent` → passes                    | ✅ Correct                             |
-> | `success: true`  | **Present**     | Skips validation, wraps in error frame                    | ❌ Bug — valid response shown as error |
-> | `success: false` | **Present**     | Skips validation (error shape won't match success schema) | ✅ Correct                             |
-> | `success: false` | **Absent**      | Validates error against success schema → fails            | ❌ Bug — raw `-32602`                  |
->
-> **TL;DR**:
-> - Use `isError: true` on errors.
-> - Omit `isError` on successes.
-> - Framework handles this for `success: false`.
-
-> [!TIP]
-> **Zod Validation & Safe Parsing**:
-> - Read `/zod` skill for best practices.
-> - Wrap Zod errors structurally in handlers.
-> - Do not leak errors to MCP client.
-
-> [!TIP]
-> **MySQL Standards**:
-> - Read `/mysql` skill for production standards.
-> - Follow query safety and parameterization rules.
-> - Adhere to ecosystem configurations.
-
-1. **Test Realism**: Test each tool with realistic inputs based on the schema above.
-2. **Error Path Testing**: For **every** tool, test at least **two** invalid inputs:
-   - (a) A domain error (e.g., non-existent table).
-   - (b) An **empty parameters test** (call the tool with `{}`).
-     Both must return a **structured handler error** (`{success: false, error: "..."}`) — NOT a raw MCP error frame.
-     > **Note on Aliases & Zod**: Tools with legacy parameter aliases often use `.default("")` in their Zod schemas. This lets the payload reach the handler's alias-resolution logic. Calling with `{}` passes Zod validation. It triggers a handler-level domain error. This is expected behavior. Do NOT remove `.default("")` from schemas. This breaks alias compatibility.
-3. **Output Schema Testing**: For every tool that has an `outputSchema`, check the `Error` output channel to ensure no exceptions are logged, and confirm that at least one valid happy-path call returns a structured YAML response. Output schema mismatches produce the same `-32602` code as input errors but are only caught with valid inputs.
-4. **Wrong-Type Coercion**: For every tool with optional numeric parameters (e.g., `limit`), call the tool with `param: "abc"` (string instead of number). The tool must NOT return a raw MCP `-32602` error.
-   > **Note on Zod Coercion & Validation Errors**: Passing '"abc"' to a numeric field returns a structured handler error. This is correct. It proves the global SDK monkey-patch intercepted Zod's error. It transformed it into a structured domain error. Do NOT "fix" schemas to bypass this validation. Do NOT force a silent fallback.
-5. **Proactive Improvements**: You are highly encouraged to proactively improve functionality, performance, security, agent experience, and token/payload efficiency whenever you see an opportunity during your testing and handler code review.
-   > **CRITICAL**: Architectural consistency is paramount. Do not introduce undocumented architectural deviations. If you implement a structural or architectural improvement in one tool, you must apply it symmetrically to other applicable tools in the group or project.
-6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
-7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
-8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
 | `mysql_create_index` | | |
 | `mysql_get_indexes` | | |
-
-### Return Structured Error Responses
-
-All tools should return errors as strongly-typed structured objects instead of throwing. The expected pattern:
-
-```json
-{
-  "success": false,
-  "error": "Human-readable error message",
-  "code": "VALIDATION_ERROR",
-  "category": "validation",
-  "recoverable": false,
-  "details": { },
-  "suggestion": "Optional suggestion",
-  "metrics": {
-    "executionMs": 150,
-    "tokenEstimate": 45
-  }
-}
-```
-
-| Type                 | Source                                                                          | What you see                                                                                                              | Verdict            |
-| -------------------- | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| **Handler error** ✅ | Handler catches error and returns `{success: false, error: "...", code: "..."}` | Parseable JSON object with `success`, `error`, `code` (e.g., `VALIDATION_ERROR`, `CONFLICT_ERROR`), and `category` fields | Correct            |
-| **MCP error** ❌     | Uncaught throw propagates to MCP framework                                      | Raw text error string, often prefixed with `Error:`, wrapped in an `isError: true` content block — no `success` field     | Bug — report as ❌ |
-
-## Verify Dual-Schema Patterns
-
-All tools use the Dual-Schema pattern: a plain `z.object()` Base schema for MCP parameter visibility, and a `z.preprocess()` wrapper for handler parsing. Verify:
-
-1. **Parameter visibility**: For tools with optional parameters (e.g., `database`, `limit`), make a direct MCP call using those parameters. If the tool ignores or rejects documented parameters, report as a Dual-Schema violation.
-2. **Alias acceptance**: For tools with documented parameter aliases (e.g., `table`/`tableName`/`name`, `query`/`sql`, `where`/`filter`), verify that direct MCP tool calls correctly accept the aliases — not just the primary parameter name.
-3. **`z.preprocess()` as `inputSchema`**: If a tool uses `z.preprocess()` directly as its `inputSchema` (instead of a plain `SchemaBase`), parameter metadata is stripped from JSON Schema generation. Report as a Dual-Schema violation.
-
-## Verify Object Existence
-
-All tools that accept a table name should return structured error responses for nonexistent tables and databases. For each, verify:
-
-1. **Nonexistent table**: Calling with `table: "nonexistent_table_xyz"` returns `{ exists: false, table }` — not a generic error or raw MySQL exception
-2. **Nonexistent database/schema**: Where applicable, calling with a nonexistent database produces `{ exists: false }`
-
-Key MySQL error codes that should be intercepted by handlers (not leaked as raw errors):
-
-| MySQL Error Code          | Meaning                | Expected Structured Message   |
-| ------------------------- | ---------------------- | ----------------------------- |
-| 1146 (ER_NO_SUCH_TABLE)   | Table doesn't exist    | `Table 'X' does not exist`    |
-| 1049 (ER_BAD_DB_ERROR)    | Database doesn't exist | `Database 'X' does not exist` |
-| 1054 (ER_BAD_FIELD_ERROR) | Unknown column         | `Column 'X' not found`        |
-| 1064 (ER_PARSE_ERROR)     | SQL syntax error       | `SQL syntax error: ...`       |
-
-## Audit Error Consistency
-
-During testing, check for these inconsistencies:
-
-1. **Error field name**: All `{ success: false }` error responses should use `error` as the field name.
-2. **Zod validation leaks**: If calling a tool with an invalid enum value or missing required field produces a raw MCP `-32602` Zod validation error instead of a structured response, report as ❌.
-
-## Manage Naming and Cleanup
-
-- **Temporary tables**: `temp_*` (or `stress_*`) prefix
-- **Temporary views**: `test_view_*` prefix
-- **Temporary procedures**: `test_proc_*` prefix
-- Drop at the end of the script. If DROP fails due to lock, note and move on.
-- **Scratch Data:** **[WHEN]** generating temporary files, test data, or export/dump artifacts -> **[NEVER]** write scratch files to the project workspace. **[ALWAYS]** write them to a designated temporary agent scratch directory outside the workspace.
-- **Cleanup:** Make sure to clean up any generated files in the scratch directory or elsewhere before committing.
 
 ---
 

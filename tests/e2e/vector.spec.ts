@@ -18,7 +18,7 @@ import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 // Force sequential execution
 test.describe.configure({ mode: "serial", timeout: 60_000 });
 
-const PORT = 3160;
+const PORT = 3161;
 
 test.describe("Vector Tools", () => {
   let client: Client;

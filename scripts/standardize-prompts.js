@@ -101,7 +101,9 @@ function processDirectory(dirName) {
         explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";
         
         // Append rows to the coverage matrix!
-        const rows = tools.map(t => `| \`${t}\` | | |`);
+        const colCount = coverageMatrix.split("|").length - 2;
+        const emptyCols = Array(colCount - 1).fill(" ").join("|");
+        const rows = tools.map(t => `| \`${t}\` |${emptyCols}|`);
         coverageMatrix += "\n" + rows.join("\n");
     }
 

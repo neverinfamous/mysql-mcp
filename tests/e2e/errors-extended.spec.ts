@@ -34,8 +34,8 @@ test.describe("Errors: Core", () => {
         /* Accept if MySQL handles SELECT in write gracefully */
       } else {
         expectHandlerError(p);
+        expect(p.error as string).toMatch(/does not exist|_e2e_nonexistent_xyz/i);
       }
-      expect(p.error as string).toMatch(/does not exist|_e2e_nonexistent_xyz/i);
     } finally {
       await client.close();
     }
