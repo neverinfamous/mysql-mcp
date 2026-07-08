@@ -62,8 +62,8 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 - `test-json-helpers.md`
 - `test-transactions.md`
 - `test-text.md`
-- `test-versioning-part1.md`
-- `test-versioning-part2.md`
+- `test-core-part3.md`
+- `test-core-part4.md`
 
 _(Coordinator pauses: Asks user to switch filter to `dev-power` and restart)_
 
