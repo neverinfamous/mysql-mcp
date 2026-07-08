@@ -1,6 +1,6 @@
 # MySQL Router Tools
 
-Tools: `mysql_router_status`, `mysql_router_routes`, `mysql_router_route_status`, `mysql_router_route_health`, `mysql_router_route_connections`, `mysql_router_route_destinations`, `mysql_router_route_blocked_hosts`, `mysql_router_metadata_status`, `mysql_router_pool_status`
+**Encapsulated Tools**: `mysql_router_status`, `mysql_router_routes`, `mysql_router_route_status`, `mysql_router_route_health`, `mysql_router_route_connections`, `mysql_router_route_destinations`, `mysql_router_route_blocked_hosts`, `mysql_router_metadata_status`, `mysql_router_pool_status`
 
 - **Prerequisites**: MySQL Router must be running with REST API enabled. The REST API requires an InnoDB Cluster backend for authentication (uses `metadata_cache` credentials).
 - **Self-signed certificates**: Set `MYSQL_ROUTER_INSECURE=true` to bypass TLS certificate verification.

@@ -1,6 +1,6 @@
 # Backup Tools
 
-Tools: `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump`, `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`
+**Encapsulated Tools**: `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump`, `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`
 
 - **Export formats**: `mysql_export_table` supports SQL (INSERT statements) and CSV formats. CSV export escapes JSON columns with double-quote encoding. Consider SQL format for JSON-heavy tables.
 - **Export pagination & batching**: Returns at most 5 rows by default. Use `limit` parameter to override. Use `batch` parameter (default: 1) to group rows into multi-row INSERT statements (e.g., `batch: 50`).

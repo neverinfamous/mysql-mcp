@@ -1,6 +1,6 @@
 # Replication Tools
 
-Tools: `mysql_master_status`, `mysql_slave_status`, `mysql_binlog_events`, `mysql_gtid_status`, `mysql_replication_lag`
+**Encapsulated Tools**: `mysql_master_status`, `mysql_slave_status`, `mysql_binlog_events`, `mysql_gtid_status`, `mysql_replication_lag`
 
 - **Master status**: `mysql_master_status` returns current binlog file, position, and GTID set from the source server.
 - **Slave status**: `mysql_slave_status` returns detailed replica status. Returns `configured: false` if not a replica.

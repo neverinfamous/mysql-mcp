@@ -1,6 +1,6 @@
 # Events Tools (`mysql_event_*`, `mysql_scheduler_status`)
 
-Tools: `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status`
+**Encapsulated Tools**: `mysql_event_create`, `mysql_event_alter`, `mysql_event_drop`, `mysql_event_list`, `mysql_event_status`, `mysql_scheduler_status`
 
 - **Scheduler status**: `mysql_scheduler_status` shows global scheduler state (ON/OFF), event counts, and recently executed events.
 - **Event types**: `mysql_event_create` takes a raw MySQL `schedule` string (e.g. `"EVERY 1 DAY"`, `"AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR"`). Use `ifNotExists: true` to skip creation if the event already exists.

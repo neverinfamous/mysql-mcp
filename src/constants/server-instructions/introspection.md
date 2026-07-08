@@ -1,6 +1,6 @@
 # Introspection Tools
 
-Tools: `mysql_dependency_graph`, `mysql_topological_sort`, `mysql_cascade_simulator`, `mysql_schema_snapshot`, `mysql_constraint_analysis`, `mysql_migration_risks`
+**Encapsulated Tools**: `mysql_dependency_graph`, `mysql_topological_sort`, `mysql_cascade_simulator`, `mysql_schema_snapshot`, `mysql_constraint_analysis`, `mysql_migration_risks`
 
 The **Introspection** group provides advanced schema analysis capabilities, specifically designed to help AI agents understand complex entity relationships, simulate changes, and assess risks before performing database migrations or schema modifications.
 

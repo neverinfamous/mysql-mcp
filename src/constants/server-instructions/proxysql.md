@@ -1,6 +1,6 @@
 # ProxySQL Tools
 
-Tools: `proxysql_status`, `proxysql_servers`, `proxysql_query_rules`, `proxysql_query_digest`, `proxysql_connection_pool`, `proxysql_users`, `proxysql_global_variables`, `proxysql_runtime_status`, `proxysql_memory_stats`, `proxysql_commands`, `proxysql_process_list`
+**Encapsulated Tools**: `proxysql_status`, `proxysql_servers`, `proxysql_query_rules`, `proxysql_query_digest`, `proxysql_connection_pool`, `proxysql_users`, `proxysql_global_variables`, `proxysql_runtime_status`, `proxysql_memory_stats`, `proxysql_commands`, `proxysql_process_list`
 
 - **Prerequisites**: ProxySQL must be running with admin interface accessible (default port 6032). Environment variables: `PROXYSQL_HOST`, `PROXYSQL_PORT`, `PROXYSQL_USER`, `PROXYSQL_PASSWORD`.
 - **Status monitoring**: `proxysql_status` returns global status variables. Use `summary: true` for key metrics.
