@@ -1,1 +1,0 @@
-const {execSync} = require('child_process'); console.log(execSync('"C:\\Program Files\\MySQL\\MySQL Shell 9.5\\bin\\mysqlsh.exe" --uri root:root@127.0.0.1:3307 --js -e "var c = dba.getCluster(''testCluster''); console.log(JSON.stringify(c.status(), null, 2));"').toString());
