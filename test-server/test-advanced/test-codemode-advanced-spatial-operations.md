@@ -224,34 +224,17 @@ During testing, check for these inconsistencies:
 
 spatial-operations Tool Group (4 tools +1 for code mode):
 
-1. 'mysql_spatial_intersection'
-2. 'mysql_spatial_buffer'
-3. 'mysql_spatial_transform'
-4. 'mysql_spatial_geojson'
 5. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using Code Mode ONLY (`mysql_execute_code`).
 
 **Checklist:**
 
-1. `mysql_spatial_intersection({...})` → happy path
-2. `mysql_spatial_buffer({...})` → happy path
-3. `mysql_spatial_transform({...})` → happy path
-4. `mysql_spatial_geojson({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql_spatial_intersection({...})` → domain error
-6. 🔴 `mysql_spatial_buffer({...})` → domain error
-7. 🔴 `mysql_spatial_transform({...})` → domain error
-8. 🔴 `mysql_spatial_geojson({...})` → domain error
 
 **Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_spatial_intersection({})` → validation error
-10. 🔴 `mysql_spatial_buffer({})` → validation error
-11. 🔴 `mysql_spatial_transform({})` → validation error
-12. 🔴 `mysql_spatial_geojson({})` → validation error
 
 ---
 

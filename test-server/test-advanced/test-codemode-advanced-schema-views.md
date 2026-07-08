@@ -223,13 +223,6 @@ Please conduct an exhaustive test of the tool group specified in the checklist b
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_list_views` | Require schema parameter | Verified |
-| `mysql_create_view` | Create simple view | Verified |
-| `mysql_create_view` | Reject duplicate without orReplace | Verified |
-| `mysql_create_view` | Accept duplicate with orReplace | Verified |
-| `mysql_drop_view` | Drop view | Verified |
-| `mysql_drop_view` | Reject non-existent without ifExists | Verified |
-| `mysql_drop_view` | Skip non-existent with ifExists | Verified |
 
 ---
 

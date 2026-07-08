@@ -1,5 +1,7 @@
 # Migration Tools
 
+Tools: `mysql_migration_init`, `mysql_migration_record`, `mysql_migration_apply`, `mysql_migration_rollback`, `mysql_migration_history`, `mysql_migration_status`
+
 The **Migration** group provides an integrated, structured schema versioning and deployment system directly within the MCP server. It is designed to track schema changes, ensure idempotent deployments, and allow safe rollbacks.
 
 ## Core Capabilities

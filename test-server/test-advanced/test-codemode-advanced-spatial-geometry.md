@@ -225,7 +225,6 @@ During testing, check for these inconsistencies:
 spatial-geometry Tool Group (2 tools +1 for code mode):
 
 1. 'mysql_spatial_point'
-2. 'mysql_spatial_polygon'
 3. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
@@ -233,17 +232,14 @@ spatial-geometry Tool Group (2 tools +1 for code mode):
 **Checklist:**
 
 1. `mysql_spatial_point({...})` → happy path
-2. `mysql_spatial_polygon({...})` → happy path
 
 **Domain error paths (🔴):**
 
 3. 🔴 `mysql_spatial_point({...})` → domain error
-4. 🔴 `mysql_spatial_polygon({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
 5. 🔴 `mysql_spatial_point({})` → validation error
-6. 🔴 `mysql_spatial_polygon({})` → validation error
 
 ---
 

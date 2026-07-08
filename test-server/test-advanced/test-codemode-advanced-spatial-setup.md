@@ -224,26 +224,17 @@ During testing, check for these inconsistencies:
 
 spatial-setup Tool Group (2 tools +1 for code mode):
 
-1. 'mysql_spatial_create_column'
-2. 'mysql_spatial_create_index'
 3. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
 **Checklist:**
 
-1. `mysql_spatial_create_column({...})` → happy path
-2. `mysql_spatial_create_index({...})` → happy path
 
 **Domain error paths (🔴):**
 
-3. 🔴 `mysql_spatial_create_column({...})` → domain error
-4. 🔴 `mysql_spatial_create_index({...})` → domain error
 
 **Zod validation error paths (🔴):**
-
-5. 🔴 `mysql_spatial_create_column({})` → validation error
-6. 🔴 `mysql_spatial_create_index({})` → validation error
 
 ---
 

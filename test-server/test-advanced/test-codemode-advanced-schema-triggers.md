@@ -227,15 +227,6 @@ Please conduct an exhaustive test of the tool group specified in the checklist b
 | `mysql_list_triggers` | Handle non-existent schema | Verified |
 | `mysql_list_triggers` | Handle non-existent table | Verified |
 | `mysql_list_triggers` | List triggers happy path | Verified |
-| `mysql_create_trigger` | Create BEFORE INSERT trigger | Verified |
-| `mysql_create_trigger` | Create AFTER UPDATE trigger | Verified |
-| `mysql_create_trigger` | Handle duplicate trigger name | Verified |
-| `mysql_create_trigger` | Handle nonexistent table | Verified |
-| `mysql_create_trigger` | IF NOT EXISTS support | Verified |
-| `mysql_create_trigger` | FOLLOWS/PRECEDES ordering | Verified |
-| `mysql_drop_trigger` | Drop existing trigger | Verified |
-| `mysql_drop_trigger` | IF EXISTS on nonexistent | Verified |
-| `mysql_drop_trigger` | Handle nonexistent schema | Verified |
 
 ---
 

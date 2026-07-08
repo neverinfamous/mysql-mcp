@@ -119,6 +119,8 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - **Restore backup**: \`mysql_audit_restore_backup\` restores a specific table. Set \`dryRun: true\` (default) to safely view the DDL and DML of a snapshot before actually executing the restoration. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`.`],
   ["cluster", `# Cluster Tools (Group Replication + InnoDB Cluster)
 
+Tools: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`, \`mysql_cluster_status\`, \`mysql_cluster_instances\`, \`mysql_cluster_topology\`, \`mysql_cluster_router_status\`, \`mysql_cluster_switchover\`
+
 ## Group Replication (\`mysql_gr_*\`)
 
 - **Tools available**: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`.
@@ -134,6 +136,8 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return routerId, routerName, address, version, lastCheckIn, roPort, rwPort, and localCluster. Each router includes \`isStale\` (true if lastCheckIn is null or >1 hour old). The response includes \`staleCount\` for quick filtering.
 - **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field (\`null\` when no primary exists, never absent). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist. Note: This tool does NOT execute a switchover.`],
   ["codemode", `# Code Mode (\`mysql_execute_code\`)
+
+Tools: \`mysql_execute_code\`
 
 - **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 200+ MySQL MCP tools via the global \`mysql.*\` API.
 - **Capabilities**: The sandbox allows you to script complex multi-step workflows, loops, logic, and data transformations natively on the server, saving 70-90% on token consumption compared to making individual MCP tool calls.
@@ -177,6 +181,8 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - \`mysql_conditional_update\`: Conditionally updates a row. Accepts aliases for data and conditions. On conflict, returns \`CONFLICT_ERROR\` ErrorResponse.`],
   ["docstore", `# Document Store (\`mysql_doc_*\`)
 
+Tools: \`mysql_doc_list_collections\`, \`mysql_doc_create_collection\`, \`mysql_doc_drop_collection\`, \`mysql_doc_find\`, \`mysql_doc_add\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, \`mysql_doc_create_index\`, \`mysql_doc_collection_info\`
+
 - **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.
 - **Collection drop**: \`mysql_doc_drop_collection\` removes a collection. Returns \`{ success: false, error }\` if collection does not exist (without \`ifExists\`). With \`ifExists: true\` (default), returns \`{ success: true, message: "Collection did not exist" }\` when the collection was already absent. Accepts optional \`schema\` parameter to target a specific database.
 - **Collection detection**: \`mysql_doc_list_collections\` identifies document collections as tables containing a \`doc JSON\` column with an \`_id\` field. Manually created JSON tables may appear in collection listings.
@@ -191,6 +197,8 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - **Schema existence**: All docstore tools that accept a \`schema\` parameter return \`{ success: false, code: "SCHEMA_NOT_FOUND" }\` when a nonexistent schema is explicitly provided, matching the P154 pattern used by schema introspection and event tools.
 - **Find Filters** (\`mysql_doc_find\`): The filter parameter shares the same syntax as modify and remove. Supports JSON path for existence (e.g., \`$.address\`), direct \`_id\` match (32-character hex), and \`field=value\` format (e.g., \`name=Alice\`). Accepts optional \`schema\` parameter.`],
   ["events", `# Events Tools (\`mysql_event_*\`, \`mysql_scheduler_status\`)
+
+Tools: \`mysql_event_create\`, \`mysql_event_alter\`, \`mysql_event_drop\`, \`mysql_event_list\`, \`mysql_event_status\`, \`mysql_scheduler_status\`
 
 - **Scheduler status**: \`mysql_scheduler_status\` shows global scheduler state (ON/OFF), event counts, and recently executed events.
 - **Event types**: \`mysql_event_create\` takes a raw MySQL \`schedule\` string (e.g. \`"EVERY 1 DAY"\`, \`"AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR"\`). Use \`ifNotExists: true\` to skip creation if the event already exists.
@@ -302,6 +310,8 @@ Recoverable errors can be retried. Check \`recoverable: true\` in the response.
 - **Scope**: Requires \`admin\` scope.`],
   ["introspection", `# Introspection Tools
 
+Tools: \`mysql_dependency_graph\`, \`mysql_topological_sort\`, \`mysql_cascade_simulator\`, \`mysql_schema_snapshot\`, \`mysql_constraint_analysis\`, \`mysql_migration_risks\`
+
 The **Introspection** group provides advanced schema analysis capabilities, specifically designed to help AI agents understand complex entity relationships, simulate changes, and assess risks before performing database migrations or schema modifications.
 
 ## Core Capabilities
@@ -350,6 +360,8 @@ The **Introspection** group provides advanced schema analysis capabilities, spec
   { "success": false, "error": "Table does not exist", "code": "NOT_FOUND" }
   \`\`\``],
   ["migration", `# Migration Tools
+
+Tools: \`mysql_migration_init\`, \`mysql_migration_record\`, \`mysql_migration_apply\`, \`mysql_migration_rollback\`, \`mysql_migration_history\`, \`mysql_migration_status\`
 
 The **Migration** group provides an integrated, structured schema versioning and deployment system directly within the MCP server. It is designed to track schema changes, ensure idempotent deployments, and allow safe rollbacks.
 
