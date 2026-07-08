@@ -15,7 +15,7 @@ function run(command) {
 console.log('=== Recreating MySQL Test Ecosystem ===');
 
 try {
-    run('docker compose down -v');
+    run('docker compose down -v --remove-orphans');
     console.log('\n[Wait] Giving Docker daemon time to flush networks...');
     execSync('ping 127.0.0.1 -n 6 > nul'); // Windows sleep 5s
 
