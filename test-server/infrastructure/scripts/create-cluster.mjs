@@ -43,12 +43,12 @@ async function main() {
     await waitForMySQL('mysql-node3');
 
     console.log("\n[2/4] Creating cluster on primary node...");
-    const createCmd = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { dba.createCluster('testCluster'); console.log('Cluster created'); } catch(e) { console.log('Cluster may already exist or error: ' + e); }"`;
+    const createCmd = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: 'mysql-node1:33061', exitStateAction: 'READ_ONLY'}); console.log('Cluster created'); } catch(e) { console.log('Cluster may already exist or error: ' + e); }"`;
     const createOut = execCommand(createCmd);
     console.log(createOut);
 
     console.log("\n[3/4] Adding node2 to cluster...");
-    const addNode2 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node2:3306', {recoveryMethod: 'clone'}); } catch(e) { console.log('Node2 add error (may already be in cluster): ' + e); }"`;
+    const addNode2 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node2:3306', {recoveryMethod: 'clone', localAddress: 'mysql-node2:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('Node2 add error (may already be in cluster): ' + e); }"`;
     const node2Out = execCommand(addNode2, true);
     console.log(node2Out);
 
@@ -56,7 +56,7 @@ async function main() {
     await waitForMySQL('mysql-node2');
 
     console.log("\n[4/4] Adding node3 to cluster...");
-    const addNode3 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node3:3306', {recoveryMethod: 'clone'}); } catch(e) { console.log('Node3 add error (may already be in cluster): ' + e); }"`;
+    const addNode3 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node3:3306', {recoveryMethod: 'clone', localAddress: 'mysql-node3:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('Node3 add error (may already be in cluster): ' + e); }"`;
     const node3Out = execCommand(addNode3, true);
     console.log(node3Out);
 

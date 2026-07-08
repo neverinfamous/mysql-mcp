@@ -95,7 +95,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Server Config**: Dynamically updates or fetches runtime variables without restarts (e.g., \`logLevel\`).
 
 ### Auditing & Insights (\`mysql_audit_search\`, \`mysql_append_insight\`)
-- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Requires at least one filter. Defaults to \`limit: 10\` for payload efficiency.
+- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Requires at least one filter. Defaults to \`limit: 5\` for payload efficiency.
 - **Insight Append**: Records business insights to an in-memory memo.
   - Access via \`mysql://insights\` resource.
   - Max 1000 chars per insight.`],
@@ -276,7 +276,7 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 
 - **Default LIMIT 50**: \`mysql_read_query\`, \`mysql_json_extract\`, \`mysql_json_contains\`, \`mysql_json_keys\`, and \`mysql_json_search\` inject a default \`LIMIT 50\` on queries without an explicit \`LIMIT\` clause. Use \`cursor\`/\`nextCursor\` to page through results. Add your own \`LIMIT\` clause to override this default.
 - **Default LIMIT 1**: \`mysql_json_get\` strictly enforces a \`LIMIT 1\`.
-- **Administrative Defaults**: \`mysql_export_table\` defaults to a \`limit\` of 5 and \`batch\` size of 50. The \`mysql_sys_\` schema tools default to \`limit\` values between 5 and 10. \`mysql_audit_search\` defaults to \`limit: 10\`.
+- **Administrative Defaults**: \`mysql_export_table\` defaults to a \`limit\` of 5 and \`batch\` size of 50. The \`mysql_sys_\` schema tools default to \`limit\` values between 5 and 10. \`mysql_audit_search\` defaults to \`limit: 5\`.
 - **Faceted Search**: Fulltext tools accept \`includeFacets: true\` to return per-column hit distributions alongside results.
 
 ## Typed Error Codes
