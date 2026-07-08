@@ -95,7 +95,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Server Config**: Dynamically updates or fetches runtime variables without restarts (e.g., \`logLevel\`).
 
 ### Auditing & Insights (\`mysql_audit_search\`, \`mysql_append_insight\`)
-- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Defaults to \`limit: 10\` for payload efficiency.
+- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Requires at least one filter. Defaults to \`limit: 10\` for payload efficiency.
 - **Insight Append**: Records business insights to an in-memory memo.
   - Access via \`mysql://insights\` resource.
   - Max 1000 chars per insight.`],
@@ -174,7 +174,7 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 - \`mysql_enable_versioning\`: Adds a \`_version\` column and a trigger to a table.
 - \`mysql_disable_versioning\`: Disables versioning by dropping the trigger and column.
 - \`mysql_check_version\`: Checks the current \`_version\` of a specific row.
-- \`mysql_conditional_update\`: Conditionally updates a row. On conflict, returns \`CONFLICT_ERROR\` ErrorResponse.`],
+- \`mysql_conditional_update\`: Conditionally updates a row. Accepts aliases for data and conditions. On conflict, returns \`CONFLICT_ERROR\` ErrorResponse.`],
   ["docstore", `# Document Store (\`mysql_doc_*\`)
 
 - **Collection creation**: \`mysql_doc_create_collection\` creates a JSON document collection. Use \`ifNotExists: true\` to avoid errors when the collection already exists. Returns \`{ success: false, error }\` if collection already exists (without \`ifNotExists\`). Accepts optional \`schema\` parameter to create in a specific database.

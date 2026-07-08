@@ -19,7 +19,7 @@
 - **Server Config**: Dynamically updates or fetches runtime variables without restarts (e.g., `logLevel`).
 
 ### Auditing & Insights (`mysql_audit_search`, `mysql_append_insight`)
-- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Defaults to `limit: 10` for payload efficiency.
+- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Requires at least one filter. Defaults to `limit: 10` for payload efficiency.
 - **Insight Append**: Records business insights to an in-memory memo.
   - Access via `mysql://insights` resource.
   - Max 1000 chars per insight.

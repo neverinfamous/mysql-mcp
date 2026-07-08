@@ -25,4 +25,4 @@
 - `mysql_enable_versioning`: Adds a `_version` column and a trigger to a table.
 - `mysql_disable_versioning`: Disables versioning by dropping the trigger and column.
 - `mysql_check_version`: Checks the current `_version` of a specific row.
-- `mysql_conditional_update`: Conditionally updates a row. On conflict, returns `CONFLICT_ERROR` ErrorResponse.
+- `mysql_conditional_update`: Conditionally updates a row. Accepts aliases for data and conditions. On conflict, returns `CONFLICT_ERROR` ErrorResponse.
