@@ -50,10 +50,10 @@ config/secrets/
 # Local Server & Cluster Setup
 mysqlrouter.conf
 router-cluster.conf
-router-data/
-cluster-config/
-innodb-cluster.yml
-proxysql.cnf
+test-server/infrastructure/router-data/
+test-server/infrastructure/cluster-config/
+test-server/infrastructure/innodb-cluster.yml
+test-server/infrastructure/proxysql.cnf
 test-server/
 scripts/
 
