@@ -149,6 +149,8 @@ docstore Tool Group (4 tools +1 for code mode):
 1. 'mysql_doc_list_collections'
 2. 'mysql_doc_create_collection'
 3. 'mysql_doc_drop_collection'
+4. 'mysql_doc_collection_info'
+5. 'mysql_execute_code' (codemode, auto-added)
 
 4. `mysql_doc_list_collections()` -> verify list of collections
 5. `mysql_doc_create_collection({collection: "test_coll"})` -> verify success

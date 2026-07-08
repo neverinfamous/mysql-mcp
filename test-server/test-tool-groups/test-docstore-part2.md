@@ -148,6 +148,10 @@ docstore Tool Group (5 tools +1 for code mode):
 
 1. 'mysql_doc_find'
 2. 'mysql_doc_add'
+3. 'mysql_doc_modify'
+4. 'mysql_doc_create_index'
+5. 'mysql_doc_remove'
+6. 'mysql_execute_code' (codemode, auto-added)
 
 3. `mysql_doc_add({collection: "test_coll", documents: [{"_id": "1", "name": "test"}]})` -> verify success
 4. `mysql_doc_find({collection: "test_coll", filter: "_id = '1'"})` -> verify document found
