@@ -236,26 +236,6 @@ schema Tool Group (5 tools +1 code mode):
 
 ---
 
-## Group Focus:schema-routines
-
-schema Tool Group (5 tools +1 code mode):
-
-1. `mysql_list_stored_procedures` 2. `mysql_list_functions` 3. `mysql_list_triggers`
-4. `mysql_create_trigger` 5. `mysql_drop_trigger`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.schema.help()` → verify method listing
-2. `mysql.schema.listStoredProcedures({})` → `{success: true}` (schema is optional)
-3. `mysql.schema.listFunctions({database: "testdb"})` → verify structure
-4. `mysql.schema.listTriggers({database: "testdb"})` → verify structure
-5. `mysql.schema.createTrigger({name: "temp_cm_trigger", table: "test_orders", timing: "BEFORE", event: "INSERT", statement: "SET NEW.status = 'PENDING'"})` → `success: true`
-6. `mysql.schema.dropTrigger({name: "temp_cm_trigger"})` → `success: true`
-7. 🔴 `mysql.schema.listTriggers({database: "nonexistent_db_xyz"})` → `{success: false}`
-8. 🔴 `mysql.schema.createTrigger({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

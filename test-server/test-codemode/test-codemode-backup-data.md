@@ -246,37 +246,6 @@ backup Tool Group (Data) (4 tools +1 code mode):
 
 ---
 
-## Group Focus:backup-data
-
-backup Tool Group (Data) (4 tools +1 code mode):
-
-1. `mysql_export_table`
-2. `mysql_import_data`
-3. `mysql_create_dump`
-4. `mysql_restore_dump`
-
-> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
-
-1. `mysql.backup.help()` -> verify method listing
-2. `mysql.backup.exportTable({ table: "test_products", format: "csv" })` -> verify success
-3. `mysql.backup.importData({ table: "test_products", data: [{ id: 999, name: "Test Item", price: 10.0, category: "electronics" }] })` -> verify success (clean up the row afterward)
-4. `mysql.backup.createDump({ database: "testdb" })` -> verify success (returns mysqldump command string)
-5. `mysql.backup.restoreDump({ filename: "/tmp/backup_dump.sql", database: "testdb" })` -> verify success (returns mysql < command string)
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql.backup.exportTable({ table: "nonexistent_xyz" })` -> `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql.backup.exportTable({})` -> `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance (🟢):**
-
-8. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

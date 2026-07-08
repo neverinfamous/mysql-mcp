@@ -253,43 +253,6 @@ spatial-operations Tool Group (4 tools +1 for code mode):
 
 ---
 
-## Group Focus:spatial-operations
-
-### spatial-operations Group-Specific Testing
-
-spatial-operations Tool Group (4 tools +1 for code mode):
-
-1. `mysql_spatial_intersection`
-2. `mysql_spatial_buffer`
-3. `mysql_spatial_transform`
-4. `mysql_spatial_geojson`
-5. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-**Checklist:**
-
-1. ✅ `mysql.spatial.intersection({...})` → happy path
-2. ✅ `mysql.spatial.buffer({...})` → happy path
-3. ✅ `mysql.spatial.transform({...})` → happy path
-4. ✅ `mysql.spatial.geojson({...})` → happy path
-
-**Domain error paths (🔴):**
-
-5. ✅ 🔴 `mysql.spatial.intersection({...})` → domain error
-6. ✅ 🔴 `mysql.spatial.buffer({...})` → domain error
-7. ✅ 🔴 `mysql.spatial.transform({...})` → domain error
-8. ✅ 🔴 `mysql.spatial.geojson({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. ✅ 🔴 `mysql.spatial.intersection({})` → validation error
-10. ✅ 🔴 `mysql.spatial.buffer({})` → validation error
-11. ✅ 🔴 `mysql.spatial.transform({})` → validation error
-12. ✅ 🔴 `mysql.spatial.geojson({})` → validation error
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

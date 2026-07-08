@@ -240,30 +240,6 @@ security (audit) Tool Group:
 
 ---
 
-## Group Focus:security (Audit & Mask)
-
-security (audit) Tool Group:
-1. `mysql_security_audit`
-2. `mysql_security_mask_data`
-3. `mysql_security_user_privileges`
-4. `mysql_security_sensitive_tables`
-5. `mysql_execute_code` (codemode, auto-added)
-
-1. `mysql.security.help()`
-2. `mysql.security.audit({ user: "root" })`
-3. `mysql.security.maskData({ value: "test@example.com", type: "email" })`
-4. `mysql.security.userPrivileges({ userName: "root" })`
-5. `mysql.security.sensitiveTables({ database: "testdb" })`
-
-**Domain error paths (🔴):**
-6. 🔴 `mysql.security.maskData({ value: "test@example.com", type: "invalid_type" })`
-7. 🔴 `mysql.security.userPrivileges({ userName: "nonexistent_user" })`
-
-**Zod validation error paths (🔴):**
-8. 🔴 `mysql.security.maskData({})`
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

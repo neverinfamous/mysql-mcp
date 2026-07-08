@@ -247,37 +247,6 @@ router Tool Group (5 tools +1 code mode):
 
 ---
 
-## Group Focus:router
-
-router Tool Group (5 tools +1 code mode):
-
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

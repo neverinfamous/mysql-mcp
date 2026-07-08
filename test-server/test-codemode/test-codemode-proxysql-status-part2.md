@@ -214,29 +214,6 @@ During testing, check for these inconsistencies:
 - `proxysql_process_list`
 - `proxysql_query_digest`
 
-
-## Group Focus:proxysql-status (Part 2)
-
-proxysql Tool Group (7 tools +1 code mode):
-
-1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
-4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
-7. `proxysql_query_digest`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.proxysql.help()` → verify method listing
-2. `mysql.proxysql.status()` → version, uptime
-3. `mysql.proxysql.servers()` → backend listing
-4. `mysql.proxysql.connectionPool()` → pool stats
-5. `mysql.proxysql.runtimeStatus()` → runtime config
-6. `mysql.proxysql.memoryStats()` → memory
-7. `mysql.proxysql.processList()` → sessions
-8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
-9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
-
----
-
 ## Group Focus:proxysql-status (Part 2)
 
 proxysql Tool Group (7 tools +1 code mode):

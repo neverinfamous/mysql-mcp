@@ -258,47 +258,6 @@ json-enhanced Tool Group (5 tools +1 for code mode):
 
 ---
 
-## Group Focus:json-enhanced
-
-### json-enhanced Group-Specific Testing
-
-json-enhanced Tool Group (5 tools +1 for code mode):
-
-1. `mysql_json_merge`
-2. `mysql_json_diff`
-3. `mysql_json_normalize`
-4. `mysql_json_stats`
-5. `mysql_json_index_suggest`
-6. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. `mysql.json.merge({...})` → happy path
-2. `mysql.json.diff({...})` → happy path
-3. `mysql.json.normalize({...})` → happy path
-4. `mysql.json.stats({...})` → happy path
-5. `mysql.json.indexSuggest({...})` → happy path
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql.json.merge({...})` → domain error
-7. 🔴 `mysql.json.diff({...})` → domain error
-8. 🔴 `mysql.json.normalize({...})` → domain error
-9. 🔴 `mysql.json.stats({...})` → domain error
-10. 🔴 `mysql.json.indexSuggest({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-11. 🔴 `mysql.json.merge({})` → validation error
-12. 🔴 `mysql.json.diff({})` → validation error
-13. 🔴 `mysql.json.normalize({})` → validation error
-14. 🔴 `mysql.json.stats({})` → validation error
-15. 🔴 `mysql.json.indexSuggest({})` → validation error
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

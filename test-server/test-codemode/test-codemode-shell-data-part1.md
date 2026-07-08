@@ -215,46 +215,6 @@ During testing, check for these inconsistencies:
 - `mysqlsh_import_json`
 - `mysqlsh_dump_instance`
 
-
-## Group Focus:shell-data (Part 1)
-
-shell Tool Group (7 tools +1 code mode):
-
-1. `mysqlsh_export_table` 2. `mysqlsh_import_table` 3. `mysqlsh_import_json`
-4. `mysqlsh_dump_instance` 5. `mysqlsh_dump_schemas` 6. `mysqlsh_dump_tables`
-7. `mysqlsh_load_dump`
-
-> **Instructions**: Use `mysql.shell.*` namespace, push deviations to `failures` array.
-
-1. `mysql.shell.help()` → verify method listing
-2. `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
-3. `mysql.shell.importTable({ schema: "testdb", table: "test_products", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv", updateServerSettings: true })` → verify success
-4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", tableColumn: "doc", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success (⚠️ **Note**: Will return `CONNECTION_ERROR` if ecosystem proxy like ProxySQL does not support X Protocol)
-5. `mysql.shell.dumpInstance({ outputUrl: "/tmp/dump_inst", dryRun: true })` → verify success
-6. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
-7. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
-8. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
-
-**Security boundary validation paths (🔴):**
-
-12. 🔴 `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Windows/System32/out.csv" })` → `{success: false, code: "SECURITY_ERROR"}`
-13. 🔴 `mysql.shell.dumpInstance({ outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
-
-**Alias acceptance (🟢):**
-
-14. 🟢 Verify any parameter aliases are accepted for applicable tools.
-
----
-
 ## Group Focus:shell-data (Part 1)
 
 shell Tool Group (7 tools +1 code mode):

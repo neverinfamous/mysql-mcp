@@ -241,33 +241,6 @@ stats-analytics Tool Group (3 tools +1 code mode):
 
 ---
 
-## Group Focus:stats-descriptive
-
-stats-analytics Tool Group (3 tools +1 code mode):
-
-1. `mysql_stats_correlation`
-2. `mysql_stats_time_series`
-3. `mysql_stats_regression`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.stats.help()` → verify method listing
-4. `mysql.stats.correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → between -1 and 1
-6. `mysql.stats.timeSeries({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
-7. `mysql.stats.regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
-11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
-12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

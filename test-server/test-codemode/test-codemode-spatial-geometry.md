@@ -243,35 +243,6 @@ spatial-geometry Tool Group (2 tools +1 for code mode):
 
 ---
 
-## Group Focus:spatial-geometry
-
-### spatial-geometry Group-Specific Testing
-
-spatial-geometry Tool Group (2 tools +1 for code mode):
-
-1. `mysql_spatial_point`
-2. `mysql_spatial_polygon`
-3. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. `mysql.spatial.point({...})` → happy path
-2. `mysql.spatial.polygon({...})` → happy path
-
-**Domain error paths (🔴):**
-
-3. 🔴 `mysql.spatial.point({...})` → domain error
-4. 🔴 `mysql.spatial.polygon({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-5. 🔴 `mysql.spatial.point({})` → validation error
-6. 🔴 `mysql.spatial.polygon({})` → validation error
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

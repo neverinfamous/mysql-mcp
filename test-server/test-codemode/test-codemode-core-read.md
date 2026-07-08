@@ -243,34 +243,6 @@ core Tool Group - Read Tools:
 
 ---
 
-## Group Focus:core (Read)
-
-core Tool Group - Read Tools:
-1. `mysql_read_query`
-2. `mysql_list_tables`
-3. `mysql_describe_table`
-4. `mysql_get_indexes`
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-1. `mysql.core.help()`
-2. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders"})`
-3. `mysql.core.readQuery({query: "SELECT id, name FROM test_products WHERE price > 50 LIMIT 3"})`
-4. `mysql.core.readQuery({query: "SELECT COUNT(*) AS n FROM test_orders", stream: true, chunkSize: 5})`
-5. `mysql.core.readQuery({query: "SELECT id FROM test_measurements"})`
-6. `mysql.core.listTables({database: "testdb", limit: 5})`
-7. `mysql.core.describeTable({table: "test_products"})`
-8. `mysql.core.getIndexes({table: "test_orders"})`
-
-**Domain error paths (🔴):**
-9. 🔴 `mysql.core.readQuery({query: "SELECT * FROM nonexistent_table_xyz"})`
-10. 🔴 `mysql.core.describeTable({table: "nonexistent_xyz"})`
-
-**Zod validation error paths (🔴):**
-11. 🔴 `mysql.core.describeTable({})`
-
----
-
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

@@ -214,30 +214,6 @@ During testing, check for these inconsistencies:
 - `mysql_drop_view`
 - `mysql_list_constraints`
 
-
-## Group Focus:schema-management (Part 2)
-
-schema Tool Group (7 tools +1 code mode):
-
-1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema`
-4. `mysql_list_views` 5. `mysql_create_view` 6. `mysql_drop_view`
-7. `mysql_list_constraints`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.schema.help()` → verify method listing
-2. `mysql.schema.listSchemas()` → verify `testdb` present
-3. `mysql.schema.listViews({database: "testdb"})` → verify structure
-4. `mysql.schema.listConstraints({table: "test_orders"})` → verify FK present
-5. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
-6. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
-7. 🔴 `mysql.schema.listConstraints({table: "nonexistent_xyz"})` → `{success: false}` or empty
-8. 🔴 `mysql.schema.dropSchema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
-9. 🔴 `mysql.schema.createView({})` → `{success: false, error: "Validation error: ..."}`
-10. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
-
----
-
 ## Group Focus:schema-management (Part 2)
 
 schema Tool Group (7 tools +1 code mode):
