@@ -206,7 +206,16 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_stats_row_number`
+- `mysql_stats_rank`
+- `mysql_stats_lag_lead`
+- `mysql_stats_running_total`
+- `mysql_stats_moving_avg`
+- `mysql_stats_ntile`
 
 ## Group Focus: stats-window
 
@@ -240,19 +249,6 @@ stats-window Tool Group (6 tools +1 code mode):
 11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_stats_row_number`
-- `mysql_stats_rank`
-- `mysql_stats_lag_lead`
-- `mysql_stats_running_total`
-- `mysql_stats_moving_avg`
-- `mysql_stats_ntile`
-
-
 
 ## Execute Post-Test Procedures
 

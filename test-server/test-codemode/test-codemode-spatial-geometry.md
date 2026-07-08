@@ -206,7 +206,13 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_spatial_point`
+- `mysql_spatial_polygon`
+- `mysql_execute_code`
 
 ## Group Focus: spatial-geometry
 
@@ -236,16 +242,6 @@ spatial-geometry Tool Group (2 tools +1 for code mode):
 6. 🔴 `mysql.spatial.polygon({})` → validation error
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_spatial_point`
-- `mysql_spatial_polygon`
-- `mysql_execute_code`
-
-
 
 ## Execute Post-Test Procedures
 

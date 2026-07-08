@@ -206,7 +206,14 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `proxysql_query_rules`
+- `proxysql_users`
+- `proxysql_global_variables`
+- `proxysql_commands`
 
 ## Group Focus: proxysql-config
 
@@ -225,17 +232,6 @@ proxysql Tool Group (4 tools +1 code mode):
 6. 🔴 `mysql.proxysql.commands({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `proxysql_query_rules`
-- `proxysql_users`
-- `proxysql_global_variables`
-- `proxysql_commands`
-
-
 
 ## Execute Post-Test Procedures
 

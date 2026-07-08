@@ -206,7 +206,15 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_router_route_status`
+- `mysql_router_route_health`
+- `mysql_router_route_connections`
+- `mysql_router_route_destinations`
+- `mysql_router_route_blocked_hosts`
 
 ## Group Focus: router
 
@@ -238,18 +246,6 @@ router Tool Group (5 tools +1 code mode):
 14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
-
-
 
 ## Execute Post-Test Procedures
 

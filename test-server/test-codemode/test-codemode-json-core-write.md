@@ -206,7 +206,15 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_json_set`
+- `mysql_json_insert`
+- `mysql_json_replace`
+- `mysql_json_remove`
+- `mysql_json_array_append`
 
 ## Group Focus: json-core-write
 
@@ -231,18 +239,6 @@ json-core-write Tool Group:
 8. 🔴 `mysql.json.set({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_json_set`
-- `mysql_json_insert`
-- `mysql_json_replace`
-- `mysql_json_remove`
-- `mysql_json_array_append`
-
-
 
 ## Execute Post-Test Procedures
 

@@ -206,7 +206,13 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_stats_correlation`
+- `mysql_stats_time_series`
+- `mysql_stats_regression`
 
 ## Group Focus: stats-descriptive
 
@@ -234,16 +240,6 @@ stats-analytics Tool Group (3 tools +1 code mode):
 15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_stats_correlation`
-- `mysql_stats_time_series`
-- `mysql_stats_regression`
-
-
 
 ## Execute Post-Test Procedures
 

@@ -161,8 +161,16 @@ function processDirectory(dirName) {
 
     let testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");
 
-    // Remove existing explicit tool coverage block if it exists
-    testContent = testContent.replace(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Tasks|## Category|## Post-Test|$)/i, "");
+    // Extract and preserve existing explicit tool coverage block if we didn't generate one
+    if (!explicitToolsList) {
+        const match = content.match(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Tasks|## Category|## Post-Test|## Execute Post-Test|$)/i);
+        if (match) {
+            explicitToolsList = match[0].trim();
+        }
+    }
+
+    // Always remove existing explicit tool coverage block from testContent (it will be injected via template)
+    testContent = testContent.replace(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Tasks|## Category|## Post-Test|## Execute Post-Test|$)/i, "");
 
     const newContent = getTemplate(
       titleType,

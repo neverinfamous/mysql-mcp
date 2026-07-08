@@ -206,7 +206,16 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_security_firewall_status`
+- `mysql_security_firewall_rules`
+- `mysql_security_ssl_status`
+- `mysql_security_encryption_status`
+- `mysql_security_password_validate`
+- `mysql_execute_code`
 
 ## Group Focus: security (Firewall & SSL)
 
@@ -226,19 +235,6 @@ security (firewall) Tool Group:
 6. `mysql.security.passwordValidate({ password: "weak" })`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_security_firewall_status`
-- `mysql_security_firewall_rules`
-- `mysql_security_ssl_status`
-- `mysql_security_encryption_status`
-- `mysql_security_password_validate`
-- `mysql_execute_code`
-
-
 
 ## Execute Post-Test Procedures
 

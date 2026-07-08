@@ -206,7 +206,16 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_optimize_table`
+- `mysql_analyze_table`
+- `mysql_check_table`
+- `mysql_repair_table`
+- `mysql_flush_tables`
+- `mysql_kill_query`
 
 ## Group Focus: admin-maintenance
 
@@ -232,19 +241,6 @@ admin Tool Group (6 tools +1 code mode):
 7. 🔴 `mysql.admin.analyzeTable({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_optimize_table`
-- `mysql_analyze_table`
-- `mysql_check_table`
-- `mysql_repair_table`
-- `mysql_flush_tables`
-- `mysql_kill_query`
-
-
 
 ## Execute Post-Test Procedures
 

@@ -206,7 +206,17 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysqlsh_export_table`
+- `mysqlsh_import_table`
+- `mysqlsh_import_json`
+- `mysqlsh_dump_instance`
+- `mysqlsh_dump_schemas`
+- `mysqlsh_dump_tables`
+- `mysqlsh_load_dump`
 
 ## Group Focus: shell-data
 
@@ -246,20 +256,6 @@ shell Tool Group (7 tools +1 code mode):
 14. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysqlsh_export_table`
-- `mysqlsh_import_table`
-- `mysqlsh_import_json`
-- `mysqlsh_dump_instance`
-- `mysqlsh_dump_schemas`
-- `mysqlsh_dump_tables`
-- `mysqlsh_load_dump`
-
-
 
 ## Execute Post-Test Procedures
 

@@ -206,7 +206,15 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_master_status`
+- `mysql_slave_status`
+- `mysql_binlog_events`
+- `mysql_gtid_status`
+- `mysql_replication_lag`
 
 ## Group Focus: replication
 
@@ -235,18 +243,6 @@ replication Tool Group (5 tools +1 code mode):
 8. 🔴 `mysql.replication.binlogEvents({logFile: 123})` → must NOT return raw MCP error (wrong type)
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_master_status`
-- `mysql_slave_status`
-- `mysql_binlog_events`
-- `mysql_gtid_status`
-- `mysql_replication_lag`
-
-
 
 ## Execute Post-Test Procedures
 

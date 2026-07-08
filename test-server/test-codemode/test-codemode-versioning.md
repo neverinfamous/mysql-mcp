@@ -206,7 +206,15 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_enable_versioning`
+- `mysql_disable_versioning`
+- `mysql_check_version`
+- `mysql_conditional_update`
+- `mysql_execute_code`
 
 ## Group Focus: core (Versioning)
 
@@ -240,18 +248,6 @@ You are managing an optimistic concurrency control system for the `testdb` datab
 - Verify success.
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_enable_versioning`
-- `mysql_disable_versioning`
-- `mysql_check_version`
-- `mysql_conditional_update`
-- `mysql_execute_code`
-
-
 
 ## Execute Post-Test Procedures
 

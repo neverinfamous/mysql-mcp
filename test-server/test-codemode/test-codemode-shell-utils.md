@@ -206,7 +206,13 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysqlsh_version`
+- `mysqlsh_check_upgrade`
+- `mysqlsh_run_script`
 
 ## Group Focus: shell-utils
 
@@ -238,16 +244,6 @@ shell Tool Group (3 tools +1 code mode):
 8. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysqlsh_version`
-- `mysqlsh_check_upgrade`
-- `mysqlsh_run_script`
-
-
 
 ## Execute Post-Test Procedures
 

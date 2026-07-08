@@ -206,7 +206,15 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_json_get`
+- `mysql_json_update`
+- `mysql_json_search`
+- `mysql_json_validate`
+- `mysql_execute_code`
 
 ## Group Focus: json-helpers
 
@@ -244,18 +252,6 @@ json-helpers Tool Group (4 tools +1 for code mode):
 11. 🔴 `mysql.json.validate({})` → validation error
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_json_get`
-- `mysql_json_update`
-- `mysql_json_search`
-- `mysql_json_validate`
-- `mysql_execute_code`
-
-
 
 ## Execute Post-Test Procedures
 

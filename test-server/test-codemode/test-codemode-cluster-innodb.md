@@ -206,7 +206,15 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_cluster_status`
+- `mysql_cluster_instances`
+- `mysql_cluster_topology`
+- `mysql_cluster_router_status`
+- `mysql_cluster_switchover`
 
 ## Group Focus: cluster-innodb
 
@@ -227,18 +235,6 @@ cluster Tool Group (5 tools +1 code mode):
 8. `mysql.cluster.switchover()` → switchover analysis
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_cluster_status`
-- `mysql_cluster_instances`
-- `mysql_cluster_topology`
-- `mysql_cluster_router_status`
-- `mysql_cluster_switchover`
-
-
 
 ## Execute Post-Test Procedures
 

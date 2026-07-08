@@ -206,7 +206,17 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_list_schemas`
+- `mysql_create_schema`
+- `mysql_drop_schema`
+- `mysql_list_views`
+- `mysql_create_view`
+- `mysql_drop_view`
+- `mysql_list_constraints`
 
 ## Group Focus: schema-management
 
@@ -230,20 +240,6 @@ schema Tool Group (7 tools +1 code mode):
 10. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_list_schemas`
-- `mysql_create_schema`
-- `mysql_drop_schema`
-- `mysql_list_views`
-- `mysql_create_view`
-- `mysql_drop_view`
-- `mysql_list_constraints`
-
-
 
 ## Execute Post-Test Procedures
 

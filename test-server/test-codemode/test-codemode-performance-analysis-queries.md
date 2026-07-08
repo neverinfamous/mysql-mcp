@@ -206,7 +206,14 @@ During testing, check for these inconsistencies:
 
 ---
 
+### Explicit Tool Coverage Requirements
 
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_explain`
+- `mysql_explain_analyze`
+- `mysql_slow_queries`
+- `mysql_query_stats`
 
 ## Group Focus: performance-analysis-queries
 
@@ -231,17 +238,6 @@ performance-analysis-queries Tool Group:
 8. 🔴 `mysql.performance.explain({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
-
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_explain`
-- `mysql_explain_analyze`
-- `mysql_slow_queries`
-- `mysql_query_stats`
-
-
 
 ## Execute Post-Test Procedures
 
