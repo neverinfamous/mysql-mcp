@@ -138,6 +138,8 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_cluster_router_status` | | |
+| `mysql_cluster_switchover` | | |
 
 ### Return Structured Error Responses
 
@@ -212,6 +214,7 @@ During testing, check for these inconsistencies:
 
 - `mysql_cluster_router_status`
 - `mysql_cluster_switchover`
+
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
 4. `mysql_cluster_router_status()` → verify structured response

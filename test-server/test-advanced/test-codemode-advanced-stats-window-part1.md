@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_stats_outliers` | | |
+| `mysql_stats_top_n` | | |
+| `mysql_stats_distinct` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_stats_outliers`
 - `mysql_stats_top_n`
 - `mysql_stats_distinct`
+
 
 ## Category 1: Window Function NULL Handling
 1. Create a table `stress_stats_win` with columns `id INT`, `val1 INT`, `partition_col INT`.

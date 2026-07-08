@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_export_table` | | |
+| `mysql_import_data` | | |
+| `mysql_create_dump` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_export_table`
 - `mysql_import_data`
 - `mysql_create_dump`
+
 
 ## Category 1: Export Edge Cases
 1. Create `stress_empty_export` table with 0 rows

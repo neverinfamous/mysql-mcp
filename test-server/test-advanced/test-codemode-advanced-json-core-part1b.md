@@ -138,6 +138,8 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_json_replace` | | |
+| `mysql_json_remove` | | |
 
 ### Return Structured Error Responses
 
@@ -212,6 +214,7 @@ During testing, check for these inconsistencies:
 
 - `mysql_json_replace`
 - `mysql_json_remove`
+
 
 ## Group Focus: json-core
 

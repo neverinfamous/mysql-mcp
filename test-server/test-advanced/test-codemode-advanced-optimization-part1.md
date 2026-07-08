@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_index_recommendation` | | |
+| `mysql_query_rewrite` | | |
+| `mysql_force_index` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_index_recommendation`
 - `mysql_query_rewrite`
 - `mysql_force_index`
+
 
 ## Category 1: Complex Query Rewrites
 1. `mysql_query_rewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions

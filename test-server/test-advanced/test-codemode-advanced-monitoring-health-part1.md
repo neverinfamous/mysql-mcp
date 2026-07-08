@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_show_processlist` | | |
+| `mysql_show_status` | | |
+| `mysql_show_variables` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_show_processlist`
 - `mysql_show_status`
 - `mysql_show_variables`
+
 
 ## Category 1: Payload Efficiency
 1. `mysql_show_processlist()` → log token estimate

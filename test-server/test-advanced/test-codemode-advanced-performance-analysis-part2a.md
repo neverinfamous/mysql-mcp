@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_index_usage` | | |
+| `mysql_table_stats` | | |
+| `mysql_buffer_pool_stats` | | |
 
 ### Return Structured Error Responses
 
@@ -214,12 +217,6 @@ During testing, check for these inconsistencies:
 - `mysql_table_stats`
 - `mysql_buffer_pool_stats`
 
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_index_usage`
-- `mysql_table_stats`
-- `mysql_buffer_pool_stats`
 
 ## Tasks
 

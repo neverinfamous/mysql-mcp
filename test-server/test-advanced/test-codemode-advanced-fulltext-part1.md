@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_fulltext_create` | | |
+| `mysql_fulltext_drop` | | |
+| `mysql_fulltext_search` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_fulltext_create`
 - `mysql_fulltext_drop`
 - `mysql_fulltext_search`
+
 
 ## Category 1: Search Pipeline
 1. Create `stress_fts` table with `title VARCHAR(255)`, `body TEXT`

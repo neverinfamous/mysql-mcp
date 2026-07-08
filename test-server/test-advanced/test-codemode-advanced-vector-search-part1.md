@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_vector_search` | | |
+| `mysql_vector_range_search` | | |
+| `mysql_vector_hybrid_search` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_vector_search`
 - `mysql_vector_range_search`
 - `mysql_vector_hybrid_search`
+
 
 ## Group Focus: vector-search
 

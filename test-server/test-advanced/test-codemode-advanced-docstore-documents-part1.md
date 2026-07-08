@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_doc_modify` | | |
+| `mysql_doc_remove` | | |
+| `mysql_doc_create_index` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_doc_modify`
 - `mysql_doc_remove`
 - `mysql_doc_create_index`
+
 
 ## Category 1: Collection Lifecycle
 1. Create collection `stress_docs`, add 5 documents, verify count

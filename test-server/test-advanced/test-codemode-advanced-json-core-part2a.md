@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_json_contains` | | |
+| `mysql_json_keys` | | |
+| `mysql_json_array_append` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_json_contains`
 - `mysql_json_keys`
 - `mysql_json_array_append`
+
 
 ## Group Focus: json-core
 

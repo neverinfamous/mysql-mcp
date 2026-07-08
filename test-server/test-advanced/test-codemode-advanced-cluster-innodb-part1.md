@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_cluster_status` | | |
+| `mysql_cluster_instances` | | |
+| `mysql_cluster_topology` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_cluster_status`
 - `mysql_cluster_instances`
 - `mysql_cluster_topology`
+
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
 1. `mysql_cluster_status()` → verify structured `{success: false}` when no InnoDB Cluster

@@ -138,6 +138,8 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_gtid_status` | | |
+| `mysql_replication_lag` | | |
 
 ### Return Structured Error Responses
 
@@ -212,6 +214,7 @@ During testing, check for these inconsistencies:
 
 - `mysql_gtid_status`
 - `mysql_replication_lag`
+
 
 ## Category 1: Single-Server Resilience
 1. `mysql.replication.masterStatus()` → verify structured `{success: true}` with binlog position (works on single server)

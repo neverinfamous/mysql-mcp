@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysqlsh_version` | | |
+| `mysqlsh_check_upgrade` | | |
+| `mysqlsh_export_table` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysqlsh_version`
 - `mysqlsh_check_upgrade`
 - `mysqlsh_export_table`
+
 
 ## Category 1: Graceful Degradation (No MySQL Shell)
 1. `mysql.shell.version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)

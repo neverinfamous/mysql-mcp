@@ -138,6 +138,8 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_stats_distribution` | | |
+| `mysql_stats_time_series` | | |
 
 ### Return Structured Error Responses
 
@@ -212,6 +214,7 @@ During testing, check for these inconsistencies:
 
 - `mysql_stats_distribution`
 - `mysql_stats_time_series`
+
 
 ## Category 1: Frequency & Distinct Boundaries
 1. Run `mysql.stats.frequency` on a column where every row is identical (`test_categories.level` where you might just insert some). Actually, just use `test_events.event_type` with a filter `where: "event_type = 'LOGIN'"`. Verify single-bucket output without division-by-zero crashes.

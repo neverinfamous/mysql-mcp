@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_gr_status` | | |
+| `mysql_gr_members` | | |
+| `mysql_gr_primary` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_gr_status`
 - `mysql_gr_members`
 - `mysql_gr_primary`
+
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
 1. `mysql_gr_status()` → verify structured `{success: false}` (not raw exception) when GR is not configured

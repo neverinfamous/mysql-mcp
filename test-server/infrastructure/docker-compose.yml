@@ -22,6 +22,9 @@ services:
       --binlog_format=ROW
       --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node1
+      --report_port=3306
+      --group_replication_local_address=mysql-node1:33061
+      --group_replication_exit_state_action=READ_ONLY
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
     volumes:
@@ -52,6 +55,9 @@ services:
       --binlog_format=ROW
       --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node2
+      --report_port=3306
+      --group_replication_local_address=mysql-node2:33061
+      --group_replication_exit_state_action=READ_ONLY
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
     volumes:
@@ -82,6 +88,9 @@ services:
       --binlog_format=ROW
       --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node3
+      --report_port=3306
+      --group_replication_local_address=mysql-node3:33061
+      --group_replication_exit_state_action=READ_ONLY
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
     volumes:

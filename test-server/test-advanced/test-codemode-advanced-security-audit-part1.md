@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_security_audit` | | |
+| `mysql_security_firewall_status` | | |
+| `mysql_security_firewall_rules` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_security_audit`
 - `mysql_security_firewall_status`
 - `mysql_security_firewall_rules`
+
 
 ## Category 1: Password Validation Boundaries
 

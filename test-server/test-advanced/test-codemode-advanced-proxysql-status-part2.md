@@ -138,6 +138,8 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `proxysql_commands` | | |
+| `proxysql_process_list` | | |
 
 ### Return Structured Error Responses
 
@@ -212,6 +214,7 @@ During testing, check for these inconsistencies:
 
 - `proxysql_commands`
 - `proxysql_process_list`
+
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)
 4. `proxysql_commands()` → verify structured response

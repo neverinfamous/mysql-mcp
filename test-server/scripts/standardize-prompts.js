@@ -114,6 +114,11 @@ function processDirectory(dirName) {
         testStartIdx = lines.findIndex(l => l.startsWith("### " + groupName + " Group-Specific Testing") || l.startsWith("## Tests:") || l.startsWith("## Tasks"));
     }
 
+    if (testStartIdx === -1) {
+        // Fallback for files with no specific test content other than the explicit tools block
+        testStartIdx = lines.findIndex(l => l.startsWith("### Explicit Tool Coverage"));
+    }
+
     // Properly find the FIRST post-test section to avoid capturing duplicates
     let postTestIdx = lines.findIndex((l, i) => i > testStartIdx && (l.startsWith("## Post-Test") || l.startsWith("## Execute Post-Test")));
     let contentEndIdx = lines.length;
@@ -147,7 +152,7 @@ function processDirectory(dirName) {
     }
 
     // Always remove existing explicit tool coverage block from testContent (it will be injected via template)
-    testContent = testContent.replace(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Group Focus:|## Tasks|## Category|## Post-Test|## Execute Post-Test|---|$)/i, "");
+    testContent = testContent.replace(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Group Focus:|## Tasks|## Category|## Post-Test|## Execute Post-Test|---|$)/ig, "");
 
     const newContent = getTemplate(
       titleType,

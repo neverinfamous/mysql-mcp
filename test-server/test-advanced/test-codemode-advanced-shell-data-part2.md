@@ -138,6 +138,7 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysqlsh_import_table` | | |
 
 ### Return Structured Error Responses
 
@@ -211,6 +212,7 @@ During testing, check for these inconsistencies:
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysqlsh_import_table`
+
 
 ## Category 1: Graceful Degradation (No MySQL Shell)
 1. `mysql.shell.version()` → verify structured `{success: false}` when mysqlsh is not installed (not raw child_process crash)

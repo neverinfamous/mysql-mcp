@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_router_status` | | |
+| `mysql_router_routes` | | |
+| `mysql_router_route_status` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_router_status`
 - `mysql_router_routes`
 - `mysql_router_route_status`
+
 
 ## Category 1: Graceful Degradation (No-Router Environment)
 1. `mysql_router_status()` → verify structured `{success: false}` (not raw connection error)

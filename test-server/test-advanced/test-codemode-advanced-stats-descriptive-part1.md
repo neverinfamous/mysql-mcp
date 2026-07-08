@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_stats_regression` | | |
+| `mysql_stats_sampling` | | |
+| `mysql_stats_histogram` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_stats_regression`
 - `mysql_stats_sampling`
 - `mysql_stats_histogram`
+
 
 ## Category 1: Null & String Handling Boundaries
 1. Create a table `stress_stats_desc` with columns `id INT`, `val1 INT`, `val2 VARCHAR(50)`, `val3 INT`.

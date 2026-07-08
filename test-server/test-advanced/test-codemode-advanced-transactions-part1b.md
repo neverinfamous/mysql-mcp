@@ -138,6 +138,7 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_transaction_savepoint` | | |
 
 ### Return Structured Error Responses
 
@@ -211,6 +212,7 @@ During testing, check for these inconsistencies:
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_transaction_savepoint`
+
 
 ## Category 1: Rollback Recovery
 1. Begin transaction, INSERT row, ROLLBACK — verify row does not exist

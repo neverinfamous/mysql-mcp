@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_optimize_table` | | |
+| `mysql_analyze_table` | | |
+| `mysql_check_table` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_optimize_table`
 - `mysql_analyze_table`
 - `mysql_check_table`
+
 
 ## Category 1: Error Message Quality
 1. For each tool group, pass intentionally invalid parameters and capture the error message

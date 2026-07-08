@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_role_list` | | |
+| `mysql_role_create` | | |
+| `mysql_role_drop` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `mysql_role_list`
 - `mysql_role_create`
 - `mysql_role_drop`
+
 
 ## Category 1: Role Assignment Lifecycles
 1. `mysql_role_create({name: "stress_role_a"})` → success

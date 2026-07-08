@@ -138,6 +138,8 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `mysql_stats_ntile` | | |
+| `mysql_stats_hypothesis` | | |
 
 ### Return Structured Error Responses
 
@@ -212,6 +214,7 @@ During testing, check for these inconsistencies:
 
 - `mysql_stats_ntile`
 - `mysql_stats_hypothesis`
+
 
 ## Category 1: Time Series Edge Cases
 1. Create a table `stress_stats_time_series` with columns `id INT PRIMARY KEY`, `val_col INT`, `time_col DATETIME`.

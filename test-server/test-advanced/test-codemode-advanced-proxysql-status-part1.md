@@ -138,6 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
+| `proxysql_global_variables` | | |
+| `proxysql_runtime_status` | | |
+| `proxysql_memory_stats` | | |
 
 ### Return Structured Error Responses
 
@@ -213,6 +216,7 @@ During testing, check for these inconsistencies:
 - `proxysql_global_variables`
 - `proxysql_runtime_status`
 - `proxysql_memory_stats`
+
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)
 1. `proxysql_global_variables()` → verify structured response
