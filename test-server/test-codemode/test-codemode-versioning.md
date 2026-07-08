@@ -227,6 +227,39 @@ core (versioning) Tool Group:
 
 You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
 
+## Group Focus: core (Versioning)
+
+core (versioning) Tool Group:
+1. `mysql_enable_versioning`
+2. `mysql_disable_versioning`
+3. `mysql_check_version`
+4. `mysql_conditional_update`
+5. `mysql_execute_code` (codemode, auto-added)
+
+You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
+
+## Group Focus: core (Versioning)
+
+core (versioning) Tool Group:
+1. `mysql_enable_versioning`
+2. `mysql_disable_versioning`
+3. `mysql_check_version`
+4. `mysql_conditional_update`
+5. `mysql_execute_code` (codemode, auto-added)
+
+You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
+
+## Group Focus: core (Versioning)
+
+core (versioning) Tool Group:
+1. `mysql_enable_versioning`
+2. `mysql_disable_versioning`
+3. `mysql_check_version`
+4. `mysql_conditional_update`
+5. `mysql_execute_code` (codemode, auto-added)
+
+You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
+
 ## Tasks
 
 ### 1. Enable Versioning

@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Code Mode Testing: [migration-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,133 +210,124 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `mysql_migration_init`
+- `mysql_migration_record`
+- `mysql_migration_apply`
 
-## Group Focus: router
 
-router Tool Group (5 tools +1 code mode):
+## Group Focus: migration (Part 1)
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+migration Tool Group (6 tools +1 code mode):
+
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: migration (Part 1)
 
-router Tool Group (5 tools +1 code mode):
+migration Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: migration (Part 1)
 
-router Tool Group (5 tools +1 code mode):
+migration Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: migration (Part 1)
 
-router Tool Group (5 tools +1 code mode):
+migration Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

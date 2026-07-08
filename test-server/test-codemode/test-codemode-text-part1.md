@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [events]
+# MySQL MCP Code Mode Testing: [text-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,41 +210,124 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_event_create`
-- `mysql_event_alter`
-- `mysql_event_drop`
-- `mysql_event_list`
-- `mysql_event_status`
-- `mysql_scheduler_status`
+- `mysql_regexp_match`
+- `mysql_like_search`
+- `mysql_soundex`
 
-## Group Focus: events
 
-events Tool Group (6 tools +1 code mode):
+## Group Focus: text (Part 1)
 
-1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
-4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
+text Tool Group (6 tools +1 code mode):
+
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.events.help()` → verify method listing
-2. `mysql.events.schedulerStatus()` → ON/OFF
-3. `mysql.events.list()` → event listing
-
-**Create → Use → Drop lifecycle:**
-
-4. `mysql.events.create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
-5. `mysql.events.status({name: "temp_cm_event"})` → event status
-6. `mysql.events.alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
-7. `mysql.events.drop({name: "temp_cm_event"})` → `success: true`
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql.events.status({name: "nonexistent_xyz"})` → `{success: false}`
-9. 🔴 `mysql.events.drop({name: "nonexistent_xyz"})` → `{success: false}`
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-10. 🔴 `mysql.events.create({})` → `{success: false, error: "Validation error: ..."}`
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: text (Part 1)
+
+text Tool Group (6 tools +1 code mode):
+
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
+
+**Domain error paths (🔴):**
+
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: text (Part 1)
+
+text Tool Group (6 tools +1 code mode):
+
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
+
+**Domain error paths (🔴):**
+
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: text (Part 1)
+
+text Tool Group (6 tools +1 code mode):
+
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
+
+**Domain error paths (🔴):**
+
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

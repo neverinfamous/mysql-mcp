@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [text]
+# MySQL MCP Advanced Stress Testing: [events-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -138,12 +138,9 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_regexp_match` | | |
-| `mysql_like_search` | | |
-| `mysql_soundex` | | |
-| `mysql_substring` | | |
-| `mysql_concat` | | |
-| `mysql_collation_convert` | | |
+| `mysql_event_create` | | |
+| `mysql_event_alter` | | |
+| `mysql_event_drop` | | |
 
 ### Return Structured Error Responses
 
@@ -216,44 +213,26 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_regexp_match`
-- `mysql_like_search`
-- `mysql_soundex`
-- `mysql_substring`
-- `mysql_concat`
-- `mysql_collation_convert`
+- `mysql_event_create`
+- `mysql_event_alter`
+- `mysql_event_drop`
 
 
-## Category 1: Regex Edge Cases
+## Category 1: Lifecycle Collisions
 
-1. `mysql_regexp_match` with invalid regex pattern (e.g., `"[invalid"`) → verify structured `{success: false}`
-2. `mysql_regexp_match` with empty pattern `""` → verify behavior (empty match or error)
-3. `mysql_regexp_match` with legacy MySQL metacharacters (e.g., `"[[:<:]]"`, which is invalid in MySQL 8+) → verify structured `{success: false}`
+1. `mysql.events.create({name: "stress_evt_dup", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → success
+2. `mysql.events.create` with same name again → verify structured `{success: false}` (duplicate)
+3. `mysql.events.alter({name: "stress_evt_nonexist", status: "DISABLE"})` → verify structured `{success: false}`
+4. `mysql.events.drop({name: "stress_evt_nonexist"})` → verify structured `{success: false}`
 
-## Category 2: Unicode & Encoding
+## Category 3: Event Body Validation
 
-4. Create `stress_text_unicode` table with VARCHAR column, insert rows with multi-byte UTF-8 characters (e.g., `'日本語'`, `'émojis 🎉'`)
-5. `mysql_substring` on multi-byte column with `start: 1, length: 2` → verify correct character extraction (not byte slicing)
-6. `mysql_concat` on multi-byte rows → verify concatenation preserves encoding
-7. `mysql_soundex` on non-ASCII values → verify structured response (may return empty soundex)
-
-## Category 3: Boundary Lengths
-
-8. `mysql_substring` with `start: 0` → verify behavior (MySQL uses 1-indexed)
-9. `mysql_substring` with `length: 0` → verify empty string or structured response
-10. `mysql_substring` with `length: 99999` (exceeding column length) → verify graceful truncation
-11. `mysql_concat` with empty `columns: []` array → verify structured error
-12. `mysql_concat` with single column in array → verify no separator artifacts
-
-## Category 4: Collation Stress
-
-13. `mysql_collation_convert` with invalid collation name → verify structured `{success: false}`
-14. `mysql_like_search` with `%` only pattern → verify returns all rows
-15. `mysql_like_search` with `_` pattern → verify single-character wildcard behavior
+9. `mysql.events.create({name: "stress_evt_invalid_sql", schedule: "EVERY 1 DAY", body: "INVALID SQL GIBBERISH", status: "DISABLE"})` → verify structured error (malformed SQL body)
+10. `mysql.events.alter({name: "stress_evt_dup", body: "BEGIN SELECT 1; SELECT 2; END"})` → verify compound statement handling
 
 ## Cleanup
 
-16. Drop all `stress_*` tables
+13. Drop all `stress_*` events
 
 ---
 

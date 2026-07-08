@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [migration]
+# MySQL MCP Advanced Stress Testing: [core-part2a]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,7 +137,10 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Focus Area | Code Mode Validation |
+| `mysql_create_index` | | |
+| `mysql_get_indexes` | | |
+| `mysql_enable_versioning` | | |
 
 ### Return Structured Error Responses
 
@@ -210,39 +213,16 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_migration_init`
-- `mysql_migration_record`
-- `mysql_migration_apply`
-- `mysql_migration_rollback`
-- `mysql_migration_history`
-- `mysql_migration_status`
+- `mysql_create_index`
+- `mysql_get_indexes`
+- `mysql_enable_versioning`
 
-## Group Focus: migration
 
-migration Tool Group (6 tools +1 code mode):
+## Tasks
 
-1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
-4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
+- Implement tests for the tools listed above.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.migration.help()` → verify method listing
-2. `mysql.migration.init()` → initialize tables
-3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
-4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
-5. `mysql.migration.status()` → check status
-6. `mysql.migration.history({limit: 5})` → get history
-7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
-9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
+---
 
 ---
 

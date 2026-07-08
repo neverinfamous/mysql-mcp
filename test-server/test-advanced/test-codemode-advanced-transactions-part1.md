@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [introspection]
+# MySQL MCP Advanced Stress Testing: [transactions-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -138,12 +138,10 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_dependency_graph` | | |
-| `mysql_topological_sort` | | |
-| `mysql_cascade_simulator` | | |
-| `mysql_schema_snapshot` | | |
-| `mysql_constraint_analysis` | | |
-| `mysql_migration_risks` | | |
+| `mysql_transaction_begin` | | |
+| `mysql_transaction_commit` | | |
+| `mysql_transaction_rollback` | | |
+| `mysql_transaction_savepoint` | | |
 
 ### Return Structured Error Responses
 
@@ -216,45 +214,26 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_dependency_graph`
-- `mysql_topological_sort`
-- `mysql_cascade_simulator`
-- `mysql_schema_snapshot`
-- `mysql_constraint_analysis`
-- `mysql_migration_risks`
+- `mysql_transaction_begin`
+- `mysql_transaction_commit`
+- `mysql_transaction_rollback`
+- `mysql_transaction_savepoint`
 
 
-## Category 1: Deep Hierarchy & Traversal Limits
+## Category 1: Rollback Recovery
 
-1. Create a schema `stress_hierarchies` with 10 sequentially linked tables (`t1` -> `t2` -> ... -> `t10`).
-2. Run `mysql_dependency_graph` with `maxDepth: 1` — verify it truncates traversal early.
-3. Run `mysql_dependency_graph` with `maxDepth: 20` — verify it successfully traverses the full chain without stack overflow.
-4. Run `mysql_topological_sort` on `stress_hierarchies` — verify strict creation order `t1, t2, ..., t10` is returned.
+1. Begin transaction, INSERT row, ROLLBACK — verify row does not exist
+2. Begin transaction, INSERT row, SAVEPOINT, INSERT another, ROLLBACK TO SAVEPOINT — verify only first row exists after COMMIT
+3. Begin transaction, COMMIT empty transaction — verify no error
 
-## Category 2: Circular Dependency Handling
+## Category 2: Abandoned Transactions
 
-5. Create a schema `stress_circular` with tables `A` and `B`, where `A` references `B` and `B` references `A`.
-6. Run `mysql_dependency_graph` on `stress_circular` — verify it terminates cleanly without infinite loops (check output payload size).
-7. Run `mysql_constraint_analysis` on `stress_circular` — verify it explicitly flags the circular reference in its findings.
-8. Run `mysql_topological_sort` on `stress_circular` — verify it returns a structured `{success: false, error: "..."}` explicitly citing a circular dependency cycle.
+4. Begin transaction, check state, and IMMEDIATELY ROLLBACK. (Warning: Deliberately abandoning transactions via Code Mode will exhaust the MCP connection pool and deadlock the testing server; avoid intentional leaks).
+5. Begin transaction with explicit isolation level (READ COMMITTED) — verify it takes effect
 
-## Category 3: Complex Cascade Simulation
+## Cleanup
 
-9. In `stress_hierarchies`, add a `ON DELETE CASCADE` rule from `t1` all the way down to `t10`.
-10. Insert 1 row into `t1`, cascading 1 row into each subsequent table.
-11. Run `mysql_cascade_simulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through the 9 subsequent tables.
-12. Modify the constraint on `t5` to `ON DELETE RESTRICT`. Run `mysql_cascade_simulator` again — verify it correctly flags the operation as blocked at `t5`.
-
-## Category 4: Snapshot & Risk Analysis Stress
-
-13. Create a schema `stress_snapshots` with 50 empty tables (each with 5 columns and 1 index).
-14. Run `mysql_schema_snapshot` on `stress_snapshots`. Verify it returns a comprehensive metadata snapshot. Check payload size for bloat.
-15. Run `mysql_migration_risks` with `ddlQuery: "DROP DATABASE stress_snapshots"`. Verify it correctly identifies the high-risk operation and affected objects.
-16. Run `mysql_migration_risks` with an invalid SQL query (e.g., `ALTER TABLE syntax error`). Note that since this tool is regex-based, it will likely return 0 risks instead of a syntax error. Verify that it processes the query without throwing a raw MCP exception.
-
-## Category 5: Cleanup Verification
-
-17. Drop schemas `stress_hierarchies`, `stress_circular`, and `stress_snapshots`. Verify clean removal.
+11. Verify no lingering transactions or temp tables
 
 ---
 

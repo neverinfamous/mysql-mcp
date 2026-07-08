@@ -236,6 +236,66 @@ cluster Tool Group (5 tools +1 code mode):
 
 ---
 
+## Group Focus: cluster-innodb
+
+cluster Tool Group (5 tools +1 code mode):
+
+1. `mysql_cluster_status` 2. `mysql_cluster_instances` 3. `mysql_cluster_topology`
+4. `mysql_cluster_router_status` 5. `mysql_cluster_switchover`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.cluster.help()` → verify method listing
+2. `mysql.cluster.status()` → cluster status or structured error
+3. `mysql.cluster.status({summary: true})` → summarized output
+4. `mysql.cluster.instances()` → instance details
+5. `mysql.cluster.topology()` → topology map
+6. `mysql.cluster.routerStatus()` → router status
+7. `mysql.cluster.routerStatus({summary: true})` → summarized
+8. `mysql.cluster.switchover()` → switchover analysis
+
+---
+
+## Group Focus: cluster-innodb
+
+cluster Tool Group (5 tools +1 code mode):
+
+1. `mysql_cluster_status` 2. `mysql_cluster_instances` 3. `mysql_cluster_topology`
+4. `mysql_cluster_router_status` 5. `mysql_cluster_switchover`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.cluster.help()` → verify method listing
+2. `mysql.cluster.status()` → cluster status or structured error
+3. `mysql.cluster.status({summary: true})` → summarized output
+4. `mysql.cluster.instances()` → instance details
+5. `mysql.cluster.topology()` → topology map
+6. `mysql.cluster.routerStatus()` → router status
+7. `mysql.cluster.routerStatus({summary: true})` → summarized
+8. `mysql.cluster.switchover()` → switchover analysis
+
+---
+
+## Group Focus: cluster-innodb
+
+cluster Tool Group (5 tools +1 code mode):
+
+1. `mysql_cluster_status` 2. `mysql_cluster_instances` 3. `mysql_cluster_topology`
+4. `mysql_cluster_router_status` 5. `mysql_cluster_switchover`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.cluster.help()` → verify method listing
+2. `mysql.cluster.status()` → cluster status or structured error
+3. `mysql.cluster.status({summary: true})` → summarized output
+4. `mysql.cluster.instances()` → instance details
+5. `mysql.cluster.topology()` → topology map
+6. `mysql.cluster.routerStatus()` → router status
+7. `mysql.cluster.routerStatus({summary: true})` → summarized
+8. `mysql.cluster.switchover()` → switchover analysis
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

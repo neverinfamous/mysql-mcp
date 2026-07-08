@@ -239,6 +239,78 @@ core Tool Group - Write Tools:
 
 ---
 
+## Group Focus: core (Write)
+
+core Tool Group - Write Tools:
+1. `mysql_write_query`
+2. `mysql_create_table`
+3. `mysql_drop_table`
+4. `mysql_create_index`
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+1. `mysql.core.createTable({table: "temp_cm_core", columns: [{name: "id", type: "INT", primaryKey: true}, {name: "val", type: "VARCHAR(50)"}]})`
+2. `mysql.core.writeQuery({query: "INSERT INTO temp_cm_core (id, val) VALUES (1, 'test')"})`
+3. `mysql.core.createIndex({table: "temp_cm_core", indexName: "idx_val", columns: ["val"]})`
+4. `mysql.core.dropTable({table: "temp_cm_core"})`
+
+**Domain error paths (🔴):**
+5. 🔴 `mysql.core.writeQuery({query: "INSERT INTO nonexistent_table (id) VALUES (1)"})`
+6. 🔴 `mysql.core.dropTable({table: "nonexistent_table"})`
+
+**Zod validation error paths (🔴):**
+7. 🔴 `mysql.core.createTable({})`
+
+---
+
+## Group Focus: core (Write)
+
+core Tool Group - Write Tools:
+1. `mysql_write_query`
+2. `mysql_create_table`
+3. `mysql_drop_table`
+4. `mysql_create_index`
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+1. `mysql.core.createTable({table: "temp_cm_core", columns: [{name: "id", type: "INT", primaryKey: true}, {name: "val", type: "VARCHAR(50)"}]})`
+2. `mysql.core.writeQuery({query: "INSERT INTO temp_cm_core (id, val) VALUES (1, 'test')"})`
+3. `mysql.core.createIndex({table: "temp_cm_core", indexName: "idx_val", columns: ["val"]})`
+4. `mysql.core.dropTable({table: "temp_cm_core"})`
+
+**Domain error paths (🔴):**
+5. 🔴 `mysql.core.writeQuery({query: "INSERT INTO nonexistent_table (id) VALUES (1)"})`
+6. 🔴 `mysql.core.dropTable({table: "nonexistent_table"})`
+
+**Zod validation error paths (🔴):**
+7. 🔴 `mysql.core.createTable({})`
+
+---
+
+## Group Focus: core (Write)
+
+core Tool Group - Write Tools:
+1. `mysql_write_query`
+2. `mysql_create_table`
+3. `mysql_drop_table`
+4. `mysql_create_index`
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+1. `mysql.core.createTable({table: "temp_cm_core", columns: [{name: "id", type: "INT", primaryKey: true}, {name: "val", type: "VARCHAR(50)"}]})`
+2. `mysql.core.writeQuery({query: "INSERT INTO temp_cm_core (id, val) VALUES (1, 'test')"})`
+3. `mysql.core.createIndex({table: "temp_cm_core", indexName: "idx_val", columns: ["val"]})`
+4. `mysql.core.dropTable({table: "temp_cm_core"})`
+
+**Domain error paths (🔴):**
+5. 🔴 `mysql.core.writeQuery({query: "INSERT INTO nonexistent_table (id) VALUES (1)"})`
+6. 🔴 `mysql.core.dropTable({table: "nonexistent_table"})`
+
+**Zod validation error paths (🔴):**
+7. 🔴 `mysql.core.createTable({})`
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

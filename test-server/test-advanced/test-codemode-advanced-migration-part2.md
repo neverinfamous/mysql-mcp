@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Advanced Stress Testing: [migrationb]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,7 +137,10 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Focus Area | Code Mode Validation |
+| `mysql_migration_rollback` | | |
+| `mysql_migration_history` | | |
+| `mysql_migration_status` | | |
 
 ### Return Structured Error Responses
 
@@ -210,133 +213,38 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `mysql_migration_rollback`
+- `mysql_migration_history`
+- `mysql_migration_status`
 
-## Group Focus: router
 
-router Tool Group (5 tools +1 code mode):
+## Category 1: Checksum & State Corruption Resilience
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. Run `mysql_migration_init()` to prepare tracking tables.
+2. Record a migration `001_base` with `migrationSql: "SELECT 1"`.
+3. Attempt to `mysql_migration_apply` a migration named `001_base` but with a conflicting query (which would produce a different checksum/hash). Verify it fails with `{success: false, error: "..."}` citing checksum mismatch.
+4. Drop the status check constraint (`ALTER TABLE testdb._mcp_schema_versions DROP CHECK _mcp_schema_versions_chk_1`), then manually update the `_mcp_schema_versions` tracking table to set the status of `001_base` to a corrupted string (e.g., `PENDING_BROKEN`). Run `mysql_migration_status` and verify it degrades gracefully (reporting an unknown state rather than crashing).
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+## Category 2: Rollback Boundaries & Idempotency
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+5. Run `mysql_migration_init()` again. Verify it is idempotent and does not wipe existing tracking data.
+6. Apply a valid migration `002_new_col` that adds a column (ensure you provide `rollbackSql`).
+7. Run `mysql_migration_rollback` for `002_new_col`. Verify success.
+8. Attempt to run `mysql_migration_rollback` for `002_new_col` _again_. Verify it returns a structured `{success: false, error: "..."}` stating the migration is already rolled back.
+9. Attempt to run `mysql_migration_rollback` for a version that was never applied (`003_ghost`). Verify structured failure.
 
-**Domain error paths (🔴):**
+## Category 3: Out-of-Order Execution Tracking
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+10. Apply migration `005_feature_z`.
+11. Apply migration `003_feature_x`.
+12. Run `mysql_migration_history`. Verify that the history correctly sorts/displays the applied order vs logical version order, and flags `003_feature_x` as an out-of-order application.
+13. Run `mysql_migration_status`. Verify it correctly aggregates the total applied count despite the out-of-order execution.
 
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
+## Category 4: Cleanup Verification
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+14. Drop all test columns generated and explicitly `DROP TABLE _mcp_schema_versions`. Verify clean removal.
 
 ---
-
-## Group Focus: router
-
-router Tool Group (5 tools +1 code mode):
-
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
-
----
-
-## Group Focus: router
-
-router Tool Group (5 tools +1 code mode):
-
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
-
----
-
-## Group Focus: router
-
-router Tool Group (5 tools +1 code mode):
-
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
 
 ---
 

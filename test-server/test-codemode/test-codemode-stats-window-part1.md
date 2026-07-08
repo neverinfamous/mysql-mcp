@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Code Mode Testing: [stats-window-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,133 +210,140 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `mysql_stats_row_number`
+- `mysql_stats_rank`
+- `mysql_stats_lag_lead`
 
-## Group Focus: router
 
-router Tool Group (5 tools +1 code mode):
+## Group Focus: stats-window (Part 1)
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+stats-window Tool Group (6 tools +1 code mode):
+
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: stats-window (Part 1)
 
-router Tool Group (5 tools +1 code mode):
+stats-window Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: stats-window (Part 1)
 
-router Tool Group (5 tools +1 code mode):
+stats-window Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: stats-window (Part 1)
 
-router Tool Group (5 tools +1 code mode):
+stats-window Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

@@ -240,6 +240,78 @@ json-core-write Tool Group:
 
 ---
 
+## Group Focus: json-core-write
+
+json-core-write Tool Group:
+
+1. `mysql_json_set` 2. `mysql_json_insert` 3. `mysql_json_replace`
+4. `mysql_json_remove` 5. `mysql_json_array_append`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.json.help()` → verify method listing
+2. `mysql.json.set({table: "test_json_docs", column: "doc", path: "$.test", value: "1", condition: "id=1"})` → updated
+3. `mysql.json.insert({table: "test_json_docs", column: "doc", path: "$.new", value: "1", condition: "id=1"})` → inserted
+4. `mysql.json.replace({table: "test_json_docs", column: "doc", path: "$.test", value: "2", condition: "id=1"})` → replaced
+5. `mysql.json.remove({table: "test_json_docs", column: "doc", path: "$.test", condition: "id=1"})` → removed
+6. `mysql.json.arrayAppend({table: "test_json_docs", column: "tags", path: "$", value: "new_tag", condition: "id=1"})` → appended
+
+**Domain error paths (🔴):**
+7. 🔴 `mysql.json.set({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+8. 🔴 `mysql.json.set({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: json-core-write
+
+json-core-write Tool Group:
+
+1. `mysql_json_set` 2. `mysql_json_insert` 3. `mysql_json_replace`
+4. `mysql_json_remove` 5. `mysql_json_array_append`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.json.help()` → verify method listing
+2. `mysql.json.set({table: "test_json_docs", column: "doc", path: "$.test", value: "1", condition: "id=1"})` → updated
+3. `mysql.json.insert({table: "test_json_docs", column: "doc", path: "$.new", value: "1", condition: "id=1"})` → inserted
+4. `mysql.json.replace({table: "test_json_docs", column: "doc", path: "$.test", value: "2", condition: "id=1"})` → replaced
+5. `mysql.json.remove({table: "test_json_docs", column: "doc", path: "$.test", condition: "id=1"})` → removed
+6. `mysql.json.arrayAppend({table: "test_json_docs", column: "tags", path: "$", value: "new_tag", condition: "id=1"})` → appended
+
+**Domain error paths (🔴):**
+7. 🔴 `mysql.json.set({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+8. 🔴 `mysql.json.set({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: json-core-write
+
+json-core-write Tool Group:
+
+1. `mysql_json_set` 2. `mysql_json_insert` 3. `mysql_json_replace`
+4. `mysql_json_remove` 5. `mysql_json_array_append`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.json.help()` → verify method listing
+2. `mysql.json.set({table: "test_json_docs", column: "doc", path: "$.test", value: "1", condition: "id=1"})` → updated
+3. `mysql.json.insert({table: "test_json_docs", column: "doc", path: "$.new", value: "1", condition: "id=1"})` → inserted
+4. `mysql.json.replace({table: "test_json_docs", column: "doc", path: "$.test", value: "2", condition: "id=1"})` → replaced
+5. `mysql.json.remove({table: "test_json_docs", column: "doc", path: "$.test", condition: "id=1"})` → removed
+6. `mysql.json.arrayAppend({table: "test_json_docs", column: "tags", path: "$", value: "new_tag", condition: "id=1"})` → appended
+
+**Domain error paths (🔴):**
+7. 🔴 `mysql.json.set({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+8. 🔴 `mysql.json.set({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

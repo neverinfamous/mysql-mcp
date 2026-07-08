@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [shell-data]
+# MySQL MCP Advanced Stress Testing: [events-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,7 +137,10 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Focus Area | Code Mode Validation |
+| `mysql_event_list` | | |
+| `mysql_event_status` | | |
+| `mysql_scheduler_status` | | |
 
 ### Return Structured Error Responses
 
@@ -210,50 +213,28 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysqlsh_export_table`
-- `mysqlsh_import_table`
-- `mysqlsh_import_json`
-- `mysqlsh_dump_instance`
-- `mysqlsh_dump_schemas`
-- `mysqlsh_dump_tables`
-- `mysqlsh_load_dump`
+- `mysql_event_list`
+- `mysql_event_status`
+- `mysql_scheduler_status`
 
-## Group Focus: shell-data
 
-shell Tool Group (7 tools +1 code mode):
+## Tasks
 
-1. `mysqlsh_export_table` 2. `mysqlsh_import_table` 3. `mysqlsh_import_json`
-4. `mysqlsh_dump_instance` 5. `mysqlsh_dump_schemas` 6. `mysqlsh_dump_tables`
-7. `mysqlsh_load_dump`
+## Category 2: Schedule Boundary Values (Creation handled via Execute Code context)
 
-> **Instructions**: Use `mysql.shell.*` namespace, push deviations to `failures` array.
+5. `mysql.events.create({name: "stress_evt_onetime", schedule: "AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR", body: "SELECT 1", status: "DISABLE"})` → verify accepts one-time schedule
+6. `mysql.events.create({name: "stress_evt_complex", schedule: "EVERY 30 SECOND STARTS CURRENT_TIMESTAMP", body: "SELECT 1", status: "DISABLE"})` → verify complex schedule syntax
+7. `mysql.events.status({name: "stress_evt_onetime"})` → verify status reflects one-time schedule type
+8. `mysql.events.status({name: "stress_evt_complex"})` → verify status reflects recurring schedule
 
-1. `mysql.shell.help()` → verify method listing
-2. `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
-3. `mysql.shell.importTable({ schema: "testdb", table: "test_products", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv", updateServerSettings: true })` → verify success
-4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", tableColumn: "doc", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success (⚠️ **Note**: Will return `CONNECTION_ERROR` if ecosystem proxy like ProxySQL does not support X Protocol)
-5. `mysql.shell.dumpInstance({ outputUrl: "/tmp/dump_inst", dryRun: true })` → verify success
-6. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
-7. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
-8. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
+## Category 4: Scheduler State
 
-**Domain error paths (🔴):**
+11. `mysql.events.schedulerStatus()` → log current scheduler state
+12. `mysql.events.list()` → verify all `stress_*` events appear in listing
 
-9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
+## Cleanup
 
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
-
-**Security boundary validation paths (🔴):**
-
-12. 🔴 `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Windows/System32/out.csv" })` → `{success: false, code: "SECURITY_ERROR"}`
-13. 🔴 `mysql.shell.dumpInstance({ outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
-
-**Alias acceptance (🟢):**
-
-14. 🟢 Verify any parameter aliases are accepted for applicable tools.
+13. Drop all `stress_*` events
 
 ---
 

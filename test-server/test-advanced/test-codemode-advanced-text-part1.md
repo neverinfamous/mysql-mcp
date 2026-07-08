@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [schema-management]
+# MySQL MCP Advanced Stress Testing: [text-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,7 +137,10 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Focus Area | Code Mode Validation |
+| `mysql_regexp_match` | | |
+| `mysql_like_search` | | |
+| `mysql_collation_convert` | | |
 
 ### Return Structured Error Responses
 
@@ -210,34 +213,22 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_list_schemas`
-- `mysql_create_schema`
-- `mysql_drop_schema`
-- `mysql_list_views`
-- `mysql_create_view`
-- `mysql_drop_view`
-- `mysql_list_constraints`
+- `mysql_regexp_match`
+- `mysql_like_search`
+- `mysql_collation_convert`
 
-## Group Focus: schema-management
 
-schema Tool Group (7 tools +1 code mode):
+## Category 1: Regex Edge Cases
 
-1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema`
-4. `mysql_list_views` 5. `mysql_create_view` 6. `mysql_drop_view`
-7. `mysql_list_constraints`
+1. `mysql_regexp_match` with invalid regex pattern (e.g., `"[invalid"`) → verify structured `{success: false}`
+2. `mysql_regexp_match` with empty pattern `""` → verify behavior (empty match or error)
+3. `mysql_regexp_match` with legacy MySQL metacharacters (e.g., `"[[:<:]]"`, which is invalid in MySQL 8+) → verify structured `{success: false}`
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+## Category 4: Collation Stress
 
-1. `mysql.schema.help()` → verify method listing
-2. `mysql.schema.listSchemas()` → verify `testdb` present
-3. `mysql.schema.listViews({database: "testdb"})` → verify structure
-4. `mysql.schema.listConstraints({table: "test_orders"})` → verify FK present
-5. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
-6. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
-7. 🔴 `mysql.schema.listConstraints({table: "nonexistent_xyz"})` → `{success: false}` or empty
-8. 🔴 `mysql.schema.dropSchema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
-9. 🔴 `mysql.schema.createView({})` → `{success: false, error: "Validation error: ..."}`
-10. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
+13. `mysql_collation_convert` with invalid collation name → verify structured `{success: false}`
+14. `mysql_like_search` with `%` only pattern → verify returns all rows
+15. `mysql_like_search` with `_` pattern → verify single-character wildcard behavior
 
 ---
 

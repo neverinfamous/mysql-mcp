@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [proxysql-config]
+# MySQL MCP Code Mode Testing: [events-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,13 +137,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
-| `proxysql_status` | | |
-| `proxysql_servers` | | |
-| `proxysql_query_rules` | | |
-| `proxysql_query_digest` | | |
-| `proxysql_connection_pool` | | |
-| `proxysql_users` | | |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Return Structured Error Responses
 
@@ -216,43 +210,132 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_status`
-- `proxysql_servers`
-- `proxysql_query_rules`
-- `proxysql_query_digest`
-- `proxysql_connection_pool`
-- `proxysql_users`
+- `mysql_event_create`
+- `mysql_event_alter`
+- `mysql_event_drop`
 
 
-## Category 1: Graceful Degradation (No-ProxySQL Environment)
+## Group Focus: events (Part 1)
 
-1. `proxysql_status()` → verify structured `{success: false}` (not raw connection error)
-2. `proxysql_servers()` → verify structured response
-3. `proxysql_query_rules()` → verify structured response
-4. `proxysql_query_digest()` → verify structured response
-5. `proxysql_connection_pool()` → verify structured response
-6. `proxysql_users()` → verify structured response
-7. `proxysql_global_variables()` → verify structured response
-8. `proxysql_runtime_status()` → verify structured response
-9. `proxysql_memory_stats()` → verify structured response
-10. `proxysql_commands()` → verify structured response
-11. `proxysql_process_list()` → verify structured response
-12. All 11 errors must use consistent `{success: false, error: "..."}` format
+events Tool Group (6 tools +1 code mode):
 
-## Category 2: Happy-Path Stress (When ProxySQL IS Available)
+1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
+4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
 
-13. `proxysql_status()` → verify version and uptime fields
-14. `proxysql_servers()` → verify backend server listing with hostgroup info
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
+1. `mysql.events.help()` → verify method listing
+2. `mysql.events.schedulerStatus()` → ON/OFF
+3. `mysql.events.list()` → event listing
 
-## Category 3: Payload Monitoring & Filter Boundaries
+**Create → Use → Drop lifecycle:**
 
-18. `proxysql_global_variables()` with no limit -> log token estimate (note: it defaults to a limit of 10, so it will not exceed 500 tokens).
-19. `proxysql_global_variables({limit: 5})` -> log token estimate, verify reduction
-20. `proxysql_query_digest()` with no limit -> log token estimate
-21. `proxysql_query_digest({limit: 1})` → log token estimate
-22. `proxysql_process_list()` → log token estimate
-23. `proxysql_status({summary: true})` → log token estimate, verify reduction vs. full
+4. `mysql.events.create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
+5. `mysql.events.status({name: "temp_cm_event"})` → event status
+6. `mysql.events.alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
+7. `mysql.events.drop({name: "temp_cm_event"})` → `success: true`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.events.status({name: "nonexistent_xyz"})` → `{success: false}`
+9. 🔴 `mysql.events.drop({name: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.events.create({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: events (Part 1)
+
+events Tool Group (6 tools +1 code mode):
+
+1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
+4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.events.help()` → verify method listing
+2. `mysql.events.schedulerStatus()` → ON/OFF
+3. `mysql.events.list()` → event listing
+
+**Create → Use → Drop lifecycle:**
+
+4. `mysql.events.create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
+5. `mysql.events.status({name: "temp_cm_event"})` → event status
+6. `mysql.events.alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
+7. `mysql.events.drop({name: "temp_cm_event"})` → `success: true`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.events.status({name: "nonexistent_xyz"})` → `{success: false}`
+9. 🔴 `mysql.events.drop({name: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.events.create({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: events (Part 1)
+
+events Tool Group (6 tools +1 code mode):
+
+1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
+4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.events.help()` → verify method listing
+2. `mysql.events.schedulerStatus()` → ON/OFF
+3. `mysql.events.list()` → event listing
+
+**Create → Use → Drop lifecycle:**
+
+4. `mysql.events.create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
+5. `mysql.events.status({name: "temp_cm_event"})` → event status
+6. `mysql.events.alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
+7. `mysql.events.drop({name: "temp_cm_event"})` → `success: true`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.events.status({name: "nonexistent_xyz"})` → `{success: false}`
+9. 🔴 `mysql.events.drop({name: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.events.create({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: events (Part 1)
+
+events Tool Group (6 tools +1 code mode):
+
+1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
+4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.events.help()` → verify method listing
+2. `mysql.events.schedulerStatus()` → ON/OFF
+3. `mysql.events.list()` → event listing
+
+**Create → Use → Drop lifecycle:**
+
+4. `mysql.events.create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
+5. `mysql.events.status({name: "temp_cm_event"})` → event status
+6. `mysql.events.alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
+7. `mysql.events.drop({name: "temp_cm_event"})` → `success: true`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.events.status({name: "nonexistent_xyz"})` → `{success: false}`
+9. 🔴 `mysql.events.drop({name: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.events.create({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

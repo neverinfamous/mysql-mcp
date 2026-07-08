@@ -248,6 +248,105 @@ vector-search Tool Group (3 tools +1 for code mode):
 
 ---
 
+## Group Focus: vector-search
+
+### vector-search Group-Specific Testing
+
+vector-search Tool Group (3 tools +1 for code mode):
+
+1. `mysql_vector_search`
+2. `mysql_vector_range_search`
+3. `mysql_vector_hybrid_search`
+4. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. ✅ `mysql.vector.search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+2. ✅ `mysql.vector.rangeSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql.vector.hybridSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+
+**Domain error paths (🔴):**
+
+4. ✅ `mysql.vector.search({...})` → domain error (TABLE_NOT_FOUND)
+5. ✅ `mysql.vector.rangeSearch({...})` → domain error (TABLE_NOT_FOUND)
+6. ✅ `mysql.vector.hybridSearch({...})` → domain error (TABLE_NOT_FOUND)
+
+**Zod validation error paths (🔴):**
+
+7. ✅ `mysql.vector.search({})` → validation error
+8. ✅ `mysql.vector.rangeSearch({})` → validation error
+9. ✅ `mysql.vector.hybridSearch({})` → validation error
+
+---
+
+## Group Focus: vector-search
+
+### vector-search Group-Specific Testing
+
+vector-search Tool Group (3 tools +1 for code mode):
+
+1. `mysql_vector_search`
+2. `mysql_vector_range_search`
+3. `mysql_vector_hybrid_search`
+4. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. ✅ `mysql.vector.search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+2. ✅ `mysql.vector.rangeSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql.vector.hybridSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+
+**Domain error paths (🔴):**
+
+4. ✅ `mysql.vector.search({...})` → domain error (TABLE_NOT_FOUND)
+5. ✅ `mysql.vector.rangeSearch({...})` → domain error (TABLE_NOT_FOUND)
+6. ✅ `mysql.vector.hybridSearch({...})` → domain error (TABLE_NOT_FOUND)
+
+**Zod validation error paths (🔴):**
+
+7. ✅ `mysql.vector.search({})` → validation error
+8. ✅ `mysql.vector.rangeSearch({})` → validation error
+9. ✅ `mysql.vector.hybridSearch({})` → validation error
+
+---
+
+## Group Focus: vector-search
+
+### vector-search Group-Specific Testing
+
+vector-search Tool Group (3 tools +1 for code mode):
+
+1. `mysql_vector_search`
+2. `mysql_vector_range_search`
+3. `mysql_vector_hybrid_search`
+4. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. ✅ `mysql.vector.search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+2. ✅ `mysql.vector.rangeSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql.vector.hybridSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+
+**Domain error paths (🔴):**
+
+4. ✅ `mysql.vector.search({...})` → domain error (TABLE_NOT_FOUND)
+5. ✅ `mysql.vector.rangeSearch({...})` → domain error (TABLE_NOT_FOUND)
+6. ✅ `mysql.vector.hybridSearch({...})` → domain error (TABLE_NOT_FOUND)
+
+**Zod validation error paths (🔴):**
+
+7. ✅ `mysql.vector.search({})` → validation error
+8. ✅ `mysql.vector.rangeSearch({})` → validation error
+9. ✅ `mysql.vector.hybridSearch({})` → validation error
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

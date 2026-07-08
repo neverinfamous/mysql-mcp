@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Code Mode Testing: [text-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,133 +210,124 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `mysql_substring`
+- `mysql_concat`
+- `mysql_collation_convert`
 
-## Group Focus: router
 
-router Tool Group (5 tools +1 code mode):
+## Group Focus: text (Part 2)
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+text Tool Group (6 tools +1 code mode):
+
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: text (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+text Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: text (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+text Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: text (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+text Tool Group (6 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
+4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. ✅ `mysql.text.help()` → verify method listing
+2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
+3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
+4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
+5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
+6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
+7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
+9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
+11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [core-part1]
+# MySQL MCP Code Mode Testing: [shell-data-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,13 +137,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
-| `mysql_read_query` | | |
-| `mysql_write_query` | | |
-| `mysql_list_tables` | | |
-| `mysql_describe_table` | | |
-| `mysql_create_table` | | |
-| `mysql_drop_table` | | |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Return Structured Error Responses
 
@@ -216,17 +210,165 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_read_query`
-- `mysql_write_query`
-- `mysql_list_tables`
-- `mysql_describe_table`
-- `mysql_create_table`
-- `mysql_drop_table`
+- `mysqlsh_export_table`
+- `mysqlsh_import_table`
+- `mysqlsh_import_json`
+- `mysqlsh_dump_instance`
 
 
-## Tasks
+## Group Focus: shell-data (Part 1)
 
-- Implement tests for the tools listed above.
+shell Tool Group (7 tools +1 code mode):
+
+1. `mysqlsh_export_table` 2. `mysqlsh_import_table` 3. `mysqlsh_import_json`
+4. `mysqlsh_dump_instance` 5. `mysqlsh_dump_schemas` 6. `mysqlsh_dump_tables`
+7. `mysqlsh_load_dump`
+
+> **Instructions**: Use `mysql.shell.*` namespace, push deviations to `failures` array.
+
+1. `mysql.shell.help()` → verify method listing
+2. `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
+3. `mysql.shell.importTable({ schema: "testdb", table: "test_products", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv", updateServerSettings: true })` → verify success
+4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", tableColumn: "doc", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success (⚠️ **Note**: Will return `CONNECTION_ERROR` if ecosystem proxy like ProxySQL does not support X Protocol)
+5. `mysql.shell.dumpInstance({ outputUrl: "/tmp/dump_inst", dryRun: true })` → verify success
+6. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
+7. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
+8. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
+
+**Security boundary validation paths (🔴):**
+
+12. 🔴 `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Windows/System32/out.csv" })` → `{success: false, code: "SECURITY_ERROR"}`
+13. 🔴 `mysql.shell.dumpInstance({ outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
+
+**Alias acceptance (🟢):**
+
+14. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Group Focus: shell-data (Part 1)
+
+shell Tool Group (7 tools +1 code mode):
+
+1. `mysqlsh_export_table` 2. `mysqlsh_import_table` 3. `mysqlsh_import_json`
+4. `mysqlsh_dump_instance` 5. `mysqlsh_dump_schemas` 6. `mysqlsh_dump_tables`
+7. `mysqlsh_load_dump`
+
+> **Instructions**: Use `mysql.shell.*` namespace, push deviations to `failures` array.
+
+1. `mysql.shell.help()` → verify method listing
+2. `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
+3. `mysql.shell.importTable({ schema: "testdb", table: "test_products", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv", updateServerSettings: true })` → verify success
+4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", tableColumn: "doc", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success (⚠️ **Note**: Will return `CONNECTION_ERROR` if ecosystem proxy like ProxySQL does not support X Protocol)
+5. `mysql.shell.dumpInstance({ outputUrl: "/tmp/dump_inst", dryRun: true })` → verify success
+6. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
+7. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
+8. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
+
+**Security boundary validation paths (🔴):**
+
+12. 🔴 `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Windows/System32/out.csv" })` → `{success: false, code: "SECURITY_ERROR"}`
+13. 🔴 `mysql.shell.dumpInstance({ outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
+
+**Alias acceptance (🟢):**
+
+14. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Group Focus: shell-data (Part 1)
+
+shell Tool Group (7 tools +1 code mode):
+
+1. `mysqlsh_export_table` 2. `mysqlsh_import_table` 3. `mysqlsh_import_json`
+4. `mysqlsh_dump_instance` 5. `mysqlsh_dump_schemas` 6. `mysqlsh_dump_tables`
+7. `mysqlsh_load_dump`
+
+> **Instructions**: Use `mysql.shell.*` namespace, push deviations to `failures` array.
+
+1. `mysql.shell.help()` → verify method listing
+2. `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
+3. `mysql.shell.importTable({ schema: "testdb", table: "test_products", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv", updateServerSettings: true })` → verify success
+4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", tableColumn: "doc", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success (⚠️ **Note**: Will return `CONNECTION_ERROR` if ecosystem proxy like ProxySQL does not support X Protocol)
+5. `mysql.shell.dumpInstance({ outputUrl: "/tmp/dump_inst", dryRun: true })` → verify success
+6. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
+7. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
+8. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
+
+**Security boundary validation paths (🔴):**
+
+12. 🔴 `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Windows/System32/out.csv" })` → `{success: false, code: "SECURITY_ERROR"}`
+13. 🔴 `mysql.shell.dumpInstance({ outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
+
+**Alias acceptance (🟢):**
+
+14. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Group Focus: shell-data (Part 1)
+
+shell Tool Group (7 tools +1 code mode):
+
+1. `mysqlsh_export_table` 2. `mysqlsh_import_table` 3. `mysqlsh_import_json`
+4. `mysqlsh_dump_instance` 5. `mysqlsh_dump_schemas` 6. `mysqlsh_dump_tables`
+7. `mysqlsh_load_dump`
+
+> **Instructions**: Use `mysql.shell.*` namespace, push deviations to `failures` array.
+
+1. `mysql.shell.help()` → verify method listing
+2. `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv" })` → verify success
+3. `mysql.shell.importTable({ schema: "testdb", table: "test_products", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/export.csv", updateServerSettings: true })` → verify success
+4. `mysql.shell.importJson({ schema: "testdb", table: "test_json_docs", tableColumn: "doc", inputPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/data.json" })` → verify success (⚠️ **Note**: Will return `CONNECTION_ERROR` if ecosystem proxy like ProxySQL does not support X Protocol)
+5. `mysql.shell.dumpInstance({ outputUrl: "/tmp/dump_inst", dryRun: true })` → verify success
+6. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
+7. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
+8. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
+
+**Domain error paths (🔴):**
+
+9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "Validation error: ..."}`
+
+**Security boundary validation paths (🔴):**
+
+12. 🔴 `mysql.shell.exportTable({ schema: "testdb", table: "test_products", outputPath: "C:/Windows/System32/out.csv" })` → `{success: false, code: "SECURITY_ERROR"}`
+13. 🔴 `mysql.shell.dumpInstance({ outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
+
+**Alias acceptance (🟢):**
+
+14. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
 

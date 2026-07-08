@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [proxysql-status]
+# MySQL MCP Code Mode Testing: [schema-management-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,33 +210,100 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_status`
-- `proxysql_servers`
-- `proxysql_connection_pool`
-- `proxysql_runtime_status`
-- `proxysql_memory_stats`
-- `proxysql_process_list`
-- `proxysql_query_digest`
+- `mysql_create_view`
+- `mysql_drop_view`
+- `mysql_list_constraints`
 
-## Group Focus: proxysql-status
 
-proxysql Tool Group (7 tools +1 code mode):
+## Group Focus: schema-management (Part 2)
 
-1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
-4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
-7. `proxysql_query_digest`
+schema Tool Group (7 tools +1 code mode):
+
+1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema`
+4. `mysql_list_views` 5. `mysql_create_view` 6. `mysql_drop_view`
+7. `mysql_list_constraints`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.proxysql.help()` → verify method listing
-2. `mysql.proxysql.status()` → version, uptime
-3. `mysql.proxysql.servers()` → backend listing
-4. `mysql.proxysql.connectionPool()` → pool stats
-5. `mysql.proxysql.runtimeStatus()` → runtime config
-6. `mysql.proxysql.memoryStats()` → memory
-7. `mysql.proxysql.processList()` → sessions
-8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
-9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
+1. `mysql.schema.help()` → verify method listing
+2. `mysql.schema.listSchemas()` → verify `testdb` present
+3. `mysql.schema.listViews({database: "testdb"})` → verify structure
+4. `mysql.schema.listConstraints({table: "test_orders"})` → verify FK present
+5. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
+6. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
+7. 🔴 `mysql.schema.listConstraints({table: "nonexistent_xyz"})` → `{success: false}` or empty
+8. 🔴 `mysql.schema.dropSchema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.schema.createView({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: schema-management (Part 2)
+
+schema Tool Group (7 tools +1 code mode):
+
+1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema`
+4. `mysql_list_views` 5. `mysql_create_view` 6. `mysql_drop_view`
+7. `mysql_list_constraints`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.schema.help()` → verify method listing
+2. `mysql.schema.listSchemas()` → verify `testdb` present
+3. `mysql.schema.listViews({database: "testdb"})` → verify structure
+4. `mysql.schema.listConstraints({table: "test_orders"})` → verify FK present
+5. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
+6. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
+7. 🔴 `mysql.schema.listConstraints({table: "nonexistent_xyz"})` → `{success: false}` or empty
+8. 🔴 `mysql.schema.dropSchema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.schema.createView({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: schema-management (Part 2)
+
+schema Tool Group (7 tools +1 code mode):
+
+1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema`
+4. `mysql_list_views` 5. `mysql_create_view` 6. `mysql_drop_view`
+7. `mysql_list_constraints`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.schema.help()` → verify method listing
+2. `mysql.schema.listSchemas()` → verify `testdb` present
+3. `mysql.schema.listViews({database: "testdb"})` → verify structure
+4. `mysql.schema.listConstraints({table: "test_orders"})` → verify FK present
+5. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
+6. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
+7. 🔴 `mysql.schema.listConstraints({table: "nonexistent_xyz"})` → `{success: false}` or empty
+8. 🔴 `mysql.schema.dropSchema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.schema.createView({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: schema-management (Part 2)
+
+schema Tool Group (7 tools +1 code mode):
+
+1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema`
+4. `mysql_list_views` 5. `mysql_create_view` 6. `mysql_drop_view`
+7. `mysql_list_constraints`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.schema.help()` → verify method listing
+2. `mysql.schema.listSchemas()` → verify `testdb` present
+3. `mysql.schema.listViews({database: "testdb"})` → verify structure
+4. `mysql.schema.listConstraints({table: "test_orders"})` → verify FK present
+5. `mysql.schema.createView({name: "temp_cm_view", query: "SELECT id, name FROM test_products"})` → `success: true`
+6. Drop via `mysql.schema.dropView({name: "temp_cm_view"})`
+7. 🔴 `mysql.schema.listConstraints({table: "nonexistent_xyz"})` → `{success: false}` or empty
+8. 🔴 `mysql.schema.dropSchema({name: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.schema.createView({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.schema.createSchema({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

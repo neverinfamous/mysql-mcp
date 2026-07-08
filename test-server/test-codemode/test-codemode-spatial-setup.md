@@ -243,6 +243,93 @@ spatial-setup Tool Group (2 tools +1 for code mode):
 
 ---
 
+## Group Focus: spatial-setup
+
+### spatial-setup Group-Specific Testing
+
+spatial-setup Tool Group (2 tools +1 for code mode):
+
+1. `mysql_spatial_create_column`
+2. `mysql_spatial_create_index`
+3. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. `mysql.spatial.createColumn({...})` → happy path
+2. `mysql.spatial.createIndex({...})` → happy path
+
+**Domain error paths (🔴):**
+
+3. 🔴 `mysql.spatial.createColumn({...})` → domain error
+4. 🔴 `mysql.spatial.createIndex({...})` → domain error
+
+**Zod validation error paths (🔴):**
+
+5. 🔴 `mysql.spatial.createColumn({})` → validation error
+6. 🔴 `mysql.spatial.createIndex({})` → validation error
+
+---
+
+## Group Focus: spatial-setup
+
+### spatial-setup Group-Specific Testing
+
+spatial-setup Tool Group (2 tools +1 for code mode):
+
+1. `mysql_spatial_create_column`
+2. `mysql_spatial_create_index`
+3. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. `mysql.spatial.createColumn({...})` → happy path
+2. `mysql.spatial.createIndex({...})` → happy path
+
+**Domain error paths (🔴):**
+
+3. 🔴 `mysql.spatial.createColumn({...})` → domain error
+4. 🔴 `mysql.spatial.createIndex({...})` → domain error
+
+**Zod validation error paths (🔴):**
+
+5. 🔴 `mysql.spatial.createColumn({})` → validation error
+6. 🔴 `mysql.spatial.createIndex({})` → validation error
+
+---
+
+## Group Focus: spatial-setup
+
+### spatial-setup Group-Specific Testing
+
+spatial-setup Tool Group (2 tools +1 for code mode):
+
+1. `mysql_spatial_create_column`
+2. `mysql_spatial_create_index`
+3. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
+
+**Checklist:**
+
+1. `mysql.spatial.createColumn({...})` → happy path
+2. `mysql.spatial.createIndex({...})` → happy path
+
+**Domain error paths (🔴):**
+
+3. 🔴 `mysql.spatial.createColumn({...})` → domain error
+4. 🔴 `mysql.spatial.createIndex({...})` → domain error
+
+**Zod validation error paths (🔴):**
+
+5. 🔴 `mysql.spatial.createColumn({})` → validation error
+6. 🔴 `mysql.spatial.createIndex({})` → validation error
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

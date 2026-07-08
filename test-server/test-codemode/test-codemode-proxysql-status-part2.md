@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Code Mode Testing: [proxysql-status-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,133 +210,96 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `proxysql_memory_stats`
+- `proxysql_process_list`
+- `proxysql_query_digest`
 
-## Group Focus: router
 
-router Tool Group (5 tools +1 code mode):
+## Group Focus: proxysql-status (Part 2)
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+proxysql Tool Group (7 tools +1 code mode):
+
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
 ---
 
-## Group Focus: router
+## Group Focus: proxysql-status (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+proxysql Tool Group (7 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
 ---
 
-## Group Focus: router
+## Group Focus: proxysql-status (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+proxysql Tool Group (7 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
 ---
 
-## Group Focus: router
+## Group Focus: proxysql-status (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+proxysql Tool Group (7 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
 ---
 

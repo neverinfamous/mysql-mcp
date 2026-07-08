@@ -1,20 +1,4 @@
 {
-  "test-codemode-advanced-core-part1.md": [
-    "mysql_read_query",
-    "mysql_write_query",
-    "mysql_list_tables",
-    "mysql_describe_table",
-    "mysql_create_table",
-    "mysql_drop_table"
-  ],
-  "test-codemode-advanced-core-part2.md": [
-    "mysql_create_index",
-    "mysql_get_indexes",
-    "mysql_enable_versioning",
-    "mysql_disable_versioning",
-    "mysql_check_version",
-    "mysql_conditional_update"
-  ],
   "test-codemode-advanced-json-core-part1.md": [
     "mysql_json_extract",
     "mysql_json_set",
@@ -39,14 +23,6 @@
   "test-codemode-advanced-json-helpers.md": [
     "mysql_json_stats",
     "mysql_json_index_suggest"
-  ],
-  "test-codemode-advanced-text.md": [
-    "mysql_regexp_match",
-    "mysql_like_search",
-    "mysql_soundex",
-    "mysql_substring",
-    "mysql_concat",
-    "mysql_collation_convert"
   ],
   "test-codemode-advanced-fulltext.md": [
     "mysql_fulltext_create",
@@ -126,15 +102,6 @@
     "mysql_drop_partition",
     "mysql_reorganize_partition"
   ],
-  "test-codemode-advanced-transactions.md": [
-    "mysql_transaction_begin",
-    "mysql_transaction_commit",
-    "mysql_transaction_rollback",
-    "mysql_transaction_savepoint",
-    "mysql_transaction_release",
-    "mysql_transaction_rollback_to",
-    "mysql_transaction_execute"
-  ],
   "test-codemode-advanced-router-advanced.md": [
     "mysql_router_status",
     "mysql_router_routes",
@@ -147,14 +114,6 @@
     "mysql_router_route_blocked_hosts",
     "mysql_router_metadata_status",
     "mysql_router_pool_status"
-  ],
-  "test-codemode-advanced-proxysql-config.md": [
-    "proxysql_status",
-    "proxysql_servers",
-    "proxysql_query_rules",
-    "proxysql_query_digest",
-    "proxysql_connection_pool",
-    "proxysql_users"
   ],
   "test-codemode-advanced-proxysql-status.md": [
     "proxysql_global_variables",
@@ -198,14 +157,6 @@
     "mysql_create_trigger",
     "mysql_drop_trigger",
     "mysql_list_constraints"
-  ],
-  "test-codemode-advanced-events.md": [
-    "mysql_event_create",
-    "mysql_event_alter",
-    "mysql_event_drop",
-    "mysql_event_list",
-    "mysql_event_status",
-    "mysql_scheduler_status"
   ],
   "test-codemode-advanced-sys-part1.md": [
     "mysql_sys_user_summary",
@@ -319,22 +270,6 @@
     "mysql_doc_create_index",
     "mysql_doc_collection_info"
   ],
-  "test-codemode-advanced-introspection.md": [
-    "mysql_dependency_graph",
-    "mysql_topological_sort",
-    "mysql_cascade_simulator",
-    "mysql_schema_snapshot",
-    "mysql_constraint_analysis",
-    "mysql_migration_risks"
-  ],
-  "test-codemode-advanced-migration.md": [
-    "mysql_migration_init",
-    "mysql_migration_record",
-    "mysql_migration_apply",
-    "mysql_migration_rollback",
-    "mysql_migration_history",
-    "mysql_migration_status"
-  ],
   "test-codemode-advanced-vector-management.md": [
     "mysql_vector_store",
     "mysql_vector_batch_store",
@@ -362,5 +297,86 @@
   "test-codemode-advanced-types-date.md": [],
   "test-codemode-advanced-types-json.md": [],
   "test-codemode-advanced-types-numeric.md": [],
-  "test-codemode-advanced-versioning.md": []
+  "test-codemode-advanced-versioning.md": [],
+  "test-codemode-advanced-transactions-part1.md": [
+    "mysql_transaction_begin",
+    "mysql_transaction_commit",
+    "mysql_transaction_rollback",
+    "mysql_transaction_savepoint"
+  ],
+  "test-codemode-advanced-transactions-part2.md": [
+    "mysql_transaction_release",
+    "mysql_transaction_rollback_to",
+    "mysql_transaction_execute"
+  ],
+  "test-codemode-advanced-events-part1.md": [
+    "mysql_event_create",
+    "mysql_event_alter",
+    "mysql_event_drop"
+  ],
+  "test-codemode-advanced-events-part2.md": [
+    "mysql_event_list",
+    "mysql_event_status",
+    "mysql_scheduler_status"
+  ],
+  "test-codemode-advanced-text-part1.md": [
+    "mysql_regexp_match",
+    "mysql_like_search",
+    "mysql_collation_convert"
+  ],
+  "test-codemode-advanced-text-part2.md": [
+    "mysql_soundex",
+    "mysql_substring",
+    "mysql_concat"
+  ],
+  "test-codemode-advanced-core-part1a.md": [
+    "mysql_read_query",
+    "mysql_write_query",
+    "mysql_list_tables"
+  ],
+  "test-codemode-advanced-core-part1b.md": [
+    "mysql_describe_table",
+    "mysql_create_table",
+    "mysql_drop_table"
+  ],
+  "test-codemode-advanced-core-part2a.md": [
+    "mysql_create_index",
+    "mysql_get_indexes",
+    "mysql_enable_versioning"
+  ],
+  "test-codemode-advanced-core-part2b.md": [
+    "mysql_disable_versioning",
+    "mysql_check_version",
+    "mysql_conditional_update"
+  ],
+  "test-codemode-advanced-proxysql-config-part1.md": [
+    "proxysql_status",
+    "proxysql_servers",
+    "proxysql_query_rules"
+  ],
+  "test-codemode-advanced-proxysql-config-part2.md": [
+    "proxysql_query_digest",
+    "proxysql_connection_pool",
+    "proxysql_users"
+  ],
+  "test-codemode-advanced-introspection-part1.md": [
+    "mysql_dependency_graph",
+    "mysql_topological_sort",
+    "mysql_cascade_simulator"
+  ],
+  "test-codemode-advanced-introspection-part2.md": [
+    "mysql_schema_snapshot",
+    "mysql_constraint_analysis",
+    "mysql_migration_risks"
+  ],
+  "test-codemode-advanced-migration-part1.md": [
+    "mysql_migration_init",
+    "mysql_migration_record",
+    "mysql_migration_apply"
+  ],
+  "test-codemode-advanced-migration-part2.md": [
+    "mysql_migration_rollback",
+    "mysql_migration_history",
+    "mysql_migration_status"
+  ]
 }

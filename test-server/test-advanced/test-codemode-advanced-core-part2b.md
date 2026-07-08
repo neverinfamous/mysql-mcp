@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [stats-window]
+# MySQL MCP Advanced Stress Testing: [core-part2b]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,7 +137,10 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
+| Tool | Focus Area | Code Mode Validation |
+| `mysql_disable_versioning` | | |
+| `mysql_check_version` | | |
+| `mysql_conditional_update` | | |
 
 ### Return Structured Error Responses
 
@@ -210,43 +213,16 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_row_number`
-- `mysql_stats_rank`
-- `mysql_stats_lag_lead`
-- `mysql_stats_running_total`
-- `mysql_stats_moving_avg`
-- `mysql_stats_ntile`
+- `mysql_disable_versioning`
+- `mysql_check_version`
+- `mysql_conditional_update`
 
-## Group Focus: stats-window
 
-stats-window Tool Group (6 tools +1 code mode):
+## Tasks
 
-1. `mysql_stats_row_number`
-2. `mysql_stats_rank`
-3. `mysql_stats_lag_lead`
-4. `mysql_stats_running_total`
-5. `mysql_stats_moving_avg`
-6. `mysql_stats_ntile`
+- Implement tests for the tools listed above.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.stats.help()` → verify method listing
-2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
-3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
-4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
-5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
-6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
-7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
-9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
+---
 
 ---
 

@@ -246,6 +246,99 @@ sysschema Tool Group (4 tools +1 code mode):
 
 ---
 
+## Group Focus: sysschema
+
+sysschema Tool Group (4 tools +1 code mode):
+
+1. `mysql_sys_statement_summary`
+2. `mysql_sys_wait_summary`
+3. `mysql_sys_innodb_lock_waits`
+4. `mysql_sys_schema_stats`
+
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
+
+1. `mysql.sys.help()` -> verify method listing
+4. `mysql.sys.sysStatementSummary({ orderBy: "total_latency" })` -> verify success
+5. `mysql.sys.sysWaitSummary({ type: "global" })` -> verify success
+6. `mysql.sys.sysInnodbLockWaits({ limit: 5 })` -> verify success
+7. `mysql.sys.sysSchemaStats({ schema: "testdb" })` -> verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Group Focus: sysschema
+
+sysschema Tool Group (4 tools +1 code mode):
+
+1. `mysql_sys_statement_summary`
+2. `mysql_sys_wait_summary`
+3. `mysql_sys_innodb_lock_waits`
+4. `mysql_sys_schema_stats`
+
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
+
+1. `mysql.sys.help()` -> verify method listing
+4. `mysql.sys.sysStatementSummary({ orderBy: "total_latency" })` -> verify success
+5. `mysql.sys.sysWaitSummary({ type: "global" })` -> verify success
+6. `mysql.sys.sysInnodbLockWaits({ limit: 5 })` -> verify success
+7. `mysql.sys.sysSchemaStats({ schema: "testdb" })` -> verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Group Focus: sysschema
+
+sysschema Tool Group (4 tools +1 code mode):
+
+1. `mysql_sys_statement_summary`
+2. `mysql_sys_wait_summary`
+3. `mysql_sys_innodb_lock_waits`
+4. `mysql_sys_schema_stats`
+
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
+
+1. `mysql.sys.help()` -> verify method listing
+4. `mysql.sys.sysStatementSummary({ orderBy: "total_latency" })` -> verify success
+5. `mysql.sys.sysWaitSummary({ type: "global" })` -> verify success
+6. `mysql.sys.sysInnodbLockWaits({ limit: 5 })` -> verify success
+7. `mysql.sys.sysSchemaStats({ schema: "testdb" })` -> verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

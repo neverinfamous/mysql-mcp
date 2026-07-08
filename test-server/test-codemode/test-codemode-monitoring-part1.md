@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [stats-advanced]
+# MySQL MCP Code Mode Testing: [monitoring-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,43 +210,113 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_hypothesis`
-- `mysql_stats_outliers`
-- `mysql_stats_top_n`
-- `mysql_stats_distinct`
-- `mysql_stats_frequency`
-- `mysql_stats_summary`
+- `mysql_show_processlist`
+- `mysql_show_status`
+- `mysql_show_variables`
+- `mysql_innodb_status`
 
-## Group Focus: stats-advanced
 
-stats-advanced Tool Group (6 tools +1 code mode):
+## Group Focus: monitoring (Part 1)
 
-1. `mysql_stats_hypothesis`
-2. `mysql_stats_outliers`
-3. `mysql_stats_top_n`
-4. `mysql_stats_distinct`
-5. `mysql_stats_frequency`
-6. `mysql_stats_summary`
+monitoring Tool Group (7 tools +1 code mode):
+
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.stats.help()` → verify method listing
-2. `mysql.stats.hypothesis({table: "test_products", column: "price", testType: "t_test", hypothesizedMean: 100})` → verify t-test results
-3. `mysql.stats.outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
-4. `mysql.stats.topN({table: "test_measurements", column: "temperature", n: 5, direction: "desc"})` → verify top 5
-5. `mysql.stats.distinct({table: "test_events", column: "event_type"})` → verify distinct counts
-6. `mysql.stats.frequency({table: "test_events", column: "event_type"})` → verify frequency distribution
-7. `mysql.stats.summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → verify multivariable summary
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
 
 **Domain error paths (🔴):**
 
-8. 🔴 `mysql.stats.topN({table: "nonexistent_xyz", column: "temperature"})` → `{success: false}`
-9. 🔴 `mysql.stats.hypothesis({table: "test_products", column: "nonexistent", testType: "t_test", hypothesizedMean: 100})` → `{success: false}`
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
 
-**Zod validation error paths (🔴):**
+---
 
-10. 🔴 `mysql.stats.outliers({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.stats.summary({})` → `{success: false, error: "Validation error: ..."}`
+## Group Focus: monitoring (Part 1)
+
+monitoring Tool Group (7 tools +1 code mode):
+
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
+
+---
+
+## Group Focus: monitoring (Part 1)
+
+monitoring Tool Group (7 tools +1 code mode):
+
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
+
+---
+
+## Group Focus: monitoring (Part 1)
+
+monitoring Tool Group (7 tools +1 code mode):
+
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
 
 ---
 

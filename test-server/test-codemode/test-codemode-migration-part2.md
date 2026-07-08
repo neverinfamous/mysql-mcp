@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [migration]
+# MySQL MCP Code Mode Testing: [migration-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,13 +137,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
-| `mysql_migration_init` | | |
-| `mysql_migration_record` | | |
-| `mysql_migration_apply` | | |
-| `mysql_migration_rollback` | | |
-| `mysql_migration_history` | | |
-| `mysql_migration_status` | | |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Return Structured Error Responses
 
@@ -216,39 +210,124 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_migration_init`
-- `mysql_migration_record`
-- `mysql_migration_apply`
 - `mysql_migration_rollback`
 - `mysql_migration_history`
 - `mysql_migration_status`
 
 
-## Category 1: Checksum & State Corruption Resilience
+## Group Focus: migration (Part 2)
 
-1. Run `mysql_migration_init()` to prepare tracking tables.
-2. Record a migration `001_base` with `migrationSql: "SELECT 1"`.
-3. Attempt to `mysql_migration_apply` a migration named `001_base` but with a conflicting query (which would produce a different checksum/hash). Verify it fails with `{success: false, error: "..."}` citing checksum mismatch.
-4. Drop the status check constraint (`ALTER TABLE testdb._mcp_schema_versions DROP CHECK _mcp_schema_versions_chk_1`), then manually update the `_mcp_schema_versions` tracking table to set the status of `001_base` to a corrupted string (e.g., `PENDING_BROKEN`). Run `mysql_migration_status` and verify it degrades gracefully (reporting an unknown state rather than crashing).
+migration Tool Group (6 tools +1 code mode):
 
-## Category 2: Rollback Boundaries & Idempotency
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
 
-5. Run `mysql_migration_init()` again. Verify it is idempotent and does not wipe existing tracking data.
-6. Apply a valid migration `002_new_col` that adds a column (ensure you provide `rollbackSql`).
-7. Run `mysql_migration_rollback` for `002_new_col`. Verify success.
-8. Attempt to run `mysql_migration_rollback` for `002_new_col` _again_. Verify it returns a structured `{success: false, error: "..."}` stating the migration is already rolled back.
-9. Attempt to run `mysql_migration_rollback` for a version that was never applied (`003_ghost`). Verify structured failure.
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-## Category 3: Out-of-Order Execution Tracking
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
 
-10. Apply migration `005_feature_z`.
-11. Apply migration `003_feature_x`.
-12. Run `mysql_migration_history`. Verify that the history correctly sorts/displays the applied order vs logical version order, and flags `003_feature_x` as an out-of-order application.
-13. Run `mysql_migration_status`. Verify it correctly aggregates the total applied count despite the out-of-order execution.
+**Domain error paths (🔴):**
 
-## Category 4: Cleanup Verification
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
 
-14. Drop all test columns generated and explicitly `DROP TABLE _mcp_schema_versions`. Verify clean removal.
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: migration (Part 2)
+
+migration Tool Group (6 tools +1 code mode):
+
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: migration (Part 2)
+
+migration Tool Group (6 tools +1 code mode):
+
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: migration (Part 2)
+
+migration Tool Group (6 tools +1 code mode):
+
+1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
+4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.migration.help()` → verify method listing
+2. `mysql.migration.init()` → initialize tables
+3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
+4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
+5. `mysql.migration.status()` → check status
+6. `mysql.migration.history({limit: 5})` → get history
+7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
+9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

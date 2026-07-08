@@ -233,11 +233,7 @@ Tools: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`m
 ### Output & Features
 - **Minimal Output**: Tools return \`id\`, searched column(s), and \`relevance\` score.
 - **Truncation**: Use \`maxLength\` parameter to truncate long text columns (e.g., \`maxLength: 200\`).
-- **Faceted Results**: Set \`includeFacets: true\` to get hit distributions:
-  \`\`\`json
-  { "facets": { "title": 8, "body": 3 } }
-  \`\`\`
-  - *Note*: Requires per-column individual FULLTEXT indexes for counting. Missing indexes return \`warnings\` without failing the main search.
+
 - **Query Sanitization**: Queries automatically balance unmatched quotes/parentheses, strip dangling operators, and normalize whitespace. Empty sanitized queries return \`{ rows: [], count: 0 }\`.
 - **Pagination**: Use \`cursor\` for pagination. Default \`limit\` is 5.
 - **Errors**: Nonexistent tables yield \`{ exists: false, table }\`. Index mismatch yields \`{ success: false, error }\`.`],
@@ -518,7 +514,7 @@ Tools: \`mysql_security_audit\`, \`mysql_security_firewall_status\`, \`mysql_sec
 - **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload. Returns \`{ exists: false, user }\` for nonexistent users (P154). Use \`summary: true\` for condensed output (privilege counts instead of raw GRANT strings). Summary mode caps \`globalPrivileges\` at 10 entries and includes \`totalGlobalPrivileges\` for the full count.
 - **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope. Returns \`{ exists: false, schema }\` for nonexistent schemas (P154).
 - **Enterprise features**: \`mysql_security_firewall_status\` and \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
-- **Audit fallback**: \`mysql_security_audit\` falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`). Default limit is 5.
+- **Audit fallback**: \`mysql_audit_search\` falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`). Default limit is 5.
 - **Anti-Hallucination**: For \`mysql_security_audit\` and \`mysql_security_firewall_rules\`, use the \`user\` parameter to filter by user (do not use \`username\`).
 
 ### Example: Data Masking

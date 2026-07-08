@@ -246,6 +246,99 @@ sysschema Tool Group (4 tools +1 code mode):
 
 ---
 
+## Group Focus: sysschema
+
+sysschema Tool Group (4 tools +1 code mode):
+
+1. `mysql_sys_user_summary`
+2. `mysql_sys_io_summary`
+3. `mysql_sys_host_summary`
+4. `mysql_sys_memory_summary`
+
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
+
+1. `mysql.sys.help()` -> verify method listing
+2. `mysql.sys.sysUserSummary({ limit: 5 })` -> verify success
+3. `mysql.sys.sysIoSummary({ type: "table" })` -> verify success
+8. `mysql.sys.sysHostSummary({ limit: 5 })` -> verify success
+9. `mysql.sys.sysMemorySummary({ limit: 5 })` -> verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Group Focus: sysschema
+
+sysschema Tool Group (4 tools +1 code mode):
+
+1. `mysql_sys_user_summary`
+2. `mysql_sys_io_summary`
+3. `mysql_sys_host_summary`
+4. `mysql_sys_memory_summary`
+
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
+
+1. `mysql.sys.help()` -> verify method listing
+2. `mysql.sys.sysUserSummary({ limit: 5 })` -> verify success
+3. `mysql.sys.sysIoSummary({ type: "table" })` -> verify success
+8. `mysql.sys.sysHostSummary({ limit: 5 })` -> verify success
+9. `mysql.sys.sysMemorySummary({ limit: 5 })` -> verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
+## Group Focus: sysschema
+
+sysschema Tool Group (4 tools +1 code mode):
+
+1. `mysql_sys_user_summary`
+2. `mysql_sys_io_summary`
+3. `mysql_sys_host_summary`
+4. `mysql_sys_memory_summary`
+
+> **Instructions**: Use `mysql.sys.*` namespace, push deviations to `failures` array.
+
+1. `mysql.sys.help()` -> verify method listing
+2. `mysql.sys.sysUserSummary({ limit: 5 })` -> verify success
+3. `mysql.sys.sysIoSummary({ type: "table" })` -> verify success
+8. `mysql.sys.sysHostSummary({ limit: 5 })` -> verify success
+9. `mysql.sys.sysMemorySummary({ limit: 5 })` -> verify success
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+11. 🔴 `mysql.sys.sysIoSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+
+**Alias acceptance (🟢):**
+
+12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

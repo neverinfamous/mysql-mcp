@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Code Mode Testing: [monitoring-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,133 +210,112 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `mysql_replication_status`
+- `mysql_pool_stats`
+- `mysql_server_health`
 
-## Group Focus: router
 
-router Tool Group (5 tools +1 code mode):
+## Group Focus: monitoring (Part 2)
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+monitoring Tool Group (7 tools +1 code mode):
+
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
 
 ---
 
-## Group Focus: router
+## Group Focus: monitoring (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+monitoring Tool Group (7 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
 
 ---
 
-## Group Focus: router
+## Group Focus: monitoring (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+monitoring Tool Group (7 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
 
 ---
 
-## Group Focus: router
+## Group Focus: monitoring (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+monitoring Tool Group (7 tools +1 code mode):
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
+4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
+7. `mysql_server_health`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql.monitoring.help()` → verify method listing
+2. `mysql.monitoring.showProcesslist()` → at least 1 connection
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
+4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
+5. `mysql.monitoring.innodbStatus()` → InnoDB status
+6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+7. `mysql.monitoring.replicationStatus()` → replication configuration status
+8. `mysql.monitoring.poolStats()` → connection pool stats
+9. `mysql.monitoring.serverHealth()` → health assessment
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
 
 ---
 

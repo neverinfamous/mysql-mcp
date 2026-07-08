@@ -239,6 +239,81 @@ performance-anomaly Tool Group (3 tools +1 code mode):
 
 ---
 
+## Group Focus: performance
+
+performance-anomaly Tool Group (3 tools +1 code mode):
+
+1. `mysql_detect_query_anomalies` 2. `mysql_detect_bloat_risk` 3. `mysql_detect_connection_spike`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.performance.help()` → verify method listing
+2. `mysql.performance.detectQueryAnomalies()` → query anomalies
+3. `mysql.performance.detectBloatRisk()` → table bloat risks
+4. `mysql.performance.detectConnectionSpike()` → connection spike risks
+
+**Domain error paths:**
+
+1. - `mysql.performance.detectBloatRisk({table: "nonexistent_table"})` → `{success: false, error: "Table 'nonexistent_table' does not exist", code: "TABLE_NOT_FOUND"}`
+
+**Zod validation error paths:**
+
+1. - `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+2. - `mysql.performance.detectBloatRisk({minSizeMb: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+3. - `mysql.performance.detectConnectionSpike({windowMinutes: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: performance
+
+performance-anomaly Tool Group (3 tools +1 code mode):
+
+1. `mysql_detect_query_anomalies` 2. `mysql_detect_bloat_risk` 3. `mysql_detect_connection_spike`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.performance.help()` → verify method listing
+2. `mysql.performance.detectQueryAnomalies()` → query anomalies
+3. `mysql.performance.detectBloatRisk()` → table bloat risks
+4. `mysql.performance.detectConnectionSpike()` → connection spike risks
+
+**Domain error paths:**
+
+1. - `mysql.performance.detectBloatRisk({table: "nonexistent_table"})` → `{success: false, error: "Table 'nonexistent_table' does not exist", code: "TABLE_NOT_FOUND"}`
+
+**Zod validation error paths:**
+
+1. - `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+2. - `mysql.performance.detectBloatRisk({minSizeMb: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+3. - `mysql.performance.detectConnectionSpike({windowMinutes: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: performance
+
+performance-anomaly Tool Group (3 tools +1 code mode):
+
+1. `mysql_detect_query_anomalies` 2. `mysql_detect_bloat_risk` 3. `mysql_detect_connection_spike`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.performance.help()` → verify method listing
+2. `mysql.performance.detectQueryAnomalies()` → query anomalies
+3. `mysql.performance.detectBloatRisk()` → table bloat risks
+4. `mysql.performance.detectConnectionSpike()` → connection spike risks
+
+**Domain error paths:**
+
+1. - `mysql.performance.detectBloatRisk({table: "nonexistent_table"})` → `{success: false, error: "Table 'nonexistent_table' does not exist", code: "TABLE_NOT_FOUND"}`
+
+**Zod validation error paths:**
+
+1. - `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+2. - `mysql.performance.detectBloatRisk({minSizeMb: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+3. - `mysql.performance.detectConnectionSpike({windowMinutes: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [admin-maintenance]
+# MySQL MCP Code Mode Testing: [introspection-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,35 +210,124 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_optimize_table`
-- `mysql_analyze_table`
-- `mysql_check_table`
-- `mysql_repair_table`
-- `mysql_flush_tables`
-- `mysql_kill_query`
+- `mysql_dependency_graph`
+- `mysql_topological_sort`
+- `mysql_cascade_simulator`
 
-## Group Focus: admin-maintenance
 
-admin Tool Group (6 tools +1 code mode):
+## Group Focus: introspection (Part 1)
 
-1. `mysql_optimize_table` 2. `mysql_analyze_table` 3. `mysql_check_table`
-2. `mysql_repair_table` 5. `mysql_flush_tables` 6. `mysql_kill_query`
+introspection Tool Group (6 tools +1 code mode):
+
+1. `mysql_dependency_graph` 2. `mysql_topological_sort` 3. `mysql_cascade_simulator`
+2. `mysql_schema_snapshot` 5. `mysql_constraint_analysis` 6. `mysql_migration_risks`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.admin.help()` → verify method listing
-2. `mysql.admin.analyzeTable({table: "test_products"})` → `success: true`
-3. `mysql.admin.checkTable({table: "test_products"})` → status OK
-4. `mysql.admin.optimizeTable({table: "test_products"})` → success
-5. `mysql.admin.killQuery({id: 99999})` → structured error (invalid PID)
+1. `mysql.introspection.help()` → verify method listing
+2. `mysql.introspection.dependencyGraph({schema: "testdb", maxDepth: 2})` → return graph nodes and edges
+3. `mysql.introspection.topologicalSort({schema: "testdb"})` → return order array
+4. `mysql.introspection.cascadeSimulator({table: "test_products", operation: "DELETE"})` → simulate constraints
+5. `mysql.introspection.schemaSnapshot({schema: "testdb"})` → schema snapshot
+6. `mysql.introspection.constraintAnalysis({schema: "testdb"})` → analyze constraints
+7. `mysql.introspection.migrationRisks({ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT"})` → report risks
 
 **Domain error paths (🔴):**
 
-6. 🔴 `mysql.admin.analyzeTable({table: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.introspection.dependencyGraph({schema: "nonexistent_schema"})` → `{success: false}`
+9. 🔴 `mysql.introspection.cascadeSimulator({table: "nonexistent_table", operation: "DELETE"})` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql.admin.analyzeTable({})` → `{success: false, error: "Validation error: ..."}`
+10. 🔴 `mysql.introspection.dependencyGraph({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.introspection.migrationRisks({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: introspection (Part 1)
+
+introspection Tool Group (6 tools +1 code mode):
+
+1. `mysql_dependency_graph` 2. `mysql_topological_sort` 3. `mysql_cascade_simulator`
+2. `mysql_schema_snapshot` 5. `mysql_constraint_analysis` 6. `mysql_migration_risks`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.introspection.help()` → verify method listing
+2. `mysql.introspection.dependencyGraph({schema: "testdb", maxDepth: 2})` → return graph nodes and edges
+3. `mysql.introspection.topologicalSort({schema: "testdb"})` → return order array
+4. `mysql.introspection.cascadeSimulator({table: "test_products", operation: "DELETE"})` → simulate constraints
+5. `mysql.introspection.schemaSnapshot({schema: "testdb"})` → schema snapshot
+6. `mysql.introspection.constraintAnalysis({schema: "testdb"})` → analyze constraints
+7. `mysql.introspection.migrationRisks({ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT"})` → report risks
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.introspection.dependencyGraph({schema: "nonexistent_schema"})` → `{success: false}`
+9. 🔴 `mysql.introspection.cascadeSimulator({table: "nonexistent_table", operation: "DELETE"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.introspection.dependencyGraph({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.introspection.migrationRisks({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: introspection (Part 1)
+
+introspection Tool Group (6 tools +1 code mode):
+
+1. `mysql_dependency_graph` 2. `mysql_topological_sort` 3. `mysql_cascade_simulator`
+2. `mysql_schema_snapshot` 5. `mysql_constraint_analysis` 6. `mysql_migration_risks`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.introspection.help()` → verify method listing
+2. `mysql.introspection.dependencyGraph({schema: "testdb", maxDepth: 2})` → return graph nodes and edges
+3. `mysql.introspection.topologicalSort({schema: "testdb"})` → return order array
+4. `mysql.introspection.cascadeSimulator({table: "test_products", operation: "DELETE"})` → simulate constraints
+5. `mysql.introspection.schemaSnapshot({schema: "testdb"})` → schema snapshot
+6. `mysql.introspection.constraintAnalysis({schema: "testdb"})` → analyze constraints
+7. `mysql.introspection.migrationRisks({ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT"})` → report risks
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.introspection.dependencyGraph({schema: "nonexistent_schema"})` → `{success: false}`
+9. 🔴 `mysql.introspection.cascadeSimulator({table: "nonexistent_table", operation: "DELETE"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.introspection.dependencyGraph({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.introspection.migrationRisks({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: introspection (Part 1)
+
+introspection Tool Group (6 tools +1 code mode):
+
+1. `mysql_dependency_graph` 2. `mysql_topological_sort` 3. `mysql_cascade_simulator`
+2. `mysql_schema_snapshot` 5. `mysql_constraint_analysis` 6. `mysql_migration_risks`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.introspection.help()` → verify method listing
+2. `mysql.introspection.dependencyGraph({schema: "testdb", maxDepth: 2})` → return graph nodes and edges
+3. `mysql.introspection.topologicalSort({schema: "testdb"})` → return order array
+4. `mysql.introspection.cascadeSimulator({table: "test_products", operation: "DELETE"})` → simulate constraints
+5. `mysql.introspection.schemaSnapshot({schema: "testdb"})` → schema snapshot
+6. `mysql.introspection.constraintAnalysis({schema: "testdb"})` → analyze constraints
+7. `mysql.introspection.migrationRisks({ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT"})` → report risks
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.introspection.dependencyGraph({schema: "nonexistent_schema"})` → `{success: false}`
+9. 🔴 `mysql.introspection.cascadeSimulator({table: "nonexistent_table", operation: "DELETE"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.introspection.dependencyGraph({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.introspection.migrationRisks({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

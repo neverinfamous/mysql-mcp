@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [core-part2]
+# MySQL MCP Code Mode Testing: [transactions-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,13 +137,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
-| `mysql_create_index` | | |
-| `mysql_get_indexes` | | |
-| `mysql_enable_versioning` | | |
-| `mysql_disable_versioning` | | |
-| `mysql_check_version` | | |
-| `mysql_conditional_update` | | |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Return Structured Error Responses
 
@@ -216,17 +210,157 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_create_index`
-- `mysql_get_indexes`
-- `mysql_enable_versioning`
-- `mysql_disable_versioning`
-- `mysql_check_version`
-- `mysql_conditional_update`
+- `mysql_transaction_begin`
+- `mysql_transaction_commit`
+- `mysql_transaction_rollback`
+- `mysql_transaction_savepoint`
 
 
-## Tasks
+## Group Focus: transactions (Part 1)
 
-- Implement tests for the tools listed above.
+### transactions Group-Specific Testing
+
+transactions Tool Group (7 tools +1 code mode):
+
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
+
+---
+
+## Group Focus: transactions (Part 1)
+
+### transactions Group-Specific Testing
+
+transactions Tool Group (7 tools +1 code mode):
+
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
+
+---
+
+## Group Focus: transactions (Part 1)
+
+### transactions Group-Specific Testing
+
+transactions Tool Group (7 tools +1 code mode):
+
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
+
+---
+
+## Group Focus: transactions (Part 1)
+
+### transactions Group-Specific Testing
+
+transactions Tool Group (7 tools +1 code mode):
+
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
 
 ---
 

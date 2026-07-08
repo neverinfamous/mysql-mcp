@@ -249,6 +249,105 @@ stats-descriptive Tool Group (5 tools +1 code mode):
 
 ---
 
+## Group Focus: stats-descriptive
+
+stats-descriptive Tool Group (5 tools +1 code mode):
+
+1. `mysql_stats_descriptive`
+2. `mysql_stats_percentiles`
+3. `mysql_stats_distribution`
+4. `mysql_stats_sampling`
+5. `mysql_stats_histogram`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
+3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
+5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
+8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
+9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
+14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: stats-descriptive
+
+stats-descriptive Tool Group (5 tools +1 code mode):
+
+1. `mysql_stats_descriptive`
+2. `mysql_stats_percentiles`
+3. `mysql_stats_distribution`
+4. `mysql_stats_sampling`
+5. `mysql_stats_histogram`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
+3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
+5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
+8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
+9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
+14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: stats-descriptive
+
+stats-descriptive Tool Group (5 tools +1 code mode):
+
+1. `mysql_stats_descriptive`
+2. `mysql_stats_percentiles`
+3. `mysql_stats_distribution`
+4. `mysql_stats_sampling`
+5. `mysql_stats_histogram`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
+3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
+5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
+8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
+9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
+11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
+12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
+14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
+15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

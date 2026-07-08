@@ -253,6 +253,117 @@ fulltext Tool Group (5 tools +1 code mode):
 
 ---
 
+## Group Focus: fulltext
+
+fulltext Tool Group (5 tools +1 code mode):
+
+1. `mysql_fulltext_create` 2. `mysql_fulltext_drop` 3. `mysql_fulltext_search`
+2. `mysql_fulltext_boolean` 5. `mysql_fulltext_expand`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.fulltext.help()` → verify method listing
+2. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → results with relevance
+3. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
+4. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results
+5. `mysql.fulltext.expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
+6. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
+7. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` returned
+8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>"})` → verify pagination works
+9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify sanitization (no syntax error)
+
+**Create → Search → Drop lifecycle:**
+
+10. `mysql.fulltext.create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
+11. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer"})` → results
+12. `mysql.fulltext.drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false}`
+11. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false}` (no FTS index)
+
+**Zod validation error paths (🔴):**
+
+12. 🔴 `mysql.fulltext.search({})` → `{success: false, error: "Validation error: ..."}`
+13. 🔴 `mysql.fulltext.create({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: fulltext
+
+fulltext Tool Group (5 tools +1 code mode):
+
+1. `mysql_fulltext_create` 2. `mysql_fulltext_drop` 3. `mysql_fulltext_search`
+2. `mysql_fulltext_boolean` 5. `mysql_fulltext_expand`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.fulltext.help()` → verify method listing
+2. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → results with relevance
+3. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
+4. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results
+5. `mysql.fulltext.expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
+6. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
+7. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` returned
+8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>"})` → verify pagination works
+9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify sanitization (no syntax error)
+
+**Create → Search → Drop lifecycle:**
+
+10. `mysql.fulltext.create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
+11. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer"})` → results
+12. `mysql.fulltext.drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false}`
+11. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false}` (no FTS index)
+
+**Zod validation error paths (🔴):**
+
+12. 🔴 `mysql.fulltext.search({})` → `{success: false, error: "Validation error: ..."}`
+13. 🔴 `mysql.fulltext.create({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: fulltext
+
+fulltext Tool Group (5 tools +1 code mode):
+
+1. `mysql_fulltext_create` 2. `mysql_fulltext_drop` 3. `mysql_fulltext_search`
+2. `mysql_fulltext_boolean` 5. `mysql_fulltext_expand`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.fulltext.help()` → verify method listing
+2. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → results with relevance
+3. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
+4. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results
+5. `mysql.fulltext.expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
+6. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
+7. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` returned
+8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>"})` → verify pagination works
+9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify sanitization (no syntax error)
+
+**Create → Search → Drop lifecycle:**
+
+10. `mysql.fulltext.create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
+11. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer"})` → results
+12. `mysql.fulltext.drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
+
+**Domain error paths (🔴):**
+
+10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false}`
+11. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false}` (no FTS index)
+
+**Zod validation error paths (🔴):**
+
+12. 🔴 `mysql.fulltext.search({})` → `{success: false, error: "Validation error: ..."}`
+13. 🔴 `mysql.fulltext.create({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

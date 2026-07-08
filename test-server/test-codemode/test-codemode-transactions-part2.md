@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [router-routes]
+# MySQL MCP Code Mode Testing: [transactions-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,133 +210,157 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_health`
-- `mysql_router_route_connections`
-- `mysql_router_route_destinations`
-- `mysql_router_route_blocked_hosts`
+- `mysql_transaction_release`
+- `mysql_transaction_rollback_to`
+- `mysql_transaction_execute`
+- `mysql_execute_code`
 
-## Group Focus: router
 
-router Tool Group (5 tools +1 code mode):
+## Group Focus: transactions (Part 2)
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+### transactions Group-Specific Testing
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+transactions Tool Group (7 tools +1 code mode):
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
+
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: transactions (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+### transactions Group-Specific Testing
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+transactions Tool Group (7 tools +1 code mode):
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: transactions (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+### transactions Group-Specific Testing
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+transactions Tool Group (7 tools +1 code mode):
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
 
 ---
 
-## Group Focus: router
+## Group Focus: transactions (Part 2)
 
-router Tool Group (5 tools +1 code mode):
+### transactions Group-Specific Testing
 
-1. `mysql_router_route_status`
-2. `mysql_router_route_health`
-3. `mysql_router_route_connections`
-4. `mysql_router_route_destinations`
-5. `mysql_router_route_blocked_hosts`
+transactions Tool Group (7 tools +1 code mode):
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+1. `mysql_transaction_begin`
+2. `mysql_transaction_commit`
+3. `mysql_transaction_rollback`
+4. `mysql_transaction_savepoint`
+5. `mysql_transaction_release`
+6. `mysql_transaction_rollback_to`
+7. `mysql_transaction_execute`
+8. `mysql_execute_code` (codemode, auto-added)
 
-1. `mysql.router.help()` → verify method listing
-4. `mysql.router.routeStatus({routeName: "bootstrap_rw"})` → status or structured error
-5. `mysql.router.routeHealth({routeName: "bootstrap_rw"})` → health check
-6. `mysql.router.routeConnections({routeName: "bootstrap_rw"})` → connections
-7. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-8. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
+> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.transactions.help()` → verify method listing
+2. `mysql.transactions.begin()` → capture `transactionId`
+3. `mysql.core.readQuery({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
+4. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+5. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp1"})` → `success: true`
+6. `mysql.transactions.commit({transactionId: <id>})` → `success: true`
+7. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.router.routeStatus({routeName: "nonexistent_xyz"})` → `{success: false}`
+8. 🔴 `mysql.transactions.commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
+9. 🔴 `mysql.transactions.rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}`
 
 **Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeStatus({})` → `{success: false, error: "Validation error: ..."}`
 
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeStatus({name: "bootstrap_rw"})` → behaves identically to `routeName`
+10. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
+11. 🔴 `mysql.transactions.savepoint({})` → `{success: false, error: "..."}`
 
 ---
 

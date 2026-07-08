@@ -238,6 +238,75 @@ docstore-documents Tool Group:
 
 ---
 
+## Group Focus: docstore-documents
+
+docstore-documents Tool Group:
+
+1. `mysql_doc_find` 2. `mysql_doc_add` 3. `mysql_doc_modify`
+4. `mysql_doc_remove`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.docstore.help()` → verify method listing
+2. `mysql.docstore.find({collection: "test_documents"})` → list of docs
+3. `mysql.docstore.add({collection: "test_documents", documents: [{name: "test"}]})` → inserted count
+4. `mysql.docstore.modify({collection: "test_documents", filter: "name=test", set: {"$.status": "active"}})` → modified count
+5. `mysql.docstore.remove({collection: "test_documents", filter: "name=test"})` → removed count
+
+**Domain error paths (🔴):**
+6. 🔴 `mysql.docstore.find({collection: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+7. 🔴 `mysql.docstore.find({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: docstore-documents
+
+docstore-documents Tool Group:
+
+1. `mysql_doc_find` 2. `mysql_doc_add` 3. `mysql_doc_modify`
+4. `mysql_doc_remove`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.docstore.help()` → verify method listing
+2. `mysql.docstore.find({collection: "test_documents"})` → list of docs
+3. `mysql.docstore.add({collection: "test_documents", documents: [{name: "test"}]})` → inserted count
+4. `mysql.docstore.modify({collection: "test_documents", filter: "name=test", set: {"$.status": "active"}})` → modified count
+5. `mysql.docstore.remove({collection: "test_documents", filter: "name=test"})` → removed count
+
+**Domain error paths (🔴):**
+6. 🔴 `mysql.docstore.find({collection: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+7. 🔴 `mysql.docstore.find({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: docstore-documents
+
+docstore-documents Tool Group:
+
+1. `mysql_doc_find` 2. `mysql_doc_add` 3. `mysql_doc_modify`
+4. `mysql_doc_remove`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.docstore.help()` → verify method listing
+2. `mysql.docstore.find({collection: "test_documents"})` → list of docs
+3. `mysql.docstore.add({collection: "test_documents", documents: [{name: "test"}]})` → inserted count
+4. `mysql.docstore.modify({collection: "test_documents", filter: "name=test", set: {"$.status": "active"}})` → modified count
+5. `mysql.docstore.remove({collection: "test_documents", filter: "name=test"})` → removed count
+
+**Domain error paths (🔴):**
+6. 🔴 `mysql.docstore.find({collection: "nonexistent_xyz"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+7. 🔴 `mysql.docstore.find({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

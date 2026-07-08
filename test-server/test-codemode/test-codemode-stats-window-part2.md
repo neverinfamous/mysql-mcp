@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [monitoring]
+# MySQL MCP Code Mode Testing: [stats-window-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -210,37 +210,140 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_show_processlist`
-- `mysql_show_status`
-- `mysql_show_variables`
-- `mysql_innodb_status`
-- `mysql_replication_status`
-- `mysql_pool_stats`
-- `mysql_server_health`
+- `mysql_stats_running_total`
+- `mysql_stats_moving_avg`
+- `mysql_stats_ntile`
 
-## Group Focus: monitoring
 
-monitoring Tool Group (7 tools +1 code mode):
+## Group Focus: stats-window (Part 2)
 
-1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
-4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
-7. `mysql_server_health`
+stats-window Tool Group (6 tools +1 code mode):
+
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.monitoring.help()` → verify method listing
-2. `mysql.monitoring.showProcesslist()` → at least 1 connection
-3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
-4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
-5. `mysql.monitoring.innodbStatus()` → InnoDB status
-6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
-7. `mysql.monitoring.replicationStatus()` → replication configuration status
-8. `mysql.monitoring.poolStats()` → connection pool stats
-9. `mysql.monitoring.serverHealth()` → health assessment
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: stats-window (Part 2)
+
+stats-window Tool Group (6 tools +1 code mode):
+
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: stats-window (Part 2)
+
+stats-window Tool Group (6 tools +1 code mode):
+
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
+
+---
+
+## Group Focus: stats-window (Part 2)
+
+stats-window Tool Group (6 tools +1 code mode):
+
+1. `mysql_stats_row_number`
+2. `mysql_stats_rank`
+3. `mysql_stats_lag_lead`
+4. `mysql_stats_running_total`
+5. `mysql_stats_moving_avg`
+6. `mysql_stats_ntile`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.stats.help()` → verify method listing
+2. `mysql.stats.rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
+3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
+4. `mysql.stats.lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
+5. `mysql.stats.runningTotal({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
+6. `mysql.stats.movingAvg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
+7. `mysql.stats.ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql.stats.movingAvg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false}`
+9. 🔴 `mysql.stats.rowNumber({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false}`
+
+**Zod validation error paths (🔴):**
+
+10. 🔴 `mysql.stats.ntile({})` → `{success: false, error: "Validation error: ..."}`
+11. 🔴 `mysql.stats.lagLead({})` → `{success: false, error: "Validation error: ..."}`
 
 ---
 

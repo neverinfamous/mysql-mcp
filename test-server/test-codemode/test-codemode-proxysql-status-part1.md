@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [events]
+# MySQL MCP Code Mode Testing: [proxysql-status-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -137,13 +137,7 @@
 6. **Code Over Docs**: Fix the handler code if standards (Structured Errors/Zod) are violated. Do NOT change docs/prompts to accommodate broken code.
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
-| Tool | Focus Area | Code Mode Validation |
-| `mysql_event_create` | | |
-| `mysql_event_alter` | | |
-| `mysql_event_drop` | | |
-| `mysql_event_list` | | |
-| `mysql_event_status` | | |
-| `mysql_scheduler_status` | | |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 
 ### Return Structured Error Responses
 
@@ -216,59 +210,97 @@ During testing, check for these inconsistencies:
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_event_create`
-- `mysql_event_alter`
-- `mysql_event_drop`
-- `mysql_event_list`
-- `mysql_event_status`
-- `mysql_scheduler_status`
+- `proxysql_status`
+- `proxysql_servers`
+- `proxysql_connection_pool`
+- `proxysql_runtime_status`
 
 
-## Group Focus: Events
-Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
+## Group Focus: proxysql-status (Part 1)
 
-| Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_event_create` | Create one-time event | Verified |
-| `mysql_event_create` | Create recurring event | Verified |
-| `mysql_event_create` | Handle invalid SQL body | Verified |
-| `mysql_event_create` | Handle duplicate event name | Verified |
-| `mysql_event_alter` | Modify existing event | Verified |
-| `mysql_event_alter` | Handle nonexistent event | Verified |
-| `mysql_event_drop` | Drop existing event | Verified |
-| `mysql_event_drop` | Handle nonexistent event | Verified |
-| `mysql_event_list` | List all events | Verified |
-| `mysql_event_status` | Retrieve status of one-time event | Verified |
-| `mysql_event_status` | Retrieve status of recurring event | Verified |
-| `mysql_scheduler_status` | Retrieve global scheduler status | Verified |
+proxysql Tool Group (7 tools +1 code mode):
 
-## Category 1: Lifecycle Collisions
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
 
-1. `mysql.events.create({name: "stress_evt_dup", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → success
-2. `mysql.events.create` with same name again → verify structured `{success: false}` (duplicate)
-3. `mysql.events.alter({name: "stress_evt_nonexist", status: "DISABLE"})` → verify structured `{success: false}`
-4. `mysql.events.drop({name: "stress_evt_nonexist"})` → verify structured `{success: false}`
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-## Category 2: Schedule Boundary Values
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
-5. `mysql.events.create({name: "stress_evt_onetime", schedule: "AT CURRENT_TIMESTAMP + INTERVAL 1 HOUR", body: "SELECT 1", status: "DISABLE"})` → verify accepts one-time schedule
-6. `mysql.events.create({name: "stress_evt_complex", schedule: "EVERY 30 SECOND STARTS CURRENT_TIMESTAMP", body: "SELECT 1", status: "DISABLE"})` → verify complex schedule syntax
-7. `mysql.events.status({name: "stress_evt_onetime"})` → verify status reflects one-time schedule type
-8. `mysql.events.status({name: "stress_evt_complex"})` → verify status reflects recurring schedule
+---
 
-## Category 3: Event Body Validation
+## Group Focus: proxysql-status (Part 1)
 
-9. `mysql.events.create({name: "stress_evt_invalid_sql", schedule: "EVERY 1 DAY", body: "INVALID SQL GIBBERISH", status: "DISABLE"})` → verify structured error (malformed SQL body)
-10. `mysql.events.alter({name: "stress_evt_dup", body: "BEGIN SELECT 1; SELECT 2; END"})` → verify compound statement handling
+proxysql Tool Group (7 tools +1 code mode):
 
-## Category 4: Scheduler State
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
 
-11. `mysql.events.schedulerStatus()` → log current scheduler state
-12. `mysql.events.list()` → verify all `stress_*` events appear in listing
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-## Cleanup
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
-13. Drop all `stress_*` events
+---
+
+## Group Focus: proxysql-status (Part 1)
+
+proxysql Tool Group (7 tools +1 code mode):
+
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
+
+---
+
+## Group Focus: proxysql-status (Part 1)
+
+proxysql Tool Group (7 tools +1 code mode):
+
+1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
+4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
+7. `proxysql_query_digest`
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+
+1. `mysql.proxysql.help()` → verify method listing
+2. `mysql.proxysql.status()` → version, uptime
+3. `mysql.proxysql.servers()` → backend listing
+4. `mysql.proxysql.connectionPool()` → pool stats
+5. `mysql.proxysql.runtimeStatus()` → runtime config
+6. `mysql.proxysql.memoryStats()` → memory
+7. `mysql.proxysql.processList()` → sessions
+8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
+9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
 
 ---
 
