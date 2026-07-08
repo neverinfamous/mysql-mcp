@@ -82,11 +82,9 @@ config/secrets/
 mysqlrouter.conf
 router-cluster.conf
 test-server/infrastructure/router-data/
-test-server/infrastructure/cluster-config/
-test-server/infrastructure/innodb-cluster.yml
+
 
 # ProxySQL config files (local setup)
-test-server/infrastructure/proxysql.cnf
 
 # MySQL credentials/password files
 *.pwd
