@@ -140,18 +140,16 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: fulltext
+## Group Focus: fulltext-part1
 
 ### fulltext Group-Specific Testing
 
-fulltext Tool Group (5 tools +1 for code mode):
+fulltext-part1 Tool Group (3 tools + 1 for code mode):
 
-1. 'mysql_fulltext_create'
-2. 'mysql_fulltext_drop'
-3. 'mysql_fulltext_search'
-4. 'mysql_fulltext_boolean'
-5. 'mysql_fulltext_expand'
-6. 'mysql_execute_code' (codemode, auto-added)
+1. 'mysql_fulltext_search'
+2. 'mysql_fulltext_boolean'
+3. 'mysql_fulltext_expand'
+4. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
@@ -170,20 +168,20 @@ Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `r
 7. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` is returned
 8. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor from previous call>"})` → verify pagination
 9. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify query is sanitized (unmatched parentheses/quotes stripped) and doesn't throw a syntax error
-
 10. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", maxLength: 50})` → verify returned results have string fields truncated to 50 chars
-
-**Create → Search → Drop lifecycle:**
-
 
 **Domain error paths (🔴):**
 
+11. 🔴 `mysql_fulltext_search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false, error: "..."}` handler error
+12. 🔴 `mysql_fulltext_search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false, error: "..."}` (no FULLTEXT index)
 
 **Zod validation error paths (🔴):**
 
+13. 🔴 `mysql_fulltext_search({})` → `{success: false, error: "..."}` (missing required params)
 
 **Wrong-type numeric param coercion (🔴):**
 
+14. 🔴 `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: "abc"})` → must NOT return raw MCP error
 
 ---
 

@@ -138,9 +138,6 @@
 7. **Token Tracking**: Monitor `metrics.tokenEstimate` or `_meta.tokenEstimate` to detect payload issues.
 8. **Coverage Matrix**: Maintain a coverage matrix: 
 | Tool | Focus Area | Code Mode Validation |
-| `mysql_enable_versioning` | | |
-| `mysql_disable_versioning` | | |
-| `mysql_check_version` | | |
 
 ### Return Structured Error Responses
 
@@ -216,7 +213,6 @@ During testing, check for these inconsistencies:
 - `mysql_enable_versioning`
 - `mysql_disable_versioning`
 - `mysql_check_version`
-
 
 ## Group Focus: versioning
 

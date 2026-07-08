@@ -140,21 +140,17 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: performance
+## Group Focus: performance-analysis-part1
 
 ### performance Group-Specific Testing
 
-performance-analysis Tool Group (8 tools +1 for code mode):
+performance-analysis-part1 Tool Group (4 tools + 1 for code mode):
 
 1. 'mysql_explain'
 2. 'mysql_explain_analyze'
 3. 'mysql_slow_queries'
 4. 'mysql_query_stats'
-5. 'mysql_index_usage'
-6. 'mysql_table_stats'
-7. 'mysql_buffer_pool_stats'
-8. 'mysql_thread_stats'
-9. 'mysql_execute_code' (codemode, auto-added)
+5. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
 
@@ -162,8 +158,23 @@ performance-analysis Tool Group (8 tools +1 for code mode):
 2. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → verify JSON-format plan
 3. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TREE"})` → verify TREE-format plan
 4. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TRADITIONAL"})` → verify TRADITIONAL-format plan
-4b. `mysql_explain_analyze({query: "SELECT * FROM test_products WHERE id = 1"})` -> verify actual execution timings
-5. `mysql_table_stats({table: "test_products"})` → verify `{estimated_rows, avg_row_length, data_size_bytes}` present
+5. `mysql_explain_analyze({query: "SELECT * FROM test_products WHERE id = 1"})` -> verify actual execution timings
+6. `mysql_slow_queries()` → verify slow query list
+7. `mysql_query_stats({limit: 3})` → verify top query statistics
+
+**Domain error paths (🔴):**
+
+8. 🔴 `mysql_explain({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
+
+**Zod validation error paths (🔴):**
+
+9. 🔴 `mysql_explain({})` → `{success: false, error: "..."}` (missing required `query`)
+
+**Wrong-type numeric param coercion (🔴):**
+
+10. 🔴 `mysql_query_stats({limit: "abc"})` → must NOT return raw MCP error
+11. 🔴 `mysql_slow_queries({limit: "abc"})` → must NOT return raw MCP error
+
 
 ## Post-Test Procedures
 

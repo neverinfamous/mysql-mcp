@@ -208,16 +208,16 @@ During testing, check for these inconsistencies:
 
 
 
-## Group Focus: performance
+## Group Focus: performance-anomaly
 
 ### performance Group-Specific Testing
 
-performance-anomaly Tool Group (3 tools +1 for code mode):
+performance-anomaly Tool Group (3 tools + 1 for code mode):
 
 1. 'mysql_detect_query_anomalies'
 2. 'mysql_detect_bloat_risk'
 3. 'mysql_detect_connection_spike'
-4. 'mysql_execute_code' (codemode, auto-added) (codemode, auto-added)
+4. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
@@ -225,21 +225,9 @@ performance-anomaly Tool Group (3 tools +1 for code mode):
 2. `mysql_detect_bloat_risk()` → verify table bloat risks
 3. `mysql_detect_connection_spike()` → verify connection spike risks
 
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql_table_stats({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error (P154)
-12. 🔴 `mysql_explain({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
-
 **Zod validation error paths (🔴):**
 
-13. 🔴 `mysql_explain({})` → `{success: false, error: "..."}` (missing required `query`)
-14. 🔴 `mysql_table_stats({})` → `{success: false, error: "..."}` (missing required params)
-15. 🔴 `mysql_detect_query_anomalies({minExecutions: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
-
-**Wrong-type numeric param coercion (🔴):**
-
-16. 🔴 `mysql_query_stats({limit: "abc"})` → must NOT return raw MCP error
-17. 🔴 `mysql_slow_queries({limit: "abc"})` → must NOT return raw MCP error
+4. 🔴 `mysql_detect_query_anomalies({minExecutions: "invalid"})` → `{success: false, error: "..."}` (Zod validation numeric coercion)
 
 ---
 
