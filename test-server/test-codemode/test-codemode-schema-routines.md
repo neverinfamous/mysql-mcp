@@ -228,6 +228,18 @@ schema Tool Group (5 tools +1 code mode):
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_list_stored_procedures`
+- `mysql_list_functions`
+- `mysql_list_triggers`
+- `mysql_create_trigger`
+- `mysql_drop_trigger`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

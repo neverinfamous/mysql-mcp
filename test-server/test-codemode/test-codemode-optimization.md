@@ -239,6 +239,17 @@ optimization Tool Group (4 tools +1 code mode):
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_index_recommendation`
+- `mysql_query_rewrite`
+- `mysql_force_index`
+- `mysql_optimizer_trace`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

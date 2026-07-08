@@ -239,6 +239,19 @@ events Tool Group (6 tools +1 code mode):
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_event_create`
+- `mysql_event_alter`
+- `mysql_event_drop`
+- `mysql_event_list`
+- `mysql_event_status`
+- `mysql_scheduler_status`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

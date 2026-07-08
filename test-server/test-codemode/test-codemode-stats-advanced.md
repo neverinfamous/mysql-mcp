@@ -241,6 +241,19 @@ stats-advanced Tool Group (6 tools +1 code mode):
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_stats_hypothesis`
+- `mysql_stats_outliers`
+- `mysql_stats_top_n`
+- `mysql_stats_distinct`
+- `mysql_stats_frequency`
+- `mysql_stats_summary`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

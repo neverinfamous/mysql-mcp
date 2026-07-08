@@ -232,6 +232,17 @@ performance-analysis-queries Tool Group:
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_explain`
+- `mysql_explain_analyze`
+- `mysql_slow_queries`
+- `mysql_query_stats`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

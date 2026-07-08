@@ -237,6 +237,19 @@ text Tool Group (6 tools +1 code mode):
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_regexp_match`
+- `mysql_like_search`
+- `mysql_soundex`
+- `mysql_substring`
+- `mysql_concat`
+- `mysql_collation_convert`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

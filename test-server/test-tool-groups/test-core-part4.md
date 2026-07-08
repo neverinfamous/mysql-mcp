@@ -1,4 +1,4 @@
-# mysql-mcp Tool Group Testing: PART 1 [versioning]
+# mysql-mcp Tool Group Testing: PART 4 [core]
 
 > [!IMPORTANT]
 > **Do not track progress in this file.** Track your test progress, coverage matrix, and findings in your internal task tracking system (artifact). However, you SHOULD edit this file to fix any factual errors, broken code, or incorrect assertions in the test prompts.
@@ -140,17 +140,9 @@ During testing, check for these inconsistencies:
 
 ---
 
-## Group Focus: versioning
+## Group Focus: core
 
-### versioning Group-Specific Testing
-
-versioning Tool Group (4 tools +1 for code mode):
-
-1. 'mysql_enable_versioning'
-2. 'mysql_disable_versioning'
-3. 'mysql_check_version'
-4. 'mysql_conditional_update'
-5. 'mysql_execute_code' (codemode, auto-added)
+### core Group-Specific Testing
 
 All tools should gracefully handle nonexistent tables and validation errors. Test with `test_products` and a temporary table `temp_versioning`.
 
@@ -158,28 +150,28 @@ All tools should gracefully handle nonexistent tables and validation errors. Tes
 
 **Setup / Happy Paths:**
 
-1. `mysql_create_table({table: "temp_versioning", columns: [{name: "id", type: "INT", primaryKey: true, autoIncrement: true}, {name: "quantity", type: "INT"}]})` → `{success: true}`
-2. `mysql_write_query({query: "INSERT INTO temp_versioning (quantity) VALUES (100)"})` → `{rowsAffected: 1}`
-3. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `message` indicates trigger added
-4. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `alreadyEnabled` is true
-5. `mysql_check_version({table: "temp_versioning", rowId: 1})` → `{success: true}` and `version: 1`
-6. `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: true, rowsAffected: 1}`
 
 **Domain error paths (🔴):**
 
-7. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 999}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning version conflict — NOT raw MCP error
-8. 🔴 `mysql_check_version({table: "nonexistent_table_xyz", rowId: 1})` → `{success: false, error: "..."}` mentioning table name
-9. 🔴 `mysql_check_version({table: "temp_versioning", rowId: 9999})` → `{success: false, error: "..."}` mentioning row not found
-10. 🔴 `mysql_enable_versioning({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` mentioning table name
+11. 🔴 `mysql_conditional_update({table: "nonexistent_table_xyz", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning table name
 
 **Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
 
+12. 🔴 `mysql_enable_versioning({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+13. 🔴 `mysql_check_version({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+14. 🔴 `mysql_conditional_update({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+15. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty data
+16. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty conditions
 
 **Wrong-type numeric param coercion (🔴):**
 
+17. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: "abc"})` → must NOT return raw MCP `-32602` error — should return structured handler error `Expected number, received string`
 
 **Teardown:**
 
+18. `mysql_disable_versioning({table: "temp_versioning"})` → `{success: true}`
+19. `mysql_disable_versioning({table: "nonexistent_table_xyz", ifExists: true})` → `{success: true}` (no error since ifExists is true)
+20. `mysql_drop_table({table: "temp_versioning", ifExists: true})` → `{success: true}`
 
 ---
 
@@ -204,7 +196,7 @@ All tools should gracefully handle nonexistent tables and validation errors. Tes
 ### After Implementation
 
 4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-versioning-part1.md]`) so the history can be traced.
+5. **Commit**: Stage and commit all changes — do NOT push. **CRITICAL**: Your commit message MUST explicitly include the name of this tool group prompt file (e.g. `[Testing: test-versioning-part2.md]`) so the history can be traced.
 6. **Validate**: You MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck`. You MUST skip `pnpm run test` (Vitest) and `pnpm run test:e2e` (Playwright), as the coordinator will run the full suite at the end. Do NOT ask the user to run tests.
 7. **Live re-test**: Once the user confirms the server is restarted, test the fixes with direct MCP tool calls to confirm they are working.
 8. **Final summary**: If no issues found, provide the final summary. If issues were fixed, provide the summary after live MCP re-testing confirms fixes are working.

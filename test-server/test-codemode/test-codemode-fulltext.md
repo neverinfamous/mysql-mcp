@@ -245,6 +245,18 @@ fulltext Tool Group (5 tools +1 code mode):
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_fulltext_create`
+- `mysql_fulltext_drop`
+- `mysql_fulltext_search`
+- `mysql_fulltext_boolean`
+- `mysql_fulltext_expand`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules

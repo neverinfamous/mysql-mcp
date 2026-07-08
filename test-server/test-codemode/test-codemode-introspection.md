@@ -237,6 +237,19 @@ introspection Tool Group (6 tools +1 code mode):
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_dependency_graph`
+- `mysql_topological_sort`
+- `mysql_cascade_simulator`
+- `mysql_schema_snapshot`
+- `mysql_constraint_analysis`
+- `mysql_migration_risks`
+
+
+
 ## Execute Post-Test Procedures
 
 ### Follow Reporting Rules
