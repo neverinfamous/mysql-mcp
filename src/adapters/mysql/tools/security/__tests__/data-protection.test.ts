@@ -97,6 +97,11 @@ describe("Security Data Protection Tools", () => {
       );
 
       // Mock permissions query for john
+      // Mock roles query
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ FROM_USER: "admin_role", FROM_HOST: "%", TO_USER: "john", TO_HOST: "localhost" }]),
+      );
+      
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
@@ -104,11 +109,6 @@ describe("Security Data Protection Tools", () => {
               "GRANT ALL PRIVILEGES ON *.* TO 'john'@'localhost'",
           },
         ]),
-      );
-
-      // Mock roles query
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ FROM_USER: "admin_role", FROM_HOST: "%" }]),
       );
 
       const tool = createSecurityUserPrivilegesTool(

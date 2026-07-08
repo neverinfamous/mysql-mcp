@@ -171,11 +171,9 @@ export function createAuditInterceptor(
           category: "internal",
           recoverable: false,
         };
-        const mockPayload = {
-          ...errorResult,
-          _meta: { tokenEstimate: 0 },
-        };
-        tokenEstimate = estimateObjectTokens(mockPayload);
+        
+        // Avoid spreading result into a mockPayload to prevent GC pressure
+        tokenEstimate = estimateObjectTokens(errorResult) + 12; // 12 tokens roughly covers the _meta wrapper
 
         throw err; // Re-throw — don't swallow
       } finally {

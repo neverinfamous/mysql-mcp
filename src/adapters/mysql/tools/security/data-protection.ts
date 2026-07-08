@@ -370,6 +370,45 @@ export function createSecurityUserPrivilegesTool(
         for (let i = 0; i < userRows.length; i += BATCH_SIZE) {
           const chunk = userRows.slice(i, i + BATCH_SIZE);
           
+          // Pre-fetch roles for the chunk to avoid N+1 queries
+          const roleMap = new Map<string, string[]>();
+          if (includeRoles && chunk.length > 0) {
+            try {
+              const roleConditions: string[] = [];
+              const roleParams: unknown[] = [];
+              
+              for (const u of chunk) {
+                const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+                const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
+                roleConditions.push("(TO_USER = ? AND TO_HOST = ?)");
+                roleParams.push(userName, userHost);
+              }
+              
+              const rolesResult = await adapter.executeQuery(
+                `
+                  SELECT TO_USER, TO_HOST, FROM_USER, FROM_HOST
+                  FROM mysql.role_edges
+                  WHERE ${roleConditions.join(" OR ")}
+                `,
+                roleParams,
+              );
+              
+              for (const r of rolesResult.rows ?? []) {
+                const toUser = typeof r["TO_USER"] === "string" ? r["TO_USER"] : String(r["TO_USER"]);
+                const toHost = typeof r["TO_HOST"] === "string" ? r["TO_HOST"] : String(r["TO_HOST"]);
+                const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
+                const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
+                
+                const key = `${toUser}@${toHost}`;
+                const roleList = roleMap.get(key) ?? [];
+                roleList.push(`${fromUser}@${fromHost}`);
+                roleMap.set(key, roleList);
+              }
+            } catch {
+              // Role edges table might not exist in older versions
+            }
+          }
+          
           const chunkResults = await Promise.all(chunk.map(async (userRow) => {
             const u = userRow;
             const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
@@ -386,24 +425,7 @@ export function createSecurityUserPrivilegesTool(
   
             let roles: string[] = [];
             if (includeRoles) {
-              try {
-                const rolesResult = await adapter.executeQuery(
-                  `
-                              SELECT FROM_USER, FROM_HOST
-                              FROM mysql.role_edges
-                              WHERE TO_USER = ? AND TO_HOST = ?
-                          `,
-                  [userName, userHost],
-                );
-  
-                roles = (rolesResult.rows ?? []).map((r) => {
-                  const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
-                  const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
-                  return `${fromUser}@${fromHost}`;
-                });
-              } catch {
-                // Role edges table might not exist in older versions
-              }
+              roles = roleMap.get(`${userName}@${userHost}`) ?? [];
             }
   
             if (summary) {

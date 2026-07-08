@@ -561,6 +561,8 @@ describe("Security Tools", () => {
           },
         ]),
       );
+      // Role edges
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       // SHOW GRANTS
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
@@ -570,8 +572,6 @@ describe("Security Tools", () => {
           },
         ]),
       );
-      // Role edges
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_security_user_privileges",
@@ -592,10 +592,10 @@ describe("Security Tools", () => {
         createMockQueryResult([{ User: "root", Host: "localhost" }]),
       );
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ Grants: "GRANT..." }]),
+        createMockQueryResult([{ FROM_USER: "app_role", FROM_HOST: "%", TO_USER: "root", TO_HOST: "localhost" }]),
       );
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ FROM_USER: "app_role", FROM_HOST: "%" }]),
+        createMockQueryResult([{ Grants: "GRANT..." }]),
       );
 
       const tool = tools.find(
@@ -641,15 +641,15 @@ describe("Security Tools", () => {
         ]),
       );
       mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ FROM_USER: "dba_role", FROM_HOST: "%", TO_USER: "root", TO_HOST: "localhost" }]),
+      );
+      mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             "Grants for root@localhost":
               "GRANT ALL PRIVILEGES ON *.* TO `root`@`localhost` WITH GRANT OPTION",
           },
         ]),
-      );
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ FROM_USER: "dba_role", FROM_HOST: "%" }]),
       );
 
       const tool = tools.find(
@@ -928,8 +928,8 @@ describe("Security Tools", () => {
       );
       await tool?.handler({ user: "test_user" }, mockContext);
 
-      // The SHOW GRANTS call is the third call (index 2)
-      const grantsCall = mockAdapter.executeQuery.mock.calls[2][0];
+      // The SHOW GRANTS call is the fourth call (index 3)
+      const grantsCall = mockAdapter.executeQuery.mock.calls[3][0];
       expect(grantsCall).toContain("`test_user`@`localhost`");
       expect(grantsCall).not.toContain("'test_user'@'localhost'");
     });
