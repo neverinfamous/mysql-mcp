@@ -50,7 +50,7 @@ async function assertNumericCoercion(
 }
 
 test.describe("Numeric Coercion: Stats", () => {
-  test("stats_descriptive with limit: 'abc' → handler error or coerced default", async ({}, testInfo) => {
+  test("stats_descriptive with limit: 'abc' → handler error or coerced default", async () => {
     await assertNumericCoercion(undefined, "mysql_stats_descriptive", {
       table: "test_products",
       column: "price",
@@ -58,9 +58,8 @@ test.describe("Numeric Coercion: Stats", () => {
     });
   });
 
-  test("stats_percentiles with percentiles: 'abc' → error (handler or Zod)", async ({}, testInfo) => {
-    const baseURL = undefined;
-    const client = await createClient(baseURL);
+  test("stats_percentiles with percentiles: 'abc' → error (handler or Zod)", async () => {
+    const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_stats_percentiles", {
         table: "test_products",
@@ -84,9 +83,8 @@ test.describe("Numeric Coercion: Stats", () => {
 });
 
 test.describe("Numeric Coercion: Performance", () => {
-  test("explain with format: invalid → error (handler or Zod)", async ({}, testInfo) => {
-    const baseURL = undefined;
-    const client = await createClient(baseURL);
+  test("explain with format: invalid → error (handler or Zod)", async () => {
+    const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_explain", {
         query: "SELECT 1",
@@ -107,9 +105,8 @@ test.describe("Numeric Coercion: Performance", () => {
 });
 
 test.describe("Numeric Coercion: Vector", () => {
-  test("vector_search with limit: 'abc' → structured or MCP error", async ({}, testInfo) => {
-    const baseURL = undefined;
-    const client = await createClient(baseURL);
+  test("vector_search with limit: 'abc' → structured or MCP error", async () => {
+    const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_vector_search", {
         table: "test_embeddings",
@@ -128,9 +125,8 @@ test.describe("Numeric Coercion: Vector", () => {
 });
 
 test.describe("Numeric Coercion: Admin", () => {
-  test("terminate_backend with pid: 'abc' → structured or MCP error", async ({}, testInfo) => {
-    const baseURL = undefined;
-    const client = await createClient(baseURL);
+  test("terminate_backend with pid: 'abc' → structured or MCP error", async () => {
+    const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_terminate_backend", {
         pid: "abc",
@@ -146,9 +142,8 @@ test.describe("Numeric Coercion: Admin", () => {
 });
 
 test.describe("Numeric Coercion: Code Mode", () => {
-  test("execute_code with timeout: 'abc' → structured or MCP error", async ({}, testInfo) => {
-    const baseURL = undefined;
-    const client = await createClient(baseURL);
+  test("execute_code with timeout: 'abc' → structured or MCP error", async () => {
+    const client = await createClient();
     try {
       const response = await callToolRaw(client, "mysql_execute_code", {
         code: "return 1;",

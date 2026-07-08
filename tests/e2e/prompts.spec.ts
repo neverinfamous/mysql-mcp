@@ -72,7 +72,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
 
     expect(response.messages).toBeDefined();
     expect(response.messages.length).toBeGreaterThan(0);
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("query");
   });
 
@@ -84,7 +84,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
 
     expect(response.messages).toBeDefined();
     expect(response.messages.length).toBeGreaterThan(0);
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("tool");
   });
 
@@ -95,7 +95,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("mysql_read_query");
   });
 
@@ -106,7 +106,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("mysql_list_tables");
   });
 
@@ -117,7 +117,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("CREATE TABLE");
   });
 
@@ -128,7 +128,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("EXPLAIN");
   });
 
@@ -139,7 +139,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("migration");
   });
 
@@ -150,7 +150,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("health");
   });
 
@@ -161,7 +161,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("backup");
   });
 
@@ -172,7 +172,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text.toLowerCase()).toContain("index");
   });
 
@@ -183,7 +183,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("Router");
   });
 
@@ -194,7 +194,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("ProxySQL");
   });
 
@@ -205,7 +205,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("replication");
   });
 
@@ -216,7 +216,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("MySQL Shell");
   });
 
@@ -227,7 +227,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("event");
   });
 
@@ -238,7 +238,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("sys");
   });
 
@@ -249,7 +249,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("spatial");
   });
 
@@ -260,7 +260,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("cluster");
   });
 
@@ -271,7 +271,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("document");
   });
 
@@ -282,7 +282,7 @@ test.describe("E2E Prompt Reads (via MCP SDK Client)", () => {
     });
 
     expect(response.messages).toBeDefined();
-    const text = (response.messages[0].content as any).text as string;
+    const text = (response.messages[0].content as Record<string, unknown>).text as string;
     expect(text).toContain("lib-agent-exec");
   });
 });

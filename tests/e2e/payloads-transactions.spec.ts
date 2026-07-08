@@ -30,8 +30,8 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
     expectSuccess(begin);
     // Note: mysql-mcp typically returns transactionId inside the payload
     // Adjusting based on standard conventions (which could put it at root or inside data object).
-    // The previous test in payloads-misc used: (beginPayload.data as any).transactionId
-    const data = begin.data as any;
+    // The previous test in payloads-misc used: (beginPayload.data as Record<string, unknown>).transactionId
+    const data = begin.data as Record<string, unknown>;
     const txnId = data?.transactionId || begin.transactionId;
     expect(typeof txnId).toBe("string");
 
@@ -79,7 +79,7 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
       // Begin
       const begin = await callToolAndParse(client, "mysql_transaction_begin", {});
       expectSuccess(begin);
-      const data = begin.data as any;
+      const data = begin.data as Record<string, unknown>;
       const txnId = data?.transactionId || begin.transactionId;
 
       // Execute INSERT inside transaction
@@ -106,7 +106,7 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
       });
       expectSuccess(check);
       // In mysql-mcp, rows are usually under data.rows or just rows depending on tool
-      const resData = check.data as any;
+      const resData = check.data as Record<string, unknown>;
       const rows = resData?.rows || check.rows;
       expect(Number(rows[0].cnt)).toBe(0);
     } finally {

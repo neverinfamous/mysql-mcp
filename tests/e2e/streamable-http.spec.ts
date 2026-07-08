@@ -48,7 +48,7 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
     expect((response.content as any[]).length).toBeGreaterThan(0);
     expect((response.content as any[])[0].type).toBe("text");
 
-    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as Record<string, unknown>).text);
     expect(parsed.data).toHaveProperty("tables");
   });
 

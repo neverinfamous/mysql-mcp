@@ -44,7 +44,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
     expect(Array.isArray(response.content)).toBe(true);
     expect((response.content as any[]).length).toBeGreaterThan(0);
     expect((response.content as any[])[0].type).toBe("text");
-    const textOutput = ((response.content as any[])[0] as any).text as string;
+    const textOutput = ((response.content as any[])[0] as Record<string, unknown>).text as string;
     const parsed = JSON.parse(textOutput);
     expect(parsed.data).toHaveProperty("tables");
     expect(Array.isArray(parsed.data.tables)).toBe(true);
@@ -62,7 +62,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
       expect(Array.isArray(response.content)).toBe(true);
       if ((response.content as any[]).length > 0) {
         expect((response.content as any[])[0].type).toBe("text");
-        const errorText = ((response.content as any[])[0] as any)
+        const errorText = ((response.content as any[])[0] as Record<string, unknown>)
           .text as string;
         expect(errorText.toLowerCase()).toContain("required");
       }
@@ -102,7 +102,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
     expect((response.content as any[]).length).toBeGreaterThan(0);
     expect((response.content as any[])[0].type).toBe("text");
 
-    const textOutput = ((response.content as any[])[0] as any).text as string;
+    const textOutput = ((response.content as any[])[0] as Record<string, unknown>).text as string;
     const parsed = JSON.parse(textOutput);
     expect(parsed).toHaveProperty("result");
     expect(parsed.result.data).toHaveProperty("tables");
@@ -118,7 +118,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as Record<string, unknown>).text);
     expect(parsed.data).toHaveProperty("columns");
     expect(Array.isArray(parsed.data.columns)).toBe(true);
   });
@@ -147,7 +147,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(response.isError).toBeUndefined();
     expect(Array.isArray(response.content)).toBe(true);
-    const parsed = JSON.parse(((response.content as any[])[0] as any).text);
+    const parsed = JSON.parse(((response.content as any[])[0] as Record<string, unknown>).text);
     expect(parsed.data).toHaveProperty("indexes");
     expect(Array.isArray(parsed.data.indexes)).toBe(true);
   });
@@ -160,7 +160,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
     expect(beginResponse.isError).toBeUndefined();
     const beginParsed = JSON.parse(
-      ((beginResponse.content as any[])[0] as any).text,
+      ((beginResponse.content as any[])[0] as Record<string, unknown>).text,
     );
     expect(beginParsed).toHaveProperty("data.transactionId");
 

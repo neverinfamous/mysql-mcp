@@ -12,6 +12,7 @@ const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify
 const cluster = args.includes('--Cluster') || args.includes('--cluster');
 
 const containerName = cluster ? 'mysql-node1' : 'mysql-final';
+const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
 const mysqlHost = 'localhost';
 const mysqlPort = cluster ? '3307' : '3306';
 const mysqlUser = 'root';
@@ -33,8 +34,8 @@ function invokeMySql(query, noDatabase = false) {
     const db = noDatabase ? '' : mysqlDatabase;
     try {
         const cmd = db 
-            ? `docker exec ${containerName} mysql -uroot -proot ${db} -e "${query}"`
-            : `docker exec ${containerName} mysql -uroot -proot -e "${query}"`;
+            ? `${dockerCmd} exec ${containerName} mysql -uroot -proot ${db} -e "${query}"`
+            : `${dockerCmd} exec ${containerName} mysql -uroot -proot -e "${query}"`;
         return execSync(cmd, { stdio: 'pipe', encoding: 'utf-8' });
     } catch (e) {
         throw new Error(`Docker exec failed: ${e.message}`);
@@ -45,7 +46,7 @@ function invokeMySqlFile(filePath) {
     console.log(`\n[1/3] Executing seed script...`);
     try {
         const fileContent = readFileSync(filePath);
-        execSync(`docker exec -i ${containerName} mysql -uroot -proot ${mysqlDatabase}`, { input: fileContent, stdio: ['pipe', 'inherit', 'inherit'] });
+        execSync(`${dockerCmd} exec -i ${containerName} mysql -uroot -proot ${mysqlDatabase}`, { input: fileContent, stdio: ['pipe', 'inherit', 'inherit'] });
     } catch (e) {
         throw new Error(`Failed to execute seed file: ${e.message}`);
     }
@@ -59,7 +60,7 @@ try {
 } catch (e) {
     console.error(`Failed to connect to MySQL: ${e.message}`);
     console.log(`\nTroubleshooting:`);
-    console.log(`  1. Ensure ${containerName} container is running: docker ps | grep ${containerName}`);
+    console.log(`  1. Ensure ${containerName} container is running: ${dockerCmd} ps | grep ${containerName}`);
     console.log(`  2. Or ensure MySQL is running locally on port ${mysqlPort}`);
     console.log(`  3. Check credentials: ${mysqlUser} / ${mysqlPassword}`);
     process.exit(1);
@@ -94,7 +95,7 @@ if (!skipVerify) {
     let allPassed = true;
     for (const [table, expected] of Object.entries(expectedTables)) {
         try {
-            const result = execSync(`docker exec ${containerName} mysql -uroot -proot ${mysqlDatabase} -N -s -e "SELECT COUNT(*) FROM ${table};"`, { encoding: 'utf-8' });
+            const result = execSync(`${dockerCmd} exec ${containerName} mysql -uroot -proot ${mysqlDatabase} -N -s -e "SELECT COUNT(*) FROM ${table};"`, { encoding: 'utf-8' });
             const countStr = result.match(/\d+/);
             const count = countStr ? parseInt(countStr[0], 10) : 0;
             

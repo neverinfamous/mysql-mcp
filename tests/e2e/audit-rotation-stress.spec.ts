@@ -7,8 +7,6 @@
  */
 
 import { stat, rm } from "node:fs/promises";
-import { join } from "node:path";
-import { tmpdir } from "node:os";
 
 import { test, expect } from "@playwright/test";
 import {
@@ -17,22 +15,19 @@ import {
   createClient,
   callToolAndParse,
   cleanupAuditFiles,
+  auditLogPath,
 } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 const AUDIT_PORT_BASE = 3170;
 const AUDIT_FILTER = "transactions";
 
-function auditLogPath(suffix: string): string {
-  return join(tmpdir(), `mysql-audit-stress-${suffix}-${Date.now()}.jsonl`);
-}
-
 test.describe.configure({ mode: "serial", timeout: 60000 });
 
 test.describe("Audit Log Rotation Stress", () => {
   test("maintains 5 rotated files under high write throughput", async () => {
     const port = AUDIT_PORT_BASE + 1;
-    const logPath = auditLogPath("rotation-stress");
+    const logPath = auditLogPath("audit-stress", "rotation-stress");
 
     // Set max size extremely small to force rapid rotation
     await startServer(
@@ -62,7 +57,7 @@ test.describe("Audit Log Rotation Stress", () => {
           "mysql_transaction_begin",
           {},
         );
-        const txId = (beginRes.data as any)?.transactionId as
+        const txId = (beginRes.data as Record<string, unknown>)?.transactionId as
           | string
           | undefined;
         if (txId) {

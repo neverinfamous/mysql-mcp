@@ -33,7 +33,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         }
       }
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(Array.isArray(data?.results)).toBe(true);
       expect(typeof data?.rowCount).toBe("number");
     } finally {
@@ -60,7 +60,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         }
       }
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(Array.isArray(data?.results)).toBe(true);
       expect(typeof data?.rowCount).toBe("number");
     } finally {
@@ -75,7 +75,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         tables: ["test_products"],
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(Array.isArray(data?.results)).toBe(true);
       expect(typeof data?.rowCount).toBe("number");
     } finally {
@@ -92,7 +92,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         limit: 3,
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(Array.isArray(data?.processes)).toBe(true);
       expect(typeof data?.count).toBe("number");
       expect(data?.count as number).toBeLessThanOrEqual(3);
@@ -108,7 +108,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         limit: 5,
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(typeof data?.status).toBe("object");
       expect(typeof data?.rowCount).toBe("number");
       expect(typeof data?.totalAvailable).toBe("number");
@@ -125,7 +125,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         limit: 5,
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(typeof data?.variables).toBe("object");
       expect(typeof data?.rowCount).toBe("number");
       expect(typeof data?.totalAvailable).toBe("number");
@@ -141,7 +141,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         summary: true,
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(typeof data?.summary).toBe("object");
     } finally {
       await client.close();
@@ -153,7 +153,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
     try {
       const payload = await callToolAndParse(client, "mysql_pool_stats", {});
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(typeof data?.poolStats).toBe("object");
     } finally {
       await client.close();
@@ -166,7 +166,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
       const payload = await callToolAndParse(client, "mysql_server_health", {});
 
       // Health returns { serverHealth: { connected, version, database, uptime, ... } }
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(typeof data?.serverHealth?.connected).toBe("boolean");
     } finally {
       await client.close();
@@ -182,7 +182,7 @@ test.describe("Payload Contracts: Admin + Monitoring", () => {
         { summary: true },
       );
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       // Should have configured boolean regardless
       expect(typeof data?.configured).toBe("boolean");
     } finally {

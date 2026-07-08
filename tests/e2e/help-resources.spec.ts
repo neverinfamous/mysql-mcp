@@ -46,7 +46,7 @@ const HELP_GROUPS = [
 ];
 
 test.describe("Help Resources", () => {
-  test("mysql://help is listed in resources", async ({}, testInfo) => {
+  test("mysql://help is listed in resources", async () => {
     const client = await createClient();
     try {
       const list = await client.listResources();
@@ -57,7 +57,7 @@ test.describe("Help Resources", () => {
     }
   });
 
-  test("all 20 group help resources are listed", async ({}, testInfo) => {
+  test("all 20 group help resources are listed", async () => {
     const client = await createClient();
     try {
       const list = await client.listResources();
@@ -72,7 +72,7 @@ test.describe("Help Resources", () => {
     }
   });
 
-  test("mysql://help returns non-empty markdown", async ({}, testInfo) => {
+  test("mysql://help returns non-empty markdown", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({ uri: "mysql://help" });
@@ -89,7 +89,7 @@ test.describe("Help Resources", () => {
     }
   });
 
-  test("mysql://help contains critical section keywords", async ({}, testInfo) => {
+  test("mysql://help contains critical section keywords", async () => {
     const client = await createClient();
     try {
       const response = await client.readResource({ uri: "mysql://help" });
@@ -104,7 +104,7 @@ test.describe("Help Resources", () => {
   });
 
   for (const group of HELP_GROUPS) {
-    test(`mysql://help/${group} returns non-empty markdown`, async ({}, testInfo) => {
+    test(`mysql://help/${group} returns non-empty markdown`, async () => {
       const client = await createClient();
       try {
         const response = await client.readResource({

@@ -20,7 +20,7 @@ test.describe.configure({ mode: "serial" });
 // =============================================================================
 
 test.describe("Code Mode Groups: Transactions", () => {
-  test("mysql.transactions.begin() + commit()", async ({}, testInfo) => {
+  test("mysql.transactions.begin() + commit()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -46,7 +46,7 @@ test.describe("Code Mode Groups: Transactions", () => {
 // =============================================================================
 
 test.describe("Code Mode Groups: Partitioning", () => {
-  test("mysql.partitioning.partitionInfo()", async ({}, testInfo) => {
+  test("mysql.partitioning.partitionInfo()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {

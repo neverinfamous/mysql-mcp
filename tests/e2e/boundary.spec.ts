@@ -19,7 +19,7 @@ test.describe.configure({ mode: "serial" });
 // =============================================================================
 
 test.describe("Boundary: Empty Tables", () => {
-  test("create empty table, describe, then drop", async ({}, testInfo) => {
+  test("create empty table, describe, then drop", async () => {
     const client = await createClient();
     try {
       // Create
@@ -58,7 +58,7 @@ test.describe("Boundary: Empty Tables", () => {
     }
   });
 
-  test("stats on empty table → structured error or zero stats", async ({}, testInfo) => {
+  test("stats on empty table → structured error or zero stats", async () => {
     const client = await createClient();
     try {
       // Create empty table
@@ -96,7 +96,7 @@ test.describe("Boundary: Empty Tables", () => {
 // =============================================================================
 
 test.describe("Boundary: NULL Values", () => {
-  test("table with all-NULL numeric column", async ({}, testInfo) => {
+  test("table with all-NULL numeric column", async () => {
     const client = await createClient();
     try {
       // Create + insert NULLs
@@ -137,7 +137,7 @@ test.describe("Boundary: NULL Values", () => {
 // =============================================================================
 
 test.describe("Boundary: Single Row", () => {
-  test("stats on single-row table", async ({}, testInfo) => {
+  test("stats on single-row table", async () => {
     const client = await createClient();
     try {
       await callToolAndParse(client, "mysql_create_table", {
@@ -184,7 +184,7 @@ test.describe("Boundary: Single Row", () => {
 // =============================================================================
 
 test.describe("Boundary: Create-Drop-Recreate", () => {
-  test("create table, drop, recreate with different schema", async ({}, testInfo) => {
+  test("create table, drop, recreate with different schema", async () => {
     const client = await createClient();
     try {
       // Clean up orphaned table if any
@@ -249,17 +249,20 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
 // =============================================================================
 
 test.describe("Boundary: View Lifecycle", () => {
-  test("create view → list views → query view → drop view", async ({}, testInfo) => {
+  test("create view → list views → query view → drop view", async () => {
     const client = await createClient();
     try {
+      const ts = Date.now();
+      const viewName = `_e2e_boundary_view_${ts}`;
+      
       // Create view
       await callToolAndParse(client, "mysql_drop_view", {
-        name: "_e2e_boundary_view_1778242635228",
+        name: viewName,
         ifExists: true,
       }).catch(() => {});
       const create = await callToolAndParse(client, "mysql_create_view", {
-        name: "_e2e_boundary_view_1778242635228",
-        query: "SELECT id, name FROM test_products WHERE price > 50",
+        name: viewName,
+        definition: "SELECT id, name FROM test_products WHERE price > 50",
       });
       expectSuccess(create);
 
@@ -268,12 +271,12 @@ test.describe("Boundary: View Lifecycle", () => {
       expectSuccess(list);
       const views = (list.data?.views ?? list.views) as Array<{ name: string }>;
       expect(
-        views.some((v) => v.name === "_e2e_boundary_view_1778242635228"),
+        views.some((v) => v.name === viewName),
       ).toBe(true);
 
       // Query the view
       const query = await callToolAndParse(client, "mysql_read_query", {
-        query: "SELECT * FROM _e2e_boundary_view_1778242635228",
+        query: `SELECT * FROM ${viewName}`,
       });
       expectSuccess(query);
       expect(
@@ -287,7 +290,7 @@ test.describe("Boundary: View Lifecycle", () => {
 
       // Drop view
       const drop = await callToolAndParse(client, "mysql_drop_view", {
-        name: "_e2e_boundary_view_1778242635228",
+        name: viewName,
       });
       expectSuccess(drop);
     } finally {
@@ -301,7 +304,7 @@ test.describe("Boundary: View Lifecycle", () => {
 // =============================================================================
 
 test.describe("Boundary: Data Integrity", () => {
-  test("test_products still has expected row count", async ({}, testInfo) => {
+  test("test_products still has expected row count", async () => {
     test.setTimeout(60_000);
     const client = await createClient();
     try {
@@ -322,7 +325,7 @@ test.describe("Boundary: Data Integrity", () => {
 // =============================================================================
 
 test.describe("Boundary: Security Sandbox", () => {
-  test("filesystem tools reject paths outside ALLOWED_IO_ROOTS", async ({}, testInfo) => {
+  test("filesystem tools reject paths outside ALLOWED_IO_ROOTS", async () => {
     const client = await createClient();
     try {
       const badPath = process.platform === "win32" ? "C:/Windows/System32/config/SAM" : "/etc/passwd";

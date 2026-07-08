@@ -7,9 +7,6 @@
  */
 
 
-import { join } from "node:path";
-import { tmpdir } from "node:os";
-
 import { test, expect } from "@playwright/test";
 import {
   startServer,
@@ -17,22 +14,19 @@ import {
   createClient,
   callToolAndParse,
   cleanupAuditFiles,
+  auditLogPath,
 } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 
 const AUDIT_PORT_BASE = 3180;
 const AUDIT_FILTER = "core,transactions,monitoring";
 
-function auditLogPath(suffix: string): string {
-  return join(tmpdir(), `mysql-audit-summary-${suffix}-${Date.now()}.jsonl`);
-}
-
 test.describe.configure({ mode: "serial", timeout: 120_000 });
 
 test.describe("Audit Token Summary Accuracy", () => {
   test("mysql://audit summary accurately aggregates tool token estimates", async () => {
     const port = AUDIT_PORT_BASE + 1;
-    const logPath = auditLogPath("accuracy");
+    const logPath = auditLogPath("audit-summary", "accuracy");
 
     // Enable audit reads so read-scoped tools are also logged
     await startServer(
@@ -121,7 +115,7 @@ test.describe("Audit Token Summary Accuracy", () => {
 
   test("high-cost operations reflect accurately in summary total and rank top", async () => {
     const port = AUDIT_PORT_BASE + 2;
-    const logPath = auditLogPath("highcost");
+    const logPath = auditLogPath("audit-summary", "highcost");
 
     // Enable audit reads
     await startServer(

@@ -17,7 +17,7 @@ test.describe.configure({ mode: "serial" });
 // =============================================================================
 
 test.describe("Code Mode Groups: Core", () => {
-  test("mysql.core.listTables()", async ({}, testInfo) => {
+  test("mysql.core.listTables()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -35,7 +35,7 @@ test.describe("Code Mode Groups: Core", () => {
     }
   });
 
-  test("mysql.core.readQuery()", async ({}, testInfo) => {
+  test("mysql.core.readQuery()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -57,7 +57,7 @@ test.describe("Code Mode Groups: Core", () => {
 // =============================================================================
 
 test.describe("Code Mode Groups: JSONB", () => {
-  test("mysql.json.extract()", async ({}, testInfo) => {
+  test("mysql.json.extract()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -78,7 +78,7 @@ test.describe("Code Mode Groups: JSONB", () => {
 // =============================================================================
 
 test.describe("Code Mode Groups: Performance", () => {
-  test("mysql.performance.explain()", async ({}, testInfo) => {
+  test("mysql.performance.explain()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -101,7 +101,7 @@ test.describe("Code Mode Groups: Performance", () => {
 // =============================================================================
 
 test.describe("Code Mode Groups: Introspection", () => {
-  test("mysql.introspection.schemaSnapshot()", async ({}, testInfo) => {
+  test("mysql.introspection.schemaSnapshot()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -124,7 +124,7 @@ test.describe("Code Mode Groups: Introspection", () => {
 // =============================================================================
 
 test.describe("Code Mode Groups: Migration", () => {
-  test("mysql.migration.history()", async ({}, testInfo) => {
+  test("mysql.migration.history()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -145,7 +145,7 @@ test.describe("Code Mode Groups: Migration", () => {
 // =============================================================================
 
 test.describe("Code Mode Groups: Schema", () => {
-  test("mysql.schema.listViews()", async ({}, testInfo) => {
+  test("mysql.schema.listViews()", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {

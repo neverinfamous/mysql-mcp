@@ -63,7 +63,7 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
 
     const schema = parseResourceText(response.contents[0]!.text as string);
     expect(schema).toHaveProperty("tables");
-    expect(Array.isArray((schema as any).tables)).toBe(true);
+    expect(Array.isArray((schema as Record<string, unknown>).tables)).toBe(true);
   });
 
   test("should read mysql://tables resource", async () => {
@@ -84,7 +84,7 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
 
     const health = parseResourceText(
       response.contents[0]!.text as string,
-    ) as any;
+    ) as Record<string, unknown>;
     // mysql-mcp health resource returns connection and server info
     expect(health).toBeDefined();
     expect(typeof health).toBe("object");

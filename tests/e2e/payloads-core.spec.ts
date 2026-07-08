@@ -17,7 +17,7 @@ test.describe("Payload Contracts: Core", () => {
     try {
       const payload = await callToolAndParse(client, "mysql_list_tables", {});
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(Array.isArray(data.tables)).toBe(true);
       expect(typeof data.count).toBe("number");
 
@@ -36,7 +36,7 @@ test.describe("Payload Contracts: Core", () => {
         query: "SELECT id, name FROM test_products LIMIT 3",
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(Array.isArray(data.rows)).toBe(true);
       expect(typeof data.rowCount).toBe("number");
       expect(data.rowCount).toBe(3);
@@ -52,7 +52,7 @@ test.describe("Payload Contracts: Core", () => {
         table: "test_products",
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(data.exists).toBe(true);
       expect(Array.isArray(data.columns)).toBe(true);
 
@@ -71,7 +71,7 @@ test.describe("Payload Contracts: Core", () => {
         table: "test_products",
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(data.exists).toBe(true);
       expect(Array.isArray(data.indexes)).toBe(true);
     } finally {
@@ -105,7 +105,7 @@ test.describe("Payload Contracts: Core", () => {
           "INSERT INTO _e2e_payload_test (id, val) VALUES (1, 'test') ON DUPLICATE KEY UPDATE val = 'test'",
       });
 
-      const data = payload.data as any;
+      const data = payload.data as Record<string, unknown>;
       expect(typeof data.rowsAffected).toBe("number");
 
       // Cleanup
@@ -148,14 +148,14 @@ test.describe("Payload Contracts: Core", () => {
       }
 
       expect(createPayload.success).toBe(true);
-      expect((createPayload.data as any).tableName).toBe(tableName);
+      expect((createPayload.data as Record<string, unknown>).tableName).toBe(tableName);
 
       const dropPayload = await callToolAndParse(client, "mysql_drop_table", {
         table: tableName,
       });
 
       expect(dropPayload.success).toBe(true);
-      expect((dropPayload.data as any).tableName).toBe(tableName);
+      expect((dropPayload.data as Record<string, unknown>).tableName).toBe(tableName);
     } finally {
       await client.close();
     }
@@ -198,7 +198,7 @@ test.describe("Payload Contracts: Core", () => {
       });
 
       expect(idxPayload.success).toBe(true);
-      expect(typeof (idxPayload.data as any).indexName).toBe("string");
+      expect(typeof (idxPayload.data as Record<string, unknown>).indexName).toBe("string");
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {

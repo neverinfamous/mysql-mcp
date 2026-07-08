@@ -87,44 +87,12 @@ test.describe("Zod Sweep: Core", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
 });
 
-// =============================================================================
-// JSONB Group (tools with required params)
-// =============================================================================
-
-test.describe("Zod Sweep: JSONB", () => {
-  const tools = [
-    "mysql_jsonb_extract",
-    "mysql_jsonb_contains",
-    "mysql_jsonb_path_query",
-    "mysql_jsonb_set",
-    "mysql_jsonb_insert",
-    "mysql_jsonb_delete",
-    "mysql_jsonb_array",
-    "mysql_jsonb_strip_nulls",
-    "mysql_jsonb_validate_path",
-    "mysql_jsonb_merge",
-    "mysql_jsonb_normalize",
-    "mysql_jsonb_diff",
-    "mysql_jsonb_agg",
-    "mysql_jsonb_keys",
-    "mysql_jsonb_typeof",
-    "mysql_jsonb_index_suggest",
-    "mysql_jsonb_security_scan",
-    "mysql_jsonb_stats",
-  ];
-
-  for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
-      await assertZodHandlerError(undefined, tool);
-    });
-  }
-});
 
 // =============================================================================
 // Text Group (tools with required params)
@@ -147,7 +115,7 @@ test.describe("Zod Sweep: Text", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -170,7 +138,7 @@ test.describe("Zod Sweep: Stats", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -189,7 +157,7 @@ test.describe("Zod Sweep: Performance", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -208,7 +176,7 @@ test.describe("Zod Sweep: Transactions", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -227,7 +195,7 @@ test.describe("Zod Sweep: Admin", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -250,7 +218,7 @@ test.describe("Zod Sweep: Schema", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -264,7 +232,7 @@ test.describe("Zod Sweep: Backup", () => {
   const tools = ["mysql_dump_table", "mysql_copy_export", "mysql_copy_import"];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -292,7 +260,7 @@ test.describe("Zod Sweep: Vector", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -312,7 +280,7 @@ test.describe("Zod Sweep: Introspection", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
@@ -331,89 +299,20 @@ test.describe("Zod Sweep: Partitioning", () => {
   ];
 
   for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
+    test(`${tool}({}) → handler error`, async () => {
       await assertZodHandlerError(undefined, tool);
     });
   }
 });
 
-// =============================================================================
-// PostGIS Group (tools with required params)
-// =============================================================================
-
-test.describe("Zod Sweep: PostGIS", () => {
-  const tools = [
-    "mysql_geometry_column",
-    "mysql_spatial_index",
-    "mysql_point_in_polygon",
-    "mysql_distance",
-    "mysql_buffer",
-    "mysql_intersection",
-    "mysql_bounding_box",
-    "mysql_geometry_buffer",
-    "mysql_geometry_intersection",
-    "mysql_geometry_transform",
-  ];
-
-  for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
-      await assertZodHandlerError(undefined, tool);
-    });
-  }
-});
 
 // =============================================================================
 // Code Mode
 // =============================================================================
 
 test.describe("Zod Sweep: Code Mode", () => {
-  test("mysql_execute_code({}) → handler error", async ({}, testInfo) => {
+  test("mysql_execute_code({}) → handler error", async () => {
     await assertZodHandlerError(undefined, "mysql_execute_code");
   });
 });
 
-// =============================================================================
-// Minor Extensions & Monitoring Group (tools with required params)
-// =============================================================================
-
-test.describe("Zod Sweep: Minor Extensions & Monitoring", () => {
-  const tools = [
-    // citext
-    "mysql_citext_convert_column",
-    "mysql_citext_compare",
-    "mysql_citext_schema_advisor",
-    // ltree
-    "mysql_ltree_convert_column",
-    "mysql_ltree_create_index",
-    "mysql_ltree_query",
-    "mysql_ltree_subpath",
-    "mysql_ltree_lca",
-    "mysql_ltree_match",
-    // pgcrypto
-    "mysql_pgcrypto_hash",
-    "mysql_pgcrypto_hmac",
-    "mysql_pgcrypto_encrypt",
-    "mysql_pgcrypto_decrypt",
-    "mysql_pgcrypto_gen_random_bytes",
-    "mysql_pgcrypto_gen_salt",
-    "mysql_pgcrypto_crypt",
-    // mysql_cron
-    "mysql_cron_schedule",
-    "mysql_cron_schedule_in_database",
-    "mysql_cron_alter_job",
-    "mysql_cron_unschedule",
-    // partman
-    "mysql_partman_create_parent",
-    "mysql_partman_show_partitions",
-    "mysql_partman_check_default",
-    "mysql_partman_partition_data",
-    "mysql_partman_set_retention",
-    "mysql_partman_undo_partition",
-  ];
-
-  for (const tool of tools) {
-    test(`${tool}({}) → handler error`, async ({}, testInfo) => {
-      await assertZodHandlerError(undefined, tool);
-    });
-  }
-});

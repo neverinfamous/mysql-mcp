@@ -25,7 +25,7 @@ test.describe("Code Mode: Sandbox Basics", () => {
   test.beforeEach(() => {
     test.setTimeout(120_000);
   });
-  test("should return a simple value", async ({}, testInfo) => {
+  test("should return a simple value", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -38,7 +38,7 @@ test.describe("Code Mode: Sandbox Basics", () => {
     }
   });
 
-  test("should return a string", async ({}, testInfo) => {
+  test("should return a string", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -51,7 +51,7 @@ test.describe("Code Mode: Sandbox Basics", () => {
     }
   });
 
-  test("should return an object", async ({}, testInfo) => {
+  test("should return an object", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -66,7 +66,7 @@ test.describe("Code Mode: Sandbox Basics", () => {
     }
   });
 
-  test("should handle async/await", async ({}, testInfo) => {
+  test("should handle async/await", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -82,7 +82,7 @@ test.describe("Code Mode: Sandbox Basics", () => {
     }
   });
 
-  test("should return runtime error for invalid code", async ({}, testInfo) => {
+  test("should return runtime error for invalid code", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -104,7 +104,7 @@ test.describe("Code Mode: API Discoverability", () => {
     test.setTimeout(90_000);
   });
 
-  test("mysql.help() should return documentation", async ({}, testInfo) => {
+  test("mysql.help() should return documentation", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -118,7 +118,7 @@ test.describe("Code Mode: API Discoverability", () => {
     }
   });
 
-  test("mysql.core should be accessible", async ({}, testInfo) => {
+  test("mysql.core should be accessible", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -131,7 +131,7 @@ test.describe("Code Mode: API Discoverability", () => {
     }
   });
 
-  test("mysql.stats should be accessible", async ({}, testInfo) => {
+  test("mysql.stats should be accessible", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -150,7 +150,7 @@ test.describe("Code Mode: API Discoverability", () => {
 // =============================================================================
 
 test.describe("Code Mode: Security", () => {
-  test("should block require()", async ({}, testInfo) => {
+  test("should block require()", async () => {
     test.setTimeout(120_000);
     const client = await createClient();
     try {
@@ -163,7 +163,7 @@ test.describe("Code Mode: Security", () => {
     }
   });
 
-  test("should block process access", async ({}, testInfo) => {
+  test("should block process access", async () => {
     test.setTimeout(120_000);
     const client = await createClient();
     try {
@@ -176,7 +176,7 @@ test.describe("Code Mode: Security", () => {
     }
   });
 
-  test("should block eval()", async ({}, testInfo) => {
+  test("should block eval()", async () => {
     test.setTimeout(120_000);
     const client = await createClient();
     try {
@@ -189,7 +189,7 @@ test.describe("Code Mode: Security", () => {
     }
   });
 
-  test("should enforce timeout", async ({}, testInfo) => {
+  test("should enforce timeout", async () => {
     test.setTimeout(120_000);
     const client = await createClient();
     try {
@@ -209,7 +209,7 @@ test.describe("Code Mode: Security", () => {
 // =============================================================================
 
 test.describe("Code Mode: Readonly Mode", () => {
-  test("readonly should allow reads", async ({}, testInfo) => {
+  test("readonly should allow reads", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -233,7 +233,7 @@ test.describe("Code Mode: Readonly Mode", () => {
 // =============================================================================
 
 test.describe("Code Mode: Multi-Step Workflows", () => {
-  test("ETL pipeline: create → insert → query → cleanup", async ({}, testInfo) => {
+  test("ETL pipeline: create → insert → query → cleanup", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -277,7 +277,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
     }
   });
 
-  test("introspection + query: list tables → describe → query", async ({}, testInfo) => {
+  test("introspection + query: list tables → describe → query", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -315,7 +315,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
     }
   });
 
-  test("Binary Types: buffer handling and serialization", async ({}, testInfo) => {
+  test("Binary Types: buffer handling and serialization", async () => {
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {

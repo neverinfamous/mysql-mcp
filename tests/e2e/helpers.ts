@@ -9,17 +9,36 @@
 import { type ChildProcess, spawn } from "node:child_process";
 import { setTimeout as delay } from "node:timers/promises";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { rm } from "node:fs/promises";
 import { expect } from "@playwright/test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
-const BASE_URL = "http://localhost:3002";
+export const BASE_URL = "http://localhost:3002";
 
-function getDefaultMysqlUrl(): string {
+/** MCP protocol versions */
+export const MCP_PROTOCOL_STREAMABLE = "2025-03-26";
+export const MCP_PROTOCOL_LEGACY = "2024-11-05";
+
+/** Common headers for raw MCP HTTP requests */
+export const MCP_JSON_HEADERS = {
+  "Content-Type": "application/json",
+  Accept: "application/json, text/event-stream",
+} as const;
+
+export function getDefaultMysqlUrl(): string {
   return (
-    process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3306/testdb"
+    process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"
   );
+}
+
+/**
+ * Generate a unique temp file path for an audit log.
+ * Exported so individual spec files don't need to duplicate this helper.
+ */
+export function auditLogPath(prefix: string, suffix: string): string {
+  return join(tmpdir(), `mysql-${prefix}-e2e-${suffix}-${Date.now()}.jsonl`);
 }
 
 // ─── Client creation ────────────────────────────────────────────────────────
@@ -155,11 +174,13 @@ const serverProcesses = new Map<number, ChildProcess>();
  * @param port - Port to run the server on.
  * @param extraArgs - Additional CLI arguments (e.g., `--audit-log`).
  * @param label - Debug label for error messages.
+ * @param extraEnv - Additional environment variables to merge (e.g., `{ MCP_RATE_LIMIT_MAX: "5" }`).
  */
 export async function startServer(
   port: number,
   extraArgs: string[] = [],
   label = "test",
+  extraEnv: Record<string, string> = {},
 ): Promise<void> {
   const hasMysql = extraArgs.includes("--mysql");
   const proc = spawn(
@@ -182,6 +203,7 @@ export async function startServer(
         ...process.env,
         MCP_RATE_LIMIT_MAX: "10000",
         ALLOWED_IO_ROOTS: `C:/temp,C:/tmp,/tmp,${tmpdir()}`,
+        ...extraEnv,
       },
     },
   );
