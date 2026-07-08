@@ -234,7 +234,7 @@ sysschema Tool Group (4 tools +1 code mode):
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.sys.sysSchemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+10. 🔴 `mysql.sys.sysUserSummary({ user: "nonexistent_user_xyz" })` -> `{success: false}`
 
 **Zod validation error paths (🔴):**
 

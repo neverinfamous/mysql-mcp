@@ -45,6 +45,7 @@ function invokeMySql(query, noDatabase = false) {
 function invokeMySqlFile(filePath) {
     console.log(`\n[1/3] Executing seed script...`);
     try {
+        invokeMySql(`CREATE DATABASE IF NOT EXISTS ${mysqlDatabase};`, true);
         const fileContent = readFileSync(filePath);
         execSync(`${dockerCmd} exec -i ${containerName} mysql -uroot -proot ${mysqlDatabase}`, { input: fileContent, stdio: ['pipe', 'inherit', 'inherit'] });
     } catch (e) {
