@@ -84,7 +84,7 @@ events Tool Group (6 tools +1 code mode):
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.event_help()` → verify method listing
+1. `mysql.events.help()` → verify method listing
 2. `mysql.events.schedulerStatus()` → ON/OFF
 3. `mysql.events.list()` → event listing
 
