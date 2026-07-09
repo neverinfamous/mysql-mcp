@@ -28,7 +28,7 @@ if [ ! -f "$CONF_FILE" ]; then
 
     echo "[Router-Init] Bootstrap complete. Configuring REST API authentication..."
     # Create REST API user
-    echo 'router_api' | /usr/bin/mysqlrouter_passwd set "$ROUTER_DIR/data/rest_users" router_api
+    echo 'router_api' | /usr/bin/mysqlrouter_passwd set "$ROUTER_DIR/data/rest_users" rest_api
     
     # Switch REST auth from metadata_cache to file-based
     sed -i 's|backend=metadata_cache|backend=file\nfilename=/tmp/mysqlrouter/data/rest_users|' "$CONF_FILE"
