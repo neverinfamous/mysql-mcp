@@ -91,8 +91,8 @@ monitoring Tool Group (7 tools +1 code mode):
 2. `mysql.monitoring.showProcesslist()` → at least 1 connection
 3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
 4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
-5. `mysql.monitoring.innodbStatus()` → InnoDB status
-6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
+5. `mysql.monitoring.innodbStatus({summary: false})` → raw InnoDB status
+6. `mysql.monitoring.innodbStatus()` → summarized output (smaller payload)
 7. `mysql.monitoring.replicationStatus()` → replication configuration status
 8. `mysql.monitoring.poolStats()` → connection pool stats
 9. `mysql.monitoring.serverHealth()` → health assessment
