@@ -2,11 +2,10 @@ services:
   mysql-mcp:
     build: .
     ports:
-      - "3000:3000"
+      - "${MYSQLMCP_PORT:-3000}:3000"
     command:
       - --transport
       - http
-      - --audit-reads
     env_file:
       - .env # Copy .env.example to .env to configure
     environment:
@@ -22,7 +21,8 @@ services:
       - redis
 
   mysql:
-    image: mysql:9.1
+    image: mysql:lts
+    command: --innodb-use-native-aio=0 --innodb-flush-method=fsync
     ports:
       - "3306:3306"
     environment:

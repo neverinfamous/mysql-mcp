@@ -274,7 +274,7 @@ If you discover a security vulnerability:
 3. **Include** detailed reproduction steps and potential impact
 4. **Allow** reasonable time for a fix before public disclosure
 
-### Response Timeline
+### Review Response Timeline
 
 - **Initial Response**: Within 48 hours
 - **Status Update**: Within 7 days

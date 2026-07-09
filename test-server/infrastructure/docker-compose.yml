@@ -3,7 +3,7 @@ services:
   # INNODB CLUSTER
   # ==========================================
   mysql-node1:
-    image: mysql:9.1
+    image: mysql:lts
     container_name: mysql-node1
     restart: unless-stopped
     hostname: mysql-node1
@@ -25,8 +25,10 @@ services:
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
       --innodb-flush-log-at-trx-commit=2
+      --innodb-use-native-aio=0
+      --innodb-flush-method=fsync
     volumes:
-      - mysql-node1-data-v5:/var/lib/mysql
+      - mysql-node1-data-v4:/var/lib/mysql
     stop_grace_period: 30s
     mem_limit: 512m
     logging:
@@ -35,13 +37,13 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
   mysql-node2:
-    image: mysql:9.1
+    image: mysql:lts
     container_name: mysql-node2
     restart: unless-stopped
     hostname: mysql-node2
@@ -62,8 +64,10 @@ services:
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
       --innodb-flush-log-at-trx-commit=2
+      --innodb-use-native-aio=0
+      --innodb-flush-method=fsync
     volumes:
-      - mysql-node2-data-v5:/var/lib/mysql
+      - mysql-node2-data-v4:/var/lib/mysql
     stop_grace_period: 30s
     mem_limit: 512m
     logging:
@@ -72,13 +76,13 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
   mysql-node3:
-    image: mysql:9.1
+    image: mysql:lts
     container_name: mysql-node3
     restart: unless-stopped
     hostname: mysql-node3
@@ -99,8 +103,10 @@ services:
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
       --innodb-flush-log-at-trx-commit=2
+      --innodb-use-native-aio=0
+      --innodb-flush-method=fsync
     volumes:
-      - mysql-node3-data-v5:/var/lib/mysql
+      - mysql-node3-data-v4:/var/lib/mysql
     stop_grace_period: 30s
     mem_limit: 512m
     logging:
@@ -109,10 +115,10 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-uroot", "-proot"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
   # ==========================================
   # ROUTING & PROXIES
@@ -201,7 +207,7 @@ services:
     ports:
       - "9090:9090"
     extra_hosts:
-      - "host.docker.internal:host-gateway"
+      - "host.docker.internal:${WINDOWS_HOST_IP:-host-gateway}"
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     logging:
@@ -226,6 +232,6 @@ services:
         max-file: "3"
 
 volumes:
-  mysql-node1-data-v5:
-  mysql-node2-data-v5:
-  mysql-node3-data-v5:
+  mysql-node1-data-v4:
+  mysql-node2-data-v4:
+  mysql-node3-data-v4:

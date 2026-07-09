@@ -15,6 +15,14 @@ function run(command) {
 console.log('=== Recreating MySQL Test Ecosystem ===');
 
 try {
+    // Dynamically fetch the Windows host IP (WSL2 Default Gateway) to allow Docker containers to scrape metrics
+    console.log('\n[Network] Fetching Windows Host IP...');
+    const wslGateway = execSync(`wsl bash -c "ip route show default | awk '{print \\$3}'"`).toString().trim();
+    console.log(`[Network] Windows Host IP: ${wslGateway}`);
+    
+    // Write to .env so docker-compose can use it for extra_hosts
+    execSync(`echo WINDOWS_HOST_IP=${wslGateway} > .env`, { cwd: join(REPO_ROOT, 'test-server', 'infrastructure') });
+
     run('docker compose down -v --remove-orphans');
     console.log('\n[Wait] Giving Docker daemon time to flush networks...');
     execSync('ping 127.0.0.1 -n 6 > nul'); // Windows sleep 5s

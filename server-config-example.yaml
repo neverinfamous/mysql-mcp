@@ -48,7 +48,7 @@ databases:
       waitForConnections: true
       queueLimit: 0
 
-# OAuth 2.0 Resource Server Settings (Optional)
+# OAuth 2.1 Resource Server Settings (Optional)
 oauth:
   enabled: false
   issuer: "https://auth.example.com"

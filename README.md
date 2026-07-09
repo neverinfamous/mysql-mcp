@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.85%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-389%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.75%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-389%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -11,7 +11,7 @@
 
 MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
-## 🎯 Core Benefits
+## 🎯 Leverage Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -237,7 +237,7 @@ node dist/cli.js \
 
 > **Additional flags:** `--oauth-jwks-uri <url>` (auto-discovered if omitted), `--oauth-clock-tolerance <seconds>` (default: 60).
 
-### OAuth Scopes
+### Enforce OAuth Scopes
 
 Access control is managed through OAuth scopes:
 
@@ -251,7 +251,7 @@ Access control is managed through OAuth scopes:
 | `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |
 
-### RFC Compliance & Enterprise Security
+### Ensure RFC Compliance
 
 This implementation follows full OAuth 2.1 for production multi-tenant deployments:
 
@@ -418,7 +418,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 > Note: The tool groups below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-To keep AI context windows optimized, the 28 tool groups are categorized into high-level domains. **[See the Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the exhaustive list.
+To optimize AI context windows, tool groups are categorized into high-level domains. **[See the Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the exhaustive list.
 
 | Category | Key Tool Groups | Description |
 |---|---|---|
@@ -430,7 +430,7 @@ To keep AI context windows optimized, the 28 tool groups are categorized into hi
 
 ---
 
-### Quick Start: Recommended IDE Configuration
+### Configure IDE Settings
 
 Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
 
@@ -559,7 +559,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 **Legacy Syntax (still supported):**
 If you start with a negative filter (e.g., `-ecosystem`), it enables all tools first. It then subtracts the specified tools.
 
-### Syntax Reference
+### Review Syntax Reference
 
 | Prefix   | Target   | Example             | Effect                                        |
 | -------- | -------- | ------------------- | --------------------------------------------- |
@@ -571,7 +571,7 @@ If you start with a negative filter (e.g., `-ecosystem`), it enables all tools f
 | `+`      | Tool     | `+mysql_explain`    | Add one specific tool                         |
 | `-`      | Tool     | `-mysql_drop_table` | Remove one specific tool                      |
 
-### Custom Tool Selection
+### Customize Tool Selection
 
 You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
 
@@ -579,7 +579,7 @@ The easiest way to filter is using **whitelist mode**. Simply specify the shortc
 > **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 ```bash
-# Enable exactly 3 tools (whitelist mode)
+# Enable specific tools (whitelist mode)
 --tool-filter "mysql_read_query,mysql_write_query,mysql_list_tables"
 
 # Mix tools from different groups
@@ -638,7 +638,7 @@ For specialized setups, see these Wiki pages:
 
 ---
 
-## ⚡ Performance Tuning
+## ⚡ Tune Performance
 
 The server caches schema metadata to reduce repeated queries during tool/resource invocations.
 
