@@ -319,7 +319,7 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall tables not accessible");
+      expect(result.error).toContain("Firewall rules check failed: Table missing");
     });
 
     it("should not include duplicated message field in error response", async () => {

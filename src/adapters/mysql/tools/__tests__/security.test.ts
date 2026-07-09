@@ -170,7 +170,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall tables not accessible");
+      expect(result.error).toContain("Firewall rules check failed: Access denied");
     });
   });
 
