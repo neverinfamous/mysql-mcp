@@ -498,8 +498,17 @@ export function createShellImportJSONTool(
             }
 
             if (!parsed.success) {
+              const errorMsg = parsed.error ?? "Unknown MySQL Shell error";
+              if (errorMsg.includes("MySQL Error 2006") || errorMsg.includes("server has gone away") || errorMsg.includes("MySQL Error 2002") || errorMsg.includes("No connection could be made")) {
+                throw new MySQLMcpError(
+                  errorMsg,
+                  "CONNECTION_ERROR",
+                  ErrorCategory.CONNECTION,
+                  { details: { protocol: "X Protocol" }, recoverable: true }
+                );
+              }
               throw new MySQLMcpError(
-                parsed.error ?? "Unknown MySQL Shell error",
+                errorMsg,
                 "QUERY_ERROR",
                 ErrorCategory.QUERY,
                 { details: { protocol: "X Protocol" } }
@@ -523,7 +532,7 @@ export function createShellImportJSONTool(
             .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
             .trim() || "MySQL Shell import failed";
           
-          if (stderrText.includes("MySQL Error 2006") || stderrText.includes("server has gone away")) {
+          if (stderrText.includes("MySQL Error 2006") || stderrText.includes("server has gone away") || stderrText.includes("MySQL Error 2002") || stderrText.includes("No connection could be made")) {
             throw new MySQLMcpError(
               stderrText,
               "CONNECTION_ERROR",
