@@ -18,9 +18,9 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 ### Meet Prerequisites
 
-- Node.js 24+
+- Current Node.js LTS (e.g., v24+)
 - Bun >= 1.0 (for script execution)
-- pnpm >= 9.x (see `engines` in `package.json`)
+- Current pnpm version (e.g., v9+)
 - **Git** (for version control)
 - **MySQL 5.7, 8.0+, or 9.x** (local instance or Docker)
 - **Docker** (optional, for container testing)

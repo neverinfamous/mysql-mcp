@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.85%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-123%20passing%20%C2%B7%20238%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.85%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-389%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -34,7 +34,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 ---
 
-## 🚀 Install and Deploy
+## 🚀 Deploy Your AI Database in Minutes
 
 ### Meet Prerequisites
 
@@ -117,7 +117,7 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 ### Protect the Runtime
 
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — Enforces a 30s hard limit. It prevents resource exhaustion.
+- ✅ **Execution timeout** — Enforces a 30s default limit to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — 60 executions per minute per client. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
@@ -174,7 +174,7 @@ Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 
 > **Rate Limit:** HTTP transport is limited to 100 requests per minute per IP. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 
-Sessions are managed via the `Mcp-Session-Id` header.
+The server manages sessions via the `Mcp-Session-Id` header.
 
 ### Run Statelessly
 
@@ -418,36 +418,15 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 > Note: The tool groups below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-| Group           | Description                                             |
-| --------------- | ------------------------------------------------------- |
-| `codemode`      | Code Mode (sandboxed code execution) 🌟 **Recommended** |
-| `core`          | Read/write queries, tables, indexes                     |
-| `transactions`  | BEGIN, COMMIT, ROLLBACK, savepoints                     |
-| `json`          | JSON functions, merge, diff, stats                      |
-| `text`          | REGEXP, LIKE, SOUNDEX                                   |
-| `fulltext`      | Natural language & boolean search                       |
-| `performance`   | EXPLAIN, query analysis, anomaly detection              |
-| `optimization`  | Index hints, database-wide audits, EXPLAIN recommendations |
-| `admin`         | OPTIMIZE, ANALYZE, CHECK, insights                      |
-| `monitoring`    | PROCESSLIST, status variables                           |
-| `backup`        | Export, import, mysqldump, audit backups                |
-| `replication`   | Master/slave, binlog                                    |
-| `partitioning`  | Partition management                                    |
-| `schema`        | Views, procedures, triggers, constraints                |
-| `introspection` | Dependency graphs, cascade simulation, snapshots        |
-| `migration`     | Schema versioning, apply, rollback, history             |
-| `shell`         | MySQL Shell utilities                                   |
-| `events`        | Event Scheduler management                              |
-| `sysschema`     | sys schema diagnostics                                  |
-| `stats`         | Statistical analysis, window functions, sampling        |
-| `spatial`       | Spatial/GIS operations                                  |
-| `security`      | Audit, SSL, encryption, masking                         |
-| `roles`         | MySQL 8.0 role management                               |
-| `docstore`      | Document Store collections                              |
-| `cluster`       | Group Replication, InnoDB Cluster                       |
-| `proxysql`      | ProxySQL management                                     |
-| `router`        | MySQL Router REST API                                   |
-| `vector`        | Vector embeddings, KNN search, hybrid search (MySQL 9.0+)|
+To keep AI context windows optimized, the 28 tool groups are categorized into high-level domains. **[See the Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the exhaustive list.
+
+| Category | Key Tool Groups | Description |
+|---|---|---|
+| **Core CRUD** | `core`, `json`, `transactions`, `vector`, `spatial` | Essential database operations, querying, and specialized data types. |
+| **Schema** | `schema`, `introspection`, `migration` | Structure design, dependency analysis, and version management. |
+| **Observability** | `performance`, `monitoring`, `sysschema`, `stats` | Real-time diagnostics, EXPLAIN analysis, and anomaly detection. |
+| **Ecosystem** | `cluster`, `proxysql`, `router`, `shell` | Integration with MySQL Router, ProxySQL, and InnoDB Cluster. |
+| **Administration** | `admin`, `backup`, `security`, `roles` | Server maintenance, snapshots, and OAuth/RBAC security configuration. |
 
 ---
 

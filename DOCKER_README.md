@@ -1,7 +1,7 @@
 # MySQL MCP Server
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.85%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-123%20passing%20%C2%B7%20238%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.85%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-389%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -32,7 +32,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 ---
 
-## 🚀 Install and Deploy
+## 🚀 Deploy Your AI Database in Minutes
 
 ### Meet Prerequisites
 
@@ -79,7 +79,7 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
 - **Rate limiting** — Caps at 60 executions per minute. Supports Redis with in-memory fallback.
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after 30 seconds.
+- **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after a 30s default limit. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - **Full API access** — all tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
 ### ⚡ Run Only Code Mode
@@ -230,7 +230,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ## 🛠️ Optimize Limits with Tool Filtering
 
-> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools are used.
+> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (e.g., ProxySQL, MySQL Router, MySQL Shell) are used.
 
 > [!IMPORTANT]
 > **AI IDEs like Cursor have strict tool limits. You MUST use tool filtering to stay within your IDE's limits.** 

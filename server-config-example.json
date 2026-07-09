@@ -44,5 +44,6 @@
     "audience": "mysql-mcp-client",
     "jwksUri": "https://auth.example.com/.well-known/jwks.json",
     "clockTolerance": 60
-  }
+  },
+  "_comment": "redisUrl, codeModeIsolation, and proxySql features are injected via environment variables only (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser."
 }

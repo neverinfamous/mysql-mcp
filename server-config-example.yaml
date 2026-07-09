@@ -57,11 +57,5 @@ oauth:
   clockTolerance: 60
 
 # Advanced & Ecosystem Features
-# Uncomment and configure as needed
-# redisUrl: "redis://localhost:6379"
-# codeModeIsolation: "sandbox"
-# proxySql:
-#   host: "localhost"
-#   port: 6032
-#   username: "radmin"
-#   password: "radmin"
+# redisUrl, codeModeIsolation, and proxySql features are injected via environment variables only
+# (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser.
