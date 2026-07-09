@@ -111,3 +111,6 @@ prometheus/
 
 # Data mounts
 data/
+
+# Adamic Workflows Copies
+.agents/
