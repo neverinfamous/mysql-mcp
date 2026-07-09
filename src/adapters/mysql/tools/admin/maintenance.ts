@@ -341,6 +341,9 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
+        if (error !== null && typeof error === "object" && "name" in error && error.name === "ConnectionError") {
+          return formatHandlerErrorResponse(error);
+        }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Unknown thread id")) {
           return withTokenEstimate({
