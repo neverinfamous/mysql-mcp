@@ -117,6 +117,7 @@ export async function callToolAndParse(
 ): Promise<McpPayload> {
   const response = await client.callTool(
     { name: toolName, arguments: args },
+    undefined,
     { timeout: timeoutMs }
   );
 
@@ -152,6 +153,7 @@ export async function callToolRaw(
 }> {
   const response = await client.callTool(
     { name: toolName, arguments: args },
+    undefined,
     { timeout: timeoutMs }
   );
   return response as {
