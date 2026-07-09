@@ -3,7 +3,7 @@ services:
   # INNODB CLUSTER
   # ==========================================
   mysql-node1:
-    image: mysql:8.0
+    image: mysql:9.1
     container_name: mysql-node1
     restart: unless-stopped
     hostname: mysql-node1
@@ -13,6 +13,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_ROOT_HOST: '%'
+      MYSQL_DATABASE: testdb
     command: >
       --server-id=1
       --log-bin=mysql-bin
@@ -20,7 +21,6 @@ services:
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
       --binlog_format=ROW
-      --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node1
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
@@ -41,7 +41,7 @@ services:
       retries: 10
 
   mysql-node2:
-    image: mysql:8.0
+    image: mysql:9.1
     container_name: mysql-node2
     restart: unless-stopped
     hostname: mysql-node2
@@ -58,7 +58,6 @@ services:
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
       --binlog_format=ROW
-      --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node2
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
@@ -79,7 +78,7 @@ services:
       retries: 10
 
   mysql-node3:
-    image: mysql:8.0
+    image: mysql:9.1
     container_name: mysql-node3
     restart: unless-stopped
     hostname: mysql-node3
@@ -96,7 +95,6 @@ services:
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
       --binlog_format=ROW
-      --binlog-transaction-dependency-tracking=WRITESET
       --report_host=mysql-node3
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
@@ -120,7 +118,7 @@ services:
   # ROUTING & PROXIES
   # ==========================================
   mysql-router:
-    image: mysql/mysql-router:8.0
+    image: container-registry.oracle.com/mysql/community-router:9.1.0
     container_name: mysql-router
     restart: unless-stopped
     depends_on:

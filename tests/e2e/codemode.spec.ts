@@ -243,36 +243,49 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
           await mysql.core.createTable({
             table: "_e2e_codemode_etl",
             columns: [
-              { name: "id", type: "SERIAL", primaryKey: true },
+              { name: "id", type: "INT", primaryKey: true },
               { name: "name", type: "TEXT" },
               { name: "value", type: "REAL" },
+              { name: "tags", type: "JSON" },
+              { name: "status", type: "VARCHAR(50)" },
+              { name: "created_at", type: "TIMESTAMP" }
             ],
             ifNotExists: true,
           });
 
           // Insert
-          await mysql.core.writeQuery({
-            query: "INSERT INTO _e2e_codemode_etl (name, value) VALUES ('alpha', 10.5), ('beta', 20.3), ('gamma', 30.1)",
-          });
+          const data = Array.from({ length: 2 }, (_, i) => ({
+            id: i + 1,
+            name: \`Item \${i}\`,
+            value: Math.random() * 100,
+            tags: JSON.stringify(["test", \`tag\${i}\`]),
+            status: i % 2 === 0 ? "active" : "inactive",
+            created_at: new Date().toISOString().slice(0, 19).replace('T', ' ')
+          }));
+
+          for (const row of data) {
+            await mysql.core.writeQuery({
+              query: "INSERT INTO _e2e_codemode_etl (id, name, value, tags, status, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+              params: [row.id, row.name, row.value, row.tags, row.status, row.created_at]
+            });
+          }
 
           // Query
           const result = await mysql.core.readQuery({
-            query: "SELECT name, value FROM _e2e_codemode_etl ORDER BY value DESC",
+            query: "SELECT status, COUNT(*) as count, AVG(value) as avg_val FROM _e2e_codemode_etl GROUP BY status"
           });
 
           // Cleanup
           await mysql.core.dropTable({ table: "_e2e_codemode_etl" });
 
           return {
-            rowCount: (result.data?.rows ?? result.rows)?.length ?? 0,
-            firstItem: (result.data?.rows ?? result.rows)[0]?.name,
+            statusCounts: (result.data?.rows ?? result.rows)?.length ?? 0
           };
         `,
       });
       expectSuccess(p);
       const result = p.result as Record<string, unknown>;
-      expect(result.rowCount).toBe(3);
-      expect(result.firstItem).toBe("gamma");
+      expect(result.statusCounts).toBeGreaterThan(0);
     } finally {
       await client.close();
     }

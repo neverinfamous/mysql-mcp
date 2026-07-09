@@ -24,7 +24,7 @@ services:
       - redis
 
   mysql:
-    image: mysql:8
+    image: mysql:9.1
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_USER: mcp_user
