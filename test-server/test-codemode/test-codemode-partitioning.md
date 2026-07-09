@@ -88,7 +88,7 @@ partitioning Tool Group (4 tools +1 code mode):
 
 > **Instructions**: Use `mysql.partition_*` namespace, push deviations to `failures` array.
 
-1. `mysql.partition_help()` → verify method listing
+1. `mysql.partitioning.help()` → verify method listing
 2. `mysql.partitioning.partitionInfo({ table: "test_partitioned" })` → verify success
 3. `mysql.partitioning.addPartition({ table: "test_partitioned", partitionName: "p_intl", partitionType: "LIST COLUMNS", value: "'international'" })` → verify success
 4. `mysql.partitioning.reorganizePartition({ table: "test_partitioned", fromPartitions: ["p_east"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_east1", value: "'east'"}, {name: "p_east2", value: "'northeast'"}] })` → verify success
