@@ -21,7 +21,7 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
 3. **Validation and Immediate Continuation**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint` and `pnpm run typecheck`. Do NOT run `pnpm run test` or `pnpm run check`. Ensure the local checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation. The main agent (Coordinator) will fix any broken tests at the end of the test suite.
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint`, `pnpm run typecheck`, and only the relevant `vitest` and `playwright` tests (do NOT run the entire test suites). Ensure the local checks and relevant tests pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
 4. **Finalization and Commit**:
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
@@ -162,6 +162,9 @@ When the suite finishes, compile the **Total Token Estimate** and resource metri
 
 ## Post-Suite Validation
 
-At the absolute end of the testing suite, check your records. If ANY subagent applied fixes during the run:
+Once all subagents have completed their tests, check your records. If ANY subagent applied code fixes during the run:
 
-1. Message the main agent: "The test suite is complete. Fixes were applied during the run. Please ask the user to restart the server ONCE, and then we will run a final validation sweep."
+1. Briefly summarize the specific code fixes made during the pass (you do not need to summarize changes made to testing prompts, only code).
+2. Run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` in that order.
+3. Run the full test suites using `pnpm run test:vitest` and `pnpm run test:e2e` (in either order). **CRITICAL**: If any tests fail, you (the Coordinator agent) MUST debug and fix the broken tests before proceeding. Do NOT leave the test suite in a broken state.
+4. Message the user: "The test suite is complete. Fixes were applied during the run. Please manually restart the server ONCE so we can perform a final live validation sweep."
