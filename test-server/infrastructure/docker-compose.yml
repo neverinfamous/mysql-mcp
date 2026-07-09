@@ -157,6 +157,8 @@ services:
     ports:
       - "6032:6032"
       - "6033:6033"
+    volumes:
+      - ./proxysql.cnf:/etc/proxysql.cnf
     logging:
       driver: json-file
       options:
