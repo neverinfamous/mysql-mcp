@@ -35,6 +35,7 @@ docs/
 !.env.example
 .dev.vars
 *.log
+logs/
 
 # Local config files with secrets
 config/*.local.json
