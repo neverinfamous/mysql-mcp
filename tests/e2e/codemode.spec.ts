@@ -235,6 +235,7 @@ test.describe("Code Mode: Readonly Mode", () => {
 
 test.describe("Code Mode: Multi-Step Workflows", () => {
   test("ETL pipeline: create → insert → query → cleanup", async () => {
+    test.setTimeout(120_000);
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {

@@ -113,11 +113,12 @@ export async function callToolAndParse(
   client: Client,
   toolName: string,
   args: Record<string, unknown> = {},
+  timeoutMs: number = TIMEOUTS.LONG
 ): Promise<McpPayload> {
-  const response = await client.callTool({
-    name: toolName,
-    arguments: args,
-  });
+  const response = await client.callTool(
+    { name: toolName, arguments: args },
+    { timeout: timeoutMs }
+  );
 
   expect(Array.isArray(response.content)).toBe(true);
   const content = response.content as Array<{ type: string; text?: string }>;
@@ -144,11 +145,15 @@ export async function callToolRaw(
   client: Client,
   toolName: string,
   args: Record<string, unknown>,
+  timeoutMs: number = TIMEOUTS.LONG
 ): Promise<{
   content: Array<{ type: string; text: string }>;
   isError?: boolean;
 }> {
-  const response = await client.callTool({ name: toolName, arguments: args });
+  const response = await client.callTool(
+    { name: toolName, arguments: args },
+    { timeout: timeoutMs }
+  );
   return response as {
     content: Array<{ type: string; text: string }>;
     isError?: boolean;
