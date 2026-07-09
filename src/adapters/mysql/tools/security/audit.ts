@@ -423,9 +423,10 @@ export function createSecurityFirewallRulesTool(
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
+        const message = error instanceof Error ? error.message : String(error);
         return formatHandlerErrorResponse(
           new Error(
-            "Firewall tables not accessible. Ensure MySQL Enterprise Firewall is installed and you have appropriate privileges.",
+            `Firewall rules check failed: ${stripErrorPrefix(message)}`,
           ),
         );
       }
