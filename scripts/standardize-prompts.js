@@ -242,6 +242,8 @@ function processDirectory(dirName) {
       .replace(/mysql\.stats_distinct/g, "mysql.stats.distinct")
       .replace(/mysql\.stats_frequency/g, "mysql.stats.frequency")
       .replace(/mysql\.stats_summary/g, "mysql.stats.summary")
+      .replace(/mysql\.stats_help/g, "mysql.stats.help")
+      .replace(/mysql\.stats_topN/g, "mysql.stats.topN")
       .replace(/mysql\.sys\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
       .replace(/mysql\.sysschema\.([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
       // Fix optimization parameters

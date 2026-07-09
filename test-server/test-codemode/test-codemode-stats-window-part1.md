@@ -88,7 +88,7 @@ stats-window Tool Group (6 tools +1 code mode):
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.stats_help()` → verify method listing
+1. `mysql.stats.help()` → verify method listing
 2. `mysql.stats_rowNumber({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
 3. `mysql.stats.rank({table: "test_measurements", orderBy: "temperature", method: "dense_rank"})` → verify ranks
 4. `mysql.stats_lagLead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values

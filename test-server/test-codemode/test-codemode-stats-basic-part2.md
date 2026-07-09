@@ -82,7 +82,7 @@ stats-descriptive Tool Group (2 tools + 1 code mode):
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.stats_help()` → verify method listing
+1. `mysql.stats.help()` → verify method listing
 8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
 9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
 

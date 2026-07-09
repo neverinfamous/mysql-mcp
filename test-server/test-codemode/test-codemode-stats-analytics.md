@@ -85,7 +85,7 @@ stats-analytics Tool Group (3 tools +1 code mode):
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
-1. `mysql.stats_help()` → verify method listing
+1. `mysql.stats.help()` → verify method listing
 4. `mysql.stats.correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → between -1 and 1
 6. `mysql.stats_timeSeries({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
 7. `mysql.stats.regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → coefficients
