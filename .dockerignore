@@ -90,6 +90,7 @@ __tests__/
 *.spec.ts
 coverage/
 test-results.json
+.test-output/
 eslint.config.js
 vitest.config.ts
 
