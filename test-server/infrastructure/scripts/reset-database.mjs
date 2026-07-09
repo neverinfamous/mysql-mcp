@@ -8,11 +8,18 @@ const __dirname = dirname(__filename);
 
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
-// force unused
-const cluster = args.includes('--Cluster') || args.includes('--cluster');
+const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
+
+let cluster = args.includes('--Cluster') || args.includes('--cluster');
+
+if (!cluster) {
+    try {
+        const out = execSync(`${dockerCmd} ps -q -f name=^mysql-node1$`, { encoding: 'utf-8' }).trim();
+        if (out) cluster = true;
+    } catch (e) {}
+}
 
 const containerName = cluster ? 'mysql-node1' : 'mysql-final';
-const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
 const mysqlHost = 'localhost';
 const mysqlPort = cluster ? '3307' : '3306';
 const mysqlUser = 'root';
