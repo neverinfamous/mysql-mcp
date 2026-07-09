@@ -87,8 +87,8 @@ export function createShellExportTableTool(
 
         const optionsStr =
           options.length > 0 ? `, { ${options.join(", ")} }` : "";
-        const target = schema ? `${schema}.${table}` : table;
-        const jsCode = `return util.exportTable("${target}", "${escapedPath}"${optionsStr});`;
+        const target = schema ? JSON.stringify(`${schema}.${table}`) : JSON.stringify(table);
+        const jsCode = `return util.exportTable(${target}, "${escapedPath}"${optionsStr});`;
 
         const result = await execShellJS(jsCode);
 
@@ -222,9 +222,9 @@ export function createShellImportTableTool(
 
         const options: string[] = [];
         if (schema) {
-          options.push(`schema: "${schema}"`);
+          options.push(`schema: ${JSON.stringify(schema)}`);
         }
-        options.push(`table: "${table}"`);
+        options.push(`table: ${JSON.stringify(table)}`);
         if (threads) {
           options.push(`threads: ${threads}`);
         }
@@ -413,16 +413,16 @@ export function createShellImportJSONTool(
 
         const options: string[] = [];
         if (schema) {
-          options.push(`schema: "${schema}"`);
+          options.push(`schema: ${JSON.stringify(schema)}`);
         }
 
         if (tableColumn) {
           // Importing to a table column
-          options.push(`table: "${collection}"`);
-          options.push(`tableColumn: "${tableColumn}"`);
+          options.push(`table: ${JSON.stringify(collection)}`);
+          options.push(`tableColumn: ${JSON.stringify(tableColumn)}`);
         } else {
           // Importing to a collection
-          options.push(`collection: "${collection}"`);
+          options.push(`collection: ${JSON.stringify(collection)}`);
         }
 
         if (convertBsonTypes) {

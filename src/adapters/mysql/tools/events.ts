@@ -78,6 +78,11 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
+        const SCHEDULE_PATTERN = /^(AT\s+['0-9\-+:\s]+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR)(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
+        if (!SCHEDULE_PATTERN.test(schedule)) {
+          return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
+        }
+
         const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
         if (!validOnCompletion.includes(onCompletion)) {
           return formatHandlerErrorResponse(
@@ -147,6 +152,11 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
+        }
+
+        const SCHEDULE_PATTERN = /^(AT\s+['0-9\-+:\s]+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR)(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
+        if (schedule && !SCHEDULE_PATTERN.test(schedule)) {
+          return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
         }
 
         // Validate enum fields at handler level

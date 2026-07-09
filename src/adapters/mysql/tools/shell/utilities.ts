@@ -48,7 +48,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
         // Force JSON output format to ensure parseable results
         const options: string[] = ['outputFormat: "JSON"'];
         if (targetVersion) {
-          options.push(`targetVersion: "${targetVersion}"`);
+          options.push(`targetVersion: ${JSON.stringify(targetVersion)}`);
         }
 
         const jsCode = `util.checkForServerUpgrade("${escapedUri}", { ${options.join(", ")} });`;
