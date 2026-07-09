@@ -83,22 +83,22 @@ shell Tool Group (3 tools +1 code mode):
 
 > **Instructions**: Use `mysqlsh_*` namespace, push deviations to `failures` array.
 
-1. `mysqlsh_help()` → verify method listing
+1. `mysql.shell.help()` → verify method listing
 2. `mysql.shell.version()` → verify success
 3. `mysqlsh_checkUpgrade()` → verify success
-4. `mysqlsh_runScript({ script: "print('hello')", language: "javascript", dryRun: true })` → verify success
+4. `mysql.shell.runScript({ script: "print('hello')", language: "javascript", dryRun: true })` → verify success
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysqlsh_runScript({ scriptPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/nonexistent.js" })` → `{success: false}`
+5. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/nonexistent.js" })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-6. 🔴 `mysqlsh_runScript({})` → `{success: false, error: "Validation error: ..."}`
+6. 🔴 `mysql.shell.runScript({})` → `{success: false, error: "Validation error: ..."}`
 
 **Security boundary validation paths (🔴):**
 
-7. 🔴 `mysqlsh_runScript({ scriptPath: "C:/Users/chris/Desktop/script.js" })` → `{success: false, code: "SECURITY_ERROR"}`
+7. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/script.js" })` → `{success: false, code: "SECURITY_ERROR"}`
 
 **Alias acceptance (🟢):**
 

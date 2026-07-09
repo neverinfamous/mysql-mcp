@@ -85,25 +85,25 @@ shell Tool Group (7 tools +1 code mode):
 
 > **Instructions**: Use `mysqlsh_*` namespace, push deviations to `failures` array.
 
-1. `mysqlsh_help()` → verify method listing
-2. `mysqlsh_dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
-3. `mysqlsh_dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
-4. `mysqlsh_loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
+1. `mysql.shell.help()` → verify method listing
+2. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
+3. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
+4. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysqlsh_dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
-6. 🔴 `mysqlsh_loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/nonexistent_dump", dryRun: true })` → `{success: false}`
+5. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
+6. 🔴 `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/nonexistent_dump", dryRun: true })` → `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysqlsh_dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
-8. 🔴 `mysqlsh_dumpTables({})` → `{success: false, error: "Validation error: ..."}`
+7. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
+8. 🔴 `mysql.shell.dumpTables({})` → `{success: false, error: "Validation error: ..."}`
 
 **Security boundary validation paths (🔴):**
 
-9. 🔴 `mysqlsh_dumpSchemas({ schemas: ["testdb"], outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
-10. 🔴 `mysqlsh_dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "C:/Windows/System32/out" })` → `{success: false, code: "SECURITY_ERROR"}`
+9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
+10. 🔴 `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "C:/Windows/System32/out" })` → `{success: false, code: "SECURITY_ERROR"}`
 
 **Alias acceptance (🟢):**
 
