@@ -12,6 +12,7 @@ import type { DatabaseAdapter } from "../../adapters/database-adapter/index.js";
 import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SubscriptionManager } from "../subscription-manager.js";
+import * as http from "http";
 import type { McpServerConfig, TransportType, ToolFilterConfig } from "../../types/index.js";
 import { parseToolFilter, getFilterSummary } from "../../filtering/tool-filter.js";
 import { logger } from "../../utils/logger.js";
@@ -48,6 +49,7 @@ export class McpServer {
   private systemDbInitPromise: Promise<void> | null = null;
   public readonly subscriptionManager: SubscriptionManager;
   private healthInterval: NodeJS.Timeout | null = null;
+  private metricsHttpServer: http.Server | null = null;
 
   constructor(config: Partial<McpServerConfig> = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
@@ -301,6 +303,27 @@ export class McpServer {
   private async startStdioTransport(): Promise<void> {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
+
+    if (this.config.metricsExport === "prometheus") {
+      const port = this.config.port ?? 3000;
+      this.metricsHttpServer = http.createServer((req, res) => {
+        if (req.method === "GET" && req.url === "/metrics") {
+          res.writeHead(200, { "Content-Type": "text/plain" });
+          res.end(metrics.toPrometheus());
+        } else {
+          res.writeHead(404);
+          res.end("Not found");
+        }
+      });
+      
+      this.metricsHttpServer.listen(port, () => {
+        logger.info(`Standalone Prometheus metrics server listening on port ${port} (stdio transport)`);
+      });
+      
+      this.metricsHttpServer.on("error", (error) => {
+        logger.error("Failed to start standalone metrics server", { error: String(error) });
+      });
+    }
   }
 
   async stop(): Promise<void> {
@@ -348,6 +371,13 @@ export class McpServer {
     if (this.healthInterval) {
       clearInterval(this.healthInterval);
       this.healthInterval = null;
+    }
+
+    if (this.metricsHttpServer) {
+      await new Promise<void>((resolve) => {
+        this.metricsHttpServer?.close(() => resolve());
+      });
+      this.metricsHttpServer = null;
     }
 
     await this.server.close();
