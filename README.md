@@ -28,8 +28,8 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Prometheus Metrics Export (`/metrics`) and Pre-configured Grafana Dashboard out-of-the-box. |
-| **Strict TypeScript**                 | Strict TypeScript codebase backed by robust Vitest and Playwright test suites. Maintains high test coverage and executes with zero skipped tests. |
+| **Observability**                     | Export Prometheus metrics to pre-configured Grafana dashboards. |
+| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -62,7 +62,7 @@ Or use npx without installing:
 npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
-#### Docker
+#### Run with Docker
 
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The GitHub repo uses `neverinfamous`.
 
@@ -119,7 +119,7 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — Enforces a 30s hard limit. It prevents resource exhaustion.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
-- ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
+- ✅ **Rate limiting** — 60 executions per minute per client. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
@@ -172,7 +172,7 @@ Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
 | `GET`    | `/mcp`   | SSE stream for server notifications              |
 | `DELETE` | `/mcp`   | Session termination                              |
 
-> **Rate Limit:** HTTP transport is limited to 100 requests per minute per IP. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
+> **Rate Limit:** HTTP transport is limited to 100 requests per minute per IP. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 
 Sessions are managed via the `Mcp-Session-Id` header.
 
@@ -270,7 +270,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 > [!WARNING]
 > **HTTP without authentication:** When using `--transport http` without enabling OAuth or `--auth-token`, all clients have full unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
 
-### Cursor IDE / Claude Desktop
+### Configure Cursor or Claude Desktop
 
 ```json
 {
@@ -290,7 +290,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 }
 ```
 
-### Using Environment Variables (Recommended)
+### Use Environment Variables (Recommended)
 
 ```json
 {
@@ -311,7 +311,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 }
 ```
 
-> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Only needed for `mysqlsh_import_json` and `docstore` tools. Set to your MySQL Router X Protocol port (e.g., `6448`) when using InnoDB Cluster.
+> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
 
@@ -380,7 +380,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** You MUST use tool filtering. This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have strict tool limits. You MUST use tool filtering.** This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### What Can You Filter?
 
@@ -393,7 +393,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | Shortcut + Group | `starter,spatial`           | Extend a shortcut         |
 | Shortcut - Tool  | `starter,-mysql_drop_table` | Remove specific tools     |
 
-### Shortcuts (Predefined Bundles)
+### Use Predefined Shortcuts
 
 | Shortcut        | Use Case           | What's Included                                                    |
 | --------------- | ------------------ | ------------------------------------------------------------------ |
@@ -610,7 +610,7 @@ The easiest way to filter is using **whitelist mode**. Simply specify the shortc
 --tool-filter "starter,+mysql_spatial_distance,+mysql_json_diff"
 ```
 
-This is useful for scripted or automated clients that need a minimal, precise set of capabilities.
+Use this for automated clients requiring a minimal capability set.
 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for advanced examples.
 
@@ -670,11 +670,11 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
-> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses. They also support `limit` parameters to cap result sizes. These are particularly useful for cluster status, monitoring, and sys schema tools where full responses can be large. See the code map for per-tool details.
+> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses. They also support `limit` parameters to cap result sizes. These options condense large payloads for monitoring and sys schema tools. See the code map for per-tool details.
 
 ---
 
-### CLI Options
+### Configure CLI Options
 
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
@@ -733,7 +733,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
-### Scopes
+### Enforce Scopes
 
 | Scope                    | Access Level                        |
 | ------------------------ | ----------------------------------- |

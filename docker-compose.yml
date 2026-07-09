@@ -6,8 +6,6 @@ services:
     command:
       - --transport
       - http
-      - --audit-log
-      - /app/data/audit.jsonl
       - --audit-reads
     env_file:
       - .env # Copy .env.example to .env to configure
@@ -25,6 +23,8 @@ services:
 
   mysql:
     image: mysql:9.1
+    ports:
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: password
       MYSQL_USER: mcp_user

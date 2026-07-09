@@ -42,7 +42,7 @@ pnpm run build
 pnpm test
 
 # Run the full quality check
-pnpm run check   # Runs ESLint + TypeScript strict-mode, plus unit and E2E tests
+pnpm run check   # Runs ESLint + TypeScript strict-mode, plus Vitest unit tests
 ```
 
 ### Run the Server Locally
@@ -114,7 +114,7 @@ pnpm run bench
 
 ```bash
 # Lint + type check (required before submitting)
-pnpm run check   # ESLint + TypeScript strict-mode, plus unit and E2E tests
+pnpm run check   # ESLint + TypeScript strict-mode, plus Vitest unit tests
 
 # Or individually
 pnpm run lint        # ESLint only

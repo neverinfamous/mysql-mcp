@@ -66,7 +66,7 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 
 ## 🧪 **Secure Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#maximize-efficiency-with-code-mode).**
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#⚡-execute-code-mode-mysql_execute_code).**
 
 ### Enforce Engine-Level Restrictions
 
@@ -85,7 +85,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 - ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — 30s hard limit (not configurable, enforced by the isolate engine) to prevent resource exhaustion.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
-- ✅ **Rate limiting** — 60 executions per minute per client. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
+- ✅ **Rate limiting** — 60 executions per minute per client. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
@@ -117,7 +117,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 ### Apply Rate Limiting
 
-- ✅ **Built-in Rate Limiting** — 100 requests/minute per IP. Distributed across deployments via Redis if `REDIS_URL` is provided, with graceful in-memory fallback.
+- ✅ **Built-in Rate Limiting** — 100 requests/minute per IP. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Health Endpoint Bypass** — `/health` bypasses limits to ensure reliable load balancer checks
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
 - ✅ **Slowloris DoS Protection** — configurable read timeouts via `MCP_REQUEST_TIMEOUT` and `MCP_HEADERS_TIMEOUT`
@@ -130,7 +130,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 ## 🔑 **Authenticate with OAuth 2.1**
 
-Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#secure-access-with-authentication).**
+Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#🔐-secure-access-with-authentication).**
 
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
@@ -266,7 +266,6 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 | ------- | --------- |
 | Current Major Version | ✅        |
 | Previous Major Version | ✅        |
-| < 3.0   | ❌        |
 
 If you discover a security vulnerability:
 

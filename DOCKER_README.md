@@ -26,8 +26,8 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Prometheus Metrics Export (`/metrics`) and Pre-configured Grafana Dashboard out-of-the-box. |
-| **Strict TypeScript**                 | Strict TypeScript codebase backed by robust Vitest and Playwright test suites. Maintains high test coverage and executes with zero skipped tests. |
+| **Observability**                     | Export Prometheus metrics to pre-configured Grafana dashboards. |
+| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -43,7 +43,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 ### Install the Server
 
-#### Docker (Recommended)
+#### Run with Docker (Recommended)
 
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace (`writenotenow/mysql-mcp`), whereas the GitHub repository and NPM package use `neverinfamous` (`@neverinfamous/mysql-mcp`).
 
@@ -120,7 +120,7 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
 }
 ```
 
-This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors the [Code Mode pattern](https://blog.cloudflare.com/code-mode-mcp/). It ensures fixed token costs.
+This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors standard serverless edge execution patterns. It ensures fixed token costs.
 
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
@@ -133,7 +133,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ## ⚡ Configure Your MCP Client
 
-### Cursor IDE / Claude Desktop
+### Configure Cursor or Claude Desktop
 
 ```json
 {
@@ -155,7 +155,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 }
 ```
 
-### Using Environment Variables (Recommended)
+### Use Environment Variables (Recommended)
 
 ```json
 {
@@ -189,7 +189,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 }
 ```
 
-> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Only needed for `mysqlsh_import_json` and `docstore` tools. Set to your MySQL Router X Protocol port (e.g., `6448`) when using InnoDB Cluster.
+> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
 
@@ -233,12 +233,12 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 > **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools are used.
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools).** You MUST use tool filtering to stay within your IDE's limits. 
+> **AI IDEs like Cursor have strict tool limits. You MUST use tool filtering to stay within your IDE's limits.** 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available groups and predefined bundles.
 
 ---
 
-### CLI Options
+### Configure CLI Options
 
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
@@ -297,7 +297,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 
-### Scopes
+### Enforce Scopes
 
 | Scope                    | Access Level                        |
 | ------------------------ | ----------------------------------- |

@@ -15,20 +15,26 @@ This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipe
 ```mermaid
 flowchart LR
     subgraph Triggers["Triggers"]
-        Push["push to main"]
+        Tag["push to tag"]
         PR["pull_request"]
-        Release["release published"]
         Sched["schedule (cron)"]
         Manual["workflow_dispatch"]
     end
 
+    subgraph Orchestration["Orchestration"]
+        Gate["gatekeeper"]
+    end
+
     subgraph CI["CI"]
         LT["lint-and-test"]
+        DPD["dockerfile-patch-drift"]
     end
 
     subgraph Security["Security"]
         CQL["codeql"]
         SS["secrets-scanning"]
+        Trivy["trivy"]
+        SU["security-update"]
     end
 
     subgraph Release_["Release"]
@@ -40,23 +46,34 @@ flowchart LR
         CHM["ci-health-monitor"]
     end
 
-    Push --> LT
-    Push --> CQL
-    Push --> SS
-
     PR --> LT
     PR --> CQL
     PR --> SS
+    PR --> DPD
 
-    LT -->|workflow_run completed| DP
+    Tag --> Gate
+    Manual --> Gate
 
-    Release --> NPM
+    Gate --> LT
+    Gate --> CQL
+    Gate --> SS
+    Gate --> Trivy
+
+    LT & CQL & SS & Trivy --> DP
+    LT & CQL & SS & Trivy --> NPM
+    
+    Trivy -. invokes .-> SU
+
     Manual --> NPM
+    Manual --> DP
     Manual --> CQL
     Manual --> CHM
+    Manual --> DPD
 
     Sched --> CQL
     Sched --> CHM
+    Sched --> SU
+    Sched --> DPD
 ```
 
 ---
@@ -67,20 +84,22 @@ flowchart LR
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| [lint-and-test.yml](lint-and-test.yml) | push to `main` / PR    | Lint, typecheck, build, unit tests (Node [24.x, 26.x] matrix), pnpm audit, Docker smoke test (build + HTTP start) |
+| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests (Node [24.x, 26.x] matrix), pnpm audit, Docker smoke test (build + HTTP start) |
+| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects when manually patched transitive dependencies in the Dockerfile have drifted from npm bundles |
 
 ### Secure the Pipeline
 
 | File                                       | Trigger                                   | Purpose                                                               |
 | ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------- |
-| [codeql.yml](codeql.yml)                   | push (JS/TS) / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` (security-extended) |
-| [secrets-scanning.yml](secrets-scanning.yml) | push to `main` / PR                      | TruffleHog (verified secrets) + Gitleaks scanning                     |
+| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` (security-extended) |
+| [secrets-scanning.yml](secrets-scanning.yml) | `workflow_call` from gatekeeper / PR                      | TruffleHog (verified secrets) + Gitleaks scanning                     |
+| [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule | Trivy vulnerability scanning and automated Dependabot patch integration |
 
 ### Publish Reliable Releases
 
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag)            | Security scan (Docker Scout + Trivy), smoke test, multi-arch build (amd64 + arm64), manifest merge, Docker Hub description update                 |
+| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scan (Docker Scout + Trivy), smoke test, multi-arch build (amd64 + arm64), manifest merge, Docker Hub description update                 |
 | [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Version verification, build, publish to npm with `--provenance` (SLSA Build L3)                                                                   |
 
 ### Automate with Agentic Workflows
@@ -95,27 +114,31 @@ These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.
 
 ## Understand the Release Pipeline
 
-The full release flow for pushes to `main`:
+The full release flow is orchestrated by `gatekeeper.yml` when a tag (e.g., `vX.Y.Z`) is pushed to the repository:
 
+```text
+push to tag (v*)
+  → gatekeeper
+      ├── lint-and-test
+      │     ├── lint (Node 24.x + 26.x matrix)
+      │     ├── security-scan (pnpm audit)
+      │     └── docker-smoke-test (build + HTTP start)
+      ├── codeql
+      ├── secrets-scanning
+      └── trivy (invokes security-update.yml)
+            ↓ all safety and security gates pass (blocking requirement)
+          ├── docker-publish
+          │     ├── security-scan (Docker Scout)
+          │     ├── smoke-test (binary load + HTTP start)
+          │     ├── build-platform (amd64 + arm64)
+          │     │     ↓ all platforms built
+          │     └── merge-and-push (multi-arch manifest)
+          └── publish-npm
+                ├── Version verification
+                └── Publish to npm with SLSA provenance
 ```
-push to main
-  → lint-and-test
-      ├── lint (Node 24.x + 26.x matrix)
-      ├── security-scan (pnpm audit)
-      └── docker-smoke-test (build + HTTP start)
-            ↓ lint-and-test success
-          gatekeeper
-              ├── docker-publish
-              │     ├── security-scan (Docker Scout + Trivy)
-              │     ├── smoke-test (binary load + HTTP start)
-              │     └── build-platform (amd64 + arm64)
-              │           ↓ all platforms built
-              │         merge-and-push (multi-arch manifest)
-              └── publish-npm
-                    ├── Version verification
-                    └── Publish to npm with SLSA provenance
 
-For releases, the `gatekeeper.yml` workflow orchestrates both Docker and NPM publishing when a tag (e.g., `vX.Y.Z`) is pushed to the repository.
+For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and publishing steps. `lint-and-test`, `codeql`, `secrets-scanning`, and `trivy` are blocking requirements that must pass before `docker-publish` and `publish-npm` are triggered.
 
 ---
 
