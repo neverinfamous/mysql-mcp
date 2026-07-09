@@ -240,6 +240,14 @@ export function buildSandboxBindings(
     if (coreApi["conditionalUpdate"] !== undefined) {
       bindings["conditionalUpdate"] = coreApi["conditionalUpdate"];
     }
+
+    // Add versioning group alias for intuitive occ API
+    bindings["versioning"] = {
+      enable: coreApi["enableVersioning"] ?? (() => {}),
+      disable: coreApi["disableVersioning"] ?? (() => {}),
+      check: coreApi["checkVersion"] ?? (() => {}),
+      conditionalUpdate: coreApi["conditionalUpdate"] ?? (() => {})
+    };
   }
 
   // Transaction aliases: mysql.transactionBegin() → mysql.transactions.transactionBegin()
