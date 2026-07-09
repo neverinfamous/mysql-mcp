@@ -10,6 +10,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   timeout: 60000,
+  outputDir: ".test-output/playwright-artifacts",
   reporter: [["list"], ["json", { outputFile: ".test-output/playwright-results.json" }]],
   use: {
     baseURL: "http://localhost:3002",
