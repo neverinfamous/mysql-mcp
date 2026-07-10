@@ -37,9 +37,9 @@ mysql_variables=
 mysql_servers =
 (
     {
-        address = "mysql"
-        port = 3306
-        hostgroup = 0
+        address = "mysql-router"
+        port = 6446
+        hostgroup = 1
         max_connections = 200
         weight = 1
     }
