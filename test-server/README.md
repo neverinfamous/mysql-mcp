@@ -12,7 +12,6 @@
 
 | File / Directory             | Purpose                                                                                                                                       | When to Read                                 |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
-| `test-tools.md`              | **Entry-point protocol** — connection details, testing rules, structured error patterns, Zod/P154/Split Schema verification, reporting format | Always read first                            |
 | `test-preflight.md`          | **Pre-flight check** — validates slim instructions, help resources, data resources, and tool-filter alignment in 5 steps                      | Before any test pass                         |
 | `test-codemode/`             | **Code Mode tests** — Multiple self-contained modular prompts for `mysql_execute_code` validation                                                   | When testing Code Mode parity                |
 | `tool-reference.md`          | Complete 242 tool reference mapped to groups                                                                                               | Reference                                    |
@@ -63,13 +62,13 @@
 | Database  | `testdb`      |
 | Container | `mysql-final` |
 
-> Note: Use `docker ps` / `docker start mysql-final` if connection is refused. Ecosystem tools connect on alternate ports (cluster: 3307, router: 8443, proxysql: 6032). See `test-tools.md` for details.
+> Note: Use `docker ps` / `docker start mysql-final` if connection is refused. Ecosystem tools connect on alternate ports (cluster: 3307, router: 8443, proxysql: 6032).
 
 ## Execute Agent Test Workflow
 
 1. Read `mysql://help` resource and relevant group help. This covers gotchas, aliases, and APIs.
-2. Read `test-tools.md` for entry-point protocol details. This includes Split Schema, Zod validation, and structured errors.
+2. Read the appropriate `coordinator-workflow.md` file in `test-codemode/`, `test-tool-groups/`, or `test-usability/` to orchestrate your tests.
 3. **Code Mode tests**: Read the relevant `test-codemode/` file. This validates the `mysql_execute_code` tool.
-6. Execute the checklist items first (minimum bar), then freeform exploration.
-7. Clean up all `temp_*` / `stress_*` tables using `DROP TABLE IF EXISTS`.
-8. Report findings using ❌/⚠️/📦 format. Error paths MUST return enriched `ErrorResponse`. Raw MCP errors = ❌.
+4. Execute the checklist items first (minimum bar), then freeform exploration.
+5. Clean up all `temp_*` / `stress_*` tables using `DROP TABLE IF EXISTS`.
+6. Report findings using ❌/⚠️/📦 format. Error paths MUST return enriched `ErrorResponse`. Raw MCP errors = ❌.
