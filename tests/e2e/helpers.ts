@@ -15,7 +15,7 @@ import { expect } from "@playwright/test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
-export const BASE_URL = "http://localhost:3002";
+export const BASE_URL = "http://127.0.0.1:3002";
 export const SSE_CONNECT_TIMEOUT_MS = 3000;
 export const HEALTH_QUERY = "SELECT 1";
 
@@ -307,3 +307,4 @@ export async function cleanupAuditFiles(logPath: string): Promise<void> {
     }
   }
 }
+
