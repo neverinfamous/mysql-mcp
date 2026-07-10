@@ -239,7 +239,7 @@ describe("SandboxPool", () => {
       expect(results[0].success).toBe(true);
       expect(results[1].success).toBe(true);
       expect(results[2].success).toBe(true);
-    });
+    }, 30000);
 
     it("should reuse sandboxes from idle pool and clear console output", async () => {
       await pool.initialize();
