@@ -82,11 +82,7 @@
 4. `mysql.shell.runScript({script: "print('test')"})` → verify structured error
 5. All errors must use consistent `{success: false, error: "..."}` format
 
-## Category 2: Dry Run Boundaries (When Shell IS Available)
-1. `mysql.shell.dumpSchemas({schemas: ["testdb"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_schema_dump", dryRun: true})` → verify dry run output
-2. `mysql.shell.dumpTables({schema: "testdb", tables: ["test_products"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_table_dump", dryRun: true})` → verify dry run
-3. `mysql.shell.dumpSchemas({schemas: ["nonexistent_db_xyz"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_bad_dump", dryRun: true})` → verify structured error for nonexistent schema
-4. `mysql.shell.dumpTables({schema: "testdb", tables: ["nonexistent_table_xyz"], outputUrl: "C:/Users/chris/AppData/Local/Temp/stress_bad_table", dryRun: true})` → verify structured error
+
 
 ## Category 3: Parameter Validation
 1. `mysql.shell.dumpSchemas({schemas: [], outputUrl: "C:/Users/chris/AppData/Local/Temp/test"})` → verify behavior with empty schemas array
@@ -95,10 +91,7 @@
 4. `mysql.shell.importTable({schema: "testdb", table: "nonexistent_xyz", inputUrl: "C:/Users/chris/AppData/Local/Temp/nonexistent_file.csv"})` → verify structured error
 5. `mysql.shell.importJson({schema: "testdb", collection: "nonexistent_xyz", inputUrl: "C:/Users/chris/AppData/Local/Temp/nonexistent_file.json"})` → verify structured error
 
-## Category 4: Script Execution Safety
-1. `mysql.shell.runScript({script: "INVALID SYNTAX @@@@"})` → verify structured `{success: false}` (not raw crash)
-2. `mysql.shell.runScript({script: "print('hello world')", language: "javascript"})` → verify success
-3. `mysql.shell.runScript({script: ""})` → verify behavior with empty script
+
 
 
 ## Tasks

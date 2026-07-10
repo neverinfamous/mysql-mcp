@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [sessions]
+# MySQL MCP Advanced Stress Testing: [sessions - part 1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using terminal scripts (via pwsh/curl/node) to test the HTTP endpoints directly. Do NOT use code mode, as `fetch` and network access are blocked by the Sandbox Security Manager. Return an aggregated `failures` array.
+**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
 
 **Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -58,7 +58,7 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Endpoint | Focus Area | HTTP Validation |
+| Tool | Focus Area | Code Mode Validation |
 |---|---|---|
 
 
@@ -89,39 +89,12 @@ Call the HTTP `/health` endpoint again.
 **Expected Result**:
 The JSON body must include `"activeSessions": 1` (or incremented by 1 from the baseline). This confirms the `SessionManager` is tracking the new session.
 
-### Step 4: Validate Ongoing Communication
-
-Use the established session to execute a simple tool (e.g., `mysql_read_query` or `mysql_show_status`).
-
-**Expected Result**:
-The tool executes successfully, proving the session is active and functional. The `SessionManager.touch()` method is implicitly called during this request.
-
-### Step 5: Document Timeout Behavior
-
-Document (in the test results) that the following behaviors are expected by design, even if they cannot be strictly verified in a short test run:
--   **Idle Timeout**: The session will expire after 30 minutes of inactivity.
--   **Absolute TTL**: The session will forcefully expire after 24 hours, regardless of activity.
--   **Sweep Interval**: The server runs a cleanup task every 1 minute.
--   **In-Flight Protection**: A session will not be reaped by the sweep if a request is currently executing.
--   **Expiration Error**: An expired session will return a `401 Unauthorized` with the message `"Session absolute TTL expired"` (or a `400 Bad Request` if it was already reaped by the sweep and no longer exists).
-
-### Step 6: Session Termination
-
-Terminate the session by sending a `DELETE /mcp` request with the correct `mcp-session-id` header, or by closing the client connection. Wait briefly for the cleanup to occur.
-
-### Step 7: Final Validation
-
-Call the HTTP `/health` endpoint one last time.
-
-**Expected Result**:
-The `activeSessions` count should return to `0` (or its baseline value).
-
-## Success Criteria
+\n## Success Criteria
 
 - [x] `GET /health` successfully returns the `activeSessions` property.
 - [x] Session initialization increments `activeSessions`.
-- [x] Session termination decrements `activeSessions`.
-- [x] Timeout parameters (30m idle, 24h TTL) are correctly documented in the final report.
+- [ ] Session termination (in part 2) decrements `activeSessions`.
+- [ ] Timeout parameters (in part 2) (30m idle, 24h TTL) are correctly documented in the final report.
 
 ---
 
