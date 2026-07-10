@@ -26,7 +26,7 @@ export default defineConfig({
   webServer: {
     command: `node dist/cli.js --transport http --port 3002 --server-host 127.0.0.1 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"}`,
     port: 3002,
-    reuseExistingServer: !process.env.GITHUB_ACTIONS,
+    reuseExistingServer: false,
     timeout: 30000,
     stdout: "pipe",
     stderr: "pipe",
