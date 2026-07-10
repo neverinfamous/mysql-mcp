@@ -157,8 +157,12 @@ export class HttpTransport {
       this.rateLimitCleanupInterval = null;
     }
 
-    if (this.redisClient?.isOpen) {
-      await this.redisClient.quit();
+    if (this.redisClient) {
+      try {
+        await this.redisClient.disconnect();
+      } catch (e) {
+        logger.error("Error disconnecting Redis client", { error: e });
+      }
     }
 
     await this.sessionManager.closeAll();
