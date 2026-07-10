@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [core]
+# MySQL MCP {{TITLE_TYPE}}: [{{GROUP_NAME}}]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
+**Step 2:** {{EXECUTION_MODE}}
 
 **Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -39,7 +39,7 @@
 
 ### Reference the Test Schema
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema.
+{{SCHEMA_REF}}
 
 ## Standardize the Reporting Format
 
@@ -58,53 +58,13 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_enable_versioning` |   |   |
-| `mysql_disable_versioning` |   |   |
-| `mysql_check_version` |   |   |
-| `mysql_conditional_update` |   |   |
+{{COVERAGE_MATRIX}}
 
 ---
 
-### Explicit Tool Coverage Requirements
+{{EXPLICIT_TOOLS}}
 
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_enable_versioning`
-- `mysql_disable_versioning`
-- `mysql_check_version`
-- `mysql_conditional_update`
-
-
-## Group Focus:core (Versioning)
-
-core (versioning) Tool Group:
-1. `mysql.versioning.enable`
-2. `mysql.versioning.disable`
-3. `mysql.versioning.check`
-4. `mysql.versioning.conditionalUpdate`
-
-You are managing an optimistic concurrency control system for the `testdb` database via Code Mode scripts.
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. ✅ `mysql.versioning.enable({table: "test_articles"})` → happy path
-2. ✅ `mysql.versioning.disable({table: "test_articles"})` → happy path
-3. ✅ `mysql.versioning.check({table: "test_articles", id: 1})` → happy path
-4. ✅ `mysql.versioning.conditionalUpdate({table: "test_articles", id: 1, version: 1, data: {title: "New Title"}, conditions: {}})` → happy path
-
-**Domain error paths (🔴):**
-
-5. ✅ `mysql.versioning.enable({table: "nonexistent_xyz"})` → domain error (TABLE_NOT_FOUND)
-6. ✅ `mysql.versioning.check({table: "test_articles", id: 99999})` → domain error
-
-**Zod validation error paths (🔴):**
-
-7. ✅ `mysql.versioning.enable({})` → validation error
-8. ✅ `mysql.versioning.conditionalUpdate({})` → validation error
+{{TEST_CONTENT}}
 
 ---
 
