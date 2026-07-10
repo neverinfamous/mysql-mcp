@@ -32,6 +32,8 @@ export default defineConfig({
     stderr: "pipe",
     env: {
       ...process.env,
+      // Disable Redis during E2E tests to prevent libuv UV_HANDLE_CLOSING C++ assertion failures on Windows during teardown
+      REDIS_URL: "",
       // Load all tools (override starter default)
       TOOL_FILTER: "+all",
       // Provide sandbox boundaries for E2E tests

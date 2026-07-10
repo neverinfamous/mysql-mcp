@@ -79,7 +79,6 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error) {
         const msg = error instanceof Error ? error.message : String(error);
-        console.error("DEBUG CATCH BLOCK:", msg);
         if (msg.includes("FUNCTION") && msg.includes("DISTANCE") && msg.includes("does not exist")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(

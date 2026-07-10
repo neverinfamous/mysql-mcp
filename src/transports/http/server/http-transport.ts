@@ -148,20 +148,30 @@ export class HttpTransport {
     });
   }
 
+  private isStopping = false;
+
   /**
    * Stop the HTTP server
    */
   async stop(): Promise<void> {
+    if (this.isStopping) return;
+    this.isStopping = true;
+
     if (this.rateLimitCleanupInterval) {
       clearInterval(this.rateLimitCleanupInterval);
       this.rateLimitCleanupInterval = null;
     }
 
-    if (this.redisClient) {
+    if (this.redisClient?.isOpen) {
       try {
-        await this.redisClient.disconnect();
+        await this.redisClient.quit();
       } catch (e) {
-        logger.error("Error disconnecting Redis client", { error: e });
+        logger.error("Error gracefully closing Redis client", { error: e });
+        try {
+          await this.redisClient.disconnect();
+        } catch (e2) {
+          logger.error("Error force disconnecting Redis client", { error: e2 });
+        }
       }
     }
 
@@ -171,6 +181,7 @@ export class HttpTransport {
       if (this.server) {
         this.server.close(() => {
           logger.info("HTTP transport stopped");
+          this.server = null;
           resolve();
         });
       } else {
