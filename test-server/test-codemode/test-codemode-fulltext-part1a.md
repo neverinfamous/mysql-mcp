@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [shell-data-part2]
+# MySQL MCP Code Mode Testing: [fulltext-part1]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -60,9 +60,7 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysqlsh_dump_schemas` |   |   |
-| `mysqlsh_dump_tables` |   |   |
-| `mysqlsh_load_dump` |   |   |
+| `mysql_fulltext_create` |   |   |
 
 ---
 
@@ -70,44 +68,11 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysqlsh_dump_schemas`
-- `mysqlsh_dump_tables`
-- `mysqlsh_load_dump`
+- `mysql_fulltext_create`
 
 
-## Group Focus:shell-data (Part 2)
-
-shell-data Tool Group (0 tools +1 for code mode):
-
-1. `mysql.shell.exportTable` 2. `mysql.shell.importTable` 3. `mysql.shell.importJson`
-4. `mysql.shell.dumpInstance` 5. `mysql.shell.dumpSchemas` 6. `mysql.shell.dumpTables`
-7. `mysql.shell.loadDump`
-
-> **Instructions**: Use `mysqlsh_*` namespace, push deviations to `failures` array.
-
-1. `mysql.shell.help()` → verify method listing
-2. `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump" })` → verify success
-3. `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "/tmp/cm_tables", dryRun: true })` → verify success
-4. `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/cm_dump", dryRun: true, updateServerSettings: true, ignoreExistingObjects: true })` → verify success
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql.shell.dumpSchemas({ schemas: ["nonexistent_xyz"], outputUrl: "/tmp/test", dryRun: true })` → `{success: false}`
-6. 🔴 `mysql.shell.loadDump({ inputUrl: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/nonexistent_dump", dryRun: true })` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql.shell.dumpSchemas({})` → `{success: false, error: "Validation error: ..."}`
-8. 🔴 `mysql.shell.dumpTables({})` → `{success: false, error: "Validation error: ..."}`
-
-**Security boundary validation paths (🔴):**
-
-9. 🔴 `mysql.shell.dumpSchemas({ schemas: ["testdb"], outputUrl: "../../etc/shadow" })` → `{success: false, code: "SECURITY_ERROR"}`
-10. 🔴 `mysql.shell.dumpTables({ schema: "testdb", tables: ["test_products"], outputUrl: "C:/Windows/System32/out" })` → `{success: false, code: "SECURITY_ERROR"}`
-
-**Alias acceptance (🟢):**
-
-11. 🟢 Verify any parameter aliases are accepted for applicable tools.
+## Group Focus:\n\n**Checklist:**
+1. ✅ part1a\n\n---
 
 ---
 

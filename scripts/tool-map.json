@@ -531,11 +531,6 @@
     "mysql_event_status",
     "mysql_scheduler_status"
   ],
-  "test-codemode-fulltext-part1.md": [
-    "mysql_fulltext_search",
-    "mysql_fulltext_boolean",
-    "mysql_fulltext_expand"
-  ],
   "test-codemode-fulltext-part2.md": [
     "mysql_fulltext_create",
     "mysql_fulltext_drop"
@@ -599,12 +594,6 @@
     "mysql_replication_status",
     "mysql_pool_stats",
     "mysql_server_health"
-  ],
-  "test-codemode-optimization.md": [
-    "mysql_index_recommendation",
-    "mysql_query_rewrite",
-    "mysql_force_index",
-    "mysql_optimizer_trace"
   ],
   "test-codemode-partitioning.md": [
     "mysql_partition_info",
@@ -717,17 +706,6 @@
     "mysql_security_encryption_status",
     "mysql_security_password_validate"
   ],
-  "test-codemode-shell-data-part1.md": [
-    "mysqlsh_export_table",
-    "mysqlsh_import_table",
-    "mysqlsh_import_json",
-    "mysqlsh_dump_instance"
-  ],
-  "test-codemode-shell-data-part2.md": [
-    "mysqlsh_dump_schemas",
-    "mysqlsh_dump_tables",
-    "mysqlsh_load_dump"
-  ],
   "test-codemode-shell-utils.md": [
     "mysqlsh_version",
     "mysqlsh_check_upgrade",
@@ -742,12 +720,6 @@
     "mysql_spatial_buffer",
     "mysql_spatial_transform",
     "mysql_spatial_geojson"
-  ],
-  "test-codemode-spatial-queries.md": [
-    "mysql_spatial_distance",
-    "mysql_spatial_distance_sphere",
-    "mysql_spatial_contains",
-    "mysql_spatial_within"
   ],
   "test-codemode-spatial-setup.md": [
     "mysql_spatial_create_column",
@@ -1689,5 +1661,43 @@
   "test-usability-vector-part4.md": [
     "mysql_vector_optimize",
     "mysql_vector_stats"
+  ],
+  "test-codemode-optimization-part1.md": [
+    "mysql_index_recommendation",
+    "mysql_query_rewrite"
+  ],
+  "test-codemode-optimization-part2.md": [
+    "mysql_force_index",
+    "mysql_optimizer_trace"
+  ],
+  "test-codemode-spatial-queries-part1.md": [
+    "mysql_spatial_distance",
+    "mysql_spatial_distance_sphere"
+  ],
+  "test-codemode-spatial-queries-part2.md": [
+    "mysql_spatial_contains",
+    "mysql_spatial_within"
+  ],
+  "test-codemode-fulltext-part1a.md": [
+    "mysql_fulltext_create"
+  ],
+  "test-codemode-fulltext-part1b.md": [
+    "mysql_fulltext_drop"
+  ],
+  "test-codemode-shell-data-part1a.md": [
+    "mysqlsh_version",
+    "mysqlsh_check_upgrade"
+  ],
+  "test-codemode-shell-data-part1b.md": [
+    "mysqlsh_export_table",
+    "mysqlsh_import_table"
+  ],
+  "test-codemode-shell-data-part2a.md": [
+    "mysqlsh_import_json",
+    "mysqlsh_dump_instance"
+  ],
+  "test-codemode-shell-data-part2b.md": [
+    "mysqlsh_dump_schemas",
+    "mysqlsh_dump_tables"
   ]
 }

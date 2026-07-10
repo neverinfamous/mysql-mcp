@@ -2,7 +2,7 @@
 
 **🤖 AGENT INSTRUCTIONS**
 
-This folder contains 76 modular test prompts covering every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
+This folder contains modular test prompts covering every tool group in `mysql-mcp`. These prompts validate Code Mode (`mysql_execute_code`) only.
 
 ## Follow Agent Instructions
 

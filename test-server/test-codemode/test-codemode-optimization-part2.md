@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [spatial-queries]
+# MySQL MCP Code Mode Testing: [optimization]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -60,10 +60,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_spatial_distance` |   |   |
-| `mysql_spatial_distance_sphere` |   |   |
-| `mysql_spatial_contains` |   |   |
-| `mysql_spatial_within` |   |   |
+| `mysql_force_index` |   |   |
+| `mysql_optimizer_trace` |   |   |
 
 ---
 
@@ -71,46 +69,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_spatial_distance`
-- `mysql_spatial_distance_sphere`
-- `mysql_spatial_contains`
-- `mysql_spatial_within`
+- `mysql_force_index`
+- `mysql_optimizer_trace`
 
 
-## Group Focus:spatial-queries
-
-### spatial Group-Specific Testing
-
-spatial Tool Group (12 tools +1 for code mode):
-
-1. `mysql_spatial_distance`
-2. `mysql_spatial_distance_sphere`
-3. `mysql_spatial_contains`
-4. `mysql_spatial_within`
-5. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. ✅ `mysql.spatial.distance({ table: 'test_locations', spatialColumn: 'geom', point: { longitude: -73.965400, latitude: 40.782900 } })` → happy path
-2. ✅ `mysql.spatial.distanceSphere({ table: 'test_locations', spatialColumn: 'geom', point: { longitude: -73.965400, latitude: 40.782900 } })` → happy path
-3. ✅ `mysql.spatial.contains({ table: 'test_locations', spatialColumn: 'geom', polygon: 'POLYGON((-74 40, -73 40, -73 41, -74 41, -74 40))' })` → happy path
-4. ✅ `mysql.spatial.within({ table: 'test_locations', spatialColumn: 'geom', geometry: 'POLYGON((-74 40, -73 40, -73 41, -74 41, -74 40))' })` → happy path
-
-**Domain error paths (🔴):**
-
-5. ✅ `mysql.spatial.distance({ table: 'nonexistent_table', spatialColumn: 'geom', point: { longitude: 0, latitude: 0 } })` → domain error
-6. ✅ `mysql.spatial.distanceSphere({ table: 'nonexistent_table', spatialColumn: 'geom', point: { longitude: 0, latitude: 0 } })` → domain error
-7. ✅ `mysql.spatial.contains({ table: 'nonexistent_table', spatialColumn: 'geom', polygon: 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))' })` → domain error
-8. ✅ `mysql.spatial.within({ table: 'nonexistent_table', spatialColumn: 'geom', geometry: 'POLYGON((0 0, 1 0, 1 1, 0 1, 0 0))' })` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. ✅ `mysql.spatial.distance({})` → validation error
-10. ✅ `mysql.spatial.distanceSphere({})` → validation error
-11. ✅ `mysql.spatial.contains({})` → validation error
-12. ✅ `mysql.spatial.within({})` → validation error
+## Group Focus:\n\n**Checklist:**
+1. ✅ mysql.optimization.forceIndex(...)
+2. ✅ mysql.optimization.optimizerTrace(...)\n\n---
 
 ---
 

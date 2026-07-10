@@ -60,9 +60,7 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_fulltext_search` |   |   |
-| `mysql_fulltext_boolean` |   |   |
-| `mysql_fulltext_expand` |   |   |
+| `mysql_fulltext_drop` |   |   |
 
 ---
 
@@ -70,39 +68,11 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_fulltext_search`
-- `mysql_fulltext_boolean`
-- `mysql_fulltext_expand`
+- `mysql_fulltext_drop`
 
 
-## Group Focus:fulltext-part1
-
-fulltext Tool Group (5 tools +1 for code mode):
-
-1. `mysql_fulltext_search`
-2. `mysql_fulltext_boolean`
-3. `mysql_fulltext_expand`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.fulltext.help()` → verify method listing
-2. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", maxLength: 200})` → results with relevance
-3. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz", maxLength: 200})` → 0 results
-4. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database", maxLength: 200})` → results
-5. `mysql.fulltext.expand({table: "test_articles", columns: ["title", "body"], query: "database", maxLength: 200})` → expanded results
-6. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true, maxLength: 200})` → verify `warnings` array is returned for missing individual index
-7. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1, maxLength: 200})` → verify `nextCursor` returned
-8. `mysql.fulltext.search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor>", maxLength: 200})` → verify pagination works
-9. `mysql.fulltext.boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)', maxLength: 200})` → verify sanitization (no syntax error)
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test", maxLength: 200})` → `{success: false}`
-11. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test", maxLength: 200})` → `{success: false}` (no FTS index)
-
-**Zod validation error paths (🔴):**
-
-12. 🔴 `mysql.fulltext.search({, maxLength: 200})` → `{success: false, error: "Validation error: ..."}`
+## Group Focus:\n\n**Checklist:**
+1. ✅ part1b\n\n---
 
 ---
 

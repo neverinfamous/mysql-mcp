@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [optimization]
+# MySQL MCP Code Mode Testing: [shell-data-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -60,10 +60,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_index_recommendation` |   |   |
-| `mysql_query_rewrite` |   |   |
-| `mysql_force_index` |   |   |
-| `mysql_optimizer_trace` |   |   |
+| `mysqlsh_import_json` |   |   |
+| `mysqlsh_dump_instance` |   |   |
 
 ---
 
@@ -71,40 +69,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_index_recommendation`
-- `mysql_query_rewrite`
-- `mysql_force_index`
-- `mysql_optimizer_trace`
+- `mysqlsh_import_json`
+- `mysqlsh_dump_instance`
 
 
-## Group Focus:optimization
-
-optimization Tool Group (4 tools +1 for code mode):
-
-1. `mysql.optimization.indexRecommendation` 2. `mysql.optimization.queryRewrite` 3. `mysql.optimization.forceIndex`
-2. `mysql.optimization.optimizerTrace`
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.optimization.help()` → verify method listing
-2. `mysql.optimization.indexRecommendation({table: "test_orders", includeRedundant: true, includeUnindexed: true})` → findings with redundant/FK checks
-3. `mysql.optimization.indexRecommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"], includeRedundant: true, includeUnindexed: true})` → EXPLAIN recommendations
-4. `mysql.optimization.indexRecommendation({table: "test_orders", queries: ["SELECT * FROM test_orders WHERE status = 'completed' AND customer_name = 'Alice'"]})` → composite suggestion
-5. `mysql.optimization.indexRecommendation({})` → database-wide audit
-6. `mysql.optimization.queryRewrite({query: "SELECT * FROM test_products WHERE name = 'Laptop'"})` → hints
-7. `mysql.optimization.forceIndex({table: "test_orders", index: "idx_orders_status", query: "SELECT * FROM test_orders WHERE status = 'completed'"})` → FORCE INDEX hint
-8. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1"})` → trace
-9. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → summarized
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.optimization.indexRecommendation({table: "nonexistent_xyz", includeRedundant: true, includeUnindexed: true})` → `{success: false}`
-11. 🔴 `mysql.optimization.indexRecommendation({queries: ["INSERT INTO test_products VALUES (999, 'x', 1, 'cat', '{}')"], includeRedundant: true, includeUnindexed: true})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-12. 🔴 `mysql.optimization.indexRecommendation({queries: [123]})` → `{success: false, error: "Validation error: ..."}`
-13. 🔴 `mysql.optimization.optimizerTrace({})` → `{success: false, error: "Validation error: ..."}`
+## Group Focus:\n\n**Checklist:**
+1. ✅ shell part 2a\n\n---
 
 ---
 
