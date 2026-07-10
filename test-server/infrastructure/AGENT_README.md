@@ -56,10 +56,6 @@ This test ecosystem includes only the necessary components to validate the `mysq
 │            │   Port: 9090     │           │  Port: 3001  │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
-│                               ┌──────────────┐                               │
-│                               │ Redis Server │                               │
-│                               │  Port: 6379  │                               │
-│                               └──────────────┘                               │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -109,7 +105,6 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Dozzle (Logs) | `http://localhost:8080` |
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
-| Redis | `localhost:6379` |
 
 ---
 

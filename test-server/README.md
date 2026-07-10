@@ -20,10 +20,10 @@
 | `test-resources.sql`         | Seed SQL for resource testing                                                                                                                 | Reference                                    |
 | `test-prompts-notes.md`      | Prompt testing plan                                                                                                                           | When testing prompts                         |
 | `test-prompts.sql`           | Seed SQL for prompt testing                                                                                                                   | Reference                                    |
-| `../scripts/reset-database.mjs`| Reset + re-seed `testdb`                                                                                          | When data is dirty                           |
+| `infrastructure/scripts/reset-database.mjs` | Reset + re-seed `testdb`                                                                                          | When data is dirty                           |
 | `test-seed.sql`              | Primary seed SQL (DDL + DML) for all `test_*` tables                                                                                          | Reference only                               |
 | `sample.csv`, `sample.json`  | Fixtures for import/export testing                                                                                                            | Used by text/CSV tools                       |
-| `../scripts/test-*`            | Automated test scripts                                                                                                                        | Run after build                              |
+| `infrastructure/scripts/recreate-test-ecosystem.mjs` | Completely tear down and recreate the local test cluster                                                    | If the cluster fails                         |
 
 ## Reference Test Database Schema
 
@@ -60,9 +60,25 @@
 | Host      | `localhost`   |
 | Port      | `3306`        |
 | Database  | `testdb`      |
-| Container | `mysql-final` |
+| Container | `mysql-node1` |
 
-> Note: Use `docker ps` / `docker start mysql-final` if connection is refused. Ecosystem tools connect on alternate ports (cluster: 3307, router: 8443, proxysql: 6032).
+> Note: Use `docker ps` / `docker start mysql-node1` if connection is refused. Ecosystem tools connect on alternate ports (cluster: 3307, router: 6446, proxysql: 6032).
+
+## Infrastructure Management (Docker)
+
+If the test infrastructure breaks or needs to be completely wiped and re-created (e.g., due to port conflicts, corruption, or schema changes), use the automated ecosystem scripts provided in the `infrastructure/scripts` directory:
+
+1. **Recreate the ecosystem:**
+   ```powershell
+   node infrastructure/scripts/recreate-test-ecosystem.mjs
+   ```
+   This will completely tear down the containers, spin them back up, wait for them to become healthy, initialize the InnoDB cluster, join the secondary nodes, and automatically run the `reset-database.mjs` seed script.
+
+2. **Re-seed without teardown:**
+   If you just need to reset the data because you dirtied it during testing:
+   ```powershell
+   node infrastructure/scripts/reset-database.mjs
+   ```
 
 ## Execute Agent Test Workflow
 
