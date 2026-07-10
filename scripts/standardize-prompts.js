@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { TOOL_GROUPS } from "../src/filtering/tool-constants.js";
 
 const directories = ["test-codemode", "test-advanced", "test-tool-groups", "test-usability"];
 
@@ -170,6 +171,24 @@ function processDirectory(dirName) {
     }
 
     let testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");
+
+    let baseGroup = groupName.replace(/-part\d+$/, '');
+    if (baseGroup.startsWith('sys-') || baseGroup === 'sys') baseGroup = 'sysschema';
+    if (baseGroup.startsWith('json-')) baseGroup = 'json';
+    if (baseGroup.startsWith('performance-')) baseGroup = 'performance';
+    if (baseGroup.startsWith('stats-')) baseGroup = 'stats';
+    if (baseGroup.startsWith('docstore-')) baseGroup = 'docstore';
+    if (baseGroup.startsWith('backup-')) baseGroup = 'backup';
+    if (baseGroup.startsWith('cluster-')) baseGroup = 'cluster';
+    if (baseGroup.startsWith('schema-')) baseGroup = 'schema';
+    if (baseGroup.startsWith('spatial-')) baseGroup = 'spatial';
+    if (baseGroup.startsWith('vector-')) baseGroup = 'vector';
+
+    const actualToolCount = TOOL_GROUPS[baseGroup] ? TOOL_GROUPS[baseGroup].length : 0;
+
+    testContent = testContent.replace(/## Group Focus: .*/g, `## Group Focus: ${baseGroup}`);
+    testContent = testContent.replace(/### .*? Group-Specific Testing/g, `### ${baseGroup} Group-Specific Testing`);
+    testContent = testContent.replace(/.*? Tool Group \(\d+ tools.*?\):/g, `${baseGroup} Tool Group (${actualToolCount} tools +1 for code mode):`);
 
     // Extract and preserve existing explicit tool coverage block if we didn't generate one
     if (!explicitToolsList) {

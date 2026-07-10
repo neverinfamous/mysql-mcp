@@ -35,6 +35,7 @@ vi.mock("redis", () => ({
     destroy: vi.fn(),
     quit: vi.fn().mockResolvedValue(undefined),
     isOpen: true,
+    on: vi.fn(),
   })),
 }));
 
