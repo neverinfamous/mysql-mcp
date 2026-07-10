@@ -104,7 +104,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 **Encapsulated Tools**: \`mysql_export_table\`, \`mysql_import_data\`, \`mysql_create_dump\`, \`mysql_restore_dump\`, \`mysql_audit_list_backups\`, \`mysql_audit_restore_backup\`, \`mysql_audit_diff_backup\`
 
 - **Export formats**: \`mysql_export_table\` supports SQL (INSERT statements) and CSV formats. CSV export escapes JSON columns with double-quote encoding. Consider SQL format for JSON-heavy tables.
-- **Export pagination & batching**: Returns at most 5 rows by default. Use \`limit\` parameter to override. Use \`batch\` parameter (default: 1) to group rows into multi-row INSERT statements (e.g., \`batch: 50\`).
+- **Export pagination & batching**: Returns at most 5 rows by default. Use \`limit\` parameter to override.
 - **Export filtering**: Use \`where\` parameter to export subsets: \`where: "category = 'electronics'"\`.
 - **Export error handling**: Returns a structured error with \`code: "TABLE_NOT_FOUND"\` for nonexistent tables and standard handler errors for query issues.
 - **Import data**: \`mysql_import_data\` requires an array of row objects and the target table to exist. Validates column identifiers upfront. Automatically formats ISO 8601 date strings by stripping \`T\` and \`Z\` characters.
@@ -463,7 +463,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 
 - **Prerequisites**: ProxySQL must be running with admin interface accessible (default port 6032). Environment variables: \`PROXYSQL_HOST\`, \`PROXYSQL_PORT\`, \`PROXYSQL_USER\`, \`PROXYSQL_PASSWORD\`.
 - **Status monitoring**: \`proxysql_status\` returns global status variables. Use \`summary: true\` for key metrics.
-- **Global variables**: \`proxysql_global_variables\` supports \`prefix\` filter (\`mysql\`, \`admin\`, or \`all\`) and \`like\` pattern. Use \`limit\` (default: 50). Passwords are redacted.
+- **Global variables**: \`proxysql_global_variables\` supports \`like\` pattern. Use \`limit\` (default: 50). Passwords are redacted.
 - **Runtime status**: \`proxysql_runtime_status\` returns version and admin variables. Use \`summary: true\` for condensed output. Sensitive variables are redacted.
 - **Backend servers & pools**: \`proxysql_servers\` shows backend MySQL servers. \`proxysql_connection_pool\` shows connection pool stats. Both support \`hostgroup_id\` filter.
 - **Users**: \`proxysql_users\` lists configured ProxySQL users and their assigned hostgroups.
@@ -663,11 +663,10 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Get**: \`mysql_vector_get\`({ table, id }) → retrieves vector as \`number[]\` via \`VECTOR_TO_STRING()\`. Returns \`{ exists: false }\` if row doesn't exist.
 - **KNN search**: \`mysql_vector_search\`({ table, column, queryVector, k?, metric?, filter?, select? }) → top-k nearest neighbors. Metrics: \`COSINE\` (default), \`EUCLIDEAN\`, \`DOT\`. Use \`filter\` for WHERE clause conditions. Use \`select\` to limit returned columns.
 - **Range search**: \`mysql_vector_range_search\`({ table, column, queryVector, maxDistance }) → all vectors within distance threshold. Default limit: 50.
-- **Hybrid search**: \`mysql_vector_hybrid_search\`({ table, vectorColumn, textColumn, queryVector?, queryText?, k?, metric?, rrfK?, vectorWeight?, textWeight?, select?, filter? }) → combines DISTANCE() + MATCH...AGAINST via Reciprocal Rank Fusion (RRF).
+- **Hybrid search**: \`mysql_vector_hybrid_search\`({ table, vectorColumn, textColumn, queryVector?, queryText?, k?, metric?, rrfK?, select?, filter? }) → combines DISTANCE() + MATCH...AGAINST via Reciprocal Rank Fusion (RRF).
   - Requires FULLTEXT index on \`textColumn\`. At least one of \`queryVector\` or \`queryText\` required.
   - \`metric\`: COSINE (default), EUCLIDEAN, or DOT — controls the vector distance function.
   - \`rrfK\`: RRF smoothing constant (default: 60). Lower = more weight to top ranks, higher = more uniform fusion.
-  - \`vectorWeight\`/\`textWeight\`: Relative importance (0.0–1.0, default: 0.5 each). Semantic workloads: \`vectorWeight: 0.7\`. Keyword workloads: \`textWeight: 0.7\`.
   - \`select\`: Array of column names to return (default: all non-vector columns). Use to reduce token consumption.
   - \`filter\`: SQL WHERE clause applied as pre-filter before scoring (e.g., \`"category = 'tech'"\`).
   - \`queryText\` is automatically sanitized (unbalanced quotes/parens stripped, dangling operators removed).
