@@ -83,12 +83,12 @@ node scripts/reset-database.mjs --SkipVerify
 node scripts/reset-database.mjs --Cluster
 ```
 
-### `seed.ts`
+### `test-server/infrastructure/scripts/seed.ts`
 
 Seeds the test database (`testdb`) with data from `test-server/test-seed.sql`. This is used to quickly inject seed data without running the full `reset-database.mjs` logic.
 
 ```bash
-npx tsx scripts/seed.ts
+npx tsx test-server/infrastructure/scripts/seed.ts
 ```
 
 ### `test-zod-errors.mjs`
@@ -173,12 +173,12 @@ Global teardown script for E2E testing. Cleans up test artifacts like SQLite dat
 npx tsx scripts/teardown.ts
 ```
 
-### `redis-setup.ts`
+### `test-server/infrastructure/scripts/redis-setup.ts`
 
 Global setup script for E2E testing. Initializes the Redis test container needed for distributed rate limiting tests. Runs automatically via Vitest's `globalSetup`.
 
 ```bash
-npx tsx scripts/redis-setup.ts
+npx tsx test-server/infrastructure/scripts/redis-setup.ts
 ```
 
 ## ⚙️ Maintenance & Architecture
@@ -198,12 +198,12 @@ npm run generate:instructions
 Configuration file mapping standard tools to prompt generation categories. Used by `scripts/standardize-prompts.js` to patch test output dynamically.
 
 
-### `update-badges.ts`
+### `test-server/infrastructure/scripts/update-badges.ts`
 
 Updates test coverage badges in `README.md` and `DOCKER_README.md`. Uses Vitest's JSON coverage summary output. Runs automatically during `npm run test:coverage`.
 
 ```bash
-npx tsx scripts/update-badges.ts
+npx tsx test-server/infrastructure/scripts/update-badges.ts
 ```
 
 ### `generate-social.mjs`
