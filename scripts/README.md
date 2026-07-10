@@ -19,10 +19,10 @@ Reboots the InnoDB Cluster after a **complete outage** (all 3 nodes stopped simu
 
 ```bash
 # Default: root:root@localhost:3307, cluster name testCluster
-node scripts/reboot-cluster.mjs
+node test-server/infrastructure/scripts/reboot-cluster.mjs
 
 # Custom credentials
-node scripts/reboot-cluster.mjs --User cluster_admin --Password cluster_admin
+node test-server/infrastructure/scripts/reboot-cluster.mjs --User cluster_admin --Password cluster_admin
 ```
 
 **What it does:**
@@ -43,7 +43,7 @@ node scripts/reboot-cluster.mjs --User cluster_admin --Password cluster_admin
 
 | Symptom                            | Cause                            | Fix                                           |
 | ---------------------------------- | -------------------------------- | --------------------------------------------- |
-| `super_read_only` errors           | GR offline, no primary elected   | `node scripts/reboot-cluster.mjs`             |
+| `super_read_only` errors           | GR offline, no primary elected   | `node test-server/infrastructure/scripts/reboot-cluster.mjs`             |
 | E2E tests skip write tests       | Same as above                    | Same as above                                 |
 | All topology members OFFLINE       | Complete outage (machine reboot) | Same as above                                 |
 | Single node MISSING                | Node fell out of group           | Rejoin: `docker exec mysql-node1 mysqlsh ...` |
@@ -74,13 +74,13 @@ By default, it verifies all tables were created and populated correctly.
 
 ```bash
 # Reset default test database
-node scripts/reset-database.mjs
+node test-server/infrastructure/scripts/reset-database.mjs
 
 # Skip table verification step
-node scripts/reset-database.mjs --SkipVerify
+node test-server/infrastructure/scripts/reset-database.mjs --SkipVerify
 
 # Target the InnoDB Cluster instead of standalone MySQL
-node scripts/reset-database.mjs --Cluster
+node test-server/infrastructure/scripts/reset-database.mjs --Cluster
 ```
 
 ### `test-server/infrastructure/scripts/seed.ts`
@@ -170,7 +170,7 @@ node scripts/verify-schemas.mjs
 Global teardown script for E2E testing. Cleans up test artifacts like SQLite database files. Removes WAL/SHM files generated during test execution.
 
 ```bash
-npx tsx scripts/teardown.ts
+npx tsx test-server/infrastructure/scripts/teardown.ts
 ```
 
 ### `test-server/infrastructure/scripts/redis-setup.ts`

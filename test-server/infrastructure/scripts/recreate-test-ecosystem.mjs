@@ -1,4 +1,5 @@
 import { execSync } from 'child_process';
+import { setTimeout } from 'timers/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -21,15 +22,15 @@ try {
     console.log(`[Network] Windows Host IP: ${wslGateway}`);
     
     // Write to .env so docker-compose can use it for extra_hosts
-    execSync(`echo WINDOWS_HOST_IP=${wslGateway} > .env`, { cwd: join(REPO_ROOT, 'test-server', 'infrastructure') });
+    execSync(`echo WINDOWS_HOST_IP=${wslGateway} > .env`, { cwd: REPO_ROOT });
 
     run('docker compose down -v --remove-orphans');
     console.log('\n[Wait] Giving Docker daemon time to flush networks...');
-    execSync('ping 127.0.0.1 -n 6 > nul'); // Windows sleep 5s
+    await setTimeout(5000); // 5s sleep
 
     run('docker compose up -d');
     console.log('\n[Wait] Waiting for containers to initialize...');
-    execSync('ping 127.0.0.1 -n 11 > nul'); // Windows sleep 10s
+    await setTimeout(10000); // 10s sleep
 
     console.log('\n[Bootstrap] Starting InnoDB Cluster bootstrap process...');
     run('node scripts/create-cluster.mjs');

@@ -3,7 +3,7 @@ services:
   # INNODB CLUSTER
   # ==========================================
   mysql-node1:
-    image: mysql:lts
+    image: mysql:8.4.2
     container_name: mysql-node1
     restart: unless-stopped
     hostname: mysql-node1
@@ -43,7 +43,7 @@ services:
       retries: 30
 
   mysql-node2:
-    image: mysql:lts
+    image: mysql:8.4.2
     container_name: mysql-node2
     restart: unless-stopped
     hostname: mysql-node2
@@ -82,7 +82,7 @@ services:
       retries: 30
 
   mysql-node3:
-    image: mysql:lts
+    image: mysql:8.4.2
     container_name: mysql-node3
     restart: unless-stopped
     hostname: mysql-node3
@@ -157,14 +157,16 @@ services:
       retries: 10
 
   proxysql:
-    image: proxysql/proxysql:latest
+    image: proxysql/proxysql:2.6.3
     container_name: proxysql
     restart: unless-stopped
     ports:
       - "6032:6032"
       - "6033:6033"
     volumes:
-      - ./proxysql.cnf:/etc/proxysql.cnf
+      - ./config/proxysql/proxysql.cnf:/etc/proxysql.cnf:ro
+    stop_grace_period: 15s
+    mem_limit: 256m
     logging:
       driver: json-file
       options:
@@ -175,13 +177,15 @@ services:
   # MONITORING
   # ==========================================
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v8.0.0
     container_name: dozzle
     restart: unless-stopped
     ports:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    stop_grace_period: 15s
+    mem_limit: 256m
     logging:
       driver: json-file
       options:
@@ -189,11 +193,13 @@ services:
         max-file: "3"
 
   adminer:
-    image: adminer:latest
+    image: adminer:4.8.1
     container_name: adminer
     restart: unless-stopped
     ports:
       - "8081:8080"
+    stop_grace_period: 15s
+    mem_limit: 256m
     logging:
       driver: json-file
       options:
@@ -201,7 +207,7 @@ services:
         max-file: "3"
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus:v2.54.1
     container_name: prometheus
     restart: unless-stopped
     ports:
@@ -210,6 +216,8 @@ services:
       - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    stop_grace_period: 15s
+    mem_limit: 256m
     logging:
       driver: json-file
       options:
@@ -217,7 +225,7 @@ services:
         max-file: "3"
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:11.2.0
     container_name: grafana
     restart: unless-stopped
     ports:
@@ -225,6 +233,8 @@ services:
     volumes:
       - ./config/grafana/provisioning:/etc/grafana/provisioning
       - ./config/grafana/dashboards:/var/lib/grafana/dashboards
+    stop_grace_period: 15s
+    mem_limit: 256m
     logging:
       driver: json-file
       options:
