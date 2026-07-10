@@ -13,7 +13,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ROOT_HOST: '%'
-      MYSQL_DATABASE: testdb
+      TZ: America/New_York
     command: >
       --server-id=1
       --log-bin=mysql-bin
@@ -21,18 +21,13 @@ services:
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
       --report_host=mysql-node1
-      --innodb-buffer-pool-size=128M
-      --innodb-redo-log-capacity=100M
-      --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
-    labels:
-      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
-      - 'com.datadoghq.ad.check_names=["mysql"]'
-      - 'com.datadoghq.ad.init_configs=[{}]'
-      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "user":"root", "pass":"root"}]'
+      --innodb-buffer-pool-size=128M
+      --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node1-data-v4:/var/lib/mysql
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     stop_grace_period: 30s
     mem_limit: 512m
     logging:
@@ -45,6 +40,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node1"}]'
 
   mysql-node2:
     image: mysql:9.1.0
@@ -57,6 +54,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ROOT_HOST: '%'
+      TZ: America/New_York
     command: >
       --server-id=2
       --log-bin=mysql-bin
@@ -64,16 +62,10 @@ services:
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
       --report_host=mysql-node2
-      --innodb-buffer-pool-size=128M
-      --innodb-redo-log-capacity=100M
-      --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
-    labels:
-      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
-      - 'com.datadoghq.ad.check_names=["mysql"]'
-      - 'com.datadoghq.ad.init_configs=[{}]'
-      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "user":"root", "pass":"root"}]'
+      --innodb-buffer-pool-size=128M
+      --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
     stop_grace_period: 30s
@@ -88,6 +80,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node2"}]'
 
   mysql-node3:
     image: mysql:9.1.0
@@ -100,6 +94,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ROOT_HOST: '%'
+      TZ: America/New_York
     command: >
       --server-id=3
       --log-bin=mysql-bin
@@ -107,16 +102,10 @@ services:
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
       --report_host=mysql-node3
-      --innodb-buffer-pool-size=128M
-      --innodb-redo-log-capacity=100M
-      --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
-    labels:
-      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
-      - 'com.datadoghq.ad.check_names=["mysql"]'
-      - 'com.datadoghq.ad.init_configs=[{}]'
-      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "username":"root", "password":"root"}]'
+      --innodb-buffer-pool-size=128M
+      --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
     stop_grace_period: 30s
@@ -131,6 +120,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node3"}]'
 
   # ==========================================
   # ROUTING & PROXIES
@@ -162,6 +153,10 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446, "username":"root", "password":"root", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": false, "extra_performance_metrics": false}}]'
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot"]
       interval: 15s
@@ -184,9 +179,33 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    labels:
+      com.datadoghq.ad.check_names: '["proxysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"radmin", "password":"radmin"}]'
+      com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
+
+  redis-server:
+    image: redis:7.4.0
+    container_name: redis-server
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      TZ: America/New_York
+    command: redis-server --save 60 1 --loglevel warning
+    stop_grace_period: 15s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"redis","service":"redis-server"}]'
 
   # ==========================================
-  # MONITORING
+  # MONITORING & TOOLS
   # ==========================================
   dozzle:
     image: amir20/dozzle:v10.6.8
@@ -224,10 +243,10 @@ services:
     restart: unless-stopped
     ports:
       - "9090:9090"
-    extra_hosts:
-      - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    extra_hosts:
+      - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
     stop_grace_period: 15s
     mem_limit: 256m
     logging:
@@ -253,7 +272,43 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  datadog-unified:
+    image: gcr.io/datadoghq/agent:7
+    container_name: datadog-unified
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DD_SITE=datadoghq.com
+      - DD_LOGS_ENABLED=true
+      - DD_PROCESS_CONFIG_CONTAINER_COLLECTION_ENABLED=true
+      - DD_PROCESS_CONFIG_PROCESS_COLLECTION_ENABLED=true
+      - DD_KUBERNETES_COLLECT_METADATA_TAGS=false
+      - DD_COLLECT_KUBERNETES_EVENTS=false
+      - DD_HOSTNAME=docker-desktop
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - ./config/datadog-integration-configs:/etc/datadog-agent/conf.d:ro
+    networks:
+      - default
+    stop_grace_period: 30s
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   mysql-node1-data-v4:
   mysql-node2-data-v4:
   mysql-node3-data-v4:
+  postgres-data-v2:
+  mongo-data-v2:
+
+networks: {}
+
