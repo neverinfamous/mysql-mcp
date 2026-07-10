@@ -55,6 +55,11 @@ This test ecosystem includes only the necessary components to validate the `mysq
 │            │    Prometheus    │           │   Grafana    │                   │
 │            │   Port: 9090     │           │  Port: 3001  │                   │
 │            └──────────────────┘           └──────────────┘                   │
+│                                                                              │
+│                               ┌──────────────┐                               │
+│                               │ Redis Server │                               │
+│                               │  Port: 6379  │                               │
+│                               └──────────────┘                               │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -104,6 +109,7 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Dozzle (Logs) | `http://localhost:8080` |
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
+| Redis | `localhost:6379` |
 
 ---
 
@@ -135,7 +141,7 @@ If containers are cycling (green → red → green repeatedly):
 When Prometheus runs inside WSL and needs to scrape `mysql-mcp` running on the Windows host, the default WSL virtual network adapter (`192.168.48.1`) often blocks incoming traffic due to the Windows Firewall "Public" profile. To bypass this frictionlessly, `docker-compose.yml` maps `host.docker.internal` to the Windows physical adapter IP (`192.168.1.70` by default via `${WINDOWS_HOST_IP:-192.168.1.70}`).
 
 ### MySQL 9.x Observability Flags
-- **`--container_aware=ON`**: Required to prevent MySQL from ignoring discovered container memory restrictions.
+
 - **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
 - **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
 - **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.

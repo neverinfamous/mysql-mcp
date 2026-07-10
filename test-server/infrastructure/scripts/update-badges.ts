@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,11 +57,13 @@ function updateBadges() {
   const newE2eBadge = `![E2E](https://img.shields.io/badge/E2E-${e2ePassing}%20passing%20%C2%B7%20${e2eSkipped}%20skipped-blue.svg)`;
 
   const filesToUpdate = ["README.md", "DOCKER_README.md"];
+  const updatedFiles: string[] = [];
 
   for (const file of filesToUpdate) {
     const filePath = path.join(ROOT_DIR, file);
     try {
       let content = fs.readFileSync(filePath, "utf-8");
+      const originalNormalized = content.replace(/\r\n/g, "\n");
       let changed = false;
 
       if (hasCoverage) {
@@ -106,12 +109,32 @@ function updateBadges() {
       }
 
       if (changed) {
-        fs.writeFileSync(filePath, content, "utf-8");
+        const finalContent = content.replace(/\r\n/g, "\n");
+        if (finalContent !== originalNormalized) {
+          fs.writeFileSync(filePath, finalContent, "utf-8");
+          updatedFiles.push(file);
+        } else {
+          console.log(`Badges in ${file} are already up-to-date.`);
+        }
       } else {
         console.log(`No badges found to update in ${file}.`);
       }
     } catch (err) {
       console.warn(`Skipped updating ${file}: File not found or unreadable.`);
+    }
+  }
+
+  if (updatedFiles.length > 0) {
+    console.log(`\\nAuto-committing badge updates for: ${updatedFiles.join(", ")}`);
+    const commitScript = path.join(ROOT_DIR, ".agents", "scripts", "commit.ts");
+    const addArgs = updatedFiles.map(f => `--add "${f}"`).join(" ");
+    const cmd = `bun "${commitScript}" --msg "chore(docs): update coverage and E2E badges" --impact 0.1 --confidence 1.0 --validation none --no-history ${addArgs}`;
+    
+    try {
+      execSync(cmd, { stdio: "inherit", cwd: ROOT_DIR });
+      console.log("Successfully auto-committed badge updates.");
+    } catch (err: any) {
+      console.error("Failed to auto-commit badge updates:", err.message || err);
     }
   }
 }

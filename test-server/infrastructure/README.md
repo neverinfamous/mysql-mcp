@@ -50,6 +50,7 @@ This environment spins up the following components:
 - **Dozzle**: `http://localhost:8080` (Real-time container logs viewer)
 - **Adminer**: `http://localhost:8081` (Web-based database management UI)
   - *Login details:* System: **MySQL**, Server: **mysql-node1**, Username: **root**, Password: **root**
+- **Redis Server**: `localhost:6379` (Distributed rate-limiting cache)
 
 All components share the `infrastructure_default` Docker network.
 
