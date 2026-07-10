@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 export default defineConfig({
   testDir: "./tests/e2e",
   testIgnore: process.env.CI ? ['**/ecosystem*.spec.ts', '**/payloads-ecosystem-*.spec.ts'] : undefined,
-  globalTeardown: "./scripts/teardown.ts",
+  globalTeardown: "./test-server/infrastructure/scripts/teardown.ts",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
