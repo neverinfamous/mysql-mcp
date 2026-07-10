@@ -8,11 +8,10 @@
 - **Get**: `mysql_vector_get`({ table, id }) → retrieves vector as `number[]` via `VECTOR_TO_STRING()`. Returns `{ exists: false }` if row doesn't exist.
 - **KNN search**: `mysql_vector_search`({ table, column, queryVector, k?, metric?, filter?, select? }) → top-k nearest neighbors. Metrics: `COSINE` (default), `EUCLIDEAN`, `DOT`. Use `filter` for WHERE clause conditions. Use `select` to limit returned columns.
 - **Range search**: `mysql_vector_range_search`({ table, column, queryVector, maxDistance }) → all vectors within distance threshold. Default limit: 50.
-- **Hybrid search**: `mysql_vector_hybrid_search`({ table, vectorColumn, textColumn, queryVector?, queryText?, k?, metric?, rrfK?, vectorWeight?, textWeight?, select?, filter? }) → combines DISTANCE() + MATCH...AGAINST via Reciprocal Rank Fusion (RRF).
+- **Hybrid search**: `mysql_vector_hybrid_search`({ table, vectorColumn, textColumn, queryVector?, queryText?, k?, metric?, rrfK?, select?, filter? }) → combines DISTANCE() + MATCH...AGAINST via Reciprocal Rank Fusion (RRF).
   - Requires FULLTEXT index on `textColumn`. At least one of `queryVector` or `queryText` required.
   - `metric`: COSINE (default), EUCLIDEAN, or DOT — controls the vector distance function.
   - `rrfK`: RRF smoothing constant (default: 60). Lower = more weight to top ranks, higher = more uniform fusion.
-  - `vectorWeight`/`textWeight`: Relative importance (0.0–1.0, default: 0.5 each). Semantic workloads: `vectorWeight: 0.7`. Keyword workloads: `textWeight: 0.7`.
   - `select`: Array of column names to return (default: all non-vector columns). Use to reduce token consumption.
   - `filter`: SQL WHERE clause applied as pre-filter before scoring (e.g., `"category = 'tech'"`).
   - `queryText` is automatically sanitized (unbalanced quotes/parens stripped, dangling operators removed).

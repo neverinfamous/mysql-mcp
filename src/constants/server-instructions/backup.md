@@ -3,7 +3,7 @@
 **Encapsulated Tools**: `mysql_export_table`, `mysql_import_data`, `mysql_create_dump`, `mysql_restore_dump`, `mysql_audit_list_backups`, `mysql_audit_restore_backup`, `mysql_audit_diff_backup`
 
 - **Export formats**: `mysql_export_table` supports SQL (INSERT statements) and CSV formats. CSV export escapes JSON columns with double-quote encoding. Consider SQL format for JSON-heavy tables.
-- **Export pagination & batching**: Returns at most 5 rows by default. Use `limit` parameter to override. Use `batch` parameter (default: 1) to group rows into multi-row INSERT statements (e.g., `batch: 50`).
+- **Export pagination & batching**: Returns at most 5 rows by default. Use `limit` parameter to override.
 - **Export filtering**: Use `where` parameter to export subsets: `where: "category = 'electronics'"`.
 - **Export error handling**: Returns a structured error with `code: "TABLE_NOT_FOUND"` for nonexistent tables and standard handler errors for query issues.
 - **Import data**: `mysql_import_data` requires an array of row objects and the target table to exist. Validates column identifiers upfront. Automatically formats ISO 8601 date strings by stripping `T` and `Z` characters.
