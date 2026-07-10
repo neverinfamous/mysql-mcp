@@ -316,7 +316,7 @@ export class McpServer {
         }
       });
       
-      this.metricsHttpServer.listen(port, () => {
+      this.metricsHttpServer.listen(port, "0.0.0.0", () => {
         logger.info(`Standalone Prometheus metrics server listening on port ${port} (stdio transport)`);
       });
       

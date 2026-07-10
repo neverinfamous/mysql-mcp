@@ -20,7 +20,7 @@ services:
       --gtid_mode=ON
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
-      --binlog_format=ROW
+      --container_aware=ON
       --report_host=mysql-node1
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
@@ -59,7 +59,7 @@ services:
       --gtid_mode=ON
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
-      --binlog_format=ROW
+      --container_aware=ON
       --report_host=mysql-node2
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
@@ -98,7 +98,7 @@ services:
       --gtid_mode=ON
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
-      --binlog_format=ROW
+      --container_aware=ON
       --report_host=mysql-node3
       --innodb-buffer-pool-size=128M
       --innodb-log-file-size=48M
@@ -207,7 +207,7 @@ services:
     ports:
       - "9090:9090"
     extra_hosts:
-      - "host.docker.internal:${WINDOWS_HOST_IP:-host-gateway}"
+      - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     logging:

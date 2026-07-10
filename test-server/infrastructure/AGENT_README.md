@@ -131,3 +131,9 @@ If containers are cycling (green → red → green repeatedly):
 | `/etc/systemd/system/wsl-keepalive.service` | Backup in-distro keepalive (defense-in-depth) |
 | `scripts/wsl-keepalive.vbs` | Hidden launcher for the Windows Scheduled Task |
 
+### Windows Firewall & Prometheus Scraping
+When Prometheus runs inside WSL and needs to scrape `mysql-mcp` running on the Windows host, the default WSL virtual network adapter (`192.168.48.1`) often blocks incoming traffic due to the Windows Firewall "Public" profile. To bypass this frictionlessly, `docker-compose.yml` maps `host.docker.internal` to the Windows physical adapter IP (`192.168.1.70` by default via `${WINDOWS_HOST_IP:-192.168.1.70}`).
+
+### MySQL 9.x Observability Flags
+- **`--container_aware=ON`**: Required to prevent MySQL from ignoring discovered container memory restrictions.
+- **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
