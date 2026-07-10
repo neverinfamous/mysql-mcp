@@ -168,7 +168,7 @@ export class HttpTransport {
       } catch (e) {
         logger.error("Error gracefully closing Redis client", { error: e });
         try {
-          await this.redisClient.disconnect();
+          this.redisClient.destroy();
         } catch (e2) {
           logger.error("Error force disconnecting Redis client", { error: e2 });
         }
