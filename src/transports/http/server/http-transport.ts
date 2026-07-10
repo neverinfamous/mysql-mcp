@@ -71,7 +71,7 @@ export class HttpTransport {
       maxBodySize: config.maxBodySize ?? DEFAULT_MAX_BODY_SIZE,
       enableHSTS:
         config.enableHSTS ?? process.env["MCP_ENABLE_HSTS"] === "true",
-      trustProxy: config.trustProxy ?? false,
+      trustProxy: config.trustProxy ?? process.env["TRUST_PROXY"] === "true",
       stateless: config.stateless ?? false,
     };
     if (onConnect) {
@@ -131,6 +131,9 @@ export class HttpTransport {
           this.redisClient = createClient({ 
             url: process.env["REDIS_URL"],
             disableOfflineQueue: true
+          });
+          this.redisClient.on('error', (err: unknown) => {
+            logger.error("Redis Client Error", { error: err instanceof Error ? err : new Error(String(err)) });
           });
           this.redisClient.connect().then(() => resolve()).catch((err: unknown) => {
             logger.error("Redis connection failed in HttpTransport", {
