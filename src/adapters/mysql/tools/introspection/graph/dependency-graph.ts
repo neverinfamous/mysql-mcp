@@ -49,10 +49,6 @@ export function createDependencyGraphTool(
           maxDepth?: number;
         };
 
-        if (!parsed.schema) {
-          throw new ValidationError("Validation error: schema parameter is required (e.g., { schema: 'my_database' })");
-        }
-
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
 

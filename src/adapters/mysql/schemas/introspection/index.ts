@@ -69,6 +69,9 @@ export const DependencyGraphSchema = z.object({
     }
   }
   return val;
+}).refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+  message: "schema parameter is required (e.g., { schema: 'my_database' })",
+  path: ["schema"],
 });
 
 /**
