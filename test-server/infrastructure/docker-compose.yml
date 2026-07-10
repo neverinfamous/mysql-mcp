@@ -202,7 +202,10 @@ services:
         max-size: "10m"
         max-file: "3"
     labels:
-      - 'com.datadoghq.ad.logs=[{"source":"redis","service":"redis-server"}]'
+      com.datadoghq.ad.check_names: '["redisdb"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379}]'
+      com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
 
   # ==========================================
   # MONITORING & TOOLS
