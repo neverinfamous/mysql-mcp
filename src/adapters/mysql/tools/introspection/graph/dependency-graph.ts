@@ -3,7 +3,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ValidationError } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
