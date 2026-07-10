@@ -44,7 +44,7 @@ export function createCascadeSimulatorTool(
         };
         
         if (!parsed.table) {
-          throw new ValidationError("table parameter is required");
+          throw new ValidationError("Validation error: table parameter is required");
         }
         
         let schema = parsed.schema;

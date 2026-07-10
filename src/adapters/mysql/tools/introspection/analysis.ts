@@ -53,7 +53,7 @@ export function createConstraintAnalysisTool(
         const parsed = ConstraintAnalysisSchema.parse(params);
 
         if (!parsed.schema && !parsed.table) {
-          throw new ValidationError("schema or table parameter is required");
+          throw new ValidationError("Validation error: schema or table parameter is required");
         }
 
         // Validate schema existence when filtering by schema
@@ -392,7 +392,7 @@ export function createMigrationRisksTool(
         };
 
         if (parsed.statements.length === 0) {
-          throw new ValidationError("statements parameter is required");
+          throw new ValidationError("Validation error: statements parameter is required");
         }
 
         if (parsed.schema) {

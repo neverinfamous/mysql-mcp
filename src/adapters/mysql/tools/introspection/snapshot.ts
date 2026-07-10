@@ -44,7 +44,7 @@ export function createSchemaSnapshotTool(
         const parsed = SchemaSnapshotSchema.parse(params);
 
         if (!parsed.schema) {
-          throw new ValidationError("schema parameter is required");
+          throw new ValidationError("Validation error: schema parameter is required");
         }
 
         // Validate schema existence when filtering by schema
