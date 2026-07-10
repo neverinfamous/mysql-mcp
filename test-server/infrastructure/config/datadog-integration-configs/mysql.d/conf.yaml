@@ -1,0 +1,51 @@
+init_config:
+
+ad_identifiers:
+  - mysql
+
+instances:
+  - host: "%%host%%"
+    username: root
+    password: root
+    port: 3306
+    options:
+      replication: false
+      galera_cluster: false
+      extra_status_metrics: true
+      extra_innodb_metrics: true
+      extra_performance_metrics: false
+      schema_size_metrics: false
+      disable_innodb_metrics: false
+    tags:
+      - "hostname:docker-desktop"
+    reported_hostname: docker-desktop
+    
+    # Modern replacement for extra_performance_metrics using custom_queries
+    custom_queries:
+      - metric_prefix: mysql.performance
+        query: |
+          SELECT 
+            SCHEMA_NAME as schema_name,
+            COUNT_STAR as count_star,
+            SUM_TIMER_WAIT/1000000000000 as sum_timer_wait_seconds,
+            AVG_TIMER_WAIT/1000000000000 as avg_timer_wait_seconds,
+            SUM_ROWS_EXAMINED as sum_rows_examined,
+            SUM_ROWS_SENT as sum_rows_sent
+          FROM performance_schema.events_statements_summary_by_digest 
+          WHERE DIGEST_TEXT IS NOT NULL 
+          LIMIT 100;
+        columns:
+          - name: schema_name
+            type: tag
+          - name: count_star
+            type: gauge
+          - name: sum_timer_wait_seconds
+            type: gauge
+          - name: avg_timer_wait_seconds
+            type: gauge
+          - name: sum_rows_examined
+            type: gauge
+          - name: sum_rows_sent
+            type: gauge
+        tags:
+          - "custom_query:performance_digest"

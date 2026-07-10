@@ -15,15 +15,10 @@ services:
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
     command: >
-      --server-id=1
-      --log-bin=mysql-bin
-      --gtid_mode=ON
-      --enforce_gtid_consistency=ON
-      --log_replica_updates=ON
-      --report_host=mysql-node1
-      --innodb-use-native-aio=0
-      --innodb-flush-method=fsync
-      --innodb-buffer-pool-size=128M
+      --server-id=1 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-node1 --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=128M
       --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node1-data-v4:/var/lib/mysql
@@ -36,7 +31,7 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -56,15 +51,10 @@ services:
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
     command: >
-      --server-id=2
-      --log-bin=mysql-bin
-      --gtid_mode=ON
-      --enforce_gtid_consistency=ON
-      --log_replica_updates=ON
-      --report_host=mysql-node2
-      --innodb-use-native-aio=0
-      --innodb-flush-method=fsync
-      --innodb-buffer-pool-size=128M
+      --server-id=2 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-node2 --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=128M
       --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
@@ -76,7 +66,7 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -96,15 +86,10 @@ services:
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
     command: >
-      --server-id=3
-      --log-bin=mysql-bin
-      --gtid_mode=ON
-      --enforce_gtid_consistency=ON
-      --log_replica_updates=ON
-      --report_host=mysql-node3
-      --innodb-use-native-aio=0
-      --innodb-flush-method=fsync
-      --innodb-buffer-pool-size=128M
+      --server-id=3 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-node3 --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=128M
       --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
@@ -116,7 +101,7 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
       interval: 5s
       timeout: 5s
       retries: 30
@@ -137,7 +122,7 @@ services:
         condition: service_healthy
       mysql-node3:
         condition: service_healthy
-    entrypoint: ["/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh"]
+    entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
     volumes:
       - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
     tmpfs:
@@ -156,9 +141,23 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["mysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446, "username":"root", "password":"root", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": false, "extra_performance_metrics": false}}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446,
+        "username":"root", "password":"root", "options": {"replication": false,
+        "extra_status_metrics": true, "extra_innodb_metrics": false,
+        "extra_performance_metrics": false}}]'
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "127.0.0.1",
+          "-P",
+          "6446",
+          "-uroot",
+          "-proot"
+        ]
       interval: 15s
       timeout: 10s
       retries: 10
@@ -182,27 +181,9 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"radmin", "password":"radmin"}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032,
+        "username":"radmin", "password":"radmin"}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
-
-  redis-server:
-    image: redis:7.4.0
-    container_name: redis-server
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    environment:
-      TZ: America/New_York
-    command: redis-server --save 60 1 --loglevel warning
-    stop_grace_period: 15s
-    mem_limit: 256m
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    labels:
-      - 'com.datadoghq.ad.logs=[{"source":"redis","service":"redis-server"}]'
 
   # ==========================================
   # MONITORING & TOOLS
@@ -307,8 +288,4 @@ volumes:
   mysql-node1-data-v4:
   mysql-node2-data-v4:
   mysql-node3-data-v4:
-  postgres-data-v2:
-  mongo-data-v2:
-
 networks: {}
-
