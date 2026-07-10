@@ -60,9 +60,10 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_spatial_polygon` |   |   |
 | `mysql_spatial_distance` |   |   |
 | `mysql_spatial_distance_sphere` |   |   |
+| `mysql_spatial_buffer` |   |   |
+| `mysql_spatial_transform` |   |   |
 
 ---
 
@@ -70,9 +71,10 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_spatial_polygon`
 - `mysql_spatial_distance`
 - `mysql_spatial_distance_sphere`
+- `mysql_spatial_buffer`
+- `mysql_spatial_transform`
 
 
 ## Group Focus: spatial

@@ -60,9 +60,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_list_views` |   |   |
-| `mysql_create_view` |   |   |
-| `mysql_drop_view` |   |   |
+| `mysql_list_stored_procedures` |   |   |
+| `mysql_list_functions` |   |   |
 
 ---
 
@@ -70,9 +69,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_list_views`
-- `mysql_create_view`
-- `mysql_drop_view`
+- `mysql_list_stored_procedures`
+- `mysql_list_functions`
 
 
 ## Category 1: DDL Idempotency

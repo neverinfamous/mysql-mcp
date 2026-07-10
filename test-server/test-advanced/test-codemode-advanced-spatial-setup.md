@@ -60,9 +60,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_spatial_buffer` |   |   |
-| `mysql_spatial_transform` |   |   |
-| `mysql_spatial_geojson` |   |   |
+| `mysql_spatial_create_column` |   |   |
+| `mysql_spatial_create_index` |   |   |
 
 ---
 
@@ -70,9 +69,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_spatial_buffer`
-- `mysql_spatial_transform`
-- `mysql_spatial_geojson`
+- `mysql_spatial_create_column`
+- `mysql_spatial_create_index`
 
 
 ## Group Focus: spatial

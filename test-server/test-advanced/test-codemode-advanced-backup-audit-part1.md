@@ -60,9 +60,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_export_table` |   |   |
-| `mysql_import_data` |   |   |
-| `mysql_create_dump` |   |   |
+| `mysql_audit_list_backups` |   |   |
+| `mysql_audit_restore_backup` |   |   |
 
 ---
 
@@ -70,9 +69,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_export_table`
-- `mysql_import_data`
-- `mysql_create_dump`
+- `mysql_audit_list_backups`
+- `mysql_audit_restore_backup`
 
 
 ## Category 1: Export Edge Cases

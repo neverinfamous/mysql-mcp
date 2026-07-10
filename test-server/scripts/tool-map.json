@@ -14,13 +14,14 @@
     "mysql_server_health"
   ],
   "test-codemode-advanced-backup-export.md": [
-    "mysql_audit_list_backups",
-    "mysql_audit_restore_backup",
-    "mysql_audit_diff_backup"
+    "mysql_export_table",
+    "mysql_import_data",
+    "mysql_create_dump",
+    "mysql_restore_dump"
   ],
   "test-codemode-advanced-shell-utils-part2.md": [
-    "mysqlsh_load_dump",
-    "mysqlsh_run_script"
+    "mysqlsh_dump_instance",
+    "mysqlsh_dump_schemas"
   ],
   "test-codemode-advanced-schema-management.md": [
     "mysql_list_schemas",
@@ -28,29 +29,30 @@
     "mysql_drop_schema"
   ],
   "test-codemode-advanced-schema-routines.md": [
-    "mysql_list_views",
-    "mysql_create_view",
-    "mysql_drop_view"
+    "mysql_list_stored_procedures",
+    "mysql_list_functions"
   ],
   "test-codemode-advanced-schema-triggers.md": [
-    "mysql_list_stored_procedures",
-    "mysql_list_functions",
-    "mysql_list_triggers"
+    "mysql_list_triggers",
+    "mysql_create_trigger",
+    "mysql_drop_trigger"
   ],
   "test-codemode-advanced-schema-views.md": [
-    "mysql_create_trigger",
-    "mysql_drop_trigger",
+    "mysql_list_views",
+    "mysql_create_view",
+    "mysql_drop_view",
     "mysql_list_constraints"
   ],
   "test-codemode-advanced-spatial-geometry.md": [
-    "mysql_spatial_create_column",
-    "mysql_spatial_create_index",
-    "mysql_spatial_point"
+    "mysql_spatial_point",
+    "mysql_spatial_polygon",
+    "mysql_spatial_geojson"
   ],
   "test-codemode-advanced-spatial-operations.md": [
-    "mysql_spatial_polygon",
     "mysql_spatial_distance",
-    "mysql_spatial_distance_sphere"
+    "mysql_spatial_distance_sphere",
+    "mysql_spatial_buffer",
+    "mysql_spatial_transform"
   ],
   "test-codemode-advanced-spatial-queries.md": [
     "mysql_spatial_contains",
@@ -58,9 +60,8 @@
     "mysql_spatial_intersection"
   ],
   "test-codemode-advanced-spatial-setup.md": [
-    "mysql_spatial_buffer",
-    "mysql_spatial_transform",
-    "mysql_spatial_geojson"
+    "mysql_spatial_create_column",
+    "mysql_spatial_create_index"
   ],
   "test-codemode-advanced-vector-storage.md": [
     "mysql_vector_create_index",
@@ -165,12 +166,11 @@
     "mysql_audit_search"
   ],
   "test-codemode-advanced-backup-audit-part1.md": [
-    "mysql_export_table",
-    "mysql_import_data",
-    "mysql_create_dump"
+    "mysql_audit_list_backups",
+    "mysql_audit_restore_backup"
   ],
   "test-codemode-advanced-backup-audit-part2.md": [
-    "mysql_restore_dump"
+    "mysql_audit_diff_backup"
   ],
   "test-codemode-advanced-cluster-group-replication-part1.md": [
     "mysql_gr_status",
@@ -196,16 +196,16 @@
     "mysql_doc_drop_collection"
   ],
   "test-codemode-advanced-docstore-collections-part2.md": [
-    "mysql_doc_find",
-    "mysql_doc_add"
+    "mysql_doc_create_index",
+    "mysql_doc_collection_info"
   ],
   "test-codemode-advanced-docstore-documents-part1.md": [
-    "mysql_doc_modify",
-    "mysql_doc_remove",
-    "mysql_doc_create_index"
+    "mysql_doc_add",
+    "mysql_doc_find"
   ],
   "test-codemode-advanced-docstore-documents-part2.md": [
-    "mysql_doc_collection_info"
+    "mysql_doc_modify",
+    "mysql_doc_remove"
   ],
   "test-codemode-advanced-fulltext-part1.md": [
     "mysql_fulltext_create",
@@ -352,56 +352,56 @@
     "mysql_security_encryption_status"
   ],
   "test-codemode-advanced-shell-data-part1.md": [
-    "mysqlsh_version",
-    "mysqlsh_check_upgrade",
-    "mysqlsh_export_table"
+    "mysqlsh_export_table",
+    "mysqlsh_import_table",
+    "mysqlsh_import_json"
   ],
   "test-codemode-advanced-shell-data-part2.md": [
-    "mysqlsh_import_table"
+    "mysqlsh_dump_tables",
+    "mysqlsh_load_dump"
   ],
   "test-codemode-advanced-shell-utils-part1a.md": [
-    "mysqlsh_import_json",
-    "mysqlsh_dump_instance",
-    "mysqlsh_dump_schemas"
+    "mysqlsh_version",
+    "mysqlsh_check_upgrade"
   ],
   "test-codemode-advanced-shell-utils-part1b.md": [
-    "mysqlsh_dump_tables"
+    "mysqlsh_run_script"
   ],
   "test-codemode-advanced-stats-advanced-part1.md": [
-    "mysql_stats_descriptive",
-    "mysql_stats_percentiles",
-    "mysql_stats_correlation"
+    "mysql_stats_correlation",
+    "mysql_stats_regression",
+    "mysql_stats_sampling"
   ],
   "test-codemode-advanced-stats-advanced-part2.md": [
-    "mysql_stats_distribution",
-    "mysql_stats_time_series"
+    "mysql_stats_hypothesis",
+    "mysql_stats_outliers",
+    "mysql_stats_distinct"
   ],
   "test-codemode-advanced-stats-descriptive-part1.md": [
-    "mysql_stats_regression",
-    "mysql_stats_sampling",
-    "mysql_stats_histogram"
+    "mysql_stats_descriptive",
+    "mysql_stats_percentiles",
+    "mysql_stats_summary"
   ],
   "test-codemode-advanced-stats-descriptive-part2.md": [
-    "mysql_stats_row_number",
-    "mysql_stats_rank"
+    "mysql_stats_distribution",
+    "mysql_stats_histogram",
+    "mysql_stats_frequency"
   ],
   "test-codemode-advanced-stats-time-series-part1.md": [
-    "mysql_stats_lag_lead",
-    "mysql_stats_running_total",
+    "mysql_stats_time_series",
     "mysql_stats_moving_avg"
   ],
   "test-codemode-advanced-stats-time-series-part2.md": [
-    "mysql_stats_ntile",
-    "mysql_stats_hypothesis"
+    "mysql_stats_running_total",
+    "mysql_stats_lag_lead"
   ],
   "test-codemode-advanced-stats-window-part1.md": [
-    "mysql_stats_outliers",
-    "mysql_stats_top_n",
-    "mysql_stats_distinct"
+    "mysql_stats_row_number",
+    "mysql_stats_rank"
   ],
   "test-codemode-advanced-stats-window-part2.md": [
-    "mysql_stats_frequency",
-    "mysql_stats_summary"
+    "mysql_stats_ntile",
+    "mysql_stats_top_n"
   ],
   "test-codemode-advanced-sys-part1a.md": [
     "mysql_sys_user_summary",
@@ -1700,5 +1700,8 @@
   "test-codemode-shell-data-part2b.md": [
     "mysqlsh_dump_schemas",
     "mysqlsh_dump_tables"
+  ],
+  "test-codemode.md": [
+    "mysql_execute_code"
   ]
 }
