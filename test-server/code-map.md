@@ -403,9 +403,12 @@ try {
 | `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
 | `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |
 | `test-server/test-advanced/test-codemode-advanced-json-helpers.md` | Code Mode Advanced - JSON Helpers (`mysql.json.*`) |
-| `test-server/test-advanced/test-codemode-advanced-router-routes.md` | Code Mode Advanced - Router Routes (`mysql.router.*`) |
-| `test-server/test-advanced/test-codemode-advanced-json-core-part2.md` | Code Mode Advanced - JSON Core Part 2 |
-| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1.md`| Code Mode Advanced - Shell Utils Part 1 |
+| `test-server/test-advanced/test-codemode-advanced-router-routes-part1.md` | Code Mode Advanced - Router Routes Part 1 (`mysql.router.*`) |
+| `test-server/test-advanced/test-codemode-advanced-router-routes-part2.md` | Code Mode Advanced - Router Routes Part 2 (`mysql.router.*`) |
+| `test-server/test-advanced/test-codemode-advanced-json-core-part2a.md` | Code Mode Advanced - JSON Core Part 2A |
+| `test-server/test-advanced/test-codemode-advanced-json-core-part2b.md` | Code Mode Advanced - JSON Core Part 2B |
+| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1a.md`| Code Mode Advanced - Shell Utils Part 1A |
+| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1b.md`| Code Mode Advanced - Shell Utils Part 1B |
 | `test-server/test-advanced/test-codemode-advanced-types-json.md`  | Code Mode JSON data type stress testing                              |
 | `test-server/test-advanced/test-codemode-advanced-types-binary.md`| Code Mode binary data type stress testing                            |
 | `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |

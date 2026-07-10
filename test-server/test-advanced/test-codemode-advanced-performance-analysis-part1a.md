@@ -37,9 +37,9 @@
 > - Accommodate latest architecture changes in tests.
 > - Support relevant flags (`--audit-log`, `--metrics-export`).
 
-### Reference the Test Schema
+### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
 
 ## Standardize the Reporting Format
 

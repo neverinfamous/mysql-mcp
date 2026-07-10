@@ -124,7 +124,7 @@ function processDirectory(dirName) {
     ) || content.match(
       /### Test Schema Reference([\s\S]*?)## (Testing Requirements|Structured Error|Reporting Format|Pre-requisites)/
     );
-    let schemaRef = "> See `code-map.md` in the `test-server/` directory for the complete test database schema.\n";
+    let schemaRef = "> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.\n";
     
     if (schemaMatch && schemaMatch[1]) {
         schemaRef = schemaMatch[1].trim();

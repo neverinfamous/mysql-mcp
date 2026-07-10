@@ -37,7 +37,7 @@
 > - Accommodate latest architecture changes in tests.
 > - Support relevant flags (`--audit-log`, `--metrics-export`).
 
-### Reference the Test Schema
+### Reference the Test Schema & Tool Definitions
 
 {{SCHEMA_REF}}
 
