@@ -3,7 +3,7 @@ services:
   # INNODB CLUSTER
   # ==========================================
   mysql-node1:
-    image: mysql:lts
+    image: mysql:9.1.0
     container_name: mysql-node1
     restart: unless-stopped
     hostname: mysql-node1
@@ -11,7 +11,7 @@ services:
       - "3307:3306"
       - "33061:33060"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ROOT_HOST: '%'
       MYSQL_DATABASE: testdb
     command: >
@@ -30,7 +30,7 @@ services:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
       - 'com.datadoghq.ad.check_names=["mysql"]'
       - 'com.datadoghq.ad.init_configs=[{}]'
-      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "username":"root", "password":"root"}]'
+      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "user":"root", "pass":"root"}]'
     volumes:
       - mysql-node1-data-v4:/var/lib/mysql
     stop_grace_period: 30s
@@ -47,7 +47,7 @@ services:
       retries: 30
 
   mysql-node2:
-    image: mysql:lts
+    image: mysql:9.1.0
     container_name: mysql-node2
     restart: unless-stopped
     hostname: mysql-node2
@@ -55,7 +55,7 @@ services:
       - "3308:3306"
       - "33062:33060"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ROOT_HOST: '%'
     command: >
       --server-id=2
@@ -74,7 +74,7 @@ services:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
       - 'com.datadoghq.ad.check_names=["mysql"]'
       - 'com.datadoghq.ad.init_configs=[{}]'
-      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "username":"root", "password":"root"}]'
+      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "user":"root", "pass":"root"}]'
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
     stop_grace_period: 30s
@@ -91,7 +91,7 @@ services:
       retries: 30
 
   mysql-node3:
-    image: mysql:lts
+    image: mysql:9.1.0
     container_name: mysql-node3
     restart: unless-stopped
     hostname: mysql-node3
@@ -99,7 +99,7 @@ services:
       - "3309:3306"
       - "33063:33060"
     environment:
-      MYSQL_ROOT_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
       MYSQL_ROOT_HOST: '%'
     command: >
       --server-id=3
@@ -254,7 +254,41 @@ services:
         max-size: "10m"
         max-file: "3"
 
+  datadog-unified:
+    image: gcr.io/datadoghq/agent:7.57.0
+    container_name: datadog-unified
+    restart: unless-stopped
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=datadoghq.com
+      - DD_LOGS_ENABLED=true
+      - DD_PROCESS_CONFIG_CONTAINER_COLLECTION_ENABLED=true
+      - DD_PROCESS_CONFIG_PROCESS_COLLECTION_ENABLED=true
+      - DD_KUBERNETES_COLLECT_METADATA_TAGS=false
+      - DD_COLLECT_KUBERNETES_EVENTS=false
+      - DD_HOSTNAME=docker-desktop
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    networks:
+      - default
+      - innodb-cluster-net
+    stop_grace_period: 30s
+    mem_limit: 512m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
 volumes:
   mysql-node1-data-v4:
   mysql-node2-data-v4:
   mysql-node3-data-v4:
+
+networks:
+  innodb-cluster-net:
+    external: true
