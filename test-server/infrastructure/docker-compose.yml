@@ -185,6 +185,25 @@ services:
         "username":"radmin", "password":"radmin"}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
 
+  redis-server:
+    image: redis:7.4.0
+    container_name: redis-server
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      TZ: America/New_York
+    command: redis-server --save 60 1 --loglevel warning
+    stop_grace_period: 15s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"redis","service":"redis-server"}]'
+
   # ==========================================
   # MONITORING & TOOLS
   # ==========================================

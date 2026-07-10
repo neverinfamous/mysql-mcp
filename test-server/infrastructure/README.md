@@ -46,6 +46,7 @@ This environment spins up the following components:
 - **MySQL Router**: `localhost:6446` (RW Routing), `localhost:6447` (RO Routing)
 - **ProxySQL**: `localhost:6033` (Data), `localhost:6032` (Admin)
 - **Prometheus**: `http://localhost:9090` (Metrics scraping)
+- **Redis Server**: `localhost:6379` (Caching backend)
 - **Grafana**: `http://localhost:3001` (Dashboards - login: admin/admin)
 - **Dozzle**: `http://localhost:8080` (Real-time container logs viewer)
 - **Adminer**: `http://localhost:8081` (Web-based database management UI)
