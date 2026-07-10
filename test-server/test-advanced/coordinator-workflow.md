@@ -58,7 +58,13 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the queue.
    - The subagent MUST explicitly state if they applied any fixes in their final message to you, and explicitly report if any tests triggered graceful degradation. Instruct the subagent to ALWAYS format this string exactly as **`X fixes applied [Y Prompt / Z Code] [W Graceful Fails]`** (e.g., **`0 fixes applied [0 Prompt / 0 Code] [0 Graceful Fails]`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
-## Test Sequence Queue (Dependency DAG)
+   - **CRITICAL**: Our setup provides everything for all testing to be successful. There should never be any graceful fails. If the subagent thinks it is only testing graceful degradation due to a temporary problem in a tool, group of tools, or the entire ecosystem setup, it MUST explicitly inform the user and log it as a graceful fail. **NOTE: "Graceful Fails" refers to tests that could NOT be completed due to a temporary system problem or tool limitation. It does NOT refer to successful negative tests (e.g., intentionally triggering a validation error to ensure it is handled gracefully). Successful negative tests should NOT be counted as Graceful Fails.**
+   - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
+5. **Coordinator Progress Reporting**:
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of Y. X fixes applied [Y Prompt / Z Code] [W Graceful Fails]: <concise description>. (e.g., This is test 40 out of 76. 1 fixes applied [1 Prompt / 0 Code] [0 Graceful Fails]: fixed typo in prompt.)
+   - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced.
+   - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
+
 
 1. `test-codemode-advanced-admin-control-part1.md` (**MUST PASS FIRST**)
 2. `test-codemode-advanced-admin-control-part2.md`
