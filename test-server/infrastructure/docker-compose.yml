@@ -26,6 +26,11 @@ services:
       --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
+      - 'com.datadoghq.ad.check_names=["mysql"]'
+      - 'com.datadoghq.ad.init_configs=[{}]'
+      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "username":"root", "password":"root"}]'
     volumes:
       - mysql-node1-data-v4:/var/lib/mysql
     stop_grace_period: 30s
@@ -65,6 +70,11 @@ services:
       --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
+      - 'com.datadoghq.ad.check_names=["mysql"]'
+      - 'com.datadoghq.ad.init_configs=[{}]'
+      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "username":"root", "password":"root"}]'
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
     stop_grace_period: 30s
@@ -103,6 +113,11 @@ services:
       --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql"}]'
+      - 'com.datadoghq.ad.check_names=["mysql"]'
+      - 'com.datadoghq.ad.init_configs=[{}]'
+      - 'com.datadoghq.ad.instances=[{"host":"%%host%%", "username":"root", "password":"root"}]'
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
     stop_grace_period: 30s
