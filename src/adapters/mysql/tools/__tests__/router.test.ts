@@ -497,7 +497,7 @@ describe("Error Handling", () => {
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
-    expect((result as Record<string, unknown>).error).toContain("401 Unauthorized");
+    expect((result as Record<string, unknown>).error).toContain("Router API authentication failed");
   });
 
   it("should return unavailable response on 404 Not Found", async () => {

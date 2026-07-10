@@ -167,6 +167,21 @@ export async function safeRouterFetch(path: string): Promise<SafeRouterResult<un
       };
     }
 
+    if (statusCode === 401) {
+      return {
+        success: false,
+        response: {
+          success: false,
+          error: "Router API authentication failed. Verify MYSQL_ROUTER_USER and MYSQL_ROUTER_PASSWORD.",
+          code: "AUTHENTICATION_ERROR",
+          category: "authentication",
+          suggestion: "Set correct credentials for the MySQL Router REST API.",
+          details: undefined,
+          recoverable: false,
+        },
+      };
+    }
+
     if (
       statusCode === 500 &&
       responseData !== undefined &&
