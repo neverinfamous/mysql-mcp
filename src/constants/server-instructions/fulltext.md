@@ -1,4 +1,4 @@
-# Fulltext Search (mysql_fulltext_*)
+# Fulltext Search (`mysql_fulltext_create`, `mysql_fulltext_drop`, `mysql_fulltext_search`, etc.)
 
 **Encapsulated Tools**: `mysql_fulltext_create`, `mysql_fulltext_drop`, `mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`
 

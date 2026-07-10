@@ -67,12 +67,13 @@
     "mysql_vector_optimize",
     "mysql_vector_stats"
   ],
-  "test-codemode.md": [
+  "test-codemode-sandbox.md": [
     "mysql_execute_code"
   ],
   "README.md": [],
   "test-codemode-advanced-concurrency.md": [],
-  "test-codemode-advanced-sessions.md": [],
+  "test-codemode-advanced-sessions-part1.md": [],
+  "test-codemode-advanced-sessions-part2.md": [],
   "test-codemode-advanced-types-binary.md": [],
   "test-codemode-advanced-types-date.md": [],
   "test-codemode-advanced-types-json.md": [],
@@ -532,8 +533,9 @@
     "mysql_scheduler_status"
   ],
   "test-codemode-fulltext-part2.md": [
-    "mysql_fulltext_create",
-    "mysql_fulltext_drop"
+    "mysql_fulltext_search",
+    "mysql_fulltext_boolean",
+    "mysql_fulltext_expand"
   ],
   "test-codemode-introspection-part1.md": [
     "mysql_dependency_graph",
@@ -707,8 +709,7 @@
     "mysql_security_password_validate"
   ],
   "test-codemode-shell-utils.md": [
-    "mysqlsh_version",
-    "mysqlsh_check_upgrade",
+    "mysqlsh_load_dump",
     "mysqlsh_run_script"
   ],
   "test-codemode-spatial-geometry.md": [

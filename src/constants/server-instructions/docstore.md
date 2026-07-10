@@ -1,4 +1,4 @@
-# Document Store (mysql_doc_*)
+# Document Store (`mysql_doc_list_collections`, `mysql_doc_create_collection`, `mysql_doc_drop_collection`, etc.)
 
 **Encapsulated Tools**: `mysql_doc_list_collections`, `mysql_doc_create_collection`, `mysql_doc_drop_collection`, `mysql_doc_find`, `mysql_doc_add`, `mysql_doc_modify`, `mysql_doc_remove`, `mysql_doc_create_index`, `mysql_doc_collection_info`
 

@@ -1,4 +1,4 @@
-# Core Tools (`mysql_read_query`, `mysql_write_query`, `mysql_create_table`, etc.)
+# Core Tools (`mysql_read_query`, `mysql_write_query`, `mysql_list_tables`, etc.)
 
 **Encapsulated Tools**: `mysql_read_query`, `mysql_write_query`, `mysql_list_tables`, `mysql_describe_table`, `mysql_create_table`, `mysql_drop_table`, `mysql_create_index`, `mysql_get_indexes`, `mysql_enable_versioning`, `mysql_disable_versioning`, `mysql_check_version`, `mysql_conditional_update`
 

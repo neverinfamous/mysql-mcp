@@ -1,4 +1,4 @@
-# Admin Tools (`mysql_optimize_table`, `mysql_server_config`, etc.)
+# Admin Tools (`mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, etc.)
 
 **Encapsulated Tools**: `mysql_optimize_table`, `mysql_analyze_table`, `mysql_check_table`, `mysql_repair_table`, `mysql_flush_tables`, `mysql_kill_query`, `mysql_append_insight`, `mysql_server_config`, `mysql_audit_search`
 

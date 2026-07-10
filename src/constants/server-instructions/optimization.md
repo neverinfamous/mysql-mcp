@@ -1,4 +1,4 @@
-# Optimization Tools (`mysql_index_recommendation`, `mysql_query_rewrite`, etc.)
+# Optimization Tools (`mysql_index_recommendation`, `mysql_query_rewrite`, `mysql_force_index`, etc.)
 
 **Encapsulated Tools**: `mysql_index_recommendation`, `mysql_query_rewrite`, `mysql_force_index`, `mysql_optimizer_trace`
 

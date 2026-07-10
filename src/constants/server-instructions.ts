@@ -74,7 +74,7 @@ When AI agents use the MCP prompts to generate database queries or schema design
  * Other keys are tool groups (mysql://help/{group}).
  */
 export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
-  ["admin", `# Admin Tools (\`mysql_optimize_table\`, \`mysql_server_config\`, etc.)
+  ["admin", `# Admin Tools (\`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, etc.)
 
 **Encapsulated Tools**: \`mysql_optimize_table\`, \`mysql_analyze_table\`, \`mysql_check_table\`, \`mysql_repair_table\`, \`mysql_flush_tables\`, \`mysql_kill_query\`, \`mysql_append_insight\`, \`mysql_server_config\`, \`mysql_audit_search\`
 
@@ -117,7 +117,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **List backups**: \`mysql_audit_list_backups\` has no required parameters, legitimately returns up to 5 latest backups. Use \`table\` parameter to filter.
 - **Diff backup**: \`mysql_audit_diff_backup\` provides a row-level differential. If the table was dropped, it safely returns a placeholder string. Returns \`{ success: false, error }\` for invalid \`backupId\`. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`. Aliases: \`diff\`, \`auditDiff\`, \`diffBackup\`.
 - **Restore backup**: \`mysql_audit_restore_backup\` restores a specific table. Set \`dryRun: true\` (default) to safely view the DDL and DML of a snapshot before actually executing the restoration. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`.`],
-  ["cluster", `# Cluster Tools (Group Replication + InnoDB Cluster)
+  ["cluster", `# Cluster Tools (\`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, etc.)
 
 **Encapsulated Tools**: \`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, \`mysql_gr_transactions\`, \`mysql_gr_flow_control\`, \`mysql_cluster_status\`, \`mysql_cluster_instances\`, \`mysql_cluster_topology\`, \`mysql_cluster_router_status\`, \`mysql_cluster_switchover\`
 
@@ -151,7 +151,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Best Practices**:
   - **Always** use Code Mode for iterative tasks (like paginating through records, bulk updates, or parsing results to feed into another query).
   - You can combine tools from multiple groups (e.g., fetch data with \`mysql.core.readQuery\`, transform it in JS, and insert via \`mysql.core.writeQuery\`).`],
-  ["core", `# Core Tools (\`mysql_read_query\`, \`mysql_write_query\`, \`mysql_create_table\`, etc.)
+  ["core", `# Core Tools (\`mysql_read_query\`, \`mysql_write_query\`, \`mysql_list_tables\`, etc.)
 
 **Encapsulated Tools**: \`mysql_read_query\`, \`mysql_write_query\`, \`mysql_list_tables\`, \`mysql_describe_table\`, \`mysql_create_table\`, \`mysql_drop_table\`, \`mysql_create_index\`, \`mysql_get_indexes\`, \`mysql_enable_versioning\`, \`mysql_disable_versioning\`, \`mysql_check_version\`, \`mysql_conditional_update\`
 
@@ -180,7 +180,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - \`mysql_disable_versioning\`: Disables versioning by dropping the trigger and column.
 - \`mysql_check_version\`: Checks the current \`_version\` of a specific row.
 - \`mysql_conditional_update\`: Conditionally updates a row. Accepts aliases for data and conditions. On conflict, returns \`CONFLICT_ERROR\` ErrorResponse.`],
-  ["docstore", `# Document Store (mysql_doc_*)
+  ["docstore", `# Document Store (\`mysql_doc_list_collections\`, \`mysql_doc_create_collection\`, \`mysql_doc_drop_collection\`, etc.)
 
 **Encapsulated Tools**: \`mysql_doc_list_collections\`, \`mysql_doc_create_collection\`, \`mysql_doc_drop_collection\`, \`mysql_doc_find\`, \`mysql_doc_add\`, \`mysql_doc_modify\`, \`mysql_doc_remove\`, \`mysql_doc_create_index\`, \`mysql_doc_collection_info\`
 
@@ -198,7 +198,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
   - ✅ Correct: \`filter: "name=Alice"\` (field=value format)
 - **Schema existence**: All docstore tools that accept a \`schema\` parameter return \`{ success: false, code: "SCHEMA_NOT_FOUND" }\` when a nonexistent schema is explicitly provided, matching the P154 pattern used by schema introspection and event tools.
 - **Find Filters** (\`mysql_doc_find\`): The filter parameter shares the same syntax as modify and remove. Supports JSON path for existence (e.g., \`$.address\`), direct \`_id\` match (32-character hex), and \`field=value\` format (e.g., \`name=Alice\`). Accepts optional \`schema\` parameter.`],
-  ["events", `# Events Tools (mysql_event_*, \`mysql_scheduler_status\`)
+  ["events", `# Events Tools (\`mysql_event_create\`, \`mysql_event_alter\`, \`mysql_event_drop\`, etc.)
 
 **Encapsulated Tools**: \`mysql_event_create\`, \`mysql_event_alter\`, \`mysql_event_drop\`, \`mysql_event_list\`, \`mysql_event_status\`, \`mysql_scheduler_status\`
 
@@ -222,7 +222,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
   "ifNotExists": true
 }
 \`\`\``],
-  ["fulltext", `# Fulltext Search (mysql_fulltext_*)
+  ["fulltext", `# Fulltext Search (\`mysql_fulltext_create\`, \`mysql_fulltext_drop\`, \`mysql_fulltext_search\`, etc.)
 
 **Encapsulated Tools**: \`mysql_fulltext_create\`, \`mysql_fulltext_drop\`, \`mysql_fulltext_search\`, \`mysql_fulltext_boolean\`, \`mysql_fulltext_expand\`
 
@@ -329,7 +329,7 @@ The **Introspection** group provides advanced schema analysis capabilities, spec
 - **Pre-Migration Checks**: Always run \`mysql_migration_risks\` and \`mysql_topological_sort\` before executing any broad schema changes.
 - **Cascade Safety**: If you are planning a \`DELETE\` on a core table (e.g., \`users\` or \`organizations\`), use \`mysql_cascade_simulator\` first to understand the blast radius.
 - **Dependency Awareness**: When writing complex \`JOIN\` queries across unfamiliar schemas, use \`mysql_dependency_graph\` to ensure you understand the optimal traversal paths.`],
-  ["json", `# JSON Tools (mysql_json_*)
+  ["json", `# JSON Tools (\`mysql_json_extract\`, \`mysql_json_set\`, \`mysql_json_insert\`, etc.)
 
 **Encapsulated Tools**: \`mysql_json_extract\`, \`mysql_json_set\`, \`mysql_json_insert\`, \`mysql_json_replace\`, \`mysql_json_remove\`, \`mysql_json_contains\`, \`mysql_json_keys\`, \`mysql_json_array_append\`, \`mysql_json_get\`, \`mysql_json_update\`, \`mysql_json_search\`, \`mysql_json_validate\`, \`mysql_json_merge\`, \`mysql_json_diff\`, \`mysql_json_normalize\`, \`mysql_json_stats\`, \`mysql_json_index_suggest\`
 
@@ -396,7 +396,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 ## External Telemetry & Debugging
 
 - **Datadog Integration**: When diagnosing database performance drops, idling, or telemetry pipeline issues, agents should leverage the Datadog MCP server (if available in the workspace) to cross-reference \`mysql.*\` metrics (such as \`mysql.net.connections\` or \`mysql.innodb.active_transactions\`). Use \`query-metrics\` or \`list-active-metrics\` to confirm the database is actively reporting data.`],
-  ["optimization", `# Optimization Tools (\`mysql_index_recommendation\`, \`mysql_query_rewrite\`, etc.)
+  ["optimization", `# Optimization Tools (\`mysql_index_recommendation\`, \`mysql_query_rewrite\`, \`mysql_force_index\`, etc.)
 
 **Encapsulated Tools**: \`mysql_index_recommendation\`, \`mysql_query_rewrite\`, \`mysql_force_index\`, \`mysql_optimizer_trace\`
 
@@ -439,7 +439,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 
 **Encapsulated Tools**: \`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_slow_queries\`, \`mysql_query_stats\`, \`mysql_index_usage\`, \`mysql_table_stats\`, \`mysql_buffer_pool_stats\`, \`mysql_thread_stats\`, \`mysql_detect_query_anomalies\`, \`mysql_detect_bloat_risk\`, \`mysql_detect_connection_spike\`
 
-### Query Analysis (\`mysql_explain\`, \`mysql_explain_analyze\`)
+### Query Analysis (\`mysql_explain\`, \`mysql_explain_analyze\`, \`mysql_slow_queries\`, etc.)
 - **EXPLAIN**: Supports JSON (default), TREE, and TRADITIONAL formats.
 - **EXPLAIN ANALYZE**: Shows actual execution times (MySQL 8.0+). Only TREE format is supported. JSON format returns \`{ supported: false, reason: "..." }\`.
 - **Error Handling**: Missing tables return a structured error (\`{ success: false, error: "Table '...' does not exist" }\`), and other query errors return \`{ success: false, error: "..." }\`.
@@ -627,7 +627,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 
 **Encapsulated Tools**: \`mysql_regexp_match\`, \`mysql_like_search\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`
 
-### Search & Match (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`)
+### Search & Match (\`mysql_regexp_match\`, \`mysql_like_search\`, \`mysql_soundex\`, etc.)
 - **LIKE patterns**: \`%\` matches any characters, \`_\` matches single character.
 - **Regex**: Uses MySQL regex syntax (not PCRE).
   \`\`\`json

@@ -2,7 +2,7 @@
 
 **Encapsulated Tools**: `mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`
 
-### Search & Match (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`)
+### Search & Match (`mysql_regexp_match`, `mysql_like_search`, `mysql_soundex`, etc.)
 - **LIKE patterns**: `%` matches any characters, `_` matches single character.
 - **Regex**: Uses MySQL regex syntax (not PCRE).
   ```json

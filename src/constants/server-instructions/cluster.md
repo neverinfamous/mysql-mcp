@@ -1,4 +1,4 @@
-# Cluster Tools (Group Replication + InnoDB Cluster)
+# Cluster Tools (`mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, etc.)
 
 **Encapsulated Tools**: `mysql_gr_status`, `mysql_gr_members`, `mysql_gr_primary`, `mysql_gr_transactions`, `mysql_gr_flow_control`, `mysql_cluster_status`, `mysql_cluster_instances`, `mysql_cluster_topology`, `mysql_cluster_router_status`, `mysql_cluster_switchover`
 
