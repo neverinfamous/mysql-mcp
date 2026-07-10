@@ -22,7 +22,7 @@ try {
     console.log(`[Network] Windows Host IP: ${wslGateway}`);
     
     // Write to .env so docker-compose can use it for extra_hosts
-    execSync(`echo WINDOWS_HOST_IP=${wslGateway} > .env`, { cwd: REPO_ROOT });
+    execSync(`echo WINDOWS_HOST_IP=${wslGateway} >> .env`, { cwd: REPO_ROOT });
 
     run('docker compose down -v --remove-orphans');
     console.log('\n[Wait] Giving Docker daemon time to flush networks...');
