@@ -34,6 +34,9 @@ try {
     console.log('\n[Bootstrap] Starting InnoDB Cluster bootstrap process...');
     run('node scripts/create-cluster.mjs');
     
+    console.log('\n[Seed] Automatically seeding the test database...');
+    run('node scripts/reset-database.mjs --skip-verify');
+    
     console.log('\n✅ MySQL Test Ecosystem Successfully Recreated.');
 } catch (error) {
     console.error('\n❌ Ecosystem recreation failed:', error.message);
