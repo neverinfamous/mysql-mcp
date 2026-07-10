@@ -19,7 +19,7 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt.
 3. **Local Verification (NO PAUSING)**:
-   - If you or a subagent modifies the codebase, the subagent MUST validate all changes locally by running `pnpm run lint`, `pnpm run typecheck`, and only the relevant `vitest` and `playwright` tests (do NOT run the entire test suites). Ensure the checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation.
+   - If you or a subagent modifies the codebase, the subagent MUST validate all changes locally by running `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` and targeted tests for the changes they made (or just the tests for that tool group, not the entire suite). If that's not practical, they should only run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build`. Ensure the checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation.
    - **Quality Gates**: Pay strict attention to ESLint and TypeScript compiler outputs. You MUST fix all lint and typecheck validation issues prior to committing. Do NOT ignore warnings or errors. Follow strict TypeScript guidelines: NEVER use `any` (use `unknown` with type guards), avoid unsafe typecasts, and ensure explicit return types.
    - **WARNING**: Do NOT commit your code and then attempt to use `git commit --amend` to fix a lingering lint or test issue later. Amending a commit rewrites the commit SHA, which will permanently break the changelog tracking workflow.
    - DO NOT perform live server verification. DO NOT wait for a server restart. DO NOT pause or send a message asking the user to refresh the server.
@@ -38,8 +38,8 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
    - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
    - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 7. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: This is test X out of Y. X fixes applied [Y Prompt / Z Code] [W Graceful Fails]: <concise description>. (e.g., This is test 40 out of 76. 1 fixes applied [1 Prompt / 0 Code] [0 Graceful Fails]: fixed typo in prompt.)
-   - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced.
+   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "Test X out of Y. Z fixes applied [A Prompt / B Code] [C Graceful Fails]: <concise description>." (e.g., "Test 32 out of 77. 1 fixes applied [1 Prompt / 0 Code] [0 Graceful Fails]: fixed typo in prompt.")
+   - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced (there should not be any).
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-usability/` BEFORE starting, and cross-reference the actual directory contents against the list below.
@@ -141,9 +141,9 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
 
 ## Post-Suite Validation
 
-Once all subagents have completed their tests, check your records. If ANY subagent applied code fixes during the run:
+When all subagents have completed their testing, the main coordinator agent MUST execute the following steps:
 
-1. Briefly summarize the specific code fixes made during the pass (you do not need to summarize changes made to testing prompts, only code).
-2. Run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` in that order.
-3. Run the full test suites using `pnpm run test:vitest` and `pnpm run test:e2e` (in either order). **CRITICAL**: If any tests fail, you (the Coordinator agent) MUST debug and fix the broken tests before proceeding. Do NOT leave the test suite in a broken state.
+1. Run `pnpm run lint`, `pnpm run typecheck`, `pnpm run build`, `pnpm run test:vitest`, and `pnpm run test:e2e` and fix any problems. Do NOT leave the test suite in a broken state.
+2. Confirm any scratch files created against instructions are removed and cleaned from git history if needed.
+3. Confirm that all non-scratch files are properly committed.
 4. Message the user: "The test suite is complete. Fixes were applied during the run. Please manually restart the server ONCE so we can perform a final live validation sweep."
