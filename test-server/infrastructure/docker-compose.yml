@@ -3,7 +3,7 @@ services:
   # INNODB CLUSTER
   # ==========================================
   mysql-node1:
-    image: mysql:8.4.2
+    image: mysql:lts
     container_name: mysql-node1
     restart: unless-stopped
     hostname: mysql-node1
@@ -20,10 +20,9 @@ services:
       --gtid_mode=ON
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
-      --container_aware=ON
       --report_host=mysql-node1
       --innodb-buffer-pool-size=128M
-      --innodb-log-file-size=48M
+      --innodb-redo-log-capacity=100M
       --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
@@ -43,7 +42,7 @@ services:
       retries: 30
 
   mysql-node2:
-    image: mysql:8.4.2
+    image: mysql:lts
     container_name: mysql-node2
     restart: unless-stopped
     hostname: mysql-node2
@@ -62,7 +61,7 @@ services:
       --container_aware=ON
       --report_host=mysql-node2
       --innodb-buffer-pool-size=128M
-      --innodb-log-file-size=48M
+      --innodb-redo-log-capacity=100M
       --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
@@ -82,7 +81,7 @@ services:
       retries: 30
 
   mysql-node3:
-    image: mysql:8.4.2
+    image: mysql:lts
     container_name: mysql-node3
     restart: unless-stopped
     hostname: mysql-node3
@@ -98,10 +97,9 @@ services:
       --gtid_mode=ON
       --enforce_gtid_consistency=ON
       --log_replica_updates=ON
-      --container_aware=ON
       --report_host=mysql-node3
       --innodb-buffer-pool-size=128M
-      --innodb-log-file-size=48M
+      --innodb-redo-log-capacity=100M
       --innodb-flush-log-at-trx-commit=2
       --innodb-use-native-aio=0
       --innodb-flush-method=fsync
@@ -177,7 +175,7 @@ services:
   # MONITORING
   # ==========================================
   dozzle:
-    image: amir20/dozzle:v8.0.0
+    image: amir20/dozzle:v10.6.8
     container_name: dozzle
     restart: unless-stopped
     ports:
