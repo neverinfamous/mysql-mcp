@@ -81,8 +81,8 @@
 
 optimization Tool Group (4 tools +1 for code mode):
 
-1. `mysql_index_recommendation` 2. `mysql_query_rewrite` 3. `mysql_force_index`
-2. `mysql_optimizer_trace`
+1. `mysql.optimization.indexRecommendation` 2. `mysql.optimization.queryRewrite` 3. `mysql.optimization.forceIndex`
+2. `mysql.optimization.optimizerTrace`
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 
@@ -103,7 +103,7 @@ optimization Tool Group (4 tools +1 for code mode):
 
 **Zod validation error paths (🔴):**
 
-12. 🔴 `mysql.optimization.indexRecommendation({queries: "SELECT 1"})` → `{success: false, error: "Validation error: ..."}`
+12. 🔴 `mysql.optimization.indexRecommendation({queries: [123]})` → `{success: false, error: "Validation error: ..."}`
 13. 🔴 `mysql.optimization.optimizerTrace({})` → `{success: false, error: "Validation error: ..."}`
 
 ---

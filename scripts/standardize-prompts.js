@@ -266,11 +266,37 @@ function processDirectory(dirName) {
       .replace(/mysql\.sys\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
       .replace(/mysql\.sysschema\.([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
       // Fix optimization parameters
+      .replace(/mysql_index_recommendation/g, "mysql.optimization.indexRecommendation")
+      .replace(/mysql_query_rewrite/g, "mysql.optimization.queryRewrite")
+      .replace(/mysql_force_index/g, "mysql.optimization.forceIndex")
+      .replace(/mysql_optimizer_trace/g, "mysql.optimization.optimizerTrace")
+      .replace(/3\\. Verify summary token estimate/g, "1. Verify summary token estimate")
+      .replace(/5\\. \`mysql\\.optimization\\.indexRecommendation/g, "2. `mysql.optimization.indexRecommendation")
       // Fix vector parameters
+      .replace(/mysql_vector_search/g, "mysql.vector.search")
+      .replace(/mysql_vector_range_search/g, "mysql.vector.rangeSearch")
+      .replace(/mysql_vector_hybrid_search/g, "mysql.vector.hybridSearch")
+      .replace(/mysql_vector_store/g, "mysql.vector.store")
+      .replace(/mysql_vector_batch_store/g, "mysql.vector.batchStore")
+      .replace(/mysql_vector_delete/g, "mysql.vector.delete")
+      .replace(/mysql_vector_get/g, "mysql.vector.get")
+      .replace(/mysql_vector_create_index/g, "mysql.vector.createIndex")
+      .replace(/mysql_vector_optimize/g, "mysql.vector.optimize")
+      .replace(/mysql_vector_stats/g, "mysql.vector.stats")
+      .replace(/mysql_vector_info/g, "mysql.vector.info")
+      // Fix optimization parameters
+      .replace(/queries: "SELECT 1"/g, 'queries: ["SELECT 1"]')
+      // Fix vector parameters
+      .replace(/column: "vector", matchColumn: "body", queryVector:/g, 'vectorColumn: "vector", textColumn: "body", queryVector:')
+      .replace(/matchQuery:/g, 'queryText:')
       // Fix sys-metrics numbering gaps
+      .replace(/10\\. 🔴 `mysql\\.sysschema\\.userSummary/g, "6. 🔴 `mysql.sysschema.userSummary")
+      .replace(/11\\. 🔴 `mysql\\.sysschema\\.ioSummary/g, "7. 🔴 `mysql.sysschema.ioSummary")
+      .replace(/12\\. 🟢 Verify/g, "8. 🟢 Verify")
       // Fix sys-analysis numbering gaps and Zod error
-      // Note: Replaced with structural fix instead of hardcoded strings
-      ;
+      .replace(/10\\. 🔴 `mysql\\.sysschema\\.schemaStats/g, "6. 🔴 `mysql.sysschema.schemaStats")
+      .replace(/11\\. 🔴 `mysql\\.sysschema\\.statementSummary\(\{ limit: "abc" \}\)/g, "7. 🔴 `mysql.sysschema.statementSummary({ orderBy: 123 })")
+      .replace(/11\\. 🔴 `mysql\\.sysschema\\.statementSummary/g, "7. 🔴 `mysql.sysschema.statementSummary");
 
     if (file === "test-codemode-versioning.md" && !testContent.includes("mysql.versioning.enable")) {
         testContent = testContent.replace(

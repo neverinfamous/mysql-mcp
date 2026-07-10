@@ -96,11 +96,11 @@ sysschema Tool Group (8 tools +1 for code mode):
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.sysschema.schemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
+6. 🔴 `mysql.sysschema.schemaStats({ schema: "nonexistent_db_xyz" })` -> `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.sysschema.statementSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+7. 🔴 `mysql.sysschema.statementSummary({ orderBy: 123 })` -> `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 

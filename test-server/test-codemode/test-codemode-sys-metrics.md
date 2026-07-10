@@ -96,11 +96,11 @@ sysschema Tool Group (8 tools +1 for code mode):
 
 **Domain error paths (🔴):**
 
-10. 🔴 `mysql.sysschema.userSummary({ user: "nonexistent_user_xyz" })` -> `{success: false}`
+6. 🔴 `mysql.sysschema.userSummary({ user: "nonexistent_user_xyz" })` -> `{success: false}`
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
+7. 🔴 `mysql.sysschema.ioSummary({ limit: "abc" })` -> `{success: false, error: "Validation error: ..."}`
 
 **Alias acceptance (🟢):**
 
