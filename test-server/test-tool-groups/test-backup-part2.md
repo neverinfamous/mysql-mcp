@@ -75,11 +75,11 @@
 - `mysql_audit_restore_backup`
 
 
-## Group Focus: backup-part2
+## Group Focus: backup
 
 ### backup Group-Specific Testing
 
-backup Tool Group (3 tools +1 for code mode):
+backup Tool Group (7 tools +1 for code mode):
 
 1. 'mysql_audit_list_backups'
 2. 'mysql_audit_restore_backup'

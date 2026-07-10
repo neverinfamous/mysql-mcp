@@ -77,7 +77,7 @@
 
 ## Group Focus:cluster-innodb-part1
 
-cluster Tool Group (3 tools +1 code mode):
+cluster Tool Group (10 tools +1 for code mode):
 
 1. `mysql_cluster_status` 2. `mysql_cluster_instances` 3. `mysql_cluster_topology`
 

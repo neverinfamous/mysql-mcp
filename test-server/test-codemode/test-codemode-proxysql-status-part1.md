@@ -79,7 +79,7 @@
 
 ## Group Focus:proxysql-status (Part 1)
 
-proxysql Tool Group (7 tools +1 code mode):
+proxysql-status Tool Group (0 tools +1 for code mode):
 
 1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
 4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`

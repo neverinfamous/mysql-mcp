@@ -75,7 +75,7 @@
 
 ## Group Focus:cluster-group-replication (Part 2)
 
-cluster Tool Group (2 tools +1 code mode):
+cluster Tool Group (10 tools +1 for code mode):
 
 1. `mysql_gr_transactions` 2. `mysql_gr_flow_control`
 

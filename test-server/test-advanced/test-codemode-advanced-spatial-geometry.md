@@ -75,11 +75,11 @@
 - `mysql_spatial_point`
 
 
-## Group Focus: spatial-geometry
+## Group Focus: spatial
 
-### spatial-geometry Group-Specific Testing
+### spatial Group-Specific Testing
 
-spatial-geometry Tool Group (2 tools +1 for code mode):
+spatial Tool Group (12 tools +1 for code mode):
 
 1. 'mysql_spatial_point'
 3. 'mysql_execute_code' (codemode, auto-added)

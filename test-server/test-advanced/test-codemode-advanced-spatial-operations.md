@@ -75,11 +75,11 @@
 - `mysql_spatial_distance_sphere`
 
 
-## Group Focus: spatial-operations
+## Group Focus: spatial
 
-### spatial-operations Group-Specific Testing
+### spatial Group-Specific Testing
 
-spatial-operations Tool Group (4 tools +1 for code mode):
+spatial Tool Group (12 tools +1 for code mode):
 
 5. 'mysql_execute_code' (codemode, auto-added)
 

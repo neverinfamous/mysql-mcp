@@ -75,11 +75,11 @@
 - `mysql_fulltext_expand`
 
 
-## Group Focus: fulltext-part1
+## Group Focus: fulltext
 
 ### fulltext Group-Specific Testing
 
-fulltext-part1 Tool Group (3 tools + 1 for code mode):
+fulltext Tool Group (5 tools +1 for code mode):
 
 1. 'mysql_fulltext_search'
 2. 'mysql_fulltext_boolean'

@@ -290,3 +290,5 @@ We appreciate responsible disclosure and will acknowledge your contribution in o
 - **Security patches**: Apply host system security updates
 
 The mysql-mcp server is designed with **security-first principles**. It protects your databases. It maintains excellent performance and full MySQL capability.
+
+

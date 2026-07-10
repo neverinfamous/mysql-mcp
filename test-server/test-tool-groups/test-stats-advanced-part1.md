@@ -75,11 +75,11 @@
 - `mysql_stats_top_n`
 
 
-## Group Focus: stats-advanced
+## Group Focus: stats
 
-### stats-advanced Group-Specific Testing
+### stats Group-Specific Testing
 
-stats-advanced Tool Group (6 tools +1 for code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 1. 'mysql_stats_hypothesis'
 2. 'mysql_stats_outliers'

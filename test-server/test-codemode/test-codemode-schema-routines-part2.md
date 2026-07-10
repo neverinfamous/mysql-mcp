@@ -75,7 +75,7 @@
 
 ## Group Focus:schema-routines-part2
 
-schema Tool Group (2 tools +1 code mode):
+schema Tool Group (12 tools +1 for code mode):
 
 1. `mysql_create_trigger` 2. `mysql_drop_trigger`
 

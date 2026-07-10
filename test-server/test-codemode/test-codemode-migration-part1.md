@@ -77,7 +77,7 @@
 
 ## Group Focus:migration (Part 1)
 
-migration Tool Group (6 tools +1 code mode):
+migration Tool Group (6 tools +1 for code mode):
 
 1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
 4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`

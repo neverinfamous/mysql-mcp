@@ -77,7 +77,7 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 - **comprehensive blocked patterns** — Blocks system commands and network access. Uses static regex rules.
 - **RPC Quotas** — Limits execution to 100 API calls. It prevents unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
-- **Rate limiting** — Rate limited per client (default 60/min, configurable via `CODEMODE_RATE_LIMIT_MAX`). Supports Redis with in-memory fallback.
+- **Rate limiting** — Rate limited per client (configurable via `MCP_RATE_LIMIT_MAX`). Supports Redis with in-memory fallback.
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
 - **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after a 30s default limit. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - **Full API access** — all tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
@@ -318,3 +318,4 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 ## 💻 Extend and Contribute
 
 [Contributing Guidelines](https://github.com/neverinfamous/mysql-mcp/blob/main/CONTRIBUTING.md) • [Security Policy](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) • [MIT License](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) • [Code of Conduct](https://github.com/neverinfamous/mysql-mcp/blob/main/CODE_OF_CONDUCT.md)
+

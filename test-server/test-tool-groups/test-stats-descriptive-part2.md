@@ -75,11 +75,11 @@
 - `mysql_stats_distribution`
 
 
-## Group Focus: stats-descriptive
+## Group Focus: stats
 
-### stats-descriptive Group-Specific Testing
+### stats Group-Specific Testing
 
-stats-descriptive Tool Group (8 tools +1 for code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 5. `mysql_stats_time_series({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
 6. `mysql_stats_regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → verify regression coefficients returned

@@ -77,7 +77,7 @@
 
 ## Group Focus:cluster-group-replication (Part 1)
 
-cluster Tool Group (3 tools +1 code mode):
+cluster Tool Group (10 tools +1 for code mode):
 
 1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary`
 

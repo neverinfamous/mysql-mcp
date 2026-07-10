@@ -71,11 +71,11 @@
 - `mysql_cluster_switchover`
 
 
-## Group Focus: cluster-innodb
+## Group Focus: cluster
 
 ### cluster Group-Specific Testing
 
-cluster-innodb Tool Group (5 tools +1 for code mode):
+cluster Tool Group (10 tools +1 for code mode):
 
 1. 'mysql_cluster_status'
 2. 'mysql_cluster_instances'

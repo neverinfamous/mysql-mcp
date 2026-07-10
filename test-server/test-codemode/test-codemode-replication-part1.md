@@ -77,7 +77,7 @@
 
 ## Group Focus:replication
 
-replication Tool Group (3 tools +1 code mode):
+replication Tool Group (5 tools +1 for code mode):
 
 1. `mysql_master_status` 2. `mysql_slave_status` 3. `mysql_binlog_events`
 

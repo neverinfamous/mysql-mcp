@@ -77,7 +77,7 @@
 
 ## Group Focus:events (Part 1)
 
-events Tool Group (6 tools +1 code mode):
+events Tool Group (6 tools +1 for code mode):
 
 1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
 4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`

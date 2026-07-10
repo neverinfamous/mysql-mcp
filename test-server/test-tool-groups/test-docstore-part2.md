@@ -75,11 +75,11 @@
 - `mysql_doc_add`
 
 
-## Group Focus: docstore-part2
+## Group Focus: docstore
 
 ### docstore Group-Specific Testing
 
-docstore Tool Group (5 tools +1 for code mode):
+docstore Tool Group (9 tools +1 for code mode):
 
 1. 'mysql_doc_find'
 2. 'mysql_doc_add'

@@ -79,7 +79,7 @@
 
 ## Group Focus:schema-management (Part 1)
 
-schema Tool Group (7 tools +1 code mode):
+schema Tool Group (12 tools +1 for code mode):
 
 1. `mysql_list_schemas` 2. `mysql_create_schema` 3. `mysql_drop_schema`
 4. `mysql_list_views` 5. `mysql_create_view` 6. `mysql_drop_view`

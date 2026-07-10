@@ -79,7 +79,7 @@
 
 ### transactions Group-Specific Testing
 
-transactions Tool Group (7 tools +1 code mode):
+transactions Tool Group (7 tools +1 for code mode):
 
 1. `mysql_transaction_begin`
 2. `mysql_transaction_commit`

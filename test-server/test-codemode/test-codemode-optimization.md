@@ -79,7 +79,7 @@
 
 ## Group Focus:optimization
 
-optimization Tool Group (4 tools +1 code mode):
+optimization Tool Group (4 tools +1 for code mode):
 
 1. `mysql_index_recommendation` 2. `mysql_query_rewrite` 3. `mysql_force_index`
 2. `mysql_optimizer_trace`

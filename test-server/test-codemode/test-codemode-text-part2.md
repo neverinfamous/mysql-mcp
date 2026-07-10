@@ -77,7 +77,7 @@
 
 ## Group Focus:text (Part 2)
 
-text Tool Group (6 tools +1 code mode):
+text Tool Group (6 tools +1 for code mode):
 
 1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
 4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`

@@ -75,11 +75,11 @@
 - `mysql_security_ssl_status`
 
 
-## Group Focus: security-part2
+## Group Focus: security
 
 ### security Group-Specific Testing
 
-security Tool Group (4 tools +1 for code mode):
+security Tool Group (9 tools +1 for code mode):
 
 1. 'mysql_security_ssl_status'
 2. 'mysql_security_user_privileges'

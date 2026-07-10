@@ -75,11 +75,11 @@
 - `mysql_vector_hybrid_search`
 
 
-## Group Focus: vector-search
+## Group Focus: vector
 
-### vector-search Group-Specific Testing
+### vector Group-Specific Testing
 
-vector-search Tool Group (3 tools +1 for code mode):
+vector Tool Group (11 tools +1 for code mode):
 
 1. 'mysql_vector_search'
 2. 'mysql_vector_range_search'

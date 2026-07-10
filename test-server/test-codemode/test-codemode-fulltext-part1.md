@@ -77,7 +77,7 @@
 
 ## Group Focus:fulltext-part1
 
-fulltext-part1 Tool Group (3 tools +1 code mode):
+fulltext Tool Group (5 tools +1 for code mode):
 
 1. `mysql_fulltext_search`
 2. `mysql_fulltext_boolean`

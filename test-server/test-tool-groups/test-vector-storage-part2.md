@@ -71,11 +71,11 @@
 - `mysql_vector_get`
 
 
-## Group Focus: vector-storage
+## Group Focus: vector
 
-### vector-storage Group-Specific Testing
+### vector Group-Specific Testing
 
-vector-storage Tool Group (4 tools +1 for code mode):
+vector Tool Group (11 tools +1 for code mode):
 
 1. 'mysql_vector_store'
 2. 'mysql_vector_batch_store'

@@ -71,11 +71,11 @@
 - `mysql_vector_info`
 
 
-## Group Focus: vector-search
+## Group Focus: vector
 
-### vector-search Group-Specific Testing
+### vector Group-Specific Testing
 
-vector-search Tool Group (3 tools +1 for code mode):
+vector Tool Group (11 tools +1 for code mode):
 
 4. 'mysql_execute_code' (codemode, auto-added)
 

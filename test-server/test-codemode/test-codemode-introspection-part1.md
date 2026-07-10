@@ -77,7 +77,7 @@
 
 ## Group Focus:introspection (Part 1)
 
-introspection Tool Group (6 tools +1 code mode):
+introspection Tool Group (6 tools +1 for code mode):
 
 1. `mysql_dependency_graph` 2. `mysql_topological_sort` 3. `mysql_cascade_simulator`
 2. `mysql_schema_snapshot` 5. `mysql_constraint_analysis` 6. `mysql_migration_risks`

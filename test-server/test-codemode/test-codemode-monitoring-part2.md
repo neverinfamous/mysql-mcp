@@ -77,7 +77,7 @@
 
 ## Group Focus:monitoring (Part 2)
 
-monitoring Tool Group (7 tools +1 code mode):
+monitoring Tool Group (7 tools +1 for code mode):
 
 1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
 4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`

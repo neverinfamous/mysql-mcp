@@ -75,7 +75,7 @@
 - `mysql_list_constraints`
 
 
-## Group Focus: Schema Views
+## Group Focus: schema
 Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 | Tool | Focus Area | Code Mode Validation |

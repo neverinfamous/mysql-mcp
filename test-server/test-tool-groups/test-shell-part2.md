@@ -75,11 +75,11 @@
 - `mysqlsh_import_table`
 
 
-## Group Focus: shell-part2
+## Group Focus: shell
 
 ### shell Group-Specific Testing
 
-shell Tool Group (5 tools +1 for code mode):
+shell Tool Group (10 tools +1 for code mode):
 
 1. 'mysql.shell.dumpInstance'
 2. 'mysql.shell.dumpSchemas'

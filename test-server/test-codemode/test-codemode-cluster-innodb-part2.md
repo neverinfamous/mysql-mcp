@@ -75,7 +75,7 @@
 
 ## Group Focus:cluster-innodb-part2
 
-cluster Tool Group (2 tools +1 code mode):
+cluster Tool Group (10 tools +1 for code mode):
 
 1. `mysql_cluster_router_status` 2. `mysql_cluster_switchover`
 

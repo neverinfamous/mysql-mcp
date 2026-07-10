@@ -79,7 +79,7 @@
 
 ## Group Focus:partitioning
 
-partitioning Tool Group (4 tools +1 code mode):
+partitioning Tool Group (4 tools +1 for code mode):
 
 1. `mysql_partition_info`
 2. `mysql_add_partition`

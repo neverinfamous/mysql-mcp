@@ -79,9 +79,9 @@
 
 ## Group Focus:json-helpers
 
-### json-helpers Group-Specific Testing
+### json Group-Specific Testing
 
-json-helpers Tool Group (4 tools +1 for code mode):
+json Tool Group (17 tools +1 for code mode):
 
 1. `mysql_json_get`
 2. `mysql_json_update`

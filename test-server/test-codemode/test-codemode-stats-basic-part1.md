@@ -77,7 +77,7 @@
 
 ## Group Focus:stats-descriptive (Part 1)
 
-stats-descriptive Tool Group (3 tools +1 code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 1. `mysql_stats_descriptive`
 2. `mysql_stats_percentiles`

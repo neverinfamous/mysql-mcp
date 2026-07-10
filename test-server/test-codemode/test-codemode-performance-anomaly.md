@@ -77,7 +77,7 @@
 
 ## Group Focus:performance
 
-performance-anomaly Tool Group (3 tools +1 code mode):
+performance Tool Group (11 tools +1 for code mode):
 
 1. `mysql_detect_query_anomalies` 2. `mysql_detect_bloat_risk` 3. `mysql_detect_connection_spike`
 

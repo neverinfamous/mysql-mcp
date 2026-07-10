@@ -73,11 +73,11 @@
 - `mysql_drop_trigger`
 
 
-## Group Focus: schema-routines-part2
+## Group Focus: schema
 
 ### schema Group-Specific Testing
 
-schema-routines-part2 Tool Group (3 tools +1 for code mode):
+schema Tool Group (12 tools +1 for code mode):
 
 1. 'mysql_list_triggers'
 2. 'mysql_create_trigger'

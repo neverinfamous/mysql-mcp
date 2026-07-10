@@ -75,7 +75,7 @@
 
 ## Group Focus:router
 
-router Tool Group (2 tools +1 code mode):
+router-routes Tool Group (0 tools +1 for code mode):
 
 1. `mysql_router_route_destinations`
 2. `mysql_router_route_blocked_hosts`

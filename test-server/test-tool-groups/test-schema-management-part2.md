@@ -75,11 +75,11 @@
 - `mysql_drop_view`
 
 
-## Group Focus: schema-management
+## Group Focus: schema
 
 ### schema Group-Specific Testing
 
-schema-management Tool Group (7 tools +1 for code mode):
+schema Tool Group (12 tools +1 for code mode):
 
 1. 'mysql_list_schemas'
 2. 'mysql_create_schema'

@@ -79,7 +79,7 @@
 
 ### core Group-Specific Testing
 
-core Tool Group (8 tools +1 for code mode):
+core Tool Group (12 tools +1 for code mode):
 
 **Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
 

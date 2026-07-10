@@ -75,11 +75,11 @@
 - `mysql_stats_ntile`
 
 
-## Group Focus: stats-window
+## Group Focus: stats
 
-### stats-window Group-Specific Testing
+### stats Group-Specific Testing
 
-stats-window Tool Group (6 tools +1 for code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 1. 'mysql_stats_row_number'
 2. 'mysql_stats_rank'

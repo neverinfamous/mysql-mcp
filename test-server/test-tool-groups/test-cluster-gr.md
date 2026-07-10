@@ -75,11 +75,11 @@
 - `mysql_gr_primary`
 
 
-## Group Focus: cluster-gr
+## Group Focus: cluster
 
 ### cluster Group-Specific Testing
 
-cluster-gr Tool Group (5 tools +1 for code mode):
+cluster Tool Group (10 tools +1 for code mode):
 
 1. 'mysql_gr_status'
 2. 'mysql_gr_members'

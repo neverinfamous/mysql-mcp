@@ -79,7 +79,7 @@
 
 ## Group Focus:roles
 
-roles Tool Group (4 tools +1 code mode):
+roles-management Tool Group (0 tools +1 for code mode):
 
 1. `mysql_role_list`
 2. `mysql_role_create`

@@ -79,7 +79,7 @@
 
 ## Group Focus:shell-data (Part 1)
 
-shell Tool Group (7 tools +1 code mode):
+shell-data Tool Group (0 tools +1 for code mode):
 
 1. `mysql.shell.exportTable` 2. `mysql.shell.importTable` 3. `mysql.shell.importJson`
 4. `mysql.shell.dumpInstance` 5. `mysql.shell.dumpSchemas` 6. `mysql.shell.dumpTables`

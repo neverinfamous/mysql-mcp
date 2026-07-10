@@ -79,7 +79,7 @@
 
 ## Group Focus:sysschema
 
-sysschema Tool Group (4 tools +1 code mode):
+sysschema Tool Group (8 tools +1 for code mode):
 
 1. `mysql_sys_statement_summary`
 2. `mysql_sys_wait_summary`

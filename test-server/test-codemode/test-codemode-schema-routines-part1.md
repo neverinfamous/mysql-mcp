@@ -77,7 +77,7 @@
 
 ## Group Focus:schema-routines-part1
 
-schema Tool Group (3 tools +1 code mode):
+schema Tool Group (12 tools +1 for code mode):
 
 1. `mysql_list_stored_procedures` 2. `mysql_list_functions` 3. `mysql_list_triggers`
 

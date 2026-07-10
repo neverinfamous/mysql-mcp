@@ -73,11 +73,11 @@
 - `mysql_stats_histogram`
 
 
-## Group Focus: stats-descriptive
+## Group Focus: stats
 
-### stats-descriptive Group-Specific Testing
+### stats Group-Specific Testing
 
-stats-descriptive Tool Group (8 tools +1 for code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 1. 'mysql_stats_descriptive'
 2. 'mysql_stats_percentiles'

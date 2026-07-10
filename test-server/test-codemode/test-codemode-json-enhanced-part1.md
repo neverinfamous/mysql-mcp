@@ -75,9 +75,9 @@
 
 ## Group Focus:json-enhanced-part1
 
-### json-enhanced-part1 Group-Specific Testing
+### json Group-Specific Testing
 
-json-enhanced-part1 Tool Group (2 tools +1 for code mode):
+json Tool Group (17 tools +1 for code mode):
 
 1. `mysql_json_merge`
 2. `mysql_json_diff`

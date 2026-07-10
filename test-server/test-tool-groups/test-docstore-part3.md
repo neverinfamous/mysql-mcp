@@ -75,11 +75,11 @@
 - `mysql_doc_create_index`
 
 
-## Group Focus: docstore-part1
+## Group Focus: docstore
 
 ### docstore Group-Specific Testing
 
-docstore Tool Group (4 tools +1 for code mode):
+docstore Tool Group (9 tools +1 for code mode):
 
 1. 'mysql_doc_list_collections'
 2. 'mysql_doc_create_collection'

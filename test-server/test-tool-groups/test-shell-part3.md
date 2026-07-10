@@ -75,11 +75,11 @@
 - `mysqlsh_dump_tables`
 
 
-## Group Focus: shell-part1
+## Group Focus: shell
 
 ### shell Group-Specific Testing
 
-shell Tool Group (5 tools +1 for code mode):
+shell Tool Group (10 tools +1 for code mode):
 
 1. 'mysql.shell.version'
 2. 'mysql.shell.checkUpgrade'

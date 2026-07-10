@@ -75,11 +75,11 @@
 - `mysql_json_replace`
 
 
-## Group Focus: json-core
+## Group Focus: json
 
-### json-core Group-Specific Testing
+### json Group-Specific Testing
 
-json-core Tool Group (8 tools +1 for code mode):
+json Tool Group (17 tools +1 for code mode):
 
 **Domain error paths (🔴):**
 

@@ -79,7 +79,7 @@
 
 ## Group Focus:proxysql-config
 
-proxysql Tool Group (4 tools +1 code mode):
+proxysql-config Tool Group (0 tools +1 for code mode):
 
 1. `proxysql_query_rules` 2. `proxysql_users` 3. `proxysql_global_variables`
 4. `proxysql_commands`

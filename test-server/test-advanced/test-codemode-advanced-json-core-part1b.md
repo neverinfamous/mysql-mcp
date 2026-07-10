@@ -73,11 +73,11 @@
 - `mysql_json_remove`
 
 
-## Group Focus: json-core
+## Group Focus: json
 
-### json-core Group-Specific Testing
+### json Group-Specific Testing
 
-json-core Tool Group (8 tools +1 for code mode):
+json Tool Group (17 tools +1 for code mode):
 
 4. 'mysql_json_replace'
 5. 'mysql_json_remove'

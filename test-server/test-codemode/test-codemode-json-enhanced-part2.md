@@ -77,9 +77,9 @@
 
 ## Group Focus:json-enhanced-part2
 
-### json-enhanced-part2 Group-Specific Testing
+### json Group-Specific Testing
 
-json-enhanced-part2 Tool Group (3 tools +1 for code mode):
+json Tool Group (17 tools +1 for code mode):
 
 1. `mysql_json_normalize`
 2. `mysql_json_stats`

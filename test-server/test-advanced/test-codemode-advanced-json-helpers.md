@@ -73,11 +73,11 @@
 - `mysql_json_index_suggest`
 
 
-## Group Focus: json (helpers)
+## Group Focus: json
 
-### json (helpers) Group-Specific Testing
+### json Group-Specific Testing
 
-json (helpers) Tool Group (4 tools +1 for code mode):
+json Tool Group (17 tools +1 for code mode):
 
 5. 'mysql_execute_code' (codemode, auto-added)
 

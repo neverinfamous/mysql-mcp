@@ -75,11 +75,11 @@
 - `mysql_table_stats`
 
 
-## Group Focus: performance-analysis-part2
+## Group Focus: performance
 
 ### performance Group-Specific Testing
 
-performance-analysis-part2 Tool Group (4 tools + 1 for code mode):
+performance Tool Group (11 tools +1 for code mode):
 
 1. 'mysql_index_usage'
 2. 'mysql_table_stats'

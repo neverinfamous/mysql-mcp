@@ -77,7 +77,7 @@
 
 ## Group Focus:router
 
-router Tool Group (3 tools +1 code mode):
+router-routes Tool Group (0 tools +1 for code mode):
 
 1. `mysql_router_route_status`
 2. `mysql_router_route_health`

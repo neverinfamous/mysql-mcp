@@ -73,11 +73,11 @@
 - `mysql_thread_stats`
 
 
-## Group Focus: performance-analysis-part1
+## Group Focus: performance
 
 ### performance Group-Specific Testing
 
-performance-analysis-part1 Tool Group (4 tools + 1 for code mode):
+performance Tool Group (11 tools +1 for code mode):
 
 1. 'mysql_explain'
 2. 'mysql_explain_analyze'

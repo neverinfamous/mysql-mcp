@@ -75,11 +75,11 @@
 - `mysql_spatial_intersection`
 
 
-## Group Focus: spatial-queries
+## Group Focus: spatial
 
-### spatial-queries Group-Specific Testing
+### spatial Group-Specific Testing
 
-spatial-queries Tool Group (4 tools +1 for code mode):
+spatial Tool Group (12 tools +1 for code mode):
 
 3. 'mysql_spatial_contains'
 4. 'mysql_spatial_within'

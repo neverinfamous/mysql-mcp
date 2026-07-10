@@ -75,11 +75,11 @@
 - `proxysql_query_rules`
 
 
-## Group Focus: proxysql-part1
+## Group Focus: proxysql
 
 ### proxysql Group-Specific Testing
 
-proxysql Tool Group (5 tools +1 for code mode):
+proxysql Tool Group (11 tools +1 for code mode):
 
 1. 'proxysql_status'
 2. 'proxysql_servers'

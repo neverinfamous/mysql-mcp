@@ -79,7 +79,7 @@
 
 ## Group Focus:router
 
-router Tool Group (4 tools +1 code mode):
+router-core Tool Group (0 tools +1 for code mode):
 
 1. `mysql_router_status`
 2. `mysql_router_routes`

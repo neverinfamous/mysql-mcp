@@ -77,7 +77,7 @@
 
 ## Group Focus:shell-utils
 
-shell Tool Group (3 tools +1 code mode):
+shell-utils Tool Group (0 tools +1 for code mode):
 
 1. `mysql.shell.version` 2. `mysql.shell.checkUpgrade` 3. `mysql.shell.runScript`
 

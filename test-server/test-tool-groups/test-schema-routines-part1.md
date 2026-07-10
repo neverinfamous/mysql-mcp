@@ -75,11 +75,11 @@
 - `mysql_list_triggers`
 
 
-## Group Focus: schema-routines-part1
+## Group Focus: schema
 
 ### schema Group-Specific Testing
 
-schema-routines-part1 Tool Group (2 tools +1 for code mode):
+schema Tool Group (12 tools +1 for code mode):
 
 1. 'mysql_list_stored_procedures'
 2. 'mysql_list_functions'

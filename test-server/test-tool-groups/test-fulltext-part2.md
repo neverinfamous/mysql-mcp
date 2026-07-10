@@ -73,11 +73,11 @@
 - `mysql_fulltext_drop`
 
 
-## Group Focus: fulltext-part2
+## Group Focus: fulltext
 
 ### fulltext Group-Specific Testing
 
-fulltext-part2 Tool Group (4 tools + 1 for code mode):
+fulltext Tool Group (5 tools +1 for code mode):
 
 1. 'mysql_fulltext_create'
 2. 'mysql_fulltext_drop'

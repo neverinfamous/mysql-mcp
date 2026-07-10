@@ -75,7 +75,7 @@
 
 ## Group Focus:stats-descriptive (Part 2)
 
-stats-descriptive Tool Group (2 tools + 1 code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 1. `mysql_stats_sampling`
 2. `mysql_stats_histogram`

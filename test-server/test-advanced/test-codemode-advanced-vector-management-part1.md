@@ -75,11 +75,11 @@
 - `mysql_vector_delete`
 
 
-## Group Focus: vector-management
+## Group Focus: vector
 
-### vector-management Group-Specific Testing
+### vector Group-Specific Testing
 
-vector-management Tool Group (4 tools +1 for code mode):
+vector Tool Group (11 tools +1 for code mode):
 
 5. 'mysql_execute_code' (codemode, auto-added)
 

@@ -75,7 +75,7 @@
 
 ## Group Focus:replication
 
-replication Tool Group (2 tools +1 code mode):
+replication Tool Group (5 tools +1 for code mode):
 
 1. `mysql_gtid_status` 2. `mysql_replication_lag`
 

@@ -73,11 +73,11 @@
 - `mysql_spatial_create_index`
 
 
-## Group Focus: spatial-setup
+## Group Focus: spatial
 
-### spatial-setup Group-Specific Testing
+### spatial Group-Specific Testing
 
-spatial-setup Tool Group (2 tools +1 for code mode):
+spatial Tool Group (12 tools +1 for code mode):
 
 1. 'mysql_spatial_create_column'
 2. 'mysql_spatial_create_index'

@@ -77,7 +77,7 @@
 
 ## Group Focus:admin-audit
 
-admin Tool Group (3 tools +1 code mode):
+admin-audit Tool Group (0 tools +1 for code mode):
 
 1. `mysql_append_insight` 2. `mysql_server_config` 3. `mysql_audit_search`
 

@@ -75,11 +75,11 @@
 - `mysql_spatial_geojson`
 
 
-## Group Focus: spatial-setup
+## Group Focus: spatial
 
-### spatial-setup Group-Specific Testing
+### spatial Group-Specific Testing
 
-spatial-setup Tool Group (2 tools +1 for code mode):
+spatial Tool Group (12 tools +1 for code mode):
 
 3. 'mysql_execute_code' (codemode, auto-added)
 

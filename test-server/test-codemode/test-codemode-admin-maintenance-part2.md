@@ -77,7 +77,7 @@
 
 ## Group Focus:admin-maintenance (Part 2)
 
-admin Tool Group (6 tools +1 code mode):
+admin-maintenance Tool Group (0 tools +1 for code mode):
 
 1. `mysql_optimize_table` 2. `mysql_analyze_table` 3. `mysql_check_table`
 2. `mysql_repair_table` 5. `mysql_flush_tables` 6. `mysql_kill_query`

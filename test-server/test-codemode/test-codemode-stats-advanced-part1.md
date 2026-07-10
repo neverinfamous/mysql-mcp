@@ -77,7 +77,7 @@
 
 ## Group Focus:stats-advanced (Part 1)
 
-stats-advanced Tool Group (6 tools +1 code mode):
+stats Tool Group (20 tools +1 for code mode):
 
 1. `mysql_stats_hypothesis`
 2. `mysql_stats_outliers`

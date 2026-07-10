@@ -71,11 +71,11 @@
 - `mysql_audit_diff_backup`
 
 
-## Group Focus: backup-part1
+## Group Focus: backup
 
 ### backup Group-Specific Testing
 
-backup Tool Group (4 tools +1 for code mode):
+backup Tool Group (7 tools +1 for code mode):
 
 1. 'mysql_export_table'
 2. 'mysql_import_data'
