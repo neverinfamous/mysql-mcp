@@ -33,6 +33,7 @@ vi.mock("redis", () => ({
   createClient: vi.fn(() => ({
     connect: vi.fn().mockResolvedValue(undefined),
     destroy: vi.fn(),
+    quit: vi.fn().mockResolvedValue(undefined),
     isOpen: true,
   })),
 }));
@@ -65,7 +66,10 @@ describe("HttpTransport", () => {
       await t.start();
       
       const { createClient } = await import("redis");
-      expect(createClient).toHaveBeenCalledWith({ url: "redis://localhost" });
+      expect(createClient).toHaveBeenCalledWith({ 
+        url: "redis://localhost",
+        disableOfflineQueue: true
+      });
       
       if (origUrl === undefined) delete process.env["REDIS_URL"];
       else process.env["REDIS_URL"] = origUrl;

@@ -27,12 +27,19 @@ export class CodeModeSecurityManager {
     { count: number; resetTime: number }
   >();
   private redisClient?: RedisClientType;
+  private readonly windowMs: number;
 
-  constructor(config?: Partial<SecurityConfig>) {
+  constructor(config?: Partial<SecurityConfig> & { redisUrl?: string; windowMs?: number }) {
     this.config = { ...DEFAULT_SECURITY_CONFIG, ...config };
+    this.windowMs = config?.windowMs ?? 60000;
+    const redisUrl = config?.redisUrl ?? process.env["REDIS_URL"];
+    
     setInterval(() => this.cleanupRateLimits(), 5 * 60 * 1000).unref();
-    if (process.env["REDIS_URL"]) {
-      this.redisClient = createClient({ url: process.env["REDIS_URL"] });
+    if (redisUrl) {
+      this.redisClient = createClient({ 
+        url: redisUrl,
+        disableOfflineQueue: true
+      });
       this.redisClient.connect().catch((err: unknown) => {
         logger.error("Redis connection failed in CodeModeSecurityManager", {
           error: err instanceof Error ? err : new Error(String(err)),
@@ -95,12 +102,19 @@ export class CodeModeSecurityManager {
   async checkRateLimit(clientId: string): Promise<boolean> {
     if (this.redisClient?.isOpen) {
       try {
-        const windowMs = 60000;
         const key = `codemode:rl:${clientId}`;
-        const current = await this.redisClient.incr(key);
-        if (current === 1) {
-          await this.redisClient.pExpire(key, windowMs);
-        }
+        const luaScript = `
+local current = redis.call('INCR', KEYS[1])
+if current == 1 then
+  redis.call('PEXPIRE', KEYS[1], ARGV[1])
+end
+return current
+`;
+        const current = await this.redisClient.eval(luaScript, {
+          keys: [key],
+          arguments: [this.windowMs.toString()],
+        }) as number;
+        
         return current <= this.config.maxExecutionsPerMinute;
       } catch (err) {
         logger.error("Redis rate limit error, falling back to memory", {
@@ -110,7 +124,6 @@ export class CodeModeSecurityManager {
     }
 
     const now = Date.now();
-    const windowMs = 60000; // 1 minute window
 
     const existing = this.rateLimitMap.get(clientId);
 
@@ -122,7 +135,7 @@ export class CodeModeSecurityManager {
       }
       this.rateLimitMap.set(clientId, {
         count: 1,
-        resetTime: now + windowMs,
+        resetTime: now + this.windowMs,
       });
       return true;
     }
@@ -252,6 +265,12 @@ export class CodeModeSecurityManager {
       if (now >= entry.resetTime) {
         this.rateLimitMap.delete(clientId);
       }
+    }
+  }
+
+  destroy(): void {
+    if (this.redisClient?.isOpen) {
+      this.redisClient.destroy();
     }
   }
 }

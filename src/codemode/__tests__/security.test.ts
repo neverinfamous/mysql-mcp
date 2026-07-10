@@ -301,33 +301,32 @@ describe("CodeModeSecurityManager", () => {
     beforeEach(() => {
       mockRedisClient = {
         isOpen: true,
-        incr: vi.fn(),
-        pExpire: vi.fn(),
-        pTTL: vi.fn(),
+        eval: vi.fn(),
       };
       // Inject mock client via private property bypass
       (manager as Record<string, unknown>).redisClient = mockRedisClient;
     });
 
     it("should allow requests and expire on first request", async () => {
-      mockRedisClient.incr.mockResolvedValue(1);
+      mockRedisClient.eval.mockResolvedValue(1);
       
       const allowed = await manager.checkRateLimit("client-redis");
       expect(allowed).toBe(true);
-      expect(mockRedisClient.incr).toHaveBeenCalledWith("codemode:rl:client-redis");
-      expect(mockRedisClient.pExpire).toHaveBeenCalledWith("codemode:rl:client-redis", 60000);
+      expect(mockRedisClient.eval).toHaveBeenCalledWith(expect.any(String), {
+        keys: ["codemode:rl:client-redis"],
+        arguments: ["60000"]
+      });
     });
 
     it("should block request when limit exceeded", async () => {
-      mockRedisClient.incr.mockResolvedValue(61); // exceeds 60 limit
+      mockRedisClient.eval.mockResolvedValue(61); // exceeds 60 limit
       
       const allowed = await manager.checkRateLimit("client-redis");
       expect(allowed).toBe(false);
-      expect(mockRedisClient.pExpire).not.toHaveBeenCalled();
     });
 
     it("should fallback to memory if redis throws", async () => {
-      mockRedisClient.incr.mockRejectedValue(new Error("Redis disconnect"));
+      mockRedisClient.eval.mockRejectedValue(new Error("Redis disconnect"));
       
       const allowed = await manager.checkRateLimit("client-redis");
       expect(allowed).toBe(true); // Falls back to local map which is empty, so allowed = true

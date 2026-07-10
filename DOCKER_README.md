@@ -1,7 +1,7 @@
 # MySQL MCP Server
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.75%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-389%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.77%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-393%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -77,7 +77,7 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 - **comprehensive blocked patterns** — Blocks system commands and network access. Uses static regex rules.
 - **RPC Quotas** — Limits execution to 100 API calls. It prevents unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
-- **Rate limiting** — Caps at 60 executions per minute. Supports Redis with in-memory fallback.
+- **Rate limiting** — Rate limited per client (default 60/min, configurable via `CODEMODE_RATE_LIMIT_MAX`). Supports Redis with in-memory fallback.
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
 - **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after a 30s default limit. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - **Full API access** — all tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
@@ -292,6 +292,8 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
+| —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
+| —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
 | —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 

@@ -11,6 +11,7 @@ services:
     environment:
       - MCP_HOST=0.0.0.0
       - MYSQL_HOST=mysql
+      # Used for distributed Redis-backed rate limiting for the HTTP Transport layer and Code Mode
       - REDIS_URL=redis://redis:6379
       - MCP_METRICS_EXPORT=prometheus
       - ALLOWED_IO_ROOTS=/app/data

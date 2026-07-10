@@ -4,7 +4,7 @@ export default defineConfig({
   test: {
     globals: true,
     isolate: true,
-    globalSetup: ["./scripts/teardown.ts"],
+    globalSetup: ["./scripts/redis-setup.ts", "./scripts/teardown.ts"],
     include: ["src/**/*.test.ts"],
     exclude: ["node_modules", "dist"],
     reporters: ["default"],

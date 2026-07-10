@@ -128,15 +128,19 @@ export class HttpTransport {
         }
         
         if (process.env["REDIS_URL"]) {
-          this.redisClient = createClient({ url: process.env["REDIS_URL"] });
-          this.redisClient.connect().catch((err: unknown) => {
+          this.redisClient = createClient({ 
+            url: process.env["REDIS_URL"],
+            disableOfflineQueue: true
+          });
+          this.redisClient.connect().then(() => resolve()).catch((err: unknown) => {
             logger.error("Redis connection failed in HttpTransport", {
               error: err instanceof Error ? err : new Error(String(err)),
             });
+            resolve();
           });
+        } else {
+          resolve();
         }
-        
-        resolve();
       });
     });
   }
@@ -151,7 +155,7 @@ export class HttpTransport {
     }
 
     if (this.redisClient?.isOpen) {
-      this.redisClient.destroy();
+      await this.redisClient.quit();
     }
 
     await this.sessionManager.closeAll();

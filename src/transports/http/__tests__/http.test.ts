@@ -211,15 +211,15 @@ describe("checkRateLimit()", () => {
     
     const mockRedisClient = {
       isOpen: true,
-      incr: vi.fn().mockResolvedValue(1),
-      pExpire: vi.fn().mockResolvedValue(true),
-      pTTL: vi.fn().mockResolvedValue(50000),
+      eval: vi.fn().mockResolvedValue(1),
     };
 
     const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
     expect(r1.allowed).toBe(true);
-    expect(mockRedisClient.incr).toHaveBeenCalledWith("http:rl:127.0.0.1");
-    expect(mockRedisClient.pExpire).toHaveBeenCalledWith("http:rl:127.0.0.1", 60000);
+    expect(mockRedisClient.eval).toHaveBeenCalledWith(expect.any(String), {
+      keys: ["http:rl:127.0.0.1"],
+      arguments: ["60000"]
+    });
   });
 
   it("should fallback to memory when Redis fails", async () => {
@@ -234,9 +234,7 @@ describe("checkRateLimit()", () => {
     
     const mockRedisClient = {
       isOpen: true,
-      incr: vi.fn().mockRejectedValue(new Error("Redis error")),
-      pExpire: vi.fn(),
-      pTTL: vi.fn(),
+      eval: vi.fn().mockRejectedValue(new Error("Redis error")),
     };
 
     const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
@@ -255,9 +253,7 @@ describe("checkRateLimit()", () => {
     
     const mockRedisClient = {
       isOpen: true,
-      incr: vi.fn().mockRejectedValue("Redis string error"),
-      pExpire: vi.fn(),
-      pTTL: vi.fn(),
+      eval: vi.fn().mockRejectedValue("Redis string error"),
     };
 
     const r1 = await checkRateLimit(req, config, map, mockRedisClient as Record<string, unknown>);
