@@ -65,13 +65,13 @@ This test ecosystem includes only the necessary components to validate the `mysq
 ### Data Reset (Re-seed E2E Test DB)
 If you need to re-seed the `testdb` for the E2E tests without tearing down the entire cluster:
 ```powershell
-node test-server/infrastructure/scripts/reset-database.mjs
+node scripts/reset-database.mjs
 ```
 
 ### Manual Cluster Recovery
 If containers are restarted and the cluster fails to auto-recover via `SET PERSIST`:
 ```powershell
-node test-server/infrastructure/scripts/reboot-cluster.mjs
+node scripts/reboot-cluster.mjs
 ```
 This script executes `dba.rebootClusterFromCompleteOutage()`.
 
@@ -137,3 +137,5 @@ When Prometheus runs inside WSL and needs to scrape `mysql-mcp` running on the W
 ### MySQL 9.x Observability Flags
 - **`--container_aware=ON`**: Required to prevent MySQL from ignoring discovered container memory restrictions.
 - **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
+- **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
+- **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.
