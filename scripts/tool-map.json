@@ -67,7 +67,7 @@
     "mysql_vector_optimize",
     "mysql_vector_stats"
   ],
-  "test-codemode-sandbox.md": [
+  "test-codemode.md": [
     "mysql_execute_code"
   ],
   "README.md": [],

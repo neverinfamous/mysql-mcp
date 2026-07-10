@@ -77,7 +77,7 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 - **comprehensive blocked patterns** — Blocks system commands and network access. Uses static regex rules.
 - **RPC Quotas** — Limits execution to 100 API calls. It prevents unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
-- **Rate limiting** — Rate limited per client (configurable via `MCP_RATE_LIMIT_MAX`). Supports Redis with in-memory fallback.
+- **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
 - **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after a 30s default limit. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - **Full API access** — all tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
@@ -113,7 +113,7 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
-        "REDIS_URL": "redis://localhost:6379"
+        "REDIS_URL": "redis://host.docker.internal:6379"
       }
     }
   }

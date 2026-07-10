@@ -173,6 +173,14 @@ Global teardown script for E2E testing. Cleans up test artifacts like SQLite dat
 npx tsx scripts/teardown.ts
 ```
 
+### `redis-setup.ts`
+
+Global setup script for E2E testing. Initializes the Redis test container needed for distributed rate limiting tests. Runs automatically via Vitest's `globalSetup`.
+
+```bash
+npx tsx scripts/redis-setup.ts
+```
+
 ## ⚙️ Maintenance & Architecture
 
 
@@ -184,6 +192,10 @@ Builds `src/constants/server-instructions.ts` module. Reads and compiles markdow
 ```bash
 npm run generate:instructions
 ```
+
+### `tool-map.json`
+
+Configuration file mapping standard tools to prompt generation categories. Used by `scripts/standardize-prompts.js` to patch test output dynamically.
 
 
 ### `update-badges.ts`

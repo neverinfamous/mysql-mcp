@@ -76,23 +76,23 @@
 
 
 ## Category 1: Complex Query Rewrites
-1. `mysql_query_rewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions
-2. `mysql_query_rewrite` with a multi-table JOIN: `"SELECT p.name, o.status FROM test_products p JOIN test_orders o ON p.id = o.product_id WHERE o.status = 'completed'"` → verify hints
-3. `mysql_query_rewrite` with `SELECT *` anti-pattern → verify recommendation to specify columns
+1. `mysql.optimization.queryRewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions
+2. `mysql.optimization.queryRewrite` with a multi-table JOIN: `"SELECT p.name, o.status FROM test_products p JOIN test_orders o ON p.id = o.product_id WHERE o.status = 'completed'"` → verify hints
+3. `mysql.optimization.queryRewrite` with `SELECT *` anti-pattern → verify recommendation to specify columns
 
 ## Category 2: Optimizer Trace Payload
 3. Verify summary token estimate is ≥ 30% smaller than full trace
-5. `mysql_index_recommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics' AND price < 500", "SELECT * FROM test_orders WHERE status = 'shipped' ORDER BY order_date DESC"]})` → verify composite index suggestions
+5. `mysql.optimization.indexRecommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics' AND price < 500", "SELECT * FROM test_orders WHERE status = 'shipped' ORDER BY order_date DESC"]})` → verify composite index suggestions
 
 ## Category 3: Force Index Edge Cases
-1. `mysql_force_index({table: "test_orders", index: "nonexistent_idx_xyz", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
-2. `mysql_force_index({table: "nonexistent_xyz", index: "idx_orders_status", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
-3. `mysql_force_index` with valid table/index but query referencing a different table → verify behavior
+1. `mysql.optimization.forceIndex({table: "test_orders", index: "nonexistent_idx_xyz", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
+2. `mysql.optimization.forceIndex({table: "nonexistent_xyz", index: "idx_orders_status", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`
+3. `mysql.optimization.forceIndex` with valid table/index but query referencing a different table → verify behavior
 
 ## Category 4: Index Recommendation Comparison
-1. `mysql_index_recommendation({table: "test_orders"})` → log recommendations (table has indexes)
+1. `mysql.optimization.indexRecommendation({table: "test_orders"})` → log recommendations (table has indexes)
 2. Create `stress_no_idx` table with columns but no indexes, insert 10 rows
-3. `mysql_index_recommendation({table: "stress_no_idx"})` → verify recommendations differ from indexed table
+3. `mysql.optimization.indexRecommendation({table: "stress_no_idx"})` → verify recommendations differ from indexed table
 4. Verify recommendations include actionable column suggestions
 ## Cleanup
 5. Drop all `stress_*` tables
@@ -100,9 +100,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_index_recommendation
-- [ ] Ensure full coverage for mysql_query_rewrite
-- [ ] Ensure full coverage for mysql_force_index
+- [ ] Ensure full coverage for mysql.optimization.indexRecommendation
+- [ ] Ensure full coverage for mysql.optimization.queryRewrite
+- [ ] Ensure full coverage for mysql.optimization.forceIndex
 
 ---
 

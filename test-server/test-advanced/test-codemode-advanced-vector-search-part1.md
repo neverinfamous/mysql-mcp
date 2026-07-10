@@ -81,37 +81,37 @@
 
 vector Tool Group (11 tools +1 for code mode):
 
-1. 'mysql_vector_search'
-2. 'mysql_vector_range_search'
-3. 'mysql_vector_hybrid_search'
+1. 'mysql.vector.search'
+2. 'mysql.vector.rangeSearch'
+3. 'mysql.vector.hybridSearch'
 4. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
 **Checklist:**
 
-1. `mysql_vector_search({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
-2. `mysql_vector_range_search({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
-3. `mysql_vector_hybrid_search({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
+1. `mysql.vector.search({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
+2. `mysql.vector.rangeSearch({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
+3. `mysql.vector.hybridSearch({...})` → happy path (Note: Returns EXTENSION_MISSING on Community Edition as `DISTANCE` is HeatWave-only)
 
 **Domain error paths (🔴):**
 
-4. 🔴 `mysql_vector_search({...})` → domain error
-5. 🔴 `mysql_vector_range_search({...})` → domain error
-6. 🔴 `mysql_vector_hybrid_search({...})` → domain error
+4. 🔴 `mysql.vector.search({...})` → domain error
+5. 🔴 `mysql.vector.rangeSearch({...})` → domain error
+6. 🔴 `mysql.vector.hybridSearch({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql_vector_search({})` → validation error
-8. 🔴 `mysql_vector_range_search({})` → validation error
-9. 🔴 `mysql_vector_hybrid_search({})` → validation error
+7. 🔴 `mysql.vector.search({})` → validation error
+8. 🔴 `mysql.vector.rangeSearch({})` → validation error
+9. 🔴 `mysql.vector.hybridSearch({})` → validation error
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_vector_search
-- [ ] Ensure full coverage for mysql_vector_range_search
-- [ ] Ensure full coverage for mysql_vector_hybrid_search
+- [ ] Ensure full coverage for mysql.vector.search
+- [ ] Ensure full coverage for mysql.vector.rangeSearch
+- [ ] Ensure full coverage for mysql.vector.hybridSearch
 
 ---
 

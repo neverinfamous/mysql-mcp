@@ -74,10 +74,10 @@
 ## Category 1: Complex Query Rewrites
 
 ## Category 2: Optimizer Trace Payload
-1. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: false})` → log token estimate (full)
-2. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (summary)
+1. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1", summary: false})` → log token estimate (full)
+2. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (summary)
 3. Verify summary token estimate is ≥ 30% smaller than full trace
-4. `mysql_optimizer_trace` with complex JOIN query and `summary: false` → log token estimate, flag > 500 tokens as 📦
+4. `mysql.optimization.optimizerTrace` with complex JOIN query and `summary: false` → log token estimate, flag > 500 tokens as 📦
 
 ## Category 3: Force Index Edge Cases
 
@@ -90,7 +90,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_optimizer_trace
+- [ ] Ensure full coverage for mysql.optimization.optimizerTrace
 
 ---
 

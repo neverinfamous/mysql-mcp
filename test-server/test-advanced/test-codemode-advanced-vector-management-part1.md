@@ -96,9 +96,9 @@ vector Tool Group (11 tools +1 for code mode):
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_vector_store
-- [ ] Ensure full coverage for mysql_vector_batch_store
-- [ ] Ensure full coverage for mysql_vector_delete
+- [ ] Ensure full coverage for mysql.vector.store
+- [ ] Ensure full coverage for mysql.vector.batchStore
+- [ ] Ensure full coverage for mysql.vector.delete
 
 ---
 

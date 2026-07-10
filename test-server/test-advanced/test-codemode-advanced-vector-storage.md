@@ -96,9 +96,9 @@ vector Tool Group (11 tools +1 for code mode):
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_vector_create_index
-- [ ] Ensure full coverage for mysql_vector_optimize
-- [ ] Ensure full coverage for mysql_vector_stats
+- [ ] Ensure full coverage for mysql.vector.createIndex
+- [ ] Ensure full coverage for mysql.vector.optimize
+- [ ] Ensure full coverage for mysql.vector.stats
 
 ---
 

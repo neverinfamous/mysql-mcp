@@ -92,7 +92,7 @@ vector Tool Group (11 tools +1 for code mode):
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_vector_get
+- [ ] Ensure full coverage for mysql.vector.get
 
 ---
 

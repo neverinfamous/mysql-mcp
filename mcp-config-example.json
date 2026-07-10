@@ -22,6 +22,8 @@
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "AUDIT_LOG_PATH": "/tmp/mcp-sandbox/audit.jsonl",
         "REDIS_URL": "redis://localhost:6379",
+        "MCP_RATE_LIMIT_MAX": "10000",
+        "CODEMODE_RATE_LIMIT_MAX": "60",
         "MYSQL_ROUTER_URL": "https://localhost:8443",
         "MYSQL_ROUTER_USER": "rest_api",
         "MYSQL_ROUTER_PASSWORD": "password",
