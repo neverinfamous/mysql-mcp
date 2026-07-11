@@ -79,7 +79,7 @@ function processDirectory(dirName) {
 
     if (dirName === "test-advanced") {
       titleType = "Advanced Stress Testing";
-      if (groupName === "sessions") {
+      if (groupName.startsWith("sessions")) {
         executionMode = "Execute ALL tests below using terminal scripts (via pwsh/curl/node) to test the HTTP endpoints directly. Do NOT use code mode, as `fetch` and network access are blocked by the Sandbox Security Manager. Return an aggregated `failures` array.";
         coverageMatrix = "| Endpoint | Focus Area | HTTP Validation |";
       } else {
