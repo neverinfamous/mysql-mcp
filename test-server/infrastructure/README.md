@@ -51,6 +51,7 @@ This environment spins up the following components:
 - **Dozzle**: `http://localhost:8080` (Real-time container logs viewer)
 - **Adminer**: `http://localhost:8081` (Web-based database management UI)
   - *Login details:* System: **MySQL**, Server: **mysql-node1**, Username: **root**, Password: **root**
+- **Datadog Dashboards**: [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview)
 
 All components share the `infrastructure_default` Docker network.
 

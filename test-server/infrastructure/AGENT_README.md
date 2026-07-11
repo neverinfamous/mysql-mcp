@@ -6,7 +6,7 @@ _Updated: July 2026_
 
 This guide explains how to spin up, manage, and troubleshoot the lightweight MySQL test ecosystem (InnoDB Cluster, MySQL Router, ProxySQL) designed specifically for testing the `mysql-mcp` project.
 
-> **Note on Datadog:** This environment includes native Prometheus and Grafana for metrics observability. If you require full Datadog tracing/APM, you will need to manually inject a Datadog Agent container; it is omitted here to keep the test infrastructure lightweight.
+> **Note on Datadog:** This environment includes native Prometheus and Grafana for metrics observability. It also includes basic Datadog metric integrations for tracking MySQL query runtime and slow query rates. If you require full Datadog tracing/APM, you will need to manually inject a Datadog Agent container.
 
 ---
 
@@ -110,6 +110,8 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
 | Redis | `localhost:6379` |
+| Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` |
+| Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
 
 ---
 
