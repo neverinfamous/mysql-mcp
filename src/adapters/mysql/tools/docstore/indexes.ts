@@ -4,9 +4,10 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  type ToolDefinition,
+  type RequestContext,
+  ConflictError,
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
@@ -116,19 +117,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             message.toLowerCase().includes("duplicate column") ||
             message.toLowerCase().includes("duplicate key")
           ) {
-            return withTokenEstimate({
-              success: false,
-              error: `Index '${name ?? "unknown"}' or its generated columns already exist on '${collection ?? "unknown"}'`,
-              code: "CONFLICT_ERROR",
-                category: "query",
-            });
+            return formatHandlerErrorResponse(
+              new ConflictError(
+                `Index '${name ?? "unknown"}' or its generated columns already exist on '${collection ?? "unknown"}'`,
+              )
+            );
           }
-          return withTokenEstimate({
-              success: false,
-              error: message,
-              code: "EXECUTION_ERROR",
-                category: "query",
-            });
+          return formatHandlerErrorResponse(error);
         }
       },
     },

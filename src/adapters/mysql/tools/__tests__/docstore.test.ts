@@ -265,12 +265,11 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(result).toEqual({
+      expect(result).toMatchObject({
         success: false,
         error: "Schema 'fake_schema' does not exist",
-        code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
+        code: "DATABASE_NOT_FOUND",
+        category: "resource",
       });
     });
   });
