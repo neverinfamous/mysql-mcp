@@ -44,9 +44,21 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
           if (buckets > 1024) {
             warning = `Requested ${buckets} buckets; clamped to max 1024`;
           }
-          await adapter.executeQuery(
+          const updateResult = await adapter.executeQuery(
             `ANALYZE TABLE ${escapeQualifiedTable(table)} UPDATE HISTOGRAM ON \`${column}\` WITH ${String(numBuckets)} BUCKETS`,
           );
+          if (updateResult.rows && updateResult.rows.length > 0) {
+            const errorRow = updateResult.rows.find(
+              (r: unknown) =>
+                typeof r === "object" &&
+                r !== null &&
+                "Msg_type" in r &&
+                String(r["Msg_type" as keyof typeof r]).toLowerCase() === "error"
+            );
+            if (errorRow && "Msg_text" in errorRow) {
+              throw new ValidationError(`Histogram update failed: ${String(errorRow["Msg_text" as keyof typeof errorRow])}`);
+            }
+          }
         }
 
         const { schema, table: parsedTableName } = parseQualifiedTable(table);
