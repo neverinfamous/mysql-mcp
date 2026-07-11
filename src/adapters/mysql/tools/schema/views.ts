@@ -363,7 +363,7 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
           adapter.clearSchemaCache();
           return withTokenEstimate({
             success: true,
-            data: { viewName: parsedParams.name },
+            data: { viewName: name },
           });
         } catch (err: unknown) {
           return formatHandlerErrorResponse(err);

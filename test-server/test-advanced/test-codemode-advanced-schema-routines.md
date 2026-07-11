@@ -79,33 +79,26 @@
 - `mysql_list_functions`
 
 
-## Category 1: DDL Idempotency
-1. Create view `stress_view_dup` on `test_products`, then create again with same name → verify structured error
-2. Drop the view, recreate it → verify clean slate (no leftover state)
+## Category 1: Routine Idempotency
+1. Create a stored procedure `stress_proc_dup` and a function `stress_func_dup` in `testdb`, then create again with the same name → verify structured error
+2. Drop the routines, recreate them → verify clean slate (no leftover state)
 
 ## Category 2: Cross-Object Dependencies
-1. Create view `stress_dep_view` joining `test_orders` and `test_products` on FK → verify success
-2. Create a view referencing a subquery with aggregation → verify `createView` handles complex SQL
-3. Drop the dependent view → verify clean removal
+1. Create a function `stress_dep_func` that calls a procedure or uses a table → verify success
+2. Create a procedure `stress_dep_proc` that calls a function → verify success
+3. Drop the routines → verify clean removal
 
 ## Category 3: Parameter Alias Stress
-1. `mysql_create_view` with `query` param → verify identical to `definition` param
-2. `mysql_list_views` with `database` param → verify response matches `schema` param
+1. `mysql_list_stored_procedures` with `database` param → verify response matches `schema` param
+2. `mysql_list_functions` with `database` param → verify response matches `schema` param
 
 ## Category 4: Payload Monitoring
 1. Flag any response > 500 tokens as 📦
 
-## Category 5: Subscriptions
-1. Verify that the server's `McpServer` handles `SubscribeRequestSchema` for `mysql://schema` and `mysql://tables` natively, as this cannot be directly executed via `mysql_execute_code`. Ensure `overview.md` reflects this capability.
-## Cleanup
-2. Drop all `stress_*` schemas and views
-
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_list_views
-- [ ] Ensure full coverage for mysql_create_view
-- [ ] Ensure full coverage for mysql_drop_view
+- [ ] Ensure full coverage for mysql_list_stored_procedures
+- [ ] Ensure full coverage for mysql_list_functions
 
 ---
 
