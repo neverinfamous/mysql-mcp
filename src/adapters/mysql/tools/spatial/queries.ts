@@ -113,6 +113,15 @@ export function createSpatialDistanceTool(
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
+          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const tbl = typeof tblObj === "string" ? tblObj : "unknown";
+          return withTokenEstimate({
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
+            details: { exists: false, table: tbl },
+          });
+        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -196,6 +205,15 @@ export function createSpatialDistanceSphereTool(
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
+          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const tbl = typeof tblObj === "string" ? tblObj : "unknown";
+          return withTokenEstimate({
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
+            details: { exists: false, table: tbl },
+          });
+        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -257,6 +275,15 @@ export function createSpatialContainsTool(
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
         }
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
+          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const tbl = typeof tblObj === "string" ? tblObj : "unknown";
+          return withTokenEstimate({
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
+            details: { exists: false, table: tbl },
+          });
+        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -314,6 +341,15 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (error) {
         if (error instanceof ValidationError) {
           return withTokenEstimate({ success: false, error: error.message, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
+        }
+        const msg = error instanceof Error ? error.message : String(error);
+        if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
+          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const tbl = typeof tblObj === "string" ? tblObj : "unknown";
+          return withTokenEstimate({
+            success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
+            details: { exists: false, table: tbl },
+          });
         }
         return formatHandlerErrorResponse(error);
       }
