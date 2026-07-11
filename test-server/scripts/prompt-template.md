@@ -37,6 +37,11 @@
 > - Accommodate latest architecture changes in tests.
 > - Support relevant flags (`--audit-log`, `--metrics-export`).
 
+> [!IMPORTANT]
+> **Environment Constraints**:
+> - **Sandbox I/O**: If tests write or read temporary files (e.g., export/import operations), the path must be permitted by `ALLOWED_IO_ROOTS`. We recommend using `C:\Users\chris\AppData\Local\Temp`.
+> - **DDL Operations**: If a tool requires DDL (e.g., `CREATE TABLE`, `CREATE INDEX`), explicitly disable the global read-only lock before execution by running `SET GLOBAL super_read_only = 0;`.
+
 ### Reference the Test Schema & Tool Definitions
 
 {{SCHEMA_REF}}
