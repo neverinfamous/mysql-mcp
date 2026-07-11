@@ -86,6 +86,13 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           transactionId,
         );
 
+        if (result.rows && result.rows.length > 500 && !stream) {
+          throw new ValidationError(
+            `Result set too large (${result.rows.length} rows exceeds maximum of 500).`,
+            { suggestion: "Please use a smaller LIMIT or enable stream=true for large datasets." }
+          );
+        }
+
         let nextCursor: string | undefined;
         if (isLimitable && !hasLimit && result.rows?.length === limit) {
           const nextOffset = offset + limit;

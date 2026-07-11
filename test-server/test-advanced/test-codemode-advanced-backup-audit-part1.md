@@ -79,35 +79,10 @@
 - `mysql_audit_restore_backup`
 
 
-## Category 1: Export Edge Cases
-1. Create `stress_empty_export` table with 0 rows
-2. `mysql_export_table({table: "stress_empty_export"})` → verify returns empty dataset (not crash)
-3. `mysql_export_table({table: "test_products", limit: 0})` → verify behavior (empty or error)
-4. `mysql_export_table({table: "nonexistent_xyz"})` → verify structured `{success: false}`
-
-## Category 2: Format Boundary Values
-1. `mysql_export_table({table: "test_products", format: "CSV", limit: 3})` → verify case-insensitive format acceptance
-2. `mysql_export_table({table: "test_products", format: "csv", limit: 3})` → verify lowercase works
-3. `mysql_export_table({table: "test_products", format: "json", limit: 3})` → verify JSON format
-4. `mysql_export_table({table: "test_products", format: "invalid_format_xyz"})` → verify structured error
-
-## Category 3: Dump Parameter Validation
-1. `mysql_create_dump({database: "nonexistent_db_xyz"})` → verify structured `{success: false}`
-2. `mysql_create_dump({database: "testdb", tables: []})` → verify behavior with empty tables array
-3. `mysql_create_dump({database: "testdb", tables: ["nonexistent_table_xyz"]})` → verify structured error
-
-## Category 4: Payload Monitoring
-1. `mysql_export_table({table: "test_products"})` with no limit → log token estimate
-2. Flag any response > 500 tokens as 📦
-## Cleanup
-3. Drop all `stress_*` tables
-
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_export_table
-- [ ] Ensure full coverage for mysql_import_data
-- [ ] Ensure full coverage for mysql_create_dump
+- [ ] Ensure full coverage for mysql_audit_list_backups
+- [ ] Ensure full coverage for mysql_audit_restore_backup
 
 ---
 
