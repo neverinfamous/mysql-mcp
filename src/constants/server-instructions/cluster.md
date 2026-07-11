@@ -4,7 +4,7 @@
 
 ## Group Replication (mysql_gr_*)
 
-- **Tools available**: `mysql_gr_status` (Group Replication status), `mysql_gr_members` (List cluster members), `mysql_gr_primary` (Get/Set primary member), `mysql_gr_transactions` (Check distributed transactions), `mysql_gr_flow_control` (Tuning flow control).
+- **Tools available**: `mysql_gr_status` (Group Replication status), `mysql_gr_members` (List cluster members), `mysql_gr_primary` (Identify current primary member), `mysql_gr_transactions` (Check distributed transactions), `mysql_gr_flow_control` (Tuning flow control).
 - Tools check for `group_replication` plugin status and return a structured `EXTENSION_NOT_AVAILABLE` error if the plugin is not active.
 - **Error handling**: All 5 GR tools return structured error responses (with `error` field) on query failure instead of throwing raw exceptions. `mysql_gr_members` with a nonexistent `memberId` filter returns `{ members: [], count: 0 }` (empty results, not an error).
 

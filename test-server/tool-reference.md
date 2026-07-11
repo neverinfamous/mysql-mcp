@@ -320,7 +320,7 @@ View the complete list of all **available tools** across groups below. Every too
 | ----------------------------- | ---------------------------------------------------------------- |
 | `mysql_gr_status`             | Group Replication status                                         |
 | `mysql_gr_members`            | List cluster members                                             |
-| `mysql_gr_primary`            | Get/Set primary member                                           |
+| `mysql_gr_primary`            | Identify current primary member                                  |
 | `mysql_gr_transactions`       | Check distributed transactions                                   |
 | `mysql_gr_flow_control`       | Tuning flow control                                              |
 | `mysql_cluster_status`        | InnoDB Cluster overall status with `summary` mode          |
