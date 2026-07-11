@@ -93,6 +93,13 @@ const ERROR_SUGGESTIONS: {
   // Validation errors
   // =========================================================================
   {
+    pattern: /Invalid search syntax/i,
+    suggestion:
+      "Check your search query syntax. Boolean mode has strict operator requirements (+, -, *, etc.).",
+    category: ErrorCategory.VALIDATION,
+    code: "INVALID_QUERY_SYNTAX",
+  },
+  {
     pattern: /invalid table name/i,
     suggestion:
       "Table names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
