@@ -20,6 +20,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Helpers
@@ -259,12 +260,9 @@ export function createSecurityPasswordValidateTool(
           }),
         );
 
-        // If no validate_password variables exist, component is not installed
         if (Object.keys(policy).length === 0) {
           return formatHandlerErrorResponse(
-            new Error(
-              'Password validation component not installed. Install with: INSTALL COMPONENT "file://component_validate_password"',
-            ),
+            new ExtensionNotAvailableError("validate_password")
           );
         }
 
@@ -305,9 +303,7 @@ export function createSecurityPasswordValidateTool(
           lower.includes("function")
         ) {
           return formatHandlerErrorResponse(
-            new Error(
-              'Password validation function failed. Reinstall with: INSTALL COMPONENT "file://component_validate_password"',
-            ),
+            new ExtensionNotAvailableError("validate_password")
           );
         }
         return formatHandlerErrorResponse(new Error(message));

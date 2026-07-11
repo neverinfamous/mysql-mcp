@@ -22,6 +22,7 @@ import type {
 } from "../../../../types/index.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Helpers
@@ -240,9 +241,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           lower.includes("access denied")
         ) {
           return formatHandlerErrorResponse(
-            new Error(
-              "Audit logging is not enabled. Install MySQL Enterprise Audit or Percona Audit plugin.",
-            ),
+            new ExtensionNotAvailableError("audit_log", { plugin: "MySQL Enterprise Audit or Percona Audit plugin" })
           );
         }
         return formatHandlerErrorResponse(new Error(stripped));

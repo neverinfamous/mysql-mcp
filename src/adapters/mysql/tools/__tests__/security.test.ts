@@ -112,7 +112,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Audit logging is not enabled");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 
@@ -480,7 +480,7 @@ describe("Security Tools", () => {
       ));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("failed");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 

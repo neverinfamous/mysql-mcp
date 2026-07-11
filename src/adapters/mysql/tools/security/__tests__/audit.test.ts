@@ -207,7 +207,7 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Audit logging is not enabled");
+      expect(result.error).toContain("is not installed or enabled");
     });
 
     it("should not include duplicated message field in error response", async () => {

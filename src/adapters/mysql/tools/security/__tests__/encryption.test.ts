@@ -188,7 +188,7 @@ describe("Security Encryption Tools", () => {
       );
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("failed");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 });
