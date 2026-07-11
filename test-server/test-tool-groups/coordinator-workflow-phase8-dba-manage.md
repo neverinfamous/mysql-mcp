@@ -1,0 +1,32 @@
+# MySQL MCP Tool Groups Testing - Phase 8 (dba-manage)
+
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
+
+## Execution Rules
+Follow the exact same workflow rules defined in the [Master Coordinator Index](coordinator-workflow.md).
+- Ensure the user has started the server with the `dba-manage` shortcut filter.
+- Execute these tests sequentially.
+- Launch a subagent for each test.
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt / B Code / C Graceful Fails" (Where Y is 12).
+- Terminate subagents when done to save context.
+
+## Test Sequence Queue (Phase 8: `dba-manage`)
+
+- `test-admin-part1.md`
+- `test-admin-part2.md`
+- `test-admin-part3.md`
+- `test-backup-part1.md`
+- `test-backup-part2.md`
+- `test-backup-part3.md`
+- `test-replication-part1.md`
+- `test-replication-part2.md`
+- `test-partitioning-part1.md`
+- `test-partitioning-part2.md`
+- `test-events-part1.md`
+- `test-events-part2.md`
+
+## Completion
+Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to:
+1. Switch the shortcut to the next phase's shortcut.
+2. Restart the server.
+3. Start a NEW thread passing the next phase's markdown file.

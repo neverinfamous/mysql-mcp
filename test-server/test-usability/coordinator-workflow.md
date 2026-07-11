@@ -49,95 +49,21 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
 
 ## Test Sequence Queue
 
-1. `test-usability-core-part1.md`
-2. `test-usability-core-part2.md`
-3. `test-usability-core-part3.md`
-4. `test-usability-core-part4.md`
-5. `test-usability-json-part1.md`
-6. `test-usability-json-part2.md`
-7. `test-usability-json-part3.md`
-8. `test-usability-json-part4.md`
-9. `test-usability-json-part5.md`
-10. `test-usability-json-part6.md`
-11. `test-usability-text-part1.md`
-12. `test-usability-text-part2.md`
-13. `test-usability-fulltext-part1.md`
-14. `test-usability-fulltext-part2.md`
-15. `test-usability-performance-part1.md`
-16. `test-usability-performance-part2.md`
-17. `test-usability-performance-part3.md`
-18. `test-usability-performance-part4.md`
-19. `test-usability-optimization-part1.md`
-20. `test-usability-optimization-part2.md`
-21. `test-usability-admin-part1.md`
-22. `test-usability-admin-part2.md`
-23. `test-usability-admin-part3.md`
-24. `test-usability-monitoring-part1.md`
-25. `test-usability-monitoring-part2.md`
-26. `test-usability-monitoring-part3.md`
-27. `test-usability-backup-part1.md`
-28. `test-usability-backup-part2.md`
-29. `test-usability-backup-part3.md`
-30. `test-usability-replication-part1.md`
-31. `test-usability-replication-part2.md`
-32. `test-usability-partitioning-part1.md`
-33. `test-usability-partitioning-part2.md`
-34. `test-usability-transactions-part1.md`
-35. `test-usability-transactions-part2.md`
-36. `test-usability-transactions-part3.md`
-37. `test-usability-router-part1.md`
-38. `test-usability-router-part2.md`
-39. `test-usability-router-part3.md`
-40. `test-usability-proxysql-part1.md`
-41. `test-usability-proxysql-part2.md`
-42. `test-usability-proxysql-part3.md`
-43. `test-usability-proxysql-part4.md`
-44. `test-usability-shell-part1.md`
-45. `test-usability-shell-part2.md`
-46. `test-usability-shell-part3.md`
-47. `test-usability-shell-part4.md`
-48. `test-usability-schema-part1.md`
-49. `test-usability-schema-part2.md`
-50. `test-usability-schema-part3.md`
-51. `test-usability-schema-part4.md`
-52. `test-usability-events-part1.md`
-53. `test-usability-events-part2.md`
-54. `test-usability-sysschema-part1.md`
-55. `test-usability-sysschema-part2.md`
-56. `test-usability-sysschema-part3.md`
-57. `test-usability-stats-part1.md`
-58. `test-usability-stats-part2.md`
-59. `test-usability-stats-part3.md`
-60. `test-usability-stats-part4.md`
-61. `test-usability-stats-part5.md`
-62. `test-usability-stats-part6.md`
-63. `test-usability-stats-part7.md`
-64. `test-usability-spatial-part1.md`
-65. `test-usability-spatial-part2.md`
-66. `test-usability-spatial-part3.md`
-67. `test-usability-spatial-part4.md`
-68. `test-usability-security-part1.md`
-69. `test-usability-security-part2.md`
-70. `test-usability-security-part3.md`
-71. `test-usability-cluster-part1.md`
-72. `test-usability-cluster-part2.md`
-73. `test-usability-cluster-part3.md`
-74. `test-usability-cluster-part4.md`
-75. `test-usability-roles-part1.md`
-76. `test-usability-roles-part2.md`
-77. `test-usability-roles-part3.md`
-78. `test-usability-docstore-part1.md`
-79. `test-usability-docstore-part2.md`
-80. `test-usability-docstore-part3.md`
-81. `test-usability-introspection-part1.md`
-82. `test-usability-introspection-part2.md`
-83. `test-usability-migration-part1.md`
-84. `test-usability-migration-part2.md`
-85. `test-usability-vector-part1.md`
-86. `test-usability-vector-part2.md`
-87. `test-usability-vector-part3.md`
-88. `test-usability-vector-part4.md`
-89. `test-usability-codemode.md`
+> [!WARNING]
+> **ANTI-EXHAUSTION ARCHITECTURE**
+> Do NOT execute these tests in a single thread. The 89 tests have been sharded into 4 phases to prevent LLM context window exhaustion.
+> 
+> **How to run:**
+> 1. Start a NEW thread for Phase 1 and pass the agent the `coordinator-workflow-phase1-foundation.md` file.
+> 2. When Phase 1 completes, start a NEW thread for Phase 2, etc.
+
+### Execution Phases:
+- [Phase 1: Foundation (Core, JSON, Text)](coordinator-workflow-phase1-foundation.md)
+- [Phase 2: Admin & Performance](coordinator-workflow-phase2-admin.md)
+- [Phase 3: Schema & Stats](coordinator-workflow-phase3-schema.md)
+- [Phase 4: Analytics & Advanced](coordinator-workflow-phase4-analytics.md)
+
+
 
 ## Post-Suite Validation
 

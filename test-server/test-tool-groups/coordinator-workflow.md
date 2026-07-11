@@ -20,8 +20,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
 3. **Phase Transitions & Server Restarts**:
    - The Coordinator will run continuously _within_ each Phase.
-   - When a Phase is complete, the Coordinator MUST pause and message the user: _"Phase X complete. Please switch the main config shortcut to `[Next Shortcut]` and manually restart the `mysql-mcp` server. Reply 'ready' when done."_
-   - Do NOT proceed to the next Phase until the user replies 'ready'.
+   - When a Phase is complete, the Coordinator MUST instruct the user to start a NEW thread for the next phase. DO NOT continue in the same thread.
 4. **Validation and Immediate Continuation (Within a Phase)**:
    - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` and targeted tests for the changes they made (or just the tests for that tool group, not the entire suite). If that's not practical, they should only run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build`. Ensure the local checks and relevant tests pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation.
    - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation and immediately report back to the Coordinator.
@@ -53,152 +52,28 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 
 ## Test Sequence Queue (Dependency DAG)
 
-### Phase 1: `starter` shortcut
+> [!WARNING]
+> **ANTI-EXHAUSTION ARCHITECTURE**
+> Do NOT execute these tests in a single thread. The tests have been sharded into 11 phases to prevent LLM context window exhaustion.
+> 
+> **How to run:**
+> 1. Start the server with the shortcut for Phase 1.
+> 2. Start a NEW thread for Phase 1 and pass the agent the `coordinator-workflow-phase1-starter.md` file.
+> 3. When Phase 1 completes, update the shortcut, restart the server, and start a NEW thread for Phase 2, etc.
 
-- `test-core-part1.md` (**MUST PASS FIRST**)
-- `test-core-part2.md`
-- `test-core-part3.md`
-- `test-core-part4.md`
-- `test-codemode.md`
-- `test-json-core-part1.md`
-- `test-json-core-part2.md`
-- `test-json-core-part3.md`
-- `test-json-enhanced-part1.md`
-- `test-json-enhanced-part2.md`
-- `test-json-helpers-part1.md`
-- `test-json-helpers-part2.md`
-- `test-transactions-part1.md`
-- `test-transactions-part2.md`
-- `test-transactions-part3.md`
-- `test-text-part1.md`
-- `test-text-part2.md`
+### Execution Phases:
+- [Phase 1 (starter)](coordinator-workflow-phase1-starter.md)
+- [Phase 2 (dev-power)](coordinator-workflow-phase2-dev-power.md)
+- [Phase 3 (dev-analytics)](coordinator-workflow-phase3-dev-analytics.md)
+- [Phase 4 (ai-data-nosql)](coordinator-workflow-phase4-ai-data-nosql.md)
+- [Phase 5 (ai-search)](coordinator-workflow-phase5-ai-search.md)
+- [Phase 6 (ai-spatial)](coordinator-workflow-phase6-ai-spatial.md)
+- [Phase 7 (dba-monitor)](coordinator-workflow-phase7-dba-monitor.md)
+- [Phase 8 (dba-manage)](coordinator-workflow-phase8-dba-manage.md)
+- [Phase 9 (dba-secure)](coordinator-workflow-phase9-dba-secure.md)
+- [Phase 10 (dba-schema)](coordinator-workflow-phase10-dba-schema.md)
+- [Phase 11 (ecosystem)](coordinator-workflow-phase11-ecosystem.md)
 
-_(Coordinator pauses: Asks user to switch filter to `dev-power` and restart)_
-
-### Phase 2: `dev-power` shortcut
-
-- `test-schema-management-part1.md`
-- `test-schema-management-part2.md`
-- `test-schema-management-part3.md`
-- `test-schema-routines-part1.md`
-- `test-schema-routines-part2.md`
-- `test-performance-analysis-part1.md`
-- `test-performance-analysis-part2.md`
-- `test-performance-analysis-part3.md`
-- `test-performance-anomaly.md`
-- `test-fulltext-part1.md`
-- `test-fulltext-part2.md`
-
-_(Coordinator pauses: Asks user to switch filter to `dev-analytics` and restart)_
-
-### Phase 3: `dev-analytics` shortcut
-
-- `test-stats-advanced-part1.md`
-- `test-stats-advanced-part2.md`
-- `test-stats-descriptive-part1.md`
-- `test-stats-descriptive-part2.md`
-- `test-stats-descriptive-part3.md`
-- `test-stats-window-part1.md`
-- `test-stats-window-part2.md`
-
-_(Coordinator pauses: Asks user to switch filter to `ai-data-nosql` and restart)_
-
-### Phase 4: `ai-data-nosql` shortcut
-
-- `test-docstore-part1.md`
-- `test-docstore-part2.md`
-- `test-docstore-part3.md`
-
-_(Coordinator pauses: Asks user to switch filter to `ai-search` and restart)_
-
-### Phase 5: `ai-search` shortcut
-
-- `test-vector-management-part1.md`
-- `test-vector-management-part2.md`
-- `test-vector-search.md`
-- `test-vector-storage-part1.md`
-- `test-vector-storage-part2.md`
-
-_(Coordinator pauses: Asks user to switch filter to `ai-spatial` and restart)_
-
-### Phase 6: `ai-spatial` shortcut
-
-- `test-spatial-geometry.md`
-- `test-spatial-operations-part1.md`
-- `test-spatial-operations-part2.md`
-- `test-spatial-queries-part1.md`
-- `test-spatial-queries-part2.md`
-- `test-spatial-setup.md`
-
-_(Coordinator pauses: Asks user to switch filter to `dba-monitor` and restart)_
-
-### Phase 7: `dba-monitor` shortcut
-
-- `test-monitoring-part1.md`
-- `test-monitoring-part2.md`
-- `test-monitoring-part3.md`
-- `test-sys-part1.md`
-- `test-sys-part2.md`
-- `test-sys-part3.md`
-- `test-optimization-part1.md`
-- `test-optimization-part2.md`
-
-_(Coordinator pauses: Asks user to switch filter to `dba-manage` and restart)_
-
-### Phase 8: `dba-manage` shortcut
-
-- `test-admin-part1.md`
-- `test-admin-part2.md`
-- `test-admin-part3.md`
-- `test-backup-part1.md`
-- `test-backup-part2.md`
-- `test-backup-part3.md`
-- `test-replication-part1.md`
-- `test-replication-part2.md`
-- `test-partitioning-part1.md`
-- `test-partitioning-part2.md`
-- `test-events-part1.md`
-- `test-events-part2.md`
-
-_(Coordinator pauses: Asks user to switch filter to `dba-secure` and restart)_
-
-### Phase 9: `dba-secure` shortcut
-
-- `test-security-part1.md`
-- `test-security-part2.md`
-- `test-security-part3.md`
-- `test-roles-part1.md`
-- `test-roles-part2.md`
-- `test-roles-part3.md`
-
-_(Coordinator pauses: Asks user to switch filter to `dba-schema` and restart)_
-
-### Phase 10: `dba-schema` shortcut
-
-- `test-introspection-part1.md`
-- `test-introspection-part2.md`
-- `test-migration-part1.md`
-- `test-migration-part2.md`
-
-_(Coordinator pauses: Asks user to switch testing to the mysql-ecosystem server)_
-
-### Phase 11: `ecosystem` shortcut
-
-- `test-cluster-gr.md`
-- `test-cluster-innodb-part1.md`
-- `test-cluster-innodb-part2.md`
-- `test-cluster-innodb-part3.md`
-- `test-proxysql-part1.md`
-- `test-proxysql-part2.md`
-- `test-proxysql-part3.md`
-- `test-proxysql-part4.md`
-- `test-router-part1.md`
-- `test-router-part2.md`
-- `test-router-part3.md`
-- `test-shell-part1.md`
-- `test-shell-part2.md`
-- `test-shell-part3.md`
-- `test-shell-part4.md`
 
 ## Telemetry Collection
 
