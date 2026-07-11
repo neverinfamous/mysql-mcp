@@ -80,7 +80,7 @@
 - `mysql_check_version`
 
 
-## Group Focus: versioning - part 1
+## Group Focus: core
 
 This document provides testing instructions to validate the OCC (Optimistic Concurrency Control) versioning tools under Code Mode execution.
 

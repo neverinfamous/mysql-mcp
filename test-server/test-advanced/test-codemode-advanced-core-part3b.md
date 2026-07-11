@@ -76,7 +76,7 @@
 - `mysql_conditional_update`
 
 
-## Group Focus: versioning - part 2
+## Group Focus: core
 
 This document provides testing instructions to validate the OCC (Optimistic Concurrency Control) versioning tools under Code Mode execution.
 
