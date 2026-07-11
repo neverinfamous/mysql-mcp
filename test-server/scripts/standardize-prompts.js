@@ -297,10 +297,10 @@ function processDirectory(dirName) {
       .replace(/mysql_vector_optimize/g, "mysql.vector.optimize")
       .replace(/mysql_vector_stats/g, "mysql.vector.stats")
       .replace(/mysql_vector_info/g, "mysql.vector.info")
-      .replace(/mysql_enable_versioning/g, "mysql.versioning.enable")
-      .replace(/mysql_disable_versioning/g, "mysql.versioning.disable")
-      .replace(/mysql_check_version/g, "mysql.versioning.check")
-      .replace(/mysql_conditional_update/g, "mysql.versioning.conditionalUpdate")
+      .replace(/mysql_enable_versioning/g, "mysql.core.enableVersioning")
+      .replace(/mysql_disable_versioning/g, "mysql.core.disableVersioning")
+      .replace(/mysql_check_version/g, "mysql.core.checkVersion")
+      .replace(/mysql_conditional_update/g, "mysql.core.conditionalUpdate")
       // Fix optimization parameters
       .replace(/queries: "SELECT 1"/g, 'queries: ["SELECT 1"]')
       // Fix vector parameters
