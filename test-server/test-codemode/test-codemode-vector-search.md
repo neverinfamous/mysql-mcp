@@ -97,13 +97,13 @@ vector Tool Group (11 tools +1 for code mode):
 
 1. ✅ `mysql.vector.search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
 2. ✅ `mysql.vector.rangeSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-3. ✅ `mysql.vector.hybridSearch({table: "test_articles", vectorColumn: "vector", textColumn: "body", queryVector: [0.1, 0.2], queryText: "test", metric: "L2", rrfK: 60, select: ["id"], filter: {}})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
+3. ✅ `mysql.vector.hybridSearch({table: "test_articles", vectorColumn: "vector", textColumn: "body", queryVector: [0.1, 0.2], queryText: "test", metric: "EUCLIDEAN", rrfK: 60, select: ["id"], filter: "id > 0"})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
 
 **Domain error paths (🔴):**
 
 4. ✅ `mysql.vector.search({...})` → domain error (TABLE_NOT_FOUND)
 5. ✅ `mysql.vector.rangeSearch({...})` → domain error (TABLE_NOT_FOUND)
-6. ✅ `mysql.vector.hybridSearch({table: "nonexistent_xyz", vectorColumn: "vector", textColumn: "body", queryVector: [0.1, 0.2], queryText: "test", metric: "L2", rrfK: 60, select: ["id"], filter: {}})` → domain error (TABLE_NOT_FOUND)
+6. ✅ `mysql.vector.hybridSearch({table: "nonexistent_xyz", vectorColumn: "vector", textColumn: "body", queryVector: [0.1, 0.2], queryText: "test", metric: "EUCLIDEAN", rrfK: 60, select: ["id"], filter: "id > 0"})` → domain error (TABLE_NOT_FOUND)
 
 **Zod validation error paths (🔴):**
 
