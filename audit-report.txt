@@ -1,4 +1,0 @@
-Audit Report:
-[backup] Tool mysql_export_table might be missing parameter documentation (Ref: Export table to SQL/CSV with `limit` parameter (default: 5)).
-[proxysql] Tool proxysql_global_variables might be missing parameter documentation (Ref: Get global variables (mysql-_ and admin-_) with `limit`, `like` parameters and credential redaction).
-[vector] Tool mysql_vector_hybrid_search might be missing parameter documentation (Ref: Combine vector distance with FULLTEXT relevance using Reciprocal Rank Fusion. Supports `metric`, `rrfK`, `select`, `filter` parameters).
