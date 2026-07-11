@@ -111,8 +111,15 @@ export function preprocessCheckVersionParams(input: unknown): unknown {
  * - Coerce string to array
  */
 export function preprocessIndexParams(input: unknown): unknown {
-  const result = preprocessTableParams(input) as Record<string, unknown>;
-  if (typeof result !== "object" || result === null) return result;
+  if (typeof input !== "object" || input === null) return input;
+  const result = { ...(input as Record<string, unknown>) };
+
+  if (result["table"] === undefined) {
+    if (result["tableName"] !== undefined) result["table"] = result["tableName"];
+    else if (result["tbl"] !== undefined) result["table"] = result["tbl"];
+    else if (result["table_name"] !== undefined) result["table"] = result["table_name"];
+    // We explicitly omit 'name' -> 'table' aliasing because 'name' is the indexName
+  }
 
   if (result["columns"] === undefined && result["column"] !== undefined) {
     result["columns"] = result["column"];
