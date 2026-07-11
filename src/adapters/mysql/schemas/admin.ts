@@ -447,9 +447,24 @@ export const AuditSearchSchemaBase = z.object({
   requestId: z.string().optional().describe("Filter by exact request ID"),
   fromTimestamp: z.string().optional().describe("Filter by start timestamp (ISO 8601)"),
   toTimestamp: z.string().optional().describe("Filter by end timestamp (ISO 8601)"),
-  limit: z.number().int().min(1).max(100).default(10).describe("Max results to return"),
+  limit: z.number().int().min(1).max(100).default(5).describe("Max results to return"),
   offset: z.number().int().min(0).default(0).describe("Pagination offset"),
-});
+}).refine(
+  (data) => {
+    return (
+      data.search !== undefined ||
+      data.query !== undefined ||
+      data.sql !== undefined ||
+      data.tool !== undefined ||
+      data.category !== undefined ||
+      data.success !== undefined ||
+      data.requestId !== undefined ||
+      data.fromTimestamp !== undefined ||
+      data.toTimestamp !== undefined
+    );
+  },
+  { message: "At least one filter is required" }
+);
 
 export const AuditSearchSchema = z.preprocess((obj: unknown) => {
   if (obj === null || obj === undefined || typeof obj !== "object") return obj;

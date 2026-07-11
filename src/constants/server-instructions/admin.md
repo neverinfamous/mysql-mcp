@@ -19,7 +19,7 @@
 - **Server Config**: Dynamically updates or fetches runtime variables without restarts (e.g., `logLevel`).
 
 ### Auditing & Insights (`mysql_audit_search`, `mysql_append_insight`)
-- **Audit Search**: Queries system audit logs for specific actions, users, or timeframes. Requires at least one filter. Defaults to `limit: 5` for payload efficiency. Falls back to `performance_schema.events_statements_history` when Enterprise Audit is unavailable. In fallback mode, `startTime` is ignored (picosecond counters incompatible with ISO timestamps — noted in `filtersIgnored`). `eventType` uses LIKE matching against `EVENT_NAME` (e.g., `"Execute"`, `"Ping"`).
+- **Audit Search**: Searches and filters the MCP server's internal structured audit logs (System Database) for recent tool invocations, outcomes, token estimates, and parameters. Supports filtering by tool, category, success status, request ID, and timestamps. Requires at least one filter. Defaults to `limit: 5` for payload efficiency.
 - **Insight Append**: Records business insights to an in-memory memo.
   - Access via `mysql://insights` resource.
   - Max 1000 chars per insight.

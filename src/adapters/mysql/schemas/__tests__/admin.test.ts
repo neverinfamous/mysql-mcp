@@ -159,15 +159,15 @@ describe("Admin Schemas", () => {
   });
 
   describe("AuditSearchSchema", () => {
-    it("should set defaults", () => {
-      expect(AuditSearchSchema.parse({})).toMatchObject({ limit: 10, offset: 0 });
+    it("should throw if no filter provided", () => {
+      expect(() => AuditSearchSchema.parse({})).toThrow();
     });
     it("should handle aliases for search", () => {
-      expect(AuditSearchSchema.parse({ query: "abc" })).toMatchObject({ search: "abc" });
+      expect(AuditSearchSchema.parse({ query: "abc" })).toMatchObject({ search: "abc", limit: 5, offset: 0 });
       expect(AuditSearchSchema.parse({ sql: "xyz" })).toMatchObject({ search: "xyz" });
     });
     it("should parse string limits", () => {
-      expect(AuditSearchSchema.parse({ limit: "10", offset: "20" })).toMatchObject({ limit: 10, offset: 20 });
+      expect(AuditSearchSchema.parse({ search: "test", limit: "10", offset: "20" })).toMatchObject({ search: "test", limit: 10, offset: 20 });
     });
   });
 
