@@ -125,11 +125,11 @@ This environment runs on **native `docker-ce` inside WSL2 Ubuntu** (no Docker De
 A Windows Scheduled Task (`WSL-KeepAlive`) runs at user logon. It executes `scripts/wsl-keepalive.vbs`, which launches `wsl.exe -d Ubuntu-24.04 --exec sleep infinity` with a hidden window. This holds the distro alive indefinitely.
 
 ### Diagnosing Crashes
-If containers are cycling (green → red → green repeatedly):
+If containers are cycling (green → red → green repeatedly) or `mysql-router` is stuck in an initialization loop failing to join the cluster:
 
 1. **Check if WSL is rebooting:** `wsl bash -c "journalctl --list-boots"` — multiple short-lived boots = WSL termination issue.
 2. **Check for the smoking gun:** `wsl bash -c "dmesg | grep InitTerminateInstanceInternal"` — this message means WSL sent `systemctl poweroff` to the distro.
-3. **Check the keepalive task:** `Get-ScheduledTask -TaskName 'WSL-KeepAlive' | Select State` — must be `Running`.
+3. **Check the keepalive task:** `Get-ScheduledTask -TaskName 'WSL-KeepAlive' | Select State` — must be `Running`. (If `Ready` or `Stopped`, run `register-wsl-keepalive.ps1`).
 4. **Check Docker daemon:** `wsl bash -c "systemctl status docker"` — must be `active (running)`.
 5. **Check iptables backend:** The kernel (`6.18+`) requires `iptables-nft`. If Docker fails to start, check `/etc/docker/daemon.json` and `update-alternatives --display iptables`.
 
