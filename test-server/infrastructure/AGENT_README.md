@@ -4,9 +4,9 @@
 
 _Updated: July 2026_
 
-This guide explains how to spin up, manage, and troubleshoot the lightweight MySQL test ecosystem (InnoDB Cluster, MySQL Router, ProxySQL) designed specifically for testing the `mysql-mcp` project.
+This guide explains how to spin up, manage, and troubleshoot the global unified database ecosystem (InnoDB Cluster, PostgreSQL, MongoDB, Redis, MySQL Router, ProxySQL) designed for the Adamic architecture.
 
-> **Note on Datadog:** This environment includes native Prometheus and Grafana for metrics observability. It also includes basic Datadog metric integrations for tracking MySQL query runtime and slow query rates. If you require full Datadog tracing/APM, you will need to manually inject a Datadog Agent container.
+> **Note on Datadog:** This environment includes native Prometheus and Grafana for metrics observability. It also includes basic Datadog metric integrations for tracking MySQL query runtime and slow query rates. If you require full Datadog tracing/APM, you will need to manually configure it.
 
 ---
 
@@ -15,8 +15,8 @@ This guide explains how to spin up, manage, and troubleshoot the lightweight MyS
 The entire process of tearing down, spinning up the containers, and bootstrapping Group Replication is automated and idempotent.
 
 ```powershell
-cd test-server/infrastructure
-node scripts/recreate-test-ecosystem.mjs
+cd docs/unified-database-ecosystem
+node scripts/recreate-ecosystem.mjs
 ```
 
 This master script will:
@@ -31,7 +31,7 @@ This master script will:
 
 ## 2. Architecture Overview
 
-This test ecosystem includes only the necessary components to validate the `mysql-mcp` server:
+This ecosystem includes all necessary components to validate the entire Adamic unified architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -56,10 +56,10 @@ This test ecosystem includes only the necessary components to validate the `mysq
 │            │   Port: 9090     │           │  Port: 3001  │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
-│                               ┌──────────────┐                               │
-│                               │ Redis Server │                               │
-│                               │  Port: 6379  │                               │
-│                               └──────────────┘                               │
+│       ┌──────────────┐   ┌────────────────┐   ┌──────────────┐               │
+│       │ Redis Server │   │ Postgres Server│   │ Mongo Server │               │
+│       │  Port: 6379  │   │   Port: 5432   │   │  Port: 27017 │               │
+│       └──────────────┘   └────────────────┘   └──────────────┘               │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -110,6 +110,8 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
 | Redis | `localhost:6379` |
+| PostgreSQL | `localhost:5432` |
+| MongoDB | `localhost:27017` |
 | Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
 

@@ -1,75 +1,71 @@
-# Test Infrastructure
+# Unified Database Ecosystem
 
-Welcome to the `mysql-mcp` test infrastructure! This directory provides a complete, containerized test ecosystem (MySQL InnoDB Cluster, MySQL Router, ProxySQL, Prometheus, and Grafana) designed to run the End-to-End (E2E) integration tests for the `mysql-mcp` server.
+**🤖 AGENT OPTIMIZED README**
 
-We want to make it as easy as possible for you to test and contribute to this project. 
+_Updated: July 2026_
 
-## Do I need to use this?
+This directory contains the ultimate, unified `docker-compose.yml` for the entire database, routing, and monitoring stack used in this project. It fully replaces all previously fragmented setups.
 
-**No, you do not *have* to use Docker.** 
+## 1. Quick Start
 
-If you do not have Docker installed, or if you prefer to test against your own existing MySQL database, you can skip this entirely! The integration tests simply look for a live MySQL server running on `localhost:3306` (or `3307`). 
-To use your own database, simply ensure your local MySQL server is running, and configure your connection strings (the tests default to user `root` and password `root`).
+To spin up the entire ecosystem, simply run:
 
-However, if you *do* have Docker installed (Docker Desktop or WSL containers), using this provided infrastructure is the easiest way to guarantee a perfectly clean, isolated environment that matches the CI pipeline.
-
-## 1. Quick Start (One-Click Setup)
-
-If you have Docker and Node.js installed, we've fully automated the teardown, launch, and complex Group Replication bootstrapping of the cluster.
-
-Simply run the master recreation script from this directory:
-
-```bash
-node scripts/recreate-test-ecosystem.mjs
+```powershell
+cd C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem
+docker compose up -d
 ```
 
-**What this script does:**
-1. Wipes any old, stale test containers and data volumes (`docker compose down -v`).
-2. Starts a fresh set of containers (`docker compose up -d`).
-3. Automatically polls the MySQL nodes until they are healthy.
-4. Initializes the primary node (`mysql-node1`) as the InnoDB cluster creator.
-5. Joins the secondary read replicas (`mysql-node2` and `mysql-node3`) to the cluster.
-6. Outputs the final `ONLINE` cluster topology to your terminal.
+Once the containers are running, you must initialize the MySQL InnoDB cluster if this is a fresh setup:
 
-Once the script finishes, your cluster is ready and you can run the test suite from the root of the repository:
-```bash
-bun run test
+```powershell
+node scripts/create-cluster.mjs
 ```
 
-## 2. Architecture
+## 2. Container Registry & Ports
 
-This environment spins up the following components:
+| Component | Container Name | Exposes / Ports | Image |
+|---|---|---|---|
+| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:lts` |
+| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:lts` |
+| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:lts` |
+| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1.0` |
+| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2.6.3` |
+| **PostgreSQL** | `postgres-server` | `5432` | `postgres-hypopg:18` (Custom Build) |
+| **MongoDB** | `mongo-server` | `27017` | `mongo:8.0.0` |
+| **Redis** | `redis-server` | `6379` | `redis:7.4.0` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.9` |
+| **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4.8.1` |
+| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2.54.1` |
+| **Grafana** | `grafana` | `3001` | `grafana/grafana:11.2.0` |
+| **Datadog Agent** | `datadog-unified`| N/A | `gcr.io/datadoghq/agent:7` |
 
-- **MySQL Node 1 (Primary)**: `localhost:3307` (R/W)
-- **MySQL Node 2 (Replica)**: `localhost:3308` (R/O)
-- **MySQL Node 3 (Replica)**: `localhost:3309` (R/O)
-- **MySQL Router**: `localhost:6446` (RW Routing), `localhost:6447` (RO Routing)
-- **ProxySQL**: `localhost:6033` (Data), `localhost:6032` (Admin)
-- **Prometheus**: `http://localhost:9090` (Metrics scraping)
-- **Redis Server**: `localhost:6379` (Caching backend)
-- **Grafana**: `http://localhost:3001` (Dashboards - login: admin/admin)
-- **Dozzle**: `http://localhost:8080` (Real-time container logs viewer)
-- **Adminer**: `http://localhost:8081` (Web-based database management UI)
-  - *Login details:* System: **MySQL**, Server: **mysql-node1**, Username: **root**, Password: **root**
 - **Datadog Dashboards**: [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview)
 
-All components share the `infrastructure_default` Docker network.
+## 3. Automation Scripts
 
-## 3. Useful Commands
+All scripts are located in the `scripts/` directory and can be executed natively with `node`.
 
-**Re-seed the E2E Test Database**
-If you have dirtied the `testdb` during manual testing and want to reset it without tearing down the entire cluster:
-```bash
-node scripts/reset-database.mjs
+- `recreate-ecosystem.mjs`: Automates the entire teardown, startup, and InnoDB cluster bootstrapping process.
+- `create-cluster.mjs`: Initializes Group Replication. Fully idempotent with deep retry logic (up to 60 retries) and connection-drop handling during the `clone` process.
+- `reboot-cluster.mjs`: Use this if all containers go offline at once and auto-bootstrap fails.
+- `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
+
+## 4. Disaster Recovery & Volumes
+
+All databases use persistent volumes (`mysql-node1-data-v4`, `postgres-data-v2`, `mongo-data-v2`).
+
+To perform a complete factory wipe of the entire data tier and automatically bootstrap the cluster:
+
+```powershell
+node scripts/recreate-ecosystem.mjs
 ```
 
-**Manual Cluster Recovery**
-If you restart your computer or Docker daemon, the containers will restart, but the InnoDB cluster might fail to auto-recover its quorum. You can force a reboot from a complete outage with:
-```bash
-node scripts/reboot-cluster.mjs
-```
+## 5. Configurations
 
-## Troubleshooting
+All config files are mounted directly from the `config/` directory:
+- `config/proxysql/`: `proxysql.cnf`
+- `config/prometheus/`: `prometheus.yml`
+- `config/grafana/`: Dashboards and provisioning files.
+- `config/datadog-integration-configs/`: Contains the integration overrides for Postgres, Mongo, MySQL, and Redis.
 
-- **Port Conflicts**: If the `recreate-test-ecosystem.mjs` script fails to start containers due to port bindings (e.g., `3307` is already in use), ensure you don't have other local MySQL instances running on those ports.
-- **Bootstrapping Timeouts**: Depending on your hardware, `create-cluster.mjs` might timeout while waiting for nodes to become ready. The script has deep retry logic (up to 60 retries), but if it still fails, you can safely re-run the `recreate-test-ecosystem.mjs` script to try again.
+
