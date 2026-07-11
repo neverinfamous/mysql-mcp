@@ -40,17 +40,13 @@ export function createClusterTopologyTool(
             `);
 
         const members = membersResult.rows ?? [];
-        if (members.length === 0) {
-          return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("InnoDB Cluster")
-          );
-        }
         const grMemberIds = new Set(
           members.map((m) => (typeof m["id"] === "string" ? m["id"] : "")).filter(Boolean),
         );
 
         // Cross-reference with cluster metadata for offline instances
         let metadataOffline: Record<string, unknown>[] = [];
+        let hasMetadata = false;
         try {
           const metaResult = await adapter.executeQuery(`
                   SELECT 
@@ -59,7 +55,8 @@ export function createClusterTopologyTool(
                       CAST(SUBSTRING_INDEX(address, ':', -1) AS UNSIGNED) as port
                   FROM mysql_innodb_cluster_metadata.instances
               `);
-          if (metaResult.rows) {
+          if (metaResult.rows && metaResult.rows.length > 0) {
+            hasMetadata = true;
             metadataOffline = metaResult.rows
               .filter((i) => !grMemberIds.has(typeof i["id"] === "string" ? i["id"] : ""))
               .map((i) => ({
@@ -74,6 +71,12 @@ export function createClusterTopologyTool(
           }
         } catch {
           // Cluster metadata not available; skip
+        }
+
+        if (members.length === 0 && !hasMetadata) {
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("InnoDB Cluster")
+          );
         }
 
         // Build topology representation
