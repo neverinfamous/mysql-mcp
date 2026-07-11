@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [partitioning - part a]
+# MySQL MCP Advanced Stress Testing: [core-part3a]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -65,9 +65,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_partition_info` |   |   |
-| `mysql_add_partition` |   |   |
-| `mysql_drop_partition` |   |   |
+| `mysql_enable_versioning` |   |   |
+| `mysql_disable_versioning` |   |   |
+| `mysql_check_version` |   |   |
 
 ---
 
@@ -75,39 +75,32 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_partition_info`
-- `mysql_add_partition`
-- `mysql_drop_partition`
+- `mysql_enable_versioning`
+- `mysql_disable_versioning`
+- `mysql_check_version`
 
 
-## Category 1: Partition Lifecycle Stress
-1. Create `stress_part_range` table with RANGE partitioning on an INT column (p0: <100, p1: <200, p2: MAXVALUE)
-2. `mysql.partitioning.partitionInfo({table: "stress_part_range"})` → verify 3 partitions listed
-3. `mysql.partitioning.addPartition` on a RANGE table that already has MAXVALUE → verify structured `{success: false}` (cannot add past MAXVALUE)
-4. `mysql.partitioning.dropPartition({table: "stress_part_range", partitionName: "nonexistent_p99"})` → verify structured `{success: false}`
-5. `mysql.partitioning.dropPartition({table: "stress_part_range", partitionName: "p0"})` → success
-6. `mysql.partitioning.partitionInfo({table: "stress_part_range"})` → verify only 2 partitions remain
+## Group Focus: versioning - part 1
 
-## Category 2: Non-Partitioned Table Handling
-1. `mysql.partitioning.partitionInfo({table: "test_products"})` → verify `{success: true, data: { partitioned: false }}` response shape
-2. `mysql.partitioning.dropPartition({table: "test_products", partitionName: "p0"})` → verify structured `{success: false}` (not partitioned)
+This document provides testing instructions to validate the OCC (Optimistic Concurrency Control) versioning tools under Code Mode execution.
 
-## Category 3: Reorganize Edge Cases
-1. `mysql.partitioning.reorganizePartition({table: "test_partitioned", fromPartitions: ["nonexistent_p99"], partitionType: "LIST COLUMNS", toPartitions: [{name: "p_new", value: "'West'"}]})` → verify structured `{success: false}`
-2. `mysql.partitioning.reorganizePartition` with empty `fromPartitions` array → verify structured error
-
-## Category 4: Payload Monitoring
-1. `mysql_partition_info({table: "test_partitioned"})` → log token estimate
-2. Flag any response > 500 tokens as 📦
-## Cleanup
-3. Drop all `stress_*` tables
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_partition_info
-- [ ] Ensure full coverage for mysql_add_partition
-- [ ] Ensure full coverage for mysql_drop_partition
+### 1. Enable/Disable Toggle Stress
+- Use `mysql.versioning.enable` on a test table, verify `_version` column and triggers exist.
+- Use `mysql.versioning.disable`, verify they are cleanly removed.
+- Attempt to `mysql.versioning.disable` when it's already disabled. Verify it handles gracefully.
+
+### 2. Concurrent OCC Modifications
+- Create a test table, enable versioning, insert a row.
+- Read the `_version` via `mysql.versioning.check`.
+- Simulate a race condition: manually `UPDATE` the row (incrementing the version).
+
+### 3. Error Handling
+- Call `mysql.versioning.check` on a non-existent table or row ID.
+- Verify structured error responses are returned, not raw exceptions.
 
 ---
 

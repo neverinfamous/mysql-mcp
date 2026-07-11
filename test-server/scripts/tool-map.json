@@ -259,14 +259,6 @@
   "test-codemode-advanced-optimization-part2.md": [
     "mysql_optimizer_trace"
   ],
-  "test-codemode-advanced-partitioninga.md": [
-    "mysql_partition_info",
-    "mysql_add_partition",
-    "mysql_drop_partition"
-  ],
-  "test-codemode-advanced-partitioningb.md": [
-    "mysql_reorganize_partition"
-  ],
   "test-codemode-advanced-performance-analysis-part1a.md": [
     "mysql_explain",
     "mysql_explain_analyze",
@@ -442,14 +434,6 @@
   ],
   "test-codemode-advanced-vector-search-part2.md": [
     "mysql_vector_info"
-  ],
-  "test-codemode-advanced-versioning-part1.md": [
-    "mysql_enable_versioning",
-    "mysql_disable_versioning",
-    "mysql_check_version"
-  ],
-  "test-codemode-advanced-versioning-part2.md": [
-    "mysql_conditional_update"
   ],
   "test-codemode-admin-audit.md": [
     "mysql_append_insight",
@@ -1703,5 +1687,21 @@
   ],
   "test-codemode.md": [
     "mysql_execute_code"
+  ],
+  "test-codemode-advanced-core-part3a.md": [
+    "mysql_enable_versioning",
+    "mysql_disable_versioning",
+    "mysql_check_version"
+  ],
+  "test-codemode-advanced-core-part3b.md": [
+    "mysql_conditional_update"
+  ],
+  "test-codemode-advanced-partitioning-part1.md": [
+    "mysql_partition_info",
+    "mysql_add_partition",
+    "mysql_drop_partition"
+  ],
+  "test-codemode-advanced-partitioning-part2.md": [
+    "mysql_reorganize_partition"
   ]
 }

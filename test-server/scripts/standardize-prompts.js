@@ -174,6 +174,8 @@ function processDirectory(dirName) {
 
     let baseGroup = groupName.replace(/-part\d+[a-z]?$/, '');
     if (baseGroup.startsWith('sys-') || baseGroup === 'sys') baseGroup = 'sysschema';
+    if (baseGroup === 'partitioning-part1' || baseGroup === 'partitioning-part2') baseGroup = 'partitioning';
+    if (baseGroup.startsWith('core-part3')) baseGroup = 'core';
     if (baseGroup.startsWith('json-')) baseGroup = 'json';
     if (baseGroup.startsWith('performance-')) baseGroup = 'performance';
     if (baseGroup.startsWith('stats-')) baseGroup = 'stats';

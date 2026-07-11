@@ -139,7 +139,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 
 **Encapsulated Tools**: \`mysql_execute_code\`
 
-- **Purpose**: Execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 200+ MySQL MCP tools via the global \`mysql.*\` API.
+- **Purpose**: Use \`mysql_execute_code\` to execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 200+ MySQL MCP tools via the global \`mysql.*\` API.
 - **Capabilities**: The sandbox allows you to script complex multi-step workflows, loops, logic, and data transformations natively on the server, saving 70-90% on token consumption compared to making individual MCP tool calls.
 - **API Access**: 
   - All tools are organized into groups on the \`mysql\` object (e.g., \`mysql.core.readQuery()\`, \`mysql.admin.optimizeTable()\`, \`mysql.json.extract()\`, \`mysql.shell.version()\`).
@@ -463,8 +463,8 @@ The **Migration** group provides an integrated, structured schema versioning and
 
 - **Prerequisites**: ProxySQL must be running with admin interface accessible (default port 6032). Environment variables: \`PROXYSQL_HOST\`, \`PROXYSQL_PORT\`, \`PROXYSQL_USER\`, \`PROXYSQL_PASSWORD\`.
 - **Status monitoring**: \`proxysql_status\` returns global status variables. Use \`summary: true\` for key metrics.
-- **Global variables**: \`proxysql_global_variables\` supports \`like\` pattern. Use \`limit\` (default: 50). Passwords are redacted.
-- **Runtime status**: \`proxysql_runtime_status\` returns version and admin variables. Use \`summary: true\` for condensed output. Sensitive variables are redacted.
+- **Global variables**: \`proxysql_global_variables\` supports \`like\` pattern. Use \`limit\` (default: 50). Uses credential redaction for passwords.
+- **Runtime status**: \`proxysql_runtime_status\` returns version and admin variables. Use \`summary: true\` for condensed output. Uses credential redaction for sensitive variables.
 - **Backend servers & pools**: \`proxysql_servers\` shows backend MySQL servers. \`proxysql_connection_pool\` shows connection pool stats. Both support \`hostgroup_id\` filter.
 - **Users**: \`proxysql_users\` lists configured ProxySQL users and their assigned hostgroups.
 - **Query analysis**: \`proxysql_query_rules\` lists routing rules; \`proxysql_query_digest\` shows top queries by execution count. Both support \`limit\`.
