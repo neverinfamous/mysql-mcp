@@ -9,7 +9,7 @@ function preprocessFulltextParams(val: unknown): unknown {
   const v1 = preprocessTableParams(val);
   const v2 = preprocessQueryOnlyParams(v1);
   if (v2 !== null && typeof v2 === "object") {
-    const v = v2 as Record<string, unknown>;
+    const v = { ...(v2 as Record<string, unknown>) };
     // Agents often pass fulltextSearch(table, query, columns) resulting in:
     // columns = query (string), query = columns (array)
     if (typeof v["columns"] === "string" && Array.isArray(v["query"])) {
@@ -30,6 +30,7 @@ function preprocessFulltextParams(val: unknown): unknown {
     
     if (typeof v["col"] === "string") v["col"] = [v["col"]];
     if (typeof v["column"] === "string") v["column"] = [v["column"]];
+    return v;
   }
   return v2;
 }
@@ -37,10 +38,11 @@ function preprocessFulltextParams(val: unknown): unknown {
 function preprocessFulltextCreateParams(val: unknown): unknown {
   const v = defaultToEmpty(val);
   if (v !== null && typeof v === "object") {
-    const obj = v as Record<string, unknown>;
+    const obj = { ...(v as Record<string, unknown>) };
     if (typeof obj["columns"] === "string") obj["columns"] = [obj["columns"]];
     if (typeof obj["col"] === "string") obj["col"] = [obj["col"]];
     if (typeof obj["column"] === "string") obj["column"] = [obj["column"]];
+    return obj;
   }
   return v;
 }
