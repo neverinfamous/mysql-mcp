@@ -54,6 +54,8 @@ async function main() {
 
     // After clone, node2 might restart, wait for it
     await waitForMySQL('mysql-node2');
+    console.log('[Wait] Allowing Group Replication to stabilize...');
+    await setTimeout(5000);
 
     console.log("\n[4/4] Adding node3 to cluster...");
     const addNode3 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node3:3306', {recoveryMethod: 'clone', localAddress: 'mysql-node3:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('Node3 add error (may already be in cluster): ' + e); }"`;
@@ -62,12 +64,22 @@ async function main() {
 
     // After clone, node3 might restart, wait for it
     await waitForMySQL('mysql-node3');
+    console.log('[Wait] Allowing Group Replication to stabilize...');
+    await setTimeout(5000);
 
     console.log("\n=== Cluster configuration complete! ===");
     
     console.log("\nVerifying cluster status:");
-    const statusCmd = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "console.log(JSON.stringify(dba.getCluster('testCluster').status(), null, 2));"`;
-    const statusOut = execCommand(statusCmd, true);
+    let statusCmd = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "console.log(JSON.stringify(dba.getCluster('testCluster').status(), null, 2));"`;
+    let statusOut = execCommand(statusCmd, true);
+    
+    if (!statusOut || statusOut.includes('MYSQLSH 51314') || statusOut.includes('Error')) {
+      console.log("\n[Healing] Cluster appears unstable. Attempting to reboot from complete outage...");
+      execCommand(`${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "dba.rebootClusterFromCompleteOutage()"`, true);
+      await setTimeout(10000);
+      statusOut = execCommand(statusCmd, true);
+    }
+
     if (statusOut) {
       console.log(statusOut);
     }
