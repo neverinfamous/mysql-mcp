@@ -97,9 +97,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_stats_regression
-- [ ] Ensure full coverage for mysql_stats_sampling
-- [ ] Ensure full coverage for mysql_stats_histogram
+- [ ] Ensure full coverage for mysql_stats_descriptive
+- [ ] Ensure full coverage for mysql_stats_percentiles
+- [ ] Ensure full coverage for mysql_stats_summary
 
 ---
 
