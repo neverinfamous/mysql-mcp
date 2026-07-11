@@ -4,6 +4,7 @@
 
 ## Execution Rules
 Follow the exact same workflow rules defined in the [Master Coordinator Index](coordinator-workflow.md).
+- **CRITICAL WARNING FOR SUBAGENTS:** "Graceful Fails" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS GRACEFUL FAILS.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt / B Code / C Graceful Fails" (Where Y is 23).
