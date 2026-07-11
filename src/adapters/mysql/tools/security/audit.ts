@@ -32,7 +32,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // ============================================================================
 
 const AuditLogSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of records"),
+  limit: z.number().int().min(1).optional().describe("Maximum number of records"),
   count: z.number().optional().describe("Alias for limit"),
   user: z.string().optional().describe("Filter by username"),
   userName: z.string().optional().describe("Alias for user"),
@@ -61,7 +61,7 @@ const AuditLogSchema = z.preprocess(
     return val;
   },
   z.object({
-    limit: z.number().default(5),
+    limit: z.number().int().min(1).default(5),
     user: z.string().optional(),
     eventType: z.string().optional(),
     startTime: z.string().optional(),
@@ -69,7 +69,7 @@ const AuditLogSchema = z.preprocess(
 );
 
 const FirewallRulesSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of records to return"),
+  limit: z.number().int().min(1).optional().describe("Maximum number of records to return"),
   count: z.number().optional().describe("Alias for limit"),
   user: z.string().optional().describe("Filter by username"),
   userName: z.string().optional().describe("Alias for user"),
@@ -88,7 +88,7 @@ const FirewallRulesSchema = z.preprocess(
     return val;
   },
   z.object({
-    limit: z.number().default(50),
+    limit: z.number().int().min(1).default(50),
     user: z.string().optional(),
     mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
   })
