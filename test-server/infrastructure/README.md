@@ -62,6 +62,7 @@ All scripts are located in the `scripts/` directory and can be executed natively
 
 - `recreate-test-ecosystem.mjs`: Automates the entire teardown, orphaned container cleanup, startup, and InnoDB cluster bootstrapping process.
 - `create-cluster.mjs`: Initializes Group Replication. Fully idempotent with deep retry logic (up to 60 retries), connection-drop handling during the `clone` process, stabilization sleeps, and autonomous reboot healing.
+- `check-status.mjs`: Quickly checks the health of all containers and validates the InnoDB Cluster quorum natively using the MySQL client.
 - `reboot-cluster.mjs`: Use this if all containers go offline at once and auto-bootstrap fails.
 - `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
 

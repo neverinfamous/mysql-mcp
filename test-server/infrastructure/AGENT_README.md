@@ -28,6 +28,12 @@ This master script will:
 - Join `mysql-node2` and `mysql-node3` to the cluster.
 - Output the final cluster topology.
 
+### Verifying Ecosystem Health
+Before running E2E tests, you can verify that all necessary containers are healthy and that the InnoDB cluster quorum is fully `ONLINE` by running:
+```powershell
+node scripts/check-status.mjs
+```
+
 ---
 
 ## 2. Architecture Overview
