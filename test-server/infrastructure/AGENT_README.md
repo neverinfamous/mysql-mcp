@@ -20,6 +20,7 @@ node scripts/recreate-test-ecosystem.mjs
 ```
 
 This master script will:
+- Forcefully clean up orphaned containers to prevent naming collisions (`docker rm -f`).
 - Tear down the existing cluster and volumes (`docker compose down -v`).
 - Start the fresh test containers (`docker compose up -d`).
 - Automatically poll the nodes until they are healthy.
