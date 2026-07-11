@@ -118,6 +118,16 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
       recoverable: false,
       details: undefined,
     };
+  } else if (err instanceof Error && err.name === "ValidationError") {
+    response = {
+      success: false,
+      error: formatMysqlError(err),
+      code: "VALIDATION_ERROR",
+      category: ErrorCategory.VALIDATION,
+      suggestion: undefined,
+      recoverable: false,
+      details: undefined,
+    };
   } else {
     // Raw MySQL / unknown error
     const formattedError = formatMysqlError(err);
