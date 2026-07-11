@@ -63,6 +63,12 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             const errorMsg = (rawResult.stderr || rawResult.stdout || "MySQL Shell command failed")
               .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
               .trim() || "MySQL Shell command failed";
+              
+            if (errorMsg.includes("(ArgumentError)")) {
+              const err = new Error(errorMsg);
+              err.name = "ValidationError";
+              throw err;
+            }
             throw new Error(errorMsg);
           }
         } catch (error) {
