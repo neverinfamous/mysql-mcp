@@ -76,13 +76,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   success: false,
                   error: `Schema '${findCheck.name}' does not exist`,
                   code: "SCHEMA_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 })
               : withTokenEstimate({
                   success: false,
                   error: `Collection '${collection}' does not exist`,
                   code: "TABLE_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 });
           }
 
@@ -191,13 +191,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   success: false,
                   error: `Schema '${addCheck.name}' does not exist`,
                   code: "SCHEMA_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 })
               : withTokenEstimate({
                   success: false,
                   error: `Collection '${collection}' does not exist`,
                   code: "TABLE_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 });
           }
 
@@ -259,13 +259,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   success: false,
                   error: `Schema '${modCheck.name}' does not exist`,
                   code: "SCHEMA_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 })
               : withTokenEstimate({
                   success: false,
                   error: `Collection '${collection}' does not exist`,
                   code: "TABLE_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 });
           }
 
@@ -369,13 +369,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   success: false,
                   error: `Schema '${rmCheck.name}' does not exist`,
                   code: "SCHEMA_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 })
               : withTokenEstimate({
                   success: false,
                   error: `Collection '${collection}' does not exist`,
                   code: "TABLE_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 });
           }
 

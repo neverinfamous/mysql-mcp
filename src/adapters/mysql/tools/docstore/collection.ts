@@ -58,7 +58,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 success: false,
                 error: `Schema '${schema}' does not exist`,
                 code: "SCHEMA_NOT_FOUND",
-                category: "domain",
+                category: "resource",
               });
             }
           }
@@ -147,7 +147,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 success: false,
                 error: `Schema '${check.name}' does not exist`,
                 code: "SCHEMA_NOT_FOUND",
-                category: "domain",
+                category: "resource",
               });
             }
           }
@@ -188,7 +188,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               success: false,
               error: `Schema '${schema ?? "unknown"}' does not exist`,
               code: "SCHEMA_NOT_FOUND",
-              category: "domain",
+                category: "resource",
             });
           }
           if (message.toLowerCase().includes("already exists")) {
@@ -196,14 +196,14 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               success: false,
               error: `Collection '${name ?? "unknown"}' already exists`,
               code: "CONFLICT_ERROR",
-              category: "domain",
+                category: "query",
             });
           }
           return withTokenEstimate({
               success: false,
               error: message,
               code: "EXECUTION_ERROR",
-              category: "execution",
+                category: "query",
             });
         }
       },
@@ -253,7 +253,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                 success: false,
                 error: `Schema '${schema}' does not exist`,
                 code: "SCHEMA_NOT_FOUND",
-                category: "domain",
+                category: "resource",
               });
             }
           }
@@ -292,14 +292,14 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               success: false,
               error: `Collection '${name ?? "unknown"}' does not exist`,
               code: "TABLE_NOT_FOUND",
-              category: "domain",
+                category: "resource",
             });
           }
           return withTokenEstimate({
               success: false,
               error: message,
               code: "EXECUTION_ERROR",
-              category: "execution",
+                category: "query",
             });
         }
       },
@@ -336,13 +336,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   success: false,
                   error: `Schema '${infoCheck.name}' does not exist`,
                   code: "SCHEMA_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 })
               : withTokenEstimate({
                   success: false,
                   error: `Collection '${collection}' does not exist`,
                   code: "TABLE_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 });
           }
 

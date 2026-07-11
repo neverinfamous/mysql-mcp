@@ -122,7 +122,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -269,7 +269,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'fake_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -363,7 +363,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -477,7 +477,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Collection 'nonexistent_col' does not exist",
         code: "TABLE_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -565,7 +565,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
 
@@ -586,7 +586,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -666,7 +666,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -690,7 +690,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -849,7 +849,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -874,7 +874,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -959,7 +959,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -983,7 +983,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -1137,7 +1137,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -1162,7 +1162,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
@@ -1262,7 +1262,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -1282,7 +1282,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Schema 'nonexistent_schema' does not exist",
         code: "SCHEMA_NOT_FOUND",
-        category: "domain",
+                category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });

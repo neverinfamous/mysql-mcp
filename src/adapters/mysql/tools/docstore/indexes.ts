@@ -72,13 +72,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
                   success: false,
                   error: `Schema '${idxCheck.name}' does not exist`,
                   code: "SCHEMA_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 })
               : withTokenEstimate({
                   success: false,
                   error: `Collection '${collection}' does not exist`,
                   code: "TABLE_NOT_FOUND",
-                  category: "domain",
+                category: "resource",
                 });
           }
 
@@ -120,14 +120,14 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               success: false,
               error: `Index '${name ?? "unknown"}' or its generated columns already exist on '${collection ?? "unknown"}'`,
               code: "CONFLICT_ERROR",
-              category: "domain",
+                category: "query",
             });
           }
           return withTokenEstimate({
               success: false,
               error: message,
               code: "EXECUTION_ERROR",
-              category: "execution",
+                category: "query",
             });
         }
       },
