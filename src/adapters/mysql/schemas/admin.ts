@@ -353,7 +353,7 @@ export const ReplicationStatusSchemaBase = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(false)
+    .default(true)
     .describe(
       "Return key replication metrics only instead of full 50+ field output (recommended)",
     ),

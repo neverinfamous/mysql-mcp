@@ -130,8 +130,8 @@ describe("Admin Schemas", () => {
   });
 
   describe("ReplicationStatusSchema", () => {
-    it("should default to summary=false", () => {
-      expect(ReplicationStatusSchema.parse({})).toMatchObject({ summary: false });
+    it("should default to summary=true", () => {
+      expect(ReplicationStatusSchema.parse({})).toMatchObject({ summary: true });
     });
     it("should handle string booleans", () => {
       expect(ReplicationStatusSchema.parse({ summary: "true" })).toMatchObject({ summary: true });
