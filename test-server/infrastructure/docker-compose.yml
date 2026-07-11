@@ -18,13 +18,13 @@ services:
       --server-id=1 --log-bin=mysql-bin --gtid_mode=ON
       --enforce_gtid_consistency=ON --log_replica_updates=ON
       --report_host=mysql-node1 --innodb-use-native-aio=0
-      --innodb-flush-method=fsync --innodb-buffer-pool-size=128M
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
       --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node1-data-v4:/var/lib/mysql
       - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     stop_grace_period: 30s
-    mem_limit: 512m
+    mem_limit: 1g
     logging:
       driver: json-file
       options:
@@ -54,12 +54,12 @@ services:
       --server-id=2 --log-bin=mysql-bin --gtid_mode=ON
       --enforce_gtid_consistency=ON --log_replica_updates=ON
       --report_host=mysql-node2 --innodb-use-native-aio=0
-      --innodb-flush-method=fsync --innodb-buffer-pool-size=128M
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
       --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
     stop_grace_period: 30s
-    mem_limit: 512m
+    mem_limit: 1g
     logging:
       driver: json-file
       options:
@@ -89,12 +89,12 @@ services:
       --server-id=3 --log-bin=mysql-bin --gtid_mode=ON
       --enforce_gtid_consistency=ON --log_replica_updates=ON
       --report_host=mysql-node3 --innodb-use-native-aio=0
-      --innodb-flush-method=fsync --innodb-buffer-pool-size=128M
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
       --innodb-flush-log-at-trx-commit=2
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
     stop_grace_period: 30s
-    mem_limit: 512m
+    mem_limit: 1g
     logging:
       driver: json-file
       options:

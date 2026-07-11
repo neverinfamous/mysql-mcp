@@ -24,6 +24,13 @@ try {
     // Write to .env so docker-compose can use it for extra_hosts
     execSync(`echo WINDOWS_HOST_IP=${wslGateway} >> .env`, { cwd: REPO_ROOT });
 
+    console.log('\n[Cleanup] Forcefully removing any potentially conflicting containers...');
+    try {
+        execSync('docker rm -f grafana prometheus proxysql redis-server adminer dozzle datadog-unified mysql-node1 mysql-node2 mysql-node3 mysql-router postgres-server mongo-server', { stdio: 'ignore' });
+    } catch (e) {
+        // Ignore errors if containers don't exist
+    }
+
     run('docker compose down -v --remove-orphans');
     console.log('\n[Wait] Giving Docker daemon time to flush networks...');
     await setTimeout(5000); // 5s sleep
