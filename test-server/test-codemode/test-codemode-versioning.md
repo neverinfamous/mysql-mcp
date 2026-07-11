@@ -94,7 +94,7 @@ You are managing an optimistic concurrency control system for the `testdb` datab
 1. ✅ `mysql.versioning.enable({table: "test_articles"})` → happy path
 2. ✅ `mysql.versioning.disable({table: "test_articles"})` → happy path
 3. ✅ `mysql.versioning.check({table: "test_articles", id: 1})` → happy path
-4. ✅ `mysql.versioning.conditionalUpdate({table: "test_articles", id: 1, version: 1, data: {title: "New Title"}, conditions: {}})` → happy path
+4. ✅ `mysql.versioning.conditionalUpdate({table: "test_articles", id: 1, version: 1, data: {title: "New Title"}})` → happy path
 
 **Domain error paths (🔴):**
 
