@@ -47,88 +47,22 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
 
 ## Test Sequence Queue (Dependency DAG)
 
-1. `test-codemode-core-read.md` (**MUST PASS FIRST**)
-2. `test-codemode-admin-audit.md`
-3. `test-codemode-admin-maintenance-part1.md`
-4. `test-codemode-admin-maintenance-part2.md`
-5. `test-codemode-backup-audit.md`
-6. `test-codemode-backup-data.md`
-7. `test-codemode-cluster-group-replication-part1.md`
-8. `test-codemode-cluster-group-replication-part2.md`
-9. `test-codemode-cluster-innodb-part1.md`
-10. `test-codemode-cluster-innodb-part2.md`
-11. `test-codemode-core-write.md`
-12. `test-codemode-docstore-collections-part1.md`
-13. `test-codemode-docstore-collections-part2.md`
-14. `test-codemode-docstore-documents.md`
-15. `test-codemode-events-part1.md`
-16. `test-codemode-events-part2.md`
-17. `test-codemode-fulltext-part1a.md`
-18. `test-codemode-fulltext-part1b.md`
-19. `test-codemode-fulltext-part2.md`
-20. `test-codemode-introspection-part1.md`
-21. `test-codemode-introspection-part2.md`
-22. `test-codemode-json-core-read.md`
-23. `test-codemode-json-core-write-part1.md`
-24. `test-codemode-json-core-write-part2.md`
-25. `test-codemode-json-enhanced-part1.md`
-26. `test-codemode-json-enhanced-part2.md`
-27. `test-codemode-json-helpers.md`
-28. `test-codemode-migration-part1.md`
-29. `test-codemode-migration-part2.md`
-30. `test-codemode-monitoring-part1.md`
-31. `test-codemode-monitoring-part2.md`
-32. `test-codemode-optimization-part1.md`
-33. `test-codemode-optimization-part2.md`
-34. `test-codemode-partitioning.md`
-35. `test-codemode-performance-analysis-queries.md`
-36. `test-codemode-performance-analysis-system.md`
-37. `test-codemode-performance-anomaly.md`
-38. `test-codemode-proxysql-config.md`
-39. `test-codemode-proxysql-status-part1.md`
-40. `test-codemode-proxysql-status-part2.md`
-41. `test-codemode-replication-part1.md`
-42. `test-codemode-replication-part2.md`
-43. `test-codemode-roles-grants.md`
-44. `test-codemode-roles-management.md`
-45. `test-codemode-router-core.md`
-46. `test-codemode-router-routes-part1.md`
-47. `test-codemode-router-routes-part2.md`
-48. `test-codemode-schema-management-part1.md`
-49. `test-codemode-schema-management-part2.md`
-50. `test-codemode-schema-routines-part1.md`
-51. `test-codemode-schema-routines-part2.md`
-52. `test-codemode-security-audit.md`
-53. `test-codemode-security-firewall-part1.md`
-54. `test-codemode-security-firewall-part2.md`
-55. `test-codemode-shell-data-part1a.md`
-56. `test-codemode-shell-data-part1b.md`
-57. `test-codemode-shell-data-part2a.md`
-58. `test-codemode-shell-data-part2b.md`
-59. `test-codemode-shell-utils.md`
-60. `test-codemode-spatial-geometry.md`
-61. `test-codemode-spatial-operations.md`
-62. `test-codemode-spatial-queries-part1.md`
-63. `test-codemode-spatial-queries-part2.md`
-64. `test-codemode-spatial-setup.md`
-65. `test-codemode-stats-advanced-part1.md`
-66. `test-codemode-stats-advanced-part2.md`
-67. `test-codemode-stats-analytics.md`
-68. `test-codemode-stats-basic-part1.md`
-69. `test-codemode-stats-basic-part2.md`
-70. `test-codemode-stats-window-part1.md`
-71. `test-codemode-stats-window-part2.md`
-72. `test-codemode-sys-analysis.md`
-73. `test-codemode-sys-metrics.md`
-74. `test-codemode-text-part1.md`
-75. `test-codemode-text-part2.md`
-76. `test-codemode-transactions-part1.md`
-77. `test-codemode-transactions-part2.md`
-78. `test-codemode-vector-management.md`
-79. `test-codemode-vector-search.md`
-80. `test-codemode-vector-storage.md`
-81. `test-codemode-versioning.md`
-82. `test-codemode-sandbox.md`
+> [!WARNING]
+> **ANTI-EXHAUSTION ARCHITECTURE**
+> Do NOT execute these tests in a single thread. The 82 tests have been sharded into 4 phases to prevent LLM context window exhaustion.
+> 
+> **How to run:**
+> 1. Start a NEW thread for Phase 1 and pass the agent the `coordinator-workflow-phase1-foundation.md` file.
+> 2. When Phase 1 completes, start a NEW thread for Phase 2, etc.
+> 
+> *(Note for `/dynamic-context-audit`: All phase files will be automatically discovered during the standard `.md` file enumeration.)*
+
+### Execution Phases:
+- [Phase 1: Foundation (Core, Admin, Cluster, Docstore)](coordinator-workflow-phase1-foundation.md)
+- [Phase 2: Data & Performance (JSON, Migration, Perf, Rep)](coordinator-workflow-phase2-data.md)
+- [Phase 3: Schema & Security (Roles, Router, Schema, Security)](coordinator-workflow-phase3-schema.md)
+- [Phase 4: Analytics & Sandbox (Spatial, Stats, Sys, Vector)](coordinator-workflow-phase4-analytics.md)
+
 
 
 
