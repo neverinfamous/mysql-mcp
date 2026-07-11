@@ -1,12 +1,12 @@
-# MySQL Ecosystem Setup Guide (Test Environment)
+# MySQL Test Infrastructure Setup Guide
 
 **🤖 AGENT OPTIMIZED README**
 
 _Updated: July 2026_
 
-This guide explains how to spin up, manage, and troubleshoot the global unified database ecosystem (InnoDB Cluster, PostgreSQL, MongoDB, Redis, MySQL Router, ProxySQL) designed for the Adamic architecture.
+This guide explains how to spin up, manage, and troubleshoot the MySQL-focused test infrastructure (InnoDB Cluster, MySQL Router, ProxySQL, Redis) for the mysql-mcp integration testing environment. This is a lightweight subset of the full Adamic unified ecosystem, automatically synchronized via the `sync-test-infra` workflow.
 
-> **Note on Datadog:** This environment includes native Prometheus and Grafana for metrics observability. It also includes basic Datadog metric integrations for tracking MySQL query runtime and slow query rates. If you require full Datadog tracing/APM, you will need to manually configure it.
+> **Note on Datadog:** This environment includes full Datadog Agent monitoring with host-level system metrics (CPU, memory, disk, I/O, load, network), Docker container monitoring, process collection, eBPF system-probe (network performance monitoring), APM tracing, and MySQL/Redis/ProxySQL database integrations. Native Prometheus and Grafana are also available as secondary observability.
 
 ---
 
@@ -15,8 +15,8 @@ This guide explains how to spin up, manage, and troubleshoot the global unified 
 The entire process of tearing down, spinning up the containers, and bootstrapping Group Replication is automated and idempotent.
 
 ```powershell
-cd docs/unified-database-ecosystem
-node scripts/recreate-ecosystem.mjs
+cd test-server/infrastructure
+node scripts/recreate-test-ecosystem.mjs
 ```
 
 This master script will:
@@ -31,7 +31,7 @@ This master script will:
 
 ## 2. Architecture Overview
 
-This ecosystem includes all necessary components to validate the entire Adamic unified architecture:
+This ecosystem includes the MySQL-focused components needed for mysql-mcp integration testing:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
@@ -56,10 +56,10 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │            │   Port: 9090     │           │  Port: 3001  │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
-│       ┌──────────────┐   ┌────────────────┐   ┌──────────────┐               │
-│       │ Redis Server │   │ Postgres Server│   │ Mongo Server │               │
-│       │  Port: 6379  │   │   Port: 5432   │   │  Port: 27017 │               │
-│       └──────────────┘   └────────────────┘   └──────────────┘               │
+│       ┌──────────────┐                                                       │
+│       │ Redis Server │                                                       │
+│       │  Port: 6379  │                                                       │
+│       └──────────────┘                                                       │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -110,10 +110,11 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
 | Redis | `localhost:6379` |
-| PostgreSQL | `localhost:5432` |
-| MongoDB | `localhost:27017` |
 | Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
+| Datadog Host Map | `https://app.datadoghq.com/infrastructure/map` (look for `adamic-wsl2`) |
+| Datadog Containers | `https://app.datadoghq.com/containers` |
+| Datadog Live Processes | `https://app.datadoghq.com/process` |
 
 ---
 
@@ -143,6 +144,26 @@ If containers are cycling (green → red → green repeatedly) or `mysql-router`
 
 ### Windows Firewall & Prometheus Scraping
 When Prometheus runs inside WSL and needs to scrape `mysql-mcp` running on the Windows host, the default WSL virtual network adapter (`192.168.48.1`) often blocks incoming traffic due to the Windows Firewall "Public" profile. To bypass this frictionlessly, `docker-compose.yml` maps `host.docker.internal` to the Windows physical adapter IP (`192.168.1.70` by default via `${WINDOWS_HOST_IP:-192.168.1.70}`).
+
+### Datadog Agent Verification
+
+The `datadog-unified` container runs with `pid: host` to enable full host-level system metrics from within the container. Hostname: `adamic-wsl2`.
+
+```bash
+# Verify all system checks are running (cpu, memory, disk, io, load, network, ntp, file_handle, uptime)
+docker exec datadog-unified agent status | grep -E '(cpu|memory|disk|io|ntp|file_handle|load|uptime|network) \('
+
+# Verify process agent sees host processes (should show >100)
+docker exec datadog-unified agent status | grep "Number of processes"
+
+# Verify container monitoring
+docker exec datadog-unified agent status | grep -c 'Instance ID'
+
+# Verify system-probe (eBPF)
+docker exec datadog-unified agent status | grep -A 3 'System Probe'
+```
+
+> **System metrics on WSL2:** Metrics represent the WSL2 Linux VM (not Windows directly). Since all workloads run inside this VM, these metrics accurately reflect the compute environment.
 
 ### MySQL 9.x Observability Flags
 
