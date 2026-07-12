@@ -1,7 +1,7 @@
 import type { ToolDefinition } from "../../../../types/index.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
-import { ValidationError } from "../../../../types/modules/errors.js";
+
 import { WRITE, READ_ONLY, DESTRUCTIVE } from "../../../../utils/annotations.js";
 import {
   VectorStoreSchemaBase,
@@ -140,7 +140,14 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(query, [validated.id]);
 
         if ((result.rowsAffected ?? 0) === 0) {
-          throw new ValidationError(`Row with id '${validated.id}' not found in table '${validated.table}'`);
+          return withTokenEstimate({
+            success: true,
+            data: {
+              deleted: false,
+              table: validated.table,
+              id: validated.id,
+            }
+          });
         }
 
         return withTokenEstimate({
