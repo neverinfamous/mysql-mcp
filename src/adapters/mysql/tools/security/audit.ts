@@ -76,7 +76,7 @@ const FirewallRulesSchemaBase = z.object({
   userName: z.string().optional().describe("Alias for user"),
   username: z.string().optional().describe("Alias for user"),
   mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional().describe("Filter by mode"),
-});
+}).strict();
 
 const FirewallRulesSchema = z.preprocess(
   (val: unknown) => {
@@ -92,7 +92,7 @@ const FirewallRulesSchema = z.preprocess(
     limit: z.number().int().min(1).default(50),
     user: z.string().optional(),
     mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
-  })
+  }).strict()
 );
 
 // =============================================================================
@@ -261,7 +261,7 @@ export function createSecurityFirewallStatusTool(
     title: "MySQL Firewall Status",
     description: "Get MySQL Enterprise Firewall plugin status.",
     group: "security",
-    inputSchema: z.object({}),
+    inputSchema: z.object({}).strict(),
     outputSchema: SecurityFirewallStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
