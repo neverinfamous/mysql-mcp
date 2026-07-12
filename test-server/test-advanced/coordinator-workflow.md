@@ -10,21 +10,21 @@ Due to the extreme length of the Advanced Code Mode test suite (103 tests), the 
 
 ## The Phases
 
-### 1. Phase 1: Foundation & Docstore (Tests 1-26)
+### 1. Phase 1: Foundation & Docstore (Tests 1-28)
 **File**: `test-server/test-advanced/coordinator-workflow-phase1-foundation.md`
-Covers: Admin Control, Maintenance, Backup, Cluster Replication, InnoDB, Concurrency, Core, Docstore, Events, Fulltext, Introspection.
+Covers: Admin, Backup, Cluster, Concurrency, Core, Docstore, Events, Fulltext, Introspection.
 
-### 2. Phase 2: JSON, Performance & Infrastructure (Tests 27-54)
+### 2. Phase 2: JSON, Performance & Infrastructure (Tests 29-55)
 **File**: `test-server/test-advanced/coordinator-workflow-phase2-performance.md`
-Covers: JSON Core, Migration, Monitoring, Optimization, Partitioning, Performance Analysis, ProxySQL, Replication.
+Covers: JSON, Migration, Monitoring, Optimization, Partitioning, Performance, ProxySQL, Replication.
 
-### 3. Phase 3: Security, Routing & Spatial (Tests 55-80)
+### 3. Phase 3: Security, Routing & Spatial (Tests 56-85)
 **File**: `test-server/test-advanced/coordinator-workflow-phase3-security.md`
-Covers: Roles, Router Advanced, Schema Management, Security Audit, Sessions, Shell, Spatial Geometry.
+Covers: Roles, Router, Sandbox, Schema, Security, Sessions, Shell, Spatial.
 
-### 4. Phase 4: Analytics, Types & Vector (Tests 81-103)
+### 4. Phase 4: Analytics, Types & Vector (Tests 86-111)
 **File**: `test-server/test-advanced/coordinator-workflow-phase4-analytics.md`
-Covers: Stats, Sys Schema, Text, Transactions, Types, Vector, Sandbox Isolation.
+Covers: Stats, Sys, Text, Transactions, Types, Vector.
 
 ## Compatibility with Dynamic Context Audit
 This sharded structure is fully compatible with the `/dynamic-context-audit` skill. Audit subagents will enumerate all `.md` files in `test-server/test-advanced/` and automatically verify the sequential test queues within each `coordinator-workflow-phaseX.md` file against the prompt files on disk.

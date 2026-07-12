@@ -22,23 +22,20 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 8. `test-codemode-router-routes-part2.md`
 9. `test-codemode-schema-management-part1a.md`
 10. `test-codemode-schema-management-part1b.md`
-11. `test-codemode-schema-management-part2.md`
-12. `test-codemode-schema-routines-part1.md`
-13. `test-codemode-schema-routines-part2.md`
-14. `test-codemode-security-audit-part1.md`
-15. `test-codemode-security-audit-part2.md`
-16. `test-codemode-security-firewall-part1.md`
-17. `test-codemode-security-firewall-part2.md`
-18. `test-codemode-shell-data-part1a.md`
-19. `test-codemode-shell-data-part1b.md`
-20. `test-codemode-shell-data-part2a.md`
-21. `test-codemode-shell-data-part2b.md`
-22. `test-codemode-shell-utils.md`
-23. `test-codemode-spatial-geometry.md`
-24. `test-codemode-spatial-operations-part1.md`
-25. `test-codemode-spatial-operations-part2.md`
-26. `test-codemode-spatial-queries-part1.md`
-27. `test-codemode-spatial-queries-part2.md`
+11. `test-codemode-schema-management-part2a.md`
+12. `test-codemode-schema-management-part2b.md`
+13. `test-codemode-schema-management-part2c.md`
+14. `test-codemode-schema-routines-part1.md`
+15. `test-codemode-schema-routines-part2.md`
+16. `test-codemode-security-audit-part1.md`
+17. `test-codemode-security-audit-part2.md`
+18. `test-codemode-security-firewall-part1.md`
+19. `test-codemode-security-firewall-part2.md`
+20. `test-codemode-shell-data-part1a.md`
+21. `test-codemode-shell-data-part1b.md`
+22. `test-codemode-shell-data-part2a.md`
+23. `test-codemode-shell-data-part2b.md`
+24. `test-codemode-shell-utils.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.
