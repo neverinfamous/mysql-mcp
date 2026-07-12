@@ -30,6 +30,20 @@ export const PercentilesOutputSchema = BaseOutputSchema.extend({
 export const DistributionOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
+    distribution: z.array(
+      z.object({
+        bucket: z.number(),
+        rangeStart: z.number(),
+        rangeEnd: z.number(),
+        count: z.number(),
+        bucketMin: z.union([z.number(), z.string()]).nullish(),
+        bucketMax: z.union([z.number(), z.string()]).nullish(),
+      }).loose()
+    ).optional(),
+    bucketCount: z.number().optional(),
+    bucketSize: z.number().optional(),
+    minValue: z.number().optional(),
+    maxValue: z.number().optional(),
     skewness: z.number().nullish(),
     kurtosis: z.number().nullish(),
   }).loose().optional(),
