@@ -81,7 +81,11 @@
 - `mysql.json.get`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.json.keys
+- [ ] Ensure full coverage for mysql.json.arrayAppend
+- [ ] Ensure full coverage for mysql.json.get
 
 ---
 

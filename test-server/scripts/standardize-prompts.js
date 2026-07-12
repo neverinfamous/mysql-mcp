@@ -231,9 +231,10 @@ function processDirectory(dirName) {
     const actualToolCount = TOOL_GROUPS[baseGroup] ? TOOL_GROUPS[baseGroup].length : 0;
 
     if (dirName === 'test-codemode') {
-        testContent = `## Group Focus: ${baseGroup}\n\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.`;
+        testContent = `## Group Focus: ${baseGroup}\\n\\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.`;
     } else if (dirName === 'test-tool-groups') {
-        testContent = `## Group Focus: ${baseGroup}\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.`;
+        const checklist = (toolMap[file] || []).map(t => `- [ ] ${t}`).join('\\n');
+        testContent = `## Group Focus: ${baseGroup}\\n\\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\\n\\n### Tool Checklist\\n${checklist}`;
     } else {
         testContent = testContent.replace(/## Group Focus:\s*.*/g, `## Group Focus: ${baseGroup}`);
         testContent = testContent.replace(/### .*? Group-Specific Testing/g, `### ${baseGroup} Group-Specific Testing`);
@@ -295,93 +296,45 @@ function processDirectory(dirName) {
       // Fix nested namespaces in test-advanced by enforcing correct Code Mode API namespaces
       // Apply conditional block
     if (dirName === 'test-codemode' || dirName === 'test-advanced' || dirName === 'test-usability') {
-      testContent = testContent
-        .replace(/mysql\.event_create/g, "mysql.events.create")
-      .replace(/mysql\.event_alter/g, "mysql.events.alter")
-      .replace(/mysql\.event_drop/g, "mysql.events.drop")
-      .replace(/mysql\.event_list/g, "mysql.events.list")
-      .replace(/mysql\.event_status/g, "mysql.events.status")
-      .replace(/mysql\.event_schedulerStatus/g, "mysql.events.schedulerStatus")
-      .replace(/mysql\.partition_partitionInfo/g, "mysql.partitioning.partitionInfo")
-      .replace(/mysql\.partition_addPartition/g, "mysql.partitioning.addPartition")
-      .replace(/mysql\.partition_dropPartition/g, "mysql.partitioning.dropPartition")
-      .replace(/mysql\.partition_reorganizePartition/g, "mysql.partitioning.reorganizePartition")
-      .replace(/mysql\.master_status/g, "mysql.replication.masterStatus")
-      .replace(/mysql\.slave_status/g, "mysql.replication.slaveStatus")
-      .replace(/mysql\.replication_lag/g, "mysql.replication.replicationLag")
-      .replace(/mysqlsh_version/g, "mysql.shell.version")
-      .replace(/mysqlsh_check_upgrade/g, "mysql.shell.checkUpgrade")
-      .replace(/mysqlsh_export_table/g, "mysql.shell.exportTable")
-      .replace(/mysqlsh_import_table/g, "mysql.shell.importTable")
-      .replace(/mysqlsh_import_json/g, "mysql.shell.importJson")
-      .replace(/mysqlsh_dump_instance/g, "mysql.shell.dumpInstance")
-      .replace(/mysqlsh_dump_schemas/g, "mysql.shell.dumpSchemas")
-      .replace(/mysqlsh_dump_tables/g, "mysql.shell.dumpTables")
-      .replace(/mysqlsh_load_dump/g, "mysql.shell.loadDump")
-      .replace(/mysqlsh_run_script/g, "mysql.shell.runScript")
-      .replace(/mysqlsh_help/g, "mysql.shell.help")
-      .replace(/mysqlsh_dumpSchemas/g, "mysql.shell.dumpSchemas")
-      .replace(/mysqlsh_dumpTables/g, "mysql.shell.dumpTables")
-      .replace(/mysqlsh_loadDump/g, "mysql.shell.loadDump")
-      .replace(/mysqlsh_exportTable/g, "mysql.shell.exportTable")
-      .replace(/mysqlsh_importTable/g, "mysql.shell.importTable")
-      .replace(/mysqlsh_importJson/g, "mysql.shell.importJson")
-      .replace(/mysqlsh_dumpInstance/g, "mysql.shell.dumpInstance")
-      .replace(/mysqlsh_runScript/g, "mysql.shell.runScript")
-      .replace(/mysql\.stats_descriptive/g, "mysql.stats.descriptive")
-      .replace(/mysql\.stats_percentiles/g, "mysql.stats.percentiles")
-      .replace(/mysql\.stats_correlation/g, "mysql.stats.correlation")
-      .replace(/mysql\.stats_distribution/g, "mysql.stats.distribution")
-      .replace(/mysql\.stats_time_series/g, "mysql.stats.timeSeries")
-      .replace(/mysql\.stats_regression/g, "mysql.stats.regression")
-      .replace(/mysql\.stats_sampling/g, "mysql.stats.sampling")
-      .replace(/mysql\.stats_histogram/g, "mysql.stats.histogram")
-      .replace(/mysql\.stats_row_number/g, "mysql.stats.rowNumber")
-      .replace(/mysql\.stats_rank/g, "mysql.stats.rank")
-      .replace(/mysql\.stats_lag_lead/g, "mysql.stats.lagLead")
-      .replace(/mysql\.stats_running_total/g, "mysql.stats.runningTotal")
-      .replace(/mysql\.stats_moving_avg/g, "mysql.stats.movingAvg")
-      .replace(/mysql\.stats_ntile/g, "mysql.stats.ntile")
-      .replace(/mysql\.stats_hypothesis/g, "mysql.stats.hypothesis")
-      .replace(/mysql\.stats_outliers/g, "mysql.stats.outliers")
-      .replace(/mysql\.stats_top_n/g, "mysql.stats.topN")
-      .replace(/mysql\.stats_distinct/g, "mysql.stats.distinct")
-      .replace(/mysql\.stats_frequency/g, "mysql.stats.frequency")
-      .replace(/mysql\.stats_summary/g, "mysql.stats.summary")
-      .replace(/mysql\.stats_help/g, "mysql.stats.help")
-      .replace(/mysql\.stats_topN/g, "mysql.stats.topN")
-      .replace(/mysql\.executeCode/g, "mysql_execute_code")
-      .replace(/mysql\.vector\.vector([A-Z])/g, (match, p1) => "mysql.vector." + p1.toLowerCase())
-      .replace(/mysql\.sysschema\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
-      .replace(/mysql\.docstore\.doc([A-Z])/g, (match, p1) => "mysql.docstore." + p1.toLowerCase())
-      .replace(/mysql\.fulltext\.fulltext([A-Z])/g, (match, p1) => "mysql.fulltext." + p1.toLowerCase())
-      .replace(/mysql\.transactions\.transaction([A-Z])/g, (match, p1) => "mysql.transactions." + p1.toLowerCase())
-      .replace(/mysql\.cluster\.cluster([A-Z])/g, (match, p1) => "mysql.cluster." + p1.toLowerCase())
-      .replace(/mysql\.roles\.role([A-Z])/g, (match, p1) => "mysql.roles." + p1.toLowerCase())
-      .replace(/mysql\.events\.event([A-Z])/g, (match, p1) => "mysql.events." + p1.toLowerCase())
-      // Fix optimization parameters
-      .replace(/mysql_index_recommendation/g, "mysql.optimization.indexRecommendation")
-      .replace(/mysql_query_rewrite/g, "mysql.optimization.queryRewrite")
-      .replace(/mysql_force_index/g, "mysql.optimization.forceIndex")
-      .replace(/mysql_optimizer_trace/g, "mysql.optimization.optimizerTrace")
-      .replace(/3\. Verify summary token estimate/g, "1. Verify summary token estimate")
-      .replace(/5\. `mysql\.optimization\.indexRecommendation/g, "2. `mysql.optimization.indexRecommendation")
-      // Fix vector parameters
-      .replace(/mysql_vector_search/g, "mysql.vector.search")
-      .replace(/mysql_vector_range_search/g, "mysql.vector.rangeSearch")
-      .replace(/mysql_vector_hybrid_search/g, "mysql.vector.hybridSearch")
-      .replace(/mysql_vector_store/g, "mysql.vector.store")
-      .replace(/mysql_vector_batch_store/g, "mysql.vector.batchStore")
-      .replace(/mysql_vector_delete/g, "mysql.vector.delete")
-      .replace(/mysql_vector_get/g, "mysql.vector.get")
-      .replace(/mysql_vector_create_index/g, "mysql.vector.createIndex")
-      .replace(/mysql_vector_optimize/g, "mysql.vector.optimize")
-      .replace(/mysql_vector_stats/g, "mysql.vector.stats")
-      .replace(/mysql_vector_info/g, "mysql.vector.info")
-      .replace(/mysql_enable_versioning/g, "mysql.core.enableVersioning")
-      .replace(/mysql_disable_versioning/g, "mysql.core.disableVersioning")
-      .replace(/mysql_check_version/g, "mysql.core.checkVersion")
-      .replace(/mysql_conditional_update/g, "mysql.core.conditionalUpdate");
+      const applyCodeModeFixes = (str) => {
+          if (!str) return str;
+          return str
+            .replace(/mysql\.vector\.vector([A-Z])/g, (match, p1) => "mysql.vector." + p1.toLowerCase())
+            .replace(/mysql\.sysschema\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
+            .replace(/mysql\.docstore\.doc([A-Z])/g, (match, p1) => "mysql.docstore." + p1.toLowerCase())
+            .replace(/mysql\.fulltext\.fulltext([A-Z])/g, (match, p1) => "mysql.fulltext." + p1.toLowerCase())
+            .replace(/mysql\.transactions\.transaction([A-Z])/g, (match, p1) => "mysql.transactions." + p1.toLowerCase())
+            .replace(/mysql\.cluster\.cluster([A-Z])/g, (match, p1) => "mysql.cluster." + p1.toLowerCase())
+            .replace(/mysql\.roles\.role([A-Z])/g, (match, p1) => "mysql.roles." + p1.toLowerCase())
+            .replace(/mysql\.events\.event([A-Z])/g, (match, p1) => "mysql.events." + p1.toLowerCase())
+            // Fix optimization parameters
+            .replace(/mysql_index_recommendation/g, "mysql.optimization.indexRecommendation")
+            .replace(/mysql_query_rewrite/g, "mysql.optimization.queryRewrite")
+            .replace(/mysql_force_index/g, "mysql.optimization.forceIndex")
+            .replace(/mysql_optimizer_trace/g, "mysql.optimization.optimizerTrace")
+            .replace(/3\. Verify summary token estimate/g, "1. Verify summary token estimate")
+            .replace(/5\. \`mysql\.optimization\.indexRecommendation/g, "2. \`mysql.optimization.indexRecommendation")
+            // Fix vector parameters
+            .replace(/mysql_vector_search/g, "mysql.vector.search")
+            .replace(/mysql_vector_range_search/g, "mysql.vector.rangeSearch")
+            .replace(/mysql_vector_hybrid_search/g, "mysql.vector.hybridSearch")
+            .replace(/mysql_vector_store/g, "mysql.vector.store")
+            .replace(/mysql_vector_batch_store/g, "mysql.vector.batchStore")
+            .replace(/mysql_vector_delete/g, "mysql.vector.delete")
+            .replace(/mysql_vector_get/g, "mysql.vector.get")
+            .replace(/mysql_vector_create_index/g, "mysql.vector.createIndex")
+            .replace(/mysql_vector_optimize/g, "mysql.vector.optimize")
+            .replace(/mysql_vector_stats/g, "mysql.vector.stats")
+            .replace(/mysql_vector_info/g, "mysql.vector.info")
+            .replace(/mysql_enable_versioning/g, "mysql.core.enableVersioning")
+            .replace(/mysql_disable_versioning/g, "mysql.core.disableVersioning")
+            .replace(/mysql_check_version/g, "mysql.core.checkVersion")
+            .replace(/mysql_conditional_update/g, "mysql.core.conditionalUpdate");
+      };
+
+      testContent = applyCodeModeFixes(testContent);
+      explicitToolsList = applyCodeModeFixes(explicitToolsList);
+      coverageMatrix = applyCodeModeFixes(coverageMatrix);
     } else {
       testContent = testContent
         .replace(/mysql\.events\.create/g, "mysql_event_create")
@@ -477,8 +430,20 @@ function processDirectory(dirName) {
       .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary\(\{ limit: "abc" \}\)/g, "7. 🔴 `mysql.sysschema.statementSummary({ orderBy: 123 })")
       .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary/g, "7. 🔴 `mysql.sysschema.statementSummary")
       // Remove hallucinated tasks
-      .replace(/- \[ \] Ensure full coverage for mysql\.backup\.auditListBackups\r?\n?/g, "")
-      .replace(/- \[ \] Ensure full coverage for mysql\.backup\.auditRestoreBackup\r?\n?/g, "");
+      .replace(/- \[ \] Ensure full coverage for .*\r?\n?/g, "");
+
+    if (explicitToolsList) {
+        const correctTasks = explicitToolsList
+            .match(/- \`([\w\.]+)\`/g)
+            ?.map(t => `- [ ] Ensure full coverage for ${t.replace(/- \`|\`/g, '')}`)
+            .join('\n') || '';
+            
+        if (testContent.match(/## Tasks/)) {
+            testContent = testContent.replace(/## Tasks\s*/, `## Tasks\n\n${correctTasks}\n\n`);
+        } else {
+            testContent += `\n\n## Tasks\n\n${correctTasks}\n\n`;
+        }
+    }
 
     let newContent = getTemplate(
       titleType,

@@ -81,7 +81,11 @@
 - `mysql.stats.distinct`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.stats.outliers
+- [ ] Ensure full coverage for mysql.stats.topN
+- [ ] Ensure full coverage for mysql.stats.distinct
 
 ---
 

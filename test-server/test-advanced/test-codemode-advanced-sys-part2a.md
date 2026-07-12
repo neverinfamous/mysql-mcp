@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.sysschema.sysInnodbLockWaits` |   |   |
-| `mysql.sysschema.sysSchemaStats` |   |   |
-| `mysql.sysschema.sysHostSummary` |   |   |
+| `mysql.sysschema.innodbLockWaits` |   |   |
+| `mysql.sysschema.schemaStats` |   |   |
+| `mysql.sysschema.hostSummary` |   |   |
 
 ---
 
@@ -76,17 +76,18 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.sysschema.sysInnodbLockWaits`
-- `mysql.sysschema.sysSchemaStats`
-- `mysql.sysschema.sysHostSummary`
+- `mysql.sysschema.innodbLockWaits`
+- `mysql.sysschema.schemaStats`
+- `mysql.sysschema.hostSummary`
 
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.sysschema.innodbLockWaits
 - [ ] Ensure full coverage for mysql.sysschema.schemaStats
 - [ ] Ensure full coverage for mysql.sysschema.hostSummary
+
+- Implement tests for the tools listed above.
 
 ---
 

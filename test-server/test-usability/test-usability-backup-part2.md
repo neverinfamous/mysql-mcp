@@ -81,7 +81,11 @@
 - `mysql.backup.auditRestoreBackup`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.backup.restoreDump
+- [ ] Ensure full coverage for mysql.backup.auditListBackups
+- [ ] Ensure full coverage for mysql.backup.auditRestoreBackup
 
 ---
 

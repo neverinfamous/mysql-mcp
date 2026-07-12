@@ -89,9 +89,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.outliers
-- [ ] Ensure full coverage for mysql.stats.topN
-- [ ] Ensure full coverage for mysql.stats.distinct
+- [ ] Ensure full coverage for mysql.stats.rowNumber
+- [ ] Ensure full coverage for mysql.stats.rank
 
 ---
 

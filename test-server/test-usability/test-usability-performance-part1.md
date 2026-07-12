@@ -81,7 +81,11 @@
 - `mysql.performance.slowQueries`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.performance.explain
+- [ ] Ensure full coverage for mysql.performance.explainAnalyze
+- [ ] Ensure full coverage for mysql.performance.slowQueries
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_table_stats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_query_stats
+- [ ] Ensure full coverage for mysql_index_usage
+- [ ] Ensure full coverage for mysql_table_stats
 
 ---
 

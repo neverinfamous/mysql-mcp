@@ -81,7 +81,11 @@
 - `mysql.security.firewallRules`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.security.audit
+- [ ] Ensure full coverage for mysql.security.firewallStatus
+- [ ] Ensure full coverage for mysql.security.firewallRules
 
 ---
 

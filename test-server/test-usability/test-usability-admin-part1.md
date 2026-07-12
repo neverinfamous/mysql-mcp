@@ -81,7 +81,11 @@
 - `mysql.admin.checkTable`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.admin.optimizeTable
+- [ ] Ensure full coverage for mysql.admin.analyzeTable
+- [ ] Ensure full coverage for mysql.admin.checkTable
 
 ---
 

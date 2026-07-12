@@ -81,10 +81,13 @@
 - `mysql.stats.regression`
 
 
-## Group Focus: stats
+## Group Focus: stats\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.stats.correlation
+- [ ] Ensure full coverage for mysql.stats.timeSeries
+- [ ] Ensure full coverage for mysql.stats.regression
 
 ---
 

@@ -79,9 +79,12 @@
 - `mysql_json_validate`
 
 
-## Group Focus: json
+## Group Focus: json\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_json_remove\n- [ ] mysql_json_validate
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_remove
+- [ ] Ensure full coverage for mysql_json_validate
 
 ---
 

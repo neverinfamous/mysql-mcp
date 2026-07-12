@@ -81,9 +81,13 @@
 - `mysql_stats_top_n`
 
 
-## Group Focus: stats
+## Group Focus: stats\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_stats_correlation\n- [ ] mysql_stats_rank\n- [ ] mysql_stats_top_n
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_correlation
+- [ ] Ensure full coverage for mysql_stats_rank
+- [ ] Ensure full coverage for mysql_stats_top_n
 
 ---
 

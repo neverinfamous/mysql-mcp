@@ -94,6 +94,7 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.backup.auditDiffBackup
 - [ ] Ensure full coverage for mysql.backup.restoreDump
 
 ---

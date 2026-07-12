@@ -81,9 +81,13 @@
 - `mysql_constraint_analysis`
 
 
-## Group Focus: introspection
+## Group Focus: introspection\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_dependency_graph\n- [ ] mysql_cascade_simulator\n- [ ] mysql_constraint_analysis
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_dependency_graph
+- [ ] Ensure full coverage for mysql_cascade_simulator
+- [ ] Ensure full coverage for mysql_constraint_analysis
 
 ---
 

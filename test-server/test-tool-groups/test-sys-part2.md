@@ -81,9 +81,13 @@
 - `mysql_sys_memory_summary`
 
 
-## Group Focus: sysschema
+## Group Focus: sysschema\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_sys_io_summary\n- [ ] mysql_sys_innodb_lock_waits\n- [ ] mysql_sys_memory_summary
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_sys_io_summary
+- [ ] Ensure full coverage for mysql_sys_innodb_lock_waits
+- [ ] Ensure full coverage for mysql_sys_memory_summary
 
 ---
 

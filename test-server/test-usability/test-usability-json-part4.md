@@ -81,7 +81,11 @@
 - `mysql.json.validate`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.json.update
+- [ ] Ensure full coverage for mysql.json.search
+- [ ] Ensure full coverage for mysql.json.validate
 
 ---
 

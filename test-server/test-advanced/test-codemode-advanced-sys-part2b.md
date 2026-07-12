@@ -66,7 +66,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.sysschema.sysMemorySummary` |   |   |
+| `mysql.sysschema.memorySummary` |   |   |
 
 ---
 
@@ -74,13 +74,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.sysschema.sysMemorySummary`
+- `mysql.sysschema.memorySummary`
 
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.sysschema.memorySummary
+
+- Implement tests for the tools listed above.
 
 ---
 

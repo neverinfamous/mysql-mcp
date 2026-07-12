@@ -81,9 +81,13 @@
 - `mysql_vector_stats`
 
 
-## Group Focus: vector
+## Group Focus: vector\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_vector_store\n- [ ] mysql_vector_range_search\n- [ ] mysql_vector_stats
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_vector_store
+- [ ] Ensure full coverage for mysql_vector_range_search
+- [ ] Ensure full coverage for mysql_vector_stats
 
 ---
 

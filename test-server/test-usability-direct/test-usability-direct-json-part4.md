@@ -81,7 +81,11 @@
 - `mysql_json_validate`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_json_update
+- [ ] Ensure full coverage for mysql_json_search
+- [ ] Ensure full coverage for mysql_json_validate
 
 ---
 

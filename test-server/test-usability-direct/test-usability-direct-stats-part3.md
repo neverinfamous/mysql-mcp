@@ -81,7 +81,11 @@
 - `mysql_stats_row_number`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_stats_sampling
+- [ ] Ensure full coverage for mysql_stats_histogram
+- [ ] Ensure full coverage for mysql_stats_row_number
 
 ---
 

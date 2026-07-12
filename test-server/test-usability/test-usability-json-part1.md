@@ -81,7 +81,11 @@
 - `mysql.json.insert`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.json.extract
+- [ ] Ensure full coverage for mysql.json.set
+- [ ] Ensure full coverage for mysql.json.insert
 
 ---
 

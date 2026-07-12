@@ -81,7 +81,11 @@
 - `mysql.shell.loadDump`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.shell.dumpSchemas
+- [ ] Ensure full coverage for mysql.shell.dumpTables
+- [ ] Ensure full coverage for mysql.shell.loadDump
 
 ---
 

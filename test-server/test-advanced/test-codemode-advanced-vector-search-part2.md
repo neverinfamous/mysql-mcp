@@ -66,7 +66,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.vector.vectorInfo` |   |   |
+| `mysql.vector.info` |   |   |
 
 ---
 
@@ -74,7 +74,7 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.vector.vectorInfo`
+- `mysql.vector.info`
 
 
 ## Group Focus: vector

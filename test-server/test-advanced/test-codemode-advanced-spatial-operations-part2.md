@@ -81,6 +81,9 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.spatial.buffer
+- [ ] Ensure full coverage for mysql.spatial.transform
+
 ---
 
 ## Execute Post-Test Procedures

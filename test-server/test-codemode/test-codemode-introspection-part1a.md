@@ -81,10 +81,13 @@
 - `mysql.introspection.cascadeSimulator`
 
 
-## Group Focus: introspection
+## Group Focus: introspection\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.introspection.dependencyGraph
+- [ ] Ensure full coverage for mysql.introspection.topologicalSort
+- [ ] Ensure full coverage for mysql.introspection.cascadeSimulator
 
 ---
 

@@ -83,10 +83,11 @@
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.performance.explain
 - [ ] Ensure full coverage for mysql.performance.explainAnalyze
 - [ ] Ensure full coverage for mysql.performance.slowQueries
+
+- Implement tests for the tools listed above.
 
 ---
 

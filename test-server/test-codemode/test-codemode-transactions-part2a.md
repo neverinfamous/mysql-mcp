@@ -66,9 +66,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.transactions.transactionRelease` |   |   |
-| `mysql.transactions.transactionRollbackTo` |   |   |
-| `mysql.transactions.transactionExecute` |   |   |
+| `mysql.transactions.release` |   |   |
+| `mysql.transactions.rollbackTo` |   |   |
+| `mysql.transactions.execute` |   |   |
 
 ---
 
@@ -76,15 +76,18 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.transactions.transactionRelease`
-- `mysql.transactions.transactionRollbackTo`
-- `mysql.transactions.transactionExecute`
+- `mysql.transactions.release`
+- `mysql.transactions.rollbackTo`
+- `mysql.transactions.execute`
 
 
-## Group Focus: transactions
+## Group Focus: transactions\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.transactions.release
+- [ ] Ensure full coverage for mysql.transactions.rollbackTo
+- [ ] Ensure full coverage for mysql.transactions.execute
 
 ---
 

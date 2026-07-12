@@ -81,7 +81,11 @@
 - `mysql_fulltext_search`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_fulltext_create
+- [ ] Ensure full coverage for mysql_fulltext_drop
+- [ ] Ensure full coverage for mysql_fulltext_search
 
 ---
 

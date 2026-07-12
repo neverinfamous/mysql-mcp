@@ -81,7 +81,11 @@
 - `mysqlsh_load_dump`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysqlsh_dump_schemas
+- [ ] Ensure full coverage for mysqlsh_dump_tables
+- [ ] Ensure full coverage for mysqlsh_load_dump
 
 ---
 

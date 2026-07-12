@@ -66,9 +66,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.vector.vectorStore` |   |   |   |
-| `mysql.vector.vectorBatchStore` |   |   |   |
-| `mysql.vector.vectorDelete` |   |   |   |
+| `mysql.vector.store` |   |   |   |
+| `mysql.vector.batchStore` |   |   |   |
+| `mysql.vector.delete` |   |   |   |
 
 ---
 
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.vector.vectorStore`
-- `mysql.vector.vectorBatchStore`
-- `mysql.vector.vectorDelete`
+- `mysql.vector.store`
+- `mysql.vector.batchStore`
+- `mysql.vector.delete`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.vector.store
+- [ ] Ensure full coverage for mysql.vector.batchStore
+- [ ] Ensure full coverage for mysql.vector.delete
 
 ---
 

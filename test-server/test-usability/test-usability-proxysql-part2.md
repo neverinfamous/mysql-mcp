@@ -81,7 +81,11 @@
 - `mysql.proxysql.users`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.proxysql.queryDigest
+- [ ] Ensure full coverage for mysql.proxysql.connectionPool
+- [ ] Ensure full coverage for mysql.proxysql.users
 
 ---
 

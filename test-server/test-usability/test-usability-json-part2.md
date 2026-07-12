@@ -81,7 +81,11 @@
 - `mysql.json.contains`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.json.replace
+- [ ] Ensure full coverage for mysql.json.remove
+- [ ] Ensure full coverage for mysql.json.contains
 
 ---
 

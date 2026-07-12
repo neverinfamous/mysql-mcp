@@ -81,7 +81,11 @@
 - `mysql_audit_search`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_append_insight
+- [ ] Ensure full coverage for mysql_server_config
+- [ ] Ensure full coverage for mysql_audit_search
 
 ---
 

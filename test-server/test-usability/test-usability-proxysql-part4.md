@@ -79,7 +79,10 @@
 - `mysql.proxysql.processList`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.proxysql.commands
+- [ ] Ensure full coverage for mysql.proxysql.processList
 
 ---
 

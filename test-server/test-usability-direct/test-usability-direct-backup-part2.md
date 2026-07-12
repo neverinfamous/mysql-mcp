@@ -81,7 +81,11 @@
 - `mysql_audit_restore_backup`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_restore_dump
+- [ ] Ensure full coverage for mysql_audit_list_backups
+- [ ] Ensure full coverage for mysql_audit_restore_backup
 
 ---
 

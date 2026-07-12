@@ -79,7 +79,10 @@
 - `mysql_sys_memory_summary`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_sys_host_summary
+- [ ] Ensure full coverage for mysql_sys_memory_summary
 
 ---
 

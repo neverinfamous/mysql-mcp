@@ -81,9 +81,13 @@
 - `mysql_list_constraints`
 
 
-## Group Focus: schema
+## Group Focus: schema\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_create_schema\n- [ ] mysql_list_stored_procedures\n- [ ] mysql_list_constraints
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_create_schema
+- [ ] Ensure full coverage for mysql_list_stored_procedures
+- [ ] Ensure full coverage for mysql_list_constraints
 
 ---
 

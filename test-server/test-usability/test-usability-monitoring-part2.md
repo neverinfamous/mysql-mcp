@@ -81,7 +81,11 @@
 - `mysql.monitoring.poolStats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.monitoring.innodbStatus
+- [ ] Ensure full coverage for mysql.monitoring.replicationStatus
+- [ ] Ensure full coverage for mysql.monitoring.poolStats
 
 ---
 

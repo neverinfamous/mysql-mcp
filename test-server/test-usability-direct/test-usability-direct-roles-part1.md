@@ -81,7 +81,11 @@
 - `mysql_role_drop`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_role_list
+- [ ] Ensure full coverage for mysql_role_create
+- [ ] Ensure full coverage for mysql_role_drop
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_doc_collection_info`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_doc_remove
+- [ ] Ensure full coverage for mysql_doc_create_index
+- [ ] Ensure full coverage for mysql_doc_collection_info
 
 ---
 

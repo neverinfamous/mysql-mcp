@@ -81,7 +81,11 @@
 - `mysql_list_triggers`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_list_stored_procedures
+- [ ] Ensure full coverage for mysql_list_functions
+- [ ] Ensure full coverage for mysql_list_triggers
 
 ---
 

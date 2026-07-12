@@ -79,9 +79,12 @@
 - `mysqlsh_dump_tables`
 
 
-## Group Focus: shell
+## Group Focus: shell\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysqlsh_import_table\n- [ ] mysqlsh_dump_tables
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysqlsh_import_table
+- [ ] Ensure full coverage for mysqlsh_dump_tables
 
 ---
 

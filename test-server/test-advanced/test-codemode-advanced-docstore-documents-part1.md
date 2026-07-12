@@ -66,8 +66,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.docstore.docFind` |   |   |
-| `mysql.docstore.docAdd` |   |   |
+| `mysql.docstore.find` |   |   |
+| `mysql.docstore.add` |   |   |
 
 ---
 
@@ -75,8 +75,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.docstore.docFind`
-- `mysql.docstore.docAdd`
+- `mysql.docstore.find`
+- `mysql.docstore.add`
 
 
 ## Category 1: Collection Lifecycle
@@ -100,9 +100,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.modify
-- [ ] Ensure full coverage for mysql.docstore.remove
-- [ ] Ensure full coverage for mysql.docstore.createIndex
+- [ ] Ensure full coverage for mysql.docstore.find
+- [ ] Ensure full coverage for mysql.docstore.add
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.core.enableVersioning`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.core.createIndex
+- [ ] Ensure full coverage for mysql.core.getIndexes
+- [ ] Ensure full coverage for mysql.core.enableVersioning
 
 ---
 

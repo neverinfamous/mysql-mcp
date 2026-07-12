@@ -81,9 +81,13 @@
 - `mysql_migration_risks`
 
 
-## Group Focus: introspection
+## Group Focus: introspection\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_topological_sort\n- [ ] mysql_schema_snapshot\n- [ ] mysql_migration_risks
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_topological_sort
+- [ ] Ensure full coverage for mysql_schema_snapshot
+- [ ] Ensure full coverage for mysql_migration_risks
 
 ---
 

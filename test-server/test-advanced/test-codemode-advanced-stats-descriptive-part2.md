@@ -97,8 +97,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.rowNumber
-- [ ] Ensure full coverage for mysql.stats.rank
+- [ ] Ensure full coverage for mysql.stats.histogram
+- [ ] Ensure full coverage for mysql.stats.frequency
+- [ ] Ensure full coverage for mysql.stats.distribution
 
 ---
 

@@ -100,9 +100,8 @@ spatial Tool Group (12 tools +1 for code mode):
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.spatial.buffer
-- [ ] Ensure full coverage for mysql.spatial.transform
-- [ ] Ensure full coverage for mysql.spatial.geojson
+- [ ] Ensure full coverage for mysql.spatial.createColumn
+- [ ] Ensure full coverage for mysql.spatial.createIndex
 
 ---
 

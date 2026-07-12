@@ -81,7 +81,11 @@
 - `mysql.spatial.geojson`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.spatial.buffer
+- [ ] Ensure full coverage for mysql.spatial.transform
+- [ ] Ensure full coverage for mysql.spatial.geojson
 
 ---
 

@@ -79,9 +79,12 @@
 - `mysql_spatial_transform`
 
 
-## Group Focus: spatial
+## Group Focus: spatial\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_spatial_distance\n- [ ] mysql_spatial_transform
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_spatial_distance
+- [ ] Ensure full coverage for mysql_spatial_transform
 
 ---
 

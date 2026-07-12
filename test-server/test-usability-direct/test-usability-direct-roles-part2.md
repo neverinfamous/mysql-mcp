@@ -81,7 +81,11 @@
 - `mysql_role_assign`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_role_grants
+- [ ] Ensure full coverage for mysql_role_grant
+- [ ] Ensure full coverage for mysql_role_assign
 
 ---
 

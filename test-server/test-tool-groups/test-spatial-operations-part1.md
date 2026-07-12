@@ -79,9 +79,12 @@
 - `mysql_spatial_within`
 
 
-## Group Focus: spatial
+## Group Focus: spatial\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_spatial_create_index\n- [ ] mysql_spatial_within
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_spatial_create_index
+- [ ] Ensure full coverage for mysql_spatial_within
 
 ---
 

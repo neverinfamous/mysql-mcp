@@ -81,7 +81,11 @@
 - `mysql.spatial.point`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.spatial.createColumn
+- [ ] Ensure full coverage for mysql.spatial.createIndex
+- [ ] Ensure full coverage for mysql.spatial.point
 
 ---
 

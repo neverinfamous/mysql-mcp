@@ -79,7 +79,10 @@
 - `mysql_vector_stats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_vector_optimize
+- [ ] Ensure full coverage for mysql_vector_stats
 
 ---
 

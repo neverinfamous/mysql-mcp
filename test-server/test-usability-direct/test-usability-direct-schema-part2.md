@@ -81,7 +81,11 @@
 - `mysql_drop_view`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_list_views
+- [ ] Ensure full coverage for mysql_create_view
+- [ ] Ensure full coverage for mysql_drop_view
 
 ---
 

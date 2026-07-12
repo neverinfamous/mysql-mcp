@@ -81,7 +81,11 @@
 - `mysql.proxysql.queryRules`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.proxysql.status
+- [ ] Ensure full coverage for mysql.proxysql.servers
+- [ ] Ensure full coverage for mysql.proxysql.queryRules
 
 ---
 

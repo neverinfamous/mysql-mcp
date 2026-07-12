@@ -77,7 +77,9 @@
 - `mysqlsh_run_script`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysqlsh_run_script
 
 ---
 

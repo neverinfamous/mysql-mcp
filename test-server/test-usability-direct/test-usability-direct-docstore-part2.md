@@ -81,7 +81,11 @@
 - `mysql_doc_modify`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_doc_find
+- [ ] Ensure full coverage for mysql_doc_add
+- [ ] Ensure full coverage for mysql_doc_modify
 
 ---
 

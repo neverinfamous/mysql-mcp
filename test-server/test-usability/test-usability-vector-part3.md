@@ -66,9 +66,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.vector.vectorHybridSearch` |   |   |   |
-| `mysql.vector.vectorInfo` |   |   |   |
-| `mysql.vector.vectorCreateIndex` |   |   |   |
+| `mysql.vector.hybridSearch` |   |   |   |
+| `mysql.vector.info` |   |   |   |
+| `mysql.vector.createIndex` |   |   |   |
 
 ---
 
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.vector.vectorHybridSearch`
-- `mysql.vector.vectorInfo`
-- `mysql.vector.vectorCreateIndex`
+- `mysql.vector.hybridSearch`
+- `mysql.vector.info`
+- `mysql.vector.createIndex`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.vector.hybridSearch
+- [ ] Ensure full coverage for mysql.vector.info
+- [ ] Ensure full coverage for mysql.vector.createIndex
 
 ---
 

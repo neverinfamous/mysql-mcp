@@ -79,9 +79,12 @@
 - `mysql_fulltext_boolean`
 
 
-## Group Focus: fulltext
+## Group Focus: fulltext\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_fulltext_drop\n- [ ] mysql_fulltext_boolean
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_fulltext_drop
+- [ ] Ensure full coverage for mysql_fulltext_boolean
 
 ---
 

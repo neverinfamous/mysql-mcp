@@ -81,7 +81,11 @@
 - `mysql_conditional_update`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_disable_versioning
+- [ ] Ensure full coverage for mysql_check_version
+- [ ] Ensure full coverage for mysql_conditional_update
 
 ---
 

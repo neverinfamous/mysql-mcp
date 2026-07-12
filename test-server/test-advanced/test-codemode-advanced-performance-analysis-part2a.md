@@ -83,10 +83,11 @@
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.performance.indexUsage
 - [ ] Ensure full coverage for mysql.performance.tableStats
 - [ ] Ensure full coverage for mysql.performance.bufferPoolStats
+
+- Implement tests for the tools listed above.
 
 ---
 

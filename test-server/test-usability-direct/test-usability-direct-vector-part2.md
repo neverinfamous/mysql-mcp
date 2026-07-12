@@ -81,7 +81,11 @@
 - `mysql_vector_range_search`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_vector_get
+- [ ] Ensure full coverage for mysql_vector_search
+- [ ] Ensure full coverage for mysql_vector_range_search
 
 ---
 

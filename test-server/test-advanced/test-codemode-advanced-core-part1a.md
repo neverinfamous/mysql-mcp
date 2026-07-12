@@ -83,10 +83,11 @@
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.core.readQuery
 - [ ] Ensure full coverage for mysql.core.writeQuery
 - [ ] Ensure full coverage for mysql.core.listTables
+
+- Implement tests for the tools listed above.
 
 ---
 

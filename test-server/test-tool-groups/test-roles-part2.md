@@ -81,9 +81,13 @@
 - `mysql_user_roles`
 
 
-## Group Focus: roles
+## Group Focus: roles\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_role_create\n- [ ] mysql_role_grant\n- [ ] mysql_user_roles
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_role_create
+- [ ] Ensure full coverage for mysql_role_grant
+- [ ] Ensure full coverage for mysql_user_roles
 
 ---
 

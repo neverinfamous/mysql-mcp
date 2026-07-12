@@ -81,10 +81,13 @@
 - `mysql.replication.binlogEvents`
 
 
-## Group Focus: replication
+## Group Focus: replication\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.replication.masterStatus
+- [ ] Ensure full coverage for mysql.replication.slaveStatus
+- [ ] Ensure full coverage for mysql.replication.binlogEvents
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.stats.regression`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.stats.distribution
+- [ ] Ensure full coverage for mysql.stats.timeSeries
+- [ ] Ensure full coverage for mysql.stats.regression
 
 ---
 

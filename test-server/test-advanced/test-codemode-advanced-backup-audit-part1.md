@@ -81,6 +81,9 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.backup.auditListBackups
+- [ ] Ensure full coverage for mysql.backup.auditRestoreBackup
+
 ---
 
 ## Execute Post-Test Procedures

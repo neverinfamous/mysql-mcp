@@ -89,8 +89,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.stats.lagLead
 - [ ] Ensure full coverage for mysql.stats.ntile
-- [ ] Ensure full coverage for mysql.stats.hypothesis
 
 ---
 

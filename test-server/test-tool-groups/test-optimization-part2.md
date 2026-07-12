@@ -79,9 +79,12 @@
 - `mysql_optimizer_trace`
 
 
-## Group Focus: optimization
+## Group Focus: optimization\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_query_rewrite\n- [ ] mysql_optimizer_trace
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_query_rewrite
+- [ ] Ensure full coverage for mysql_optimizer_trace
 
 ---
 

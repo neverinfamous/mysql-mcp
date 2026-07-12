@@ -81,7 +81,11 @@
 - `mysql_list_tables`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_read_query
+- [ ] Ensure full coverage for mysql_write_query
+- [ ] Ensure full coverage for mysql_list_tables
 
 ---
 

@@ -81,9 +81,13 @@
 - `mysql_replication_lag`
 
 
-## Group Focus: replication
+## Group Focus: replication\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_master_status\n- [ ] mysql_binlog_events\n- [ ] mysql_replication_lag
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_master_status
+- [ ] Ensure full coverage for mysql_binlog_events
+- [ ] Ensure full coverage for mysql_replication_lag
 
 ---
 

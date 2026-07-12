@@ -89,6 +89,10 @@ This document provides testing instructions to validate the OCC (Optimistic Conc
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.core.enableVersioning
+- [ ] Ensure full coverage for mysql.core.disableVersioning
+- [ ] Ensure full coverage for mysql.core.checkVersion
+
 ### 1. Enable/Disable Toggle Stress
 - Use `mysql.versioning.enable` on a test table, verify `_version` column and triggers exist.
 - Use `mysql.versioning.disable`, verify they are cleanly removed.

@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.transactions.transactionRelease` |   |   |
-| `mysql.transactions.transactionRollbackTo` |   |   |
-| `mysql.transactions.transactionExecute` |   |   |
+| `mysql.transactions.release` |   |   |
+| `mysql.transactions.rollbackTo` |   |   |
+| `mysql.transactions.execute` |   |   |
 
 ---
 
@@ -76,19 +76,21 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.transactions.transactionRelease`
-- `mysql.transactions.transactionRollbackTo`
-- `mysql.transactions.transactionExecute`
+- `mysql.transactions.release`
+- `mysql.transactions.rollbackTo`
+- `mysql.transactions.execute`
 
 
 ## Tasks
+
+- [ ] Ensure full coverage for mysql.transactions.release
+- [ ] Ensure full coverage for mysql.transactions.rollbackTo
+- [ ] Ensure full coverage for mysql.transactions.execute
 
 ## Category 3: Rapid State Transitions
 
 6. Execute 5 sequential begin/commit cycles — verify no connection pool exhaustion
 7. Execute transaction_execute with 10+ statements — verify all succeed
-- [ ] Ensure full coverage for mysql.transactions.release
-- [ ] Ensure full coverage for mysql.transactions.rollbackTo
 
 
 ## Category 4: Mixed Statement Failures

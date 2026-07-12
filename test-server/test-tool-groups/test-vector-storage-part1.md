@@ -79,9 +79,12 @@
 - `mysql_vector_create_index`
 
 
-## Group Focus: vector
+## Group Focus: vector\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_vector_get\n- [ ] mysql_vector_create_index
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_vector_get
+- [ ] Ensure full coverage for mysql_vector_create_index
 
 ---
 

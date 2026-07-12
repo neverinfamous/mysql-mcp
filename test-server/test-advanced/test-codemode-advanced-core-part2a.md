@@ -81,9 +81,10 @@
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.core.createIndex
 - [ ] Ensure full coverage for mysql.core.getIndexes
+
+- Implement tests for the tools listed above.
 
 ---
 

@@ -66,9 +66,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.vector.vectorSearch` |   |   |
-| `mysql.vector.vectorRangeSearch` |   |   |
-| `mysql.vector.vectorHybridSearch` |   |   |
+| `mysql.vector.search` |   |   |
+| `mysql.vector.rangeSearch` |   |   |
+| `mysql.vector.hybridSearch` |   |   |
 
 ---
 
@@ -76,15 +76,18 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.vector.vectorSearch`
-- `mysql.vector.vectorRangeSearch`
-- `mysql.vector.vectorHybridSearch`
+- `mysql.vector.search`
+- `mysql.vector.rangeSearch`
+- `mysql.vector.hybridSearch`
 
 
-## Group Focus: vector
+## Group Focus: vector\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.vector.search
+- [ ] Ensure full coverage for mysql.vector.rangeSearch
+- [ ] Ensure full coverage for mysql.vector.hybridSearch
 
 ---
 

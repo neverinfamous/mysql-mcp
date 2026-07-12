@@ -81,9 +81,10 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.shell.dumpInstance
+- [ ] Ensure full coverage for mysql.shell.dumpSchemas
+
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql.shell.loadDump
-- [ ] Ensure full coverage for mysql.shell.runScript
 
 ---
 

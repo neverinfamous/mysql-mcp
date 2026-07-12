@@ -81,7 +81,11 @@
 - `mysql.security.sslStatus`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.security.maskData
+- [ ] Ensure full coverage for mysql.security.passwordValidate
+- [ ] Ensure full coverage for mysql.security.sslStatus
 
 ---
 

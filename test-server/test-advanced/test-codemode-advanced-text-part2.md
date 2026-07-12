@@ -83,6 +83,10 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.text.soundex
+- [ ] Ensure full coverage for mysql.text.substring
+- [ ] Ensure full coverage for mysql.text.concat
+
 ## Category 2: Unicode & Encoding
 
 4. Create `stress_text_unicode` table with VARCHAR column, insert rows with multi-byte UTF-8 characters (e.g., `'日本語'`, `'émojis 🎉'`)

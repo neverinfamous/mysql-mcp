@@ -81,7 +81,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.shell.importTable
+- [ ] Ensure full coverage for mysql.shell.dumpTables
+- [ ] Ensure full coverage for mysql.shell.loadDump
 
 ---
 

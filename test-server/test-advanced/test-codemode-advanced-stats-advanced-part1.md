@@ -97,9 +97,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.descriptive
-- [ ] Ensure full coverage for mysql.stats.percentiles
 - [ ] Ensure full coverage for mysql.stats.correlation
+- [ ] Ensure full coverage for mysql.stats.regression
+- [ ] Ensure full coverage for mysql.stats.sampling
 
 ---
 

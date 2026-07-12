@@ -81,7 +81,11 @@
 - `mysql_kill_query`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_repair_table
+- [ ] Ensure full coverage for mysql_flush_tables
+- [ ] Ensure full coverage for mysql_kill_query
 
 ---
 

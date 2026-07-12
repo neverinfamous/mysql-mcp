@@ -77,7 +77,9 @@
 - `mysql_audit_diff_backup`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_audit_diff_backup
 
 ---
 

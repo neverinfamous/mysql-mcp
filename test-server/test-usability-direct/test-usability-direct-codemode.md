@@ -77,7 +77,9 @@
 - `mysql_execute_code`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_execute_code
 
 ---
 

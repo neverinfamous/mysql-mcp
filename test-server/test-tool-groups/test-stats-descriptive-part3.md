@@ -81,9 +81,13 @@
 - `mysql_stats_frequency`
 
 
-## Group Focus: stats
+## Group Focus: stats\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_stats_time_series\n- [ ] mysql_stats_running_total\n- [ ] mysql_stats_frequency
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_time_series
+- [ ] Ensure full coverage for mysql_stats_running_total
+- [ ] Ensure full coverage for mysql_stats_frequency
 
 ---
 

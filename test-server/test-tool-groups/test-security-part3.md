@@ -81,9 +81,13 @@
 - `mysql_security_encryption_status`
 
 
-## Group Focus: security
+## Group Focus: security\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_security_firewall_rules\n- [ ] mysql_security_ssl_status\n- [ ] mysql_security_encryption_status
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_security_firewall_rules
+- [ ] Ensure full coverage for mysql_security_ssl_status
+- [ ] Ensure full coverage for mysql_security_encryption_status
 
 ---
 

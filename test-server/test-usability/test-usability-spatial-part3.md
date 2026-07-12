@@ -81,7 +81,11 @@
 - `mysql.spatial.intersection`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.spatial.contains
+- [ ] Ensure full coverage for mysql.spatial.within
+- [ ] Ensure full coverage for mysql.spatial.intersection
 
 ---
 

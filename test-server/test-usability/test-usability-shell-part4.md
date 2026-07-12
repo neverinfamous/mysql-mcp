@@ -67,7 +67,6 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.shell.runScript` |   |   |   |
-| `mysql.shell.loadDump` |   |   |   |
 
 ---
 
@@ -76,10 +75,11 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.shell.runScript`
-- `mysql.shell.loadDump`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.shell.runScript
 
 ---
 

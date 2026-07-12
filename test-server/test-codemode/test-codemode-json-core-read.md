@@ -81,10 +81,13 @@
 - `mysql.json.keys`
 
 
-## Group Focus: json
+## Group Focus: json\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.json.extract
+- [ ] Ensure full coverage for mysql.json.contains
+- [ ] Ensure full coverage for mysql.json.keys
 
 ---
 

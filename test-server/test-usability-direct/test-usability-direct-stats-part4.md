@@ -81,7 +81,11 @@
 - `mysql_stats_running_total`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_stats_rank
+- [ ] Ensure full coverage for mysql_stats_lag_lead
+- [ ] Ensure full coverage for mysql_stats_running_total
 
 ---
 

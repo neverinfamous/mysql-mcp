@@ -81,7 +81,11 @@
 - `mysql.shell.exportTable`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.shell.version
+- [ ] Ensure full coverage for mysql.shell.checkUpgrade
+- [ ] Ensure full coverage for mysql.shell.exportTable
 
 ---
 

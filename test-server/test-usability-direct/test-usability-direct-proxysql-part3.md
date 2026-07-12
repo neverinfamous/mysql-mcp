@@ -81,7 +81,11 @@
 - `proxysql_memory_stats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for proxysql_global_variables
+- [ ] Ensure full coverage for proxysql_runtime_status
+- [ ] Ensure full coverage for proxysql_memory_stats
 
 ---
 

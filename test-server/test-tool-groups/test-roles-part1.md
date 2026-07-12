@@ -81,9 +81,13 @@
 - `mysql_role_revoke`
 
 
-## Group Focus: roles
+## Group Focus: roles\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_role_list\n- [ ] mysql_role_grants\n- [ ] mysql_role_revoke
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_role_list
+- [ ] Ensure full coverage for mysql_role_grants
+- [ ] Ensure full coverage for mysql_role_revoke
 
 ---
 

@@ -81,10 +81,13 @@
 - `mysql.stats.lagLead`
 
 
-## Group Focus: stats
+## Group Focus: stats\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.stats.rowNumber
+- [ ] Ensure full coverage for mysql.stats.rank
+- [ ] Ensure full coverage for mysql.stats.lagLead
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.admin.killQuery`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.admin.repairTable
+- [ ] Ensure full coverage for mysql.admin.flushTables
+- [ ] Ensure full coverage for mysql.admin.killQuery
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.schema.listConstraints`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.schema.createTrigger
+- [ ] Ensure full coverage for mysql.schema.dropTrigger
+- [ ] Ensure full coverage for mysql.schema.listConstraints
 
 ---
 

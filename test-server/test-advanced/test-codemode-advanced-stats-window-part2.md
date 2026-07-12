@@ -87,8 +87,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.frequency
-- [ ] Ensure full coverage for mysql.stats.summary
+- [ ] Ensure full coverage for mysql.stats.topN
 
 ---
 

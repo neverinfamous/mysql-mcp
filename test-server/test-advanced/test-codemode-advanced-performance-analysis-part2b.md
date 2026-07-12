@@ -79,8 +79,9 @@
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.performance.threadStats
+
+- Implement tests for the tools listed above.
 
 ---
 

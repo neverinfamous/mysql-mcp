@@ -81,7 +81,11 @@
 - `mysql.performance.tableStats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.performance.queryStats
+- [ ] Ensure full coverage for mysql.performance.indexUsage
+- [ ] Ensure full coverage for mysql.performance.tableStats
 
 ---
 

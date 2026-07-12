@@ -81,7 +81,11 @@
 - `mysql_sys_schema_stats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_sys_wait_summary
+- [ ] Ensure full coverage for mysql_sys_innodb_lock_waits
+- [ ] Ensure full coverage for mysql_sys_schema_stats
 
 ---
 

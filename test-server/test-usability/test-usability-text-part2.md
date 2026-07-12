@@ -81,7 +81,11 @@
 - `mysql.text.collationConvert`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.text.substring
+- [ ] Ensure full coverage for mysql.text.concat
+- [ ] Ensure full coverage for mysql.text.collationConvert
 
 ---
 

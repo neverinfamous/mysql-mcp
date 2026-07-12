@@ -81,9 +81,13 @@
 - `mysql_security_sensitive_tables`
 
 
-## Group Focus: security
+## Group Focus: security\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_security_firewall_status\n- [ ] mysql_security_password_validate\n- [ ] mysql_security_sensitive_tables
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_security_firewall_status
+- [ ] Ensure full coverage for mysql_security_password_validate
+- [ ] Ensure full coverage for mysql_security_sensitive_tables
 
 ---
 

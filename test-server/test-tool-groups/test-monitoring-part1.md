@@ -81,9 +81,13 @@
 - `mysql_server_health`
 
 
-## Group Focus: monitoring
+## Group Focus: monitoring\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_show_processlist\n- [ ] mysql_innodb_status\n- [ ] mysql_server_health
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_show_processlist
+- [ ] Ensure full coverage for mysql_innodb_status
+- [ ] Ensure full coverage for mysql_server_health
 
 ---
 

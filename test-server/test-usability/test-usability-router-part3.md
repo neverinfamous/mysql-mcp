@@ -81,7 +81,11 @@
 - `mysql.router.poolStatus`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.router.routeBlockedHosts
+- [ ] Ensure full coverage for mysql.router.metadataStatus
+- [ ] Ensure full coverage for mysql.router.poolStatus
 
 ---
 

@@ -81,9 +81,13 @@
 - `mysql_migration_history`
 
 
-## Group Focus: migration
+## Group Focus: migration\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_migration_init\n- [ ] mysql_migration_apply\n- [ ] mysql_migration_history
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_migration_init
+- [ ] Ensure full coverage for mysql_migration_apply
+- [ ] Ensure full coverage for mysql_migration_history
 
 ---
 

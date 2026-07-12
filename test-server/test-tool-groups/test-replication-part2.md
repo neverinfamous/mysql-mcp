@@ -79,9 +79,12 @@
 - `mysql_gtid_status`
 
 
-## Group Focus: replication
+## Group Focus: replication\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_slave_status\n- [ ] mysql_gtid_status
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_slave_status
+- [ ] Ensure full coverage for mysql_gtid_status
 
 ---
 

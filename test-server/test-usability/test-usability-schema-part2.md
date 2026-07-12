@@ -81,7 +81,11 @@
 - `mysql.schema.dropView`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.schema.listViews
+- [ ] Ensure full coverage for mysql.schema.createView
+- [ ] Ensure full coverage for mysql.schema.dropView
 
 ---
 

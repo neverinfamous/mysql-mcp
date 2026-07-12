@@ -81,7 +81,11 @@
 - `mysql_security_ssl_status`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_security_mask_data
+- [ ] Ensure full coverage for mysql_security_password_validate
+- [ ] Ensure full coverage for mysql_security_ssl_status
 
 ---
 

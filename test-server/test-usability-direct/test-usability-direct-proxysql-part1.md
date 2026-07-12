@@ -81,7 +81,11 @@
 - `proxysql_query_rules`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for proxysql_status
+- [ ] Ensure full coverage for proxysql_servers
+- [ ] Ensure full coverage for proxysql_query_rules
 
 ---
 

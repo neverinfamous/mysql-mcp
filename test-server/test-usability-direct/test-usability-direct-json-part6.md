@@ -79,7 +79,10 @@
 - `mysql_json_index_suggest`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_json_stats
+- [ ] Ensure full coverage for mysql_json_index_suggest
 
 ---
 

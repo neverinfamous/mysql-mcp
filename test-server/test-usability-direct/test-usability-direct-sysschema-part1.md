@@ -81,7 +81,11 @@
 - `mysql_sys_statement_summary`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_sys_user_summary
+- [ ] Ensure full coverage for mysql_sys_io_summary
+- [ ] Ensure full coverage for mysql_sys_statement_summary
 
 ---
 

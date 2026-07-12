@@ -77,7 +77,9 @@
 - `mysql_cluster_switchover`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_cluster_switchover
 
 ---
 

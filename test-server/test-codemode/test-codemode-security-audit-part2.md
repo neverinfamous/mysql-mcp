@@ -79,10 +79,12 @@
 - `mysql.security.sensitiveTables`
 
 
-## Group Focus: security
+## Group Focus: security\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.security.userPrivileges
+- [ ] Ensure full coverage for mysql.security.sensitiveTables
 
 ---
 

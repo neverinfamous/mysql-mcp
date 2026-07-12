@@ -81,7 +81,11 @@
 - `mysql_json_contains`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_json_replace
+- [ ] Ensure full coverage for mysql_json_remove
+- [ ] Ensure full coverage for mysql_json_contains
 
 ---
 

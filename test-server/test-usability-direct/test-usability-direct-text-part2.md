@@ -81,7 +81,11 @@
 - `mysql_collation_convert`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_substring
+- [ ] Ensure full coverage for mysql_concat
+- [ ] Ensure full coverage for mysql_collation_convert
 
 ---
 

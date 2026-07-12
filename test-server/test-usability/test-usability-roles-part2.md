@@ -66,9 +66,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.roles.roleGrants` |   |   |   |
-| `mysql.roles.roleGrant` |   |   |   |
-| `mysql.roles.roleAssign` |   |   |   |
+| `mysql.roles.grants` |   |   |   |
+| `mysql.roles.grant` |   |   |   |
+| `mysql.roles.assign` |   |   |   |
 
 ---
 
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.roles.roleGrants`
-- `mysql.roles.roleGrant`
-- `mysql.roles.roleAssign`
+- `mysql.roles.grants`
+- `mysql.roles.grant`
+- `mysql.roles.assign`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.roles.grants
+- [ ] Ensure full coverage for mysql.roles.grant
+- [ ] Ensure full coverage for mysql.roles.assign
 
 ---
 

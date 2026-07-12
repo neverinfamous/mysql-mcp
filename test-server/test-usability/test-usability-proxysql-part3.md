@@ -81,7 +81,11 @@
 - `mysql.proxysql.memoryStats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.proxysql.globalVariables
+- [ ] Ensure full coverage for mysql.proxysql.runtimeStatus
+- [ ] Ensure full coverage for mysql.proxysql.memoryStats
 
 ---
 

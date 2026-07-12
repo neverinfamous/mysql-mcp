@@ -79,7 +79,10 @@
 - `mysql_detect_connection_spike`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_detect_bloat_risk
+- [ ] Ensure full coverage for mysql_detect_connection_spike
 
 ---
 

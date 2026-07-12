@@ -81,7 +81,11 @@
 - `mysql.schema.dropSchema`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.schema.listSchemas
+- [ ] Ensure full coverage for mysql.schema.createSchema
+- [ ] Ensure full coverage for mysql.schema.dropSchema
 
 ---
 

@@ -81,9 +81,13 @@
 - `mysql_router_pool_status`
 
 
-## Group Focus: router
+## Group Focus: router\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_router_route_status\n- [ ] mysql_router_route_destinations\n- [ ] mysql_router_pool_status
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_router_route_status
+- [ ] Ensure full coverage for mysql_router_route_destinations
+- [ ] Ensure full coverage for mysql_router_pool_status
 
 ---
 

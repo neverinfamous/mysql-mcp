@@ -81,9 +81,13 @@
 - `mysql_server_config`
 
 
-## Group Focus: admin
+## Group Focus: admin\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_analyze_table\n- [ ] mysql_flush_tables\n- [ ] mysql_server_config
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_analyze_table
+- [ ] Ensure full coverage for mysql_flush_tables
+- [ ] Ensure full coverage for mysql_server_config
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_security_encryption_status`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_security_user_privileges
+- [ ] Ensure full coverage for mysql_security_sensitive_tables
+- [ ] Ensure full coverage for mysql_security_encryption_status
 
 ---
 

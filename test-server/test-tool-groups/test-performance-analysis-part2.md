@@ -81,9 +81,13 @@
 - `mysql_detect_bloat_risk`
 
 
-## Group Focus: performance
+## Group Focus: performance\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_explain_analyze\n- [ ] mysql_table_stats\n- [ ] mysql_detect_bloat_risk
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_explain_analyze
+- [ ] Ensure full coverage for mysql_table_stats
+- [ ] Ensure full coverage for mysql_detect_bloat_risk
 
 ---
 

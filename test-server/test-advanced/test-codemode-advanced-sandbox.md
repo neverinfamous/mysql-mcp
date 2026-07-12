@@ -83,6 +83,8 @@ This document provides testing instructions to validate the strict security boun
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_execute_code
+
 ### 1. Built-in Modules
 - Attempt to `require` or `import` standard Node.js modules like `fs`, `child_process`, `os`, and `path`.
 - Verify the code throws an error or returns a failure indicating the modules are inaccessible.
@@ -106,7 +108,6 @@ This document provides testing instructions to validate the strict security boun
 ### 6. Scope Breakout
 - Attempt to access `context.requireToolScope` or override any injected `mysql.*` tools to bypass the `openWorldHint` or `destructiveHint` barriers.
 - Verify the operations either fail or do not result in unauthorized database access.
-- [ ] Ensure full coverage for mysql_execute_code
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.monitoring.showVariables`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.monitoring.showProcesslist
+- [ ] Ensure full coverage for mysql.monitoring.showStatus
+- [ ] Ensure full coverage for mysql.monitoring.showVariables
 
 ---
 

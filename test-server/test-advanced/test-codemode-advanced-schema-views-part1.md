@@ -81,6 +81,9 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.schema.listViews
+- [ ] Ensure full coverage for mysql.schema.createView
+
 ---
 
 ## Execute Post-Test Procedures

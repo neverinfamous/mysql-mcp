@@ -81,7 +81,11 @@
 - `mysql_spatial_point`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_spatial_create_column
+- [ ] Ensure full coverage for mysql_spatial_create_index
+- [ ] Ensure full coverage for mysql_spatial_point
 
 ---
 

@@ -66,8 +66,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.transactions.transactionBegin` |   |   |
-| `mysql.transactions.transactionCommit` |   |   |
+| `mysql.transactions.begin` |   |   |
+| `mysql.transactions.commit` |   |   |
 
 ---
 
@@ -75,14 +75,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.transactions.transactionBegin`
-- `mysql.transactions.transactionCommit`
+- `mysql.transactions.begin`
+- `mysql.transactions.commit`
 
 
-## Group Focus: transactions
+## Group Focus: transactions\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.transactions.begin
+- [ ] Ensure full coverage for mysql.transactions.commit
 
 ---
 

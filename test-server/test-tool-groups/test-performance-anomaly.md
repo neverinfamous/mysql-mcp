@@ -79,9 +79,12 @@
 - `mysql_thread_stats`
 
 
-## Group Focus: performance
+## Group Focus: performance\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_query_stats\n- [ ] mysql_thread_stats
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_query_stats
+- [ ] Ensure full coverage for mysql_thread_stats
 
 ---
 

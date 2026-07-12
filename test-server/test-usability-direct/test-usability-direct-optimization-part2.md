@@ -77,7 +77,9 @@
 - `mysql_optimizer_trace`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_optimizer_trace
 
 ---
 

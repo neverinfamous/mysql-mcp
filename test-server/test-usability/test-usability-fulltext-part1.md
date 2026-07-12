@@ -66,9 +66,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.fulltext.fulltextCreate` |   |   |   |
-| `mysql.fulltext.fulltextDrop` |   |   |   |
-| `mysql.fulltext.fulltextSearch` |   |   |   |
+| `mysql.fulltext.create` |   |   |   |
+| `mysql.fulltext.drop` |   |   |   |
+| `mysql.fulltext.search` |   |   |   |
 
 ---
 
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.fulltext.fulltextCreate`
-- `mysql.fulltext.fulltextDrop`
-- `mysql.fulltext.fulltextSearch`
+- `mysql.fulltext.create`
+- `mysql.fulltext.drop`
+- `mysql.fulltext.search`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.fulltext.create
+- [ ] Ensure full coverage for mysql.fulltext.drop
+- [ ] Ensure full coverage for mysql.fulltext.search
 
 ---
 

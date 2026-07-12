@@ -81,7 +81,11 @@
 - `mysql.stats.hypothesis`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.stats.movingAvg
+- [ ] Ensure full coverage for mysql.stats.ntile
+- [ ] Ensure full coverage for mysql.stats.hypothesis
 
 ---
 

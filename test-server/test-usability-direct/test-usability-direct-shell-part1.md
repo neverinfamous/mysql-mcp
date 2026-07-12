@@ -81,7 +81,11 @@
 - `mysqlsh_export_table`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysqlsh_version
+- [ ] Ensure full coverage for mysqlsh_check_upgrade
+- [ ] Ensure full coverage for mysqlsh_export_table
 
 ---
 

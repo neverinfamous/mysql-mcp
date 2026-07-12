@@ -81,9 +81,13 @@
 - `mysql_event_status`
 
 
-## Group Focus: events
+## Group Focus: events\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_event_create\n- [ ] mysql_event_drop\n- [ ] mysql_event_status
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_event_create
+- [ ] Ensure full coverage for mysql_event_drop
+- [ ] Ensure full coverage for mysql_event_status
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.schema.listTriggers`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.schema.listStoredProcedures
+- [ ] Ensure full coverage for mysql.schema.listFunctions
+- [ ] Ensure full coverage for mysql.schema.listTriggers
 
 ---
 

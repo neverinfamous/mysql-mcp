@@ -81,7 +81,11 @@
 - `mysql_router_route_destinations`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_router_route_health
+- [ ] Ensure full coverage for mysql_router_route_connections
+- [ ] Ensure full coverage for mysql_router_route_destinations
 
 ---
 

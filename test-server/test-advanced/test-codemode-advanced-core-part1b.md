@@ -83,10 +83,11 @@
 
 ## Tasks
 
-- Implement tests for the tools listed above.
 - [ ] Ensure full coverage for mysql.core.describeTable
 - [ ] Ensure full coverage for mysql.core.createTable
 - [ ] Ensure full coverage for mysql.core.dropTable
+
+- Implement tests for the tools listed above.
 
 ---
 

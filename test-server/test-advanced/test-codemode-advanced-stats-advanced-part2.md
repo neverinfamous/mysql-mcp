@@ -97,8 +97,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.distribution
-- [ ] Ensure full coverage for mysql.stats.timeSeries
+- [ ] Ensure full coverage for mysql.stats.hypothesis
+- [ ] Ensure full coverage for mysql.stats.outliers
+- [ ] Ensure full coverage for mysql.stats.distinct
 
 ---
 

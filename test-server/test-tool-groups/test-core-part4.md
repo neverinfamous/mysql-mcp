@@ -81,9 +81,13 @@
 - `mysql_conditional_update`
 
 
-## Group Focus: core
+## Group Focus: core\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_describe_table\n- [ ] mysql_get_indexes\n- [ ] mysql_conditional_update
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_describe_table
+- [ ] Ensure full coverage for mysql_get_indexes
+- [ ] Ensure full coverage for mysql_conditional_update
 
 ---
 

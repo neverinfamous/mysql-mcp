@@ -81,7 +81,11 @@
 - `mysql_vector_delete`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_vector_store
+- [ ] Ensure full coverage for mysql_vector_batch_store
+- [ ] Ensure full coverage for mysql_vector_delete
 
 ---
 

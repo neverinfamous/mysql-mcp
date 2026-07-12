@@ -81,10 +81,13 @@
 - `mysql.text.collationConvert`
 
 
-## Group Focus: text
+## Group Focus: text\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.text.substring
+- [ ] Ensure full coverage for mysql.text.concat
+- [ ] Ensure full coverage for mysql.text.collationConvert
 
 ---
 

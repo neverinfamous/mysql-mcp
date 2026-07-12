@@ -79,9 +79,12 @@
 - `mysql_replication_status`
 
 
-## Group Focus: monitoring
+## Group Focus: monitoring\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_show_status\n- [ ] mysql_replication_status
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_show_status
+- [ ] Ensure full coverage for mysql_replication_status
 
 ---
 

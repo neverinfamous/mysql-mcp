@@ -81,6 +81,9 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.schema.dropView
+- [ ] Ensure full coverage for mysql.schema.listConstraints
+
 ---
 
 ## Execute Post-Test Procedures

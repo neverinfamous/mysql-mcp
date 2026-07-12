@@ -81,7 +81,11 @@
 - `mysql_list_constraints`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_create_trigger
+- [ ] Ensure full coverage for mysql_drop_trigger
+- [ ] Ensure full coverage for mysql_list_constraints
 
 ---
 

@@ -85,6 +85,8 @@ This document provides testing instructions to validate the OCC (Optimistic Conc
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.core.conditionalUpdate
+
 ### 1. Concurrent OCC Modifications
 - Create a test table, enable versioning, insert a row.
 - Simulate a race condition: manually `UPDATE` the row (incrementing the version).

@@ -81,7 +81,11 @@
 - `mysql_drop_schema`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_list_schemas
+- [ ] Ensure full coverage for mysql_create_schema
+- [ ] Ensure full coverage for mysql_drop_schema
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_enable_versioning`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_create_index
+- [ ] Ensure full coverage for mysql_get_indexes
+- [ ] Ensure full coverage for mysql_enable_versioning
 
 ---
 

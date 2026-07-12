@@ -94,9 +94,9 @@ Please conduct an exhaustive test of the tool group specified in the checklist b
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.schema.listStoredProcedures
-- [ ] Ensure full coverage for mysql.schema.listFunctions
 - [ ] Ensure full coverage for mysql.schema.listTriggers
+- [ ] Ensure full coverage for mysql.schema.createTrigger
+- [ ] Ensure full coverage for mysql.schema.dropTrigger
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.stats.correlation`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.stats.descriptive
+- [ ] Ensure full coverage for mysql.stats.percentiles
+- [ ] Ensure full coverage for mysql.stats.correlation
 
 ---
 

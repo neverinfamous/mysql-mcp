@@ -81,9 +81,13 @@
 - `mysql_enable_versioning`
 
 
-## Group Focus: core
+## Group Focus: core\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_read_query\n- [ ] mysql_create_table\n- [ ] mysql_enable_versioning
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_read_query
+- [ ] Ensure full coverage for mysql_create_table
+- [ ] Ensure full coverage for mysql_enable_versioning
 
 ---
 

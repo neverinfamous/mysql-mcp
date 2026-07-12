@@ -81,9 +81,13 @@
 - `mysql_collation_convert`
 
 
-## Group Focus: text
+## Group Focus: text\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_like_search\n- [ ] mysql_substring\n- [ ] mysql_collation_convert
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_like_search
+- [ ] Ensure full coverage for mysql_substring
+- [ ] Ensure full coverage for mysql_collation_convert
 
 ---
 

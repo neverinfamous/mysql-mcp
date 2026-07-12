@@ -79,7 +79,10 @@
 - `proxysql_process_list`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for proxysql_commands
+- [ ] Ensure full coverage for proxysql_process_list
 
 ---
 

@@ -79,9 +79,12 @@
 - `mysql_transaction_rollback_to`
 
 
-## Group Focus: transactions
+## Group Focus: transactions\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_transaction_rollback\n- [ ] mysql_transaction_rollback_to
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_transaction_rollback
+- [ ] Ensure full coverage for mysql_transaction_rollback_to
 
 ---
 

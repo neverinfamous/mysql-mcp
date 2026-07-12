@@ -81,9 +81,13 @@
 - `mysql_stats_distinct`
 
 
-## Group Focus: stats
+## Group Focus: stats\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_stats_distribution\n- [ ] mysql_stats_lag_lead\n- [ ] mysql_stats_distinct
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_stats_distribution
+- [ ] Ensure full coverage for mysql_stats_lag_lead
+- [ ] Ensure full coverage for mysql_stats_distinct
 
 ---
 

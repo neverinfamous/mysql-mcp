@@ -81,7 +81,11 @@
 - `mysql.text.soundex`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.text.regexpMatch
+- [ ] Ensure full coverage for mysql.text.likeSearch
+- [ ] Ensure full coverage for mysql.text.soundex
 
 ---
 

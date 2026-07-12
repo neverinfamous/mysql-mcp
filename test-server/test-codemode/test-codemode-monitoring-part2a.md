@@ -81,10 +81,13 @@
 - `mysql.monitoring.serverHealth`
 
 
-## Group Focus: monitoring
+## Group Focus: monitoring\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.monitoring.replicationStatus
+- [ ] Ensure full coverage for mysql.monitoring.poolStats
+- [ ] Ensure full coverage for mysql.monitoring.serverHealth
 
 ---
 

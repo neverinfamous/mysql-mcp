@@ -66,8 +66,7 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.cluster.clusterSwitchover` |   |   |   |
-| `mysql.cluster.clusterRouterStatus` |   |   |   |
+| `mysql.cluster.switchover` |   |   |   |
 
 ---
 
@@ -75,11 +74,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.cluster.clusterSwitchover`
-- `mysql.cluster.clusterRouterStatus`
+- `mysql.cluster.switchover`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.cluster.switchover
 
 ---
 

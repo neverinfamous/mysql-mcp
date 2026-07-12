@@ -66,9 +66,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.docstore.docFind` |   |   |   |
-| `mysql.docstore.docAdd` |   |   |   |
-| `mysql.docstore.docModify` |   |   |   |
+| `mysql.docstore.find` |   |   |   |
+| `mysql.docstore.add` |   |   |   |
+| `mysql.docstore.modify` |   |   |   |
 
 ---
 
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.docstore.docFind`
-- `mysql.docstore.docAdd`
-- `mysql.docstore.docModify`
+- `mysql.docstore.find`
+- `mysql.docstore.add`
+- `mysql.docstore.modify`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.docstore.find
+- [ ] Ensure full coverage for mysql.docstore.add
+- [ ] Ensure full coverage for mysql.docstore.modify
 
 ---
 

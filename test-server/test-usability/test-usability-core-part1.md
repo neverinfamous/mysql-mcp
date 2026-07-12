@@ -81,7 +81,11 @@
 - `mysql.core.listTables`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.core.readQuery
+- [ ] Ensure full coverage for mysql.core.writeQuery
+- [ ] Ensure full coverage for mysql.core.listTables
 
 ---
 

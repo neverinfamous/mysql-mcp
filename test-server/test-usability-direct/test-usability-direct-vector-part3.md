@@ -81,7 +81,11 @@
 - `mysql_vector_create_index`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_vector_hybrid_search
+- [ ] Ensure full coverage for mysql_vector_info
+- [ ] Ensure full coverage for mysql_vector_create_index
 
 ---
 

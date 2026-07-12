@@ -81,9 +81,13 @@
 - `mysql_concat`
 
 
-## Group Focus: text
+## Group Focus: text\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_regexp_match\n- [ ] mysql_soundex\n- [ ] mysql_concat
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_regexp_match
+- [ ] Ensure full coverage for mysql_soundex
+- [ ] Ensure full coverage for mysql_concat
 
 ---
 

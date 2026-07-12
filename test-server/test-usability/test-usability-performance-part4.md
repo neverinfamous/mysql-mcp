@@ -79,7 +79,10 @@
 - `mysql.performance.detectConnectionSpike`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.performance.detectBloatRisk
+- [ ] Ensure full coverage for mysql.performance.detectConnectionSpike
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_json_get`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_json_keys
+- [ ] Ensure full coverage for mysql_json_array_append
+- [ ] Ensure full coverage for mysql_json_get
 
 ---
 

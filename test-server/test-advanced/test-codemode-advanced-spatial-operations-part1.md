@@ -81,6 +81,9 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.spatial.distance
+- [ ] Ensure full coverage for mysql.spatial.distanceSphere
+
 ---
 
 ## Execute Post-Test Procedures

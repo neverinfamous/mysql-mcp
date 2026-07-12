@@ -102,9 +102,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.shell.version
-- [ ] Ensure full coverage for mysql.shell.checkUpgrade
 - [ ] Ensure full coverage for mysql.shell.exportTable
+- [ ] Ensure full coverage for mysql.shell.importTable
+- [ ] Ensure full coverage for mysql.shell.importJson
 
 ---
 

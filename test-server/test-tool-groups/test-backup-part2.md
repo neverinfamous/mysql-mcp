@@ -79,9 +79,12 @@
 - `mysql_audit_list_backups`
 
 
-## Group Focus: backup
+## Group Focus: backup\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_import_data\n- [ ] mysql_audit_list_backups
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_import_data
+- [ ] Ensure full coverage for mysql_audit_list_backups
 
 ---
 

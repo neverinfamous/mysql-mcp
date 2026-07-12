@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.sysschema.sysUserSummary` |   |   |
-| `mysql.sysschema.sysIoSummary` |   |   |
-| `mysql.sysschema.sysStatementSummary` |   |   |
+| `mysql.sysschema.userSummary` |   |   |
+| `mysql.sysschema.ioSummary` |   |   |
+| `mysql.sysschema.statementSummary` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.sysschema.sysUserSummary`
-- `mysql.sysschema.sysIoSummary`
-- `mysql.sysschema.sysStatementSummary`
+- `mysql.sysschema.userSummary`
+- `mysql.sysschema.ioSummary`
+- `mysql.sysschema.statementSummary`
 
 
 ## Tasks

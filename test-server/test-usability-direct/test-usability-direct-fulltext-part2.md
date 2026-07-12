@@ -79,7 +79,10 @@
 - `mysql_fulltext_expand`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_fulltext_boolean
+- [ ] Ensure full coverage for mysql_fulltext_expand
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql.spatial.distanceSphere`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.spatial.polygon
+- [ ] Ensure full coverage for mysql.spatial.distance
+- [ ] Ensure full coverage for mysql.spatial.distanceSphere
 
 ---
 

@@ -68,7 +68,7 @@
 |---|---|---|---|
 | `mysql.cluster.grTransactions` |   |   |   |
 | `mysql.cluster.grFlowControl` |   |   |   |
-| `mysql.cluster.clusterStatus` |   |   |   |
+| `mysql.cluster.status` |   |   |   |
 
 ---
 
@@ -78,10 +78,14 @@
 
 - `mysql.cluster.grTransactions`
 - `mysql.cluster.grFlowControl`
-- `mysql.cluster.clusterStatus`
+- `mysql.cluster.status`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.cluster.grTransactions
+- [ ] Ensure full coverage for mysql.cluster.grFlowControl
+- [ ] Ensure full coverage for mysql.cluster.status
 
 ---
 

@@ -81,9 +81,13 @@
 - `mysql_drop_trigger`
 
 
-## Group Focus: schema
+## Group Focus: schema\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_list_schemas\n- [ ] mysql_drop_view\n- [ ] mysql_drop_trigger
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_list_schemas
+- [ ] Ensure full coverage for mysql_drop_view
+- [ ] Ensure full coverage for mysql_drop_trigger
 
 ---
 

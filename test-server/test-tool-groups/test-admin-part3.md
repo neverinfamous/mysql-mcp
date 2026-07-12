@@ -81,9 +81,13 @@
 - `mysql_audit_search`
 
 
-## Group Focus: admin
+## Group Focus: admin\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_check_table\n- [ ] mysql_kill_query\n- [ ] mysql_audit_search
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_check_table
+- [ ] Ensure full coverage for mysql_kill_query
+- [ ] Ensure full coverage for mysql_audit_search
 
 ---
 

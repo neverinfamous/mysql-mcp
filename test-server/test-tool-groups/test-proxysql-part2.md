@@ -81,9 +81,13 @@
 - `proxysql_commands`
 
 
-## Group Focus: proxysql
+## Group Focus: proxysql\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] proxysql_servers\n- [ ] proxysql_users\n- [ ] proxysql_commands
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for proxysql_servers
+- [ ] Ensure full coverage for proxysql_users
+- [ ] Ensure full coverage for proxysql_commands
 
 ---
 

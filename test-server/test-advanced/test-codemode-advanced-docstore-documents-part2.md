@@ -66,8 +66,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.docstore.docModify` |   |   |
-| `mysql.docstore.docRemove` |   |   |
+| `mysql.docstore.modify` |   |   |
+| `mysql.docstore.remove` |   |   |
 
 ---
 
@@ -75,8 +75,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.docstore.docModify`
-- `mysql.docstore.docRemove`
+- `mysql.docstore.modify`
+- `mysql.docstore.remove`
 
 
 ## Category 1: Collection Lifecycle
@@ -100,7 +100,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.collectionInfo
+- [ ] Ensure full coverage for mysql.docstore.modify
+- [ ] Ensure full coverage for mysql.docstore.remove
 
 ---
 

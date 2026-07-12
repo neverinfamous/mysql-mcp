@@ -81,7 +81,11 @@
 - `mysql.migration.apply`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.migration.init
+- [ ] Ensure full coverage for mysql.migration.record
+- [ ] Ensure full coverage for mysql.migration.apply
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_event_drop`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_event_create
+- [ ] Ensure full coverage for mysql_event_alter
+- [ ] Ensure full coverage for mysql_event_drop
 
 ---
 

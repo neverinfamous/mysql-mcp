@@ -66,9 +66,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.sysschema.sysWaitSummary` |   |   |   |
-| `mysql.sysschema.sysInnodbLockWaits` |   |   |   |
-| `mysql.sysschema.sysSchemaStats` |   |   |   |
+| `mysql.sysschema.waitSummary` |   |   |   |
+| `mysql.sysschema.innodbLockWaits` |   |   |   |
+| `mysql.sysschema.schemaStats` |   |   |   |
 
 ---
 
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.sysschema.sysWaitSummary`
-- `mysql.sysschema.sysInnodbLockWaits`
-- `mysql.sysschema.sysSchemaStats`
+- `mysql.sysschema.waitSummary`
+- `mysql.sysschema.innodbLockWaits`
+- `mysql.sysschema.schemaStats`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.sysschema.waitSummary
+- [ ] Ensure full coverage for mysql.sysschema.innodbLockWaits
+- [ ] Ensure full coverage for mysql.sysschema.schemaStats
 
 ---
 

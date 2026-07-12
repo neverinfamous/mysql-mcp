@@ -81,9 +81,13 @@
 - `proxysql_memory_stats`
 
 
-## Group Focus: proxysql
+## Group Focus: proxysql\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] proxysql_status\n- [ ] proxysql_connection_pool\n- [ ] proxysql_memory_stats
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for proxysql_status
+- [ ] Ensure full coverage for proxysql_connection_pool
+- [ ] Ensure full coverage for proxysql_memory_stats
 
 ---
 

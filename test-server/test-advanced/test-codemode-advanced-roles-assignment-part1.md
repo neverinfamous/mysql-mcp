@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.roles.roleList` |   |   |
-| `mysql.roles.roleCreate` |   |   |
-| `mysql.roles.roleDrop` |   |   |
+| `mysql.roles.list` |   |   |
+| `mysql.roles.create` |   |   |
+| `mysql.roles.drop` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.roles.roleList`
-- `mysql.roles.roleCreate`
-- `mysql.roles.roleDrop`
+- `mysql.roles.list`
+- `mysql.roles.create`
+- `mysql.roles.drop`
 
 
 ## Category 1: Role Assignment Lifecycles

@@ -81,7 +81,11 @@
 - `mysql.router.routeStatus`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.router.status
+- [ ] Ensure full coverage for mysql.router.routes
+- [ ] Ensure full coverage for mysql.router.routeStatus
 
 ---
 

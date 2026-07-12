@@ -79,9 +79,12 @@
 - `mysql_pool_stats`
 
 
-## Group Focus: monitoring
+## Group Focus: monitoring\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_show_variables\n- [ ] mysql_pool_stats
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_show_variables
+- [ ] Ensure full coverage for mysql_pool_stats
 
 ---
 

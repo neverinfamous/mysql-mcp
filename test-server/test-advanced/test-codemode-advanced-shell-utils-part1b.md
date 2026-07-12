@@ -79,8 +79,9 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.shell.runScript
+
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql.shell.dumpTables
 
 ---
 

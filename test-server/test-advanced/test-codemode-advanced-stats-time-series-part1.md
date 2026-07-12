@@ -91,9 +91,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.lagLead
-- [ ] Ensure full coverage for mysql.stats.runningTotal
+- [ ] Ensure full coverage for mysql.stats.timeSeries
 - [ ] Ensure full coverage for mysql.stats.movingAvg
+- [ ] Ensure full coverage for mysql.stats.runningTotal
 
 ---
 

@@ -81,9 +81,13 @@
 - `mysql_security_user_privileges`
 
 
-## Group Focus: security
+## Group Focus: security\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_security_audit\n- [ ] mysql_security_mask_data\n- [ ] mysql_security_user_privileges
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_security_audit
+- [ ] Ensure full coverage for mysql_security_mask_data
+- [ ] Ensure full coverage for mysql_security_user_privileges
 
 ---
 

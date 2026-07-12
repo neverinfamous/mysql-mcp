@@ -81,7 +81,11 @@
 - `mysqlsh_dump_instance`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysqlsh_import_table
+- [ ] Ensure full coverage for mysqlsh_import_json
+- [ ] Ensure full coverage for mysqlsh_dump_instance
 
 ---
 

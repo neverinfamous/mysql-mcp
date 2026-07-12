@@ -77,7 +77,9 @@
 - `mysql_transaction_execute`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_transaction_execute
 
 ---
 

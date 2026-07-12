@@ -81,9 +81,13 @@
 - `mysql_fulltext_expand`
 
 
-## Group Focus: fulltext
+## Group Focus: fulltext\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_fulltext_create\n- [ ] mysql_fulltext_search\n- [ ] mysql_fulltext_expand
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_fulltext_create
+- [ ] Ensure full coverage for mysql_fulltext_search
+- [ ] Ensure full coverage for mysql_fulltext_expand
 
 ---
 

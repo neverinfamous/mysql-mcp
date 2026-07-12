@@ -81,9 +81,13 @@
 - `mysql_json_stats`
 
 
-## Group Focus: json
+## Group Focus: json\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_json_set\n- [ ] mysql_json_get\n- [ ] mysql_json_stats
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_json_set
+- [ ] Ensure full coverage for mysql_json_get
+- [ ] Ensure full coverage for mysql_json_stats
 
 ---
 

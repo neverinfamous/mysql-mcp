@@ -81,10 +81,10 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.shell.version
+- [ ] Ensure full coverage for mysql.shell.checkUpgrade
+
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql.shell.importJson
-- [ ] Ensure full coverage for mysql.shell.dumpInstance
-- [ ] Ensure full coverage for mysql.shell.dumpSchemas
 
 ---
 

@@ -81,9 +81,13 @@
 - `mysql_check_version`
 
 
-## Group Focus: core
+## Group Focus: core\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_list_tables\n- [ ] mysql_create_index\n- [ ] mysql_check_version
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_list_tables
+- [ ] Ensure full coverage for mysql_create_index
+- [ ] Ensure full coverage for mysql_check_version
 
 ---
 

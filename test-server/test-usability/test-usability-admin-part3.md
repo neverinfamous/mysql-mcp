@@ -81,7 +81,11 @@
 - `mysql.admin.auditSearch`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.admin.appendInsight
+- [ ] Ensure full coverage for mysql.admin.serverConfig
+- [ ] Ensure full coverage for mysql.admin.auditSearch
 
 ---
 

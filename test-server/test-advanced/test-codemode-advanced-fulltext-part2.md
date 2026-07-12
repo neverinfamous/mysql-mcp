@@ -66,8 +66,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.fulltext.fulltextBoolean` |   |   |
-| `mysql.fulltext.fulltextExpand` |   |   |
+| `mysql.fulltext.boolean` |   |   |
+| `mysql.fulltext.expand` |   |   |
 
 ---
 
@@ -75,8 +75,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.fulltext.fulltextBoolean`
-- `mysql.fulltext.fulltextExpand`
+- `mysql.fulltext.boolean`
+- `mysql.fulltext.expand`
 
 
 ## Category 1: Search Pipeline

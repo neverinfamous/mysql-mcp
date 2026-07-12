@@ -66,8 +66,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.events.eventList` |   |   |
-| `mysql.events.eventStatus` |   |   |
+| `mysql.events.list` |   |   |
+| `mysql.events.status` |   |   |
 | `mysql.events.schedulerStatus` |   |   |
 
 ---
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.events.eventList`
-- `mysql.events.eventStatus`
+- `mysql.events.list`
+- `mysql.events.status`
 - `mysql.events.schedulerStatus`
 
 
 ## Tasks
+
+- [ ] Ensure full coverage for mysql.events.list
+- [ ] Ensure full coverage for mysql.events.status
+- [ ] Ensure full coverage for mysql.events.schedulerStatus
 
 ## Category 2: Schedule Boundary Values (Creation handled via Execute Code context)
 
@@ -89,9 +93,6 @@
 6. `mysql.events.create({name: "stress_evt_complex", schedule: "EVERY 30 SECOND STARTS CURRENT_TIMESTAMP", body: "SELECT 1", status: "DISABLE"})` → verify complex schedule syntax
 7. `mysql.events.status({name: "stress_evt_onetime"})` → verify status reflects one-time schedule type
 8. `mysql.events.status({name: "stress_evt_complex"})` → verify status reflects recurring schedule
-- [ ] Ensure full coverage for mysql.events.list
-- [ ] Ensure full coverage for mysql.events.status
-- [ ] Ensure full coverage for mysql.events.schedulerStatus
 
 
 ## Category 4: Scheduler State

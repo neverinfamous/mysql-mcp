@@ -81,7 +81,11 @@
 - `mysql_transaction_rollback`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_transaction_begin
+- [ ] Ensure full coverage for mysql_transaction_commit
+- [ ] Ensure full coverage for mysql_transaction_rollback
 
 ---
 

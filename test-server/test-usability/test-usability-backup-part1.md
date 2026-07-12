@@ -81,7 +81,11 @@
 - `mysql.backup.createDump`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.backup.exportTable
+- [ ] Ensure full coverage for mysql.backup.importData
+- [ ] Ensure full coverage for mysql.backup.createDump
 
 ---
 

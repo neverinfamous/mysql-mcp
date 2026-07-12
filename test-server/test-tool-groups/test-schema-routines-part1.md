@@ -79,9 +79,12 @@
 - `mysql_list_triggers`
 
 
-## Group Focus: schema
+## Group Focus: schema\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_list_views\n- [ ] mysql_list_triggers
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_list_views
+- [ ] Ensure full coverage for mysql_list_triggers
 
 ---
 

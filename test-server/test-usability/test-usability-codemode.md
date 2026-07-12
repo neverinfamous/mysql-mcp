@@ -83,6 +83,11 @@
 
 Organically test the codemode tool using Code Mode (mysql_execute_code) directly, intentionally fuzzing the inputs to discover agent hallucinations.
 
+
+## Tasks
+
+- [ ] Ensure full coverage for mysql_execute_code
+
 ---
 
 ## Execute Post-Test Procedures

@@ -81,10 +81,13 @@
 - `mysql.security.passwordValidate`
 
 
-## Group Focus: security
+## Group Focus: security\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.security.sslStatus
+- [ ] Ensure full coverage for mysql.security.encryptionStatus
+- [ ] Ensure full coverage for mysql.security.passwordValidate
 
 ---
 

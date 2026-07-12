@@ -81,7 +81,11 @@
 - `mysql.core.dropTable`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.core.describeTable
+- [ ] Ensure full coverage for mysql.core.createTable
+- [ ] Ensure full coverage for mysql.core.dropTable
 
 ---
 

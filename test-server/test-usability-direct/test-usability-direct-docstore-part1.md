@@ -81,7 +81,11 @@
 - `mysql_doc_drop_collection`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_doc_list_collections
+- [ ] Ensure full coverage for mysql_doc_create_collection
+- [ ] Ensure full coverage for mysql_doc_drop_collection
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_detect_query_anomalies`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_buffer_pool_stats
+- [ ] Ensure full coverage for mysql_thread_stats
+- [ ] Ensure full coverage for mysql_detect_query_anomalies
 
 ---
 

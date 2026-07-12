@@ -81,7 +81,11 @@
 - `mysql_gr_primary`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_gr_status
+- [ ] Ensure full coverage for mysql_gr_members
+- [ ] Ensure full coverage for mysql_gr_primary
 
 ---
 

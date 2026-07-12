@@ -81,7 +81,11 @@
 - `mysql.cluster.grPrimary`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.cluster.grStatus
+- [ ] Ensure full coverage for mysql.cluster.grMembers
+- [ ] Ensure full coverage for mysql.cluster.grPrimary
 
 ---
 

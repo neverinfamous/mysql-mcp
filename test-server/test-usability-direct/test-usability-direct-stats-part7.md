@@ -79,7 +79,10 @@
 - `mysql_stats_summary`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_stats_frequency
+- [ ] Ensure full coverage for mysql_stats_summary
 
 ---
 

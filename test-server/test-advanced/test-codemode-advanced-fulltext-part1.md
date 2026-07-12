@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.fulltext.fulltextCreate` |   |   |
-| `mysql.fulltext.fulltextDrop` |   |   |
-| `mysql.fulltext.fulltextSearch` |   |   |
+| `mysql.fulltext.create` |   |   |
+| `mysql.fulltext.drop` |   |   |
+| `mysql.fulltext.search` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.fulltext.fulltextCreate`
-- `mysql.fulltext.fulltextDrop`
-- `mysql.fulltext.fulltextSearch`
+- `mysql.fulltext.create`
+- `mysql.fulltext.drop`
+- `mysql.fulltext.search`
 
 
 ## Category 1: Search Pipeline

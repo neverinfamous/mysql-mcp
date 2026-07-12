@@ -81,7 +81,11 @@
 - `mysql_check_table`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_optimize_table
+- [ ] Ensure full coverage for mysql_analyze_table
+- [ ] Ensure full coverage for mysql_check_table
 
 ---
 

@@ -79,7 +79,10 @@
 - `mysql_user_roles`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_role_revoke
+- [ ] Ensure full coverage for mysql_user_roles
 
 ---
 

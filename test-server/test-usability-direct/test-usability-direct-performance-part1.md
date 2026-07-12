@@ -81,7 +81,11 @@
 - `mysql_slow_queries`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_explain
+- [ ] Ensure full coverage for mysql_explain_analyze
+- [ ] Ensure full coverage for mysql_slow_queries
 
 ---
 

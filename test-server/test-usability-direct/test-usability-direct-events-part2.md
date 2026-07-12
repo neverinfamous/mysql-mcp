@@ -81,7 +81,11 @@
 - `mysql_scheduler_status`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_event_list
+- [ ] Ensure full coverage for mysql_event_status
+- [ ] Ensure full coverage for mysql_scheduler_status
 
 ---
 

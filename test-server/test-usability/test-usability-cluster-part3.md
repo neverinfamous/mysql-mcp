@@ -66,9 +66,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.cluster.clusterInstances` |   |   |   |
-| `mysql.cluster.clusterTopology` |   |   |   |
-| `mysql.cluster.clusterRouterStatus` |   |   |   |
+| `mysql.cluster.instances` |   |   |   |
+| `mysql.cluster.topology` |   |   |   |
+| `mysql.cluster.routerStatus` |   |   |   |
 
 ---
 
@@ -76,12 +76,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.cluster.clusterInstances`
-- `mysql.cluster.clusterTopology`
-- `mysql.cluster.clusterRouterStatus`
+- `mysql.cluster.instances`
+- `mysql.cluster.topology`
+- `mysql.cluster.routerStatus`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.cluster.instances
+- [ ] Ensure full coverage for mysql.cluster.topology
+- [ ] Ensure full coverage for mysql.cluster.routerStatus
 
 ---
 

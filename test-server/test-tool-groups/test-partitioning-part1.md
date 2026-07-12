@@ -79,9 +79,12 @@
 - `mysql_drop_partition`
 
 
-## Group Focus: partitioning
+## Group Focus: partitioning\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_partition_info\n- [ ] mysql_drop_partition
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_partition_info
+- [ ] Ensure full coverage for mysql_drop_partition
 
 ---
 

@@ -81,9 +81,13 @@
 - `mysql_detect_query_anomalies`
 
 
-## Group Focus: performance
+## Group Focus: performance\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_explain\n- [ ] mysql_index_usage\n- [ ] mysql_detect_query_anomalies
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_explain
+- [ ] Ensure full coverage for mysql_index_usage
+- [ ] Ensure full coverage for mysql_detect_query_anomalies
 
 ---
 

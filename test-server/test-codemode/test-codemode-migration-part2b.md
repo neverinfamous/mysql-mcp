@@ -81,10 +81,13 @@
 - `mysql.migration.apply`
 
 
-## Group Focus: migration
+## Group Focus: migration\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.migration.init
+- [ ] Ensure full coverage for mysql.migration.record
+- [ ] Ensure full coverage for mysql.migration.apply
 
 ---
 

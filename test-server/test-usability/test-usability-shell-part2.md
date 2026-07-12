@@ -81,7 +81,11 @@
 - `mysql.shell.dumpInstance`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.shell.importTable
+- [ ] Ensure full coverage for mysql.shell.importJson
+- [ ] Ensure full coverage for mysql.shell.dumpInstance
 
 ---
 

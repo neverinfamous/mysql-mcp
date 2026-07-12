@@ -81,10 +81,13 @@
 - `mysql.router.routeConnections`
 
 
-## Group Focus: router
+## Group Focus: router\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql.router.routeStatus
+- [ ] Ensure full coverage for mysql.router.routeHealth
+- [ ] Ensure full coverage for mysql.router.routeConnections
 
 ---
 

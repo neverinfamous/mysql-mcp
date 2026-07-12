@@ -81,9 +81,13 @@
 - `mysql_doc_create_index`
 
 
-## Group Focus: docstore
+## Group Focus: docstore\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_doc_create_collection\n- [ ] mysql_doc_add\n- [ ] mysql_doc_create_index
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_doc_create_collection
+- [ ] Ensure full coverage for mysql_doc_add
+- [ ] Ensure full coverage for mysql_doc_create_index
 
 ---
 

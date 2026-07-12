@@ -81,7 +81,11 @@
 - `mysql.performance.detectQueryAnomalies`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.performance.bufferPoolStats
+- [ ] Ensure full coverage for mysql.performance.threadStats
+- [ ] Ensure full coverage for mysql.performance.detectQueryAnomalies
 
 ---
 

@@ -81,7 +81,11 @@
 - `mysql_cluster_router_status`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_cluster_instances
+- [ ] Ensure full coverage for mysql_cluster_topology
+- [ ] Ensure full coverage for mysql_cluster_router_status
 
 ---
 

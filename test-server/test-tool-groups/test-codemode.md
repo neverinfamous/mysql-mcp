@@ -77,9 +77,11 @@
 - `mysql_execute_code`
 
 
-## Group Focus: codemode
+## Group Focus: codemode\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_execute_code
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_execute_code
 
 ---
 

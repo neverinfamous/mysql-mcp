@@ -81,7 +81,11 @@
 - `proxysql_users`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for proxysql_query_digest
+- [ ] Ensure full coverage for proxysql_connection_pool
+- [ ] Ensure full coverage for proxysql_users
 
 ---
 

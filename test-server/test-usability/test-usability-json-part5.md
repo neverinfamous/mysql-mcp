@@ -81,7 +81,11 @@
 - `mysql.json.normalize`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.json.merge
+- [ ] Ensure full coverage for mysql.json.diff
+- [ ] Ensure full coverage for mysql.json.normalize
 
 ---
 

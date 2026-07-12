@@ -81,7 +81,11 @@
 - `mysql.core.conditionalUpdate`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.core.disableVersioning
+- [ ] Ensure full coverage for mysql.core.checkVersion
+- [ ] Ensure full coverage for mysql.core.conditionalUpdate
 
 ---
 

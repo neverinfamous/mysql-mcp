@@ -81,7 +81,11 @@
 - `mysql.stats.rowNumber`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql.stats.sampling
+- [ ] Ensure full coverage for mysql.stats.histogram
+- [ ] Ensure full coverage for mysql.stats.rowNumber
 
 ---
 

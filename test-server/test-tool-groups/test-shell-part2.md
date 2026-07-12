@@ -81,9 +81,13 @@
 - `mysqlsh_run_script`
 
 
-## Group Focus: shell
+## Group Focus: shell\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysqlsh_check_upgrade\n- [ ] mysqlsh_dump_instance\n- [ ] mysqlsh_run_script
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysqlsh_check_upgrade
+- [ ] Ensure full coverage for mysqlsh_dump_instance
+- [ ] Ensure full coverage for mysqlsh_run_script
 
 ---
 

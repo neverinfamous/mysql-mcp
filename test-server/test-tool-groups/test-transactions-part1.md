@@ -81,9 +81,13 @@
 - `mysql_transaction_execute`
 
 
-## Group Focus: transactions
+## Group Focus: transactions\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n- [ ] mysql_transaction_begin\n- [ ] mysql_transaction_savepoint\n- [ ] mysql_transaction_execute
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Tasks
+
+- [ ] Ensure full coverage for mysql_transaction_begin
+- [ ] Ensure full coverage for mysql_transaction_savepoint
+- [ ] Ensure full coverage for mysql_transaction_execute
 
 ---
 

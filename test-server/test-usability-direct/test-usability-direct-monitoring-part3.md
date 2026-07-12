@@ -77,7 +77,9 @@
 - `mysql_server_health`
 
 
+## Tasks
 
+- [ ] Ensure full coverage for mysql_server_health
 
 ---
 
