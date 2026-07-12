@@ -311,6 +311,7 @@ services:
     container_name: datadog-unified
     restart: unless-stopped
     pid: host
+    cgroupns_mode: host
     cap_add:
       - SYS_ADMIN
       - SYS_RESOURCE
