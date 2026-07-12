@@ -1,10 +1,12 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
 
 const dockerCmd = 'docker';
 
-const execCommand = (cmd, ignoreError = false) => {
+const execCommand = (cmd, args, ignoreError = false) => {
   try {
-    return execSync(cmd, { encoding: 'utf-8', stdio: 'pipe' });
+    return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe' });
   } catch (e) {
     if (!ignoreError) {
       console.error(`Error: ${e.message}`);
@@ -13,13 +15,46 @@ const execCommand = (cmd, ignoreError = false) => {
   }
 };
 
+
 // Dynamically discover expected containers from docker-compose.yml
-const servicesRaw = execCommand(`docker compose config --services`, false);
+let servicesRaw = execCommand('docker', ['compose', 'config', '--services'], true);
 if (!servicesRaw) {
-    console.error('Failed to read docker-compose.yml services. Are you in the infrastructure directory?');
-    process.exit(1);
+    servicesRaw = execCommand('docker-compose', ['config', '--services'], true);
 }
-const containers = servicesRaw.trim().split('\n').filter(Boolean).sort();
+
+let containers = [];
+if (servicesRaw) {
+    containers = servicesRaw.trim().split('\n').filter(Boolean).sort();
+} else {
+    // Ultimate fallback: manually parse docker-compose.yml
+    try {
+        let yamlContent = fs.readFileSync('docker-compose.yml', 'utf-8');
+        let lines = yamlContent.split('\n');
+        let inServices = false;
+        for (let line of lines) {
+            if (line.startsWith('services:')) {
+                inServices = true;
+                continue;
+            }
+            if (inServices) {
+                if (line.match(/^[a-zA-Z]/)) break; // Next top-level block
+                let match = line.match(/^  ([a-zA-Z0-9_-]+):/);
+                if (match) {
+                    containers.push(match[1]);
+                }
+            }
+        }
+        containers.sort();
+    } catch (e) {
+        console.error('Failed to read docker-compose.yml services. Are you in the infrastructure directory?');
+        process.exit(1);
+    }
+    
+    if (containers.length === 0) {
+        console.error('Failed to parse any services from docker-compose.yml. Are you in the infrastructure directory?');
+        process.exit(1);
+    }
+}
 
 console.log('=== Ecosystem Status Check ===\n');
 
@@ -27,8 +62,8 @@ console.log(`1. Container Status (${containers.length} services):`);
 console.log('----------------------------------------');
 let allUp = true;
 
-const psOutput = execCommand(`${dockerCmd} ps -a --format "{{.Names}}|{{.State}}|{{.Status}}"`, true);
-if (!psOutput) {
+const psOutput = execCommand(dockerCmd, ['ps', '-a', '--format', '{{.Names}}|{{.State}}|{{.Status}}'], false);
+if (psOutput === null) {
     console.error('Failed to get docker ps output. Is docker running?');
     process.exit(1);
 }
@@ -67,9 +102,7 @@ for (const name of containers) {
 console.log('\n2. InnoDB Cluster Status:');
 console.log('----------------------------------------');
 
-const statusCmd = `${dockerCmd} exec mysql-node1 mysql -uroot -proot -e "SELECT member_state FROM performance_schema.replication_group_members;"`;
-
-const clusterOut = execCommand(statusCmd, false);
+const clusterOut = execCommand(dockerCmd, ['exec', 'mysql-node1', 'mysql', '-uroot', '-proot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], false);
 if (clusterOut !== null) {
     const onlineCount = (clusterOut.match(/ONLINE/g) || []).length;
     if (onlineCount >= 3) {
