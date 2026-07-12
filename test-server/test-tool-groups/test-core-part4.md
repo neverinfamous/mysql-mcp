@@ -94,24 +94,24 @@ All tools should gracefully handle nonexistent tables and validation errors. Tes
 
 **Domain error paths (🔴):**
 
-11. 🔴 `mysql.versioning.conditionalUpdate({table: "nonexistent_table_xyz", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning table name
+11. 🔴 `mysql_conditional_update({table: "nonexistent_table_xyz", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning table name
 
 **Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
 
-12. 🔴 `mysql.versioning.enable({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-13. 🔴 `mysql.versioning.check({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-14. 🔴 `mysql.versioning.conditionalUpdate({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-15. 🔴 `mysql.versioning.conditionalUpdate({table: "temp_versioning", data: {}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty data
-16. 🔴 `mysql.versioning.conditionalUpdate({table: "temp_versioning", data: {quantity: 500}, conditions: [], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty conditions
+12. 🔴 `mysql_enable_versioning({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+13. 🔴 `mysql_check_version({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+14. 🔴 `mysql_conditional_update({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
+15. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty data
+16. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty conditions
 
 **Wrong-type numeric param coercion (🔴):**
 
-17. 🔴 `mysql.versioning.conditionalUpdate({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: "abc"})` → must NOT return raw MCP `-32602` error — should return structured handler error `Expected number, received string`
+17. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: "abc"})` → must NOT return raw MCP `-32602` error — should return structured handler error `Expected number, received string`
 
 **Teardown:**
 
-18. `mysql.versioning.disable({table: "temp_versioning"})` → `{success: true}`
-19. `mysql.versioning.disable({table: "nonexistent_table_xyz", ifExists: true})` → `{success: true}` (no error since ifExists is true)
+18. `mysql_disable_versioning({table: "temp_versioning"})` → `{success: true}`
+19. `mysql_disable_versioning({table: "nonexistent_table_xyz", ifExists: true})` → `{success: true}` (no error since ifExists is true)
 20. `mysql_drop_table({table: "temp_versioning", ifExists: true})` → `{success: true}`
 
 ---
