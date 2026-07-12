@@ -13,7 +13,11 @@
 | File / Directory             | Purpose                                                                                                                                       | When to Read                                 |
 | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | `test-preflight.md`          | **Pre-flight check** — validates slim instructions, help resources, data resources, and tool-filter alignment in 5 steps                      | Before any test pass                         |
-| `test-codemode/`             | **Code Mode tests** — Multiple self-contained modular prompts for `mysql_execute_code` validation                                                   | When testing Code Mode parity                |
+| `test-codemode/`             | **Code Mode tests** — Modular testing prompts for testing tool parity exclusively via `mysql_execute_code`                                          | When testing Code Mode parity                |
+| `test-usability/`            | **Usability testing** — Organic prompts to fuzz tool boundaries and hallucinate schema properties inside Code Mode.                           | When hardening Code Mode against fuzzing     |
+| `test-usability-direct/`     | **Direct Usability testing** — Organic fuzzing of the direct tool invocation payload schemas (bypassing Code Mode).                           | When hardening standard tool input schemas   |
+| `test-advanced/`             | **Advanced stress tests** — Complex, chained prompts covering boundaries like isolated-vm escapes and concurrency.                            | When validating infrastructure stability     |
+| `test-tool-groups/`          | **Standard Tool groups** — Simple, atomic tests that manually call MCP functions directly.                                                    | When verifying standard capabilities         |
 | `tool-reference.md`          | Complete 242 tool reference mapped to groups                                                                                               | Reference                                    |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns          | When debugging source code or making changes |
 | `test-resources.md`          | Resource testing plan (Multiple total resources)                                                                                               | When testing resources                       |
@@ -83,7 +87,7 @@ If the test infrastructure breaks or needs to be completely wiped and re-created
 ## Execute Agent Test Workflow
 
 1. Read `mysql://help` resource and relevant group help. This covers gotchas, aliases, and APIs.
-2. Read the appropriate `coordinator-workflow.md` file in `test-codemode/`, `test-tool-groups/`, or `test-usability/` to orchestrate your tests.
+2. Read the appropriate `coordinator-workflow.md` file in `test-codemode/`, `test-tool-groups/`, `test-usability/`, `test-usability-direct/`, or `test-advanced/` to orchestrate your tests.
 3. **Code Mode tests**: Read the relevant `test-codemode/` file. This validates the `mysql_execute_code` tool.
 4. Execute the checklist items first (minimum bar), then freeform exploration.
 5. Clean up all `temp_*` / `stress_*` tables using `DROP TABLE IF EXISTS`.

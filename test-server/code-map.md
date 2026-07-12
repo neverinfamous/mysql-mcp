@@ -399,6 +399,7 @@ try {
 | `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                     |
 | `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
 | `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
+| `test-server/test-usability-direct/`        | Direct tool invocation usability and schema fuzzing                  |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
 | `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
 | `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |

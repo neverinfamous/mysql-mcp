@@ -3,7 +3,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { TOOL_GROUPS } from "../../src/filtering/tool-constants.js";
 
-const directories = ["test-codemode", "test-advanced", "test-tool-groups", "test-usability"];
+const directories = ["test-codemode", "test-advanced", "test-tool-groups", "test-usability", "test-usability-direct"];
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -94,6 +94,10 @@ function processDirectory(dirName) {
       titleType = "Code Mode Testing";
       executionMode = "Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.";
       coverageMatrix = "| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |";
+    } else if (dirName === "test-usability-direct") {
+      titleType = "Direct Usability & Hallucination Test";
+      executionMode = "Organically test the tool group using live MCP server tool calls directly, intentionally fuzzing the inputs to discover agent hallucinations. DO NOT use Code Mode (`mysql_execute_code`).";
+      coverageMatrix = "| Tool | Fuzz Call | Hallucination Found | Fix Applied |";
     } else if (dirName === "test-usability") {
       titleType = "Usability & Hallucination Test";
       executionMode = "Organically test the tool group using ONLY code mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.";
@@ -104,7 +108,7 @@ function processDirectory(dirName) {
     const colCount = coverageMatrix.split("|").length - 2;
     const divider = "|" + Array(colCount).fill("---").join("|") + "|";
 
-    if ((dirName === "test-codemode" || dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability") && toolMap[file] && toolMap[file].length > 0) {
+    if ((dirName === "test-codemode" || dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability" || dirName === "test-usability-direct") && toolMap[file] && toolMap[file].length > 0) {
         const tools = toolMap[file];
         explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n`;
         explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";

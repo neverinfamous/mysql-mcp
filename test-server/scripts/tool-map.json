@@ -1076,7 +1076,17 @@
     "mysql_analyze_table",
     "mysql_check_table"
   ],
+  "test-usability-direct-admin-part1.md": [
+    "mysql_optimize_table",
+    "mysql_analyze_table",
+    "mysql_check_table"
+  ],
   "test-usability-admin-part2.md": [
+    "mysql_repair_table",
+    "mysql_flush_tables",
+    "mysql_kill_query"
+  ],
+  "test-usability-direct-admin-part2.md": [
     "mysql_repair_table",
     "mysql_flush_tables",
     "mysql_kill_query"
@@ -1086,7 +1096,17 @@
     "mysql_server_config",
     "mysql_audit_search"
   ],
+  "test-usability-direct-admin-part3.md": [
+    "mysql_append_insight",
+    "mysql_server_config",
+    "mysql_audit_search"
+  ],
   "test-usability-backup-part1.md": [
+    "mysql_export_table",
+    "mysql_import_data",
+    "mysql_create_dump"
+  ],
+  "test-usability-direct-backup-part1.md": [
     "mysql_export_table",
     "mysql_import_data",
     "mysql_create_dump"
@@ -1095,11 +1115,24 @@
     "mysql_restore_dump",
     "mysql_audit_list_backups"
   ],
+  "test-usability-direct-backup-part2.md": [
+    "mysql_restore_dump",
+    "mysql_audit_list_backups"
+  ],
   "test-usability-backup-part3.md": [
     "mysql_audit_restore_backup",
     "mysql_audit_diff_backup"
   ],
+  "test-usability-direct-backup-part3.md": [
+    "mysql_audit_restore_backup",
+    "mysql_audit_diff_backup"
+  ],
   "test-usability-cluster-part1.md": [
+    "mysql_gr_status",
+    "mysql_gr_members",
+    "mysql_gr_primary"
+  ],
+  "test-usability-direct-cluster-part1.md": [
     "mysql_gr_status",
     "mysql_gr_members",
     "mysql_gr_primary"
@@ -1109,7 +1142,16 @@
     "mysql_gr_flow_control",
     "mysql_cluster_status"
   ],
+  "test-usability-direct-cluster-part2.md": [
+    "mysql_gr_transactions",
+    "mysql_gr_flow_control",
+    "mysql_cluster_status"
+  ],
   "test-usability-cluster-part3.md": [
+    "mysql_cluster_instances",
+    "mysql_cluster_topology"
+  ],
+  "test-usability-direct-cluster-part3.md": [
     "mysql_cluster_instances",
     "mysql_cluster_topology"
   ],
@@ -1117,10 +1159,22 @@
     "mysql_cluster_router_status",
     "mysql_cluster_switchover"
   ],
+  "test-usability-direct-cluster-part4.md": [
+    "mysql_cluster_router_status",
+    "mysql_cluster_switchover"
+  ],
   "test-usability-codemode.md": [
     "mysql_execute_code"
   ],
+  "test-usability-direct-codemode.md": [
+    "mysql_execute_code"
+  ],
   "test-usability-core-part1.md": [
+    "mysql_read_query",
+    "mysql_write_query",
+    "mysql_list_tables"
+  ],
+  "test-usability-direct-core-part1.md": [
     "mysql_read_query",
     "mysql_write_query",
     "mysql_list_tables"
@@ -1130,7 +1184,17 @@
     "mysql_create_table",
     "mysql_drop_table"
   ],
+  "test-usability-direct-core-part2.md": [
+    "mysql_describe_table",
+    "mysql_create_table",
+    "mysql_drop_table"
+  ],
   "test-usability-core-part3.md": [
+    "mysql_create_index",
+    "mysql_get_indexes",
+    "mysql_enable_versioning"
+  ],
+  "test-usability-direct-core-part3.md": [
     "mysql_create_index",
     "mysql_get_indexes",
     "mysql_enable_versioning"
@@ -1140,7 +1204,17 @@
     "mysql_check_version",
     "mysql_conditional_update"
   ],
+  "test-usability-direct-core-part4.md": [
+    "mysql_disable_versioning",
+    "mysql_check_version",
+    "mysql_conditional_update"
+  ],
   "test-usability-docstore-part1.md": [
+    "mysql_doc_list_collections",
+    "mysql_doc_create_collection",
+    "mysql_doc_drop_collection"
+  ],
+  "test-usability-direct-docstore-part1.md": [
     "mysql_doc_list_collections",
     "mysql_doc_create_collection",
     "mysql_doc_drop_collection"
@@ -1150,7 +1224,17 @@
     "mysql_doc_add",
     "mysql_doc_modify"
   ],
+  "test-usability-direct-docstore-part2.md": [
+    "mysql_doc_find",
+    "mysql_doc_add",
+    "mysql_doc_modify"
+  ],
   "test-usability-docstore-part3.md": [
+    "mysql_doc_remove",
+    "mysql_doc_create_index",
+    "mysql_doc_collection_info"
+  ],
+  "test-usability-direct-docstore-part3.md": [
     "mysql_doc_remove",
     "mysql_doc_create_index",
     "mysql_doc_collection_info"
@@ -1160,7 +1244,17 @@
     "mysql_event_alter",
     "mysql_event_drop"
   ],
+  "test-usability-direct-events-part1.md": [
+    "mysql_event_create",
+    "mysql_event_alter",
+    "mysql_event_drop"
+  ],
   "test-usability-events-part2.md": [
+    "mysql_event_list",
+    "mysql_event_status",
+    "mysql_scheduler_status"
+  ],
+  "test-usability-direct-events-part2.md": [
     "mysql_event_list",
     "mysql_event_status",
     "mysql_scheduler_status"
@@ -1170,11 +1264,25 @@
     "mysql_fulltext_drop",
     "mysql_fulltext_search"
   ],
+  "test-usability-direct-fulltext-part1.md": [
+    "mysql_fulltext_create",
+    "mysql_fulltext_drop",
+    "mysql_fulltext_search"
+  ],
   "test-usability-fulltext-part2.md": [
     "mysql_fulltext_boolean",
     "mysql_fulltext_expand"
   ],
+  "test-usability-direct-fulltext-part2.md": [
+    "mysql_fulltext_boolean",
+    "mysql_fulltext_expand"
+  ],
   "test-usability-introspection-part1.md": [
+    "mysql_dependency_graph",
+    "mysql_topological_sort",
+    "mysql_cascade_simulator"
+  ],
+  "test-usability-direct-introspection-part1.md": [
     "mysql_dependency_graph",
     "mysql_topological_sort",
     "mysql_cascade_simulator"
@@ -1184,7 +1292,17 @@
     "mysql_constraint_analysis",
     "mysql_migration_risks"
   ],
+  "test-usability-direct-introspection-part2.md": [
+    "mysql_schema_snapshot",
+    "mysql_constraint_analysis",
+    "mysql_migration_risks"
+  ],
   "test-usability-json-part1.md": [
+    "mysql_json_extract",
+    "mysql_json_set",
+    "mysql_json_insert"
+  ],
+  "test-usability-direct-json-part1.md": [
     "mysql_json_extract",
     "mysql_json_set",
     "mysql_json_insert"
@@ -1194,7 +1312,17 @@
     "mysql_json_remove",
     "mysql_json_contains"
   ],
+  "test-usability-direct-json-part2.md": [
+    "mysql_json_replace",
+    "mysql_json_remove",
+    "mysql_json_contains"
+  ],
   "test-usability-json-part3.md": [
+    "mysql_json_keys",
+    "mysql_json_array_append",
+    "mysql_json_get"
+  ],
+  "test-usability-direct-json-part3.md": [
     "mysql_json_keys",
     "mysql_json_array_append",
     "mysql_json_get"
@@ -1204,7 +1332,17 @@
     "mysql_json_search",
     "mysql_json_validate"
   ],
+  "test-usability-direct-json-part4.md": [
+    "mysql_json_update",
+    "mysql_json_search",
+    "mysql_json_validate"
+  ],
   "test-usability-json-part5.md": [
+    "mysql_json_merge",
+    "mysql_json_diff",
+    "mysql_json_normalize"
+  ],
+  "test-usability-direct-json-part5.md": [
     "mysql_json_merge",
     "mysql_json_diff",
     "mysql_json_normalize"
@@ -1213,7 +1351,16 @@
     "mysql_json_stats",
     "mysql_json_index_suggest"
   ],
+  "test-usability-direct-json-part6.md": [
+    "mysql_json_stats",
+    "mysql_json_index_suggest"
+  ],
   "test-usability-migration-part1.md": [
+    "mysql_migration_init",
+    "mysql_migration_record",
+    "mysql_migration_apply"
+  ],
+  "test-usability-direct-migration-part1.md": [
     "mysql_migration_init",
     "mysql_migration_record",
     "mysql_migration_apply"
@@ -1223,7 +1370,17 @@
     "mysql_migration_history",
     "mysql_migration_status"
   ],
+  "test-usability-direct-migration-part2.md": [
+    "mysql_migration_rollback",
+    "mysql_migration_history",
+    "mysql_migration_status"
+  ],
   "test-usability-monitoring-part1.md": [
+    "mysql_show_processlist",
+    "mysql_show_status",
+    "mysql_show_variables"
+  ],
+  "test-usability-direct-monitoring-part1.md": [
     "mysql_show_processlist",
     "mysql_show_status",
     "mysql_show_variables"
@@ -1232,7 +1389,15 @@
     "mysql_innodb_status",
     "mysql_replication_status"
   ],
+  "test-usability-direct-monitoring-part2.md": [
+    "mysql_innodb_status",
+    "mysql_replication_status"
+  ],
   "test-usability-monitoring-part3.md": [
+    "mysql_pool_stats",
+    "mysql_server_health"
+  ],
+  "test-usability-direct-monitoring-part3.md": [
     "mysql_pool_stats",
     "mysql_server_health"
   ],
@@ -1240,7 +1405,15 @@
     "mysql_index_recommendation",
     "mysql_query_rewrite"
   ],
+  "test-usability-direct-optimization-part1.md": [
+    "mysql_index_recommendation",
+    "mysql_query_rewrite"
+  ],
   "test-usability-optimization-part2.md": [
+    "mysql_force_index",
+    "mysql_optimizer_trace"
+  ],
+  "test-usability-direct-optimization-part2.md": [
     "mysql_force_index",
     "mysql_optimizer_trace"
   ],
@@ -1248,11 +1421,24 @@
     "mysql_partition_info",
     "mysql_add_partition"
   ],
+  "test-usability-direct-partitioning-part1.md": [
+    "mysql_partition_info",
+    "mysql_add_partition"
+  ],
   "test-usability-partitioning-part2.md": [
     "mysql_drop_partition",
     "mysql_reorganize_partition"
   ],
+  "test-usability-direct-partitioning-part2.md": [
+    "mysql_drop_partition",
+    "mysql_reorganize_partition"
+  ],
   "test-usability-performance-part1.md": [
+    "mysql_explain",
+    "mysql_explain_analyze",
+    "mysql_slow_queries"
+  ],
+  "test-usability-direct-performance-part1.md": [
     "mysql_explain",
     "mysql_explain_analyze",
     "mysql_slow_queries"
@@ -1262,7 +1448,17 @@
     "mysql_index_usage",
     "mysql_table_stats"
   ],
+  "test-usability-direct-performance-part2.md": [
+    "mysql_query_stats",
+    "mysql_index_usage",
+    "mysql_table_stats"
+  ],
   "test-usability-performance-part3.md": [
+    "mysql_buffer_pool_stats",
+    "mysql_thread_stats",
+    "mysql_detect_query_anomalies"
+  ],
+  "test-usability-direct-performance-part3.md": [
     "mysql_buffer_pool_stats",
     "mysql_thread_stats",
     "mysql_detect_query_anomalies"
@@ -1271,7 +1467,16 @@
     "mysql_detect_bloat_risk",
     "mysql_detect_connection_spike"
   ],
+  "test-usability-direct-performance-part4.md": [
+    "mysql_detect_bloat_risk",
+    "mysql_detect_connection_spike"
+  ],
   "test-usability-proxysql-part1.md": [
+    "proxysql_status",
+    "proxysql_servers",
+    "proxysql_query_rules"
+  ],
+  "test-usability-direct-proxysql-part1.md": [
     "proxysql_status",
     "proxysql_servers",
     "proxysql_query_rules"
@@ -1281,7 +1486,17 @@
     "proxysql_connection_pool",
     "proxysql_users"
   ],
+  "test-usability-direct-proxysql-part2.md": [
+    "proxysql_query_digest",
+    "proxysql_connection_pool",
+    "proxysql_users"
+  ],
   "test-usability-proxysql-part3.md": [
+    "proxysql_global_variables",
+    "proxysql_runtime_status",
+    "proxysql_memory_stats"
+  ],
+  "test-usability-direct-proxysql-part3.md": [
     "proxysql_global_variables",
     "proxysql_runtime_status",
     "proxysql_memory_stats"
@@ -1290,7 +1505,16 @@
     "proxysql_commands",
     "proxysql_process_list"
   ],
+  "test-usability-direct-proxysql-part4.md": [
+    "proxysql_commands",
+    "proxysql_process_list"
+  ],
   "test-usability-replication-part1.md": [
+    "mysql_master_status",
+    "mysql_slave_status",
+    "mysql_binlog_events"
+  ],
+  "test-usability-direct-replication-part1.md": [
     "mysql_master_status",
     "mysql_slave_status",
     "mysql_binlog_events"
@@ -1299,7 +1523,16 @@
     "mysql_gtid_status",
     "mysql_replication_lag"
   ],
+  "test-usability-direct-replication-part2.md": [
+    "mysql_gtid_status",
+    "mysql_replication_lag"
+  ],
   "test-usability-roles-part1.md": [
+    "mysql_role_list",
+    "mysql_role_create",
+    "mysql_role_drop"
+  ],
+  "test-usability-direct-roles-part1.md": [
     "mysql_role_list",
     "mysql_role_create",
     "mysql_role_drop"
@@ -1309,11 +1542,25 @@
     "mysql_role_grant",
     "mysql_role_assign"
   ],
+  "test-usability-direct-roles-part2.md": [
+    "mysql_role_grants",
+    "mysql_role_grant",
+    "mysql_role_assign"
+  ],
   "test-usability-roles-part3.md": [
     "mysql_role_revoke",
     "mysql_user_roles"
   ],
+  "test-usability-direct-roles-part3.md": [
+    "mysql_role_revoke",
+    "mysql_user_roles"
+  ],
   "test-usability-router-part1.md": [
+    "mysql_router_status",
+    "mysql_router_routes",
+    "mysql_router_route_status"
+  ],
+  "test-usability-direct-router-part1.md": [
     "mysql_router_status",
     "mysql_router_routes",
     "mysql_router_route_status"
@@ -1323,7 +1570,17 @@
     "mysql_router_route_connections",
     "mysql_router_route_destinations"
   ],
+  "test-usability-direct-router-part2.md": [
+    "mysql_router_route_health",
+    "mysql_router_route_connections",
+    "mysql_router_route_destinations"
+  ],
   "test-usability-router-part3.md": [
+    "mysql_router_route_blocked_hosts",
+    "mysql_router_metadata_status",
+    "mysql_router_pool_status"
+  ],
+  "test-usability-direct-router-part3.md": [
     "mysql_router_route_blocked_hosts",
     "mysql_router_metadata_status",
     "mysql_router_pool_status"
@@ -1333,7 +1590,17 @@
     "mysql_create_schema",
     "mysql_drop_schema"
   ],
+  "test-usability-direct-schema-part1.md": [
+    "mysql_list_schemas",
+    "mysql_create_schema",
+    "mysql_drop_schema"
+  ],
   "test-usability-schema-part2.md": [
+    "mysql_list_views",
+    "mysql_create_view",
+    "mysql_drop_view"
+  ],
+  "test-usability-direct-schema-part2.md": [
     "mysql_list_views",
     "mysql_create_view",
     "mysql_drop_view"
@@ -1343,7 +1610,17 @@
     "mysql_list_functions",
     "mysql_list_triggers"
   ],
+  "test-usability-direct-schema-part3.md": [
+    "mysql_list_stored_procedures",
+    "mysql_list_functions",
+    "mysql_list_triggers"
+  ],
   "test-usability-schema-part4.md": [
+    "mysql_create_trigger",
+    "mysql_drop_trigger",
+    "mysql_list_constraints"
+  ],
+  "test-usability-direct-schema-part4.md": [
     "mysql_create_trigger",
     "mysql_drop_trigger",
     "mysql_list_constraints"
@@ -1353,7 +1630,17 @@
     "mysql_security_firewall_status",
     "mysql_security_firewall_rules"
   ],
+  "test-usability-direct-security-part1.md": [
+    "mysql_security_audit",
+    "mysql_security_firewall_status",
+    "mysql_security_firewall_rules"
+  ],
   "test-usability-security-part2.md": [
+    "mysql_security_mask_data",
+    "mysql_security_password_validate",
+    "mysql_security_ssl_status"
+  ],
+  "test-usability-direct-security-part2.md": [
     "mysql_security_mask_data",
     "mysql_security_password_validate",
     "mysql_security_ssl_status"
@@ -1363,7 +1650,17 @@
     "mysql_security_sensitive_tables",
     "mysql_security_encryption_status"
   ],
+  "test-usability-direct-security-part3.md": [
+    "mysql_security_user_privileges",
+    "mysql_security_sensitive_tables",
+    "mysql_security_encryption_status"
+  ],
   "test-usability-shell-part1.md": [
+    "mysqlsh_version",
+    "mysqlsh_check_upgrade",
+    "mysqlsh_export_table"
+  ],
+  "test-usability-direct-shell-part1.md": [
     "mysqlsh_version",
     "mysqlsh_check_upgrade",
     "mysqlsh_export_table"
@@ -1373,7 +1670,16 @@
     "mysqlsh_import_json",
     "mysqlsh_dump_instance"
   ],
+  "test-usability-direct-shell-part2.md": [
+    "mysqlsh_import_table",
+    "mysqlsh_import_json",
+    "mysqlsh_dump_instance"
+  ],
   "test-usability-shell-part3.md": [
+    "mysqlsh_dump_schemas",
+    "mysqlsh_dump_tables"
+  ],
+  "test-usability-direct-shell-part3.md": [
     "mysqlsh_dump_schemas",
     "mysqlsh_dump_tables"
   ],
@@ -1381,7 +1687,16 @@
     "mysqlsh_load_dump",
     "mysqlsh_run_script"
   ],
+  "test-usability-direct-shell-part4.md": [
+    "mysqlsh_load_dump",
+    "mysqlsh_run_script"
+  ],
   "test-usability-spatial-part1.md": [
+    "mysql_spatial_create_column",
+    "mysql_spatial_create_index",
+    "mysql_spatial_point"
+  ],
+  "test-usability-direct-spatial-part1.md": [
     "mysql_spatial_create_column",
     "mysql_spatial_create_index",
     "mysql_spatial_point"
@@ -1391,7 +1706,17 @@
     "mysql_spatial_distance",
     "mysql_spatial_distance_sphere"
   ],
+  "test-usability-direct-spatial-part2.md": [
+    "mysql_spatial_polygon",
+    "mysql_spatial_distance",
+    "mysql_spatial_distance_sphere"
+  ],
   "test-usability-spatial-part3.md": [
+    "mysql_spatial_contains",
+    "mysql_spatial_within",
+    "mysql_spatial_intersection"
+  ],
+  "test-usability-direct-spatial-part3.md": [
     "mysql_spatial_contains",
     "mysql_spatial_within",
     "mysql_spatial_intersection"
@@ -1401,7 +1726,17 @@
     "mysql_spatial_transform",
     "mysql_spatial_geojson"
   ],
+  "test-usability-direct-spatial-part4.md": [
+    "mysql_spatial_buffer",
+    "mysql_spatial_transform",
+    "mysql_spatial_geojson"
+  ],
   "test-usability-stats-part1.md": [
+    "mysql_stats_descriptive",
+    "mysql_stats_percentiles",
+    "mysql_stats_correlation"
+  ],
+  "test-usability-direct-stats-part1.md": [
     "mysql_stats_descriptive",
     "mysql_stats_percentiles",
     "mysql_stats_correlation"
@@ -1411,7 +1746,17 @@
     "mysql_stats_time_series",
     "mysql_stats_regression"
   ],
+  "test-usability-direct-stats-part2.md": [
+    "mysql_stats_distribution",
+    "mysql_stats_time_series",
+    "mysql_stats_regression"
+  ],
   "test-usability-stats-part3.md": [
+    "mysql_stats_sampling",
+    "mysql_stats_histogram",
+    "mysql_stats_row_number"
+  ],
+  "test-usability-direct-stats-part3.md": [
     "mysql_stats_sampling",
     "mysql_stats_histogram",
     "mysql_stats_row_number"
@@ -1421,7 +1766,17 @@
     "mysql_stats_lag_lead",
     "mysql_stats_running_total"
   ],
+  "test-usability-direct-stats-part4.md": [
+    "mysql_stats_rank",
+    "mysql_stats_lag_lead",
+    "mysql_stats_running_total"
+  ],
   "test-usability-stats-part5.md": [
+    "mysql_stats_moving_avg",
+    "mysql_stats_ntile",
+    "mysql_stats_hypothesis"
+  ],
+  "test-usability-direct-stats-part5.md": [
     "mysql_stats_moving_avg",
     "mysql_stats_ntile",
     "mysql_stats_hypothesis"
@@ -1431,11 +1786,25 @@
     "mysql_stats_top_n",
     "mysql_stats_distinct"
   ],
+  "test-usability-direct-stats-part6.md": [
+    "mysql_stats_outliers",
+    "mysql_stats_top_n",
+    "mysql_stats_distinct"
+  ],
   "test-usability-stats-part7.md": [
     "mysql_stats_frequency",
     "mysql_stats_summary"
   ],
+  "test-usability-direct-stats-part7.md": [
+    "mysql_stats_frequency",
+    "mysql_stats_summary"
+  ],
   "test-usability-sysschema-part1.md": [
+    "mysql_sys_user_summary",
+    "mysql_sys_io_summary",
+    "mysql_sys_statement_summary"
+  ],
+  "test-usability-direct-sysschema-part1.md": [
     "mysql_sys_user_summary",
     "mysql_sys_io_summary",
     "mysql_sys_statement_summary"
@@ -1445,11 +1814,25 @@
     "mysql_sys_innodb_lock_waits",
     "mysql_sys_schema_stats"
   ],
+  "test-usability-direct-sysschema-part2.md": [
+    "mysql_sys_wait_summary",
+    "mysql_sys_innodb_lock_waits",
+    "mysql_sys_schema_stats"
+  ],
   "test-usability-sysschema-part3.md": [
     "mysql_sys_host_summary",
     "mysql_sys_memory_summary"
   ],
+  "test-usability-direct-sysschema-part3.md": [
+    "mysql_sys_host_summary",
+    "mysql_sys_memory_summary"
+  ],
   "test-usability-text-part1.md": [
+    "mysql_regexp_match",
+    "mysql_like_search",
+    "mysql_soundex"
+  ],
+  "test-usability-direct-text-part1.md": [
     "mysql_regexp_match",
     "mysql_like_search",
     "mysql_soundex"
@@ -1459,7 +1842,17 @@
     "mysql_concat",
     "mysql_collation_convert"
   ],
+  "test-usability-direct-text-part2.md": [
+    "mysql_substring",
+    "mysql_concat",
+    "mysql_collation_convert"
+  ],
   "test-usability-transactions-part1.md": [
+    "mysql_transaction_begin",
+    "mysql_transaction_commit",
+    "mysql_transaction_rollback"
+  ],
+  "test-usability-direct-transactions-part1.md": [
     "mysql_transaction_begin",
     "mysql_transaction_commit",
     "mysql_transaction_rollback"
@@ -1468,11 +1861,24 @@
     "mysql_transaction_savepoint",
     "mysql_transaction_release"
   ],
+  "test-usability-direct-transactions-part2.md": [
+    "mysql_transaction_savepoint",
+    "mysql_transaction_release"
+  ],
   "test-usability-transactions-part3.md": [
     "mysql_transaction_rollback_to",
     "mysql_transaction_execute"
   ],
+  "test-usability-direct-transactions-part3.md": [
+    "mysql_transaction_rollback_to",
+    "mysql_transaction_execute"
+  ],
   "test-usability-vector-part1.md": [
+    "mysql_vector_store",
+    "mysql_vector_batch_store",
+    "mysql_vector_delete"
+  ],
+  "test-usability-direct-vector-part1.md": [
     "mysql_vector_store",
     "mysql_vector_batch_store",
     "mysql_vector_delete"
@@ -1482,12 +1888,26 @@
     "mysql_vector_search",
     "mysql_vector_range_search"
   ],
+  "test-usability-direct-vector-part2.md": [
+    "mysql_vector_get",
+    "mysql_vector_search",
+    "mysql_vector_range_search"
+  ],
   "test-usability-vector-part3.md": [
     "mysql_vector_hybrid_search",
     "mysql_vector_info",
     "mysql_vector_create_index"
   ],
+  "test-usability-direct-vector-part3.md": [
+    "mysql_vector_hybrid_search",
+    "mysql_vector_info",
+    "mysql_vector_create_index"
+  ],
   "test-usability-vector-part4.md": [
+    "mysql_vector_optimize",
+    "mysql_vector_stats"
+  ],
+  "test-usability-direct-vector-part4.md": [
     "mysql_vector_optimize",
     "mysql_vector_stats"
   ],
