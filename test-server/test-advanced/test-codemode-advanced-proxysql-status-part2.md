@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `proxysql_commands` |   |   |
-| `proxysql_process_list` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `proxysql_commands` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_process_list` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -80,20 +80,20 @@
 
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)
-4. `proxysql_commands()` → verify structured response
-5. `proxysql_process_list()` → verify structured response
+4. `mysql.proxysql.commands()` → verify structured response
+5. `mysql.proxysql.processList()` → verify structured response
 6. All 11 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Happy-Path Stress (When ProxySQL IS Available)
 
 ## Category 3: Payload Monitoring & Filter Boundaries
-3. `proxysql_process_list()` → log token estimate
+3. `mysql.proxysql.processList()` → log token estimate
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_commands
-- [ ] Ensure full coverage for proxysql_process_list
+- [ ] Ensure full coverage for mysql.proxysql.commands
+- [ ] Ensure full coverage for mysql.proxysql.processList
 
 ---
 

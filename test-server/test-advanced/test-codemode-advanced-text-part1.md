@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_regexp_match` |   |   |
-| `mysql_like_search` |   |   |
-| `mysql_collation_convert` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_regexp_match` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_like_search` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_collation_convert` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,21 +82,21 @@
 
 
 ## Category 1: Regex Edge Cases
-1. `mysql_regexp_match` with invalid regex pattern (e.g., `"[invalid"`) → verify structured `{success: false}`
-2. `mysql_regexp_match` with empty pattern `""` → verify behavior (empty match or error)
-3. `mysql_regexp_match` with legacy MySQL metacharacters (e.g., `"[[:<:]]"`, which is invalid in MySQL 8+) → verify structured `{success: false}`
+1. `mysql.text.regexpMatch` with invalid regex pattern (e.g., `"[invalid"`) → verify structured `{success: false}`
+2. `mysql.text.regexpMatch` with empty pattern `""` → verify behavior (empty match or error)
+3. `mysql.text.regexpMatch` with legacy MySQL metacharacters (e.g., `"[[:<:]]"`, which is invalid in MySQL 8+) → verify structured `{success: false}`
 
 ## Category 4: Collation Stress
-1. `mysql_collation_convert` with invalid collation name → verify structured `{success: false}`
-2. `mysql_like_search` with `%` only pattern → verify returns all rows
-3. `mysql_like_search` with `_` pattern → verify single-character wildcard behavior
+1. `mysql.text.collationConvert` with invalid collation name → verify structured `{success: false}`
+2. `mysql.text.likeSearch` with `%` only pattern → verify returns all rows
+3. `mysql.text.likeSearch` with `_` pattern → verify single-character wildcard behavior
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_regexp_match
-- [ ] Ensure full coverage for mysql_like_search
-- [ ] Ensure full coverage for mysql_collation_convert
+- [ ] Ensure full coverage for mysql.text.regexpMatch
+- [ ] Ensure full coverage for mysql.text.likeSearch
+- [ ] Ensure full coverage for mysql.text.collationConvert
 
 ---
 

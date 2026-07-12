@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_security_firewall_status` |   |   |
-| `mysql_security_firewall_rules` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_security_firewall_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_security_firewall_rules` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,16 +79,10 @@
 - `mysql_security_firewall_rules`
 
 
-## Group Focus:security (Firewall & SSL) - Part 1
+## Group Focus: security
 
-security (firewall) Tool Group:
-1. `mysql_security_firewall_status`
-2. `mysql_security_firewall_rules`
-3. `mysql_execute_code` (codemode, auto-added)
-
-1. `mysql.security.help()`
-2. `mysql.security.firewallStatus()`
-3. `mysql.security.firewallRules({ limit: 5 })`
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_spatial_point` |   |   |
-| `mysql_spatial_polygon` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_spatial_point` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_polygon` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,32 +79,10 @@
 - `mysql_spatial_polygon`
 
 
-## Group Focus:spatial-geometry
+## Group Focus: spatial
 
-### spatial Group-Specific Testing
-
-spatial Tool Group (12 tools +1 for code mode):
-
-1. `mysql_spatial_point`
-2. `mysql_spatial_polygon`
-3. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. `mysql.spatial.point({...})` → happy path
-2. `mysql.spatial.polygon({...})` → happy path
-
-**Domain error paths (🔴):**
-
-3. 🔴 `mysql.spatial.point({...})` → domain error
-4. 🔴 `mysql.spatial.polygon({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-5. 🔴 `mysql.spatial.point({})` → validation error
-6. 🔴 `mysql.spatial.polygon({})` → validation error
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

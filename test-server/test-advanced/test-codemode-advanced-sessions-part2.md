@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,16 +65,23 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Endpoint | Focus Area | HTTP Validation |
-|---|---|---|
-
+|---|---|---|---|---|---|---|
+| `mysql_read_query` |   |   |   |   |   |   |
+| `mysql_show_status` |   |   |   |   |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql_read_query`
+- `mysql_show_status`
 
 
 ## Category 1: Sessions (Part 2)\n\n### Step 4: Validate Ongoing Communication
 
-Use the established session to execute a simple tool (e.g., `mysql_read_query` or `mysql_show_status`).
+Use the established session to execute a simple tool (e.g., `mysql.core.readQuery` or `mysql.monitoring.showStatus`).
 
 **Expected Result**:
 The tool executes successfully, proving the session is active and functional. The `SessionManager.touch()` method is implicitly called during this request.

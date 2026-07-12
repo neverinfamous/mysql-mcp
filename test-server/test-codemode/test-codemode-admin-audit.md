@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_append_insight` |   |   |
-| `mysql_server_config` |   |   |
-| `mysql_audit_search` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_append_insight` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_server_config` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_audit_search` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,24 +81,10 @@
 - `mysql_audit_search`
 
 
-## Group Focus:admin-audit
-
-admin Tool Group (9 tools +1 for code mode):
-
-1. `mysql_append_insight` 2. `mysql_server_config` 3. `mysql_audit_search`
+## Group Focus: admin
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.admin.help()` → verify method listing
-2. `mysql.admin.appendInsight({insight: "Test insight"})` → `success: true`
-3. `mysql.admin.serverConfig({action: "get"})` → returns current config
-4. `mysql.admin.auditSearch({search: "error"})` → searches error logs
-
-**Domain error paths (🔴):**
-5. 🔴 `mysql.admin.serverConfig({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-6. 🔴 `mysql.admin.appendInsight({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

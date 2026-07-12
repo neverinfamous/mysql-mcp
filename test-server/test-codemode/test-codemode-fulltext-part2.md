@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,12 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_fulltext_search` |   |   |
-| `mysql_fulltext_boolean` |   |   |
-| `mysql_fulltext_expand` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_fulltext_search` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_fulltext_boolean` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_fulltext_expand` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_fulltext_create` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_fulltext_drop` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,35 +81,14 @@
 - `mysql_fulltext_search`
 - `mysql_fulltext_boolean`
 - `mysql_fulltext_expand`
+- `mysql_fulltext_create`
+- `mysql_fulltext_drop`
 
 
-## Group Focus:fulltext-part2
-
-fulltext Tool Group (5 tools +1 for code mode):
-
-1. `mysql_fulltext_create`
-2. `mysql_fulltext_drop`
-3. `mysql_fulltext_search`
+## Group Focus: fulltext
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.fulltext.help()` → verify method listing
-
-**Create → Search → Drop lifecycle:**
-
-2. `mysql.fulltext.create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
-3. `mysql.fulltext.search({table: "test_users", columns: ["bio"], query: "developer", maxLength: 200})` → results
-4. `mysql.fulltext.drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql.fulltext.search({table: "nonexistent_xyz", columns: ["title"], query: "test", maxLength: 200})` → `{success: false}`
-6. 🔴 `mysql.fulltext.search({table: "test_products", columns: ["name"], query: "test", maxLength: 200})` → `{success: false}` (no FTS index)
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql.fulltext.create({})` → `{success: false, error: "Validation error: ..."}`
-8. 🔴 `mysql.fulltext.search({, maxLength: 200})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

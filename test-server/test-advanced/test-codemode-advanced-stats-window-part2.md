@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,11 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_stats_ntile` |   |   |
-| `mysql_stats_top_n` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_stats_ntile` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_top_n` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_frequency` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_summary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -77,6 +79,8 @@
 
 - `mysql_stats_ntile`
 - `mysql_stats_top_n`
+- `mysql_stats_frequency`
+- `mysql_stats_summary`
 
 
 ## Category 1: Window Function NULL Handling
@@ -89,8 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_stats_frequency
-- [ ] Ensure full coverage for mysql_stats_summary
+- [ ] Ensure full coverage for mysql.stats.frequency
+- [ ] Ensure full coverage for mysql.stats.summary
 
 ---
 

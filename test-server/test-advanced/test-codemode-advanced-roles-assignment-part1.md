@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_role_list` |   |   |
-| `mysql_role_create` |   |   |
-| `mysql_role_drop` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_role_list` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_role_create` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_role_drop` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,7 +82,7 @@
 
 
 ## Category 1: Role Assignment Lifecycles
-1. `mysql_role_create({name: "stress_role_a"})` → success
+1. `mysql.roles.roleCreate({name: "stress_role_a"})` → success
 
 ## Category 5: Error Quality
 1. Empty parameter tests for all assignment tools
@@ -93,9 +93,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_role_list
-- [ ] Ensure full coverage for mysql_role_create
-- [ ] Ensure full coverage for mysql_role_drop
+- [ ] Ensure full coverage for mysql.roles.roleList
+- [ ] Ensure full coverage for mysql.roles.roleCreate
+- [ ] Ensure full coverage for mysql.roles.roleDrop
 
 ---
 

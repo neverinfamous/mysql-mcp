@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_audit_list_backups` |   |   |
-| `mysql_audit_restore_backup` |   |   |
-| `mysql_audit_diff_backup` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_audit_list_backups` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_audit_restore_backup` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_audit_diff_backup` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,24 +81,10 @@
 - `mysql_audit_diff_backup`
 
 
-## Group Focus:backup-audit
+## Group Focus: backup
 
-backup Tool Group (Audit) (3 tools +1 code mode):
-
-1. `mysql_audit_list_backups`
-2. `mysql_audit_restore_backup`
-3. `mysql_audit_diff_backup`
-
-> **Instructions**: Use `mysql.backup.*` namespace, push deviations to `failures` array.
-
-1. `mysql.backup.help()` -> verify method listing
-2. `mysql.backup.auditListBackups({ limit: 5 })` -> verify success
-3. `mysql.backup.auditRestoreBackup({ filename: "some-backup-file.json", dryRun: true })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
-4. `mysql.backup.auditDiffBackup({ filename: "some-backup-file.json" })` -> verify success (or `{success: false}` with NOT_FOUND_ERROR)
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql.backup.auditRestoreBackup({ filename: "nonexistent-file.json" })` -> `{success: false}`
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

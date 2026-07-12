@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,12 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_doc_add` |   |   |
-| `mysql_doc_find` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_doc_add` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_doc_find` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_doc_modify` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_doc_remove` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_doc_create_index` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -77,6 +80,9 @@
 
 - `mysql_doc_add`
 - `mysql_doc_find`
+- `mysql_doc_modify`
+- `mysql_doc_remove`
+- `mysql_doc_create_index`
 
 
 ## Category 1: Collection Lifecycle
@@ -100,9 +106,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_doc_modify
-- [ ] Ensure full coverage for mysql_doc_remove
-- [ ] Ensure full coverage for mysql_doc_create_index
+- [ ] Ensure full coverage for mysql.docstore.docModify
+- [ ] Ensure full coverage for mysql.docstore.docRemove
+- [ ] Ensure full coverage for mysql.docstore.docCreateIndex
 
 ---
 

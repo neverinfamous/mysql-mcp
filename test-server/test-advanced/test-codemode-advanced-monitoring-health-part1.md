@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_show_processlist` |   |   |
-| `mysql_show_status` |   |   |
-| `mysql_show_variables` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_show_processlist` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_show_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_show_variables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,28 +82,28 @@
 
 
 ## Category 1: Payload Efficiency
-1. `mysql_show_processlist()` → log token estimate
-2. `mysql_show_status()` with no filter → log token estimate
-3. `mysql_show_status({like: "Uptime"})` → log token estimate, verify drastic reduction vs. unfiltered
-4. `mysql_show_variables()` with no filter → log token estimate
-5. `mysql_show_variables({like: "max_connections"})` → log token estimate, verify reduction
+1. `mysql.monitoring.showProcesslist()` → log token estimate
+2. `mysql.monitoring.showStatus()` with no filter → log token estimate
+3. `mysql.monitoring.showStatus({like: "Uptime"})` → log token estimate, verify drastic reduction vs. unfiltered
+4. `mysql.monitoring.showVariables()` with no filter → log token estimate
+5. `mysql.monitoring.showVariables({like: "max_connections"})` → log token estimate, verify reduction
 6. Flag any unfiltered response > 500 tokens as 📦
 
 ## Category 2: Summary Mode Parity
 1. Verify summary token estimate is ≥ 50% smaller than full output
 
 ## Category 3: Filter Edge Cases
-1. `mysql_show_status({like: ""})` → verify behavior (empty filter)
-2. `mysql_show_status({like: "%"})` → verify returns same as no filter
-3. `mysql_show_variables({like: "nonexistent_var_xyz_12345"})` → verify empty result set (not error)
-4. `mysql_show_status({like: "Com_%"})` → verify wildcard filter returns subset
+1. `mysql.monitoring.showStatus({like: ""})` → verify behavior (empty filter)
+2. `mysql.monitoring.showStatus({like: "%"})` → verify returns same as no filter
+3. `mysql.monitoring.showVariables({like: "nonexistent_var_xyz_12345"})` → verify empty result set (not error)
+4. `mysql.monitoring.showStatus({like: "Com_%"})` → verify wildcard filter returns subset
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_show_processlist
-- [ ] Ensure full coverage for mysql_show_status
-- [ ] Ensure full coverage for mysql_show_variables
+- [ ] Ensure full coverage for mysql.monitoring.showProcesslist
+- [ ] Ensure full coverage for mysql.monitoring.showStatus
+- [ ] Ensure full coverage for mysql.monitoring.showVariables
 
 ---
 

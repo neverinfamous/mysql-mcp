@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,13 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_buffer_pool_stats` |   |   |
-| `mysql_thread_stats` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_buffer_pool_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_thread_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_explain` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_explain_analyze` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_slow_queries` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_query_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -77,42 +81,16 @@
 
 - `mysql_buffer_pool_stats`
 - `mysql_thread_stats`
+- `mysql_explain`
+- `mysql_explain_analyze`
+- `mysql_slow_queries`
+- `mysql_query_stats`
 
 
 ## Group Focus: performance
 
-### performance Group-Specific Testing
-
-performance Tool Group (11 tools +1 for code mode):
-
-1. 'mysql_explain'
-2. 'mysql_explain_analyze'
-3. 'mysql_slow_queries'
-4. 'mysql_query_stats'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 3. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-1. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1"})` → verify execution plan returned
-2. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → verify JSON-format plan
-3. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TREE"})` → verify TREE-format plan
-4. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TRADITIONAL"})` → verify TRADITIONAL-format plan
-5. `mysql_explain_analyze({query: "SELECT * FROM test_products WHERE id = 1"})` -> verify actual execution timings
-6. `mysql_slow_queries()` → verify slow query list
-7. `mysql_query_stats({limit: 3})` → verify top query statistics
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql_explain({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_explain({})` → `{success: false, error: "..."}` (missing required `query`)
-
-**Wrong-type numeric param coercion (🔴):**
-
-10. 🔴 `mysql_query_stats({limit: "abc"})` → must NOT return raw MCP error
-11. 🔴 `mysql_slow_queries({limit: "abc"})` → must NOT return raw MCP error
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

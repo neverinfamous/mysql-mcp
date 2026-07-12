@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_schema_snapshot` |   |   |
-| `mysql_constraint_analysis` |   |   |
-| `mysql_migration_risks` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_schema_snapshot` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_constraint_analysis` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_risks` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -86,7 +86,7 @@
 
 ## Category 2: Circular Dependency Handling
 1. Create a schema `stress_circular` with tables `A` and `B`, where `A` references `B` and `B` references `A`.
-2. Run `mysql_constraint_analysis` on `stress_circular` — verify it explicitly flags the circular reference in its findings.
+2. Run `mysql.introspection.constraintAnalysis` on `stress_circular` — verify it explicitly flags the circular reference in its findings.
 
 ## Category 3: Complex Cascade Simulation
 1. In `stress_hierarchies`, add a `ON DELETE CASCADE` rule from `t1` all the way down to `t10`.
@@ -94,9 +94,9 @@
 
 ## Category 4: Snapshot & Risk Analysis Stress
 1. Create a schema `stress_snapshots` with 50 empty tables (each with 5 columns and 1 index).
-2. Run `mysql_schema_snapshot` on `stress_snapshots`. Verify it returns a comprehensive metadata snapshot. Check payload size for bloat.
-3. Run `mysql_migration_risks` with `ddlQuery: "DROP DATABASE stress_snapshots"`. Verify it correctly identifies the high-risk operation and affected objects.
-4. Run `mysql_migration_risks` with an invalid SQL query (e.g., `ALTER TABLE syntax error`). Note that since this tool is regex-based, it will likely return 0 risks instead of a syntax error. Verify that it processes the query without throwing a raw MCP exception.
+2. Run `mysql.introspection.schemaSnapshot` on `stress_snapshots`. Verify it returns a comprehensive metadata snapshot. Check payload size for bloat.
+3. Run `mysql.introspection.migrationRisks` with `ddlQuery: "DROP DATABASE stress_snapshots"`. Verify it correctly identifies the high-risk operation and affected objects.
+4. Run `mysql.introspection.migrationRisks` with an invalid SQL query (e.g., `ALTER TABLE syntax error`). Note that since this tool is regex-based, it will likely return 0 risks instead of a syntax error. Verify that it processes the query without throwing a raw MCP exception.
 
 ## Category 5: Cleanup Verification
 1. Drop schemas `stress_hierarchies`, `stress_circular`, and `stress_snapshots`. Verify clean removal.
@@ -104,9 +104,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_schema_snapshot
-- [ ] Ensure full coverage for mysql_constraint_analysis
-- [ ] Ensure full coverage for mysql_migration_risks
+- [ ] Ensure full coverage for mysql.introspection.schemaSnapshot
+- [ ] Ensure full coverage for mysql.introspection.constraintAnalysis
+- [ ] Ensure full coverage for mysql.introspection.migrationRisks
 
 ---
 

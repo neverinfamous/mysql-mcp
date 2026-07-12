@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_explain` |   |   |
-| `mysql_explain_analyze` |   |   |
-| `mysql_slow_queries` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_explain` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_explain_analyze` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_slow_queries` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -84,9 +84,9 @@
 ## Tasks
 
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql_explain
-- [ ] Ensure full coverage for mysql_explain_analyze
-- [ ] Ensure full coverage for mysql_slow_queries
+- [ ] Ensure full coverage for mysql.performance.explain
+- [ ] Ensure full coverage for mysql.performance.explainAnalyze
+- [ ] Ensure full coverage for mysql.performance.slowQueries
 
 ---
 

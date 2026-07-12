@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_stats_descriptive` |   |   |
-| `mysql_stats_percentiles` |   |   |
-| `mysql_stats_distribution` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_stats_descriptive` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_percentiles` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_distribution` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,30 +81,10 @@
 - `mysql_stats_distribution`
 
 
-## Group Focus:stats-descriptive (Part 1)
-
-stats Tool Group (20 tools +1 for code mode):
-
-1. `mysql_stats_descriptive`
-2. `mysql_stats_percentiles`
-3. `mysql_stats_distribution`
+## Group Focus: stats
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.stats.help()` → verify method listing
-2. `mysql.stats.descriptive({table: "test_measurements", column: "temperature"})` → `mean`, `stddev`, `min`, `max`
-3. `mysql.stats.percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → 3 values
-5. `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: 10})` → bucket entries
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.stats.descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-13. 🔴 `mysql.stats.descriptive({})` → `{success: false, error: "Validation error: ..."}`
-14. 🔴 `mysql.stats.percentiles({})` → `{success: false, error: "Validation error: ..."}`
-15. 🔴 `mysql.stats.distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

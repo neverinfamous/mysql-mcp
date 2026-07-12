@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_security_mask_data` |   |   |
-| `mysql_security_password_validate` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_security_mask_data` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_security_password_validate` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -80,11 +80,11 @@
 
 
 ## Category 1: Password Validation Boundaries
-1. `mysql_security_password_validate({password: ""})` → verify structured response (empty password)
-2. `mysql_security_password_validate({password: "a"})` → verify weak assessment
-3. `mysql_security_password_validate({password: "A1!aB2@bC3#cD4$d"})` → verify strong assessment
-4. `mysql_security_password_validate({password: "' OR 1=1 --"})` → verify structured response (no SQL injection)
-5. `mysql_security_password_validate` with a 256-character password → verify no truncation crash
+1. `mysql.security.passwordValidate({password: ""})` → verify structured response (empty password)
+2. `mysql.security.passwordValidate({password: "a"})` → verify weak assessment
+3. `mysql.security.passwordValidate({password: "A1!aB2@bC3#cD4$d"})` → verify strong assessment
+4. `mysql.security.passwordValidate({password: "' OR 1=1 --"})` → verify structured response (no SQL injection)
+5. `mysql.security.passwordValidate` with a 256-character password → verify no truncation crash
 
 ## Category 2: Sensitive Table Detection
 1. Create `testdb.stress_sensitive` table with columns: `id INT`, `password VARCHAR(255)`, `ssn VARCHAR(11)`, `credit_card VARCHAR(20)`
@@ -100,8 +100,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_security_mask_data
-- [ ] Ensure full coverage for mysql_security_password_validate
+- [ ] Ensure full coverage for mysql.security.maskData
+- [ ] Ensure full coverage for mysql.security.passwordValidate
 
 ---
 

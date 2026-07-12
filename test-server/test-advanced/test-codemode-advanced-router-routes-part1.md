@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_router_route_destinations` |   |   |
-| `mysql_router_route_blocked_hosts` |   |   |
-| `mysql_router_metadata_status` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_router_route_destinations` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_router_route_blocked_hosts` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_router_metadata_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,24 +82,24 @@
 
 
 ## Category 1: Graceful Degradation (No-Router Environment)
-1. `mysql_router_route_destinations({routeName: "test"})` → verify structured response
-2. `mysql_router_route_blocked_hosts({routeName: "test"})` → verify structured response
-3. `mysql_router_metadata_status({metadataName: "test"})` → verify structured response
+1. `mysql.router.routeDestinations({routeName: "test"})` → verify structured response
+2. `mysql.router.routeBlockedHosts({routeName: "test"})` → verify structured response
+3. `mysql.router.metadataStatus({metadataName: "test"})` → verify structured response
 5. All 9 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 3: Happy-Path Stress (When Router IS Available)
-1. For first available route name: `mysql_router_route_destinations` → verify backend listing
+1. For first available route name: `mysql.router.routeDestinations` → verify backend listing
 
 ## Category 4: Payload Monitoring
-1. `mysql_router_route_destinations` → log token estimate
+1. `mysql.router.routeDestinations` → log token estimate
 2. Flag any response > 500 tokens as 📦
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_route_destinations
-- [ ] Ensure full coverage for mysql_router_route_blocked_hosts
-- [ ] Ensure full coverage for mysql_router_metadata_status
+- [ ] Ensure full coverage for mysql.router.routeDestinations
+- [ ] Ensure full coverage for mysql.router.routeBlockedHosts
+- [ ] Ensure full coverage for mysql.router.metadataStatus
 
 ---
 

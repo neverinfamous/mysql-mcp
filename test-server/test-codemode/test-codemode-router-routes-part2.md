@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_router_route_destinations` |   |   |
-| `mysql_router_route_blocked_hosts` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_router_route_destinations` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_router_route_blocked_hosts` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,28 +79,10 @@
 - `mysql_router_route_blocked_hosts`
 
 
-## Group Focus:router
-
-router Tool Group (9 tools +1 for code mode):
-
-1. `mysql_router_route_destinations`
-2. `mysql_router_route_blocked_hosts`
+## Group Focus: router
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.router.help()` → verify method listing
-2. `mysql.router.routeDestinations({routeName: "bootstrap_rw"})` → backends
-3. `mysql.router.routeBlockedHosts({routeName: "bootstrap_rw"})` → blocked hosts
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.router.routeDestinations({routeName: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-13. 🔴 `mysql.router.routeDestinations({})` → `{success: false, error: "Validation error: ..."}`
-
-**Alias acceptance paths (🟢):**
-14. 🟢 `mysql.router.routeDestinations({name: "bootstrap_rw"})` → behaves identically to `routeName`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

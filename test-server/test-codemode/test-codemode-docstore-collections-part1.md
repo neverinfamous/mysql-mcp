@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_doc_list_collections` |   |   |
-| `mysql_doc_create_collection` |   |   |
-| `mysql_doc_drop_collection` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_doc_list_collections` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_doc_create_collection` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_doc_drop_collection` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,23 +81,10 @@
 - `mysql_doc_drop_collection`
 
 
-## Group Focus:docstore-collections-part1
-
-docstore-collections-part1 Tool Group:
-
-1. `mysql_doc_list_collections` 2. `mysql_doc_create_collection` 3. `mysql_doc_drop_collection`
+## Group Focus: docstore
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.docstore.help()` → verify method listing
-2. `mysql.docstore.listCollections()` → `test_documents` present
-3. `mysql.docstore.createCollection({name: "temp_cm_docs"})` → `success: true`
-4. `mysql.docstore.dropCollection({name: "temp_cm_docs"})` → `success: true`
-
-**Domain error paths (🔴):**
-
-**Zod validation error paths (🔴):**
-5. 🔴 `mysql.docstore.createCollection({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

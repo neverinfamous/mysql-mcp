@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_router_status` |   |   |
-| `mysql_router_routes` |   |   |
-| `mysql_router_route_status` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_router_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_router_routes` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_router_route_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,20 +82,20 @@
 
 
 ## Category 1: Graceful Degradation (No-Router Environment)
-1. `mysql_router_status()` → verify structured `{success: false}` (not raw connection error)
-2. `mysql_router_routes()` → verify structured response
-3. `mysql_router_route_status({routeName: "test"})` → verify structured response
+1. `mysql.router.status()` → verify structured `{success: false}` (not raw connection error)
+2. `mysql.router.routes()` → verify structured response
+3. `mysql.router.routeStatus({routeName: "test"})` → verify structured response
 6. All 9 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Invalid Route Name Stress
-1. `mysql_router_route_status({routeName: ""})` → verify structured error (empty string)
-2. `mysql_router_route_status({routeName: "nonexistent_route_xyz"})` → verify structured `{success: false}`
-5. `mysql_router_route_status({name: "test"})` → verify alias acceptance (should behave identical to `routeName`)
+1. `mysql.router.routeStatus({routeName: ""})` → verify structured error (empty string)
+2. `mysql.router.routeStatus({routeName: "nonexistent_route_xyz"})` → verify structured `{success: false}`
+5. `mysql.router.routeStatus({name: "test"})` → verify alias acceptance (should behave identical to `routeName`)
 
 ## Category 3: Happy-Path Stress (When Router IS Available)
-1. `mysql_router_status()` → verify version and process info
-2. `mysql_router_routes()` → verify route listing with names
-3. For first available route name: `mysql_router_route_status` → verify status fields
+1. `mysql.router.status()` → verify version and process info
+2. `mysql.router.routes()` → verify route listing with names
+3. For first available route name: `mysql.router.routeStatus` → verify status fields
 
 ## Category 4: Payload Monitoring
 2. Flag any response > 500 tokens as 📦
@@ -103,9 +103,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_status
-- [ ] Ensure full coverage for mysql_router_routes
-- [ ] Ensure full coverage for mysql_router_route_status
+- [ ] Ensure full coverage for mysql.router.status
+- [ ] Ensure full coverage for mysql.router.routes
+- [ ] Ensure full coverage for mysql.router.routeStatus
 
 ---
 

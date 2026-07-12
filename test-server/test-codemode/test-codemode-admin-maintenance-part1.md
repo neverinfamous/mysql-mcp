@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,13 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_optimize_table` |   |   |
-| `mysql_analyze_table` |   |   |
-| `mysql_check_table` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_optimize_table` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_analyze_table` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_check_table` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_repair_table` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_flush_tables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_kill_query` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,30 +82,15 @@
 - `mysql_optimize_table`
 - `mysql_analyze_table`
 - `mysql_check_table`
+- `mysql_repair_table`
+- `mysql_flush_tables`
+- `mysql_kill_query`
 
 
-## Group Focus:admin-maintenance (Part 1)
-
-admin Tool Group (9 tools +1 for code mode):
-
-1. `mysql_optimize_table` 2. `mysql_analyze_table` 3. `mysql_check_table`
-2. `mysql_repair_table` 5. `mysql_flush_tables` 6. `mysql_kill_query`
+## Group Focus: admin
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.admin.help()` → verify method listing
-2. `mysql.admin.analyzeTable({table: "test_products"})` → `success: true`
-3. `mysql.admin.checkTable({table: "test_products"})` → status OK
-4. `mysql.admin.optimizeTable({table: "test_products"})` → success
-5. `mysql.admin.killQuery({id: 99999})` → structured error (invalid PID)
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql.admin.analyzeTable({table: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql.admin.analyzeTable({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

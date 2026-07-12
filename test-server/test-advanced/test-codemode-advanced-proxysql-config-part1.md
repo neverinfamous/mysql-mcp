@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `proxysql_status` |   |   |
-| `proxysql_servers` |   |   |
-| `proxysql_query_rules` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `proxysql_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_servers` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_query_rules` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,24 +82,24 @@
 
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)
-1. `proxysql_status()` → verify structured `{success: false}` (not raw connection error)
-2. `proxysql_servers()` → verify structured response
-3. `proxysql_query_rules()` → verify structured response
+1. `mysql.proxysql.status()` → verify structured `{success: false}` (not raw connection error)
+2. `mysql.proxysql.servers()` → verify structured response
+3. `mysql.proxysql.queryRules()` → verify structured response
 4. All 11 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Happy-Path Stress (When ProxySQL IS Available)
-1. `proxysql_status()` → verify version and uptime fields
-2. `proxysql_servers()` → verify backend server listing with hostgroup info
+1. `mysql.proxysql.status()` → verify version and uptime fields
+2. `mysql.proxysql.servers()` → verify backend server listing with hostgroup info
 
 ## Category 3: Payload Monitoring & Filter Boundaries
-1. `proxysql_status({summary: true})` → log token estimate, verify reduction vs. full
+1. `mysql.proxysql.status({summary: true})` → log token estimate, verify reduction vs. full
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_status
-- [ ] Ensure full coverage for proxysql_servers
-- [ ] Ensure full coverage for proxysql_query_rules
+- [ ] Ensure full coverage for mysql.proxysql.status
+- [ ] Ensure full coverage for mysql.proxysql.servers
+- [ ] Ensure full coverage for mysql.proxysql.queryRules
 
 ---
 

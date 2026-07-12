@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_gr_status` |   |   |
-| `mysql_gr_members` |   |   |
-| `mysql_gr_primary` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_gr_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_gr_members` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_gr_primary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,14 +82,14 @@
 
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
-1. `mysql_gr_status()` → verify structured `{success: false}` (not raw exception) when GR is not configured
-2. `mysql_gr_members()` → verify structured response
-3. `mysql_gr_primary()` → verify structured response
+1. `mysql.cluster.grStatus()` → verify structured `{success: false}` (not raw exception) when GR is not configured
+2. `mysql.cluster.grMembers()` → verify structured response
+3. `mysql.cluster.grPrimary()` → verify structured response
 6. All 10 errors must use consistent `{success: false, error: "..."}` format — no raw MCP exceptions or property leakages
 
 ## Category 2: Happy-Path Stress (When Cluster IS Available)
-1. `mysql_gr_status()` → verify members, state, and group name are present
-2. `mysql_gr_members()` → verify at least 1 member with host/port/role
+1. `mysql.cluster.grStatus()` → verify members, state, and group name are present
+2. `mysql.cluster.grMembers()` → verify at least 1 member with host/port/role
 
 ## Category 3: Summary Mode & Payload Monitoring
 1. Flag any response > 500 tokens as 📦
@@ -97,9 +97,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_gr_status
-- [ ] Ensure full coverage for mysql_gr_members
-- [ ] Ensure full coverage for mysql_gr_primary
+- [ ] Ensure full coverage for mysql.cluster.grStatus
+- [ ] Ensure full coverage for mysql.cluster.grMembers
+- [ ] Ensure full coverage for mysql.cluster.grPrimary
 
 ---
 

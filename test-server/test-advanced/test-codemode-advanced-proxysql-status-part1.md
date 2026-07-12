@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `proxysql_global_variables` |   |   |
-| `proxysql_runtime_status` |   |   |
-| `proxysql_memory_stats` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `proxysql_global_variables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_runtime_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_memory_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,24 +82,24 @@
 
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)
-1. `proxysql_global_variables()` → verify structured response
-2. `proxysql_runtime_status()` → verify structured response
-3. `proxysql_memory_stats()` → verify structured response
+1. `mysql.proxysql.globalVariables()` → verify structured response
+2. `mysql.proxysql.runtimeStatus()` → verify structured response
+3. `mysql.proxysql.memoryStats()` → verify structured response
 6. All 11 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Happy-Path Stress (When ProxySQL IS Available)
-1. `proxysql_runtime_status()` → verify runtime config snapshot
+1. `mysql.proxysql.runtimeStatus()` → verify runtime config snapshot
 
 ## Category 3: Payload Monitoring & Filter Boundaries
-1. `proxysql_global_variables()` with no limit → log token estimate, flag > 500 tokens as 📦
-2. `proxysql_global_variables({limit: 5})` → log token estimate, verify significant reduction
+1. `mysql.proxysql.globalVariables()` with no limit → log token estimate, flag > 500 tokens as 📦
+2. `mysql.proxysql.globalVariables({limit: 5})` → log token estimate, verify significant reduction
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_global_variables
-- [ ] Ensure full coverage for proxysql_runtime_status
-- [ ] Ensure full coverage for proxysql_memory_stats
+- [ ] Ensure full coverage for mysql.proxysql.globalVariables
+- [ ] Ensure full coverage for mysql.proxysql.runtimeStatus
+- [ ] Ensure full coverage for mysql.proxysql.memoryStats
 
 ---
 

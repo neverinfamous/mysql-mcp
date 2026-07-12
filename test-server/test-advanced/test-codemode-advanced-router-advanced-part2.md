@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_router_route_health` |   |   |
-| `mysql_router_route_connections` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_router_route_health` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_router_route_connections` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -80,27 +80,27 @@
 
 
 ## Category 1: Graceful Degradation (No-Router Environment)
-4. `mysql_router_route_health({routeName: "test"})` → verify structured response
-5. `mysql_router_route_connections({routeName: "test"})` → verify structured response
+4. `mysql.router.routeHealth({routeName: "test"})` → verify structured response
+5. `mysql.router.routeConnections({routeName: "test"})` → verify structured response
 6. All 9 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Invalid Route Name Stress
-3. `mysql_router_route_health({routeName: "'; DROP TABLE test; --"})` → verify structured error (injection attempt)
-4. `mysql_router_route_connections({routeName: "a".repeat(256)})` → verify structured error (extremely long name)
+3. `mysql.router.routeHealth({routeName: "'; DROP TABLE test; --"})` → verify structured error (injection attempt)
+4. `mysql.router.routeConnections({routeName: "a".repeat(256)})` → verify structured error (extremely long name)
 
 ## Category 3: Happy-Path Stress (When Router IS Available)
-4. For first available route name: `mysql_router_route_health` → verify health response
-5. For first available route name: `mysql_router_route_connections` → verify connection stats
+4. For first available route name: `mysql.router.routeHealth` → verify health response
+5. For first available route name: `mysql.router.routeConnections` → verify connection stats
 
 ## Category 4: Payload Monitoring
-1. `mysql_router_route_connections` → log token estimate
+1. `mysql.router.routeConnections` → log token estimate
 2. Flag any response > 500 tokens as 📦
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_route_health
-- [ ] Ensure full coverage for mysql_router_route_connections
+- [ ] Ensure full coverage for mysql.router.routeHealth
+- [ ] Ensure full coverage for mysql.router.routeConnections
 
 ---
 

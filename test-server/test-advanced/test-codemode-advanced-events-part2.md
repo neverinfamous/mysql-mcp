@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_event_list` |   |   |
-| `mysql_event_status` |   |   |
-| `mysql_scheduler_status` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_event_list` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_event_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_scheduler_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -89,9 +89,9 @@
 6. `mysql.events.create({name: "stress_evt_complex", schedule: "EVERY 30 SECOND STARTS CURRENT_TIMESTAMP", body: "SELECT 1", status: "DISABLE"})` → verify complex schedule syntax
 7. `mysql.events.status({name: "stress_evt_onetime"})` → verify status reflects one-time schedule type
 8. `mysql.events.status({name: "stress_evt_complex"})` → verify status reflects recurring schedule
-- [ ] Ensure full coverage for mysql_event_list
-- [ ] Ensure full coverage for mysql_event_status
-- [ ] Ensure full coverage for mysql_scheduler_status
+- [ ] Ensure full coverage for mysql.events.eventList
+- [ ] Ensure full coverage for mysql.events.eventStatus
+- [ ] Ensure full coverage for mysql.events.schedulerStatus
 
 
 ## Category 4: Scheduler State

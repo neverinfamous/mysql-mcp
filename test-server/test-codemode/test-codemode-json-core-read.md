@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_json_extract` |   |   |
-| `mysql_json_contains` |   |   |
-| `mysql_json_keys` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_extract` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_contains` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_keys` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,24 +81,10 @@
 - `mysql_json_keys`
 
 
-## Group Focus:json-core-read
-
-json-core-read Tool Group:
-
-1. `mysql_json_extract` 2. `mysql_json_contains` 3. `mysql_json_keys`
+## Group Focus: json
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.json.help()` → verify method listing
-2. `mysql.json.extract({table: "test_json_docs", column: "doc", path: "$.title"})` → values
-3. `mysql.json.contains({table: "test_json_docs", column: "doc", value: '{"type":"article"}'})` → matches
-4. `mysql.json.keys({table: "test_json_docs", column: "doc", path: "$"})` → keys
-
-**Domain error paths (🔴):**
-5. 🔴 `mysql.json.extract({table: "nonexistent_xyz", column: "doc", path: "$"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-6. 🔴 `mysql.json.extract({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

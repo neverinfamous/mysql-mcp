@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,14 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `proxysql_memory_stats` |   |   |
-| `proxysql_process_list` |   |   |
-| `proxysql_query_digest` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `proxysql_memory_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_process_list` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_query_digest` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_servers` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_connection_pool` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_runtime_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,27 +83,16 @@
 - `proxysql_memory_stats`
 - `proxysql_process_list`
 - `proxysql_query_digest`
+- `proxysql_status`
+- `proxysql_servers`
+- `proxysql_connection_pool`
+- `proxysql_runtime_status`
 
 
-## Group Focus:proxysql-status (Part 2)
-
-proxysql Tool Group (11 tools +1 for code mode):
-
-1. `proxysql_status` 2. `proxysql_servers` 3. `proxysql_connection_pool`
-4. `proxysql_runtime_status` 5. `proxysql_memory_stats` 6. `proxysql_process_list`
-7. `proxysql_query_digest`
+## Group Focus: proxysql
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.proxysql.help()` → verify method listing
-2. `mysql.proxysql.status()` → version, uptime
-3. `mysql.proxysql.servers()` → backend listing
-4. `mysql.proxysql.connectionPool()` → pool stats
-5. `mysql.proxysql.runtimeStatus()` → runtime config
-6. `mysql.proxysql.memoryStats()` → memory
-7. `mysql.proxysql.processList()` → sessions
-8. `mysql.proxysql.queryDigest({limit: 5})` → top queries
-9. 🔴 `mysql.proxysql.status({summary: "invalid"})` → `{success: false}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

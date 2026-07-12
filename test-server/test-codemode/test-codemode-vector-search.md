@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -81,36 +81,10 @@
 - `mysql_vector_hybrid_search`
 
 
-## Group Focus:vector-search
+## Group Focus: vector
 
-### vector Group-Specific Testing
-
-vector Tool Group (11 tools +1 for code mode):
-
-1. `mysql.vector.search`
-2. `mysql.vector.rangeSearch`
-3. `mysql.vector.hybridSearch`
-4. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. ✅ `mysql.vector.search({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-2. ✅ `mysql.vector.rangeSearch({...})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-3. ✅ `mysql.vector.hybridSearch({table: "test_articles", vectorColumn: "vector", textColumn: "body", queryVector: [0.1, 0.2], queryText: "test", metric: "EUCLIDEAN", rrfK: 60, select: ["id"], filter: "id > 0"})` → happy path (returned structured EXTENSION_MISSING error, verified handler intercept)
-
-**Domain error paths (🔴):**
-
-4. ✅ `mysql.vector.search({...})` → domain error (TABLE_NOT_FOUND)
-5. ✅ `mysql.vector.rangeSearch({...})` → domain error (TABLE_NOT_FOUND)
-6. ✅ `mysql.vector.hybridSearch({table: "nonexistent_xyz", vectorColumn: "vector", textColumn: "body", queryVector: [0.1, 0.2], queryText: "test", metric: "EUCLIDEAN", rrfK: 60, select: ["id"], filter: "id > 0"})` → domain error (TABLE_NOT_FOUND)
-
-**Zod validation error paths (🔴):**
-
-7. ✅ `mysql.vector.search({})` → validation error
-8. ✅ `mysql.vector.rangeSearch({})` → validation error
-9. ✅ `mysql.vector.hybridSearch({})` → validation error
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

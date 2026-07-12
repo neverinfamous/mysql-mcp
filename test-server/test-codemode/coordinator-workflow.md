@@ -25,7 +25,7 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - **CRITICAL PRIORITY**: NEVER delete a testing prompt or workflow file after success.
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
-   - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
+   - The subagent MUST generate updated server instructions by running `pnpm run generate:instructions`.
    - The subagent MUST commit all changes locally (`bun .\.agents\scripts\commit.ts --msg "test(codemode): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the queue.
@@ -34,7 +34,7 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
    - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
    - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
    - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
-   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
+   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server. (Note: MySQL Shell tools MUST target the standard `mysql` server due to X Protocol port mapping restrictions). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 5. **Coordinator Progress Reporting**:
    - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "Test X (<test name>) out of Y: A Prompt / B Code / C Graceful Fails" (e.g., "Test 32 (Spatial queries part 1) out of 77: 1 Prompt / 0 Code / 0 Graceful Fails")
    - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced (there should not be any).
@@ -49,7 +49,7 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
 
 > [!WARNING]
 > **ANTI-EXHAUSTION ARCHITECTURE**
-> Do NOT execute these tests in a single thread. The 82 tests have been sharded into 4 phases to prevent LLM context window exhaustion.
+> Do NOT execute these tests in a single thread. The 105 tests have been sharded into 4 phases to prevent LLM context window exhaustion.
 > 
 > **How to run:**
 > 1. Start a NEW thread for Phase 1 and pass the agent the `coordinator-workflow-phase1-foundation.md` file.

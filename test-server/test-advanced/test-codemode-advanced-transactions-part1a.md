@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_transaction_begin` |   |   |
-| `mysql_transaction_commit` |   |   |
-| `mysql_transaction_rollback` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_transaction_begin` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_commit` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_rollback` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -95,9 +95,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_transaction_begin
-- [ ] Ensure full coverage for mysql_transaction_commit
-- [ ] Ensure full coverage for mysql_transaction_rollback
+- [ ] Ensure full coverage for mysql.transactions.transactionBegin
+- [ ] Ensure full coverage for mysql.transactions.transactionCommit
+- [ ] Ensure full coverage for mysql.transactions.transactionRollback
 
 ---
 

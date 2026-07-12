@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_json_normalize` |   |   |
-| `mysql_json_stats` |   |   |
-| `mysql_json_index_suggest` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_normalize` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_index_suggest` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,36 +81,10 @@
 - `mysql_json_index_suggest`
 
 
-## Group Focus:json-enhanced-part2
+## Group Focus: json
 
-### json Group-Specific Testing
-
-json Tool Group (17 tools +1 for code mode):
-
-1. `mysql_json_normalize`
-2. `mysql_json_stats`
-3. `mysql_json_index_suggest`
-4. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct a single `mysql_execute_code` script to execute the numbered checklist items below.
-
-**Checklist:**
-
-1. `mysql.json.normalize({...})` → happy path
-2. `mysql.json.stats({...})` → happy path
-3. `mysql.json.indexSuggest({...})` → happy path
-
-**Domain error paths (🔴):**
-
-4. 🔴 `mysql.json.normalize({...})` → domain error
-5. 🔴 `mysql.json.stats({...})` → domain error
-6. 🔴 `mysql.json.indexSuggest({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql.json.normalize({})` → validation error
-8. 🔴 `mysql.json.stats({})` → validation error
-9. 🔴 `mysql.json.indexSuggest({})` → validation error
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

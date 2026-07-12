@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_role_grant` |   |   |
-| `mysql_role_assign` |   |   |
-| `mysql_role_revoke` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_role_grant` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_role_assign` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_role_revoke` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -83,9 +83,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_role_grant
-- [ ] Ensure full coverage for mysql_role_assign
-- [ ] Ensure full coverage for mysql_role_revoke
+- [ ] Ensure full coverage for mysql.roles.roleGrant
+- [ ] Ensure full coverage for mysql.roles.roleAssign
+- [ ] Ensure full coverage for mysql.roles.roleRevoke
 
 ---
 

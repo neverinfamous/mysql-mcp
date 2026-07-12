@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_security_ssl_status` |   |   |
-| `mysql_security_user_privileges` |   |   |
-| `mysql_security_sensitive_tables` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_security_ssl_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_security_user_privileges` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_security_sensitive_tables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -83,9 +83,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_security_ssl_status
-- [ ] Ensure full coverage for mysql_security_user_privileges
-- [ ] Ensure full coverage for mysql_security_sensitive_tables
+- [ ] Ensure full coverage for mysql.security.sslStatus
+- [ ] Ensure full coverage for mysql.security.userPrivileges
+- [ ] Ensure full coverage for mysql.security.sensitiveTables
 
 ---
 

@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_dependency_graph` |   |   |
-| `mysql_topological_sort` |   |   |
-| `mysql_cascade_simulator` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_dependency_graph` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_topological_sort` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_cascade_simulator` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -83,20 +83,20 @@
 
 ## Category 1: Deep Hierarchy & Traversal Limits
 1. Create a schema `stress_hierarchies` with 10 sequentially linked tables (`t1` -> `t2` -> ... -> `t10`).
-2. Run `mysql_dependency_graph` with `maxDepth: 1` — verify it truncates traversal early.
-3. Run `mysql_dependency_graph` with `maxDepth: 20` — verify it successfully traverses the full chain without stack overflow.
-4. Run `mysql_topological_sort` on `stress_hierarchies` — verify strict creation order `t1, t2, ..., t10` is returned.
+2. Run `mysql.introspection.dependencyGraph` with `maxDepth: 1` — verify it truncates traversal early.
+3. Run `mysql.introspection.dependencyGraph` with `maxDepth: 20` — verify it successfully traverses the full chain without stack overflow.
+4. Run `mysql.introspection.topologicalSort` on `stress_hierarchies` — verify strict creation order `t1, t2, ..., t10` is returned.
 
 ## Category 2: Circular Dependency Handling
 1. Create a schema `stress_circular` with tables `A` and `B`, where `A` references `B` and `B` references `A`.
-2. Run `mysql_dependency_graph` on `stress_circular` — verify it terminates cleanly without infinite loops (check output payload size).
-3. Run `mysql_topological_sort` on `stress_circular` — verify it returns a structured `{success: false, error: "..."}` explicitly citing a circular dependency cycle.
+2. Run `mysql.introspection.dependencyGraph` on `stress_circular` — verify it terminates cleanly without infinite loops (check output payload size).
+3. Run `mysql.introspection.topologicalSort` on `stress_circular` — verify it returns a structured `{success: false, error: "..."}` explicitly citing a circular dependency cycle.
 
 ## Category 3: Complex Cascade Simulation
 1. In `stress_hierarchies`, add a `ON DELETE CASCADE` rule from `t1` all the way down to `t10`.
 2. Insert 1 row into `t1`, cascading 1 row into each subsequent table.
-3. Run `mysql_cascade_simulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through the 9 subsequent tables.
-4. Modify the constraint on `t5` to `ON DELETE RESTRICT`. Run `mysql_cascade_simulator` again — verify it correctly flags the operation as blocked at `t5`.
+3. Run `mysql.introspection.cascadeSimulator` with `operation: DELETE` on `t1` — verify it accurately traces the deletion cascade through the 9 subsequent tables.
+4. Modify the constraint on `t5` to `ON DELETE RESTRICT`. Run `mysql.introspection.cascadeSimulator` again — verify it correctly flags the operation as blocked at `t5`.
 
 ## Category 4: Snapshot & Risk Analysis Stress
 1. Create a schema `stress_snapshots` with 50 empty tables (each with 5 columns and 1 index).
@@ -107,9 +107,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_dependency_graph
-- [ ] Ensure full coverage for mysql_topological_sort
-- [ ] Ensure full coverage for mysql_cascade_simulator
+- [ ] Ensure full coverage for mysql.introspection.dependencyGraph
+- [ ] Ensure full coverage for mysql.introspection.topologicalSort
+- [ ] Ensure full coverage for mysql.introspection.cascadeSimulator
 
 ---
 

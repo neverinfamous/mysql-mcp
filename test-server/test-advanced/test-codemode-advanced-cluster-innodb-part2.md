@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_cluster_router_status` |   |   |
-| `mysql_cluster_switchover` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_cluster_router_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_cluster_switchover` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -80,22 +80,22 @@
 
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
-4. `mysql_cluster_router_status()` → verify structured response
-5. `mysql_cluster_switchover()` → verify structured `{success: false}` (analysis fails with no cluster)
+4. `mysql.cluster.clusterRouterStatus()` → verify structured response
+5. `mysql.cluster.clusterSwitchover()` → verify structured `{success: false}` (analysis fails with no cluster)
 6. All 10 errors must use consistent `{success: false, error: "..."}` format — no raw MCP exceptions or property leakages
 
 ## Category 2: Happy-Path Stress (When Cluster IS Available)
 
 ## Category 3: Summary Mode & Payload Monitoring
-3. `mysql_cluster_router_status()` full → log token estimate
-4. `mysql_cluster_router_status({summary: true})` → log token estimate
+3. `mysql.cluster.clusterRouterStatus()` full → log token estimate
+4. `mysql.cluster.clusterRouterStatus({summary: true})` → log token estimate
 5. Flag any response > 500 tokens as 📦
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_cluster_router_status
-- [ ] Ensure full coverage for mysql_cluster_switchover
+- [ ] Ensure full coverage for mysql.cluster.clusterRouterStatus
+- [ ] Ensure full coverage for mysql.cluster.clusterSwitchover
 
 ---
 

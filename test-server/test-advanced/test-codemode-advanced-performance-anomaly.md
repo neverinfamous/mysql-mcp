@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_detect_query_anomalies` |   |   |
-| `mysql_detect_bloat_risk` |   |   |
-| `mysql_detect_connection_spike` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_detect_query_anomalies` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_detect_bloat_risk` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_detect_connection_spike` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,11 +82,11 @@
 
 
 ## Category 1: Anomaly Detection Boundaries
-1. `mysql_detect_query_anomalies` with `minExecutions: 0` — verify behavior.
-2. `mysql_detect_query_anomalies` with `stdDevThreshold: 9999` — verify no anomalies match but the tool succeeds.
-3. Create an empty table `stress_empty`. Run `mysql_detect_bloat_risk` on it. Verify it handles 0 rows without division-by-zero crashes.
-4. Run `mysql_detect_connection_spike` with `windowMinutes: -1`. Verify structured `{success: false, error: "..."}` for invalid window bounds.
-5. Run `mysql_detect_connection_spike` with `thresholdPercent: 0`. Verify output logic correctly flags everything as a spike without crashing.
+1. `mysql.performance.detectQueryAnomalies` with `minExecutions: 0` — verify behavior.
+2. `mysql.performance.detectQueryAnomalies` with `stdDevThreshold: 9999` — verify no anomalies match but the tool succeeds.
+3. Create an empty table `stress_empty`. Run `mysql.performance.detectBloatRisk` on it. Verify it handles 0 rows without division-by-zero crashes.
+4. Run `mysql.performance.detectConnectionSpike` with `windowMinutes: -1`. Verify structured `{success: false, error: "..."}` for invalid window bounds.
+5. Run `mysql.performance.detectConnectionSpike` with `thresholdPercent: 0`. Verify output logic correctly flags everything as a spike without crashing.
 
 ## Category 2: Cleanup
 1. Drop `stress_empty` table. Verify clean removal.
@@ -94,9 +94,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_detect_query_anomalies
-- [ ] Ensure full coverage for mysql_detect_bloat_risk
-- [ ] Ensure full coverage for mysql_detect_connection_spike
+- [ ] Ensure full coverage for mysql.performance.detectQueryAnomalies
+- [ ] Ensure full coverage for mysql.performance.detectBloatRisk
+- [ ] Ensure full coverage for mysql.performance.detectConnectionSpike
 
 ---
 

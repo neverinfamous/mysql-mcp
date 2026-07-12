@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_migration_rollback` |   |   |
-| `mysql_migration_history` |   |   |
-| `mysql_migration_status` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_migration_rollback` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_history` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -83,19 +83,19 @@
 
 ## Category 1: Checksum & State Corruption Resilience
 1. Record a migration `001_base` with `migrationSql: "SELECT 1"`.
-2. Drop the status check constraint (`ALTER TABLE testdb._mcp_schema_versions DROP CHECK _mcp_schema_versions_chk_1`), then manually update the `_mcp_schema_versions` tracking table to set the status of `001_base` to a corrupted string (e.g., `PENDING_BROKEN`). Run `mysql_migration_status` and verify it degrades gracefully (reporting an unknown state rather than crashing).
+2. Drop the status check constraint (`ALTER TABLE testdb._mcp_schema_versions DROP CHECK _mcp_schema_versions_chk_1`), then manually update the `_mcp_schema_versions` tracking table to set the status of `001_base` to a corrupted string (e.g., `PENDING_BROKEN`). Run `mysql.migration.status` and verify it degrades gracefully (reporting an unknown state rather than crashing).
 
 ## Category 2: Rollback Boundaries & Idempotency
 1. Apply a valid migration `002_new_col` that adds a column (ensure you provide `rollbackSql`).
-2. Run `mysql_migration_rollback` for `002_new_col`. Verify success.
-3. Attempt to run `mysql_migration_rollback` for `002_new_col` _again_. Verify it returns a structured `{success: false, error: "..."}` stating the migration is already rolled back.
-4. Attempt to run `mysql_migration_rollback` for a version that was never applied (`003_ghost`). Verify structured failure.
+2. Run `mysql.migration.rollback` for `002_new_col`. Verify success.
+3. Attempt to run `mysql.migration.rollback` for `002_new_col` _again_. Verify it returns a structured `{success: false, error: "..."}` stating the migration is already rolled back.
+4. Attempt to run `mysql.migration.rollback` for a version that was never applied (`003_ghost`). Verify structured failure.
 
 ## Category 3: Out-of-Order Execution Tracking
 1. Apply migration `005_feature_z`.
 2. Apply migration `003_feature_x`.
-3. Run `mysql_migration_history`. Verify that the history correctly sorts/displays the applied order vs logical version order, and flags `003_feature_x` as an out-of-order application.
-4. Run `mysql_migration_status`. Verify it correctly aggregates the total applied count despite the out-of-order execution.
+3. Run `mysql.migration.history`. Verify that the history correctly sorts/displays the applied order vs logical version order, and flags `003_feature_x` as an out-of-order application.
+4. Run `mysql.migration.status`. Verify it correctly aggregates the total applied count despite the out-of-order execution.
 
 ## Category 4: Cleanup Verification
 1. Drop all test columns generated and explicitly `DROP TABLE _mcp_schema_versions`. Verify clean removal.
@@ -103,9 +103,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_migration_rollback
-- [ ] Ensure full coverage for mysql_migration_history
-- [ ] Ensure full coverage for mysql_migration_status
+- [ ] Ensure full coverage for mysql.migration.rollback
+- [ ] Ensure full coverage for mysql.migration.history
+- [ ] Ensure full coverage for mysql.migration.status
 
 ---
 

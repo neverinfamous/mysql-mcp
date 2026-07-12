@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_list_schemas` |   |   |
-| `mysql_create_schema` |   |   |
-| `mysql_drop_schema` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_list_schemas` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_create_schema` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_drop_schema` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,10 +82,10 @@
 
 
 ## Category 1: DDL Idempotency
-1. `mysql_create_schema({name: "stress_schema_dup"})` → success
-2. `mysql_create_schema({name: "stress_schema_dup"})` again → verify structured `{success: false}` (duplicate)
-3. `mysql_drop_schema({name: "stress_schema_dup"})` → success
-4. `mysql_drop_schema({name: "stress_schema_dup"})` again → verify structured `{success: false}` (already dropped)
+1. `mysql.schema.createSchema({name: "stress_schema_dup"})` → success
+2. `mysql.schema.createSchema({name: "stress_schema_dup"})` again → verify structured `{success: false}` (duplicate)
+3. `mysql.schema.dropSchema({name: "stress_schema_dup"})` → success
+4. `mysql.schema.dropSchema({name: "stress_schema_dup"})` again → verify structured `{success: false}` (already dropped)
 5. Create view `stress_view_dup` on `test_products`, then create again with same name → verify structured error
 6. Drop the view, recreate it → verify clean slate (no leftover state)
 
@@ -105,9 +105,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_list_schemas
-- [ ] Ensure full coverage for mysql_create_schema
-- [ ] Ensure full coverage for mysql_drop_schema
+- [ ] Ensure full coverage for mysql.schema.listSchemas
+- [ ] Ensure full coverage for mysql.schema.createSchema
+- [ ] Ensure full coverage for mysql.schema.dropSchema
 
 ---
 

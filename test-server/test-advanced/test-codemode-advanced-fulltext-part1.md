@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_fulltext_create` |   |   |
-| `mysql_fulltext_drop` |   |   |
-| `mysql_fulltext_search` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_fulltext_create` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_fulltext_drop` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_fulltext_search` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -103,9 +103,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_fulltext_create
-- [ ] Ensure full coverage for mysql_fulltext_drop
-- [ ] Ensure full coverage for mysql_fulltext_search
+- [ ] Ensure full coverage for mysql.fulltext.fulltextCreate
+- [ ] Ensure full coverage for mysql.fulltext.fulltextDrop
+- [ ] Ensure full coverage for mysql.fulltext.fulltextSearch
 
 ---
 

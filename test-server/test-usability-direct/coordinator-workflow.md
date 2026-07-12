@@ -10,7 +10,7 @@ This guide instructs the Coordinator agent on how to run the `mysql-mcp` usabili
 
 ## Goal
 
-Execute usability tests in `test-server/test-usability-direct/`. Fuzz tools to trigger agent hallucinations. Harden the codebase via the [`mysql-mcp-heal`](../../skills/mysql-mcp-heal/SKILL.md) skill.
+Execute usability tests in `test-server/test-usability-direct/`. Fuzz tools to trigger agent hallucinations. Harden the codebase using the `/mcp:mysql-mcp:mysql_mcp_heal` prompt.
 
 ## Workflow Rules
 
@@ -23,7 +23,7 @@ Execute usability tests in `test-server/test-usability-direct/`. Fuzz tools to t
    - **Quality Gates**: Pay strict attention to ESLint and TypeScript compiler outputs. You MUST fix all lint and typecheck validation issues prior to committing. Do NOT ignore warnings or errors. Follow strict TypeScript guidelines: NEVER use `any` (use `unknown` with type guards), avoid unsafe typecasts, and ensure explicit return types.
    - **WARNING**: Do NOT commit your code and then attempt to use `git commit --amend` to fix a lingering lint or test issue later. Amending a commit rewrites the commit SHA, which will permanently break the changelog tracking workflow.
    - DO NOT perform live server verification. DO NOT wait for a server restart. DO NOT pause or send a message asking the user to refresh the server.
-   - If a subagent edits any `server-instructions/*.md` files, they MUST run `npx tsx scripts/generate-server-instructions.ts` before building.
+   - If a subagent edits any `server-instructions/*.md` files, they MUST run `pnpm run generate:instructions` before building.
 4. **Commit**:
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - **CRITICAL PRIORITY**: NEVER delete a testing prompt or workflow file after success.
@@ -32,11 +32,11 @@ Execute usability tests in `test-server/test-usability-direct/`. Fuzz tools to t
    - **CRITICAL**: Our setup provides everything for all testing to be successful. There should never be any graceful fails. If the subagent thinks it is only testing graceful degradation due to a temporary problem in a tool, group of tools, or the entire ecosystem setup, it MUST explicitly inform the user and log it as a graceful fail. **NOTE: "Graceful Fails" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. It does NOT refer to successful negative tests (e.g., intentionally triggering a validation error to ensure it is handled gracefully). SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS GRACEFUL FAILS.**
    - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
    - Once the subagent completes, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and move to the next test in the queue.
-5. **Code Mode Error Testing Protocol**:
-   - Subagents executing Code Mode test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting sandbox crashes or thrown raw exceptions.
+5. **Domain Error Testing Protocol**:
+   - Subagents executing test matrices must anticipate structured `VALIDATION_ERROR` or other domain error payloads with `{ success: false }` for type mismatches, rather than expecting thrown raw exceptions.
 6. **Tool Availability Warning**:
    - If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
-   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router, shell) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server (e.g., `ServerName: "mysql-ecosystem"` for tool calls like `mysql_execute_code`). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
+   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server. (Note: MySQL Shell tools MUST target the standard `mysql` server due to X Protocol port mapping restrictions). If the subagent targets the standard `mysql` server, it will improperly test graceful degradation instead of actively testing the live cluster, which is a FAILURE of the test.
 7. **Coordinator Progress Reporting**:
    - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "Test X (<test name>) out of Y: A Prompt / B Code / C Graceful Fails" (e.g., "Test 32 (Spatial queries part 1) out of 77: 1 Prompt / 0 Code / 0 Graceful Fails")
    - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced (there should not be any).

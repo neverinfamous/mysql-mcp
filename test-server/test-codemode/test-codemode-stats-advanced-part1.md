@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,13 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_stats_hypothesis` |   |   |
-| `mysql_stats_outliers` |   |   |
-| `mysql_stats_top_n` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_stats_hypothesis` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_outliers` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_top_n` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_distinct` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_frequency` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_summary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,38 +82,15 @@
 - `mysql_stats_hypothesis`
 - `mysql_stats_outliers`
 - `mysql_stats_top_n`
+- `mysql_stats_distinct`
+- `mysql_stats_frequency`
+- `mysql_stats_summary`
 
 
-## Group Focus:stats-advanced (Part 1)
-
-stats Tool Group (20 tools +1 for code mode):
-
-1. `mysql_stats_hypothesis`
-2. `mysql_stats_outliers`
-3. `mysql_stats_top_n`
-4. `mysql_stats_distinct`
-5. `mysql_stats_frequency`
-6. `mysql_stats_summary`
+## Group Focus: stats
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.stats.help()` → verify method listing
-2. `mysql.stats.hypothesis({table: "test_products", column: "price", testType: "t_test", hypothesizedMean: 100})` → verify t-test results
-3. `mysql.stats.outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
-4. `mysql.stats.topN({table: "test_measurements", column: "temperature", n: 5, direction: "desc"})` → verify top 5
-5. `mysql.stats.distinct({table: "test_events", column: "event_type"})` → verify distinct counts
-6. `mysql.stats.frequency({table: "test_events", column: "event_type"})` → verify frequency distribution
-7. `mysql.stats.summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → verify multivariable summary
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql.stats.topN({table: "nonexistent_xyz", column: "temperature"})` → `{success: false}`
-9. 🔴 `mysql.stats.hypothesis({table: "test_products", column: "nonexistent", testType: "t_test", hypothesizedMean: 100})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql.stats.outliers({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.stats.summary({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

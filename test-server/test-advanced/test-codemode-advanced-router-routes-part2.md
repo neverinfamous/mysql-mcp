@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,8 +65,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_router_pool_status` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_router_pool_status` |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -78,7 +78,7 @@
 
 
 ## Category 1: Graceful Degradation (No-Router Environment)
-4. `mysql_router_pool_status()` → verify structured response
+4. `mysql.router.poolStatus()` → verify structured response
 5. All 9 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 3: Happy-Path Stress (When Router IS Available)
@@ -89,7 +89,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_pool_status
+- [ ] Ensure full coverage for mysql.router.poolStatus
 
 ---
 

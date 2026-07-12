@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_sys_innodb_lock_waits` |   |   |
-| `mysql_sys_schema_stats` |   |   |
-| `mysql_sys_host_summary` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_sys_innodb_lock_waits` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_sys_schema_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_sys_host_summary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -84,9 +84,9 @@
 ## Tasks
 
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql_sys_innodb_lock_waits
-- [ ] Ensure full coverage for mysql_sys_schema_stats
-- [ ] Ensure full coverage for mysql_sys_host_summary
+- [ ] Ensure full coverage for mysql.sysschema.sysInnodbLockWaits
+- [ ] Ensure full coverage for mysql.sysschema.sysSchemaStats
+- [ ] Ensure full coverage for mysql.sysschema.sysHostSummary
 
 ---
 

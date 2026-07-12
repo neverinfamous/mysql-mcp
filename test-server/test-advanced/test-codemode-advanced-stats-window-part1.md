@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,12 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_stats_row_number` |   |   |
-| `mysql_stats_rank` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_stats_row_number` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_rank` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_outliers` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_top_n` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_distinct` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -77,6 +80,9 @@
 
 - `mysql_stats_row_number`
 - `mysql_stats_rank`
+- `mysql_stats_outliers`
+- `mysql_stats_top_n`
+- `mysql_stats_distinct`
 
 
 ## Category 1: Window Function NULL Handling
@@ -89,9 +95,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_stats_outliers
-- [ ] Ensure full coverage for mysql_stats_top_n
-- [ ] Ensure full coverage for mysql_stats_distinct
+- [ ] Ensure full coverage for mysql.stats.outliers
+- [ ] Ensure full coverage for mysql.stats.topN
+- [ ] Ensure full coverage for mysql.stats.distinct
 
 ---
 

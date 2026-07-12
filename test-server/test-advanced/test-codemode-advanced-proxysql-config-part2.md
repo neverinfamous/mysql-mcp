@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `proxysql_query_digest` |   |   |
-| `proxysql_connection_pool` |   |   |
-| `proxysql_users` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `proxysql_query_digest` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_connection_pool` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `proxysql_users` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,21 +82,21 @@
 
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)
-1. `proxysql_query_digest()` → verify structured response
-2. `proxysql_connection_pool()` → verify structured response
-3. `proxysql_users()` → verify structured response
+1. `mysql.proxysql.queryDigest()` → verify structured response
+2. `mysql.proxysql.connectionPool()` → verify structured response
+3. `mysql.proxysql.users()` → verify structured response
 4. All 11 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 3: Payload Monitoring & Filter Boundaries
-1. `proxysql_query_digest()` with no limit -> log token estimate
-2. `proxysql_query_digest({limit: 1})` → log token estimate
+1. `mysql.proxysql.queryDigest()` with no limit -> log token estimate
+2. `mysql.proxysql.queryDigest({limit: 1})` → log token estimate
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_query_digest
-- [ ] Ensure full coverage for proxysql_connection_pool
-- [ ] Ensure full coverage for proxysql_users
+- [ ] Ensure full coverage for mysql.proxysql.queryDigest
+- [ ] Ensure full coverage for mysql.proxysql.connectionPool
+- [ ] Ensure full coverage for mysql.proxysql.users
 
 ---
 

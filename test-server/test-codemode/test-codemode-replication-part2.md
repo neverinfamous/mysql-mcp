@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_gtid_status` |   |   |
-| `mysql_replication_lag` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_gtid_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_replication_lag` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,19 +79,10 @@
 - `mysql_replication_lag`
 
 
-## Group Focus:replication
-
-replication Tool Group (5 tools +1 for code mode):
-
-1. `mysql_gtid_status` 2. `mysql_replication_lag`
-
-> **Note**: In a single-server test environment, most will return status-only results. Focus on structured error responses.
+## Group Focus: replication
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.replication.help()` → verify method listing
-2. `mysql.replication.gtidStatus()` → GTID information
-3. `mysql.replication.replicationLag()` → response (0 lag or no-replica)
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

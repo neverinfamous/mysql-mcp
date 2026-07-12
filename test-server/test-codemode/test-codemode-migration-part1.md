@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,13 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_migration_init` |   |   |
-| `mysql_migration_record` |   |   |
-| `mysql_migration_apply` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_migration_init` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_record` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_apply` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_rollback` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_history` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,34 +82,15 @@
 - `mysql_migration_init`
 - `mysql_migration_record`
 - `mysql_migration_apply`
+- `mysql_migration_rollback`
+- `mysql_migration_history`
+- `mysql_migration_status`
 
 
-## Group Focus:migration (Part 1)
-
-migration Tool Group (6 tools +1 for code mode):
-
-1. `mysql_migration_init` 2. `mysql_migration_record` 3. `mysql_migration_apply`
-4. `mysql_migration_rollback` 5. `mysql_migration_history` 6. `mysql_migration_status`
+## Group Focus: migration
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.migration.help()` → verify method listing
-2. `mysql.migration.init()` → initialize tables
-3. `mysql.migration.record({version: "1.0.0", description: "initial", migrationSql: "SELECT 1"})` → record
-4. `mysql.migration.apply({version: "1.0.2", description: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → apply
-5. `mysql.migration.status()` → check status
-6. `mysql.migration.history({limit: 5})` → get history
-7. `mysql.migration.rollback({version: "1.0.2"})` → rollback
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql.migration.rollback({version: "nonexistent_version"})` → `{success: false}`
-9. 🔴 `mysql.migration.apply({version: "1.0.0", description: "duplicate", query: "..."})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql.migration.record({})` → `{success: false, error: "Validation error: ..."}`
-11. 🔴 `mysql.migration.apply({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_json_extract` |   |   |
-| `mysql_json_set` |   |   |
-| `mysql_json_insert` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_extract` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_set` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_insert` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -87,37 +87,37 @@
 
 json Tool Group (17 tools +1 for code mode):
 
-1. 'mysql_json_extract'
-2. 'mysql_json_set'
-3. 'mysql_json_insert'
+1. 'mysql.json.extract'
+2. 'mysql.json.set'
+3. 'mysql.json.insert'
 9. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using CODE MODE (`mysql_execute_code`) ONLY.
 
 **Checklist:**
 
-1. `mysql_json_extract({...})` → happy path
-2. `mysql_json_set({...})` → happy path
-3. `mysql_json_insert({...})` → happy path
+1. `mysql.json.extract({...})` → happy path
+2. `mysql.json.set({...})` → happy path
+3. `mysql.json.insert({...})` → happy path
 
 **Domain error paths (🔴):**
 
-9. 🔴 `mysql_json_extract({...})` → domain error
-10. 🔴 `mysql_json_set({...})` → domain error
-11. 🔴 `mysql_json_insert({...})` → domain error
+9. 🔴 `mysql.json.extract({...})` → domain error
+10. 🔴 `mysql.json.set({...})` → domain error
+11. 🔴 `mysql.json.insert({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-17. 🔴 `mysql_json_extract({})` → validation error
-18. 🔴 `mysql_json_set({})` → validation error
-19. 🔴 `mysql_json_insert({})` → validation error
+17. 🔴 `mysql.json.extract({})` → validation error
+18. 🔴 `mysql.json.set({})` → validation error
+19. 🔴 `mysql.json.insert({})` → validation error
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_extract
-- [ ] Ensure full coverage for mysql_json_set
-- [ ] Ensure full coverage for mysql_json_insert
+- [ ] Ensure full coverage for mysql.json.extract
+- [ ] Ensure full coverage for mysql.json.set
+- [ ] Ensure full coverage for mysql.json.insert
 
 ---
 

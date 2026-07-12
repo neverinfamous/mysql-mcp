@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_stats_sampling` |   |   |
-| `mysql_stats_histogram` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_stats_sampling` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_histogram` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,23 +79,10 @@
 - `mysql_stats_histogram`
 
 
-## Group Focus:stats-descriptive (Part 2)
-
-stats Tool Group (20 tools +1 for code mode):
-
-1. `mysql_stats_sampling`
-2. `mysql_stats_histogram`
+## Group Focus: stats
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.stats.help()` → verify method listing
-8. `mysql.stats.sampling({table: "test_measurements", sampleSize: 10})` → ~10 rows
-9. `mysql.stats.histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → histogram metadata
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql.stats.correlation({table: "test_measurements", column1: "nonexistent_col", column2: "humidity"})` → `{success: false}`
-12. 🔴 `mysql.stats.regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

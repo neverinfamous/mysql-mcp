@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,14 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_replication_status` |   |   |
-| `mysql_pool_stats` |   |   |
-| `mysql_server_health` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_replication_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_pool_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_server_health` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_show_processlist` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_show_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_show_variables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_innodb_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,31 +83,16 @@
 - `mysql_replication_status`
 - `mysql_pool_stats`
 - `mysql_server_health`
+- `mysql_show_processlist`
+- `mysql_show_status`
+- `mysql_show_variables`
+- `mysql_innodb_status`
 
 
-## Group Focus:monitoring (Part 2)
-
-monitoring Tool Group (7 tools +1 for code mode):
-
-1. `mysql_show_processlist` 2. `mysql_show_status` 3. `mysql_show_variables`
-4. `mysql_innodb_status` 5. `mysql_replication_status` 6. `mysql_pool_stats`
-7. `mysql_server_health`
+## Group Focus: monitoring
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.monitoring.help()` → verify method listing
-2. `mysql.monitoring.showProcesslist()` → at least 1 connection
-3. `mysql.monitoring.showStatus({like: "Uptime"})` → Uptime > 0
-4. `mysql.monitoring.showVariables({like: "max_connections"})` → numeric value
-5. `mysql.monitoring.innodbStatus()` → InnoDB status
-6. `mysql.monitoring.innodbStatus({summary: true})` → summarized output (smaller payload)
-7. `mysql.monitoring.replicationStatus()` → replication configuration status
-8. `mysql.monitoring.poolStats()` → connection pool stats
-9. `mysql.monitoring.serverHealth()` → health assessment
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql.monitoring.showStatus({like: "nonexistent_var_xyz"})` → empty or structured response
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_gr_transactions` |   |   |
-| `mysql_gr_flow_control` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_gr_transactions` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_gr_flow_control` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,17 +79,10 @@
 - `mysql_gr_flow_control`
 
 
-## Group Focus:cluster-group-replication (Part 2)
-
-cluster Tool Group (10 tools +1 for code mode):
-
-1. `mysql_gr_transactions` 2. `mysql_gr_flow_control`
+## Group Focus: cluster
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.cluster.help()` → verify method listing
-2. `mysql.cluster.grTransactions()` → transaction metrics
-3. `mysql.cluster.grFlowControl()` → flow control stats
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

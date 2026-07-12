@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_security_audit` |   |   |
-| `mysql_security_firewall_status` |   |   |
-| `mysql_security_firewall_rules` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_security_audit` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_security_firewall_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_security_firewall_rules` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -91,16 +91,16 @@
 1. Verify summary is smaller than full output
 
 ## Category 4: Payload Monitoring
-1. `mysql_security_audit()` → log token estimate, flag > 500 tokens as 📦
+1. `mysql.security.audit()` → log token estimate, flag > 500 tokens as 📦
 ## Cleanup
 2. Drop `testdb.stress_sensitive` and `testdb.stress_safe` tables
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_security_audit
-- [ ] Ensure full coverage for mysql_security_firewall_status
-- [ ] Ensure full coverage for mysql_security_firewall_rules
+- [ ] Ensure full coverage for mysql.security.audit
+- [ ] Ensure full coverage for mysql.security.firewallStatus
+- [ ] Ensure full coverage for mysql.security.firewallRules
 
 ---
 

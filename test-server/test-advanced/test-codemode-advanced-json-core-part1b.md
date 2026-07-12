@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_json_replace` |   |   |
-| `mysql_json_remove` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_replace` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_remove` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -85,32 +85,32 @@
 
 json Tool Group (17 tools +1 for code mode):
 
-4. 'mysql_json_replace'
-5. 'mysql_json_remove'
+4. 'mysql.json.replace'
+5. 'mysql.json.remove'
 9. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using CODE MODE (`mysql_execute_code`) ONLY.
 
 **Checklist:**
 
-4. `mysql_json_replace({...})` → happy path
-5. `mysql_json_remove({...})` → happy path
+4. `mysql.json.replace({...})` → happy path
+5. `mysql.json.remove({...})` → happy path
 
 **Domain error paths (🔴):**
 
-12. 🔴 `mysql_json_replace({...})` → domain error
-13. 🔴 `mysql_json_remove({...})` → domain error
+12. 🔴 `mysql.json.replace({...})` → domain error
+13. 🔴 `mysql.json.remove({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-20. 🔴 `mysql_json_replace({})` → validation error
-21. 🔴 `mysql_json_remove({})` → validation error
+20. 🔴 `mysql.json.replace({})` → validation error
+21. 🔴 `mysql.json.remove({})` → validation error
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_replace
-- [ ] Ensure full coverage for mysql_json_remove
+- [ ] Ensure full coverage for mysql.json.replace
+- [ ] Ensure full coverage for mysql.json.remove
 
 ---
 

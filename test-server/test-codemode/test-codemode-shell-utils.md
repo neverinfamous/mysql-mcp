@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysqlsh_load_dump` |   |   |
-| `mysqlsh_run_script` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysqlsh_load_dump` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysqlsh_run_script` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysqlsh_checkUpgrade` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -77,36 +78,13 @@
 
 - `mysqlsh_load_dump`
 - `mysqlsh_run_script`
+- `mysqlsh_checkUpgrade`
 
 
-## Group Focus:shell-utils
+## Group Focus: shell
 
-shell Tool Group (10 tools +1 for code mode):
-
-1. `mysql.shell.version` 2. `mysql.shell.checkUpgrade` 3. `mysql.shell.runScript`
-
-> **Instructions**: Use `mysqlsh_*` namespace, push deviations to `failures` array.
-
-1. `mysql.shell.help()` → verify method listing
-2. `mysql.shell.version()` → verify success
-3. `mysqlsh_checkUpgrade()` → verify success
-4. `mysql.shell.runScript({ script: "print('hello')", language: "javascript", dryRun: true })` → verify success
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/mysql-mcp/test-server/test-codemode/nonexistent.js" })` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-6. 🔴 `mysql.shell.runScript({})` → `{success: false, error: "Validation error: ..."}`
-
-**Security boundary validation paths (🔴):**
-
-7. 🔴 `mysql.shell.runScript({ scriptPath: "C:/Users/chris/Desktop/script.js" })` → `{success: false, code: "SECURITY_ERROR"}`
-
-**Alias acceptance (🟢):**
-
-8. 🟢 Verify any parameter aliases are accepted for applicable tools.
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_cluster_status` |   |   |
-| `mysql_cluster_instances` |   |   |
-| `mysql_cluster_topology` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_cluster_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_cluster_instances` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_cluster_topology` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,27 +82,27 @@
 
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
-1. `mysql_cluster_status()` → verify structured `{success: false}` when no InnoDB Cluster
-2. `mysql_cluster_instances()` → verify structured response
-3. `mysql_cluster_topology()` → verify structured response
+1. `mysql.cluster.clusterStatus()` → verify structured `{success: false}` when no InnoDB Cluster
+2. `mysql.cluster.clusterInstances()` → verify structured response
+3. `mysql.cluster.clusterTopology()` → verify structured response
 6. All 10 errors must use consistent `{success: false, error: "..."}` format — no raw MCP exceptions or property leakages
 
 ## Category 2: Happy-Path Stress (When Cluster IS Available)
-1. `mysql_cluster_status()` → verify topology and status fields
-2. `mysql_cluster_instances()` → verify instance details match member count
-3. `mysql_cluster_topology()` → verify graph-like structure with roles
+1. `mysql.cluster.clusterStatus()` → verify topology and status fields
+2. `mysql.cluster.clusterInstances()` → verify instance details match member count
+3. `mysql.cluster.clusterTopology()` → verify graph-like structure with roles
 
 ## Category 3: Summary Mode & Payload Monitoring
-1. `mysql_cluster_status()` full → log token estimate
-2. `mysql_cluster_status({summary: true})` → log token estimate, verify ≥ 30% reduction
+1. `mysql.cluster.clusterStatus()` full → log token estimate
+2. `mysql.cluster.clusterStatus({summary: true})` → log token estimate, verify ≥ 30% reduction
 5. Flag any response > 500 tokens as 📦
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_cluster_status
-- [ ] Ensure full coverage for mysql_cluster_instances
-- [ ] Ensure full coverage for mysql_cluster_topology
+- [ ] Ensure full coverage for mysql.cluster.clusterStatus
+- [ ] Ensure full coverage for mysql.cluster.clusterInstances
+- [ ] Ensure full coverage for mysql.cluster.clusterTopology
 
 ---
 

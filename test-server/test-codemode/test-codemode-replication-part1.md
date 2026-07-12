@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_master_status` |   |   |
-| `mysql_slave_status` |   |   |
-| `mysql_binlog_events` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_master_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_slave_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_binlog_events` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,28 +81,10 @@
 - `mysql_binlog_events`
 
 
-## Group Focus:replication
-
-replication Tool Group (5 tools +1 for code mode):
-
-1. `mysql_master_status` 2. `mysql_slave_status` 3. `mysql_binlog_events`
-
-> **Note**: In a single-server test environment, most will return status-only results. Focus on structured error responses.
+## Group Focus: replication
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.replication.help()` → verify method listing
-2. `mysql.replication.masterStatus()` → binlog file, position
-3. `mysql.replication.slaveStatus()` → structured response (may indicate no replication)
-4. `mysql.replication.binlogEvents({limit: 5})` → binlog events
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql.replication.binlogEvents({logFile: "nonexistent_binlog.123456"})` → verify structured `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-6. 🔴 `mysql.replication.binlogEvents({logFile: 123})` → must NOT return raw MCP error (wrong type)
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

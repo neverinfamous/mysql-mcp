@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_gr_status` |   |   |
-| `mysql_gr_members` |   |   |
-| `mysql_gr_primary` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_gr_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_gr_members` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_gr_primary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,18 +81,10 @@
 - `mysql_gr_primary`
 
 
-## Group Focus:cluster-group-replication (Part 1)
-
-cluster Tool Group (10 tools +1 for code mode):
-
-1. `mysql_gr_status` 2. `mysql_gr_members` 3. `mysql_gr_primary`
+## Group Focus: cluster
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.cluster.help()` → verify method listing
-2. `mysql.cluster.grStatus()` → GR status or structured error
-3. `mysql.cluster.grMembers()` → members or empty
-4. `mysql.cluster.grPrimary()` → primary node details
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_json_remove` |   |   |
-| `mysql_json_array_append` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_remove` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_array_append` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,25 +79,10 @@
 - `mysql_json_array_append`
 
 
-## Group Focus:json-core-write-part2
-
-json-core-write-part2 Tool Group:
-
-1. `mysql_json_remove` 2. `mysql_json_array_append`
+## Group Focus: json
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.json.help()` → verify method listing
-2. `mysql.json.remove({table: "test_json_docs", column: "doc", path: "$.test", condition: "id=1"})` → removed
-3. `mysql.json.arrayAppend({table: "test_json_docs", column: "tags", path: "$", value: "new_tag", condition: "id=1"})` → appended
-
-**Domain error paths (🔴):**
-4. 🔴 `mysql.json.remove({table: "nonexistent_xyz", column: "doc", path: "$", condition: "id=1"})` → `{success: false}`
-5. 🔴 `mysql.json.arrayAppend({table: "nonexistent_xyz", column: "tags", path: "$", value: "new_tag", condition: "id=1"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-6. 🔴 `mysql.json.remove({})` → `{success: false, error: "Validation error: ..."}`
-7. 🔴 `mysql.json.arrayAppend({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

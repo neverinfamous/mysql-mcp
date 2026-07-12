@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,12 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_spatial_point` |   |   |
-| `mysql_spatial_polygon` |   |   |
-| `mysql_spatial_geojson` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_spatial_point` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_polygon` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_geojson` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_create_column` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_create_index` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,6 +81,8 @@
 - `mysql_spatial_point`
 - `mysql_spatial_polygon`
 - `mysql_spatial_geojson`
+- `mysql_spatial_create_column`
+- `mysql_spatial_create_index`
 
 
 ## Group Focus: spatial
@@ -87,29 +91,29 @@
 
 spatial Tool Group (12 tools +1 for code mode):
 
-1. 'mysql_spatial_point'
+1. 'mysql.spatial.point'
 3. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
 **Checklist:**
 
-1. `mysql_spatial_point({...})` → happy path
+1. `mysql.spatial.point({...})` → happy path
 
 **Domain error paths (🔴):**
 
-3. 🔴 `mysql_spatial_point({...})` → domain error
+3. 🔴 `mysql.spatial.point({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-5. 🔴 `mysql_spatial_point({})` → validation error
+5. 🔴 `mysql.spatial.point({})` → validation error
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_spatial_create_column
-- [ ] Ensure full coverage for mysql_spatial_create_index
-- [ ] Ensure full coverage for mysql_spatial_point
+- [ ] Ensure full coverage for mysql.spatial.createColumn
+- [ ] Ensure full coverage for mysql.spatial.createIndex
+- [ ] Ensure full coverage for mysql.spatial.point
 
 ---
 

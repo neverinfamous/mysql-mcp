@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_detect_query_anomalies` |   |   |
-| `mysql_detect_bloat_risk` |   |   |
-| `mysql_detect_connection_spike` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_detect_query_anomalies` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_detect_bloat_risk` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_detect_connection_spike` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,28 +81,10 @@
 - `mysql_detect_connection_spike`
 
 
-## Group Focus:performance
-
-performance Tool Group (11 tools +1 for code mode):
-
-1. `mysql_detect_query_anomalies` 2. `mysql_detect_bloat_risk` 3. `mysql_detect_connection_spike`
+## Group Focus: performance
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.performance.help()` → verify method listing
-2. `mysql.performance.detectQueryAnomalies()` → query anomalies
-3. `mysql.performance.detectBloatRisk()` → table bloat risks
-4. `mysql.performance.detectConnectionSpike()` → connection spike risks
-
-**Domain error paths:**
-
-1. - `mysql.performance.detectBloatRisk({table: "nonexistent_table"})` → `{success: false, error: "Table 'nonexistent_table' does not exist", code: "TABLE_NOT_FOUND"}`
-
-**Zod validation error paths:**
-
-1. - `mysql.performance.detectQueryAnomalies({minExecutions: "invalid"})` → `{success: false, error: "Validation error: ..."}`
-2. - `mysql.performance.detectBloatRisk({minSizeMb: "invalid"})` → `{success: false, error: "Validation error: ..."}`
-3. - `mysql.performance.detectConnectionSpike({windowMinutes: "invalid"})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

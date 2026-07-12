@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_spatial_contains` |   |   |
-| `mysql_spatial_within` |   |   |
-| `mysql_spatial_intersection` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_spatial_contains` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_within` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_intersection` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -87,33 +87,33 @@
 
 spatial Tool Group (12 tools +1 for code mode):
 
-3. 'mysql_spatial_contains'
-4. 'mysql_spatial_within'
+3. 'mysql.spatial.contains'
+4. 'mysql.spatial.within'
 5. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using CODE MODE (`mysql_execute_code`).
 
 **Checklist:**
 
-3. `mysql_spatial_contains({...})` → happy path
-4. `mysql_spatial_within({...})` → happy path
+3. `mysql.spatial.contains({...})` → happy path
+4. `mysql.spatial.within({...})` → happy path
 
 **Domain error paths (🔴):**
 
-7. 🔴 `mysql_spatial_contains({...})` → domain error
-8. 🔴 `mysql_spatial_within({...})` → domain error
+7. 🔴 `mysql.spatial.contains({...})` → domain error
+8. 🔴 `mysql.spatial.within({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-11. 🔴 `mysql_spatial_contains({})` → validation error
-12. 🔴 `mysql_spatial_within({})` → validation error
+11. 🔴 `mysql.spatial.contains({})` → validation error
+12. 🔴 `mysql.spatial.within({})` → validation error
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_spatial_contains
-- [ ] Ensure full coverage for mysql_spatial_within
-- [ ] Ensure full coverage for mysql_spatial_intersection
+- [ ] Ensure full coverage for mysql.spatial.contains
+- [ ] Ensure full coverage for mysql.spatial.within
+- [ ] Ensure full coverage for mysql.spatial.intersection
 
 ---
 

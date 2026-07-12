@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,12 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_spatial_create_column` |   |   |
-| `mysql_spatial_create_index` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_spatial_create_column` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_create_index` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_buffer` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_transform` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_spatial_geojson` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -77,6 +80,9 @@
 
 - `mysql_spatial_create_column`
 - `mysql_spatial_create_index`
+- `mysql_spatial_buffer`
+- `mysql_spatial_transform`
+- `mysql_spatial_geojson`
 
 
 ## Group Focus: spatial
@@ -100,9 +106,9 @@ spatial Tool Group (12 tools +1 for code mode):
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_spatial_buffer
-- [ ] Ensure full coverage for mysql_spatial_transform
-- [ ] Ensure full coverage for mysql_spatial_geojson
+- [ ] Ensure full coverage for mysql.spatial.buffer
+- [ ] Ensure full coverage for mysql.spatial.transform
+- [ ] Ensure full coverage for mysql.spatial.geojson
 
 ---
 

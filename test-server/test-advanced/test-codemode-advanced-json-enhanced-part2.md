@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_json_diff` |   |   |
-| `mysql_json_normalize` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_diff` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_normalize` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -85,32 +85,32 @@
 
 json Tool Group (17 tools +1 for code mode):
 
-2. 'mysql_json_diff'
-3. 'mysql_json_normalize'
+2. 'mysql.json.diff'
+3. 'mysql.json.normalize'
 6. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using DIRECT TOOL CALLS ONLY.
 
 **Checklist:**
 
-2. `mysql_json_diff({...})` → happy path
-3. `mysql_json_normalize({...})` → happy path
+2. `mysql.json.diff({...})` → happy path
+3. `mysql.json.normalize({...})` → happy path
 
 **Domain error paths (🔴):**
 
-7. 🔴 `mysql_json_diff({...})` → domain error
-8. 🔴 `mysql_json_normalize({...})` → domain error
+7. 🔴 `mysql.json.diff({...})` → domain error
+8. 🔴 `mysql.json.normalize({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-12. 🔴 `mysql_json_diff({})` → validation error
-13. 🔴 `mysql_json_normalize({})` → validation error
+12. 🔴 `mysql.json.diff({})` → validation error
+13. 🔴 `mysql.json.normalize({})` → validation error
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_diff
-- [ ] Ensure full coverage for mysql_json_normalize
+- [ ] Ensure full coverage for mysql.json.diff
+- [ ] Ensure full coverage for mysql.json.normalize
 
 ---
 

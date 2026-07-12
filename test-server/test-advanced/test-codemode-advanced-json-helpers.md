@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_json_stats` |   |   |
-| `mysql_json_index_suggest` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_index_suggest` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -100,8 +100,8 @@ json Tool Group (17 tools +1 for code mode):
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_stats
-- [ ] Ensure full coverage for mysql_json_index_suggest
+- [ ] Ensure full coverage for mysql.json.stats
+- [ ] Ensure full coverage for mysql.json.indexSuggest
 
 ---
 

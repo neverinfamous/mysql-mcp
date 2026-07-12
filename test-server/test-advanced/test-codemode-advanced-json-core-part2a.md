@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_json_contains` |   |   |
-| `mysql_json_keys` |   |   |
-| `mysql_json_array_append` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_contains` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_keys` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_array_append` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -87,37 +87,37 @@
 
 json Tool Group (17 tools +1 for code mode):
 
-6. 'mysql_json_contains'
-7. 'mysql_json_keys'
-8. 'mysql_json_array_append'
+6. 'mysql.json.contains'
+7. 'mysql.json.keys'
+8. 'mysql.json.arrayAppend'
 9. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item with the exact inputs shown using CODE MODE (`mysql_execute_code`) ONLY.
 
 **Checklist:**
 
-6. `mysql_json_contains({...})` → happy path
-7. `mysql_json_keys({...})` → happy path
-8. `mysql_json_array_append({...})` → happy path
+6. `mysql.json.contains({...})` → happy path
+7. `mysql.json.keys({...})` → happy path
+8. `mysql.json.arrayAppend({...})` → happy path
 
 **Domain error paths (🔴):**
 
-14. 🔴 `mysql_json_contains({...})` → domain error
-15. 🔴 `mysql_json_keys({...})` → domain error
-16. 🔴 `mysql_json_array_append({...})` → domain error
+14. 🔴 `mysql.json.contains({...})` → domain error
+15. 🔴 `mysql.json.keys({...})` → domain error
+16. 🔴 `mysql.json.arrayAppend({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-22. 🔴 `mysql_json_contains({})` → validation error
-23. 🔴 `mysql_json_keys({})` → validation error
-24. 🔴 `mysql_json_array_append({})` → validation error
+22. 🔴 `mysql.json.contains({})` → validation error
+23. 🔴 `mysql.json.keys({})` → validation error
+24. 🔴 `mysql.json.arrayAppend({})` → validation error
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_contains
-- [ ] Ensure full coverage for mysql_json_keys
-- [ ] Ensure full coverage for mysql_json_array_append
+- [ ] Ensure full coverage for mysql.json.contains
+- [ ] Ensure full coverage for mysql.json.keys
+- [ ] Ensure full coverage for mysql.json.arrayAppend
 
 ---
 

@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_transaction_release` |   |   |
-| `mysql_transaction_rollback_to` |   |   |
-| `mysql_transaction_execute` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_transaction_release` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_rollback_to` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_execute` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -87,8 +87,8 @@
 
 6. Execute 5 sequential begin/commit cycles — verify no connection pool exhaustion
 7. Execute transaction_execute with 10+ statements — verify all succeed
-- [ ] Ensure full coverage for mysql_transaction_release
-- [ ] Ensure full coverage for mysql_transaction_rollback_to
+- [ ] Ensure full coverage for mysql.transactions.transactionRelease
+- [ ] Ensure full coverage for mysql.transactions.transactionRollbackTo
 
 
 ## Category 4: Mixed Statement Failures

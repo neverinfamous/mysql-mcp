@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,13 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_event_list` |   |   |
-| `mysql_event_status` |   |   |
-| `mysql_scheduler_status` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_event_list` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_event_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_scheduler_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_event_create` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_event_alter` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_event_drop` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,36 +82,15 @@
 - `mysql_event_list`
 - `mysql_event_status`
 - `mysql_scheduler_status`
+- `mysql_event_create`
+- `mysql_event_alter`
+- `mysql_event_drop`
 
 
-## Group Focus:events (Part 2)
-
-events Tool Group (6 tools +1 for code mode):
-
-1. `mysql_event_create` 2. `mysql_event_alter` 3. `mysql_event_drop`
-4. `mysql_event_list` 5. `mysql_event_status` 6. `mysql_scheduler_status`
+## Group Focus: events
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.events.help()` → verify method listing
-2. `mysql.events.schedulerStatus()` → ON/OFF
-3. `mysql.events.list()` → event listing
-
-**Create → Use → Drop lifecycle:**
-
-4. `mysql.events.create({name: "temp_cm_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `success: true`
-5. `mysql.events.status({name: "temp_cm_event"})` → event status
-6. `mysql.events.alter({name: "temp_cm_event", status: "DISABLE"})` → `success: true`
-7. `mysql.events.drop({name: "temp_cm_event"})` → `success: true`
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql.events.status({name: "nonexistent_xyz"})` → `{success: false}`
-9. 🔴 `mysql.events.drop({name: "nonexistent_xyz"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql.events.create({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

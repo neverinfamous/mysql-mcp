@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,13 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_regexp_match` |   |   |
-| `mysql_like_search` |   |   |
-| `mysql_soundex` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_regexp_match` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_like_search` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_soundex` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_substring` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_concat` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_collation_convert` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,34 +82,15 @@
 - `mysql_regexp_match`
 - `mysql_like_search`
 - `mysql_soundex`
+- `mysql_substring`
+- `mysql_concat`
+- `mysql_collation_convert`
 
 
-## Group Focus:text (Part 1)
-
-text Tool Group (6 tools +1 for code mode):
-
-1. `mysql_regexp_match` 2. `mysql_like_search` 3. `mysql_soundex`
-4. `mysql_substring` 5. `mysql_concat` 6. `mysql_collation_convert`
+## Group Focus: text
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. ✅ `mysql.text.help()` → verify method listing
-2. ✅ `mysql.text.regexpMatch({table: "test_users", column: "email", pattern: "^[a-z]"})` → matches
-3. ✅ `mysql.text.likeSearch({table: "test_products", column: "name", pattern: "%Laptop%"})` → results
-4. ✅ `mysql.text.soundex({table: "test_users", column: "username", value: "john"})` → phonetic matches
-5. ✅ `mysql.text.substring({table: "test_users", column: "email", start: 1, length: 5})` → substrings
-6. ✅ `mysql.text.concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated
-7. ✅ `mysql.text.collationConvert({table: "test_users", column: "username", charset: "utf8mb4"})` → converted
-
-**Domain error paths (🔴):**
-
-8. ✅ 🔴 `mysql.text.regexpMatch({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false}`
-9. ✅ 🔴 `mysql.text.likeSearch({table: "test_users", column: "nonexistent_col", pattern: "%x%"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-
-10. ✅ 🔴 `mysql.text.regexpMatch({})` → `{success: false, error: "Validation error: ..."}`
-11. ✅ 🔴 `mysql.text.likeSearch({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

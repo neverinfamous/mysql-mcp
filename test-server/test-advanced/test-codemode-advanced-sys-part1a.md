@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_sys_user_summary` |   |   |
-| `mysql_sys_io_summary` |   |   |
-| `mysql_sys_statement_summary` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_sys_user_summary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_sys_io_summary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_sys_statement_summary` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -83,9 +83,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_sys_user_summary
-- [ ] Ensure full coverage for mysql_sys_io_summary
-- [ ] Ensure full coverage for mysql_sys_statement_summary
+- [ ] Ensure full coverage for mysql.sysschema.sysUserSummary
+- [ ] Ensure full coverage for mysql.sysschema.sysIoSummary
+- [ ] Ensure full coverage for mysql.sysschema.sysStatementSummary
 
 ---
 

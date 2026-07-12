@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_soundex` |   |   |
-| `mysql_substring` |   |   |
-| `mysql_concat` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_soundex` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_substring` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_concat` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -86,17 +86,17 @@
 ## Category 2: Unicode & Encoding
 
 4. Create `stress_text_unicode` table with VARCHAR column, insert rows with multi-byte UTF-8 characters (e.g., `'日本語'`, `'émojis 🎉'`)
-5. `mysql_substring` on multi-byte column with `start: 1, length: 2` → verify correct character extraction (not byte slicing)
-6. `mysql_concat` on multi-byte rows → verify concatenation preserves encoding
-7. `mysql_soundex` on non-ASCII values → verify structured response (may return empty soundex)
+5. `mysql.text.substring` on multi-byte column with `start: 1, length: 2` → verify correct character extraction (not byte slicing)
+6. `mysql.text.concat` on multi-byte rows → verify concatenation preserves encoding
+7. `mysql.text.soundex` on non-ASCII values → verify structured response (may return empty soundex)
 
 ## Category 3: Boundary Lengths
 
-8. `mysql_substring` with `start: 0` → verify behavior (MySQL uses 1-indexed)
-9. `mysql_substring` with `length: 0` → verify empty string or structured response
-10. `mysql_substring` with `length: 99999` (exceeding column length) → verify graceful truncation
-11. `mysql_concat` with empty `columns: []` array → verify structured error
-12. `mysql_concat` with single column in array → verify no separator artifacts
+8. `mysql.text.substring` with `start: 0` → verify behavior (MySQL uses 1-indexed)
+9. `mysql.text.substring` with `length: 0` → verify empty string or structured response
+10. `mysql.text.substring` with `length: 99999` (exceeding column length) → verify graceful truncation
+11. `mysql.text.concat` with empty `columns: []` array → verify structured error
+12. `mysql.text.concat` with single column in array → verify no separator artifacts
 
 ## Cleanup
 

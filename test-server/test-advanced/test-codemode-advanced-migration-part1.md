@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_migration_init` |   |   |
-| `mysql_migration_record` |   |   |
-| `mysql_migration_apply` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_migration_init` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_record` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_migration_apply` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,12 +82,12 @@
 
 
 ## Category 1: Checksum & State Corruption Resilience
-1. Run `mysql_migration_init()` to prepare tracking tables.
+1. Run `mysql.migration.init()` to prepare tracking tables.
 2. Record a migration `001_base` with `migrationSql: "SELECT 1"`.
-3. Attempt to `mysql_migration_apply` a migration named `001_base` but with a conflicting query (which would produce a different checksum/hash). Verify it fails with `{success: false, error: "..."}` citing checksum mismatch.
+3. Attempt to `mysql.migration.apply` a migration named `001_base` but with a conflicting query (which would produce a different checksum/hash). Verify it fails with `{success: false, error: "..."}` citing checksum mismatch.
 
 ## Category 2: Rollback Boundaries & Idempotency
-1. Run `mysql_migration_init()` again. Verify it is idempotent and does not wipe existing tracking data.
+1. Run `mysql.migration.init()` again. Verify it is idempotent and does not wipe existing tracking data.
 2. Apply a valid migration `002_new_col` that adds a column (ensure you provide `rollbackSql`).
 
 ## Category 3: Out-of-Order Execution Tracking
@@ -100,9 +100,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_migration_init
-- [ ] Ensure full coverage for mysql_migration_record
-- [ ] Ensure full coverage for mysql_migration_apply
+- [ ] Ensure full coverage for mysql.migration.init
+- [ ] Ensure full coverage for mysql.migration.record
+- [ ] Ensure full coverage for mysql.migration.apply
 
 ---
 

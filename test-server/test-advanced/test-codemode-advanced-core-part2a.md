@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_create_index` |   |   |
-| `mysql_get_indexes` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_create_index` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_get_indexes` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -82,8 +82,8 @@
 ## Tasks
 
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql_create_index
-- [ ] Ensure full coverage for mysql_get_indexes
+- [ ] Ensure full coverage for mysql.core.createIndex
+- [ ] Ensure full coverage for mysql.core.getIndexes
 
 ---
 

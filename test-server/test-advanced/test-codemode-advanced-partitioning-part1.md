@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_partition_info` |   |   |
-| `mysql_add_partition` |   |   |
-| `mysql_drop_partition` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_partition_info` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_add_partition` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_drop_partition` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -98,7 +98,7 @@
 2. `mysql.partitioning.reorganizePartition` with empty `fromPartitions` array → verify structured error
 
 ## Category 4: Payload Monitoring
-1. `mysql_partition_info({table: "test_partitioned"})` → log token estimate
+1. `mysql.partitioning.partitionInfo({table: "test_partitioned"})` → log token estimate
 2. Flag any response > 500 tokens as 📦
 ## Cleanup
 3. Drop all `stress_*` tables
@@ -106,9 +106,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_partition_info
-- [ ] Ensure full coverage for mysql_add_partition
-- [ ] Ensure full coverage for mysql_drop_partition
+- [ ] Ensure full coverage for mysql.partitioning.partitionInfo
+- [ ] Ensure full coverage for mysql.partitioning.addPartition
+- [ ] Ensure full coverage for mysql.partitioning.dropPartition
 
 ---
 

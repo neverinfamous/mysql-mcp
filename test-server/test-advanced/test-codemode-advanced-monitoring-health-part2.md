@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,8 +65,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_innodb_status` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_innodb_status` |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,8 +81,8 @@
 6. Flag any unfiltered response > 500 tokens as 📦
 
 ## Category 2: Summary Mode Parity
-1. `mysql_innodb_status()` full → log token estimate
-2. `mysql_innodb_status({summary: true})` → log token estimate
+1. `mysql.monitoring.innodbStatus()` full → log token estimate
+2. `mysql.monitoring.innodbStatus({summary: true})` → log token estimate
 1. Verify summary token estimate is ≥ 50% smaller than full output
 
 ## Category 3: Filter Edge Cases
@@ -90,7 +90,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_innodb_status
+- [ ] Ensure full coverage for mysql.monitoring.innodbStatus
 
 ---
 

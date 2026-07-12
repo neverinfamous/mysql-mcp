@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_list_stored_procedures` |   |   |
-| `mysql_list_functions` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_list_stored_procedures` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_list_functions` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -89,16 +89,16 @@
 3. Drop the routines → verify clean removal
 
 ## Category 3: Parameter Alias Stress
-1. `mysql_list_stored_procedures` with `database` param → verify response matches `schema` param
-2. `mysql_list_functions` with `database` param → verify response matches `schema` param
+1. `mysql.schema.listStoredProcedures` with `database` param → verify response matches `schema` param
+2. `mysql.schema.listFunctions` with `database` param → verify response matches `schema` param
 
 ## Category 4: Payload Monitoring
 1. Flag any response > 500 tokens as 📦
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_list_stored_procedures
-- [ ] Ensure full coverage for mysql_list_functions
+- [ ] Ensure full coverage for mysql.schema.listStoredProcedures
+- [ ] Ensure full coverage for mysql.schema.listFunctions
 
 ---
 

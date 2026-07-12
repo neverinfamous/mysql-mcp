@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,14 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_transaction_release` |   |   |
-| `mysql_transaction_rollback_to` |   |   |
-| `mysql_transaction_execute` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_transaction_release` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_rollback_to` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_execute` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_begin` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_commit` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_rollback` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_transaction_savepoint` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,43 +83,16 @@
 - `mysql_transaction_release`
 - `mysql_transaction_rollback_to`
 - `mysql_transaction_execute`
+- `mysql_transaction_begin`
+- `mysql_transaction_commit`
+- `mysql_transaction_rollback`
+- `mysql_transaction_savepoint`
 
 
-## Group Focus:transactions (Part 2)
+## Group Focus: transactions
 
-### transactions Group-Specific Testing
-
-transactions Tool Group (7 tools +1 for code mode):
-
-1. `mysql_transaction_begin`
-2. `mysql_transaction_commit`
-3. `mysql_transaction_rollback`
-4. `mysql_transaction_savepoint`
-5. `mysql_transaction_release`
-6. `mysql_transaction_rollback_to`
-7. `mysql_transaction_execute`
-8. `mysql_execute_code` (codemode, auto-added)
-
-> **Instructions**: Construct `mysql_execute_code` scripts to execute the checklist. Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.transactions.help()` → verify method listing
-2. `mysql.transactions.begin()` → capture `transactionId`
-3. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp1"})` → `success: true`
-4. `mysql.transactions.release({transactionId: <id>, name: "cm_sp1"})` → `success: true`
-5. `mysql.transactions.savepoint({transactionId: <id>, name: "cm_sp2"})` → `success: true`
-6. `mysql.transactions.rollbackTo({transactionId: <id>, name: "cm_sp2"})` → `success: true`
-7. `mysql.transactions.commit({transactionId: <id>})`
-8. `mysql.transactions.execute({statements: [{sql: "SELECT 1 AS a"}, {sql: "SELECT 2 AS b"}]})` → `statementsExecuted: 2`
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql.transactions.release({transactionId: "nonexistent-uuid", name: "sp1"})` → `{success: false, error: "..."}`
-10. 🔴 `mysql.transactions.rollbackTo({transactionId: "nonexistent-uuid", name: "sp1"})` → `{success: false, error: "..."}`
-
-**Zod validation error paths (🔴):**
-
-11. 🔴 `mysql.transactions.execute({})` → `{success: false, error: "..."}` (missing `statements`)
-12. 🔴 `mysql.transactions.release({})` → `{success: false, error: "..."}`
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

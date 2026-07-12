@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_gr_transactions` |   |   |
-| `mysql_gr_flow_control` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_gr_transactions` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_gr_flow_control` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
-4. `mysql_gr_transactions()` → verify structured response
-5. `mysql_gr_flow_control()` → verify structured response
+4. `mysql.cluster.grTransactions()` → verify structured response
+5. `mysql.cluster.grFlowControl()` → verify structured response
 6. All 10 errors must use consistent `{success: false, error: "..."}` format — no raw MCP exceptions or property leakages
 
 ## Category 2: Happy-Path Stress (When Cluster IS Available)
@@ -92,8 +92,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_gr_transactions
-- [ ] Ensure full coverage for mysql_gr_flow_control
+- [ ] Ensure full coverage for mysql.cluster.grTransactions
+- [ ] Ensure full coverage for mysql.cluster.grFlowControl
 
 ---
 

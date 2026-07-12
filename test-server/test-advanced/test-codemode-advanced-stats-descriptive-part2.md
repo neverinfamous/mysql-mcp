@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,12 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_stats_distribution` |   |   |
-| `mysql_stats_histogram` |   |   |
-| `mysql_stats_frequency` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_stats_distribution` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_histogram` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_frequency` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_row_number` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_rank` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,6 +81,8 @@
 - `mysql_stats_distribution`
 - `mysql_stats_histogram`
 - `mysql_stats_frequency`
+- `mysql_stats_row_number`
+- `mysql_stats_rank`
 
 
 ## Category 1: Null & String Handling Boundaries
@@ -97,8 +101,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_stats_row_number
-- [ ] Ensure full coverage for mysql_stats_rank
+- [ ] Ensure full coverage for mysql.stats.rowNumber
+- [ ] Ensure full coverage for mysql.stats.rank
 
 ---
 

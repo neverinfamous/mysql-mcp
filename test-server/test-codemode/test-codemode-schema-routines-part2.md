@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_create_trigger` |   |   |
-| `mysql_drop_trigger` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_create_trigger` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_drop_trigger` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,18 +79,10 @@
 - `mysql_drop_trigger`
 
 
-## Group Focus:schema-routines-part2
-
-schema Tool Group (12 tools +1 for code mode):
-
-1. `mysql_create_trigger` 2. `mysql_drop_trigger`
+## Group Focus: schema
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.schema.help()` → verify method listing
-2. `mysql.schema.createTrigger({name: "temp_cm_trigger", table: "test_orders", timing: "BEFORE", event: "INSERT", statement: "SET NEW.status = 'PENDING'"})` → `success: true`
-3. `mysql.schema.dropTrigger({name: "temp_cm_trigger"})` → `success: true`
-4. 🔴 `mysql.schema.createTrigger({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

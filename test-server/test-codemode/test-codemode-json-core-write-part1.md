@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql_json_set` |   |   |
-| `mysql_json_insert` |   |   |
-| `mysql_json_replace` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_json_set` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_insert` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_json_replace` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -81,28 +81,10 @@
 - `mysql_json_replace`
 
 
-## Group Focus:json-core-write-part1
-
-json-core-write-part1 Tool Group:
-
-1. `mysql_json_set` 2. `mysql_json_insert` 3. `mysql_json_replace`
+## Group Focus: json
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-
-1. `mysql.json.help()` → verify method listing
-2. `mysql.json.set({table: "test_json_docs", column: "doc", path: "$.test", value: "1", condition: "id=1"})` → updated
-3. `mysql.json.insert({table: "test_json_docs", column: "doc", path: "$.new", value: "1", condition: "id=1"})` → inserted
-4. `mysql.json.replace({table: "test_json_docs", column: "doc", path: "$.test", value: "2", condition: "id=1"})` → replaced
-
-**Domain error paths (🔴):**
-5. 🔴 `mysql.json.set({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
-6. 🔴 `mysql.json.insert({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
-7. 🔴 `mysql.json.replace({table: "nonexistent_xyz", column: "doc", path: "$", value: "1", condition: "id=1"})` → `{success: false}`
-
-**Zod validation error paths (🔴):**
-8. 🔴 `mysql.json.set({})` → `{success: false, error: "Validation error: ..."}`
-9. 🔴 `mysql.json.insert({})` → `{success: false, error: "Validation error: ..."}`
-10. 🔴 `mysql.json.replace({})` → `{success: false, error: "Validation error: ..."}`
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

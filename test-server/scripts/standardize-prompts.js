@@ -136,7 +136,7 @@ function processDirectory(dirName) {
     ) || content.match(
       /### Test Schema Reference([\s\S]*?)## (Testing Requirements|Structured Error|Reporting Format|Pre-requisites)/
     );
-    let schemaRef = "> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.\n";
+    let schemaRef = "> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.\n";
     
     if (schemaMatch && schemaMatch[1]) {
         schemaRef = schemaMatch[1].trim();
@@ -184,6 +184,25 @@ function processDirectory(dirName) {
 
     let testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");
 
+    // Programmatic Fix: Dynamically align tool-map.json to actual checklist contents
+    const foundTools = [...new Set(Array.from(testContent.matchAll(/(?:mysql_|proxysql_|mysqlsh_)[a-zA-Z0-9_]+/g)).map(m => m[0]))];
+    const validTools = foundTools.filter(t => t !== "mysql_execute_code");
+    
+    if (validTools.length > 0) {
+        // Expand the file's allowed tools to match the reality of the checklist
+        toolMap[file] = Array.from(new Set([...(toolMap[file] || []), ...validTools]));
+        
+        // Re-inject the expanded list into the Explicit Coverage Requirements
+        const tools = toolMap[file];
+        explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n` + tools.map(t => `- \`${t}\``).join("\n") + "\n";
+        
+        const colCount = coverageMatrix.split("|").length - 2;
+        const emptyCols = Array(colCount - 1).fill("   ").join("|");
+        const divider = "|" + Array(colCount).fill("---").join("|") + "|";
+        const rows = tools.map(t => `| \`${t}\` |${emptyCols}|`);
+        coverageMatrix = coverageMatrix.split("\n")[0] + "\n" + divider + "\n" + rows.join("\n");
+    }
+
     let baseGroup = groupName.replace(/-part\d+[a-z]?$/, '');
     if (baseGroup.startsWith('sys-') || baseGroup === 'sys') baseGroup = 'sysschema';
     if (baseGroup.startsWith('codemode-sandbox') || baseGroup === 'sandbox') baseGroup = 'codemode';
@@ -211,9 +230,14 @@ function processDirectory(dirName) {
 
     const actualToolCount = TOOL_GROUPS[baseGroup] ? TOOL_GROUPS[baseGroup].length : 0;
 
-    testContent = testContent.replace(/## Group Focus: .*/g, `## Group Focus: ${baseGroup}`);
-    testContent = testContent.replace(/### .*? Group-Specific Testing/g, `### ${baseGroup} Group-Specific Testing`);
-    testContent = testContent.replace(/.*? Tool Group \(\d+ tools.*?\):/g, `${baseGroup} Tool Group (${actualToolCount} tools +1 for code mode):`);
+    if (dirName === 'test-codemode') {
+        // Completely overwrite leftover hallucinated manual checklists for autonomous code mode testing
+        testContent = `## Group Focus: ${baseGroup}\n\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.`;
+    } else {
+        testContent = testContent.replace(/## Group Focus:\s*.*/g, `## Group Focus: ${baseGroup}`);
+        testContent = testContent.replace(/### .*? Group-Specific Testing/g, `### ${baseGroup} Group-Specific Testing`);
+        testContent = testContent.replace(/.*? Tool Group \(\d+ tools.*?\):/g, `${baseGroup} Tool Group (${actualToolCount} tools +1 for code mode):`);
+    }
 
     // Extract and preserve existing explicit tool coverage block if we didn't generate one
     if (!explicitToolsList) {
@@ -232,6 +256,36 @@ function processDirectory(dirName) {
     testContent = testContent.replace(/### Explicit Tool Coverage Requirements[\s\S]*?(?=## Group Focus:|## Tasks|## Category|## Post-Test|## Execute Post-Test|---|$)/ig, "");
 
     // Apply specific corrections for parameter drift and nested namespaces dynamically
+    const getCodeModeName = (toolName, groupName) => {
+      let name = toolName.replace(/^mysql_/, "");
+      const groupPrefixMap = { sysschema: "sys_", fulltext: "fulltext_", docstore: "doc_", transactions: "transaction_", shell: "mysqlsh_" };
+      const groupPrefix = groupPrefixMap[groupName] ?? groupName + "_";
+      const keepPrefix = new Set(["fulltext", "sysschema", "docstore", "transactions", "cluster", "roles", "events", "replication", "vector"]);
+      if (!keepPrefix.has(groupName) && name.startsWith(groupPrefix)) {
+        name = name.substring(groupPrefix.length);
+      }
+      const camelName = name.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase());
+      return `mysql.${groupName}.${camelName}`;
+    };
+
+    // Apply Code Mode namespace transformations generically for ALL tools
+    Object.entries(TOOL_GROUPS).forEach(([gName, tools]) => {
+      if (gName === "codemode") return;
+      tools.forEach(toolName => {
+        const codeModeName = getCodeModeName(toolName, gName);
+        if (dirName === 'test-codemode' || dirName === 'test-advanced' || dirName === 'test-usability') {
+          // Replace both raw tool name and dotted alias variants to the canonical Code Mode method
+          const regex1 = new RegExp(`(?<!\\.)\\b${toolName}\\b`, 'g');
+          const regex2 = new RegExp(`mysql\\.${toolName.replace(/^mysql_/, "")}\\b`, 'g');
+          testContent = testContent.replace(regex1, codeModeName).replace(regex2, codeModeName);
+        } else {
+          // Reverse Code Mode transformations back to raw tool names
+          const regex = new RegExp(codeModeName.replace(/\\./g, '\\\\.'), 'g');
+          testContent = testContent.replace(regex, toolName);
+        }
+      });
+    });
+
     testContent = testContent
       // Fix nested namespaces in test-advanced by enforcing correct Code Mode API namespaces
       // Apply conditional block
@@ -324,8 +378,8 @@ function processDirectory(dirName) {
         .replace(/mysql\.events\.drop/g, "mysql_event_drop")
         .replace(/mysql\.events\.list/g, "mysql_event_list")
         .replace(/mysql\.events\.status/g, "mysql_event_status")
-        .replace(/mysql\.events\.schedulerStatus/g, "mysql_event_schedulerStatus")
-        .replace(/mysql\.partitioning\.partitionInfo/g, "mysql_partition_partitionInfo")
+        .replace(/mysql\.events\.schedulerStatus/g, "mysql_scheduler_status")
+        .replace(/mysql\.partitioning\.partitionInfo/g, "mysql_partition_info")
         .replace(/mysql\.partitioning\.addPartition/g, "mysql_partition_addPartition")
         .replace(/mysql\.partitioning\.dropPartition/g, "mysql_partition_dropPartition")
         .replace(/mysql\.partitioning\.reorganizePartition/g, "mysql_partition_reorganizePartition")
@@ -359,7 +413,7 @@ function processDirectory(dirName) {
         .replace(/mysql\.stats\.ntile/g, "mysql_stats_ntile")
         .replace(/mysql\.stats\.hypothesis/g, "mysql_stats_hypothesis")
         .replace(/mysql\.stats\.outliers/g, "mysql_stats_outliers")
-        .replace(/mysql\.stats\.topN/g, "mysql_stats_topN")
+        .replace(/mysql\.stats\.topN/g, "mysql_stats_top_n")
         .replace(/mysql\.stats\.distinct/g, "mysql_stats_distinct")
         .replace(/mysql\.stats\.frequency/g, "mysql_stats_frequency")
         .replace(/mysql\.stats\.summary/g, "mysql_stats_summary")
@@ -427,4 +481,6 @@ function processDirectory(dirName) {
 }
 
 directories.forEach(processDirectory);
-console.log("Standardization complete.");
+// Programmatic Fix: Save the dynamically expanded tool mappings
+fs.writeFileSync(toolMapPath, JSON.stringify(toolMap, null, 2), "utf-8");
+console.log("Standardization complete. tool-map.json dynamically aligned.");

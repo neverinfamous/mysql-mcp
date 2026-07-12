@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,12 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_stats_hypothesis` |   |   |
-| `mysql_stats_outliers` |   |   |
-| `mysql_stats_distinct` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_stats_hypothesis` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_outliers` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_distinct` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_distribution` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_stats_time_series` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -79,6 +81,8 @@
 - `mysql_stats_hypothesis`
 - `mysql_stats_outliers`
 - `mysql_stats_distinct`
+- `mysql_stats_distribution`
+- `mysql_stats_time_series`
 
 
 ## Category 1: Frequency & Distinct Boundaries
@@ -97,8 +101,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_stats_distribution
-- [ ] Ensure full coverage for mysql_stats_time_series
+- [ ] Ensure full coverage for mysql.stats.distribution
+- [ ] Ensure full coverage for mysql.stats.timeSeries
 
 ---
 

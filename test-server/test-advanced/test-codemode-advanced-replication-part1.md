@@ -45,7 +45,7 @@
 
 ### Reference the Test Schema & Tool Definitions
 
-> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for strict tool input schemas.
+> See `code-map.md` in the `test-server/` directory for the complete test database schema, and `tool-reference.md` for the tool inventory. For strict tool input schemas, rely on the native MCP tool definitions or read `src/adapters/mysql/schemas/`.
 
 ## Standardize the Reporting Format
 
@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|
-| `mysql_master_status` |   |   |
-| `mysql_slave_status` |   |   |
-| `mysql_binlog_events` |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysql_master_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_slave_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysql_binlog_events` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -109,9 +109,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_master_status
-- [ ] Ensure full coverage for mysql_slave_status
-- [ ] Ensure full coverage for mysql_binlog_events
+- [ ] Ensure full coverage for mysql.replication.masterStatus
+- [ ] Ensure full coverage for mysql.replication.slaveStatus
+- [ ] Ensure full coverage for mysql.replication.binlogEvents
 
 ---
 
