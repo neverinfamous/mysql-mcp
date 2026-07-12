@@ -123,7 +123,7 @@ cluster Tool Group (10 tools +1 for code mode):
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npx tsx scripts/generate-server-instructions.ts` after editing to regenerate `server-instructions.ts`
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
    - This prompt
 

@@ -33,7 +33,7 @@ docker compose up -d
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4.8.1` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2.54.1` |
 | **Grafana** | `grafana` | `3001` | `grafana/grafana:11.2.0` |
-| **Datadog Agent** | `datadog-unified`| `8125/udp` (StatsD), `8126` (APM) | `gcr.io/datadoghq/agent:7` |
+| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.0` |
 
 - **Datadog Dashboards**: [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
 
@@ -83,5 +83,5 @@ All config files are mounted directly from the `config/` directory:
 If you notice that `mysql-router` is stuck in a crash loop or containers keep restarting:
 1. **The Cause**: Windows Subsystem for Linux (WSL) will automatically suspend and terminate background distributions if there is no active Windows session holding it open. This kills the Docker daemon mid-flight and corrupts the InnoDB cluster state.
 2. **The Fix**: Open PowerShell and run the keepalive registration script:
-   `pwsh.exe -File C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem\scripts\register-wsl-keepalive.ps1`
+   `pwsh.exe -File scripts\register-wsl-keepalive.ps1`
 3. **Recovery**: After ensuring the `WSL-KeepAlive` task is "Running" in Task Scheduler, you MUST fully rebuild the corrupted cluster by running `node scripts/recreate-test-ecosystem.mjs` again.

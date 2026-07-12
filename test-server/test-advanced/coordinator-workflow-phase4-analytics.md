@@ -65,33 +65,33 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
    - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced (there should not be any).
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 
-82. `test-codemode-advanced-stats-advanced-part1.md`
-83. `test-codemode-advanced-stats-advanced-part2.md`
-84. `test-codemode-advanced-stats-descriptive-part1.md`
-85. `test-codemode-advanced-stats-descriptive-part2.md`
-86. `test-codemode-advanced-stats-time-series-part1.md`
-87. `test-codemode-advanced-stats-time-series-part2.md`
-88. `test-codemode-advanced-stats-window-part1.md`
-89. `test-codemode-advanced-stats-window-part2.md`
-90. `test-codemode-advanced-sys-part1a.md`
-91. `test-codemode-advanced-sys-part1b.md`
-92. `test-codemode-advanced-sys-part2a.md`
-93. `test-codemode-advanced-sys-part2b.md`
-94. `test-codemode-advanced-text-part1.md`
-95. `test-codemode-advanced-text-part2.md`
-96. `test-codemode-advanced-transactions-part1a.md`
-97. `test-codemode-advanced-transactions-part1b.md`
-98. `test-codemode-advanced-transactions-part2.md`
-99. `test-codemode-advanced-types-binary.md`
-100. `test-codemode-advanced-types-date.md`
-101. `test-codemode-advanced-types-json.md`
-102. `test-codemode-advanced-types-numeric.md`
-103. `test-codemode-advanced-vector-management-part1.md`
-104. `test-codemode-advanced-vector-management-part2.md`
-105. `test-codemode-advanced-vector-search-part1.md`
-106. `test-codemode-advanced-vector-search-part2.md`
-107. `test-codemode-advanced-vector-storage.md`
-108. `test-codemode-advanced-sandbox.md`
+85. `test-codemode-advanced-spatial-setup.md`
+86. `test-codemode-advanced-stats-advanced-part1.md`
+87. `test-codemode-advanced-stats-advanced-part2.md`
+88. `test-codemode-advanced-stats-descriptive-part1.md`
+89. `test-codemode-advanced-stats-descriptive-part2.md`
+90. `test-codemode-advanced-stats-time-series-part1.md`
+91. `test-codemode-advanced-stats-time-series-part2.md`
+92. `test-codemode-advanced-stats-window-part1.md`
+93. `test-codemode-advanced-stats-window-part2.md`
+94. `test-codemode-advanced-sys-part1a.md`
+95. `test-codemode-advanced-sys-part1b.md`
+96. `test-codemode-advanced-sys-part2a.md`
+97. `test-codemode-advanced-sys-part2b.md`
+98. `test-codemode-advanced-text-part1.md`
+99. `test-codemode-advanced-text-part2.md`
+100. `test-codemode-advanced-transactions-part1a.md`
+101. `test-codemode-advanced-transactions-part1b.md`
+102. `test-codemode-advanced-transactions-part2.md`
+103. `test-codemode-advanced-types-binary.md`
+104. `test-codemode-advanced-types-date.md`
+105. `test-codemode-advanced-types-json.md`
+106. `test-codemode-advanced-types-numeric.md`
+107. `test-codemode-advanced-vector-management-part1.md`
+108. `test-codemode-advanced-vector-management-part2.md`
+109. `test-codemode-advanced-vector-search-part1.md`
+110. `test-codemode-advanced-vector-search-part2.md`
+111. `test-codemode-advanced-vector-storage.md`
 
 ## Telemetry Collection
 

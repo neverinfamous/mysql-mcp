@@ -100,7 +100,11 @@ function processDirectory(dirName) {
       coverageMatrix = "| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |";
     } else if (dirName === "test-usability-direct") {
       titleType = "Direct Usability & Hallucination Test";
-      executionMode = "Organically test the tool group using live MCP server tool calls directly, intentionally fuzzing the inputs to discover agent hallucinations. DO NOT use Code Mode (`mysql_execute_code`).";
+      if (groupName === "codemode" || groupName.startsWith("codemode")) {
+        executionMode = "Organically test the tool group using Code Mode (`mysql_execute_code`) directly, intentionally fuzzing the inputs to discover agent hallucinations.";
+      } else {
+        executionMode = "Organically test the tool group using live MCP server tool calls directly, intentionally fuzzing the inputs to discover agent hallucinations. DO NOT use Code Mode (`mysql_execute_code`).";
+      }
       coverageMatrix = "| Tool | Fuzz Call | Hallucination Found | Fix Applied |";
     } else if (dirName === "test-usability") {
       titleType = "Usability & Hallucination Test";
@@ -230,7 +234,10 @@ function processDirectory(dirName) {
     // Apply specific corrections for parameter drift and nested namespaces dynamically
     testContent = testContent
       // Fix nested namespaces in test-advanced by enforcing correct Code Mode API namespaces
-      .replace(/mysql\.event_create/g, "mysql.events.create")
+      // Apply conditional block
+    if (dirName === 'test-codemode' || dirName === 'test-advanced' || dirName === 'test-usability') {
+      testContent = testContent
+        .replace(/mysql\.event_create/g, "mysql.events.create")
       .replace(/mysql\.event_alter/g, "mysql.events.alter")
       .replace(/mysql\.event_drop/g, "mysql.events.drop")
       .replace(/mysql\.event_list/g, "mysql.events.list")
@@ -309,7 +316,84 @@ function processDirectory(dirName) {
       .replace(/mysql_enable_versioning/g, "mysql.core.enableVersioning")
       .replace(/mysql_disable_versioning/g, "mysql.core.disableVersioning")
       .replace(/mysql_check_version/g, "mysql.core.checkVersion")
-      .replace(/mysql_conditional_update/g, "mysql.core.conditionalUpdate")
+      .replace(/mysql_conditional_update/g, "mysql.core.conditionalUpdate");
+    } else {
+      testContent = testContent
+        .replace(/mysql\.events\.create/g, "mysql_event_create")
+        .replace(/mysql\.events\.alter/g, "mysql_event_alter")
+        .replace(/mysql\.events\.drop/g, "mysql_event_drop")
+        .replace(/mysql\.events\.list/g, "mysql_event_list")
+        .replace(/mysql\.events\.status/g, "mysql_event_status")
+        .replace(/mysql\.events\.schedulerStatus/g, "mysql_event_schedulerStatus")
+        .replace(/mysql\.partitioning\.partitionInfo/g, "mysql_partition_partitionInfo")
+        .replace(/mysql\.partitioning\.addPartition/g, "mysql_partition_addPartition")
+        .replace(/mysql\.partitioning\.dropPartition/g, "mysql_partition_dropPartition")
+        .replace(/mysql\.partitioning\.reorganizePartition/g, "mysql_partition_reorganizePartition")
+        .replace(/mysql\.replication\.masterStatus/g, "mysql_master_status")
+        .replace(/mysql\.replication\.slaveStatus/g, "mysql_slave_status")
+        .replace(/mysql\.replication\.replicationLag/g, "mysql_replication_lag")
+        .replace(/mysql\.shell\.version/g, "mysqlsh_version")
+        .replace(/mysql\.shell\.checkUpgrade/g, "mysqlsh_check_upgrade")
+        .replace(/mysql\.shell\.exportTable/g, "mysqlsh_export_table")
+        .replace(/mysql\.shell\.importTable/g, "mysqlsh_import_table")
+        .replace(/mysql\.shell\.importJson/g, "mysqlsh_import_json")
+        .replace(/mysql\.shell\.dumpInstance/g, "mysqlsh_dump_instance")
+        .replace(/mysql\.shell\.dumpSchemas/g, "mysqlsh_dump_schemas")
+        .replace(/mysql\.shell\.dumpTables/g, "mysqlsh_dump_tables")
+        .replace(/mysql\.shell\.loadDump/g, "mysqlsh_load_dump")
+        .replace(/mysql\.shell\.runScript/g, "mysqlsh_run_script")
+        .replace(/mysql\.shell\.help/g, "mysqlsh_help")
+        .replace(/mysql\.stats\.descriptive/g, "mysql_stats_descriptive")
+        .replace(/mysql\.stats\.percentiles/g, "mysql_stats_percentiles")
+        .replace(/mysql\.stats\.correlation/g, "mysql_stats_correlation")
+        .replace(/mysql\.stats\.distribution/g, "mysql_stats_distribution")
+        .replace(/mysql\.stats\.timeSeries/g, "mysql_stats_time_series")
+        .replace(/mysql\.stats\.regression/g, "mysql_stats_regression")
+        .replace(/mysql\.stats\.sampling/g, "mysql_stats_sampling")
+        .replace(/mysql\.stats\.histogram/g, "mysql_stats_histogram")
+        .replace(/mysql\.stats\.rowNumber/g, "mysql_stats_row_number")
+        .replace(/mysql\.stats\.rank/g, "mysql_stats_rank")
+        .replace(/mysql\.stats\.lagLead/g, "mysql_stats_lag_lead")
+        .replace(/mysql\.stats\.runningTotal/g, "mysql_stats_running_total")
+        .replace(/mysql\.stats\.movingAvg/g, "mysql_stats_moving_avg")
+        .replace(/mysql\.stats\.ntile/g, "mysql_stats_ntile")
+        .replace(/mysql\.stats\.hypothesis/g, "mysql_stats_hypothesis")
+        .replace(/mysql\.stats\.outliers/g, "mysql_stats_outliers")
+        .replace(/mysql\.stats\.topN/g, "mysql_stats_topN")
+        .replace(/mysql\.stats\.distinct/g, "mysql_stats_distinct")
+        .replace(/mysql\.stats\.frequency/g, "mysql_stats_frequency")
+        .replace(/mysql\.stats\.summary/g, "mysql_stats_summary")
+        .replace(/mysql\.sysschema\.userSummary/g, "mysql_sys_user_summary")
+        .replace(/mysql\.sysschema\.ioSummary/g, "mysql_sys_io_summary")
+        .replace(/mysql\.sysschema\.statementSummary/g, "mysql_sys_statement_summary")
+        .replace(/mysql\.sysschema\.waitSummary/g, "mysql_sys_wait_summary")
+        .replace(/mysql\.sysschema\.innodbLockWaits/g, "mysql_sys_innodb_lock_waits")
+        .replace(/mysql\.sysschema\.schemaStats/g, "mysql_sys_schema_stats")
+        .replace(/mysql\.sysschema\.hostSummary/g, "mysql_sys_host_summary")
+        .replace(/mysql\.sysschema\.memorySummary/g, "mysql_sys_memory_summary")
+        .replace(/mysql\.optimization\.indexRecommendation/g, "mysql_index_recommendation")
+        .replace(/mysql\.optimization\.queryRewrite/g, "mysql_query_rewrite")
+        .replace(/mysql\.optimization\.forceIndex/g, "mysql_force_index")
+        .replace(/mysql\.optimization\.optimizerTrace/g, "mysql_optimizer_trace")
+        .replace(/mysql\.vector\.search/g, "mysql_vector_search")
+        .replace(/mysql\.vector\.rangeSearch/g, "mysql_vector_range_search")
+        .replace(/mysql\.vector\.hybridSearch/g, "mysql_vector_hybrid_search")
+        .replace(/mysql\.vector\.store/g, "mysql_vector_store")
+        .replace(/mysql\.vector\.batchStore/g, "mysql_vector_batch_store")
+        .replace(/mysql\.vector\.delete/g, "mysql_vector_delete")
+        .replace(/mysql\.vector\.get/g, "mysql_vector_get")
+        .replace(/mysql\.vector\.createIndex/g, "mysql_vector_create_index")
+        .replace(/mysql\.vector\.optimize/g, "mysql_vector_optimize")
+        .replace(/mysql\.vector\.stats/g, "mysql_vector_stats")
+        .replace(/mysql\.vector\.info/g, "mysql_vector_info")
+        .replace(/mysql\.core\.enableVersioning/g, "mysql_enable_versioning")
+        .replace(/mysql\.core\.disableVersioning/g, "mysql_disable_versioning")
+        .replace(/mysql\.core\.checkVersion/g, "mysql_check_version")
+        .replace(/mysql\.core\.conditionalUpdate/g, "mysql_conditional_update")
+        .replace(/5\. \`mysql_index_recommendation/g, "2. \`mysql_index_recommendation");
+    }
+
+    testContent = testContent
       // Fix optimization parameters
       .replace(/queries: "SELECT 1"/g, 'queries: ["SELECT 1"]')
       // Fix vector parameters

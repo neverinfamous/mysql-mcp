@@ -65,35 +65,34 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
    - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced (there should not be any).
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 
-55. `test-codemode-advanced-roles-assignment-part1.md`
-56. `test-codemode-advanced-roles-assignment-part2.md`
-57. `test-codemode-advanced-roles-management-part1.md`
-58. `test-codemode-advanced-roles-management-part2.md`
-59. `test-codemode-advanced-router-advanced-part1.md`
-60. `test-codemode-advanced-router-advanced-part2.md`
-61. `test-codemode-advanced-router-routes-part1.md`
-62. `test-codemode-advanced-router-routes-part2.md`
-63. `test-codemode-advanced-schema-management.md`
-64. `test-codemode-advanced-schema-routines.md`
-65. `test-codemode-advanced-schema-triggers.md`
-66. `test-codemode-advanced-schema-views-part1.md`
-67. `test-codemode-advanced-schema-views-part2.md`
-67. `test-codemode-advanced-security-audit-part1.md`
-68. `test-codemode-advanced-security-audit-part2.md`
-69. `test-codemode-advanced-security-system-part1.md`
-70. `test-codemode-advanced-security-system-part2.md`
-71. `test-codemode-advanced-sessions-part1.md`
-72. `test-codemode-advanced-sessions-part2.md`
-73. `test-codemode-advanced-shell-data-part1.md`
-74. `test-codemode-advanced-shell-data-part2.md`
-75. `test-codemode-advanced-shell-utils-part1a.md`
-76. `test-codemode-advanced-shell-utils-part1b.md`
-77. `test-codemode-advanced-shell-utils-part2.md`
-78. `test-codemode-advanced-spatial-geometry.md`
-79. `test-codemode-advanced-spatial-operations-part1.md`
-80. `test-codemode-advanced-spatial-operations-part2.md`
-80. `test-codemode-advanced-spatial-queries.md`
-81. `test-codemode-advanced-spatial-setup.md`
+57. `test-codemode-advanced-roles-assignment-part2.md`
+58. `test-codemode-advanced-roles-management-part1.md`
+59. `test-codemode-advanced-roles-management-part2.md`
+60. `test-codemode-advanced-router-advanced-part1.md`
+61. `test-codemode-advanced-router-advanced-part2.md`
+62. `test-codemode-advanced-router-routes-part1.md`
+63. `test-codemode-advanced-router-routes-part2.md`
+64. `test-codemode-advanced-sandbox.md`
+65. `test-codemode-advanced-schema-management.md`
+66. `test-codemode-advanced-schema-routines.md`
+67. `test-codemode-advanced-schema-triggers.md`
+68. `test-codemode-advanced-schema-views-part1.md`
+69. `test-codemode-advanced-schema-views-part2.md`
+70. `test-codemode-advanced-security-audit-part1.md`
+71. `test-codemode-advanced-security-audit-part2.md`
+72. `test-codemode-advanced-security-system-part1.md`
+73. `test-codemode-advanced-security-system-part2.md`
+74. `test-codemode-advanced-sessions-part1.md`
+75. `test-codemode-advanced-sessions-part2.md`
+76. `test-codemode-advanced-shell-data-part1.md`
+77. `test-codemode-advanced-shell-data-part2.md`
+78. `test-codemode-advanced-shell-utils-part1a.md`
+79. `test-codemode-advanced-shell-utils-part1b.md`
+80. `test-codemode-advanced-shell-utils-part2.md`
+81. `test-codemode-advanced-spatial-geometry.md`
+82. `test-codemode-advanced-spatial-operations-part1.md`
+83. `test-codemode-advanced-spatial-operations-part2.md`
+84. `test-codemode-advanced-spatial-queries.md`
 
 ## Telemetry Collection
 

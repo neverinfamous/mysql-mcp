@@ -83,34 +83,34 @@
 
 vector Tool Group (11 tools +1 for code mode):
 
-1. 'mysql.vector.info'
-2. 'mysql.vector.createIndex'
-3. 'mysql.vector.optimize'
-4. 'mysql.vector.stats'
+1. 'mysql_vector_info'
+2. 'mysql_vector_create_index'
+3. 'mysql_vector_optimize'
+4. 'mysql_vector_stats'
 5. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 **Checklist:**
 
-1. `mysql.vector.info({...})` → happy path
-2. `mysql.vector.createIndex({...})` → happy path
-3. `mysql.vector.optimize({...})` → happy path
-4. `mysql.vector.stats({...})` → happy path
+1. `mysql_vector_info({...})` → happy path
+2. `mysql_vector_create_index({...})` → happy path
+3. `mysql_vector_optimize({...})` → happy path
+4. `mysql_vector_stats({...})` → happy path
 
 **Domain error paths (🔴):**
 
-5. 🔴 `mysql.vector.info({...})` → domain error
-6. 🔴 `mysql.vector.createIndex({...})` → domain error
-7. 🔴 `mysql.vector.optimize({...})` → domain error
-8. 🔴 `mysql.vector.stats({...})` → domain error
+5. 🔴 `mysql_vector_info({...})` → domain error
+6. 🔴 `mysql_vector_create_index({...})` → domain error
+7. 🔴 `mysql_vector_optimize({...})` → domain error
+8. 🔴 `mysql_vector_stats({...})` → domain error
 
 **Zod validation error paths (🔴):**
 
-9. 🔴 `mysql.vector.info({})` → validation error
-10. 🔴 `mysql.vector.createIndex({})` → validation error
-11. 🔴 `mysql.vector.optimize({})` → validation error
-12. 🔴 `mysql.vector.stats({})` → validation error
+9. 🔴 `mysql_vector_info({})` → validation error
+10. 🔴 `mysql_vector_create_index({})` → validation error
+11. 🔴 `mysql_vector_optimize({})` → validation error
+12. 🔴 `mysql_vector_stats({})` → validation error
 
 ---
 
@@ -127,7 +127,7 @@ vector Tool Group (11 tools +1 for code mode):
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npx tsx scripts/generate-server-instructions.ts` after editing to regenerate `server-instructions.ts`
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
    - This prompt
 

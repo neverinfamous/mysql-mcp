@@ -87,32 +87,32 @@
 
 shell Tool Group (10 tools +1 for code mode):
 
-1. 'mysql.shell.version'
-2. 'mysql.shell.checkUpgrade'
-3. 'mysql.shell.exportTable'
-4. 'mysql.shell.importTable'
-5. 'mysql.shell.importJson'
+1. 'mysqlsh_version'
+2. 'mysqlsh_check_upgrade'
+3. 'mysqlsh_export_table'
+4. 'mysqlsh_import_table'
+5. 'mysqlsh_import_json'
 6. 'mysql_execute_code'
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
-7. `mysql.shell.version()` → verify MySQL Shell version and installation status
+7. `mysqlsh_version()` → verify MySQL Shell version and installation status
 
-4b. `mysql.shell.checkUpgrade()` -> verify success
-4c. `mysql.shell.importJson({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> verify success
-4d. `mysql.shell.importTable({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> verify success
-4e. `mysql.shell.loadDump({url: "/tmp/test_dump"})` -> verify success
+4b. `mysqlsh_check_upgrade()` -> verify success
+4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> verify success
+4d. `mysqlsh_import_table({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> verify success
+4e. `mysqlsh_load_dump({url: "/tmp/test_dump"})` -> verify success
 
 **Domain error paths (🔴):**
 
 
 **Zod validation error paths (🔴):**
 
-1. 🔴 `mysql.shell.exportTable({})` → `{success: false, error: "..."}` (missing required params)
+1. 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
 
 **Security boundary validation paths (🔴):**
 
-2. 🔴 `mysql.shell.exportTable({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}` (Sandbox boundary violation)
+2. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}` (Sandbox boundary violation)
 
 ---
 
@@ -129,7 +129,7 @@ shell Tool Group (10 tools +1 for code mode):
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npx tsx scripts/generate-server-instructions.ts` after editing to regenerate `server-instructions.ts`
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
    - This prompt
 

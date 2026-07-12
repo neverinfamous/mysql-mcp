@@ -87,30 +87,30 @@
 
 vector Tool Group (11 tools +1 for code mode):
 
-1. 'mysql.vector.search'
-2. 'mysql.vector.rangeSearch'
-3. 'mysql.vector.hybridSearch'
+1. 'mysql_vector_search'
+2. 'mysql_vector_range_search'
+3. 'mysql_vector_hybrid_search'
 4. 'mysql_execute_code' (codemode, auto-added)
 
 > **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
 
 **Checklist:**
 
-1. `mysql.vector.search({...})` → happy path
-2. `mysql.vector.rangeSearch({...})` → happy path
-3. `mysql.vector.hybridSearch({table: "test_products", query: "test", vector: "[0.1, 0.2]", metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → happy path
+1. `mysql_vector_search({...})` → happy path
+2. `mysql_vector_range_search({...})` → happy path
+3. `mysql_vector_hybrid_search({table: "test_products", query: "test", vector: "[0.1, 0.2]", metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → happy path
 
 **Domain error paths (🔴):**
 
-4. 🔴 `mysql.vector.search({...})` → domain error
-5. 🔴 `mysql.vector.rangeSearch({...})` → domain error
-6. 🔴 `mysql.vector.hybridSearch({table: "test_products", query: "test", vector: "[0.1, 0.2]", metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → domain error
+4. 🔴 `mysql_vector_search({...})` → domain error
+5. 🔴 `mysql_vector_range_search({...})` → domain error
+6. 🔴 `mysql_vector_hybrid_search({table: "test_products", query: "test", vector: "[0.1, 0.2]", metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → domain error
 
 **Zod validation error paths (🔴):**
 
-7. 🔴 `mysql.vector.search({})` → validation error
-8. 🔴 `mysql.vector.rangeSearch({})` → validation error
-9. 🔴 `mysql.vector.hybridSearch({})` → validation error
+7. 🔴 `mysql_vector_search({})` → validation error
+8. 🔴 `mysql_vector_range_search({})` → validation error
+9. 🔴 `mysql_vector_hybrid_search({})` → validation error
 
 ---
 
@@ -127,7 +127,7 @@ vector Tool Group (11 tools +1 for code mode):
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npx tsx scripts/generate-server-instructions.ts` after editing to regenerate `server-instructions.ts`
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
    - This prompt
 

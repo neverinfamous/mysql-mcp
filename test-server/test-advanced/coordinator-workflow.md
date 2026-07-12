@@ -1,6 +1,6 @@
 # MySQL MCP Advanced Code Mode Testing - Master Index
 
-Due to the extreme length of the Advanced Code Mode test suite (108 tests), the coordinator workflow has been sharded into 4 domain-specific phases. This prevents context-window exhaustion and ensures subagents complete their queues reliably.
+Due to the extreme length of the Advanced Code Mode test suite (111 tests), the coordinator workflow has been sharded into 4 domain-specific phases. This prevents context-window exhaustion and ensures subagents complete their queues reliably.
 
 ## Execution Rules
 
@@ -10,19 +10,19 @@ Due to the extreme length of the Advanced Code Mode test suite (108 tests), the 
 
 ## The Phases
 
-### 1. Phase 1: Foundation & Docstore (Tests 1-27)
+### 1. Phase 1: Foundation & Docstore (Tests 1-28)
 **File**: `test-server/test-advanced/coordinator-workflow-phase1-foundation.md`
 Covers: Admin Control, Maintenance, Backup, Cluster Replication, InnoDB, Concurrency, Core, Docstore, Events, Fulltext, Introspection.
 
-### 2. Phase 2: JSON, Performance & Infrastructure (Tests 28-54)
+### 2. Phase 2: JSON, Performance & Infrastructure (Tests 29-56)
 **File**: `test-server/test-advanced/coordinator-workflow-phase2-performance.md`
 Covers: JSON Core, Migration, Monitoring, Optimization, Partitioning, Performance Analysis, ProxySQL, Replication.
 
-### 3. Phase 3: Security, Routing & Spatial (Tests 55-81)
+### 3. Phase 3: Security, Routing & Spatial (Tests 57-84)
 **File**: `test-server/test-advanced/coordinator-workflow-phase3-security.md`
 Covers: Roles, Router Advanced, Schema Management, Security Audit, Sessions, Shell, Spatial Geometry.
 
-### 4. Phase 4: Analytics, Types & Vector (Tests 82-108)
+### 4. Phase 4: Analytics, Types & Vector (Tests 85-111)
 **File**: `test-server/test-advanced/coordinator-workflow-phase4-analytics.md`
 Covers: Stats, Sys Schema, Text, Transactions, Types, Vector, Sandbox Isolation.
 

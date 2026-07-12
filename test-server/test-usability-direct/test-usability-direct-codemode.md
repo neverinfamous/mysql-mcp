@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Organically test the tool group using live MCP server tool calls directly, intentionally fuzzing the inputs to discover agent hallucinations. DO NOT use Code Mode (`mysql_execute_code`).
+**Step 2:** Organically test the tool group using Code Mode (`mysql_execute_code`) directly, intentionally fuzzing the inputs to discover agent hallucinations.
 
 **Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -94,7 +94,7 @@
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `npx tsx scripts/generate-server-instructions.ts` after editing to regenerate `server-instructions.ts`
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
    - This prompt
 

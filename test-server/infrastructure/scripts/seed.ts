@@ -11,4 +11,4 @@ async function seed() {
   await conn.end();
   console.log("Seeding complete!");
 }
-seed().catch(console.error);
+seed().catch((e) => { console.error(e); process.exit(1); });
