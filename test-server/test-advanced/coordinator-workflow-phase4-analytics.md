@@ -91,7 +91,7 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
 105. `test-codemode-advanced-vector-search-part1.md`
 106. `test-codemode-advanced-vector-search-part2.md`
 107. `test-codemode-advanced-vector-storage.md`
-108. `test-codemode-sandbox.md`
+108. `test-codemode-advanced-sandbox.md`
 
 ## Telemetry Collection
 

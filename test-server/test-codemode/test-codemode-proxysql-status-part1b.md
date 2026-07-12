@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [codemode-sandbox]
+# MySQL MCP Code Mode Testing: [proxysql-status-part1b]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -64,9 +64,10 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Focus Area | Code Mode Validation |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_execute_code` |   |   |
+| `proxysql_connection_pool` |   |   |
+| `proxysql_runtime_status` |   |   |
 
 ---
 
@@ -74,39 +75,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_execute_code`
+- `proxysql_connection_pool`
+- `proxysql_runtime_status`
 
 
-## Group Focus: codemode-sandbox
+## Group Focus: proxysql
 
-This document provides testing instructions to validate the strict security boundaries of the `isolated-vm` execution environment used by `mysql_execute_code`.
-
-## Tasks
-
-### 1. Built-in Modules
-- Attempt to `require` or `import` standard Node.js modules like `fs`, `child_process`, `os`, and `path`.
-- Verify the code throws an error or returns a failure indicating the modules are inaccessible.
-
-### 2. Global Scope Leakage
-- Attempt to access global Node.js objects like `process`, `global`, `__dirname`, or `Buffer`.
-- Verify they are undefined or throw a ReferenceError.
-
-### 3. Network Access
-- Attempt to use `fetch`, `XMLHttpRequest`, or `http.request` to make an outbound network call (e.g., to `example.com`).
-- Verify that no network access is permitted from within the sandbox.
-
-### 4. Infinite Loop / Timeout
-- Execute a `while (true) {}` loop or a deeply nested recursive function.
-- Verify that the execution terminates gracefully due to timeout (or memory limits) without crashing the MCP server or hanging indefinitely.
-
-### 5. Memory Limit Exceeded
-- Attempt to allocate a massive array or string in a loop (e.g., `let a = []; while(true) a.push("x".repeat(10000));`).
-- Verify the execution terminates gracefully due to memory limits, and the server continues running normally.
-
-### 6. Scope Breakout
-- Attempt to access `context.requireToolScope` or override any injected `mysql.*` tools to bypass the `openWorldHint` or `destructiveHint` barriers.
-- Verify the operations either fail or do not result in unauthorized database access.
-- [ ] Ensure full coverage for mysql_execute_code
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

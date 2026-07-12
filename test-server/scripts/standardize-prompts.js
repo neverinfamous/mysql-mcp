@@ -96,7 +96,7 @@ function processDirectory(dirName) {
       coverageMatrix = "| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |";
     } else if (dirName === "test-usability") {
       titleType = "Usability & Hallucination Test";
-      executionMode = "Organically test the tool group using Code Mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.";
+      executionMode = "Organically test the tool group using ONLY code mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.";
       coverageMatrix = "| Tool | Fuzz Call | Hallucination Found | Fix Applied |";
     }
 
@@ -174,6 +174,7 @@ function processDirectory(dirName) {
 
     let baseGroup = groupName.replace(/-part\d+[a-z]?$/, '');
     if (baseGroup.startsWith('sys-') || baseGroup === 'sys') baseGroup = 'sysschema';
+    if (baseGroup.startsWith('codemode-sandbox') || baseGroup === 'sandbox') baseGroup = 'codemode';
     if (baseGroup === 'partitioning-part1' || baseGroup === 'partitioning-part2') baseGroup = 'partitioning';
     if (baseGroup.startsWith('core-part3')) baseGroup = 'core';
     if (baseGroup.startsWith('json-')) baseGroup = 'json';

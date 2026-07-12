@@ -50,7 +50,7 @@
     "mysql_vector_optimize",
     "mysql_vector_stats"
   ],
-  "test-codemode-sandbox.md": [
+  "test-codemode-advanced-sandbox.md": [
     "mysql_execute_code"
   ],
   "README.md": [],
@@ -1633,7 +1633,8 @@
     "mysql_explain_analyze"
   ],
   "test-codemode-performance-analysis-queries-part2.md": [
-    "mysql_slow_queries\", \"mysql_query_stats"
+    "mysql_slow_queries",
+    "mysql_query_stats"
   ],
   "test-codemode-performance-analysis-system-part1.md": [
     "mysql_index_usage",
@@ -1668,10 +1669,12 @@
     "mysql_role_revoke"
   ],
   "test-codemode-roles-management-part1.md": [
-    "mysql_role_list\", \"mysql_role_create"
+    "mysql_role_list",
+    "mysql_role_create"
   ],
   "test-codemode-roles-management-part2.md": [
-    "mysql_role_drop\", \"mysql_user_roles"
+    "mysql_role_drop",
+    "mysql_user_roles"
   ],
   "test-codemode-router-core-part1.md": [
     "mysql_router_status",
