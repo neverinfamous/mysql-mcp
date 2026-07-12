@@ -30,8 +30,6 @@ DROP TABLE IF EXISTS test_events;
 DROP TABLE IF EXISTS test_documents;
 DROP TABLE IF EXISTS test_partitioned;
 DROP TABLE IF EXISTS temp_write_test;
-DROP TABLE IF EXISTS stress_small;
-DROP TABLE IF EXISTS stress_zeros;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -467,17 +465,3 @@ INSERT INTO temp_write_test (name, description) VALUES
 -- =============================================================================
 -- TOTAL: 12 tables, ~461 rows
 -- =============================================================================
-
-CREATE TABLE stress_small (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    val DOUBLE,
-    group_label VARCHAR(10)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-INSERT INTO stress_small (val, group_label) VALUES (1.0, 'A'), (2.0, 'B'), (3.0, 'B');
-
-CREATE TABLE stress_zeros (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    val DOUBLE,
-    group_label VARCHAR(10)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-INSERT INTO stress_zeros (val, group_label) VALUES (0, 'A'), (0, 'A'), (0, 'A'), (0, 'B'), (0, 'B'), (0, 'B');
