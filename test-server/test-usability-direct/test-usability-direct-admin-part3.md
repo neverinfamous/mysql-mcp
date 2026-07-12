@@ -41,6 +41,7 @@
 > **Environment Constraints**:
 > - **Sandbox I/O**: If tests write or read temporary files (e.g., export/import operations), the path must be permitted by `ALLOWED_IO_ROOTS`. We recommend using `C:\Users\chris\AppData\Local\Temp`.
 > - **DDL Operations**: If a tool requires DDL (e.g., `CREATE TABLE`, `CREATE INDEX`), explicitly disable the global read-only lock before execution by running `SET GLOBAL super_read_only = 0;`. **DO NOT** re-enable `super_read_only` after your test is complete.
+> - **Primary Keys Required**: Our test infrastructure uses InnoDB Cluster Group Replication. Every table created during tests MUST have an explicit `PRIMARY KEY`. Tables without a primary key will cause replication errors (MY-011542) and the DDL/DML will be rejected.
 > - **X Protocol Tools**: Tools requiring X Protocol (e.g., `mysqlsh_import_json`) must be tested against the primary `mysql` MCP server, not `mysql-ecosystem`, because the Docker Router does not expose port `6448` to the host.
 
 ### Reference the Test Schema & Tool Definitions
