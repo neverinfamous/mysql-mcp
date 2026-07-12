@@ -8,7 +8,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `ai-spatial` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt / B Code / C Graceful Fails" (Where Y is 6).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Fails" (Where Y is 6).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 6: `ai-spatial`)
