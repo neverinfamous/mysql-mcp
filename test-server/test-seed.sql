@@ -30,6 +30,8 @@ DROP TABLE IF EXISTS test_events;
 DROP TABLE IF EXISTS test_documents;
 DROP TABLE IF EXISTS test_partitioned;
 DROP TABLE IF EXISTS temp_write_test;
+DROP TABLE IF EXISTS stress_small;
+DROP TABLE IF EXISTS stress_zeros;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
