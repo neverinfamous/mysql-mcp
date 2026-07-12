@@ -555,6 +555,9 @@
     "mysql_router_route_destinations",
     "mysql_router_route_blocked_hosts"
   ],
+  "test-codemode-sandbox.md": [
+    "mysql_execute_code"
+  ],
   "test-codemode-schema-management-part2.md": [
     "mysql_create_view",
     "mysql_drop_view",

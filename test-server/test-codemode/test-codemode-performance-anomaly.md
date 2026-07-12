@@ -119,13 +119,13 @@ performance Tool Group (11 tools +1 for code mode):
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - `src/constants/server-instructions/*.md` (per-group help files) — run `npx tsx scripts/generate-server-instructions.ts` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
    - This prompt
 
 ### Perform Steps After Implementation
 
-4. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-5. **Commit**: Stage and commit all changes — do NOT push.
-6. **Validate**: Run `pnpm run check` to validate your changes via lint, typecheck, and test.
+4. **Validate**: Run `pnpm run check` to validate your changes via lint, typecheck, and test.
+5. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
+6. **Commit**: Commit all changes locally using `bun .\\.agents\\scripts\\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
 7. **Final summary**: Provide the final summary of testing and any issues fixed.

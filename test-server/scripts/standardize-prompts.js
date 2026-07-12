@@ -71,7 +71,11 @@ function processDirectory(dirName) {
       console.warn(`Could not find group name in ${file}`);
       continue;
     }
-    const groupName = titleMatch[1].trim().toLowerCase();
+    let groupName = titleMatch[1].trim().toLowerCase();
+    const fnMatch = file.match(/test-(?:codemode-)?(?:advanced-)?(?:usability-)?(?:direct-)?(.*?)(?:-part\\d+[a-z]?)?\\.md/);
+    if (fnMatch) {
+        groupName = fnMatch[1];
+    }
 
     let titleType = "Tool Group Testing";
     let executionMode = "Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.";
