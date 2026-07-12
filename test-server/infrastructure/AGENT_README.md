@@ -180,3 +180,4 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 - **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
 - **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.
 - **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.
+- **MySQL Router**: Connection sharing for the read-only bootstrap pool is explicitly enabled (`bootstrap_ro.connection_sharing=1`) to prevent connection exhaustion during concurrent MCP testing.

@@ -15,7 +15,8 @@ if [ ! -f "$CONF_FILE" ]; then
         --force \
         --conf-set-option http_server.port=8443 \
         --conf-set-option rest_connection_pool.require_realm=default_auth_realm \
-        --conf-set-option routing:bootstrap_rw.connection_sharing=1; do
+        --conf-set-option routing:bootstrap_rw.connection_sharing=1 \
+        --conf-set-option routing:bootstrap_ro.connection_sharing=1; do
         
         echo "[Router-Init] Bootstrap failed or cluster not ONLINE yet. Retrying in 3 seconds ($attempt_num/$max_tries)..."
         sleep 3

@@ -57,7 +57,7 @@ console.log('=== Recreating MySQL Test Ecosystem ===');
 try {
     // ── Phase 0: Network setup ────────────────────────────────────────
     console.log('\n[0/6] Fetching Windows Host IP for Prometheus scraping...');
-    const wslGateway = execSync(`wsl bash -c "ip route show default | awk '{print \\\\$3}'"`, { encoding: 'utf-8' }).trim();
+    const wslGateway = execSync(`wsl bash -c "ip route show default | grep -oP '(?<=default via )[0-9.]+'"`, { encoding: 'utf-8' }).trim();
     console.log(`  Windows Host IP: ${wslGateway}`);
     // Read existing .env, filter out old WINDOWS_HOST_IP entries, and write back
     const { readFileSync, writeFileSync } = await import('fs');

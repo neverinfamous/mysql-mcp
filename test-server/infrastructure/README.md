@@ -78,6 +78,7 @@ All config files are mounted directly from the `config/` directory:
 - `config/prometheus/`: `prometheus.yml`
 - `config/grafana/`: Dashboards and provisioning files.
 - `config/datadog-integration-configs/`: Integration configs for MySQL, Redis, and ProxySQL checks, plus host system check defaults (cpu, memory, disk, io, load, network, ntp, file_handle, uptime).
+- `config/mysql-router/`: Initializes the router with `bootstrap_ro.connection_sharing=1` to prevent connection exhaustion during high-concurrency testing.
 
 ## 7. Troubleshooting: WSL Background Termination
 If you notice that `mysql-router` is stuck in a crash loop or containers keep restarting:
