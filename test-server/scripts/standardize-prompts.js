@@ -387,9 +387,13 @@ function processDirectory(dirName) {
         .replace(/mysql\.vector\.stats/g, "mysql_vector_stats")
         .replace(/mysql\.vector\.info/g, "mysql_vector_info")
         .replace(/mysql\.core\.enableVersioning/g, "mysql_enable_versioning")
+        .replace(/mysql\.versioning\.enable/g, "mysql_enable_versioning")
         .replace(/mysql\.core\.disableVersioning/g, "mysql_disable_versioning")
+        .replace(/mysql\.versioning\.disable/g, "mysql_disable_versioning")
         .replace(/mysql\.core\.checkVersion/g, "mysql_check_version")
+        .replace(/mysql\.versioning\.check/g, "mysql_check_version")
         .replace(/mysql\.core\.conditionalUpdate/g, "mysql_conditional_update")
+        .replace(/mysql\.versioning\.conditionalUpdate/g, "mysql_conditional_update")
         .replace(/5\. \`mysql_index_recommendation/g, "2. \`mysql_index_recommendation");
     }
 
