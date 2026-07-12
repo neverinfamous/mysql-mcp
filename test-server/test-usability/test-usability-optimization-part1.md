@@ -68,7 +68,6 @@
 |---|---|---|---|
 | `mysql_index_recommendation` |   |   |   |
 | `mysql_query_rewrite` |   |   |   |
-| `mysql_force_index` |   |   |   |
 
 ---
 
@@ -78,7 +77,6 @@
 
 - `mysql_index_recommendation`
 - `mysql_query_rewrite`
-- `mysql_force_index`
 
 
 

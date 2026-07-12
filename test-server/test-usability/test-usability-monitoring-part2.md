@@ -68,7 +68,6 @@
 |---|---|---|---|
 | `mysql_innodb_status` |   |   |   |
 | `mysql_replication_status` |   |   |   |
-| `mysql_pool_stats` |   |   |   |
 
 ---
 
@@ -78,7 +77,6 @@
 
 - `mysql_innodb_status`
 - `mysql_replication_status`
-- `mysql_pool_stats`
 
 
 

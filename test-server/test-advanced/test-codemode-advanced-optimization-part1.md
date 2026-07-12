@@ -87,8 +87,8 @@
 3. `mysql.optimization.queryRewrite` with `SELECT *` anti-pattern → verify recommendation to specify columns
 
 ## Category 2: Optimizer Trace Payload
-3. Verify summary token estimate is ≥ 30% smaller than full trace
-5. `mysql.optimization.indexRecommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics' AND price < 500", "SELECT * FROM test_orders WHERE status = 'shipped' ORDER BY order_date DESC"]})` → verify composite index suggestions
+1. Verify summary token estimate is ≥ 30% smaller than full trace
+2. `mysql.optimization.indexRecommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics' AND price < 500", "SELECT * FROM test_orders WHERE status = 'shipped' ORDER BY order_date DESC"]})` → verify composite index suggestions
 
 ## Category 3: Force Index Edge Cases
 1. `mysql.optimization.forceIndex({table: "test_orders", index: "nonexistent_idx_xyz", query: "SELECT * FROM test_orders"})` → verify structured `{success: false}`

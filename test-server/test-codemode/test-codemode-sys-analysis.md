@@ -110,7 +110,7 @@ sysschema Tool Group (8 tools +1 for code mode):
 
 **Alias acceptance (🟢):**
 
-12. 🟢 Verify any parameter aliases are accepted for applicable tools.
+8. 🟢 Verify any parameter aliases are accepted for applicable tools.
 
 ---
 

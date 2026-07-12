@@ -83,7 +83,7 @@
 ## Category 2: Summary Mode Parity
 1. `mysql_innodb_status()` full → log token estimate
 2. `mysql_innodb_status({summary: true})` → log token estimate
-3. Verify summary token estimate is ≥ 50% smaller than full output
+1. Verify summary token estimate is ≥ 50% smaller than full output
 
 ## Category 3: Filter Edge Cases
 

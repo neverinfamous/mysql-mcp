@@ -68,7 +68,6 @@
 |---|---|---|---|
 | `mysql_restore_dump` |   |   |   |
 | `mysql_audit_list_backups` |   |   |   |
-| `mysql_audit_restore_backup` |   |   |   |
 
 ---
 
@@ -78,7 +77,6 @@
 
 - `mysql_restore_dump`
 - `mysql_audit_list_backups`
-- `mysql_audit_restore_backup`
 
 
 

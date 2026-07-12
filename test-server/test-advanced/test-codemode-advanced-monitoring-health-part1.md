@@ -90,7 +90,7 @@
 6. Flag any unfiltered response > 500 tokens as 📦
 
 ## Category 2: Summary Mode Parity
-3. Verify summary token estimate is ≥ 50% smaller than full output
+1. Verify summary token estimate is ≥ 50% smaller than full output
 
 ## Category 3: Filter Edge Cases
 1. `mysql_show_status({like: ""})` → verify behavior (empty filter)

@@ -68,7 +68,6 @@
 |---|---|---|---|
 | `mysql_cluster_instances` |   |   |   |
 | `mysql_cluster_topology` |   |   |   |
-| `mysql_cluster_router_status` |   |   |   |
 
 ---
 
@@ -78,7 +77,6 @@
 
 - `mysql_cluster_instances`
 - `mysql_cluster_topology`
-- `mysql_cluster_router_status`
 
 
 

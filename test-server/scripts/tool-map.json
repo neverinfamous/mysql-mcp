@@ -1249,10 +1249,10 @@
   ],
   "test-usability-backup-part2.md": [
     "mysql_restore_dump",
-    "mysql_audit_list_backups",
-    "mysql_audit_restore_backup"
+    "mysql_audit_list_backups"
   ],
   "test-usability-backup-part3.md": [
+    "mysql_audit_restore_backup",
     "mysql_audit_diff_backup"
   ],
   "test-usability-cluster-part1.md": [
@@ -1267,10 +1267,10 @@
   ],
   "test-usability-cluster-part3.md": [
     "mysql_cluster_instances",
-    "mysql_cluster_topology",
-    "mysql_cluster_router_status"
+    "mysql_cluster_topology"
   ],
   "test-usability-cluster-part4.md": [
+    "mysql_cluster_router_status",
     "mysql_cluster_switchover"
   ],
   "test-usability-codemode.md": [
@@ -1386,26 +1386,26 @@
   ],
   "test-usability-monitoring-part2.md": [
     "mysql_innodb_status",
-    "mysql_replication_status",
-    "mysql_pool_stats"
+    "mysql_replication_status"
   ],
   "test-usability-monitoring-part3.md": [
+    "mysql_pool_stats",
     "mysql_server_health"
   ],
   "test-usability-optimization-part1.md": [
     "mysql_index_recommendation",
-    "mysql_query_rewrite",
-    "mysql_force_index"
+    "mysql_query_rewrite"
   ],
   "test-usability-optimization-part2.md": [
+    "mysql_force_index",
     "mysql_optimizer_trace"
   ],
   "test-usability-partitioning-part1.md": [
     "mysql_partition_info",
-    "mysql_add_partition",
-    "mysql_drop_partition"
+    "mysql_add_partition"
   ],
   "test-usability-partitioning-part2.md": [
+    "mysql_drop_partition",
     "mysql_reorganize_partition"
   ],
   "test-usability-performance-part1.md": [
@@ -1500,9 +1500,9 @@
     "mysql_list_triggers"
   ],
   "test-usability-schema-part4.md": [
-    "mysql_list_constraints",
     "mysql_create_trigger",
-    "mysql_drop_trigger"
+    "mysql_drop_trigger",
+    "mysql_list_constraints"
   ],
   "test-usability-security-part1.md": [
     "mysql_security_audit",
@@ -1531,10 +1531,10 @@
   ],
   "test-usability-shell-part3.md": [
     "mysqlsh_dump_schemas",
-    "mysqlsh_dump_tables",
-    "mysqlsh_load_dump"
+    "mysqlsh_dump_tables"
   ],
   "test-usability-shell-part4.md": [
+    "mysqlsh_load_dump",
     "mysqlsh_run_script"
   ],
   "test-usability-spatial-part1.md": [
@@ -1622,10 +1622,10 @@
   ],
   "test-usability-transactions-part2.md": [
     "mysql_transaction_savepoint",
-    "mysql_transaction_release",
-    "mysql_transaction_rollback_to"
+    "mysql_transaction_release"
   ],
   "test-usability-transactions-part3.md": [
+    "mysql_transaction_rollback_to",
     "mysql_transaction_execute"
   ],
   "test-usability-vector-part1.md": [

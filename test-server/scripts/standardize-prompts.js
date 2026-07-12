@@ -283,8 +283,8 @@ function processDirectory(dirName) {
       .replace(/mysql_query_rewrite/g, "mysql.optimization.queryRewrite")
       .replace(/mysql_force_index/g, "mysql.optimization.forceIndex")
       .replace(/mysql_optimizer_trace/g, "mysql.optimization.optimizerTrace")
-      .replace(/3\\. Verify summary token estimate/g, "1. Verify summary token estimate")
-      .replace(/5\\. \`mysql\\.optimization\\.indexRecommendation/g, "2. `mysql.optimization.indexRecommendation")
+      .replace(/3\. Verify summary token estimate/g, "1. Verify summary token estimate")
+      .replace(/5\. `mysql\.optimization\.indexRecommendation/g, "2. `mysql.optimization.indexRecommendation")
       // Fix vector parameters
       .replace(/mysql_vector_search/g, "mysql.vector.search")
       .replace(/mysql_vector_range_search/g, "mysql.vector.rangeSearch")
@@ -307,13 +307,13 @@ function processDirectory(dirName) {
       .replace(/column: "vector", matchColumn: "body", queryVector:/g, 'vectorColumn: "vector", textColumn: "body", queryVector:')
       .replace(/matchQuery:/g, 'queryText:')
       // Fix sys-metrics numbering gaps
-      .replace(/10\\. 🔴 `mysql\\.sysschema\\.userSummary/g, "6. 🔴 `mysql.sysschema.userSummary")
-      .replace(/11\\. 🔴 `mysql\\.sysschema\\.ioSummary/g, "7. 🔴 `mysql.sysschema.ioSummary")
-      .replace(/12\\. 🟢 Verify/g, "8. 🟢 Verify")
+      .replace(/10\. 🔴 `mysql\.sysschema\.userSummary/g, "6. 🔴 `mysql.sysschema.userSummary")
+      .replace(/11\. 🔴 `mysql\.sysschema\.ioSummary/g, "7. 🔴 `mysql.sysschema.ioSummary")
+      .replace(/12\. 🟢 Verify/g, "8. 🟢 Verify")
       // Fix sys-analysis numbering gaps and Zod error
-      .replace(/10\\. 🔴 `mysql\\.sysschema\\.schemaStats/g, "6. 🔴 `mysql.sysschema.schemaStats")
-      .replace(/11\\. 🔴 `mysql\\.sysschema\\.statementSummary\(\{ limit: "abc" \}\)/g, "7. 🔴 `mysql.sysschema.statementSummary({ orderBy: 123 })")
-      .replace(/11\\. 🔴 `mysql\\.sysschema\\.statementSummary/g, "7. 🔴 `mysql.sysschema.statementSummary");
+      .replace(/10\. 🔴 `mysql\.sysschema\.schemaStats/g, "6. 🔴 `mysql.sysschema.schemaStats")
+      .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary\(\{ limit: "abc" \}\)/g, "7. 🔴 `mysql.sysschema.statementSummary({ orderBy: 123 })")
+      .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary/g, "7. 🔴 `mysql.sysschema.statementSummary");
 
     const newContent = getTemplate(
       titleType,
