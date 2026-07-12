@@ -572,21 +572,28 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       return res;
     },
     z.object({
-      database: z.string(),
+      database: z.string().optional(),
       db: z.string().optional(),
       dbName: z.string().optional(),
       schema: z.string().optional(),
       schemaName: z.string().optional(),
-      filename: z.string(),
+      filename: z.string().optional(),
       file: z.string().optional(),
       path: z.string().optional(),
       filepath: z.string().optional(),
       dumpFile: z.string().optional(),
     })
-  ).transform((data) => ({
-    database: data.database,
-    filename: data.filename,
-  }));
+  )
+    .transform((data) => ({
+      database: data.database ?? "",
+      filename: data.filename ?? "",
+    }))
+    .refine((data) => data.database !== "", {
+      message: "database (or db/schema alias) is required",
+    })
+    .refine((data) => data.filename !== "", {
+      message: "filename (or file/path alias) is required",
+    });
 
   return {
     name: "mysql_restore_dump",
