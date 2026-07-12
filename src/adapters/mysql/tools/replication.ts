@@ -50,6 +50,11 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      try {
+        schema.parse(_params);
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
       // Try new syntax first, then old
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
@@ -93,6 +98,11 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      try {
+        schema.parse(_params);
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
       // Try new syntax first
       try {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
@@ -241,6 +251,11 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        schema.parse(_params);
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
+      try {
         // Get GTID executed
         const executedResult = await adapter.executeQuery(
           "SELECT @@global.gtid_executed as gtid_executed",
@@ -291,6 +306,11 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      try {
+        schema.parse(_params);
+      } catch (e) {
+        return formatHandlerErrorResponse(e);
+      }
       // Try to get Seconds_Behind_Master from replica status
       try {
         const result = await adapter.executeQuery("SHOW REPLICA STATUS");
