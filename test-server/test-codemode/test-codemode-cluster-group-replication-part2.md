@@ -66,8 +66,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.cluster.grTransactions` |   |   |
-| `mysql.cluster.grFlowControl` |   |   |
+| `mysql.cluster.grTransactions` | ✅ | ✅ |
+| `mysql.cluster.grFlowControl` | ✅ | ✅ |
 
 ---
 
@@ -83,8 +83,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.cluster.grTransactions
-- [ ] Ensure full coverage for mysql.cluster.grFlowControl
+- [x] Ensure full coverage for mysql.cluster.grTransactions
+- [x] Ensure full coverage for mysql.cluster.grFlowControl
 
 ---
 
