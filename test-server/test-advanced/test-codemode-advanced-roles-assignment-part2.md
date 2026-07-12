@@ -88,7 +88,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.roleGrants
+- [ ] Ensure full coverage for mysql.roles.grants
 
 ---
 

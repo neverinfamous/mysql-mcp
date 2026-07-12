@@ -101,8 +101,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.fulltext.fulltextBoolean
-- [ ] Ensure full coverage for mysql.fulltext.fulltextExpand
+- [ ] Ensure full coverage for mysql.fulltext.boolean
+- [ ] Ensure full coverage for mysql.fulltext.expand
 
 ---
 

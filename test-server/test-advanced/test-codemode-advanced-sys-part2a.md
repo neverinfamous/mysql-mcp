@@ -84,9 +84,9 @@
 ## Tasks
 
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql.sysschema.sysInnodbLockWaits
-- [ ] Ensure full coverage for mysql.sysschema.sysSchemaStats
-- [ ] Ensure full coverage for mysql.sysschema.sysHostSummary
+- [ ] Ensure full coverage for mysql.sysschema.innodbLockWaits
+- [ ] Ensure full coverage for mysql.sysschema.schemaStats
+- [ ] Ensure full coverage for mysql.sysschema.hostSummary
 
 ---
 

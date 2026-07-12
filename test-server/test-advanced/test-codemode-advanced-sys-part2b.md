@@ -80,7 +80,7 @@
 ## Tasks
 
 - Implement tests for the tools listed above.
-- [ ] Ensure full coverage for mysql.sysschema.sysMemorySummary
+- [ ] Ensure full coverage for mysql.sysschema.memorySummary
 
 ---
 

@@ -83,9 +83,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.sysschema.sysUserSummary
-- [ ] Ensure full coverage for mysql.sysschema.sysIoSummary
-- [ ] Ensure full coverage for mysql.sysschema.sysStatementSummary
+- [ ] Ensure full coverage for mysql.sysschema.userSummary
+- [ ] Ensure full coverage for mysql.sysschema.ioSummary
+- [ ] Ensure full coverage for mysql.sysschema.statementSummary
 
 ---
 

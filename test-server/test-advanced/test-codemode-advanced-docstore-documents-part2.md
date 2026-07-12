@@ -100,7 +100,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.docCollectionInfo
+- [ ] Ensure full coverage for mysql.docstore.collectionInfo
 
 ---
 

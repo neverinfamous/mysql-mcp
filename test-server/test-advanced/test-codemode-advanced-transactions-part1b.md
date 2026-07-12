@@ -91,7 +91,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.transactions.transactionSavepoint
+- [ ] Ensure full coverage for mysql.transactions.savepoint
 
 ---
 

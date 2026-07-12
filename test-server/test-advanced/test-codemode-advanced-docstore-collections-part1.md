@@ -83,9 +83,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.docListCollections
-- [ ] Ensure full coverage for mysql.docstore.docCreateCollection
-- [ ] Ensure full coverage for mysql.docstore.docDropCollection
+- [ ] Ensure full coverage for mysql.docstore.listCollections
+- [ ] Ensure full coverage for mysql.docstore.createCollection
+- [ ] Ensure full coverage for mysql.docstore.dropCollection
 
 ---
 

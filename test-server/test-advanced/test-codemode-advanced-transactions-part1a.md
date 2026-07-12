@@ -95,9 +95,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.transactions.transactionBegin
-- [ ] Ensure full coverage for mysql.transactions.transactionCommit
-- [ ] Ensure full coverage for mysql.transactions.transactionRollback
+- [ ] Ensure full coverage for mysql.transactions.begin
+- [ ] Ensure full coverage for mysql.transactions.commit
+- [ ] Ensure full coverage for mysql.transactions.rollback
 
 ---
 

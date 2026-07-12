@@ -81,8 +81,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.docFind
-- [ ] Ensure full coverage for mysql.docstore.docAdd
+- [ ] Ensure full coverage for mysql.docstore.find
+- [ ] Ensure full coverage for mysql.docstore.add
 
 ---
 

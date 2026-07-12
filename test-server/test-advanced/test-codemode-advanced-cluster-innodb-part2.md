@@ -80,22 +80,22 @@
 
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
-4. `mysql.cluster.clusterRouterStatus()` → verify structured response
-5. `mysql.cluster.clusterSwitchover()` → verify structured `{success: false}` (analysis fails with no cluster)
+4. `mysql.cluster.routerStatus()` → verify structured response
+5. `mysql.cluster.switchover()` → verify structured `{success: false}` (analysis fails with no cluster)
 6. All 10 errors must use consistent `{success: false, error: "..."}` format — no raw MCP exceptions or property leakages
 
 ## Category 2: Happy-Path Stress (When Cluster IS Available)
 
 ## Category 3: Summary Mode & Payload Monitoring
-3. `mysql.cluster.clusterRouterStatus()` full → log token estimate
-4. `mysql.cluster.clusterRouterStatus({summary: true})` → log token estimate
+3. `mysql.cluster.routerStatus()` full → log token estimate
+4. `mysql.cluster.routerStatus({summary: true})` → log token estimate
 5. Flag any response > 500 tokens as 📦
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.cluster.clusterRouterStatus
-- [ ] Ensure full coverage for mysql.cluster.clusterSwitchover
+- [ ] Ensure full coverage for mysql.cluster.routerStatus
+- [ ] Ensure full coverage for mysql.cluster.switchover
 
 ---
 

@@ -83,9 +83,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.roleGrant
-- [ ] Ensure full coverage for mysql.roles.roleAssign
-- [ ] Ensure full coverage for mysql.roles.roleRevoke
+- [ ] Ensure full coverage for mysql.roles.grant
+- [ ] Ensure full coverage for mysql.roles.assign
+- [ ] Ensure full coverage for mysql.roles.revoke
 
 ---
 

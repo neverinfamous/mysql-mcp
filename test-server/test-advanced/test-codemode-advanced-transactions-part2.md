@@ -87,8 +87,8 @@
 
 6. Execute 5 sequential begin/commit cycles — verify no connection pool exhaustion
 7. Execute transaction_execute with 10+ statements — verify all succeed
-- [ ] Ensure full coverage for mysql.transactions.transactionRelease
-- [ ] Ensure full coverage for mysql.transactions.transactionRollbackTo
+- [ ] Ensure full coverage for mysql.transactions.release
+- [ ] Ensure full coverage for mysql.transactions.rollbackTo
 
 
 ## Category 4: Mixed Statement Failures

@@ -96,9 +96,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.events.eventCreate
-- [ ] Ensure full coverage for mysql.events.eventAlter
-- [ ] Ensure full coverage for mysql.events.eventDrop
+- [ ] Ensure full coverage for mysql.events.create
+- [ ] Ensure full coverage for mysql.events.alter
+- [ ] Ensure full coverage for mysql.events.drop
 
 ---
 

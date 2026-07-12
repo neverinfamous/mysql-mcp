@@ -1,6 +1,6 @@
 # MySQL MCP Advanced Code Mode Testing - Master Index
 
-Due to the extreme length of the Advanced Code Mode test suite (103 tests), the coordinator workflow has been sharded into 4 domain-specific phases. This prevents context-window exhaustion and ensures subagents complete their queues reliably.
+Due to the extreme length of the Advanced Code Mode test suite (111 tests), the coordinator workflow has been sharded into 4 domain-specific phases. This prevents context-window exhaustion and ensures subagents complete their queues reliably.
 
 ## Execution Rules
 

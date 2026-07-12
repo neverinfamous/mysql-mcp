@@ -82,27 +82,27 @@
 
 
 ## Category 1: Graceful Degradation (No-Cluster Environment)
-1. `mysql.cluster.clusterStatus()` → verify structured `{success: false}` when no InnoDB Cluster
-2. `mysql.cluster.clusterInstances()` → verify structured response
-3. `mysql.cluster.clusterTopology()` → verify structured response
+1. `mysql.cluster.status()` → verify structured `{success: false}` when no InnoDB Cluster
+2. `mysql.cluster.instances()` → verify structured response
+3. `mysql.cluster.topology()` → verify structured response
 6. All 10 errors must use consistent `{success: false, error: "..."}` format — no raw MCP exceptions or property leakages
 
 ## Category 2: Happy-Path Stress (When Cluster IS Available)
-1. `mysql.cluster.clusterStatus()` → verify topology and status fields
-2. `mysql.cluster.clusterInstances()` → verify instance details match member count
-3. `mysql.cluster.clusterTopology()` → verify graph-like structure with roles
+1. `mysql.cluster.status()` → verify topology and status fields
+2. `mysql.cluster.instances()` → verify instance details match member count
+3. `mysql.cluster.topology()` → verify graph-like structure with roles
 
 ## Category 3: Summary Mode & Payload Monitoring
-1. `mysql.cluster.clusterStatus()` full → log token estimate
-2. `mysql.cluster.clusterStatus({summary: true})` → log token estimate, verify ≥ 30% reduction
+1. `mysql.cluster.status()` full → log token estimate
+2. `mysql.cluster.status({summary: true})` → log token estimate, verify ≥ 30% reduction
 5. Flag any response > 500 tokens as 📦
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.cluster.clusterStatus
-- [ ] Ensure full coverage for mysql.cluster.clusterInstances
-- [ ] Ensure full coverage for mysql.cluster.clusterTopology
+- [ ] Ensure full coverage for mysql.cluster.status
+- [ ] Ensure full coverage for mysql.cluster.instances
+- [ ] Ensure full coverage for mysql.cluster.topology
 
 ---
 

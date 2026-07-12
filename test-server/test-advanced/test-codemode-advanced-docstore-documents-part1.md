@@ -100,9 +100,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.docModify
-- [ ] Ensure full coverage for mysql.docstore.docRemove
-- [ ] Ensure full coverage for mysql.docstore.docCreateIndex
+- [ ] Ensure full coverage for mysql.docstore.modify
+- [ ] Ensure full coverage for mysql.docstore.remove
+- [ ] Ensure full coverage for mysql.docstore.createIndex
 
 ---
 

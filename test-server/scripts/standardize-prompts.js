@@ -351,8 +351,14 @@ function processDirectory(dirName) {
       .replace(/mysql\.stats_help/g, "mysql.stats.help")
       .replace(/mysql\.stats_topN/g, "mysql.stats.topN")
       .replace(/mysql\.executeCode/g, "mysql_execute_code")
-      .replace(/mysql\.sys\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
-      .replace(/mysql\.sysschema\.([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
+      .replace(/mysql\.vector\.vector([A-Z])/g, (match, p1) => "mysql.vector." + p1.toLowerCase())
+      .replace(/mysql\.sysschema\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
+      .replace(/mysql\.docstore\.doc([A-Z])/g, (match, p1) => "mysql.docstore." + p1.toLowerCase())
+      .replace(/mysql\.fulltext\.fulltext([A-Z])/g, (match, p1) => "mysql.fulltext." + p1.toLowerCase())
+      .replace(/mysql\.transactions\.transaction([A-Z])/g, (match, p1) => "mysql.transactions." + p1.toLowerCase())
+      .replace(/mysql\.cluster\.cluster([A-Z])/g, (match, p1) => "mysql.cluster." + p1.toLowerCase())
+      .replace(/mysql\.roles\.role([A-Z])/g, (match, p1) => "mysql.roles." + p1.toLowerCase())
+      .replace(/mysql\.events\.event([A-Z])/g, (match, p1) => "mysql.events." + p1.toLowerCase())
       // Fix optimization parameters
       .replace(/mysql_index_recommendation/g, "mysql.optimization.indexRecommendation")
       .replace(/mysql_query_rewrite/g, "mysql.optimization.queryRewrite")
@@ -474,7 +480,7 @@ function processDirectory(dirName) {
       .replace(/- \[ \] Ensure full coverage for mysql\.backup\.auditListBackups\r?\n?/g, "")
       .replace(/- \[ \] Ensure full coverage for mysql\.backup\.auditRestoreBackup\r?\n?/g, "");
 
-    const newContent = getTemplate(
+    let newContent = getTemplate(
       titleType,
       groupName,
       schemaRef,
@@ -483,6 +489,11 @@ function processDirectory(dirName) {
       coverageMatrix,
       explicitToolsList
     );
+
+    if (dirName === 'test-usability-direct' || dirName === 'test-usability') {
+      newContent = newContent.replace(/4\. \*\*Validate\*\*: Run `pnpm run check` to validate your changes via lint, typecheck, and test\./g, "4. **Validate**: Run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` to validate your changes. Do NOT run `pnpm run test` or `pnpm run check` to save time.");
+    }
+
     fs.writeFileSync(filePath, newContent, "utf-8");
     console.log(`Standardized ${file} (${titleType})`);
   }

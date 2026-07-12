@@ -103,9 +103,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.fulltext.fulltextCreate
-- [ ] Ensure full coverage for mysql.fulltext.fulltextDrop
-- [ ] Ensure full coverage for mysql.fulltext.fulltextSearch
+- [ ] Ensure full coverage for mysql.fulltext.create
+- [ ] Ensure full coverage for mysql.fulltext.drop
+- [ ] Ensure full coverage for mysql.fulltext.search
 
 ---
 

@@ -100,7 +100,7 @@
 
 ### Perform Steps After Implementation
 
-4. **Validate**: Run `pnpm run check` to validate your changes via lint, typecheck, and test.
+4. **Validate**: Run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` to validate your changes. Do NOT run `pnpm run test` or `pnpm run check` to save time.
 5. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
 6. **Commit**: Commit all changes locally using `bun .\\.agents\\scripts\\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
 7. **Final summary**: Provide the final summary of testing and any issues fixed.

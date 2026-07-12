@@ -89,8 +89,8 @@
 6. `mysql.events.create({name: "stress_evt_complex", schedule: "EVERY 30 SECOND STARTS CURRENT_TIMESTAMP", body: "SELECT 1", status: "DISABLE"})` → verify complex schedule syntax
 7. `mysql.events.status({name: "stress_evt_onetime"})` → verify status reflects one-time schedule type
 8. `mysql.events.status({name: "stress_evt_complex"})` → verify status reflects recurring schedule
-- [ ] Ensure full coverage for mysql.events.eventList
-- [ ] Ensure full coverage for mysql.events.eventStatus
+- [ ] Ensure full coverage for mysql.events.list
+- [ ] Ensure full coverage for mysql.events.status
 - [ ] Ensure full coverage for mysql.events.schedulerStatus
 
 

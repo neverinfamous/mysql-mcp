@@ -82,7 +82,7 @@
 
 
 ## Category 1: Role Assignment Lifecycles
-1. `mysql.roles.roleCreate({name: "stress_role_a"})` → success
+1. `mysql.roles.create({name: "stress_role_a"})` → success
 
 ## Category 5: Error Quality
 1. Empty parameter tests for all assignment tools
@@ -93,9 +93,9 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.roleList
-- [ ] Ensure full coverage for mysql.roles.roleCreate
-- [ ] Ensure full coverage for mysql.roles.roleDrop
+- [ ] Ensure full coverage for mysql.roles.list
+- [ ] Ensure full coverage for mysql.roles.create
+- [ ] Ensure full coverage for mysql.roles.drop
 
 ---
 

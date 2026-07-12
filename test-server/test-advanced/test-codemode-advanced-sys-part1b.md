@@ -79,7 +79,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.sysschema.sysWaitSummary
+- [ ] Ensure full coverage for mysql.sysschema.waitSummary
 
 ---
 
