@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const REPO_ROOT = join(__dirname, '..');
 const MAX_RETRIES = 60;
 const RETRY_DELAY_MS = 2000;
-const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
+const dockerCmd = 'docker';
 
 function run(command) {
     console.log(`\n> ${command}`);

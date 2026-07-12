@@ -1,6 +1,6 @@
 import { execSync } from 'child_process';
 
-const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
+const dockerCmd = 'docker';
 
 const execCommand = (cmd, ignoreError = false) => {
   try {
@@ -8,30 +8,22 @@ const execCommand = (cmd, ignoreError = false) => {
   } catch (e) {
     if (!ignoreError) {
       console.error(`Error: ${e.message}`);
-    } else {
-      console.error(`Ignored Error: ${e.message}\nStderr: ${e.stderr ? e.stderr.toString() : ''}`);
     }
     return null;
   }
 };
 
-const containers = [
-    'mysql-node1',
-    'mysql-node2',
-    'mysql-node3',
-    'mysql-router',
-    'proxysql',
-    'redis-server',
-    'prometheus',
-    'grafana',
-    'datadog-unified',
-    'dozzle',
-    'adminer'
-];
+// Dynamically discover expected containers from docker-compose.yml
+const servicesRaw = execCommand(`docker compose config --services`, false);
+if (!servicesRaw) {
+    console.error('Failed to read docker-compose.yml services. Are you in the infrastructure directory?');
+    process.exit(1);
+}
+const containers = servicesRaw.trim().split('\n').filter(Boolean).sort();
 
 console.log('=== Ecosystem Status Check ===\n');
 
-console.log('1. Container Status:');
+console.log(`1. Container Status (${containers.length} services):`);
 console.log('----------------------------------------');
 let allUp = true;
 
@@ -79,7 +71,6 @@ const statusCmd = `${dockerCmd} exec mysql-node1 mysql -uroot -proot -e "SELECT 
 
 const clusterOut = execCommand(statusCmd, false);
 if (clusterOut !== null) {
-    // Check how many are ONLINE
     const onlineCount = (clusterOut.match(/ONLINE/g) || []).length;
     if (onlineCount >= 3) {
         console.log(`✅ Cluster Quorum is ONLINE (${onlineCount} nodes)`);
@@ -97,4 +88,5 @@ if (allUp) {
     console.log('🎉 Ecosystem is fully healthy and ready for testing!');
 } else {
     console.log('⚠️ Ecosystem has issues. Please resolve them before testing.');
+    process.exit(1);
 }

@@ -9,7 +9,7 @@ const __dirname = dirname(__filename);
 const REPO_ROOT = join(__dirname, '..');
 const MAX_RETRIES = 60;
 const RETRY_DELAY_MS = 2000;
-const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
+const dockerCmd = 'docker';
 
 function run(command) {
     console.log(`\n> ${command}`);
@@ -59,7 +59,15 @@ try {
     console.log('\n[0/6] Fetching Windows Host IP for Prometheus scraping...');
     const wslGateway = execSync(`wsl bash -c "ip route show default | awk '{print \\\\$3}'"`, { encoding: 'utf-8' }).trim();
     console.log(`  Windows Host IP: ${wslGateway}`);
-    execSync(`echo WINDOWS_HOST_IP=${wslGateway} >> .env`, { cwd: REPO_ROOT });
+    // Read existing .env, filter out old WINDOWS_HOST_IP entries, and write back
+    const { readFileSync, writeFileSync } = await import('fs');
+    const { join: joinPath } = await import('path');
+    const envPath = joinPath(REPO_ROOT, '.env');
+    let envContent = '';
+    try { envContent = readFileSync(envPath, 'utf-8'); } catch {}
+    const filteredLines = envContent.split('\n').filter(l => !l.startsWith('WINDOWS_HOST_IP='));
+    filteredLines.push(`WINDOWS_HOST_IP=${wslGateway}`);
+    writeFileSync(envPath, filteredLines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n');
 
     // ── Phase 1: Cleanup ──────────────────────────────────────────────
     console.log('\n[1/6] Discovering containers from docker-compose.yml...');

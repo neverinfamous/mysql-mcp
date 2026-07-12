@@ -184,6 +184,22 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032,
         "username":"radmin", "password":"radmin"}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "127.0.0.1",
+          "-P",
+          "6033",
+          "-uroot",
+          "-proot"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   redis-server:
     image: redis:7.4.0
@@ -206,6 +222,11 @@ services:
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379}]'
       com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # ==========================================
   # MONITORING & TOOLS
@@ -257,6 +278,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:9090/-/healthy" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
   grafana:
     image: grafana/grafana:11.2.0
@@ -274,6 +300,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
   datadog-unified:
     image: gcr.io/datadoghq/agent:7

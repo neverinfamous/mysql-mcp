@@ -17,5 +17,5 @@ instances:
       schema_size_metrics: false
       disable_innodb_metrics: false
     tags:
-      - "hostname:docker-desktop"
-    reported_hostname: docker-desktop
+      - "hostname:adamic-wsl2"
+    reported_hostname: adamic-wsl2
