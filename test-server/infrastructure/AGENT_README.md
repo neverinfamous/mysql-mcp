@@ -19,14 +19,16 @@ cd test-server/infrastructure
 node scripts/recreate-test-ecosystem.mjs
 ```
 
-This master script will:
-- Forcefully clean up orphaned containers to prevent naming collisions (`docker rm -f`).
+This single self-contained script handles the entire lifecycle:
+- Fetch the Windows Host IP for Prometheus scraping.
+- Dynamically discover all services from `docker-compose.yml` (no hardcoded container lists).
+- Forcefully clean up orphaned containers to prevent naming collisions.
 - Tear down the existing cluster and volumes (`docker compose down -v`).
-- Start the fresh test containers (`docker compose up -d`).
-- Automatically poll the nodes until they are healthy.
-- Initialize the primary node (`mysql-node1`) as the cluster creator.
-- Join `mysql-node2` and `mysql-node3` to the cluster.
-- Output the final cluster topology.
+- Start the fresh containers (`docker compose up -d`).
+- Wait for all MySQL nodes to be healthy (up to 60 retries).
+- Bootstrap the InnoDB Cluster: create on primary, add secondaries with clone recovery.
+- Auto-heal with `rebootClusterFromCompleteOutage()` if the cluster appears unstable.
+- Seed the test database via `reset-database.mjs`.
 
 ### Verifying Ecosystem Health
 Before running E2E tests, you can verify that all necessary containers are healthy and that the InnoDB cluster quorum is fully `ONLINE` by running:
@@ -177,3 +179,4 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 - **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
 - **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
 - **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.
+- **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.

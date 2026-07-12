@@ -6,23 +6,17 @@ This directory contains the `docker-compose.yml` for the MySQL-focused test infr
 
 ## 1. Quick Start
 
-To spin up the test infrastructure, run:
+To spin up the test infrastructure from scratch (teardown + start + cluster bootstrap + seed):
 
 ```powershell
 cd C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure
-docker compose up -d
-```
-
-Once the containers are running, you must initialize the MySQL InnoDB cluster if this is a fresh setup:
-
-```powershell
-node scripts/create-cluster.mjs
-```
-
-Or use the all-in-one script that tears down, rebuilds, and bootstraps:
-
-```powershell
 node scripts/recreate-test-ecosystem.mjs
+```
+
+If the cluster already exists and you just need to restart containers:
+
+```powershell
+docker compose up -d
 ```
 
 ## 2. Container Registry & Ports
@@ -60,9 +54,10 @@ Hostname: `adamic-wsl2`
 
 All scripts are located in the `scripts/` directory and can be executed natively with `node`.
 
-- `recreate-test-ecosystem.mjs`: Automates the entire teardown, orphaned container cleanup, startup, and InnoDB cluster bootstrapping process.
-- `create-cluster.mjs`: Initializes Group Replication. Fully idempotent with deep retry logic (up to 60 retries), connection-drop handling during the `clone` process, stabilization sleeps, and autonomous reboot healing.
-- `check-status.mjs`: Quickly checks the health of all containers and validates the InnoDB Cluster quorum natively using the MySQL client.
+- `recreate-test-ecosystem.mjs`: Single self-contained script that automates the entire lifecycle: Windows Host IP discovery, dynamic container discovery, orphaned container cleanup, teardown, startup, InnoDB Cluster bootstrap (with retry/healing), and database seeding.
+- `recreate-ecosystem.mjs`: Same as above but without the Windows Host IP fetch (for direct WSL execution).
+- `create-cluster.mjs`: Standalone cluster initializer. Not needed if using `recreate-test-ecosystem.mjs`.
+- `check-status.mjs`: Dynamically discovers containers from `docker-compose.yml` and validates their health, plus checks the InnoDB Cluster quorum.
 - `reboot-cluster.mjs`: Use this if all containers go offline at once and auto-bootstrap fails.
 - `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
 
