@@ -71,7 +71,8 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
 4. `test-codemode-advanced-admin-maintenance-part2.md`
 5. `test-codemode-advanced-backup-audit-part1.md`
 6. `test-codemode-advanced-backup-audit-part2.md`
-7. `test-codemode-advanced-backup-export.md`
+7. `test-codemode-advanced-backup-export-part1.md`
+8. `test-codemode-advanced-backup-export-part2.md`
 8. `test-codemode-advanced-cluster-group-replication-part1.md`
 9. `test-codemode-advanced-cluster-group-replication-part2.md`
 10. `test-codemode-advanced-cluster-innodb-part1.md`

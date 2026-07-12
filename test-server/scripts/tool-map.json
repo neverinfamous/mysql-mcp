@@ -13,12 +13,6 @@
     "mysql_pool_stats",
     "mysql_server_health"
   ],
-  "test-codemode-advanced-backup-export.md": [
-    "mysql_export_table",
-    "mysql_import_data",
-    "mysql_create_dump",
-    "mysql_restore_dump"
-  ],
   "test-codemode-advanced-shell-utils-part2.md": [
     "mysqlsh_dump_instance",
     "mysqlsh_dump_schemas"
@@ -37,22 +31,10 @@
     "mysql_create_trigger",
     "mysql_drop_trigger"
   ],
-  "test-codemode-advanced-schema-views.md": [
-    "mysql_list_views",
-    "mysql_create_view",
-    "mysql_drop_view",
-    "mysql_list_constraints"
-  ],
   "test-codemode-advanced-spatial-geometry.md": [
     "mysql_spatial_point",
     "mysql_spatial_polygon",
     "mysql_spatial_geojson"
-  ],
-  "test-codemode-advanced-spatial-operations.md": [
-    "mysql_spatial_distance",
-    "mysql_spatial_distance_sphere",
-    "mysql_spatial_buffer",
-    "mysql_spatial_transform"
   ],
   "test-codemode-advanced-spatial-queries.md": [
     "mysql_spatial_contains",
@@ -455,12 +437,6 @@
     "mysql_audit_restore_backup",
     "mysql_audit_diff_backup"
   ],
-  "test-codemode-backup-data.md": [
-    "mysql_export_table",
-    "mysql_import_data",
-    "mysql_create_dump",
-    "mysql_restore_dump"
-  ],
   "test-codemode-cluster-group-replication-part1.md": [
     "mysql_gr_status",
     "mysql_gr_members",
@@ -479,18 +455,6 @@
     "mysql_cluster_router_status",
     "mysql_cluster_switchover"
   ],
-  "test-codemode-core-read.md": [
-    "mysql_read_query",
-    "mysql_list_tables",
-    "mysql_describe_table",
-    "mysql_get_indexes"
-  ],
-  "test-codemode-core-write.md": [
-    "mysql_write_query",
-    "mysql_create_table",
-    "mysql_drop_table",
-    "mysql_create_index"
-  ],
   "test-codemode-docstore-collections-part1.md": [
     "mysql_doc_list_collections",
     "mysql_doc_create_collection",
@@ -499,12 +463,6 @@
   "test-codemode-docstore-collections-part2.md": [
     "mysql_doc_create_index",
     "mysql_doc_collection_info"
-  ],
-  "test-codemode-docstore-documents.md": [
-    "mysql_doc_find",
-    "mysql_doc_add",
-    "mysql_doc_modify",
-    "mysql_doc_remove"
   ],
   "test-codemode-events-part1.md": [
     "mysql_event_create",
@@ -554,12 +512,6 @@
     "mysql_json_stats",
     "mysql_json_index_suggest"
   ],
-  "test-codemode-json-helpers.md": [
-    "mysql_json_get",
-    "mysql_json_update",
-    "mysql_json_search",
-    "mysql_json_validate"
-  ],
   "test-codemode-migration-part1.md": [
     "mysql_migration_init",
     "mysql_migration_record",
@@ -570,51 +522,15 @@
     "mysql_migration_history",
     "mysql_migration_status"
   ],
-  "test-codemode-monitoring-part1.md": [
-    "mysql_show_processlist",
-    "mysql_show_status",
-    "mysql_show_variables",
-    "mysql_innodb_status"
-  ],
   "test-codemode-monitoring-part2.md": [
     "mysql_replication_status",
     "mysql_pool_stats",
     "mysql_server_health"
   ],
-  "test-codemode-partitioning.md": [
-    "mysql_partition_info",
-    "mysql_add_partition",
-    "mysql_drop_partition",
-    "mysql_reorganize_partition"
-  ],
-  "test-codemode-performance-analysis-queries.md": [
-    "mysql_explain",
-    "mysql_explain_analyze",
-    "mysql_slow_queries",
-    "mysql_query_stats"
-  ],
-  "test-codemode-performance-analysis-system.md": [
-    "mysql_index_usage",
-    "mysql_table_stats",
-    "mysql_buffer_pool_stats",
-    "mysql_thread_stats"
-  ],
   "test-codemode-performance-anomaly.md": [
     "mysql_detect_query_anomalies",
     "mysql_detect_bloat_risk",
     "mysql_detect_connection_spike"
-  ],
-  "test-codemode-proxysql-config.md": [
-    "proxysql_query_rules",
-    "proxysql_users",
-    "proxysql_global_variables",
-    "proxysql_commands"
-  ],
-  "test-codemode-proxysql-status-part1.md": [
-    "proxysql_status",
-    "proxysql_servers",
-    "proxysql_connection_pool",
-    "proxysql_runtime_status"
   ],
   "test-codemode-proxysql-status-part2.md": [
     "proxysql_memory_stats",
@@ -630,24 +546,6 @@
     "mysql_gtid_status",
     "mysql_replication_lag"
   ],
-  "test-codemode-roles-grants.md": [
-    "mysql_role_grants",
-    "mysql_role_grant",
-    "mysql_role_assign",
-    "mysql_role_revoke"
-  ],
-  "test-codemode-roles-management.md": [
-    "mysql_role_list",
-    "mysql_role_create",
-    "mysql_role_drop",
-    "mysql_user_roles"
-  ],
-  "test-codemode-router-core.md": [
-    "mysql_router_status",
-    "mysql_router_routes",
-    "mysql_router_metadata_status",
-    "mysql_router_pool_status"
-  ],
   "test-codemode-router-routes-part1.md": [
     "mysql_router_route_status",
     "mysql_router_route_health",
@@ -656,12 +554,6 @@
   "test-codemode-router-routes-part2.md": [
     "mysql_router_route_destinations",
     "mysql_router_route_blocked_hosts"
-  ],
-  "test-codemode-schema-management-part1.md": [
-    "mysql_list_schemas",
-    "mysql_create_schema",
-    "mysql_drop_schema",
-    "mysql_list_views"
   ],
   "test-codemode-schema-management-part2.md": [
     "mysql_create_view",
@@ -676,12 +568,6 @@
   "test-codemode-schema-routines-part2.md": [
     "mysql_create_trigger",
     "mysql_drop_trigger"
-  ],
-  "test-codemode-security-audit.md": [
-    "mysql_security_audit",
-    "mysql_security_mask_data",
-    "mysql_security_user_privileges",
-    "mysql_security_sensitive_tables"
   ],
   "test-codemode-security-firewall-part1.md": [
     "mysql_security_firewall_status",
@@ -699,12 +585,6 @@
   "test-codemode-spatial-geometry.md": [
     "mysql_spatial_point",
     "mysql_spatial_polygon"
-  ],
-  "test-codemode-spatial-operations.md": [
-    "mysql_spatial_intersection",
-    "mysql_spatial_buffer",
-    "mysql_spatial_transform",
-    "mysql_spatial_geojson"
   ],
   "test-codemode-spatial-setup.md": [
     "mysql_spatial_create_column",
@@ -744,18 +624,6 @@
     "mysql_stats_moving_avg",
     "mysql_stats_ntile"
   ],
-  "test-codemode-sys-analysis.md": [
-    "mysql_sys_statement_summary",
-    "mysql_sys_wait_summary",
-    "mysql_sys_innodb_lock_waits",
-    "mysql_sys_schema_stats"
-  ],
-  "test-codemode-sys-metrics.md": [
-    "mysql_sys_user_summary",
-    "mysql_sys_io_summary",
-    "mysql_sys_host_summary",
-    "mysql_sys_memory_summary"
-  ],
   "test-codemode-text-part1.md": [
     "mysql_regexp_match",
     "mysql_like_search",
@@ -766,39 +634,15 @@
     "mysql_concat",
     "mysql_collation_convert"
   ],
-  "test-codemode-transactions-part1.md": [
-    "mysql_transaction_begin",
-    "mysql_transaction_commit",
-    "mysql_transaction_rollback",
-    "mysql_transaction_savepoint"
-  ],
   "test-codemode-transactions-part2.md": [
     "mysql_transaction_release",
     "mysql_transaction_rollback_to",
     "mysql_transaction_execute"
   ],
-  "test-codemode-vector-management.md": [
-    "mysql_vector_info",
-    "mysql_vector_create_index",
-    "mysql_vector_optimize",
-    "mysql_vector_stats"
-  ],
   "test-codemode-vector-search.md": [
     "mysql_vector_search",
     "mysql_vector_range_search",
     "mysql_vector_hybrid_search"
-  ],
-  "test-codemode-vector-storage.md": [
-    "mysql_vector_store",
-    "mysql_vector_batch_store",
-    "mysql_vector_delete",
-    "mysql_vector_get"
-  ],
-  "test-codemode-versioning.md": [
-    "mysql_enable_versioning",
-    "mysql_disable_versioning",
-    "mysql_check_version",
-    "mysql_conditional_update"
   ],
   "test-admin-part1.md": [
     "mysql_optimize_table",
@@ -1703,5 +1547,210 @@
   ],
   "test-codemode-advanced-partitioning-part2.md": [
     "mysql_reorganize_partition"
+  ],
+  "test-codemode-advanced-backup-export-part1.md": [
+    "mysql_export_table",
+    "mysql_import_data"
+  ],
+  "test-codemode-advanced-backup-export-part2.md": [
+    "mysql_create_dump",
+    "mysql_restore_dump"
+  ],
+  "test-codemode-advanced-schema-views-part1.md": [
+    "mysql_list_views",
+    "mysql_create_view"
+  ],
+  "test-codemode-advanced-schema-views-part2.md": [
+    "mysql_drop_view",
+    "mysql_list_constraints"
+  ],
+  "test-codemode-advanced-spatial-operations-part1.md": [
+    "mysql_spatial_distance",
+    "mysql_spatial_distance_sphere"
+  ],
+  "test-codemode-advanced-spatial-operations-part2.md": [
+    "mysql_spatial_buffer",
+    "mysql_spatial_transform"
+  ],
+  "test-codemode-backup-data-part1.md": [
+    "mysql_export_table",
+    "mysql_import_data"
+  ],
+  "test-codemode-backup-data-part2.md": [
+    "mysql_create_dump",
+    "mysql_restore_dump"
+  ],
+  "test-codemode-core-read-part1.md": [
+    "mysql_read_query",
+    "mysql_list_tables"
+  ],
+  "test-codemode-core-read-part2.md": [
+    "mysql_describe_table",
+    "mysql_get_indexes"
+  ],
+  "test-codemode-core-write-part1.md": [
+    "mysql_write_query",
+    "mysql_create_table"
+  ],
+  "test-codemode-core-write-part2.md": [
+    "mysql_drop_table",
+    "mysql_create_index"
+  ],
+  "test-codemode-docstore-documents-part1.md": [
+    "mysql_doc_find",
+    "mysql_doc_add"
+  ],
+  "test-codemode-docstore-documents-part2.md": [
+    "mysql_doc_modify",
+    "mysql_doc_remove"
+  ],
+  "test-codemode-json-helpers-part1.md": [
+    "mysql_json_get",
+    "mysql_json_update"
+  ],
+  "test-codemode-json-helpers-part2.md": [
+    "mysql_json_search",
+    "mysql_json_validate"
+  ],
+  "test-codemode-monitoring-part1a.md": [
+    "mysql_show_processlist",
+    "mysql_show_status"
+  ],
+  "test-codemode-monitoring-part1b.md": [
+    "mysql_show_variables",
+    "mysql_innodb_status"
+  ],
+  "test-codemode-partitioning-part1.md": [
+    "mysql_partition_info",
+    "mysql_add_partition"
+  ],
+  "test-codemode-partitioning-part2.md": [
+    "mysql_drop_partition",
+    "mysql_reorganize_partition"
+  ],
+  "test-codemode-performance-analysis-queries-part1.md": [
+    "mysql_explain",
+    "mysql_explain_analyze"
+  ],
+  "test-codemode-performance-analysis-queries-part2.md": [
+    "mysql_slow_queries\", \"mysql_query_stats"
+  ],
+  "test-codemode-performance-analysis-system-part1.md": [
+    "mysql_index_usage",
+    "mysql_table_stats"
+  ],
+  "test-codemode-performance-analysis-system-part2.md": [
+    "mysql_buffer_pool_stats",
+    "mysql_thread_stats"
+  ],
+  "test-codemode-proxysql-config-part1.md": [
+    "proxysql_query_rules",
+    "proxysql_users"
+  ],
+  "test-codemode-proxysql-config-part2.md": [
+    "proxysql_global_variables",
+    "proxysql_commands"
+  ],
+  "test-codemode-proxysql-status-part1a.md": [
+    "proxysql_status",
+    "proxysql_servers"
+  ],
+  "test-codemode-proxysql-status-part1b.md": [
+    "proxysql_connection_pool",
+    "proxysql_runtime_status"
+  ],
+  "test-codemode-roles-grants-part1.md": [
+    "mysql_role_grants",
+    "mysql_role_grant"
+  ],
+  "test-codemode-roles-grants-part2.md": [
+    "mysql_role_assign",
+    "mysql_role_revoke"
+  ],
+  "test-codemode-roles-management-part1.md": [
+    "mysql_role_list\", \"mysql_role_create"
+  ],
+  "test-codemode-roles-management-part2.md": [
+    "mysql_role_drop\", \"mysql_user_roles"
+  ],
+  "test-codemode-router-core-part1.md": [
+    "mysql_router_status",
+    "mysql_router_routes"
+  ],
+  "test-codemode-router-core-part2.md": [
+    "mysql_router_metadata_status",
+    "mysql_router_pool_status"
+  ],
+  "test-codemode-schema-management-part1a.md": [
+    "mysql_list_schemas",
+    "mysql_create_schema"
+  ],
+  "test-codemode-schema-management-part1b.md": [
+    "mysql_drop_schema",
+    "mysql_list_views"
+  ],
+  "test-codemode-security-audit-part1.md": [
+    "mysql_security_audit",
+    "mysql_security_mask_data"
+  ],
+  "test-codemode-security-audit-part2.md": [
+    "mysql_security_user_privileges",
+    "mysql_security_sensitive_tables"
+  ],
+  "test-codemode-spatial-operations-part1.md": [
+    "mysql_spatial_intersection",
+    "mysql_spatial_buffer"
+  ],
+  "test-codemode-spatial-operations-part2.md": [
+    "mysql_spatial_transform",
+    "mysql_spatial_geojson"
+  ],
+  "test-codemode-sys-analysis-part1.md": [
+    "mysql_sys_statement_summary",
+    "mysql_sys_wait_summary"
+  ],
+  "test-codemode-sys-analysis-part2.md": [
+    "mysql_sys_innodb_lock_waits",
+    "mysql_sys_schema_stats"
+  ],
+  "test-codemode-sys-metrics-part1.md": [
+    "mysql_sys_user_summary",
+    "mysql_sys_io_summary"
+  ],
+  "test-codemode-sys-metrics-part2.md": [
+    "mysql_sys_host_summary",
+    "mysql_sys_memory_summary"
+  ],
+  "test-codemode-transactions-part1a.md": [
+    "mysql_transaction_begin",
+    "mysql_transaction_commit"
+  ],
+  "test-codemode-transactions-part1b.md": [
+    "mysql_transaction_rollback",
+    "mysql_transaction_savepoint"
+  ],
+  "test-codemode-vector-management-part1.md": [
+    "mysql_vector_info",
+    "mysql_vector_create_index"
+  ],
+  "test-codemode-vector-management-part2.md": [
+    "mysql_vector_optimize",
+    "mysql_vector_stats"
+  ],
+  "test-codemode-vector-storage-part1.md": [
+    "mysql_vector_store",
+    "mysql_vector_batch_store"
+  ],
+  "test-codemode-vector-storage-part2.md": [
+    "mysql_vector_delete",
+    "mysql_vector_get"
+  ],
+  "test-codemode-versioning-part1.md": [
+    "mysql_enable_versioning",
+    "mysql_disable_versioning"
+  ],
+  "test-codemode-versioning-part2.md": [
+    "mysql_check_version",
+    "mysql_conditional_update"
   ]
 }

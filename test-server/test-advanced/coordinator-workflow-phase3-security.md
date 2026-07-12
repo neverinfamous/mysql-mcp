@@ -76,7 +76,8 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
 63. `test-codemode-advanced-schema-management.md`
 64. `test-codemode-advanced-schema-routines.md`
 65. `test-codemode-advanced-schema-triggers.md`
-66. `test-codemode-advanced-schema-views.md`
+66. `test-codemode-advanced-schema-views-part1.md`
+67. `test-codemode-advanced-schema-views-part2.md`
 67. `test-codemode-advanced-security-audit-part1.md`
 68. `test-codemode-advanced-security-audit-part2.md`
 69. `test-codemode-advanced-security-system-part1.md`
@@ -89,7 +90,8 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
 76. `test-codemode-advanced-shell-utils-part1b.md`
 77. `test-codemode-advanced-shell-utils-part2.md`
 78. `test-codemode-advanced-spatial-geometry.md`
-79. `test-codemode-advanced-spatial-operations.md`
+79. `test-codemode-advanced-spatial-operations-part1.md`
+80. `test-codemode-advanced-spatial-operations-part2.md`
 80. `test-codemode-advanced-spatial-queries.md`
 81. `test-codemode-advanced-spatial-setup.md`
 
