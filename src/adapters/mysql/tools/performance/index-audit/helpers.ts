@@ -246,7 +246,7 @@ export async function analyzeQueriesWithExplain(
       continue;
     }
 
-    try {
+
       const explainResult = await adapter.executeReadQuery(
         `EXPLAIN FORMAT=JSON ${query}`,
       );
@@ -369,10 +369,7 @@ export async function analyzeQueriesWithExplain(
       };
 
       analyzeNodeInternal(parsedExplain);
-    } catch {
-      // Ignore EXPLAIN failures (could be bad query syntax)
-      continue;
-    }
+
   }
 
   return findings;
