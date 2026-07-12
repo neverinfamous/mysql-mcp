@@ -16,7 +16,7 @@ To update instructions or gotchas, follow these steps:
    ```bash
    pnpm run generate:instructions
    ```
-   _(or `npx tsx scripts/generate-server-instructions.ts`)_
+   _(or `pnpm exec tsx scripts/generate-server-instructions.ts`)_
 3. The script converts your markdown into escaped strings. It embeds them in `server-instructions.ts`.
 
 ## Navigate the File Structure for Rapid Context
