@@ -159,7 +159,6 @@ export const FulltextSearchSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
-  .refine((data) => data.query !== "", { message: "query is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
@@ -274,7 +273,6 @@ export const FulltextBooleanSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
-  .refine((data) => data.query !== "", { message: "query is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
@@ -350,7 +348,6 @@ export const FulltextExpandSchema = z
     message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.columns.length > 0, { message: "columns is required" })
-  .refine((data) => data.query !== "", { message: "query is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
