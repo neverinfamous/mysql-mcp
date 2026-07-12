@@ -66,11 +66,11 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_stats_distribution` |   |   |
-| `mysql_stats_histogram` |   |   |
-| `mysql_stats_frequency` |   |   |
-| `mysql_stats_row_number` |   |   |
-| `mysql_stats_rank` |   |   |
+| `mysql.stats.distribution` |   |   |
+| `mysql.stats.histogram` |   |   |
+| `mysql.stats.frequency` |   |   |
+| `mysql.stats.rowNumber` |   |   |
+| `mysql.stats.rank` |   |   |
 
 ---
 
@@ -78,11 +78,11 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_distribution`
-- `mysql_stats_histogram`
-- `mysql_stats_frequency`
-- `mysql_stats_row_number`
-- `mysql_stats_rank`
+- `mysql.stats.distribution`
+- `mysql.stats.histogram`
+- `mysql.stats.frequency`
+- `mysql.stats.rowNumber`
+- `mysql.stats.rank`
 
 
 ## Category 1: Null & String Handling Boundaries

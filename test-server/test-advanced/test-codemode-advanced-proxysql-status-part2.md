@@ -66,8 +66,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `proxysql_commands` |   |   |
-| `proxysql_process_list` |   |   |
+| `mysql.proxysql.commands` |   |   |
+| `mysql.proxysql.processList` |   |   |
 
 ---
 
@@ -75,8 +75,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_commands`
-- `proxysql_process_list`
+- `mysql.proxysql.commands`
+- `mysql.proxysql.processList`
 
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)

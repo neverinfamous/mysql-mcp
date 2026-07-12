@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_kill_query` |   |   |
-| `mysql_append_insight` |   |   |
-| `mysql_server_config` |   |   |
+| `mysql.admin.killQuery` |   |   |
+| `mysql.admin.appendInsight` |   |   |
+| `mysql.admin.serverConfig` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_kill_query`
-- `mysql_append_insight`
-- `mysql_server_config`
+- `mysql.admin.killQuery`
+- `mysql.admin.appendInsight`
+- `mysql.admin.serverConfig`
 
 
 ## Category 1: Error Message Quality

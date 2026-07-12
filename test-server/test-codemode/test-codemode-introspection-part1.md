@@ -66,12 +66,12 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_dependency_graph` |   |   |
-| `mysql_topological_sort` |   |   |
-| `mysql_cascade_simulator` |   |   |
-| `mysql_schema_snapshot` |   |   |
-| `mysql_constraint_analysis` |   |   |
-| `mysql_migration_risks` |   |   |
+| `mysql.introspection.dependencyGraph` |   |   |
+| `mysql.introspection.topologicalSort` |   |   |
+| `mysql.introspection.cascadeSimulator` |   |   |
+| `mysql.introspection.schemaSnapshot` |   |   |
+| `mysql.introspection.constraintAnalysis` |   |   |
+| `mysql.introspection.migrationRisks` |   |   |
 
 ---
 
@@ -79,12 +79,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_dependency_graph`
-- `mysql_topological_sort`
-- `mysql_cascade_simulator`
-- `mysql_schema_snapshot`
-- `mysql_constraint_analysis`
-- `mysql_migration_risks`
+- `mysql.introspection.dependencyGraph`
+- `mysql.introspection.topologicalSort`
+- `mysql.introspection.cascadeSimulator`
+- `mysql.introspection.schemaSnapshot`
+- `mysql.introspection.constraintAnalysis`
+- `mysql.introspection.migrationRisks`
 
 
 ## Group Focus: introspection

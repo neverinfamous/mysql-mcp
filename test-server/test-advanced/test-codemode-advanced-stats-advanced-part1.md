@@ -66,11 +66,11 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_stats_correlation` |   |   |
-| `mysql_stats_regression` |   |   |
-| `mysql_stats_sampling` |   |   |
-| `mysql_stats_descriptive` |   |   |
-| `mysql_stats_percentiles` |   |   |
+| `mysql.stats.correlation` |   |   |
+| `mysql.stats.regression` |   |   |
+| `mysql.stats.sampling` |   |   |
+| `mysql.stats.descriptive` |   |   |
+| `mysql.stats.percentiles` |   |   |
 
 ---
 
@@ -78,11 +78,11 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_correlation`
-- `mysql_stats_regression`
-- `mysql_stats_sampling`
-- `mysql_stats_descriptive`
-- `mysql_stats_percentiles`
+- `mysql.stats.correlation`
+- `mysql.stats.regression`
+- `mysql.stats.sampling`
+- `mysql.stats.descriptive`
+- `mysql.stats.percentiles`
 
 
 ## Category 1: Frequency & Distinct Boundaries

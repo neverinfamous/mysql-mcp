@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `proxysql_global_variables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_runtime_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_memory_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `proxysql_global_variables` |   |   |   |
+| `proxysql_runtime_status` |   |   |   |
+| `proxysql_memory_stats` |   |   |   |
 
 ---
 

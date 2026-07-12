@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_json_update` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_json_search` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_json_validate` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql_json_update` |   |   |   |
+| `mysql_json_search` |   |   |   |
+| `mysql_json_validate` |   |   |   |
 
 ---
 

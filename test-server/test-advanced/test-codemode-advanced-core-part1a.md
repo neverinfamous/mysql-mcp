@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_read_query` |   |   |
-| `mysql_write_query` |   |   |
-| `mysql_list_tables` |   |   |
+| `mysql.core.readQuery` |   |   |
+| `mysql.core.writeQuery` |   |   |
+| `mysql.core.listTables` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_read_query`
-- `mysql_write_query`
-- `mysql_list_tables`
+- `mysql.core.readQuery`
+- `mysql.core.writeQuery`
+- `mysql.core.listTables`
 
 
 ## Tasks

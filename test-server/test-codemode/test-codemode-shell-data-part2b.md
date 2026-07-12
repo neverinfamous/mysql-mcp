@@ -66,8 +66,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysqlsh_dump_schemas` |   |   |
-| `mysqlsh_dump_tables` |   |   |
+| `mysql.shell.dumpSchemas` |   |   |
+| `mysql.shell.dumpTables` |   |   |
 
 ---
 
@@ -75,8 +75,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysqlsh_dump_schemas`
-- `mysqlsh_dump_tables`
+- `mysql.shell.dumpSchemas`
+- `mysql.shell.dumpTables`
 
 
 ## Group Focus: shell

@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_repair_table` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_flush_tables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_kill_query` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql_repair_table` |   |   |   |
+| `mysql_flush_tables` |   |   |   |
+| `mysql_kill_query` |   |   |   |
 
 ---
 

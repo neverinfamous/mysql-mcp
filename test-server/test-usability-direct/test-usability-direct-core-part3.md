@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_create_index` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_get_indexes` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_enable_versioning` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql_create_index` |   |   |   |
+| `mysql_get_indexes` |   |   |   |
+| `mysql_enable_versioning` |   |   |   |
 
 ---
 

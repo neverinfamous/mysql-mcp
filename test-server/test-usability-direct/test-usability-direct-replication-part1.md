@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_master_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_slave_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_binlog_events` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql_master_status` |   |   |   |
+| `mysql_slave_status` |   |   |   |
+| `mysql_binlog_events` |   |   |   |
 
 ---
 

@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `proxysql_global_variables` |   |   |
-| `proxysql_runtime_status` |   |   |
-| `proxysql_memory_stats` |   |   |
+| `mysql.proxysql.globalVariables` |   |   |
+| `mysql.proxysql.runtimeStatus` |   |   |
+| `mysql.proxysql.memoryStats` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_global_variables`
-- `proxysql_runtime_status`
-- `proxysql_memory_stats`
+- `mysql.proxysql.globalVariables`
+- `mysql.proxysql.runtimeStatus`
+- `mysql.proxysql.memoryStats`
 
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)

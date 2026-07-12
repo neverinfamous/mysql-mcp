@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_soundex` |   |   |
-| `mysql_substring` |   |   |
-| `mysql_concat` |   |   |
+| `mysql.text.soundex` |   |   |
+| `mysql.text.substring` |   |   |
+| `mysql.text.concat` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_soundex`
-- `mysql_substring`
-- `mysql_concat`
+- `mysql.text.soundex`
+- `mysql.text.substring`
+- `mysql.text.concat`
 
 
 ## Tasks

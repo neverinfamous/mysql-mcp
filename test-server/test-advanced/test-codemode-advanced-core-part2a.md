@@ -66,8 +66,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_create_index` |   |   |
-| `mysql_get_indexes` |   |   |
+| `mysql.core.createIndex` |   |   |
+| `mysql.core.getIndexes` |   |   |
 
 ---
 
@@ -75,8 +75,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_create_index`
-- `mysql_get_indexes`
+- `mysql.core.createIndex`
+- `mysql.core.getIndexes`
 
 
 ## Tasks

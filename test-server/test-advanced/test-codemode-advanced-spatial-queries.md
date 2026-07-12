@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_spatial_contains` |   |   |
-| `mysql_spatial_within` |   |   |
-| `mysql_spatial_intersection` |   |   |
+| `mysql.spatial.contains` |   |   |
+| `mysql.spatial.within` |   |   |
+| `mysql.spatial.intersection` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_spatial_contains`
-- `mysql_spatial_within`
-- `mysql_spatial_intersection`
+- `mysql.spatial.contains`
+- `mysql.spatial.within`
+- `mysql.spatial.intersection`
 
 
 ## Group Focus: spatial

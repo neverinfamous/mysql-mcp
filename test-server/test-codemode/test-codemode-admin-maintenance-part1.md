@@ -66,12 +66,12 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_optimize_table` |   |   |
-| `mysql_analyze_table` |   |   |
-| `mysql_check_table` |   |   |
-| `mysql_repair_table` |   |   |
-| `mysql_flush_tables` |   |   |
-| `mysql_kill_query` |   |   |
+| `mysql.admin.optimizeTable` |   |   |
+| `mysql.admin.analyzeTable` |   |   |
+| `mysql.admin.checkTable` |   |   |
+| `mysql.admin.repairTable` |   |   |
+| `mysql.admin.flushTables` |   |   |
+| `mysql.admin.killQuery` |   |   |
 
 ---
 
@@ -79,12 +79,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_optimize_table`
-- `mysql_analyze_table`
-- `mysql_check_table`
-- `mysql_repair_table`
-- `mysql_flush_tables`
-- `mysql_kill_query`
+- `mysql.admin.optimizeTable`
+- `mysql.admin.analyzeTable`
+- `mysql.admin.checkTable`
+- `mysql.admin.repairTable`
+- `mysql.admin.flushTables`
+- `mysql.admin.killQuery`
 
 
 ## Group Focus: admin

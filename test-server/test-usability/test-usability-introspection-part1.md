@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_dependency_graph` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_topological_sort` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_cascade_simulator` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql.introspection.dependencyGraph` |   |   |   |
+| `mysql.introspection.topologicalSort` |   |   |   |
+| `mysql.introspection.cascadeSimulator` |   |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_dependency_graph`
-- `mysql_topological_sort`
-- `mysql_cascade_simulator`
+- `mysql.introspection.dependencyGraph`
+- `mysql.introspection.topologicalSort`
+- `mysql.introspection.cascadeSimulator`
 
 
 

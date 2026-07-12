@@ -66,8 +66,8 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysqlsh_version` |   |   |
-| `mysqlsh_check_upgrade` |   |   |
+| `mysql.shell.version` |   |   |
+| `mysql.shell.checkUpgrade` |   |   |
 
 ---
 
@@ -75,8 +75,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysqlsh_version`
-- `mysqlsh_check_upgrade`
+- `mysql.shell.version`
+- `mysql.shell.checkUpgrade`
 
 
 ## Tasks

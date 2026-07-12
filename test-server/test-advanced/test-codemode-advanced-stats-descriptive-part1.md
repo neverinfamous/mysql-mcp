@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_stats_descriptive` |   |   |
-| `mysql_stats_percentiles` |   |   |
-| `mysql_stats_summary` |   |   |
+| `mysql.stats.descriptive` |   |   |
+| `mysql.stats.percentiles` |   |   |
+| `mysql.stats.summary` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_descriptive`
-- `mysql_stats_percentiles`
-- `mysql_stats_summary`
+- `mysql.stats.descriptive`
+- `mysql.stats.percentiles`
+- `mysql.stats.summary`
 
 
 ## Category 1: Null & String Handling Boundaries

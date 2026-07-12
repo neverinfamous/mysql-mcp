@@ -66,12 +66,12 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_stats_row_number` |   |   |
-| `mysql_stats_rank` |   |   |
-| `mysql_stats_lag_lead` |   |   |
-| `mysql_stats_running_total` |   |   |
-| `mysql_stats_moving_avg` |   |   |
-| `mysql_stats_ntile` |   |   |
+| `mysql.stats.rowNumber` |   |   |
+| `mysql.stats.rank` |   |   |
+| `mysql.stats.lagLead` |   |   |
+| `mysql.stats.runningTotal` |   |   |
+| `mysql.stats.movingAvg` |   |   |
+| `mysql.stats.ntile` |   |   |
 
 ---
 
@@ -79,12 +79,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_row_number`
-- `mysql_stats_rank`
-- `mysql_stats_lag_lead`
-- `mysql_stats_running_total`
-- `mysql_stats_moving_avg`
-- `mysql_stats_ntile`
+- `mysql.stats.rowNumber`
+- `mysql.stats.rank`
+- `mysql.stats.lagLead`
+- `mysql.stats.runningTotal`
+- `mysql.stats.movingAvg`
+- `mysql.stats.ntile`
 
 
 ## Group Focus: stats

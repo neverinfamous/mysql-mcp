@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_fulltext_create` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_fulltext_drop` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_fulltext_search` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql.fulltext.fulltextCreate` |   |   |   |
+| `mysql.fulltext.fulltextDrop` |   |   |   |
+| `mysql.fulltext.fulltextSearch` |   |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_fulltext_create`
-- `mysql_fulltext_drop`
-- `mysql_fulltext_search`
+- `mysql.fulltext.fulltextCreate`
+- `mysql.fulltext.fulltextDrop`
+- `mysql.fulltext.fulltextSearch`
 
 
 

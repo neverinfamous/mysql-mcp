@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_regexp_match` |   |   |
-| `mysql_like_search` |   |   |
-| `mysql_collation_convert` |   |   |
+| `mysql.text.regexpMatch` |   |   |
+| `mysql.text.likeSearch` |   |   |
+| `mysql.text.collationConvert` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_regexp_match`
-- `mysql_like_search`
-- `mysql_collation_convert`
+- `mysql.text.regexpMatch`
+- `mysql.text.likeSearch`
+- `mysql.text.collationConvert`
 
 
 ## Category 1: Regex Edge Cases

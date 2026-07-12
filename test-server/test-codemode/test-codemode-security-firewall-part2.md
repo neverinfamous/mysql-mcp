@@ -66,9 +66,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_security_ssl_status` |   |   |
-| `mysql_security_encryption_status` |   |   |
-| `mysql_security_password_validate` |   |   |
+| `mysql.security.sslStatus` |   |   |
+| `mysql.security.encryptionStatus` |   |   |
+| `mysql.security.passwordValidate` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_ssl_status`
-- `mysql_security_encryption_status`
-- `mysql_security_password_validate`
+- `mysql.security.sslStatus`
+- `mysql.security.encryptionStatus`
+- `mysql.security.passwordValidate`
 
 
 ## Group Focus: security

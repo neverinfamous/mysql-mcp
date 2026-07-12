@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_vector_store` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_vector_batch_store` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_vector_delete` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql.vector.vectorStore` |   |   |   |
+| `mysql.vector.vectorBatchStore` |   |   |   |
+| `mysql.vector.vectorDelete` |   |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_vector_store`
-- `mysql_vector_batch_store`
-- `mysql_vector_delete`
+- `mysql.vector.vectorStore`
+- `mysql.vector.vectorBatchStore`
+- `mysql.vector.vectorDelete`
 
 
 

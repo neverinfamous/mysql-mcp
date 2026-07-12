@@ -66,11 +66,11 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_spatial_point` |   |   |
-| `mysql_spatial_polygon` |   |   |
-| `mysql_spatial_geojson` |   |   |
-| `mysql_spatial_create_column` |   |   |
-| `mysql_spatial_create_index` |   |   |
+| `mysql.spatial.point` |   |   |
+| `mysql.spatial.polygon` |   |   |
+| `mysql.spatial.geojson` |   |   |
+| `mysql.spatial.createColumn` |   |   |
+| `mysql.spatial.createIndex` |   |   |
 
 ---
 
@@ -78,11 +78,11 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_spatial_point`
-- `mysql_spatial_polygon`
-- `mysql_spatial_geojson`
-- `mysql_spatial_create_column`
-- `mysql_spatial_create_index`
+- `mysql.spatial.point`
+- `mysql.spatial.polygon`
+- `mysql.spatial.geojson`
+- `mysql.spatial.createColumn`
+- `mysql.spatial.createIndex`
 
 
 ## Group Focus: spatial

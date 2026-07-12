@@ -65,10 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_security_user_privileges` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_security_sensitive_tables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_security_encryption_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|
+| `mysql.security.userPrivileges` |   |   |   |
+| `mysql.security.sensitiveTables` |   |   |   |
+| `mysql.security.encryptionStatus` |   |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_user_privileges`
-- `mysql_security_sensitive_tables`
-- `mysql_security_encryption_status`
+- `mysql.security.userPrivileges`
+- `mysql.security.sensitiveTables`
+- `mysql.security.encryptionStatus`
 
 
 

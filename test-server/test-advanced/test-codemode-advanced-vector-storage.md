@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_vector_create_index` |   |   |
-| `mysql_vector_optimize` |   |   |
-| `mysql_vector_stats` |   |   |
+| `mysql.vector.vectorCreateIndex` |   |   |
+| `mysql.vector.vectorOptimize` |   |   |
+| `mysql.vector.vectorStats` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_vector_create_index`
-- `mysql_vector_optimize`
-- `mysql_vector_stats`
+- `mysql.vector.vectorCreateIndex`
+- `mysql.vector.vectorOptimize`
+- `mysql.vector.vectorStats`
 
 
 ## Group Focus: vector

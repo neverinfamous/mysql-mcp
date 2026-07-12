@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `proxysql_status` |   |   |
-| `proxysql_servers` |   |   |
-| `proxysql_query_rules` |   |   |
+| `mysql.proxysql.status` |   |   |
+| `mysql.proxysql.servers` |   |   |
+| `mysql.proxysql.queryRules` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_status`
-- `proxysql_servers`
-- `proxysql_query_rules`
+- `mysql.proxysql.status`
+- `mysql.proxysql.servers`
+- `mysql.proxysql.queryRules`
 
 
 ## Category 1: Graceful Degradation (No-ProxySQL Environment)

@@ -66,9 +66,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_stats_correlation` |   |   |
-| `mysql_stats_time_series` |   |   |
-| `mysql_stats_regression` |   |   |
+| `mysql.stats.correlation` |   |   |
+| `mysql.stats.timeSeries` |   |   |
+| `mysql.stats.regression` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_correlation`
-- `mysql_stats_time_series`
-- `mysql_stats_regression`
+- `mysql.stats.correlation`
+- `mysql.stats.timeSeries`
+- `mysql.stats.regression`
 
 
 ## Group Focus: stats

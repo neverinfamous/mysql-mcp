@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysqlsh_export_table` |   |   |
-| `mysqlsh_import_table` |   |   |
-| `mysqlsh_import_json` |   |   |
+| `mysql.shell.exportTable` |   |   |
+| `mysql.shell.importTable` |   |   |
+| `mysql.shell.importJson` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysqlsh_export_table`
-- `mysqlsh_import_table`
-- `mysqlsh_import_json`
+- `mysql.shell.exportTable`
+- `mysql.shell.importTable`
+- `mysql.shell.importJson`
 
 
 ## Category 1: Graceful Degradation (No MySQL Shell)

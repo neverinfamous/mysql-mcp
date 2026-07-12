@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_security_ssl_status` |   |   |
-| `mysql_security_user_privileges` |   |   |
-| `mysql_security_sensitive_tables` |   |   |
+| `mysql.security.sslStatus` |   |   |
+| `mysql.security.userPrivileges` |   |   |
+| `mysql.security.sensitiveTables` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_ssl_status`
-- `mysql_security_user_privileges`
-- `mysql_security_sensitive_tables`
+- `mysql.security.sslStatus`
+- `mysql.security.userPrivileges`
+- `mysql.security.sensitiveTables`
 
 
 ## Tasks

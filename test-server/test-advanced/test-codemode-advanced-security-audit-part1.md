@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_security_audit` |   |   |
-| `mysql_security_firewall_status` |   |   |
-| `mysql_security_firewall_rules` |   |   |
+| `mysql.security.audit` |   |   |
+| `mysql.security.firewallStatus` |   |   |
+| `mysql.security.firewallRules` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_audit`
-- `mysql_security_firewall_status`
-- `mysql_security_firewall_rules`
+- `mysql.security.audit`
+- `mysql.security.firewallStatus`
+- `mysql.security.firewallRules`
 
 
 ## Category 1: Password Validation Boundaries

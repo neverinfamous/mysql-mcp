@@ -66,9 +66,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql_json_search` |   |   |
-| `mysql_json_validate` |   |   |
-| `mysql_json_merge` |   |   |
+| `mysql.json.search` |   |   |
+| `mysql.json.validate` |   |   |
+| `mysql.json.merge` |   |   |
 
 ---
 
@@ -76,9 +76,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_json_search`
-- `mysql_json_validate`
-- `mysql_json_merge`
+- `mysql.json.search`
+- `mysql.json.validate`
+- `mysql.json.merge`
 
 
 ## Group Focus: json

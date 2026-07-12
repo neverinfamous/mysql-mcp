@@ -66,13 +66,13 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql_create_view` |   |   |
-| `mysql_drop_view` |   |   |
-| `mysql_list_constraints` |   |   |
-| `mysql_list_schemas` |   |   |
-| `mysql_create_schema` |   |   |
-| `mysql_drop_schema` |   |   |
-| `mysql_list_views` |   |   |
+| `mysql.schema.createView` |   |   |
+| `mysql.schema.dropView` |   |   |
+| `mysql.schema.listConstraints` |   |   |
+| `mysql.schema.listSchemas` |   |   |
+| `mysql.schema.createSchema` |   |   |
+| `mysql.schema.dropSchema` |   |   |
+| `mysql.schema.listViews` |   |   |
 
 ---
 
@@ -80,13 +80,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_create_view`
-- `mysql_drop_view`
-- `mysql_list_constraints`
-- `mysql_list_schemas`
-- `mysql_create_schema`
-- `mysql_drop_schema`
-- `mysql_list_views`
+- `mysql.schema.createView`
+- `mysql.schema.dropView`
+- `mysql.schema.listConstraints`
+- `mysql.schema.listSchemas`
+- `mysql.schema.createSchema`
+- `mysql.schema.dropSchema`
+- `mysql.schema.listViews`
 
 
 ## Group Focus: schema

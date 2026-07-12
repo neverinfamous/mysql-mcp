@@ -196,7 +196,7 @@ function processDirectory(dirName) {
         const tools = toolMap[file];
         explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n` + tools.map(t => `- \`${t}\``).join("\n") + "\n";
         
-        const colCount = coverageMatrix.split("|").length - 2;
+        const colCount = coverageMatrix.split("\n")[0].split("|").length - 2;
         const emptyCols = Array(colCount - 1).fill("   ").join("|");
         const divider = "|" + Array(colCount).fill("---").join("|") + "|";
         const rows = tools.map(t => `| \`${t}\` |${emptyCols}|`);
@@ -273,15 +273,19 @@ function processDirectory(dirName) {
       if (gName === "codemode") return;
       tools.forEach(toolName => {
         const codeModeName = getCodeModeName(toolName, gName);
-        if (dirName === 'test-codemode' || dirName === 'test-advanced' || dirName === 'test-usability') {
+        if (dirName === 'test-codemode' || dirName === 'test-usability' || (dirName === 'test-advanced' && !groupName.startsWith('sessions'))) {
           // Replace both raw tool name and dotted alias variants to the canonical Code Mode method
           const regex1 = new RegExp(`(?<!\\.)\\b${toolName}\\b`, 'g');
           const regex2 = new RegExp(`mysql\\.${toolName.replace(/^mysql_/, "")}\\b`, 'g');
           testContent = testContent.replace(regex1, codeModeName).replace(regex2, codeModeName);
+          explicitToolsList = explicitToolsList.replace(regex1, codeModeName).replace(regex2, codeModeName);
+          coverageMatrix = coverageMatrix.replace(regex1, codeModeName).replace(regex2, codeModeName);
         } else {
           // Reverse Code Mode transformations back to raw tool names
           const regex = new RegExp(codeModeName.replace(/\\./g, '\\\\.'), 'g');
           testContent = testContent.replace(regex, toolName);
+          explicitToolsList = explicitToolsList.replace(regex, toolName);
+          coverageMatrix = coverageMatrix.replace(regex, toolName);
         }
       });
     });
@@ -464,7 +468,10 @@ function processDirectory(dirName) {
       // Fix sys-analysis numbering gaps and Zod error
       .replace(/10\. 🔴 `mysql\.sysschema\.schemaStats/g, "6. 🔴 `mysql.sysschema.schemaStats")
       .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary\(\{ limit: "abc" \}\)/g, "7. 🔴 `mysql.sysschema.statementSummary({ orderBy: 123 })")
-      .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary/g, "7. 🔴 `mysql.sysschema.statementSummary");
+      .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary/g, "7. 🔴 `mysql.sysschema.statementSummary")
+      // Remove hallucinated tasks
+      .replace(/- \[ \] Ensure full coverage for mysql\.backup\.auditListBackups\r?\n?/g, "")
+      .replace(/- \[ \] Ensure full coverage for mysql\.backup\.auditRestoreBackup\r?\n?/g, "");
 
     const newContent = getTemplate(
       titleType,

@@ -81,7 +81,7 @@
 
 ## Category 1: Sessions (Part 2)\n\n### Step 4: Validate Ongoing Communication
 
-Use the established session to execute a simple tool (e.g., `mysql.core.readQuery` or `mysql.monitoring.showStatus`).
+Use the established session to execute a simple tool (e.g., `mysql_read_query` or `mysql_show_status`).
 
 **Expected Result**:
 The tool executes successfully, proving the session is active and functional. The `SessionManager.touch()` method is implicitly called during this request.
