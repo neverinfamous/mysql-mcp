@@ -74,6 +74,7 @@ node scripts/recreate-test-ecosystem.mjs
 ## 6. Configurations
 
 All config files are mounted directly from the `config/` directory:
+- `config/mysql/`: Contains `init.sql` which bootstraps initial users and dynamically installs the `validate_password` component to support MCP security tool testing.
 - `config/proxysql/`: `proxysql.cnf`
 - `config/prometheus/`: `prometheus.yml`
 - `config/grafana/`: Dashboards and provisioning files.

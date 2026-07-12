@@ -174,10 +174,11 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 
 > **System metrics on WSL2:** Metrics represent the WSL2 Linux VM (not Windows directly). Since all workloads run inside this VM, these metrics accurately reflect the compute environment.
 
-### MySQL 9.x Observability Flags
+### MySQL 9.x Observability & Config Flags
 
 - **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
 - **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
 - **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.
+- **`validate_password` Component**: The `init.sql` script dynamically installs the `validate_password` component at startup to support MCP security tool testing (`mysql.security.passwordValidate`).
 - **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.
 - **MySQL Router**: Connection sharing for the read-only bootstrap pool is explicitly enabled (`bootstrap_ro.connection_sharing=1`) to prevent connection exhaustion during concurrent MCP testing.
