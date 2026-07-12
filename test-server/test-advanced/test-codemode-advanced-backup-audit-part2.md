@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_audit_diff_backup` |   |   |   |   |   |   |   |   |   |   |
-| `mysql_restore_dump` |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_audit_diff_backup` |   |   |
+| `mysql_restore_dump` |   |   |
 
 ---
 

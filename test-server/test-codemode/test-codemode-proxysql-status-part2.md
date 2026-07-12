@@ -65,14 +65,14 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `proxysql_memory_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_process_list` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_query_digest` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_servers` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_connection_pool` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `proxysql_runtime_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `proxysql_memory_stats` |   |   |
+| `proxysql_process_list` |   |   |
+| `proxysql_query_digest` |   |   |
+| `proxysql_status` |   |   |
+| `proxysql_servers` |   |   |
+| `proxysql_connection_pool` |   |   |
+| `proxysql_runtime_status` |   |   |
 
 ---
 

@@ -54,7 +54,7 @@ function processDirectory(dirName) {
     );
 
   for (const file of files) {
-    if (file === "coordinator-workflow.md" || !file.endsWith(".md")) continue;
+    if (file.startsWith("coordinator-workflow") || !file.endsWith(".md")) continue;
     const filePath = path.join(dirPath, file);
     let content = fs.readFileSync(filePath, "utf-8");
 

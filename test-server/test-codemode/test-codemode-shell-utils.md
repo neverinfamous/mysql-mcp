@@ -65,10 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysqlsh_load_dump` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysqlsh_run_script` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysqlsh_checkUpgrade` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysqlsh_load_dump` |   |   |
+| `mysqlsh_run_script` |   |   |
 
 ---
 
@@ -78,7 +77,6 @@
 
 - `mysqlsh_load_dump`
 - `mysqlsh_run_script`
-- `mysqlsh_checkUpgrade`
 
 
 ## Group Focus: shell

@@ -65,11 +65,11 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_spatial_buffer` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_spatial_transform` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_audit_list_backups` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_audit_restore_backup` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_spatial_buffer` |   |   |
+| `mysql_spatial_transform` |   |   |
+| `mysql_audit_list_backups` |   |   |
+| `mysql_audit_restore_backup` |   |   |
 
 ---
 

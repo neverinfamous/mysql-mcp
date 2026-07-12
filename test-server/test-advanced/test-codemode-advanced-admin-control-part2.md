@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_repair_table` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_flush_tables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_repair_table` |   |   |
+| `mysql_flush_tables` |   |   |
 
 ---
 

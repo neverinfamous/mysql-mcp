@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_cluster_router_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_cluster_switchover` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_cluster_router_status` |   |   |
+| `mysql_cluster_switchover` |   |   |
 
 ---
 

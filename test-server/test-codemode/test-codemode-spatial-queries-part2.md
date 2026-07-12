@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_spatial_contains` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_spatial_within` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_spatial_contains` |   |   |
+| `mysql_spatial_within` |   |   |
 
 ---
 

@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_router_route_destinations` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_router_route_blocked_hosts` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_router_route_destinations` |   |   |
+| `mysql_router_route_blocked_hosts` |   |   |
 
 ---
 

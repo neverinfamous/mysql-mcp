@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_json_merge` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_json_diff` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_json_merge` |   |   |
+| `mysql_json_diff` |   |   |
 
 ---
 

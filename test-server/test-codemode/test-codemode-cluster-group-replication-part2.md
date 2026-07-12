@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_gr_transactions` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_gr_flow_control` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_gr_transactions` |   |   |
+| `mysql_gr_flow_control` |   |   |
 
 ---
 

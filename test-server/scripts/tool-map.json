@@ -653,8 +653,7 @@
   ],
   "test-codemode-shell-utils.md": [
     "mysqlsh_load_dump",
-    "mysqlsh_run_script",
-    "mysqlsh_checkUpgrade"
+    "mysqlsh_run_script"
   ],
   "test-codemode-spatial-geometry.md": [
     "mysql_spatial_point",
@@ -1527,15 +1526,17 @@
   ],
   "test-usability-backup-part2.md": [
     "mysql_restore_dump",
-    "mysql_audit_list_backups"
+    "mysql_audit_list_backups",
+    "mysql_audit_restore_backup"
   ],
   "test-usability-direct-backup-part2.md": [
     "mysql_restore_dump",
-    "mysql_audit_list_backups"
+    "mysql_audit_list_backups",
+    "mysql_audit_restore_backup"
   ],
   "test-usability-backup-part3.md": [
-    "mysql_audit_restore_backup",
-    "mysql_audit_diff_backup"
+    "mysql_audit_diff_backup",
+    "mysql_audit_restore_backup"
   ],
   "test-usability-direct-backup-part3.md": [
     "mysql_audit_restore_backup",
@@ -1563,22 +1564,21 @@
   ],
   "test-usability-cluster-part3.md": [
     "mysql_cluster_instances",
-    "mysql_cluster_topology"
+    "mysql_cluster_topology",
+    "mysql_cluster_router_status"
   ],
   "test-usability-direct-cluster-part3.md": [
     "mysql_cluster_instances",
-    "mysql_cluster_topology"
+    "mysql_cluster_topology",
+    "mysql_cluster_router_status"
   ],
   "test-usability-cluster-part4.md": [
-    "mysql_cluster_router_status",
-    "mysql_cluster_switchover"
+    "mysql_cluster_switchover",
+    "mysql_cluster_router_status"
   ],
   "test-usability-direct-cluster-part4.md": [
     "mysql_cluster_router_status",
     "mysql_cluster_switchover"
-  ],
-  "test-usability-codemode.md": [
-    "mysql_execute_code"
   ],
   "test-usability-direct-codemode.md": [
     "mysql_execute_code"
@@ -1801,15 +1801,17 @@
   ],
   "test-usability-monitoring-part2.md": [
     "mysql_innodb_status",
-    "mysql_replication_status"
+    "mysql_replication_status",
+    "mysql_pool_stats"
   ],
   "test-usability-direct-monitoring-part2.md": [
     "mysql_innodb_status",
-    "mysql_replication_status"
+    "mysql_replication_status",
+    "mysql_pool_stats"
   ],
   "test-usability-monitoring-part3.md": [
-    "mysql_pool_stats",
-    "mysql_server_health"
+    "mysql_server_health",
+    "mysql_pool_stats"
   ],
   "test-usability-direct-monitoring-part3.md": [
     "mysql_pool_stats",
@@ -1817,15 +1819,17 @@
   ],
   "test-usability-optimization-part1.md": [
     "mysql_index_recommendation",
-    "mysql_query_rewrite"
+    "mysql_query_rewrite",
+    "mysql_force_index"
   ],
   "test-usability-direct-optimization-part1.md": [
     "mysql_index_recommendation",
-    "mysql_query_rewrite"
+    "mysql_query_rewrite",
+    "mysql_force_index"
   ],
   "test-usability-optimization-part2.md": [
-    "mysql_force_index",
-    "mysql_optimizer_trace"
+    "mysql_optimizer_trace",
+    "mysql_force_index"
   ],
   "test-usability-direct-optimization-part2.md": [
     "mysql_force_index",
@@ -1833,15 +1837,17 @@
   ],
   "test-usability-partitioning-part1.md": [
     "mysql_partition_info",
-    "mysql_add_partition"
+    "mysql_add_partition",
+    "mysql_drop_partition"
   ],
   "test-usability-direct-partitioning-part1.md": [
     "mysql_partition_info",
-    "mysql_add_partition"
+    "mysql_add_partition",
+    "mysql_drop_partition"
   ],
   "test-usability-partitioning-part2.md": [
-    "mysql_drop_partition",
-    "mysql_reorganize_partition"
+    "mysql_reorganize_partition",
+    "mysql_drop_partition"
   ],
   "test-usability-direct-partitioning-part2.md": [
     "mysql_drop_partition",
@@ -2091,15 +2097,17 @@
   ],
   "test-usability-shell-part3.md": [
     "mysqlsh_dump_schemas",
-    "mysqlsh_dump_tables"
+    "mysqlsh_dump_tables",
+    "mysqlsh_load_dump"
   ],
   "test-usability-direct-shell-part3.md": [
     "mysqlsh_dump_schemas",
-    "mysqlsh_dump_tables"
+    "mysqlsh_dump_tables",
+    "mysqlsh_load_dump"
   ],
   "test-usability-shell-part4.md": [
-    "mysqlsh_load_dump",
-    "mysqlsh_run_script"
+    "mysqlsh_run_script",
+    "mysqlsh_load_dump"
   ],
   "test-usability-direct-shell-part4.md": [
     "mysqlsh_load_dump",
@@ -2273,15 +2281,17 @@
   ],
   "test-usability-transactions-part2.md": [
     "mysql_transaction_savepoint",
-    "mysql_transaction_release"
+    "mysql_transaction_release",
+    "mysql_transaction_rollback_to"
   ],
   "test-usability-direct-transactions-part2.md": [
     "mysql_transaction_savepoint",
-    "mysql_transaction_release"
+    "mysql_transaction_release",
+    "mysql_transaction_rollback_to"
   ],
   "test-usability-transactions-part3.md": [
-    "mysql_transaction_rollback_to",
-    "mysql_transaction_execute"
+    "mysql_transaction_execute",
+    "mysql_transaction_rollback_to"
   ],
   "test-usability-direct-transactions-part3.md": [
     "mysql_transaction_rollback_to",

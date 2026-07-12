@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_security_firewall_status` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_security_firewall_rules` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_security_firewall_status` |   |   |
+| `mysql_security_firewall_rules` |   |   |
 
 ---
 

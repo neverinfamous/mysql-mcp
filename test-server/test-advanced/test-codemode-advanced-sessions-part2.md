@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Endpoint | Focus Area | HTTP Validation |
-|---|---|---|---|---|---|---|
-| `mysql_read_query` |   |   |   |   |   |   |
-| `mysql_show_status` |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_read_query` |   |   |
+| `mysql_show_status` |   |   |
 
 ---
 

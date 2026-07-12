@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_create_trigger` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_drop_trigger` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_create_trigger` |   |   |
+| `mysql_drop_trigger` |   |   |
 
 ---
 

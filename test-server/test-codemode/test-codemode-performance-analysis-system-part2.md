@@ -65,13 +65,13 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_buffer_pool_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_thread_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_explain` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_explain_analyze` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_slow_queries` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_query_stats` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_buffer_pool_stats` |   |   |
+| `mysql_thread_stats` |   |   |
+| `mysql_explain` |   |   |
+| `mysql_explain_analyze` |   |   |
+| `mysql_slow_queries` |   |   |
+| `mysql_query_stats` |   |   |
 
 ---
 

@@ -65,8 +65,8 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_router_pool_status` |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_router_pool_status` |   |   |
 
 ---
 

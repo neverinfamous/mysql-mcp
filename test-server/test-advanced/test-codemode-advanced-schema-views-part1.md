@@ -65,11 +65,11 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_list_views` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_create_view` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_audit_list_backups` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_audit_restore_backup` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_list_views` |   |   |
+| `mysql_create_view` |   |   |
+| `mysql_audit_list_backups` |   |   |
+| `mysql_audit_restore_backup` |   |   |
 
 ---
 

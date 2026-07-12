@@ -65,9 +65,10 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysqlsh_dump_schemas` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysqlsh_dump_tables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| `mysqlsh_dump_schemas` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysqlsh_dump_tables` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+| `mysqlsh_load_dump` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
 
 ---
 
@@ -77,6 +78,7 @@
 
 - `mysqlsh_dump_schemas`
 - `mysqlsh_dump_tables`
+- `mysqlsh_load_dump`
 
 
 

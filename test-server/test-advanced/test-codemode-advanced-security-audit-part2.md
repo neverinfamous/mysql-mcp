@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_security_mask_data` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_security_password_validate` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_security_mask_data` |   |   |
+| `mysql_security_password_validate` |   |   |
 
 ---
 

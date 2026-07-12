@@ -65,9 +65,9 @@
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Focus Area | Code Mode Validation |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| `mysql_create_index` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
-| `mysql_get_indexes` |   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+|---|---|---|
+| `mysql_create_index` |   |   |
+| `mysql_get_indexes` |   |   |
 
 ---
 
