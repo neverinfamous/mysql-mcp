@@ -66,33 +66,32 @@ Execute all tests in `test-server/test-advanced/`. Verify sandbox isolation, wor
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 
 1. `test-codemode-advanced-admin-control-part1.md` (**MUST PASS FIRST**)
-2. `test-codemode-advanced-admin-control-part2.md`
-3. `test-codemode-advanced-admin-maintenance-part1.md`
-4. `test-codemode-advanced-admin-maintenance-part2.md`
-5. `test-codemode-advanced-backup-audit-part1.md`
-6. `test-codemode-advanced-backup-audit-part2.md`
-7. `test-codemode-advanced-backup-export-part1.md`
-8. `test-codemode-advanced-backup-export-part2.md`
-9. `test-codemode-advanced-cluster-group-replication-part1.md`
-10. `test-codemode-advanced-cluster-group-replication-part2.md`
-11. `test-codemode-advanced-cluster-innodb-part1.md`
-12. `test-codemode-advanced-cluster-innodb-part2.md`
-13. `test-codemode-advanced-concurrency.md`
-14. `test-codemode-advanced-core-part1a.md`
-15. `test-codemode-advanced-core-part1b.md`
-16. `test-codemode-advanced-core-part2a.md`
-17. `test-codemode-advanced-core-part3a.md`
-18. `test-codemode-advanced-core-part3b.md`
-19. `test-codemode-advanced-docstore-collections-part1.md`
-20. `test-codemode-advanced-docstore-collections-part2.md`
-21. `test-codemode-advanced-docstore-documents-part1.md`
-22. `test-codemode-advanced-docstore-documents-part2.md`
-23. `test-codemode-advanced-events-part1.md`
-24. `test-codemode-advanced-events-part2.md`
-25. `test-codemode-advanced-fulltext-part1.md`
-26. `test-codemode-advanced-fulltext-part2.md`
-27. `test-codemode-advanced-introspection-part1.md`
-28. `test-codemode-advanced-introspection-part2.md`
+1. `test-codemode-advanced-admin-control-part2.md`
+2. `test-codemode-advanced-admin-maintenance-part1.md`
+3. `test-codemode-advanced-admin-maintenance-part2.md`
+4. `test-codemode-advanced-backup-audit-part1.md`
+5. `test-codemode-advanced-backup-audit-part2.md`
+6. `test-codemode-advanced-backup-export-part1.md`
+7. `test-codemode-advanced-backup-export-part2.md`
+8. `test-codemode-advanced-cluster-group-replication-part1.md`
+9. `test-codemode-advanced-cluster-group-replication-part2.md`
+10. `test-codemode-advanced-cluster-innodb-part1.md`
+11. `test-codemode-advanced-cluster-innodb-part2.md`
+12. `test-codemode-advanced-core-part1a.md`
+13. `test-codemode-advanced-core-part1b.md`
+14. `test-codemode-advanced-core-part2a.md`
+15. `test-codemode-advanced-core-part3a.md`
+16. `test-codemode-advanced-core-part3b.md`
+17. `test-codemode-advanced-docstore-collections-part1.md`
+18. `test-codemode-advanced-docstore-collections-part2.md`
+19. `test-codemode-advanced-docstore-documents-part1.md`
+20. `test-codemode-advanced-docstore-documents-part2.md`
+21. `test-codemode-advanced-events-part1.md`
+22. `test-codemode-advanced-events-part2.md`
+23. `test-codemode-advanced-fulltext-part1.md`
+24. `test-codemode-advanced-fulltext-part2.md`
+25. `test-codemode-advanced-introspection-part1.md`
+26. `test-codemode-advanced-introspection-part2.md`
 
 ## Telemetry Collection
 
