@@ -115,7 +115,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 
 - **Audit Backup availability**: These interact with the Audit Subsystem's pre-mutation snapshots. If disabled, they return a \`CONFIGURATION_ERROR\`.
 - **List backups**: \`mysql_audit_list_backups\` has no required parameters, legitimately returns up to 5 latest backups. Use \`table\` parameter to filter.
-- **Diff backup**: \`mysql_audit_diff_backup\` provides a row-level differential. If the table was dropped, it safely returns a placeholder string. Returns \`{ success: false, error }\` for invalid \`backupId\`. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`. Aliases: \`diff\`, \`auditDiff\`, \`diffBackup\`.
+- **Diff backup**: \`mysql_audit_diff_backup\` provides a row-level differential. If the table was dropped, it safely returns a placeholder string. Returns \`{ success: false, error }\` for invalid \`filename\`. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`. Aliases: \`diff\`, \`auditDiff\`, \`diffBackup\`.
 - **Restore backup**: \`mysql_audit_restore_backup\` restores a specific table. Set \`dryRun: true\` (default) to safely view the DDL and DML of a snapshot before actually executing the restoration. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`.`],
   ["cluster", `# Cluster Tools (\`mysql_gr_status\`, \`mysql_gr_members\`, \`mysql_gr_primary\`, etc.)
 
@@ -170,7 +170,7 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Existence Checks**: Standard \`{ success: false, error: "..." }\` returned if target tables/databases don't exist.
 
 ### Index Management (\`mysql_create_index\`, \`mysql_get_indexes\`)
-- **Index creation**: \`mysql_create_index\` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types.
+- **Index creation**: \`mysql_create_index\` supports BTREE (default), HASH, and FULLTEXT types.
   - *Note*: InnoDB HASH is silently converted to BTREE. HASH only effective with MEMORY engine.
   - Supports \`ifNotExists: true\` to skip.
 - **Cross-Database**: All tools support qualified names (\`schema.table\`).
@@ -527,7 +527,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **User privileges**: \`mysql_security_user_privileges\` returns comprehensive user privilege report. Filter with \`user\` parameter to reduce payload. Returns \`{ exists: false, user }\` for nonexistent users (P154). Use \`summary: true\` for condensed output (privilege counts instead of raw GRANT strings). Summary mode caps \`globalPrivileges\` at 10 entries and includes \`totalGlobalPrivileges\` for the full count.
 - **Sensitive tables**: \`mysql_security_sensitive_tables\` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use \`schema\` parameter to limit scope. Returns \`{ exists: false, schema }\` for nonexistent schemas (P154).
 - **Enterprise features**: \`mysql_security_firewall_status\` and \`mysql_security_firewall_rules\` report availability and suggest installation for MySQL Enterprise Edition.
-- **Security Audit Log**: Queries MySQL's system audit logs for specific actions, users, or timeframes. Requires at least one filter (\`user\`, \`eventType\`, or \`startTime\`). Defaults to \`limit: 50\`. Falls back to \`performance_schema.events_statements_history\` when Enterprise Audit is unavailable. In fallback mode, \`startTime\` is ignored (picosecond counters incompatible with ISO timestamps — noted in \`filtersIgnored\`). \`eventType\` uses LIKE matching against \`EVENT_NAME\` (e.g., \`"Execute"\`, \`"Ping"\`).
+- **Security audit**: \`mysql_security_audit\` audits user privileges and settings.
 - **Anti-Hallucination**: For \`mysql_security_audit\` and \`mysql_security_firewall_rules\`, use the \`user\` parameter to filter by user (do not use \`username\`).
 
 ### Example: Data Masking
@@ -591,7 +591,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 **Encapsulated Tools**: \`mysql_stats_descriptive\`, \`mysql_stats_percentiles\`, \`mysql_stats_correlation\`, \`mysql_stats_distribution\`, \`mysql_stats_time_series\`, \`mysql_stats_regression\`, \`mysql_stats_sampling\`, \`mysql_stats_histogram\`, \`mysql_stats_row_number\`, \`mysql_stats_rank\`, \`mysql_stats_lag_lead\`, \`mysql_stats_running_total\`, \`mysql_stats_moving_avg\`, \`mysql_stats_ntile\`, \`mysql_stats_hypothesis\`, \`mysql_stats_outliers\`, \`mysql_stats_top_n\`, \`mysql_stats_distinct\`, \`mysql_stats_frequency\`, \`mysql_stats_summary\`
 - **Descriptive**: \`mysql_stats_descriptive\` (mean, median, stddev, min, max, count), \`mysql_stats_percentiles\` (custom percentiles), \`mysql_stats_distribution\` (histogram buckets), \`mysql_stats_time_series\` (aggregates by time interval), \`mysql_stats_sampling\` (random rows).
 - **Comparative**: \`mysql_stats_correlation\` (Pearson correlation), \`mysql_stats_regression\` (simple linear regression), \`mysql_stats_histogram\` (MySQL 8.0+ optimizer histograms, use \`update: true\` to refresh).
-- **Advanced**: \`mysql_stats_hypothesis\` (one-sample and two-sample t-tests or z-tests), \`mysql_stats_outliers\` (z-score/iqr outlier detection), \`mysql_stats_top_n\` (top N rows excluding long content), \`mysql_stats_distinct\` (distinct counts and values), \`mysql_stats_frequency\` (value frequency distribution), \`mysql_stats_summary\` (summary of multiple numeric columns).
+- **Advanced**: \`mysql_stats_hypothesis\` (T-Test/Chi-Square hypothesis testing), \`mysql_stats_outliers\` (z-score/iqr outlier detection), \`mysql_stats_top_n\` (top N rows excluding long content), \`mysql_stats_distinct\` (distinct counts and values), \`mysql_stats_frequency\` (value frequency distribution), \`mysql_stats_summary\` (summary of multiple numeric columns).
 - **Window**: \`mysql_stats_row_number\`, \`mysql_stats_rank\`, \`mysql_stats_lag_lead\`, \`mysql_stats_running_total\`, \`mysql_stats_moving_avg\`, \`mysql_stats_ntile\`.
 - **Error handling**: All stats tools return \`{ success: false, error: "...", code: "..." }\` when a table or column does not exist, or for Zod validation errors. No raw MySQL errors are thrown.
 

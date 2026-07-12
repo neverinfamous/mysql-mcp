@@ -17,7 +17,7 @@
 - **Existence Checks**: Standard `{ success: false, error: "..." }` returned if target tables/databases don't exist.
 
 ### Index Management (`mysql_create_index`, `mysql_get_indexes`)
-- **Index creation**: `mysql_create_index` supports BTREE (default), HASH, FULLTEXT, and SPATIAL types.
+- **Index creation**: `mysql_create_index` supports BTREE (default), HASH, and FULLTEXT types.
   - *Note*: InnoDB HASH is silently converted to BTREE. HASH only effective with MEMORY engine.
   - Supports `ifNotExists: true` to skip.
 - **Cross-Database**: All tools support qualified names (`schema.table`).

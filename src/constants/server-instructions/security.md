@@ -8,7 +8,7 @@
 - **User privileges**: `mysql_security_user_privileges` returns comprehensive user privilege report. Filter with `user` parameter to reduce payload. Returns `{ exists: false, user }` for nonexistent users (P154). Use `summary: true` for condensed output (privilege counts instead of raw GRANT strings). Summary mode caps `globalPrivileges` at 10 entries and includes `totalGlobalPrivileges` for the full count.
 - **Sensitive tables**: `mysql_security_sensitive_tables` identifies columns matching sensitive patterns (password, email, ssn, etc.). Use `schema` parameter to limit scope. Returns `{ exists: false, schema }` for nonexistent schemas (P154).
 - **Enterprise features**: `mysql_security_firewall_status` and `mysql_security_firewall_rules` report availability and suggest installation for MySQL Enterprise Edition.
-- **Security Audit Log**: Queries MySQL's system audit logs for specific actions, users, or timeframes. Requires at least one filter (`user`, `eventType`, or `startTime`). Defaults to `limit: 50`. Falls back to `performance_schema.events_statements_history` when Enterprise Audit is unavailable. In fallback mode, `startTime` is ignored (picosecond counters incompatible with ISO timestamps — noted in `filtersIgnored`). `eventType` uses LIKE matching against `EVENT_NAME` (e.g., `"Execute"`, `"Ping"`).
+- **Security audit**: `mysql_security_audit` audits user privileges and settings.
 - **Anti-Hallucination**: For `mysql_security_audit` and `mysql_security_firewall_rules`, use the `user` parameter to filter by user (do not use `username`).
 
 ### Example: Data Masking
