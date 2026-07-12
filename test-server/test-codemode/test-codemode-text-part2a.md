@@ -69,9 +69,6 @@
 | `mysql.text.substring` |   |   |
 | `mysql.text.concat` |   |   |
 | `mysql.text.collationConvert` |   |   |
-| `mysql.text.regexpMatch` |   |   |
-| `mysql.text.likeSearch` |   |   |
-| `mysql.text.soundex` |   |   |
 
 ---
 
@@ -82,9 +79,6 @@
 - `mysql.text.substring`
 - `mysql.text.concat`
 - `mysql.text.collationConvert`
-- `mysql.text.regexpMatch`
-- `mysql.text.likeSearch`
-- `mysql.text.soundex`
 
 
 ## Group Focus: text

@@ -69,8 +69,6 @@
 | `mysql.stats.hypothesis` |   |   |
 | `mysql.stats.outliers` |   |   |
 | `mysql.stats.distinct` |   |   |
-| `mysql.stats.distribution` |   |   |
-| `mysql.stats.timeSeries` |   |   |
 
 ---
 
@@ -81,8 +79,6 @@
 - `mysql.stats.hypothesis`
 - `mysql.stats.outliers`
 - `mysql.stats.distinct`
-- `mysql.stats.distribution`
-- `mysql.stats.timeSeries`
 
 
 ## Category 1: Frequency & Distinct Boundaries

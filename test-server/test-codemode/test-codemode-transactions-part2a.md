@@ -1,4 +1,4 @@
-# MySQL MCP Code Mode Testing: [events-part2]
+# MySQL MCP Code Mode Testing: [transactions-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -66,12 +66,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.events.eventList` |   |   |
-| `mysql.events.eventStatus` |   |   |
-| `mysql.events.schedulerStatus` |   |   |
-| `mysql.events.eventCreate` |   |   |
-| `mysql.events.eventAlter` |   |   |
-| `mysql.events.eventDrop` |   |   |
+| `mysql.transactions.transactionRelease` |   |   |
+| `mysql.transactions.transactionRollbackTo` |   |   |
+| `mysql.transactions.transactionExecute` |   |   |
 
 ---
 
@@ -79,15 +76,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.events.eventList`
-- `mysql.events.eventStatus`
-- `mysql.events.schedulerStatus`
-- `mysql.events.eventCreate`
-- `mysql.events.eventAlter`
-- `mysql.events.eventDrop`
+- `mysql.transactions.transactionRelease`
+- `mysql.transactions.transactionRollbackTo`
+- `mysql.transactions.transactionExecute`
 
 
-## Group Focus: events
+## Group Focus: transactions
 
 > **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
 > The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.

@@ -68,8 +68,7 @@
 |---|---|---|
 | `mysql.stats.histogram` |   |   |
 | `mysql.stats.frequency` |   |   |
-| `mysql.stats.rowNumber` |   |   |
-| `mysql.stats.rank` |   |   |
+| `mysql.stats.distribution` |   |   |
 
 ---
 
@@ -79,8 +78,7 @@
 
 - `mysql.stats.histogram`
 - `mysql.stats.frequency`
-- `mysql.stats.rowNumber`
-- `mysql.stats.rank`
+- `mysql.stats.distribution`
 
 
 ## Category 1: Null & String Handling Boundaries

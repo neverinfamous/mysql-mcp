@@ -69,8 +69,6 @@
 | `mysql.spatial.point` |   |   |
 | `mysql.spatial.polygon` |   |   |
 | `mysql.spatial.geojson` |   |   |
-| `mysql.spatial.createColumn` |   |   |
-| `mysql.spatial.createIndex` |   |   |
 
 ---
 
@@ -81,8 +79,6 @@
 - `mysql.spatial.point`
 - `mysql.spatial.polygon`
 - `mysql.spatial.geojson`
-- `mysql.spatial.createColumn`
-- `mysql.spatial.createIndex`
 
 
 ## Group Focus: spatial

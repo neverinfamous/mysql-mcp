@@ -69,8 +69,6 @@
 | `mysql.stats.correlation` |   |   |
 | `mysql.stats.regression` |   |   |
 | `mysql.stats.sampling` |   |   |
-| `mysql.stats.descriptive` |   |   |
-| `mysql.stats.percentiles` |   |   |
 
 ---
 
@@ -81,8 +79,6 @@
 - `mysql.stats.correlation`
 - `mysql.stats.regression`
 - `mysql.stats.sampling`
-- `mysql.stats.descriptive`
-- `mysql.stats.percentiles`
 
 
 ## Category 1: Frequency & Distinct Boundaries

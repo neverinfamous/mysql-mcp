@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [stats-window - part 1]
+# MySQL MCP Code Mode Testing: [schema-management-part2]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.
 
 **Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -64,10 +64,11 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Focus Area | Code Mode Validation |
+| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.stats.rowNumber` |   |   |
-| `mysql.stats.rank` |   |   |
+| `mysql.schema.listSchemas` |   |   |
+| `mysql.schema.createSchema` |   |   |
+| `mysql.schema.dropSchema` |   |   |
 
 ---
 
@@ -75,23 +76,15 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.stats.rowNumber`
-- `mysql.stats.rank`
+- `mysql.schema.listSchemas`
+- `mysql.schema.createSchema`
+- `mysql.schema.dropSchema`
 
 
-## Category 1: Window Function NULL Handling
-1. Create a table `stress_stats_win` with columns `id INT`, `val1 INT`, `partition_col INT`.
-2. Insert 10 rows: 5 rows with `val1 = NULL`, 5 rows with valid ints.
-3. Run window functions (`mysql.stats_rowNumber`, `mysql.stats_movingAvg`, `mysql.stats_runningTotal`) on `val1` ordered by `id`. Verify NULLs are sorted consistently and don't break averages or totals.
-4. Run `mysql.stats_lagLead` on `val1` with `offset: 2`. Verify it safely navigates NULL boundaries.
-5. Drop table `stress_stats_win`. Verify clean removal.
+## Group Focus: schema
 
-
-## Tasks
-
-- [ ] Ensure full coverage for mysql.stats.outliers
-- [ ] Ensure full coverage for mysql.stats.topN
-- [ ] Ensure full coverage for mysql.stats.distinct
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

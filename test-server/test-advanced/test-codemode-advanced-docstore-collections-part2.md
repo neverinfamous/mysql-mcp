@@ -68,8 +68,6 @@
 |---|---|---|
 | `mysql.docstore.docCreateIndex` |   |   |
 | `mysql.docstore.docCollectionInfo` |   |   |
-| `mysql.docstore.docFind` |   |   |
-| `mysql.docstore.docAdd` |   |   |
 
 ---
 
@@ -79,8 +77,6 @@
 
 - `mysql.docstore.docCreateIndex`
 - `mysql.docstore.docCollectionInfo`
-- `mysql.docstore.docFind`
-- `mysql.docstore.docAdd`
 
 
 ## Tasks
