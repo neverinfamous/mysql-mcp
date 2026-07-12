@@ -67,7 +67,6 @@
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
 | `mysql.backup.createDump` |   |   |
-| `mysql.backup.restoreDump` |   |   |
 
 ---
 
@@ -76,7 +75,6 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.backup.createDump`
-- `mysql.backup.restoreDump`
 
 
 ## Tasks

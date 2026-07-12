@@ -66,14 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_flush_tables` |   |   |   |   |
-| `mysql_kill_query` |   |   |   |   |
-| `mysql_server_config` |   |   |   |   |
-| `mysql_optimize_table` |   |   |   |   |
-| `mysql_analyze_table` |   |   |   |   |
 | `mysql_check_table` |   |   |   |   |
-| `mysql_repair_table` |   |   |   |   |
-| `mysql_append_insight` |   |   |   |   |
+| `mysql_kill_query` |   |   |   |   |
 | `mysql_audit_search` |   |   |   |   |
 
 ---
@@ -82,44 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_flush_tables`
-- `mysql_kill_query`
-- `mysql_server_config`
-- `mysql_optimize_table`
-- `mysql_analyze_table`
 - `mysql_check_table`
-- `mysql_repair_table`
-- `mysql_append_insight`
+- `mysql_kill_query`
 - `mysql_audit_search`
 
 
 ## Group Focus: admin
 
-### admin Group-Specific Testing
-
-admin Tool Group (9 tools +1 for code mode):
-
-1. 'mysql_optimize_table'
-2. 'mysql_analyze_table'
-3. 'mysql_check_table'
-4. 'mysql_repair_table'
-5. 'mysql_flush_tables'
-6. 'mysql_kill_query'
-7. 'mysql_append_insight'
-8. 'mysql_server_config'
-9. 'mysql_audit_search'
-10. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 3. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-1. `mysql_analyze_table({table: "test_products"})` → `{success: true}`
-2. `mysql_check_table({table: "test_products"})` → verify `status: "OK"`
-3. `mysql_optimize_table({table: "test_products"})` → verify success response
-4. `mysql_kill_query({id: 99999})` → `{success: false}` or structured error (invalid process ID)
-5. `mysql_server_config({action: "get"})` → verify success and config object
-6. `mysql_server_config({action: "set", setting: "logLevel", value: "debug"})` → `{success: true, message: ...}`
-7. `mysql_server_config({action: "set", setting: "logLevel", value: "info"})` → `{success: true, message: ...}`
-8. `mysql_repair_table({table: "test_products"})` → verify InnoDB not supported message
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

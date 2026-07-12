@@ -66,13 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_innodb_status` |   |   |   |   |
-| `mysql_replication_status` |   |   |   |   |
-| `mysql_pool_stats` |   |   |   |   |
-| `mysql_show_processlist` |   |   |   |   |
 | `mysql_show_status` |   |   |   |   |
-| `mysql_show_variables` |   |   |   |   |
-| `mysql_server_health` |   |   |   |   |
+| `mysql_replication_status` |   |   |   |   |
 
 ---
 
@@ -80,48 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_innodb_status`
-- `mysql_replication_status`
-- `mysql_pool_stats`
-- `mysql_show_processlist`
 - `mysql_show_status`
-- `mysql_show_variables`
-- `mysql_server_health`
+- `mysql_replication_status`
 
 
 ## Group Focus: monitoring
 
-### monitoring Group-Specific Testing
-
-monitoring Tool Group (7 tools +1 for code mode):
-
-1. 'mysql_show_processlist'
-2. 'mysql_show_status'
-3. 'mysql_show_variables'
-4. 'mysql_innodb_status'
-5. 'mysql_replication_status'
-6. 'mysql_pool_stats'
-7. 'mysql_server_health'
-8. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_show_processlist()` → verify at least 1 active connection
-2. `mysql_show_status({like: "Uptime"})` → verify `Uptime > 0`
-3. `mysql_show_variables({like: "max_connections"})` → verify numeric value
-4. `mysql_innodb_status()` → verify InnoDB status output
-5. `mysql_innodb_status({summary: true})` → verify summarized output (smaller payload)
-6. `mysql_pool_stats()` → verify connection pool statistics
-7. `mysql_server_health()` → verify `{status: "..."}` with health assessment
-8. `mysql_replication_status()` → verify replica status or configured: false
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_show_status({like: "nonexistent_var_xyz"})` → empty results or structured error — not raw MCP error
-
-**Wrong-type numeric param coercion (🔴):**
-
-10. 🔴 `mysql_show_variables({limit: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

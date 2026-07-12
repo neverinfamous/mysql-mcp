@@ -66,14 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_role_revoke` |   |   |   |   |
 | `mysql_role_create` |   |   |   |   |
-| `mysql_role_grants` |   |   |   |   |
-| `mysql_role_drop` |   |   |   |   |
 | `mysql_role_grant` |   |   |   |   |
-| `mysql_role_assign` |   |   |   |   |
 | `mysql_user_roles` |   |   |   |   |
-| `mysql_role_list` |   |   |   |   |
 
 ---
 
@@ -81,44 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_role_revoke`
 - `mysql_role_create`
-- `mysql_role_grants`
-- `mysql_role_drop`
 - `mysql_role_grant`
-- `mysql_role_assign`
 - `mysql_user_roles`
-- `mysql_role_list`
 
 
 ## Group Focus: roles
 
-### roles Group-Specific Testing
-
-roles Tool Group (8 tools +1 for code mode):
-
-10. 🔴 `mysql_role_create({...})` -> `{success: false, error: "..."}` handler error
-11. 🔴 `mysql_role_drop({...})` -> `{success: false, error: "..."}` handler error
-12. 🔴 `mysql_role_grants({...})` -> `{success: false, error: "..."}` handler error
-13. 🔴 `mysql_role_grant({...})` -> `{success: false, error: "..."}` handler error
-14. 🔴 `mysql_role_assign({...})` -> `{success: false, error: "..."}` handler error
-15. 🔴 `mysql_role_revoke({...})` -> `{success: false, error: "..."}` handler error
-16. 🔴 `mysql_user_roles({...})` -> `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-17. 🟢 `mysql_role_list({})` -> verify success (no required params)
-18. 🔴 `mysql_role_create({})` -> `{success: false, error: "..."}` (Zod validation)
-19. 🔴 `mysql_role_drop({})` -> `{success: false, error: "..."}` (Zod validation)
-20. 🔴 `mysql_role_grants({})` -> `{success: false, error: "..."}` (Zod validation)
-21. 🔴 `mysql_role_grant({})` -> `{success: false, error: "..."}` (Zod validation)
-22. 🔴 `mysql_role_assign({})` -> `{success: false, error: "..."}` (Zod validation)
-23. 🔴 `mysql_role_revoke({})` -> `{success: false, error: "..."}` (Zod validation)
-24. 🔴 `mysql_user_roles({})` -> `{success: false, error: "..."}` (Zod validation)
-
-**Alias acceptance (🟢):**
-
-25. 🟢 Verify any parameter aliases are accepted for applicable tools.
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

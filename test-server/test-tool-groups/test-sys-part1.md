@@ -67,13 +67,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_sys_user_summary` |   |   |   |   |
-| `mysql_sys_statement_summary` |   |   |   |   |
-| `mysql_sys_innodb_lock_waits` |   |   |   |   |
-| `mysql_sys_io_summary` |   |   |   |   |
 | `mysql_sys_wait_summary` |   |   |   |   |
-| `mysql_sys_schema_stats` |   |   |   |   |
 | `mysql_sys_host_summary` |   |   |   |   |
-| `mysql_sys_memory_summary` |   |   |   |   |
 
 ---
 
@@ -82,41 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_sys_user_summary`
-- `mysql_sys_statement_summary`
-- `mysql_sys_innodb_lock_waits`
-- `mysql_sys_io_summary`
 - `mysql_sys_wait_summary`
-- `mysql_sys_schema_stats`
 - `mysql_sys_host_summary`
-- `mysql_sys_memory_summary`
 
 
 ## Group Focus: sysschema
 
-### sysschema Group-Specific Testing
-
-sysschema Tool Group (8 tools +1 for code mode):
-
-1. 'mysql_sys_user_summary'
-2. 'mysql_sys_io_summary'
-3. 'mysql_sys_statement_summary'
-4. 'mysql_sys_wait_summary'
-5. 'mysql_sys_innodb_lock_waits'
-6. 'mysql_sys_schema_stats'
-7. 'mysql_sys_host_summary'
-8. 'mysql_sys_memory_summary'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-**Happy paths (🟢):**
-*(Note: All sys tools have optional parameters. Calling with `{}` is a valid happy path.)*
-
-1. 🟢 `mysql_sys_user_summary({})` -> verify success
-2. 🟢 `mysql_sys_io_summary({})` -> verify success
-3. 🟢 `mysql_sys_statement_summary({})` -> verify success
-4. 🟢 `mysql_sys_wait_summary({})` -> verify success
-5. 🟢 `mysql_sys_innodb_lock_waits({})` -> verify success
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -66,11 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_json_merge` |   |   |   |   |
-| `mysql_json_diff` |   |   |   |   |
-| `mysql_json_normalize` |   |   |   |   |
-| `mysql_json_stats` |   |   |   |   |
-| `mysql_json_index_suggest` |   |   |   |   |
+| `mysql_json_replace` |   |   |   |   |
+| `mysql_json_search` |   |   |   |   |
 
 ---
 
@@ -78,51 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_json_merge`
-- `mysql_json_diff`
-- `mysql_json_normalize`
-- `mysql_json_stats`
-- `mysql_json_index_suggest`
+- `mysql_json_replace`
+- `mysql_json_search`
 
 
 ## Group Focus: json
 
-### json Group-Specific Testing
-
-json Tool Group (17 tools +1 for code mode):
-
-1. 'mysql_json_merge'
-2. 'mysql_json_diff'
-3. 'mysql_json_normalize'
-4. 'mysql_json_stats'
-5. 'mysql_json_index_suggest'
-6. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Checklist (Happy paths):**
-
-1. `mysql_json_merge({json1: '{"a": 1}', json2: '{"b": 2}', mode: "patch"})` → happy path
-2. `mysql_json_diff({json1: '{"a": 1}', json2: '{"a": 1, "b": 2}'})` → happy path
-3. `mysql_json_normalize({table: "test_json_docs", column: "doc", where: "id = 1"})` → happy path
-4. `mysql_json_stats({table: "test_json_docs", column: "doc", where: "id = 1"})` → happy path
-5. `mysql_json_index_suggest({table: "test_json_docs", column: "doc"})` → happy path
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql_json_merge({json1: '{invalid}', json2: '{"b": 2}'})` → domain error
-7. 🔴 `mysql_json_diff({json1: '{invalid}', json2: '{}'})` → domain error
-8. 🔴 `mysql_json_normalize({table: "nonexistent_table", column: "doc", where: "id = 1"})` → domain error
-9. 🔴 `mysql_json_stats({table: "nonexistent_table", column: "doc", where: "id = 1"})` → domain error
-10. 🔴 `mysql_json_index_suggest({table: "test_json_docs", column: "nonexistent_col"})` → domain error
-
-**Zod validation error paths (🔴):**
-
-11. 🔴 `mysql_json_merge({})` → validation error
-12. 🔴 `mysql_json_diff({})` → validation error
-13. 🔴 `mysql_json_normalize({})` → validation error
-14. 🔴 `mysql_json_stats({})` → validation error
-15. 🔴 `mysql_json_index_suggest({})` → validation error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

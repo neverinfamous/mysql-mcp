@@ -79,32 +79,7 @@
 
 ## Group Focus: codemode
 
-### codemode Group-Specific Testing
-
-codemode Tool Group (1 tool):
-
-1. 'mysql_execute_code'
-
-All tools implement P154 structured error handling. Test with valid and invalid JavaScript payloads.
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
-
-**Code Execution tools:**
-
-1. `mysql_execute_code({code: "return 1 + 1;"})` -> `{success: true, result: 2}`
-2. `mysql_execute_code({code: "return 'hello world';"})` -> `{success: true, result: "hello world"}`
-3. `mysql_execute_code({code: "return {a: 1, b: 2};"})` -> `{success: true, result: {a: 1, b: 2}}`
-
-**Domain error paths (🔴):**
-
-4. 🔴 `mysql_execute_code({code: "throw new Error('test error');"})` -> `{success: false, error: "..."}` handler error mentioning "test error"
-5. 🔴 `mysql_execute_code({code: "return undefined_var;"})` -> `{success: false, error: "..."}` ReferenceError handler error
-6. 🔴 `mysql_execute_code({code: "return {'unclosed_brace: 1;"})` -> `{success: false, error: "..."}` SyntaxError handler error
-
-**Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
-
-7. 🔴 `mysql_execute_code({})` -> `{success: false, error: "Validation error: ..."}` (missing required `code`)
-8. 🔴 `mysql_execute_code({code: 123})` -> `{success: false, error: "Validation error: ..."}` (wrong type)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

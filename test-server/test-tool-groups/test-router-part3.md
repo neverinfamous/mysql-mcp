@@ -66,14 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_router_route_health` |   |   |   |   |
-| `mysql_router_route_destinations` |   |   |   |   |
-| `mysql_router_metadata_status` |   |   |   |   |
-| `mysql_router_status` |   |   |   |   |
-| `mysql_router_routes` |   |   |   |   |
 | `mysql_router_route_status` |   |   |   |   |
-| `mysql_router_route_connections` |   |   |   |   |
-| `mysql_router_route_blocked_hosts` |   |   |   |   |
+| `mysql_router_route_destinations` |   |   |   |   |
 | `mysql_router_pool_status` |   |   |   |   |
 
 ---
@@ -82,39 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_health`
-- `mysql_router_route_destinations`
-- `mysql_router_metadata_status`
-- `mysql_router_status`
-- `mysql_router_routes`
 - `mysql_router_route_status`
-- `mysql_router_route_connections`
-- `mysql_router_route_blocked_hosts`
+- `mysql_router_route_destinations`
 - `mysql_router_pool_status`
 
 
 ## Group Focus: router
 
-### router Group-Specific Testing
-
-router Tool Group (9 tools +1 for code mode):
-
-1. 'mysql_router_status'
-2. 'mysql_router_routes'
-3. 'mysql_router_route_status'
-4. 'mysql_router_route_health'
-5. 'mysql_router_route_connections'
-6. 'mysql_router_route_destinations'
-7. 'mysql_router_route_blocked_hosts'
-8. 'mysql_router_metadata_status'
-9. 'mysql_router_pool_status'
-10. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 3. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-1. `mysql_router_status()` → verify Router version and process status
-2. `mysql_router_routes()` → verify configured routes listing
-3. `mysql_router_route_status({routeName: "bootstrap_rw"})` → verify route status (or structured error if route doesn't exist)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

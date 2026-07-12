@@ -66,12 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_doc_modify` |   |   |   |   |
-| `mysql_doc_remove` |   |   |   |   |
-| `mysql_doc_create_index` |   |   |   |   |
-| `mysql_doc_list_collections` |   |   |   |   |
-| `mysql_doc_create_collection` |   |   |   |   |
 | `mysql_doc_drop_collection` |   |   |   |   |
+| `mysql_doc_modify` |   |   |   |   |
 | `mysql_doc_collection_info` |   |   |   |   |
 
 ---
@@ -80,40 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_doc_modify`
-- `mysql_doc_remove`
-- `mysql_doc_create_index`
-- `mysql_doc_list_collections`
-- `mysql_doc_create_collection`
 - `mysql_doc_drop_collection`
+- `mysql_doc_modify`
 - `mysql_doc_collection_info`
 
 
 ## Group Focus: docstore
 
-### docstore Group-Specific Testing
-
-docstore Tool Group (9 tools +1 for code mode):
-
-1. 'mysql_doc_list_collections'
-2. 'mysql_doc_create_collection'
-3. 'mysql_doc_drop_collection'
-4. 'mysql_doc_collection_info'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-4. `mysql_doc_list_collections()` -> verify list of collections
-5. `mysql_doc_create_collection({collection: "test_coll"})` -> verify success
-6. `mysql_doc_collection_info({collection: "test_coll"})` -> verify info
-7. `mysql_doc_drop_collection({collection: "test_coll"})` -> verify success
-
-**Domain error paths:**
-1. `mysql_doc_collection_info({collection: "nonexistent_xyz"})` -> `{success: false, error: "Collection 'nonexistent_xyz' does not exist", code: "TABLE_NOT_FOUND"}`
-2. `mysql_doc_drop_collection({collection: "nonexistent_xyz"})` -> `{success: false, error: "Collection 'nonexistent_xyz' does not exist", code: "TABLE_NOT_FOUND"}`
-3. `mysql_doc_list_collections({schema: "nonexistent_xyz"})` -> `{success: false, error: "Schema 'nonexistent_xyz' does not exist", code: "SCHEMA_NOT_FOUND"}`
-
-**Zod validation error paths:**
-1. `mysql_doc_create_collection({})` -> `{success: false, error: "Validation error: name: Invalid input: expected string, received undefined", code: "VALIDATION_ERROR"}`
-2. `mysql_doc_create_collection({collection: "test_coll3", ifNotExists: "abc"})` -> `{success: false, error: "Validation error: ifNotExists: Invalid input: expected boolean, received string", code: "VALIDATION_ERROR"}`
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

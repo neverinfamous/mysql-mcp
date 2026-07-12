@@ -67,11 +67,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_dependency_graph` |   |   |   |   |
-| `mysql_topological_sort` |   |   |   |   |
 | `mysql_cascade_simulator` |   |   |   |   |
-| `mysql_schema_snapshot` |   |   |   |   |
 | `mysql_constraint_analysis` |   |   |   |   |
-| `mysql_migration_risks` |   |   |   |   |
 
 ---
 
@@ -80,45 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_dependency_graph`
-- `mysql_topological_sort`
 - `mysql_cascade_simulator`
-- `mysql_schema_snapshot`
 - `mysql_constraint_analysis`
-- `mysql_migration_risks`
 
 
 ## Group Focus: introspection
 
-### introspection Group-Specific Testing
-
-introspection Tool Group (6 tools +1 for code mode):
-
-1. 'mysql_dependency_graph'
-2. 'mysql_topological_sort'
-3. 'mysql_cascade_simulator'
-4. 'mysql_schema_snapshot'
-5. 'mysql_constraint_analysis'
-6. 'mysql_migration_risks'
-7. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_dependency_graph({schema: "testdb", maxDepth: 2})` → verify graph nodes and edges
-2. `mysql_topological_sort({schema: "testdb2"})` → verify ordered tables
-3. `mysql_cascade_simulator({table: "test_products", operation: "DELETE"})` → verify cascading constraints output
-4. `mysql_schema_snapshot({schema: "testdb"})` → verify schema snapshot state
-5. `mysql_constraint_analysis({schema: "testdb"})` → verify constraint analysis
-6. `mysql_migration_risks({ddlQuery: "ALTER TABLE test_products ADD COLUMN new_col INT"})` → verify migration risks reported
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_dependency_graph({schema: "nonexistent_schema"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_cascade_simulator({table: "nonexistent_xyz", operation: "DELETE"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_dependency_graph({})` → `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_migration_risks({})` → `{success: false, error: "..."}` (Zod validation)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

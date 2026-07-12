@@ -66,8 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
+| `mysql_fulltext_create` |   |   |   |   |
 | `mysql_fulltext_search` |   |   |   |   |
-| `mysql_fulltext_boolean` |   |   |   |   |
 | `mysql_fulltext_expand` |   |   |   |   |
 
 ---
@@ -76,53 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_fulltext_create`
 - `mysql_fulltext_search`
-- `mysql_fulltext_boolean`
 - `mysql_fulltext_expand`
 
 
 ## Group Focus: fulltext
 
-### fulltext Group-Specific Testing
-
-fulltext Tool Group (5 tools +1 for code mode):
-
-1. 'mysql_fulltext_search'
-2. 'mysql_fulltext_boolean'
-3. 'mysql_fulltext_expand'
-4. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_articles` which has a FULLTEXT INDEX on `(title, body)`.
-
-Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `replication`.
-
-**Checklist:**
-
-1. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL"})` → at least 1 result with relevance scores
-2. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "nonexistent_word_xyz"})` → 0 results
-3. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL +database"})` → results containing both terms
-4. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL -JSON"})` → results with MySQL but not JSON
-5. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database"})` → expanded results
-6. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", includeFacets: true})` → verify `warnings` array is returned for missing individual index
-7. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: 1})` → verify `nextCursor` is returned
-8. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", cursor: "<nextCursor from previous call>"})` → verify pagination
-9. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: '+"MySQL" -)'})` → verify query is sanitized (unmatched parentheses/quotes stripped) and doesn't throw a syntax error
-10. `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", maxLength: 50})` → verify returned results have string fields truncated to 50 chars
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql_fulltext_search({table: "nonexistent_xyz", columns: ["title"], query: "test"})` → `{success: false, error: "..."}` handler error
-12. 🔴 `mysql_fulltext_search({table: "test_products", columns: ["name"], query: "test"})` → `{success: false, error: "..."}` (no FULLTEXT index)
-
-**Zod validation error paths (🔴):**
-
-13. 🔴 `mysql_fulltext_search({})` → `{success: false, error: "..."}` (missing required params)
-
-**Wrong-type numeric param coercion (🔴):**
-
-14. 🔴 `mysql_fulltext_search({table: "test_articles", columns: ["title", "body"], query: "MySQL", limit: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

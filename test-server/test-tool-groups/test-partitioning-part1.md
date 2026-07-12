@@ -67,9 +67,7 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_partition_info` |   |   |   |   |
-| `mysql_add_partition` |   |   |   |   |
 | `mysql_drop_partition` |   |   |   |   |
-| `mysql_reorganize_partition` |   |   |   |   |
 
 ---
 
@@ -78,47 +76,12 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_partition_info`
-- `mysql_add_partition`
 - `mysql_drop_partition`
-- `mysql_reorganize_partition`
 
 
 ## Group Focus: partitioning
 
-### partitioning Group-Specific Testing
-
-partitioning Tool Group (4 tools +1 for code mode):
-
-1. 'mysql_partition_info'
-2. 'mysql_add_partition'
-3. 'mysql_drop_partition'
-4. 'mysql_reorganize_partition'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_partition_info({...})` -> verify success
-2. `mysql_add_partition({...})` -> verify success
-3. `mysql_drop_partition({...})` -> verify success
-4. `mysql_reorganize_partition({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql_partition_info({...})` -> `{success: false, error: "..."}` handler error
-6. 🔴 `mysql_add_partition({...})` -> `{success: false, error: "..."}` handler error
-7. 🔴 `mysql_drop_partition({...})` -> `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_reorganize_partition({...})` -> `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_partition_info({})` -> `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_add_partition({})` -> `{success: false, error: "..."}` (Zod validation)
-11. 🔴 `mysql_drop_partition({})` -> `{success: false, error: "..."}` (Zod validation)
-12. 🔴 `mysql_reorganize_partition({})` -> `{success: false, error: "..."}` (Zod validation)
-
-**Alias acceptance (🟢):**
-
-13. 🟢 Verify any parameter aliases are accepted for applicable tools.
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

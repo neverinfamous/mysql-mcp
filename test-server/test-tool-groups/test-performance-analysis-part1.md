@@ -67,9 +67,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_explain` |   |   |   |   |
-| `mysql_explain_analyze` |   |   |   |   |
-| `mysql_slow_queries` |   |   |   |   |
-| `mysql_query_stats` |   |   |   |   |
+| `mysql_index_usage` |   |   |   |   |
+| `mysql_detect_query_anomalies` |   |   |   |   |
 
 ---
 
@@ -78,45 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_explain`
-- `mysql_explain_analyze`
-- `mysql_slow_queries`
-- `mysql_query_stats`
+- `mysql_index_usage`
+- `mysql_detect_query_anomalies`
 
 
 ## Group Focus: performance
 
-### performance Group-Specific Testing
-
-performance Tool Group (11 tools +1 for code mode):
-
-1. 'mysql_explain'
-2. 'mysql_explain_analyze'
-3. 'mysql_slow_queries'
-4. 'mysql_query_stats'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-1. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1"})` → verify execution plan returned
-2. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "JSON"})` → verify JSON-format plan
-3. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TREE"})` → verify TREE-format plan
-4. `mysql_explain({query: "SELECT * FROM test_products WHERE id = 1", format: "TRADITIONAL"})` → verify TRADITIONAL-format plan
-5. `mysql_explain_analyze({query: "SELECT * FROM test_products WHERE id = 1"})` -> verify actual execution timings
-6. `mysql_slow_queries()` → verify slow query list
-7. `mysql_query_stats({limit: 3})` → verify top query statistics
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql_explain({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` syntax error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_explain({})` → `{success: false, error: "..."}` (missing required `query`)
-
-**Wrong-type numeric param coercion (🔴):**
-
-10. 🔴 `mysql_query_stats({limit: "abc"})` → must NOT return raw MCP error
-11. 🔴 `mysql_slow_queries({limit: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

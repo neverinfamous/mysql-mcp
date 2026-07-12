@@ -66,14 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_stats_sampling` |   |   |   |   |
-| `mysql_stats_percentiles` |   |   |   |   |
 | `mysql_stats_distribution` |   |   |   |   |
-| `mysql_stats_time_series` |   |   |   |   |
-| `mysql_stats_regression` |   |   |   |   |
-| `mysql_stats_histogram` |   |   |   |   |
-| `mysql_stats_descriptive` |   |   |   |   |
-| `mysql_stats_correlation` |   |   |   |   |
+| `mysql_stats_lag_lead` |   |   |   |   |
+| `mysql_stats_distinct` |   |   |   |   |
 
 ---
 
@@ -81,43 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_sampling`
-- `mysql_stats_percentiles`
 - `mysql_stats_distribution`
-- `mysql_stats_time_series`
-- `mysql_stats_regression`
-- `mysql_stats_histogram`
-- `mysql_stats_descriptive`
-- `mysql_stats_correlation`
+- `mysql_stats_lag_lead`
+- `mysql_stats_distinct`
 
 
 ## Group Focus: stats
 
-### stats Group-Specific Testing
-
-stats Tool Group (20 tools +1 for code mode):
-
-5. `mysql_stats_time_series({table: "test_events", timeColumn: "event_date", valueColumn: "user_id", interval: "day"})` → verify time series
-6. `mysql_stats_regression({table: "test_measurements", xColumn: "temperature", yColumn: "humidity"})` → verify regression coefficients returned
-7. `mysql_stats_sampling({table: "test_measurements", sampleSize: 10})` → verify approximately 10 rows returned
-8. `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: 10, update: true})` → verify histogram metadata returned
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_stats_descriptive({table: "nonexistent_xyz", column: "x"})` → `{success: false, error: "..."}` handler error
-10. 🔴 `mysql_stats_correlation({table: "test_products", column1: "name", column2: "description"})` → error about non-numeric columns
-11. 🔴 `mysql_stats_regression({table: "test_measurements", xColumn: "nonexistent_col", yColumn: "humidity"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-12. 🔴 `mysql_stats_descriptive({})` → `{success: false, error: "..."}` (Zod validation)
-13. 🔴 `mysql_stats_percentiles({})` → `{success: false, error: "..."}` (missing required params)
-
-**Wrong-type numeric param coercion (🔴):**
-
-14. 🔴 `mysql_stats_sampling({table: "test_measurements", sampleSize: "abc"})` → must NOT return raw MCP error
-15. 🔴 `mysql_stats_distribution({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
-16. 🔴 `mysql_stats_histogram({table: "test_measurements", column: "temperature", buckets: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

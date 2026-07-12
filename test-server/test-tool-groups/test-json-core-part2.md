@@ -66,14 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_json_keys` |   |   |   |   |
 | `mysql_json_set` |   |   |   |   |
-| `mysql_json_replace` |   |   |   |   |
-| `mysql_json_extract` |   |   |   |   |
-| `mysql_json_insert` |   |   |   |   |
-| `mysql_json_remove` |   |   |   |   |
-| `mysql_json_contains` |   |   |   |   |
-| `mysql_json_array_append` |   |   |   |   |
+| `mysql_json_get` |   |   |   |   |
+| `mysql_json_stats` |   |   |   |   |
 
 ---
 
@@ -81,43 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_json_keys`
 - `mysql_json_set`
-- `mysql_json_replace`
-- `mysql_json_extract`
-- `mysql_json_insert`
-- `mysql_json_remove`
-- `mysql_json_contains`
-- `mysql_json_array_append`
+- `mysql_json_get`
+- `mysql_json_stats`
 
 
 ## Group Focus: json
 
-### json Group-Specific Testing
-
-json Tool Group (17 tools +1 for code mode):
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_json_extract({table: "nonexistent_table", column: "doc", path: "$.key1", where: "id = 1"})` → domain error (table not found)
-10. 🔴 `mysql_json_set({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", where: "id = 1"})` → domain error (column not found)
-11. 🔴 `mysql_json_insert({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", where: "id = 1"})` → domain error (invalid path)
-12. 🔴 `mysql_json_replace({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", where: "id = 1"})` → domain error (invalid path)
-13. 🔴 `mysql_json_remove({table: "test_json_docs", column: "doc", paths: ["invalid_path"], where: "id = 1"})` → domain error (invalid path)
-14. 🔴 `mysql_json_contains({table: "test_json_docs", column: "doc", value: "v", path: "invalid", where: "id = 1"})` → domain error
-15. 🔴 `mysql_json_keys({table: "nonexistent_table", column: "doc", where: "id = 1"})` → domain error
-16. 🔴 `mysql_json_array_append({table: "test_json_docs", column: "doc", path: "invalid_path", value: "v", where: "id = 1"})` → domain error (invalid path)
-
-**Zod validation error paths (🔴):**
-
-17. 🔴 `mysql_json_extract({})` → validation error
-18. 🔴 `mysql_json_set({})` → validation error
-19. 🔴 `mysql_json_insert({})` → validation error
-20. 🔴 `mysql_json_replace({})` → validation error
-21. 🔴 `mysql_json_remove({})` → validation error
-22. 🔴 `mysql_json_contains({})` → validation error
-23. 🔴 `mysql_json_keys({})` → validation error
-24. 🔴 `mysql_json_array_append({})` → validation error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -66,9 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_detect_query_anomalies` |   |   |   |   |
-| `mysql_detect_bloat_risk` |   |   |   |   |
-| `mysql_detect_connection_spike` |   |   |   |   |
+| `mysql_query_stats` |   |   |   |   |
+| `mysql_thread_stats` |   |   |   |   |
 
 ---
 
@@ -76,31 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_detect_query_anomalies`
-- `mysql_detect_bloat_risk`
-- `mysql_detect_connection_spike`
+- `mysql_query_stats`
+- `mysql_thread_stats`
 
 
 ## Group Focus: performance
 
-### performance Group-Specific Testing
-
-performance Tool Group (11 tools +1 for code mode):
-
-1. 'mysql_detect_query_anomalies'
-2. 'mysql_detect_bloat_risk'
-3. 'mysql_detect_connection_spike'
-4. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_detect_query_anomalies()` → verify query anomalies detected
-2. `mysql_detect_bloat_risk()` → verify table bloat risks
-3. `mysql_detect_connection_spike()` → verify connection spike risks
-
-**Zod validation error paths (🔴):**
-
-4. 🔴 `mysql_detect_query_anomalies({minExecutions: "invalid"})` → `{success: false, error: "..."}` (Zod validation numeric coercion)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

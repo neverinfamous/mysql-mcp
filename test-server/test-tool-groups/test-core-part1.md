@@ -67,13 +67,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_read_query` |   |   |   |   |
-| `mysql_write_query` |   |   |   |   |
-| `mysql_list_tables` |   |   |   |   |
-| `mysql_describe_table` |   |   |   |   |
 | `mysql_create_table` |   |   |   |   |
-| `mysql_drop_table` |   |   |   |   |
-| `mysql_create_index` |   |   |   |   |
-| `mysql_get_indexes` |   |   |   |   |
+| `mysql_enable_versioning` |   |   |   |   |
 
 ---
 
@@ -82,55 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_read_query`
-- `mysql_write_query`
-- `mysql_list_tables`
-- `mysql_describe_table`
 - `mysql_create_table`
-- `mysql_drop_table`
-- `mysql_create_index`
-- `mysql_get_indexes`
+- `mysql_enable_versioning`
 
 
 ## Group Focus: core
 
-### core Group-Specific Testing
-
-core Tool Group (12 tools +1 for code mode):
-
-1. 'mysql_read_query'
-2. 'mysql_write_query'
-3. 'mysql_list_tables'
-4. 'mysql_describe_table'
-5. 'mysql_create_table'
-6. 'mysql_drop_table'
-7. 'mysql_create_index'
-8. 'mysql_get_indexes'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-All tools implement P154 structured error handling for nonexistent tables. Test with `test_products` and `test_orders`.
-
-> **Instructions**: THIS IS PART 1. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-**Read/Write/Schema tools:**
-
-1. `mysql_read_query({query: "SELECT COUNT(*) AS n FROM test_orders"})` → `{rows: [{n: 20}], rowCount: 1}`
-2. `mysql_read_query({query: "SELECT id, name, price FROM test_products WHERE price > 50 LIMIT 3"})` → 3 rows with valid data
-3. `mysql_read_query({query: "SELECT * FROM test_measurements", stream: true, chunkSize: 50})` → verify returns `{streamed: true, chunksEmitted: 4, rowCount: 200}`
-4. `mysql_read_query({query: "SELECT id FROM test_measurements"})` → verify `rowCount` is 50 (due to default LIMIT) and `nextCursor` is returned
-5. `mysql_read_query({query: "SELECT id FROM test_measurements", cursor: "<nextCursor value from previous call>"})` → verify offsets correctly
-6. `mysql_list_tables({database: "testdb", limit: 5})` → `{tables: [...], count: 5, truncated: true}`
-7. `mysql_describe_table({table: "test_products"})` → verify `columns` includes `id`, `name`, `price`, `category`, `metadata`; `primaryKey` present
-8. `mysql_get_indexes({table: "test_orders"})` → verify `idx_orders_status` and `idx_orders_date` in results
-9. `mysql_list_tables({database: "testdb"})` → verify ≥11 test tables present
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_read_query({query: "SELECT * FROM nonexistent_table_xyz"})` → `{success: false, error: "..."}` mentioning table name — NOT raw MCP error
-8. 🔴 `mysql_write_query({query: "INSERT INTO nonexistent_xyz VALUES (1)"})` → `{success: false, error: "..."}` handler error
-9. 🔴 `mysql_read_query({query: "SELECT nonexistent_col FROM test_products"})` → `{success: false, error: "..."}` mentioning column name
-10. 🔴 `mysql_describe_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` mentioning table name
-11. 🔴 `mysql_get_indexes({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
-12. 🔴 `mysql_read_query({query: "SELEKT * FROM test_products"})` → `{success: false, error: "..."}` SQL syntax error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

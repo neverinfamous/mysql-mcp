@@ -66,11 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_query_stats` |   |   |   |   |
-| `mysql_index_usage` |   |   |   |   |
+| `mysql_explain_analyze` |   |   |   |   |
 | `mysql_table_stats` |   |   |   |   |
-| `mysql_buffer_pool_stats` |   |   |   |   |
-| `mysql_thread_stats` |   |   |   |   |
+| `mysql_detect_bloat_risk` |   |   |   |   |
 
 ---
 
@@ -78,39 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_query_stats`
-- `mysql_index_usage`
+- `mysql_explain_analyze`
 - `mysql_table_stats`
-- `mysql_buffer_pool_stats`
-- `mysql_thread_stats`
+- `mysql_detect_bloat_risk`
 
 
 ## Group Focus: performance
 
-### performance Group-Specific Testing
-
-performance Tool Group (11 tools +1 for code mode):
-
-1. 'mysql_index_usage'
-2. 'mysql_table_stats'
-3. 'mysql_buffer_pool_stats'
-4. 'mysql_thread_stats'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 2. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-1. `mysql_index_usage({table: "test_products"})` → verify index usage statistics
-2. `mysql_table_stats({table: "test_products"})` → verify `{estimated_rows, avg_row_length, data_size_bytes}` present
-3. `mysql_buffer_pool_stats()` → verify buffer pool metrics
-4. `mysql_thread_stats()` → verify thread statistics
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql_table_stats({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error (P154)
-
-**Zod validation error paths (🔴):**
-
-6. 🔴 `mysql_table_stats({})` → `{success: false, error: "..."}` (missing required params)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

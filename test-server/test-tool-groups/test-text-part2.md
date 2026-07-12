@@ -66,12 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_substring` |   |   |   |   |
-| `mysql_concat` |   |   |   |   |
-| `mysql_collation_convert` |   |   |   |   |
-| `mysql_regexp_match` |   |   |   |   |
 | `mysql_like_search` |   |   |   |   |
-| `mysql_soundex` |   |   |   |   |
+| `mysql_substring` |   |   |   |   |
+| `mysql_collation_convert` |   |   |   |   |
 
 ---
 
@@ -79,55 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_substring`
-- `mysql_concat`
-- `mysql_collation_convert`
-- `mysql_regexp_match`
 - `mysql_like_search`
-- `mysql_soundex`
+- `mysql_substring`
+- `mysql_collation_convert`
 
 
 ## Group Focus: text
 
-### text Group-Specific Testing
-
-text Tool Group (6 tools +1 for code mode):
-
-1. 'mysql_regexp_match'
-2. 'mysql_like_search'
-3. 'mysql_soundex'
-4. 'mysql_substring'
-5. 'mysql_concat'
-6. 'mysql_collation_convert'
-7. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_users` (10 rows: username, email, phone, bio, role) and `test_products` (16 rows).
-
-**Checklist:**
-
-1. `mysql_regexp_match({table: "test_users", column: "email", pattern: "^[a-z]+\\.[a-z]+@"})` → verify matching dotted emails
-2. `mysql_like_search({table: "test_products", column: "name", pattern: "%Laptop%"})` → results matching "Laptop"
-3. `mysql_soundex({table: "test_users", column: "username", value: "john"})` → verify phonetic matches
-4. `mysql_substring({table: "test_users", column: "email", start: 1, length: 5})` → first 5 chars of each email
-5. `mysql_concat({table: "test_users", columns: ["username", "email"], separator: " - "})` → concatenated values
-6. `mysql_collation_convert({table: "test_users", column: "email", charset: "utf8mb4", collation: "utf8mb4_bin"})` → preview conversion
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql_regexp_match({table: "nonexistent_xyz", column: "x", pattern: "."})` → `{success: false, error: "..."}` handler error
-7. 🔴 `mysql_like_search({table: "test_users", column: "nonexistent_col", pattern: "%test%"})` → `{success: false, error: "..."}`
-
-**Zod validation error paths (🔴):**
-
-8. 🔴 `mysql_regexp_match({})` → `{success: false, error: "..."}` (Zod validation)
-9. 🔴 `mysql_like_search({})` → `{success: false, error: "..."}` (missing required params)
-
-**Wrong-type numeric param coercion (🔴):**
-
-10. 🔴 `mysql_substring({table: "test_users", column: "email", start: "abc", length: 5})` → must NOT return raw MCP error
-11. 🔴 `mysql_like_search({table: "test_users", column: "email", pattern: "%@%", limit: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

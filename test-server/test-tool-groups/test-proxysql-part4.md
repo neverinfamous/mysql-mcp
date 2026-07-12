@@ -66,13 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_commands` |   |   |   |   |
-| `proxysql_process_list` |   |   |   |   |
-| `proxysql_status` |   |   |   |   |
-| `proxysql_servers` |   |   |   |   |
-| `proxysql_query_rules` |   |   |   |   |
 | `proxysql_query_digest` |   |   |   |   |
-| `proxysql_connection_pool` |   |   |   |   |
+| `proxysql_runtime_status` |   |   |   |   |
 
 ---
 
@@ -80,43 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_commands`
-- `proxysql_process_list`
-- `proxysql_status`
-- `proxysql_servers`
-- `proxysql_query_rules`
 - `proxysql_query_digest`
-- `proxysql_connection_pool`
+- `proxysql_runtime_status`
 
 
 ## Group Focus: proxysql
 
-### proxysql Group-Specific Testing
-
-proxysql Tool Group (11 tools +1 for code mode):
-
-1. 'proxysql_status'
-2. 'proxysql_servers'
-3. 'proxysql_query_rules'
-4. 'proxysql_query_digest'
-5. 'proxysql_connection_pool'
-6. 'mysql_execute_code'
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-7. `proxysql_status()` → verify ProxySQL version, uptime
-8. `proxysql_status({summary: true})` → verify summarized output
-9. `proxysql_servers()` → verify backend server listing
-10. `proxysql_query_rules()` → verify query routing rules
-11. `proxysql_connection_pool()` → verify pool statistics
-12. `proxysql_query_digest({limit: 5})` → verify top queries
-
-**Zod validation error paths (🔴):**
-
-
-**Wrong-type numeric param coercion (🔴):**
-
-1. 🔴 `proxysql_query_digest({limit: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

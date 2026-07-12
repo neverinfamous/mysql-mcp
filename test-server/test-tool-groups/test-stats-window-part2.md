@@ -66,12 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_stats_running_total` |   |   |   |   |
-| `mysql_stats_moving_avg` |   |   |   |   |
+| `mysql_stats_sampling` |   |   |   |   |
 | `mysql_stats_ntile` |   |   |   |   |
-| `mysql_stats_row_number` |   |   |   |   |
-| `mysql_stats_rank` |   |   |   |   |
-| `mysql_stats_lag_lead` |   |   |   |   |
 
 ---
 
@@ -79,55 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_running_total`
-- `mysql_stats_moving_avg`
+- `mysql_stats_sampling`
 - `mysql_stats_ntile`
-- `mysql_stats_row_number`
-- `mysql_stats_rank`
-- `mysql_stats_lag_lead`
 
 
 ## Group Focus: stats
 
-### stats Group-Specific Testing
-
-stats Tool Group (20 tools +1 for code mode):
-
-1. 'mysql_stats_row_number'
-2. 'mysql_stats_rank'
-3. 'mysql_stats_lag_lead'
-4. 'mysql_stats_running_total'
-5. 'mysql_stats_moving_avg'
-6. 'mysql_stats_ntile'
-7. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_measurements`, `test_events`, etc.
-
-**Checklist:**
-
-1. `mysql_stats_row_number({table: "test_measurements", orderBy: "temperature"})` → verify row numbers
-2. `mysql_stats_rank({table: "test_measurements", orderBy: "temperature", dense: true})` → verify ranks
-3. `mysql_stats_lag_lead({table: "test_measurements", column: "temperature", orderBy: "id", offset: 1})` → verify lag/lead values
-4. `mysql_stats_running_total({table: "test_measurements", column: "temperature", orderBy: "id"})` → verify running total
-5. `mysql_stats_moving_avg({table: "test_measurements", column: "temperature", windowSize: 3, orderBy: "id"})` → verify moving average
-6. `mysql_stats_ntile({table: "test_measurements", orderBy: "temperature", buckets: 4})` → verify quartiles
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_stats_moving_avg({table: "test_measurements", column: "nonexistent_col", windowSize: 3, orderBy: "id"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_stats_row_number({table: "nonexistent_xyz", orderBy: "temperature"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_stats_ntile({})` → `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_stats_lag_lead({})` → `{success: false, error: "..."}` (Zod validation)
-
-**Wrong-type numeric param coercion (🔴):**
-
-11. 🔴 `mysql_stats_moving_avg({table: "test_measurements", column: "temperature", windowSize: "abc", orderBy: "id"})` → must NOT return raw MCP error
-12. 🔴 `mysql_stats_ntile({table: "test_measurements", orderBy: "temperature", buckets: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

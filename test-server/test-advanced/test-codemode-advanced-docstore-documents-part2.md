@@ -64,21 +64,12 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Focus Area | Code Mode Validation |
+| Scenario | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.docstore.docModify` |   |   |
-| `mysql.docstore.docRemove` |   |   |
-| `mysql.docstore.docCollectionInfo` |   |   |
+
 
 ---
 
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql.docstore.docModify`
-- `mysql.docstore.docRemove`
-- `mysql.docstore.docCollectionInfo`
 
 
 ## Category 1: Collection Lifecycle

@@ -66,14 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_transaction_savepoint` |   |   |   |   |
-| `mysql_transaction_release` |   |   |   |   |
-| `mysql_transaction_rollback_to` |   |   |   |   |
-| `mysql_transaction_begin` |   |   |   |   |
 | `mysql_transaction_commit` |   |   |   |   |
-| `mysql_transaction_rollback` |   |   |   |   |
-| `mysql_transaction_execute` |   |   |   |   |
-| `mysql_read_query` |   |   |   |   |
+| `mysql_transaction_release` |   |   |   |   |
 
 ---
 
@@ -81,51 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_transaction_savepoint`
-- `mysql_transaction_release`
-- `mysql_transaction_rollback_to`
-- `mysql_transaction_begin`
 - `mysql_transaction_commit`
-- `mysql_transaction_rollback`
-- `mysql_transaction_execute`
-- `mysql_read_query`
+- `mysql_transaction_release`
 
 
 ## Group Focus: transactions
 
-### transactions Group-Specific Testing
-
-transactions Tool Group (7 tools +1 for code mode):
-
-1. 'mysql_transaction_begin'
-2. 'mysql_transaction_commit'
-3. 'mysql_transaction_rollback'
-4. 'mysql_transaction_savepoint'
-5. 'mysql_transaction_release'
-6. 'mysql_transaction_rollback_to'
-7. 'mysql_transaction_execute'
-8. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
-
-1. `mysql_transaction_begin()` → capture `transactionId`
-2. `[read_query_tool]({query: "SELECT 1 AS test", transactionId: <id>})` → `{rows: [{test: 1}]}`
-3. `mysql_transaction_savepoint({transactionId: <id>, name: "checklist_sp1"})` → `{success: true}`
-4. `mysql_transaction_rollback_to({transactionId: <id>, name: "checklist_sp1"})` → `{success: true}`
-5. `mysql_transaction_release({transactionId: <id>, name: "checklist_sp1"})` → note behavior
-6. `mysql_transaction_commit({transactionId: <id>})` → `{success: true}`
-7. `mysql_transaction_execute({statements: ["SELECT 1 AS a", "SELECT 2 AS b"]})` → `{success: true, statementsExecuted: 2}`
-
-**Domain error paths (🔴):**
-
-8. 🔴 `mysql_transaction_commit({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}` handler error
-9. 🔴 `mysql_transaction_rollback({transactionId: "nonexistent-uuid"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-10. 🔴 `mysql_transaction_execute({})` → `{success: false, error: "..."}` (missing `statements`)
-11. 🔴 `mysql_transaction_savepoint({})` → `{success: false, error: "..."}` (missing required params)
-12. 🔴 `mysql_transaction_rollback_to({})` → `{success: false, error: "..."}` (missing required params)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

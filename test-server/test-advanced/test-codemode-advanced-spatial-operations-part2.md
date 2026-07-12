@@ -68,8 +68,6 @@
 |---|---|---|
 | `mysql.spatial.buffer` |   |   |
 | `mysql.spatial.transform` |   |   |
-| `mysql.backup.auditListBackups` |   |   |
-| `mysql.backup.auditRestoreBackup` |   |   |
 
 ---
 
@@ -79,8 +77,6 @@
 
 - `mysql.spatial.buffer`
 - `mysql.spatial.transform`
-- `mysql.backup.auditListBackups`
-- `mysql.backup.auditRestoreBackup`
 
 
 ## Tasks

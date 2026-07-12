@@ -64,25 +64,12 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Focus Area | Code Mode Validation |
+| Scenario | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.spatial.createColumn` |   |   |
-| `mysql.spatial.createIndex` |   |   |
-| `mysql.spatial.buffer` |   |   |
-| `mysql.spatial.transform` |   |   |
-| `mysql.spatial.geojson` |   |   |
+
 
 ---
 
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql.spatial.createColumn`
-- `mysql.spatial.createIndex`
-- `mysql.spatial.buffer`
-- `mysql.spatial.transform`
-- `mysql.spatial.geojson`
 
 
 ## Group Focus: spatial

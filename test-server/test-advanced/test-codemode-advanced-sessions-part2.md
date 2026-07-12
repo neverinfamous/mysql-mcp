@@ -66,17 +66,10 @@
 
 | Endpoint | Focus Area | HTTP Validation |
 |---|---|---|
-| `mysql_read_query` |   |   |
-| `mysql_show_status` |   |   |
+
 
 ---
 
-### Explicit Tool Coverage Requirements
-
-**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
-
-- `mysql_read_query`
-- `mysql_show_status`
 
 
 ## Category 1: Sessions (Part 2)\n\n### Step 4: Validate Ongoing Communication

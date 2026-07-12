@@ -66,14 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_sys_host_summary` |   |   |   |   |
 | `mysql_sys_io_summary` |   |   |   |   |
-| `mysql_sys_wait_summary` |   |   |   |   |
-| `mysql_sys_schema_stats` |   |   |   |   |
-| `mysql_sys_memory_summary` |   |   |   |   |
-| `mysql_sys_statement_summary` |   |   |   |   |
-| `mysql_sys_user_summary` |   |   |   |   |
 | `mysql_sys_innodb_lock_waits` |   |   |   |   |
+| `mysql_sys_memory_summary` |   |   |   |   |
 
 ---
 
@@ -81,43 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_sys_host_summary`
 - `mysql_sys_io_summary`
-- `mysql_sys_wait_summary`
-- `mysql_sys_schema_stats`
-- `mysql_sys_memory_summary`
-- `mysql_sys_statement_summary`
-- `mysql_sys_user_summary`
 - `mysql_sys_innodb_lock_waits`
+- `mysql_sys_memory_summary`
 
 
 ## Group Focus: sysschema
 
-### sysschema Group-Specific Testing
-
-sysschema Tool Group (8 tools +1 for code mode):
-
-6. 🟢 `mysql_sys_schema_stats({})` -> verify success
-7. 🟢 `mysql_sys_host_summary({})` -> verify success
-8. 🟢 `mysql_sys_memory_summary({})` -> verify success
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_sys_statement_summary({ orderBy: "invalid_col" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-10. 🔴 `mysql_sys_wait_summary({ type: "invalid_type" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-11. 🔴 `mysql_sys_io_summary({ type: "invalid_type" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-12. 🔴 `mysql_sys_schema_stats({ schema: "nonexistent_db_xyz" })` -> `{success: false, error: "...", code: "NOT_FOUND_ERROR"}` (P154)
-
-**Zod validation error paths via coercion (🔴):**
-
-13. 🔴 `mysql_sys_user_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-14. 🔴 `mysql_sys_host_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-15. 🔴 `mysql_sys_innodb_lock_waits({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-16. 🔴 `mysql_sys_memory_summary({ limit: "abc" })` -> `{success: false, error: "...", code: "VALIDATION_ERROR"}`
-
-**Alias acceptance (🟢):**
-
-17. 🟢 (No parameter aliases are documented for sys tools)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -66,14 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_role_assign` |   |   |   |   |
-| `mysql_user_roles` |   |   |   |   |
-| `mysql_role_list` |   |   |   |   |
-| `mysql_role_create` |   |   |   |   |
 | `mysql_role_drop` |   |   |   |   |
-| `mysql_role_grants` |   |   |   |   |
-| `mysql_role_grant` |   |   |   |   |
-| `mysql_role_revoke` |   |   |   |   |
+| `mysql_role_assign` |   |   |   |   |
 
 ---
 
@@ -81,46 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_role_assign`
-- `mysql_user_roles`
-- `mysql_role_list`
-- `mysql_role_create`
 - `mysql_role_drop`
-- `mysql_role_grants`
-- `mysql_role_grant`
-- `mysql_role_revoke`
+- `mysql_role_assign`
 
 
 ## Group Focus: roles
 
-### roles Group-Specific Testing
-
-roles Tool Group (8 tools +1 for code mode):
-
-1. 'mysql_role_list'
-2. 'mysql_role_create'
-3. 'mysql_role_drop'
-4. 'mysql_role_grants'
-5. 'mysql_role_grant'
-6. 'mysql_role_assign'
-7. 'mysql_role_revoke'
-8. 'mysql_user_roles'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 3. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-1. `mysql_role_list({...})` -> verify success
-2. `mysql_role_create({...})` -> verify success
-3. `mysql_role_drop({...})` -> verify success
-4. `mysql_role_grants({...})` -> verify success
-5. `mysql_role_grant({...})` -> verify success
-6. `mysql_role_assign({...})` -> verify success
-7. `mysql_role_revoke({...})` -> verify success
-8. `mysql_user_roles({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_role_list({...})` -> `{success: false, error: "..."}` handler error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

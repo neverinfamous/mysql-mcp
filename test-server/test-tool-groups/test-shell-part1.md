@@ -67,10 +67,7 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysqlsh_version` |   |   |   |   |
-| `mysqlsh_export_table` |   |   |   |   |
 | `mysqlsh_import_json` |   |   |   |   |
-| `mysqlsh_check_upgrade` |   |   |   |   |
-| `mysqlsh_import_table` |   |   |   |   |
 | `mysqlsh_load_dump` |   |   |   |   |
 
 ---
@@ -80,45 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysqlsh_version`
-- `mysqlsh_export_table`
 - `mysqlsh_import_json`
-- `mysqlsh_check_upgrade`
-- `mysqlsh_import_table`
 - `mysqlsh_load_dump`
 
 
 ## Group Focus: shell
 
-### shell Group-Specific Testing
-
-shell Tool Group (10 tools +1 for code mode):
-
-1. 'mysqlsh_version'
-2. 'mysqlsh_check_upgrade'
-3. 'mysqlsh_export_table'
-4. 'mysqlsh_import_table'
-5. 'mysqlsh_import_json'
-6. 'mysql_execute_code'
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-7. `mysqlsh_version()` → verify MySQL Shell version and installation status
-
-4b. `mysqlsh_check_upgrade()` -> verify success
-4c. `mysqlsh_import_json({path: "/tmp/data.json", schema: "testdb", collection: "test_coll"})` -> verify success
-4d. `mysqlsh_import_table({path: "/tmp/data.csv", schema: "testdb", table: "test_products"})` -> verify success
-4e. `mysqlsh_load_dump({url: "/tmp/test_dump"})` -> verify success
-
-**Domain error paths (🔴):**
-
-
-**Zod validation error paths (🔴):**
-
-1. 🔴 `mysqlsh_export_table({})` → `{success: false, error: "..."}` (missing required params)
-
-**Security boundary validation paths (🔴):**
-
-2. 🔴 `mysqlsh_export_table({schema: "testdb", table: "test_products", outputPath: "C:/Users/chris/Desktop/out.csv"})` → `{success: false, code: "SECURITY_ERROR"}` (Sandbox boundary violation)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

@@ -66,12 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_stats_distinct` |   |   |   |   |
-| `mysql_stats_frequency` |   |   |   |   |
-| `mysql_stats_summary` |   |   |   |   |
-| `mysql_stats_hypothesis` |   |   |   |   |
+| `mysql_stats_percentiles` |   |   |   |   |
+| `mysql_stats_row_number` |   |   |   |   |
 | `mysql_stats_outliers` |   |   |   |   |
-| `mysql_stats_top_n` |   |   |   |   |
 
 ---
 
@@ -79,54 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_distinct`
-- `mysql_stats_frequency`
-- `mysql_stats_summary`
-- `mysql_stats_hypothesis`
+- `mysql_stats_percentiles`
+- `mysql_stats_row_number`
 - `mysql_stats_outliers`
-- `mysql_stats_top_n`
 
 
 ## Group Focus: stats
 
-### stats Group-Specific Testing
-
-stats Tool Group (20 tools +1 for code mode):
-
-1. 'mysql_stats_hypothesis'
-2. 'mysql_stats_outliers'
-3. 'mysql_stats_top_n'
-4. 'mysql_stats_distinct'
-5. 'mysql_stats_frequency'
-6. 'mysql_stats_summary'
-7. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_measurements`, `test_events`, etc.
-
-**Checklist:**
-
-1. `mysql_stats_hypothesis({table: "test_products", column: "price", groupColumn: "category", group1: "electronics", group2: "office"})` → verify t-test results
-2. `mysql_stats_outliers({table: "test_measurements", column: "temperature", method: "zscore"})` → verify outlier detection
-3. `mysql_stats_top_n({table: "test_measurements", column: "temperature", n: 5, direction: "desc"})` → verify top 5
-4. `mysql_stats_distinct({table: "test_events", column: "event_type"})` → verify distinct counts
-5. `mysql_stats_frequency({table: "test_events", column: "event_type"})` → verify frequency distribution
-6. `mysql_stats_summary({table: "test_measurements", columns: ["temperature", "humidity"]})` → verify multivariable summary
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_stats_top_n({table: "nonexistent_xyz", column: "temperature"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_stats_hypothesis({table: "test_products", column: "nonexistent", groupColumn: "category", group1: "electronics", group2: "office"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_stats_outliers({})` → `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_stats_summary({})` → `{success: false, error: "..."}` (Zod validation)
-
-**Wrong-type numeric param coercion (🔴):**
-
-11. 🔴 `mysql_stats_top_n({table: "test_measurements", column: "temperature", n: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

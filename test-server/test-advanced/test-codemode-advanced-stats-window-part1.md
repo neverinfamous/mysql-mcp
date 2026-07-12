@@ -66,11 +66,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.stats.rowNumber` |   |   |
-| `mysql.stats.rank` |   |   |
-| `mysql.stats.outliers` |   |   |
 | `mysql.stats.topN` |   |   |
-| `mysql.stats.distinct` |   |   |
 
 ---
 
@@ -78,11 +74,7 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.stats.rowNumber`
-- `mysql.stats.rank`
-- `mysql.stats.outliers`
 - `mysql.stats.topN`
-- `mysql.stats.distinct`
 
 
 ## Category 1: Window Function NULL Handling

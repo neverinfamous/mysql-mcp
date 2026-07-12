@@ -66,12 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_security_mask_data` |   |   |   |   |
+| `mysql_security_firewall_status` |   |   |   |   |
 | `mysql_security_password_validate` |   |   |   |   |
-| `mysql_security_ssl_status` |   |   |   |   |
-| `mysql_security_user_privileges` |   |   |   |   |
 | `mysql_security_sensitive_tables` |   |   |   |   |
-| `mysql_security_encryption_status` |   |   |   |   |
 
 ---
 
@@ -79,37 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_mask_data`
+- `mysql_security_firewall_status`
 - `mysql_security_password_validate`
-- `mysql_security_ssl_status`
-- `mysql_security_user_privileges`
 - `mysql_security_sensitive_tables`
-- `mysql_security_encryption_status`
 
 
 ## Group Focus: security
 
-### security Group-Specific Testing
-
-security Tool Group (9 tools +1 for code mode):
-
-1. 'mysql_security_ssl_status'
-2. 'mysql_security_user_privileges'
-3. 'mysql_security_sensitive_tables'
-4. 'mysql_security_encryption_status'
-
-5. ✅ `mysql_security_ssl_status()` -> verify SSL configuration
-6. ✅ `mysql_security_user_privileges({user: "root"})` -> verify privileges
-7. ✅ `mysql_security_sensitive_tables({schema: "testdb"})` -> verify sensitive tables listing
-8. ✅ `mysql_security_encryption_status()` -> verify encryption info
-
-**Domain error paths (✅):**
-1. ✅ `mysql_security_user_privileges({user: "nonexistent_user@localhost"})` -> `{success: false, error: "..."}`
-2. ✅ `mysql_security_sensitive_tables({schema: "nonexistent_schema"})` -> `{success: false, error: "..."}`
-
-**Zod validation error paths (✅):**
-1. ✅ `mysql_security_user_privileges({})` -> `{success: false, error: "..."}`
-2. ✅ `mysql_security_sensitive_tables({})` -> `{success: false, error: "..."}`
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

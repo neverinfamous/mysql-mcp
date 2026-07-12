@@ -66,11 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_fulltext_create` |   |   |   |   |
 | `mysql_fulltext_drop` |   |   |   |   |
 | `mysql_fulltext_boolean` |   |   |   |   |
-| `mysql_fulltext_expand` |   |   |   |   |
-| `mysql_fulltext_search` |   |   |   |   |
 
 ---
 
@@ -78,49 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_fulltext_create`
 - `mysql_fulltext_drop`
 - `mysql_fulltext_boolean`
-- `mysql_fulltext_expand`
-- `mysql_fulltext_search`
 
 
 ## Group Focus: fulltext
 
-### fulltext Group-Specific Testing
-
-fulltext Tool Group (5 tools +1 for code mode):
-
-1. 'mysql_fulltext_create'
-2. 'mysql_fulltext_drop'
-3. 'mysql_fulltext_boolean'
-4. 'mysql_fulltext_expand'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Test data:** Uses `test_articles` which has a FULLTEXT INDEX on `(title, body)`.
-
-Searchable terms: `MySQL`, `database`, `JSON`, `FTS`, `MCP`, `API`, `search`, `replication`.
-
-**Checklist:**
-
-1. `mysql_fulltext_boolean({table: "test_articles", columns: ["title", "body"], query: "+MySQL", maxLength: 50})` → verify truncated fields
-2. `mysql_fulltext_expand({table: "test_articles", columns: ["title", "body"], query: "database", maxLength: 50})` → verify truncated fields
-
-**Create → Search → Drop lifecycle:**
-
-3. `mysql_fulltext_create({table: "test_users", columns: ["bio"], name: "ft_bio_idx"})` → `{success: true}`
-4. `mysql_fulltext_search({table: "test_users", columns: ["bio"], query: "developer"})` → results
-5. `mysql_fulltext_drop({table: "test_users", name: "ft_bio_idx"})` → `{success: true}`
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql_fulltext_drop({table: "test_users", name: "nonexistent_index"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql_fulltext_create({})` → `{success: false, error: "..."}` (missing required params)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

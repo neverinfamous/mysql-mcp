@@ -66,14 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_query_digest` |   |   |   |   |
-| `proxysql_connection_pool` |   |   |   |   |
+| `proxysql_servers` |   |   |   |   |
 | `proxysql_users` |   |   |   |   |
-| `proxysql_global_variables` |   |   |   |   |
-| `proxysql_runtime_status` |   |   |   |   |
-| `proxysql_memory_stats` |   |   |   |   |
 | `proxysql_commands` |   |   |   |   |
-| `proxysql_process_list` |   |   |   |   |
 
 ---
 
@@ -81,45 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_query_digest`
-- `proxysql_connection_pool`
+- `proxysql_servers`
 - `proxysql_users`
-- `proxysql_global_variables`
-- `proxysql_runtime_status`
-- `proxysql_memory_stats`
 - `proxysql_commands`
-- `proxysql_process_list`
 
 
 ## Group Focus: proxysql
 
-### proxysql Group-Specific Testing
-
-proxysql Tool Group (11 tools +1 for code mode):
-
-1. 'proxysql_users'
-2. 'proxysql_global_variables'
-3. 'proxysql_runtime_status'
-4. 'proxysql_memory_stats'
-5. 'proxysql_commands'
-6. 'proxysql_process_list'
-7. 'mysql_execute_code'
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-8. `proxysql_users()` → verify user listing
-9. `proxysql_global_variables({limit: 10})` → verify first 10 variables
-10. `proxysql_global_variables({like: "mysql-max_connections"})` → verify specific variable
-11. `proxysql_runtime_status()` → verify runtime configuration
-12. `proxysql_runtime_status({summary: true})` → verify summarized output
-13. `proxysql_memory_stats()` → verify memory usage
-14. `proxysql_process_list()` → verify active sessions
-
-**Zod validation error paths (🔴):**
-
-1. 🔴 `proxysql_commands({})` → `{success: false, error: "..."}` (Zod validation — missing required `command`)
-
-**Wrong-type numeric param coercion (🔴):**
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

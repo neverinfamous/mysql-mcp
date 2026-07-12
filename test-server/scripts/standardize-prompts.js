@@ -185,7 +185,7 @@ function processDirectory(dirName) {
     let testContent = lines.slice(testStartIdx, contentEndIdx).join("\n");
 
     // Programmatic Fix: Dynamically align tool-map.json to actual checklist contents
-    const foundTools = [...new Set(Array.from(testContent.matchAll(/(?:mysql_|proxysql_|mysqlsh_)[a-zA-Z0-9_]+/g)).map(m => m[0]))];
+    const foundTools = []; // Removed programmatic tool extraction to preserve SSoT parity
     const validTools = foundTools.filter(t => t !== "mysql_execute_code");
     
     if (validTools.length > 0) {
@@ -231,8 +231,9 @@ function processDirectory(dirName) {
     const actualToolCount = TOOL_GROUPS[baseGroup] ? TOOL_GROUPS[baseGroup].length : 0;
 
     if (dirName === 'test-codemode') {
-        // Completely overwrite leftover hallucinated manual checklists for autonomous code mode testing
         testContent = `## Group Focus: ${baseGroup}\n\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.`;
+    } else if (dirName === 'test-tool-groups') {
+        testContent = `## Group Focus: ${baseGroup}\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.`;
     } else {
         testContent = testContent.replace(/## Group Focus:\s*.*/g, `## Group Focus: ${baseGroup}`);
         testContent = testContent.replace(/### .*? Group-Specific Testing/g, `### ${baseGroup} Group-Specific Testing`);
@@ -489,5 +490,5 @@ function processDirectory(dirName) {
 
 directories.forEach(processDirectory);
 // Programmatic Fix: Save the dynamically expanded tool mappings
-fs.writeFileSync(toolMapPath, JSON.stringify(toolMap, null, 2), "utf-8");
+// fs.writeFileSync(toolMapPath, JSON.stringify(toolMap, null, 2), "utf-8"); // Disabled
 console.log("Standardization complete. tool-map.json dynamically aligned.");

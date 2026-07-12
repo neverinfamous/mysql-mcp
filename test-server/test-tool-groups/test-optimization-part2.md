@@ -66,10 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_optimizer_trace` |   |   |   |   |
-| `mysql_index_recommendation` |   |   |   |   |
 | `mysql_query_rewrite` |   |   |   |   |
-| `mysql_force_index` |   |   |   |   |
+| `mysql_optimizer_trace` |   |   |   |   |
 
 ---
 
@@ -77,44 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_optimizer_trace`
-- `mysql_index_recommendation`
 - `mysql_query_rewrite`
-- `mysql_force_index`
+- `mysql_optimizer_trace`
 
 
 ## Group Focus: optimization
 
-### optimization Group-Specific Testing
-
-optimization Tool Group (4 tools +1 for code mode):
-
-1. 'mysql_index_recommendation'
-2. 'mysql_query_rewrite'
-3. 'mysql_force_index'
-4. 'mysql_optimizer_trace'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_index_recommendation({table: "test_orders", includeRedundant: true, includeUnindexed: true})` → verify recommendations returned, including missing FK checks and duplicate index checks
-2. `mysql_index_recommendation({queries: ["SELECT * FROM test_products WHERE category = 'Electronics'"]})` → verify EXPLAIN-based composite recommendations
-3. `mysql_index_recommendation({table: "test_orders", queries: ["SELECT * FROM test_orders WHERE status = 'completed' AND customer_name = 'Alice'"]})` → verify composite index suggestion for multi-column WHERE
-4. `mysql_index_recommendation({})` → verify database-wide audit runs (table is optional)
-5. `mysql_query_rewrite({query: "SELECT * FROM test_products WHERE name = 'Laptop'"})` → verify optimization hints
-6. `mysql_force_index({table: "test_orders", index: "idx_orders_status", query: "SELECT * FROM test_orders WHERE status = 'completed'"})` → verify FORCE INDEX hint
-7. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1"})` → verify trace output
-8. `mysql_optimizer_trace({query: "SELECT * FROM test_products WHERE id = 1", summary: true})` → verify summarized trace
-
-**Domain error paths (🔴):**
-
-9. 🔴 `mysql_index_recommendation({queries: ["INSERT INTO test_products VALUES (999, 'x', 1, 'cat', '{}')"]})` → verify DML rejection
-10. 🔴 `mysql_index_recommendation({table: "nonexistent_xyz"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-11. 🔴 `mysql_index_recommendation({queries: [123]})` → `{success: false, error: "..."}` (Zod validation, queries must be array)
-12. 🔴 `mysql_optimizer_trace({})` → `{success: false, error: "..."}` (missing required `query`)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

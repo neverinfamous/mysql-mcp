@@ -66,10 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_restore_dump` |   |   |   |   |
+| `mysql_import_data` |   |   |   |   |
 | `mysql_audit_list_backups` |   |   |   |   |
-| `mysql_audit_restore_backup` |   |   |   |   |
-| `mysql_audit_diff_backup` |   |   |   |   |
 
 ---
 
@@ -77,44 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_restore_dump`
+- `mysql_import_data`
 - `mysql_audit_list_backups`
-- `mysql_audit_restore_backup`
-- `mysql_audit_diff_backup`
 
 
 ## Group Focus: backup
 
-### backup Group-Specific Testing
-
-backup Tool Group (7 tools +1 for code mode):
-
-1. 'mysql_audit_list_backups'
-2. 'mysql_audit_restore_backup'
-3. 'mysql_audit_diff_backup'
-4. 'mysql_execute_code'
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-5. `mysql_audit_list_backups({...})` -> verify success
-6. `mysql_audit_restore_backup({...})` -> verify success
-7. `mysql_audit_diff_backup({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-1. 🔴 `mysql_audit_list_backups({...})` -> `{success: false, error: "..."}` handler error
-2. 🔴 `mysql_audit_restore_backup({...})` -> `{success: false, error: "..."}` handler error
-3. 🔴 `mysql_audit_diff_backup({...})` -> `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-1. 🟢 `mysql_audit_list_backups({})` -> `{success: true, data: {...}}` (defaults)
-2. 🔴 `mysql_audit_restore_backup({})` -> `{success: false, error: "..."}` (Zod validation)
-3. 🔴 `mysql_audit_diff_backup({})` -> `{success: false, error: "..."}` (Zod validation)
-
-**Alias acceptance (🟢):**
-
-22. 🟢 Verify any parameter aliases are accepted for applicable tools.
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

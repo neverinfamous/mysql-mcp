@@ -66,11 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_audit_diff_backup` |   |   |   |   |
-| `mysql_export_table` |   |   |   |   |
-| `mysql_import_data` |   |   |   |   |
 | `mysql_create_dump` |   |   |   |   |
-| `mysql_restore_dump` |   |   |   |   |
+| `mysql_audit_restore_backup` |   |   |   |   |
 
 ---
 
@@ -78,49 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_audit_diff_backup`
-- `mysql_export_table`
-- `mysql_import_data`
 - `mysql_create_dump`
-- `mysql_restore_dump`
+- `mysql_audit_restore_backup`
 
 
 ## Group Focus: backup
 
-### backup Group-Specific Testing
-
-backup Tool Group (7 tools +1 for code mode):
-
-1. 'mysql_export_table'
-2. 'mysql_import_data'
-3. 'mysql_create_dump'
-4. 'mysql_restore_dump'
-5. 'mysql_execute_code'
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-6. `mysql_export_table({table: "test_products", limit: 5})` -> verify success with limit
-7. `mysql_import_data({...})` -> verify success
-8. `mysql_create_dump({...})` -> verify success
-9. `mysql_restore_dump({...})` -> verify success
-
-**Domain error paths (🔴):**
-
-1. 🔴 `mysql_export_table({...})` -> `{success: false, error: "..."}` handler error
-2. 🔴 `mysql_import_data({...})` -> `{success: false, error: "..."}` handler error
-3. 🔴 `mysql_create_dump({...})` -> `{success: false, error: "..."}` handler error
-4. 🔴 `mysql_restore_dump({...})` -> `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-1. 🔴 `mysql_export_table({})` -> `{success: false, error: "..."}` (Zod validation)
-2. 🔴 `mysql_import_data({})` -> `{success: false, error: "..."}` (Zod validation)
-3. 🔴 `mysql_create_dump({})` -> `{success: false, error: "..."}` (Zod validation)
-4. 🔴 `mysql_restore_dump({})` -> `{success: false, error: "..."}` (Zod validation)
-
-**Alias acceptance (🟢):**
-
-22. 🟢 Verify any parameter aliases are accepted for applicable tools.
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

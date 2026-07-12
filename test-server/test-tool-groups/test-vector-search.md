@@ -66,9 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_vector_search` |   |   |   |   |
-| `mysql_vector_range_search` |   |   |   |   |
-| `mysql_vector_hybrid_search` |   |   |   |   |
+| `mysql_vector_delete` |   |   |   |   |
+| `mysql_vector_info` |   |   |   |   |
 
 ---
 
@@ -76,41 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_vector_search`
-- `mysql_vector_range_search`
-- `mysql_vector_hybrid_search`
+- `mysql_vector_delete`
+- `mysql_vector_info`
 
 
 ## Group Focus: vector
 
-### vector Group-Specific Testing
-
-vector Tool Group (11 tools +1 for code mode):
-
-1. 'mysql_vector_search'
-2. 'mysql_vector_range_search'
-3. 'mysql_vector_hybrid_search'
-4. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Checklist:**
-
-1. `mysql_vector_search({...})` → happy path
-2. `mysql_vector_range_search({...})` → happy path
-3. `mysql_vector_hybrid_search({table: "test_products", query: "test", vector: "[0.1, 0.2]", metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → happy path
-
-**Domain error paths (🔴):**
-
-4. 🔴 `mysql_vector_search({...})` → domain error
-5. 🔴 `mysql_vector_range_search({...})` → domain error
-6. 🔴 `mysql_vector_hybrid_search({table: "test_products", query: "test", vector: "[0.1, 0.2]", metric: "cosine", rrfK: 60, select: ["id"], filter: "price < 100"})` → domain error
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql_vector_search({})` → validation error
-8. 🔴 `mysql_vector_range_search({})` → validation error
-9. 🔴 `mysql_vector_hybrid_search({})` → validation error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

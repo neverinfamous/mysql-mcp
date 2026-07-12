@@ -69,8 +69,6 @@
 | `mysql.schema.listTriggers` |   |   |
 | `mysql.schema.createTrigger` |   |   |
 | `mysql.schema.dropTrigger` |   |   |
-| `mysql.schema.listStoredProcedures` |   |   |
-| `mysql.schema.listFunctions` |   |   |
 
 ---
 
@@ -81,8 +79,6 @@
 - `mysql.schema.listTriggers`
 - `mysql.schema.createTrigger`
 - `mysql.schema.dropTrigger`
-- `mysql.schema.listStoredProcedures`
-- `mysql.schema.listFunctions`
 
 
 ## Group Focus: schema

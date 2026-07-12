@@ -66,8 +66,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_list_stored_procedures` |   |   |   |   |
-| `mysql_list_functions` |   |   |   |   |
+| `mysql_list_views` |   |   |   |   |
 | `mysql_list_triggers` |   |   |   |   |
 
 ---
@@ -76,34 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_list_stored_procedures`
-- `mysql_list_functions`
+- `mysql_list_views`
 - `mysql_list_triggers`
 
 
 ## Group Focus: schema
 
-### schema Group-Specific Testing
-
-schema Tool Group (12 tools +1 for code mode):
-
-1. 'mysql_list_stored_procedures'
-2. 'mysql_list_functions'
-3. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation.
-
-1. `mysql_list_stored_procedures({database: "testdb"})` → verify response structure
-2. `mysql_list_functions({database: "testdb"})` → verify response structure
-
-**Domain error paths (🔴):**
-
-3. 🔴 `mysql_list_stored_procedures({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
-4. 🔴 `mysql_list_functions({database: "nonexistent_db_xyz"})` → `{success: false, error: "..."}`
-
-**Wrong-type numeric param coercion (🔴):**
-
-5. 🔴 `mysql_list_stored_procedures({limit: "abc"})` → must NOT return raw MCP `-32602` error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

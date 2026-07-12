@@ -66,14 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_stats_regression` |   |   |   |   |
-| `mysql_stats_histogram` |   |   |   |   |
-| `mysql_stats_descriptive` |   |   |   |   |
-| `mysql_stats_percentiles` |   |   |   |   |
-| `mysql_stats_correlation` |   |   |   |   |
-| `mysql_stats_distribution` |   |   |   |   |
 | `mysql_stats_time_series` |   |   |   |   |
-| `mysql_stats_sampling` |   |   |   |   |
+| `mysql_stats_running_total` |   |   |   |   |
+| `mysql_stats_frequency` |   |   |   |   |
 
 ---
 
@@ -81,42 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_stats_regression`
-- `mysql_stats_histogram`
-- `mysql_stats_descriptive`
-- `mysql_stats_percentiles`
-- `mysql_stats_correlation`
-- `mysql_stats_distribution`
 - `mysql_stats_time_series`
-- `mysql_stats_sampling`
+- `mysql_stats_running_total`
+- `mysql_stats_frequency`
 
 
 ## Group Focus: stats
 
-### stats Group-Specific Testing
-
-stats Tool Group (20 tools +1 for code mode):
-
-1. 'mysql_stats_descriptive'
-2. 'mysql_stats_percentiles'
-3. 'mysql_stats_correlation'
-4. 'mysql_stats_distribution'
-5. 'mysql_stats_time_series'
-6. 'mysql_stats_regression'
-7. 'mysql_stats_sampling'
-8. 'mysql_stats_histogram'
-9. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: THIS IS PART 3. Execute the checklist below. Note: This file has been physically split to prevent context exhaustion.
-
-**Test data:** Uses `test_measurements`, `test_events`, etc.
-
-**Checklist:**
-
-1. `mysql_stats_descriptive({table: "test_measurements", column: "temperature"})` → verify `mean`, `stddev`, `min`, `max` present
-2. `mysql_stats_percentiles({table: "test_measurements", column: "temperature", percentiles: [25, 50, 75]})` → verify 3 percentile values
-3. `mysql_stats_correlation({table: "test_measurements", column1: "temperature", column2: "humidity"})` → verify correlation value between -1 and 1
-4. `mysql_stats_distribution({table: "test_measurements", column: "temperature", buckets: 10})` → verify `buckets` array with entries
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

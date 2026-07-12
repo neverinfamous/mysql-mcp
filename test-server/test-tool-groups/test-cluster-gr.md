@@ -67,10 +67,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_gr_status` |   |   |   |   |
-| `mysql_gr_members` |   |   |   |   |
-| `mysql_gr_primary` |   |   |   |   |
-| `mysql_gr_transactions` |   |   |   |   |
 | `mysql_gr_flow_control` |   |   |   |   |
+| `mysql_cluster_router_status` |   |   |   |   |
 
 ---
 
@@ -79,35 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_gr_status`
-- `mysql_gr_members`
-- `mysql_gr_primary`
-- `mysql_gr_transactions`
 - `mysql_gr_flow_control`
+- `mysql_cluster_router_status`
 
 
 ## Group Focus: cluster
 
-### cluster Group-Specific Testing
-
-cluster Tool Group (10 tools +1 for code mode):
-
-1. 'mysql_gr_status'
-2. 'mysql_gr_members'
-3. 'mysql_gr_primary'
-4. 'mysql_gr_transactions'
-5. 'mysql_gr_flow_control'
-6. 'mysql_execute_code'
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. In a non-cluster environment, verify the tools return structured error or empty-state responses.
-
-7. `mysql_gr_status()` → verify GR status or structured "not configured" message
-8. `mysql_gr_members()` → verify members list or structured empty response
-2b. `mysql_gr_transactions()` -> verify transactions info
-2c. `mysql_gr_flow_control()` -> verify flow control info
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_gr_primary({})` → verify behavior (may accept empty params for read-only mode)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

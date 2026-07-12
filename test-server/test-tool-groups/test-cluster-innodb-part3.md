@@ -66,13 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_cluster_switchover` |   |   |   |   |
-| `mysql_cluster_status` |   |   |   |   |
-| `mysql_cluster_instances` |   |   |   |   |
-| `mysql_cluster_topology` |   |   |   |   |
-| `mysql_cluster_router_status` |   |   |   |   |
 | `mysql_gr_transactions` |   |   |   |   |
-| `mysql_gr_flow_control` |   |   |   |   |
+| `mysql_cluster_topology` |   |   |   |   |
 
 ---
 
@@ -80,41 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_cluster_switchover`
-- `mysql_cluster_status`
-- `mysql_cluster_instances`
-- `mysql_cluster_topology`
-- `mysql_cluster_router_status`
 - `mysql_gr_transactions`
-- `mysql_gr_flow_control`
+- `mysql_cluster_topology`
 
 
 ## Group Focus: cluster
 
-### cluster Group-Specific Testing
-
-cluster Tool Group (10 tools +1 for code mode):
-
-1. 'mysql_cluster_status'
-2. 'mysql_cluster_instances'
-3. 'mysql_cluster_topology'
-4. 'mysql_cluster_router_status'
-5. 'mysql_cluster_switchover'
-6. 'mysql_execute_code'
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. In a non-cluster environment, verify the tools return structured error or empty-state responses.
-
-2b. `mysql_gr_transactions()` -> verify transactions info
-2c. `mysql_gr_flow_control()` -> verify flow control info
-7. `mysql_cluster_status()` → verify cluster status or structured error
-8. `mysql_cluster_status({summary: true})` → verify summarized output (if cluster running)
-9. `mysql_cluster_instances()` → verify instance details
-10. `mysql_cluster_topology()` → verify topology map
-11. `mysql_cluster_router_status()` → verify router status or structured error
-12. `mysql_cluster_router_status({summary: true})` → verify summarized output
-13. `mysql_cluster_switchover()` → verify readiness check (should not actually perform switchover without params)
-
-**Zod validation error paths (🔴):**
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

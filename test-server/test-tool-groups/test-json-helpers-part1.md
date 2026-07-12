@@ -66,10 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_json_get` |   |   |   |   |
-| `mysql_json_update` |   |   |   |   |
-| `mysql_json_search` |   |   |   |   |
-| `mysql_json_validate` |   |   |   |   |
+| `mysql_json_contains` |   |   |   |   |
+| `mysql_json_merge` |   |   |   |   |
 
 ---
 
@@ -77,46 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_json_get`
-- `mysql_json_update`
-- `mysql_json_search`
-- `mysql_json_validate`
+- `mysql_json_contains`
+- `mysql_json_merge`
 
 
 ## Group Focus: json
 
-### json Group-Specific Testing
-
-json Tool Group (17 tools +1 for code mode):
-
-1. 'mysql_json_get'
-2. 'mysql_json_update'
-3. 'mysql_json_search'
-4. 'mysql_json_validate'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Checklist (Happy paths):**
-
-1. `mysql_json_get({table: "test_json_docs", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → happy path
-2. `mysql_json_update({table: "test_json_docs", column: "doc", path: "$.key1", value: "new_val", idColumn: "id", rowId: 1})` → happy path
-3. `mysql_json_search({table: "test_json_docs", column: "doc", searchString: "value1"})` → happy path
-4. `mysql_json_validate({value: "{\"key\": \"valid_json\"}"})` → happy path
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql_json_get({table: "nonexistent_table", column: "doc", path: "$.key1", idColumn: "id", rowId: 1})` → domain error
-6. 🔴 `mysql_json_update({table: "test_json_docs", column: "nonexistent_col", path: "$.key1", value: "v", idColumn: "id", rowId: 1})` → domain error
-7. 🔴 `mysql_json_search({table: "nonexistent_table", column: "doc", searchString: "value1"})` → domain error
-8. 🔴 `mysql_json_validate({value: "{invalid_json}"})` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_json_get({})` → validation error
-10. 🔴 `mysql_json_update({})` → validation error
-11. 🔴 `mysql_json_search({})` → validation error
-12. 🔴 `mysql_json_validate({})` → validation error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

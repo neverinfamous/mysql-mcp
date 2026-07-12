@@ -66,13 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_append_insight` |   |   |   |   |
-| `mysql_audit_search` |   |   |   |   |
 | `mysql_analyze_table` |   |   |   |   |
 | `mysql_flush_tables` |   |   |   |   |
-| `mysql_write_query` |   |   |   |   |
 | `mysql_server_config` |   |   |   |   |
-| `mysql_kill_query` |   |   |   |   |
 
 ---
 
@@ -80,45 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_append_insight`
-- `mysql_audit_search`
 - `mysql_analyze_table`
 - `mysql_flush_tables`
-- `mysql_write_query`
 - `mysql_server_config`
-- `mysql_kill_query`
 
 
 ## Group Focus: admin
 
-### admin Group-Specific Testing
-
-admin Tool Group (9 tools +1 for code mode):
-
-9. `mysql_flush_tables({tables: ["test_products"]})` → verify success
-10. `mysql_append_insight({insight: "Test insight"})` → verify success
-11. `mysql_audit_search({})` → `{success: true, entries: [...]}`
-12. `mysql_audit_search({limit: 5, offset: 1})` → verify pagination
-13. `mysql_audit_search({tool: "<tool_name>"})` → verify tool filtering
-14. `mysql_audit_search({success: false})` → verify outcome filtering
-
-**Domain error paths (🔴):**
-
-15. 🔴 `mysql_analyze_table({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` handler error
-16. 🔴 `mysql_server_config({action: "set", setting: "logLevel", value: "invalid_level"})` → `{success: false, error: "Invalid log level..."}`
-17. 🔴 `mysql_server_config({action: "set"})` → `{success: false, error: "Missing setting or value..."}`
-
-**Zod validation error paths (🔴):**
-
-18. 🔴 `mysql_analyze_table({})` → `{success: false, error: "..."}` (Zod validation)
-19. 🔴 `mysql_server_config({})` → `{success: false, error: "..."}` (Zod validation)
-20. 🔴 `mysql_server_config({action: "invalid"})` → `{success: false, error: "..."}` (Zod validation)
-21. 🔴 `mysql_audit_search({limit: "abc"})` → `{success: false, error: "..."}` (Zod validation, wrong type)
-22. 🔴 `mysql_flush_tables({tables: "not_array"})` → `{success: false, error: "..."}` (Zod validation)
-
-**Wrong-type numeric param coercion (🔴):**
-
-23. 🔴 `mysql_kill_query({id: "abc"})` → must NOT return raw MCP error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

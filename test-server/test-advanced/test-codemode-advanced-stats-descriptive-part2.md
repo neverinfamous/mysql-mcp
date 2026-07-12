@@ -66,7 +66,6 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.stats.distribution` |   |   |
 | `mysql.stats.histogram` |   |   |
 | `mysql.stats.frequency` |   |   |
 | `mysql.stats.rowNumber` |   |   |
@@ -78,7 +77,6 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.stats.distribution`
 - `mysql.stats.histogram`
 - `mysql.stats.frequency`
 - `mysql.stats.rowNumber`

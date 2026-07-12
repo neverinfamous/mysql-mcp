@@ -66,12 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_router_route_blocked_hosts` |   |   |   |   |
-| `mysql_router_pool_status` |   |   |   |   |
-| `mysql_router_route_status` |   |   |   |   |
-| `mysql_router_route_health` |   |   |   |   |
+| `mysql_router_routes` |   |   |   |   |
 | `mysql_router_route_connections` |   |   |   |   |
-| `mysql_router_route_destinations` |   |   |   |   |
 | `mysql_router_metadata_status` |   |   |   |   |
 
 ---
@@ -80,37 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_blocked_hosts`
-- `mysql_router_pool_status`
-- `mysql_router_route_status`
-- `mysql_router_route_health`
+- `mysql_router_routes`
 - `mysql_router_route_connections`
-- `mysql_router_route_destinations`
 - `mysql_router_metadata_status`
 
 
 ## Group Focus: router
 
-### router Group-Specific Testing
-
-router Tool Group (9 tools +1 for code mode):
-
-4. `mysql_router_route_health({routeName: "bootstrap_rw"})` → verify health check
-5. `mysql_router_route_connections({routeName: "bootstrap_rw"})` → verify active connections
-6. `mysql_router_route_destinations({routeName: "bootstrap_rw"})` → verify backend destinations
-7. `mysql_router_route_blocked_hosts({routeName: "bootstrap_rw"})` → verify blocked hosts (may be empty)
-8. `mysql_router_metadata_status({metadataName: "bootstrap"})` → verify metadata cache status (requires InnoDB Cluster)
-9. `mysql_router_pool_status({poolName: "default"})` → verify pool statistics
-
-**Domain error paths (🔴):**
-
-10. 🔴 `mysql_router_route_status({routeName: "nonexistent_route_xyz"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-11. 🔴 `mysql_router_route_status({})` → `{success: false, error: "..."}` (missing required `routeName`)
-
-**Alias acceptance paths (🟢):**
-12. 🟢 `mysql_router_route_status({name: "bootstrap_rw"})` → behaves identically to `routeName`
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

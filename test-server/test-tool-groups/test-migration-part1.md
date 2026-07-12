@@ -67,11 +67,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_migration_init` |   |   |   |   |
-| `mysql_migration_record` |   |   |   |   |
 | `mysql_migration_apply` |   |   |   |   |
-| `mysql_migration_rollback` |   |   |   |   |
 | `mysql_migration_history` |   |   |   |   |
-| `mysql_migration_status` |   |   |   |   |
 
 ---
 
@@ -80,45 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_migration_init`
-- `mysql_migration_record`
 - `mysql_migration_apply`
-- `mysql_migration_rollback`
 - `mysql_migration_history`
-- `mysql_migration_status`
 
 
 ## Group Focus: migration
 
-### migration Group-Specific Testing
-
-migration Tool Group (6 tools +1 for code mode):
-
-1. 'mysql_migration_init'
-2. 'mysql_migration_record'
-3. 'mysql_migration_apply'
-4. 'mysql_migration_rollback'
-5. 'mysql_migration_history'
-6. 'mysql_migration_status'
-7. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_migration_init()` → verify table initialization
-2. `mysql_migration_record({version: "1.0.0", name: "initial", query: "CREATE TABLE test_migration (id INT)"})` → verify migration recording
-3. `mysql_migration_apply({version: "1.0.1", name: "add_col", query: "ALTER TABLE test_users ADD COLUMN age INT", rollbackSql: "ALTER TABLE test_users DROP COLUMN age"})` → verify application
-4. `mysql_migration_status()` → verify migration status
-5. `mysql_migration_history({limit: 5})` → verify historical migrations
-6. `mysql_migration_rollback({version: "1.0.1"})` → verify rollback functionality
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_migration_rollback({version: "nonexistent_version"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_migration_apply({version: "1.0.0", name: "duplicate", query: "..."})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_migration_record({})` → `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_migration_apply({})` → `{success: false, error: "..."}` (Zod validation)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

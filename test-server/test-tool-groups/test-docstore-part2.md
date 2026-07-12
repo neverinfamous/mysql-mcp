@@ -66,12 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_doc_collection_info` |   |   |   |   |
-| `mysql_doc_find` |   |   |   |   |
+| `mysql_doc_create_collection` |   |   |   |   |
 | `mysql_doc_add` |   |   |   |   |
-| `mysql_doc_modify` |   |   |   |   |
 | `mysql_doc_create_index` |   |   |   |   |
-| `mysql_doc_remove` |   |   |   |   |
 
 ---
 
@@ -79,38 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_doc_collection_info`
-- `mysql_doc_find`
+- `mysql_doc_create_collection`
 - `mysql_doc_add`
-- `mysql_doc_modify`
 - `mysql_doc_create_index`
-- `mysql_doc_remove`
 
 
 ## Group Focus: docstore
 
-### docstore Group-Specific Testing
-
-docstore Tool Group (9 tools +1 for code mode):
-
-1. 'mysql_doc_find'
-2. 'mysql_doc_add'
-3. 'mysql_doc_modify'
-4. 'mysql_doc_create_index'
-5. 'mysql_doc_remove'
-6. 'mysql_execute_code' (codemode, auto-added)
-
-3. `mysql_doc_add({collection: "test_coll", documents: [{"_id": "1", "name": "test"}]})` -> verify success
-4. `mysql_doc_find({collection: "test_coll", filter: "_id = '1'"})` -> verify document found
-5. `mysql_doc_modify({collection: "test_coll", filter: "_id = '1'", set: {"$.name": "updated"}})` -> verify success
-6. `mysql_doc_create_index({collection: "test_coll", name: "idx_name", fields: [{field: "$.name", type: "STRING"}]})` -> verify success
-7. `mysql_doc_remove({collection: "test_coll", filter: "_id = '1'"})` -> verify success
-
-**Domain error paths (??):**
-1. ?? `mysql_doc_find({collection: "nonexistent_coll"})` -> `{success: false, error: "..."}`
-
-**Zod validation error paths (??):**
-1. ?? `mysql_doc_add({})` -> `{success: false, error: "..."}`
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

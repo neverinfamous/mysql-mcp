@@ -66,14 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_security_user_privileges` |   |   |   |   |
-| `mysql_security_sensitive_tables` |   |   |   |   |
-| `mysql_security_encryption_status` |   |   |   |   |
-| `mysql_security_audit` |   |   |   |   |
-| `mysql_security_firewall_status` |   |   |   |   |
 | `mysql_security_firewall_rules` |   |   |   |   |
-| `mysql_security_mask_data` |   |   |   |   |
-| `mysql_security_password_validate` |   |   |   |   |
+| `mysql_security_ssl_status` |   |   |   |   |
+| `mysql_security_encryption_status` |   |   |   |   |
 
 ---
 
@@ -81,39 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_user_privileges`
-- `mysql_security_sensitive_tables`
-- `mysql_security_encryption_status`
-- `mysql_security_audit`
-- `mysql_security_firewall_status`
 - `mysql_security_firewall_rules`
-- `mysql_security_mask_data`
-- `mysql_security_password_validate`
+- `mysql_security_ssl_status`
+- `mysql_security_encryption_status`
 
 
 ## Group Focus: security
 
-### security Group-Specific Testing
-
-security Tool Group (9 tools +1 for code mode):
-
-1. 'mysql_security_audit'
-2. 'mysql_security_firewall_status'
-3. 'mysql_security_firewall_rules'
-4. 'mysql_security_mask_data'
-5. 'mysql_security_password_validate'
-
-6. `mysql_security_audit()` -> verify security configuration
-7. `mysql_security_firewall_status()` -> verify firewall status (if installed) or structured "not installed" message
-8. `mysql_security_firewall_rules({user: "root@localhost"})` -> verify rules or structured "not installed" message
-9. `mysql_security_mask_data({value: "test@example.com", type: "email"})` -> verify masking preview
-10. `mysql_security_password_validate({password: "TestPass123!"})` -> verify validation results
-
-**Domain error paths (??):**
-
-**Zod validation error paths (??):**
-1. ?? `mysql_security_mask_data({})` -> `{success: false, error: "..."}`
-2. ?? `mysql_security_password_validate({})` -> `{success: false, error: "..."}`
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

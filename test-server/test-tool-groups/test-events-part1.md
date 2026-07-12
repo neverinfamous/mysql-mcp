@@ -67,11 +67,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_event_create` |   |   |   |   |
-| `mysql_event_alter` |   |   |   |   |
 | `mysql_event_drop` |   |   |   |   |
-| `mysql_event_list` |   |   |   |   |
 | `mysql_event_status` |   |   |   |   |
-| `mysql_scheduler_status` |   |   |   |   |
 
 ---
 
@@ -80,48 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_event_create`
-- `mysql_event_alter`
 - `mysql_event_drop`
-- `mysql_event_list`
 - `mysql_event_status`
-- `mysql_scheduler_status`
 
 
 ## Group Focus: events
 
-### events Group-Specific Testing
-
-events Tool Group (6 tools +1 for code mode):
-
-1. 'mysql_event_create'
-2. 'mysql_event_alter'
-3. 'mysql_event_drop'
-4. 'mysql_event_list'
-5. 'mysql_event_status'
-6. 'mysql_scheduler_status'
-7. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_scheduler_status()` → verify scheduler ON/OFF status
-2. `mysql_event_list()` → verify event listing structure
-
-**Create → Use → Drop lifecycle:**
-
-3. `mysql_event_create({name: "temp_test_event", schedule: "EVERY 1 DAY", body: "SELECT 1", status: "DISABLE"})` → `{success: true}`
-4. `mysql_event_status({name: "temp_test_event"})` → verify event status
-5. `mysql_event_alter({name: "temp_test_event", status: "DISABLE"})` → `{success: true}`
-6. `mysql_event_drop({name: "temp_test_event"})` → `{success: true}`
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_event_status({name: "nonexistent_event_xyz"})` → `{success: false, error: "..."}` handler error
-8. 🔴 `mysql_event_drop({name: "nonexistent_event_xyz"})` → `{success: false, error: "..."}` handler error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_event_create({})` → `{success: false, error: "..."}` (Zod validation)
-10. 🔴 `mysql_event_alter({})` → `{success: false, error: "..."}` (missing required params)
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

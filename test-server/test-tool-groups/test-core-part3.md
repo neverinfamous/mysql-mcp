@@ -66,12 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_create_table` |   |   |   |   |
-| `mysql_enable_versioning` |   |   |   |   |
+| `mysql_list_tables` |   |   |   |   |
+| `mysql_create_index` |   |   |   |   |
 | `mysql_check_version` |   |   |   |   |
-| `mysql_disable_versioning` |   |   |   |   |
-| `mysql_conditional_update` |   |   |   |   |
-| `mysql_write_query` |   |   |   |   |
 
 ---
 
@@ -79,53 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_create_table`
-- `mysql_enable_versioning`
+- `mysql_list_tables`
+- `mysql_create_index`
 - `mysql_check_version`
-- `mysql_disable_versioning`
-- `mysql_conditional_update`
-- `mysql_write_query`
 
 
 ## Group Focus: core
 
-### core Group-Specific Testing
-
-core Tool Group (versioning subset) (4 tools +1 for code mode):
-
-1. 'mysql_enable_versioning'
-2. 'mysql_disable_versioning'
-3. 'mysql_check_version'
-4. 'mysql_conditional_update'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-All tools should gracefully handle nonexistent tables and validation errors. Test with `test_products` and a temporary table `temp_versioning`.
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation. These are the minimum-bar tests that must pass every run — freeform testing comes after.
-
-**Setup / Happy Paths:**
-
-1. `mysql_create_table({table: "temp_versioning", columns: [{name: "id", type: "INT", primaryKey: true, autoIncrement: true}, {name: "quantity", type: "INT"}]})` → `{success: true}`
-2. `mysql_write_query({query: "INSERT INTO temp_versioning (quantity) VALUES (100)"})` → `{rowsAffected: 1}`
-3. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `message` indicates trigger added
-4. `mysql_enable_versioning({table: "temp_versioning"})` → `{success: true}` and verify `alreadyEnabled` is true
-5. `mysql_check_version({table: "temp_versioning", rowId: 1})` → `{success: true}` and `version: 1`
-6. `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: true, rowsAffected: 1}`
-
-**Domain error paths (🔴):**
-
-7. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 999}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning version conflict — NOT raw MCP error
-8. 🔴 `mysql_check_version({table: "nonexistent_table_xyz", rowId: 1})` → `{success: false, error: "..."}` mentioning table name
-9. 🔴 `mysql_check_version({table: "temp_versioning", rowId: 9999})` → `{success: false, error: "..."}` mentioning row not found
-10. 🔴 `mysql_enable_versioning({table: "nonexistent_table_xyz"})` → `{success: false, error: "..."}` mentioning table name
-
-**Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
-
-
-**Wrong-type numeric param coercion (🔴):**
-
-
-**Teardown:**
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

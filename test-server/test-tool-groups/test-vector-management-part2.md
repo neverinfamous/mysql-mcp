@@ -66,10 +66,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_vector_stats` |   |   |   |   |
-| `mysql_vector_info` |   |   |   |   |
-| `mysql_vector_create_index` |   |   |   |   |
-| `mysql_vector_optimize` |   |   |   |   |
+| `mysql_vector_batch_store` |   |   |   |   |
+| `mysql_vector_hybrid_search` |   |   |   |   |
 
 ---
 
@@ -77,46 +75,13 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_vector_stats`
-- `mysql_vector_info`
-- `mysql_vector_create_index`
-- `mysql_vector_optimize`
+- `mysql_vector_batch_store`
+- `mysql_vector_hybrid_search`
 
 
 ## Group Focus: vector
 
-### vector Group-Specific Testing
-
-vector Tool Group (11 tools +1 for code mode):
-
-1. 'mysql_vector_info'
-2. 'mysql_vector_create_index'
-3. 'mysql_vector_optimize'
-4. 'mysql_vector_stats'
-5. 'mysql_execute_code' (codemode, auto-added)
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-**Checklist:**
-
-1. `mysql_vector_info({...})` → happy path
-2. `mysql_vector_create_index({...})` → happy path
-3. `mysql_vector_optimize({...})` → happy path
-4. `mysql_vector_stats({...})` → happy path
-
-**Domain error paths (🔴):**
-
-5. 🔴 `mysql_vector_info({...})` → domain error
-6. 🔴 `mysql_vector_create_index({...})` → domain error
-7. 🔴 `mysql_vector_optimize({...})` → domain error
-8. 🔴 `mysql_vector_stats({...})` → domain error
-
-**Zod validation error paths (🔴):**
-
-9. 🔴 `mysql_vector_info({})` → validation error
-10. 🔴 `mysql_vector_create_index({})` → validation error
-11. 🔴 `mysql_vector_optimize({})` → validation error
-12. 🔴 `mysql_vector_stats({})` → validation error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

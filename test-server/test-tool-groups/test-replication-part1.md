@@ -67,9 +67,7 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_master_status` |   |   |   |   |
-| `mysql_slave_status` |   |   |   |   |
 | `mysql_binlog_events` |   |   |   |   |
-| `mysql_gtid_status` |   |   |   |   |
 | `mysql_replication_lag` |   |   |   |   |
 
 ---
@@ -79,46 +77,13 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_master_status`
-- `mysql_slave_status`
 - `mysql_binlog_events`
-- `mysql_gtid_status`
 - `mysql_replication_lag`
 
 
 ## Group Focus: replication
 
-### replication Group-Specific Testing
-
-replication Tool Group (5 tools +1 for code mode):
-
-1. 'mysql_master_status'
-2. 'mysql_slave_status'
-3. 'mysql_binlog_events'
-4. 'mysql_gtid_status'
-5. 'mysql_replication_lag'
-6. 'mysql_execute_code' (codemode, auto-added)
-
-> **Note**: These tools query replication state. In a single-server test environment, most will return empty or status-only results. The focus is on verifying structured error responses and no raw MCP leakage.
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS.
-
-1. `mysql_master_status()` → verify response structure (binlog file, position)
-2. `mysql_slave_status()` → verify response structure (may indicate no replication)
-3. `mysql_gtid_status()` → verify GTID information
-4. `mysql_binlog_events({limit: 5})` → verify binlog events listed (may be empty)
-5. `mysql_replication_lag()` → verify response (0 lag or no-replica message)
-
-**Domain error paths (🔴):**
-
-6. 🔴 `mysql_binlog_events({logFile: "nonexistent_binlog.123456"})` → verify structured `{success: false, error: "..."}`
-
-**Zod validation error paths (🔴):**
-
-7. 🔴 `mysql_binlog_events({logFile: 123})` → must NOT return raw MCP error (wrong type — expected string)
-
-**Wrong-type numeric param coercion (🔴):**
-
-8. 🔴 `mysql_binlog_events({limit: "abc"})` → must NOT return raw MCP `-32602` error
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 

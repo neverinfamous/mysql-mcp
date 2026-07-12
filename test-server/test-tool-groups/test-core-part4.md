@@ -66,11 +66,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_drop_table` |   |   |   |   |
-| `mysql_disable_versioning` |   |   |   |   |
+| `mysql_describe_table` |   |   |   |   |
+| `mysql_get_indexes` |   |   |   |   |
 | `mysql_conditional_update` |   |   |   |   |
-| `mysql_enable_versioning` |   |   |   |   |
-| `mysql_check_version` |   |   |   |   |
 
 ---
 
@@ -78,45 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_drop_table`
-- `mysql_disable_versioning`
+- `mysql_describe_table`
+- `mysql_get_indexes`
 - `mysql_conditional_update`
-- `mysql_enable_versioning`
-- `mysql_check_version`
 
 
 ## Group Focus: core
 
-### core Group-Specific Testing
-
-All tools should gracefully handle nonexistent tables and validation errors. Test with `test_products` and a temporary table `temp_versioning`.
-
-> **Instructions**: Execute every numbered checklist item. Since exact parameters may be omitted (shown as {...}), you MUST read the tool schema and provide valid, realistic inputs using the 'testdb' schema for your DIRECT TOOL CALLS. Compare responses against the expected results. Report any deviation. These are the minimum-bar tests that must pass every run — freeform testing comes after.
-
-**Setup / Happy Paths:**
-
-
-**Domain error paths (🔴):**
-
-11. 🔴 `mysql_conditional_update({table: "nonexistent_table_xyz", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` mentioning table name
-
-**Zod validation error paths (🔴 — verify `"Validation error: ..."` format, NOT raw JSON array):**
-
-12. 🔴 `mysql_enable_versioning({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-13. 🔴 `mysql_check_version({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-14. 🔴 `mysql_conditional_update({})` → `{success: false, error: "Validation error: ..."}` (missing required params)
-15. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {}, conditions: [{column: "id", value: 1}], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty data
-16. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [], expectedVersion: 1})` → `{success: false, error: "..."}` validation error about empty conditions
-
-**Wrong-type numeric param coercion (🔴):**
-
-17. 🔴 `mysql_conditional_update({table: "temp_versioning", data: {quantity: 500}, conditions: [{column: "id", value: 1}], expectedVersion: "abc"})` → must NOT return raw MCP `-32602` error — should return structured handler error `Expected number, received string`
-
-**Teardown:**
-
-18. `mysql_disable_versioning({table: "temp_versioning"})` → `{success: true}`
-19. `mysql_disable_versioning({table: "nonexistent_table_xyz", ifExists: true})` → `{success: true}` (no error since ifExists is true)
-20. `mysql_drop_table({table: "temp_versioning", ifExists: true})` → `{success: true}`
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
 
 ---
 
