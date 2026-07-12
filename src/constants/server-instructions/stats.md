@@ -10,7 +10,7 @@
 ### Example: Hypothesis Testing
 ```json
 {
-  "testType": "t_test_two_sample",
+  "testType": "t_test",
   "table": "employees",
   "column": "salary",
   "groupColumn": "department",
