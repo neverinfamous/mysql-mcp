@@ -264,6 +264,15 @@ export function createShellDumpSchemasTool(
             )
           );
         }
+        if (errorMessage.includes("Following schemas were not found")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "DOMAIN_ERROR",
+              ErrorCategory.RESOURCE
+            )
+          );
+        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -403,6 +412,16 @@ export function createShellDumpTablesTool(
               {
                 suggestion: "Set all: false to skip metadata that requires extra privileges.",
               }
+            )
+          );
+        }
+
+        if (errorMessage.includes("Following tables were not found")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "DOMAIN_ERROR",
+              ErrorCategory.RESOURCE
             )
           );
         }
