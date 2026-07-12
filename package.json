@@ -61,8 +61,8 @@
     "isolated-vm": "7.0.0",
     "jose": "^6.2.3",
     "mysql2": "^3.22.6",
-    "redis": "^6.1.0",
     "picocolors": "^1.1.1",
+    "redis": "^6.1.0",
     "yaml": "^2.9.0",
     "zod": "^4.4.3"
   },
@@ -74,7 +74,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "dotenv": "^17.4.2",
     "esbuild": "^0.28.1",
-    "eslint": "^10.6.0",
+    "eslint": "^10.7.0",
     "globals": "^17.7.0",
     "ts-pattern": "^5.9.0",
     "tsup": "^8.5.1",
