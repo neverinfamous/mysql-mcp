@@ -388,17 +388,41 @@ export const ReplicationStatusSchema = z.preprocess(
   ReplicationStatusSchemaBase
 );
 
-export const PoolStatsSchemaBase = z.object({});
+export const PoolStatsSchemaBase = z.object({
+  summary: z.boolean().optional().describe("Return key metrics only"),
+  format: z.string().optional().describe("Alias for summary"),
+  raw: z.boolean().optional().describe("Alias for summary"),
+});
 
 export const PoolStatsSchema = z.preprocess(
-  (obj: unknown) => obj ?? {},
+  (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      const data = { ...(obj as Record<string, unknown>) };
+      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") data["summary"] = false;
+      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
+      return data;
+    }
+    return obj ?? {};
+  },
   PoolStatsSchemaBase
 );
 
-export const ServerHealthSchemaBase = z.object({});
+export const ServerHealthSchemaBase = z.object({
+  summary: z.boolean().optional().describe("Return key metrics only"),
+  format: z.string().optional().describe("Alias for summary"),
+  raw: z.boolean().optional().describe("Alias for summary"),
+});
 
 export const ServerHealthSchema = z.preprocess(
-  (obj: unknown) => obj ?? {},
+  (obj: unknown) => {
+    if (typeof obj === "object" && obj !== null) {
+      const data = { ...(obj as Record<string, unknown>) };
+      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") data["summary"] = false;
+      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
+      return data;
+    }
+    return obj ?? {};
+  },
   ServerHealthSchemaBase
 );
 

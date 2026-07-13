@@ -18,9 +18,28 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
     outputSchema: ServerHealthOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        const { summary } = ServerHealthSchema.parse(params);
         const health = await adapter.getHealth();
+
+        if (summary) {
+          const response = {
+            success: true,
+            data: {
+              serverHealth: {
+                connected: health.connected,
+                latencyMs: health.latencyMs,
+                version: health.version,
+              },
+              summary: true
+            },
+          };
+          const tokenEstimate = Math.ceil(
+            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+          );
+          return { ...response, metrics: { tokenEstimate } };
+        }
 
         // Get additional metrics
         const uptimeResult = await adapter.executeQuery(

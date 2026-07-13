@@ -18,15 +18,20 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
     outputSchema: PoolStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        const { summary } = PoolStatsSchema.parse(params);
         const pool = await Promise.resolve(adapter.getPool());
         if (!pool) {
           return formatHandlerErrorResponse(new Error("Pool not available"));
         }
+        const stats = pool.getStats();
         const response = {
           success: true,
-          data: { poolStats: pool.getStats() },
+          data: { 
+            poolStats: summary ? { total: stats.total, active: stats.active } : stats,
+            ...(summary ? { summary: true } : {})
+          },
         };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
