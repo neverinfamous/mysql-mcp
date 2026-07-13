@@ -67,8 +67,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| mysql.transactions.rollback | ✅ | ✅ |
-| mysql.transactions.savepoint | ✅ | ✅ |
+| `mysql.transactions.rollback` |   |   |
+| `mysql.transactions.savepoint` |   |   |
 
 ---
 
@@ -84,8 +84,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql.transactions.rollback
-- [x] Ensure full coverage for mysql.transactions.savepoint
+- [ ] Ensure full coverage for mysql.transactions.rollback
+- [ ] Ensure full coverage for mysql.transactions.savepoint
 
 ---
 
