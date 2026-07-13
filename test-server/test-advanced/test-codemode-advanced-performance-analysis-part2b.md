@@ -80,7 +80,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.performance.threadStats
+- [x] Ensure full coverage for mysql.performance.threadStats
 
 - Implement tests for the tools listed above.
 
