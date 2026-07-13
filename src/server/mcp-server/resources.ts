@@ -132,8 +132,8 @@ export function registerHelpResources(server: McpServer): void {
                 toolSchemas.push({
                   name: tool.name,
                   description: tool.description,
-                  inputSchema: zodToJsonSchema(tool.inputSchema as any),
-                  ...(tool.outputSchema ? { outputSchema: zodToJsonSchema(tool.outputSchema as any) } : {})
+                  inputSchema: zodToJsonSchema(tool.inputSchema as any, { name: tool.name }),
+                  ...(tool.outputSchema ? { outputSchema: zodToJsonSchema(tool.outputSchema as any, { name: `${tool.name}_output` }) } : {})
                 });
               }
             }
