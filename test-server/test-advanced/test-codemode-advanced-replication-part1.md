@@ -67,9 +67,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.replication.masterStatus` |   |   |
-| `mysql.replication.slaveStatus` |   |   |
-| `mysql.replication.binlogEvents` |   |   |
+
 
 ---
 
@@ -80,7 +78,6 @@
 - `mysql.replication.masterStatus`
 - `mysql.replication.slaveStatus`
 - `mysql.replication.binlogEvents`
-
 
 ## Category 1: Single-Server Resilience
 1. `mysql.replication.masterStatus()` → verify structured `{success: true}` with binlog position (works on single server)

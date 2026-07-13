@@ -67,8 +67,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.replication.gtidStatus` |   |   |
-| `mysql.replication.replicationLag` |   |   |
+
 
 ---
 
@@ -78,7 +77,6 @@
 
 - `mysql.replication.gtidStatus`
 - `mysql.replication.replicationLag`
-
 
 ## Category 1: Single-Server Resilience
 1. `mysql.replication.masterStatus()` → verify structured `{success: true}` with binlog position (works on single server)

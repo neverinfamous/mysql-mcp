@@ -18,13 +18,13 @@ View the complete list of all **available tools** across groups below. Every too
 
 | Tool                   | Description                           |
 | ---------------------- | ------------------------------------- |
-| `mysql_read_query`     | Execute SELECT with parameter binding |
+| `mysql_read_query`     | Execute SELECT with parameter binding. Supports `limit`, `cursor`, `stream`, `chunkSize` |
 | `mysql_write_query`    | Execute INSERT/UPDATE/DELETE          |
 | `mysql_list_tables`    | List tables with metadata             |
 | `mysql_describe_table` | Get column definitions                |
-| `mysql_create_table`   | CREATE TABLE with engine/charset      |
+| `mysql_create_table`   | CREATE TABLE with engine/charset. Supports `ifNotExists`      |
 | `mysql_drop_table`         | DROP TABLE with IF EXISTS               |
-| `mysql_create_index`       | CREATE INDEX (BTREE, HASH, FULLTEXT)    |
+| `mysql_create_index`       | CREATE INDEX (BTREE, HASH, FULLTEXT). Supports `ifNotExists`    |
 | `mysql_get_indexes`        | SHOW INDEX FROM table                   |
 | `mysql_enable_versioning`  | Enable OCC on a table                   |
 | `mysql_disable_versioning` | Disable OCC on a table                  |
@@ -127,8 +127,8 @@ View the complete list of all **available tools** across groups below. Every too
 | ------------------------ | ----------------------------------------------------------------- |
 | `mysql_fulltext_create`  | Create FULLTEXT index                                             |
 | `mysql_fulltext_drop`    | Drop FULLTEXT index                                               |
-| `mysql_fulltext_search`  | MATCH...AGAINST natural language with `maxLength` parameter |
-| `mysql_fulltext_boolean` | Boolean mode search with `maxLength` parameter              |
+| `mysql_fulltext_search`  | MATCH...AGAINST natural language with `maxLength`, `includeFacets` |
+| `mysql_fulltext_boolean` | Boolean mode search with `maxLength`, `includeFacets`              |
 | `mysql_fulltext_expand`  | WITH QUERY EXPANSION with `maxLength` parameter             |
 
 ---
@@ -163,7 +163,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_stats_time_series`   | Time-bucketed aggregation             |
 | `mysql_stats_regression`    | Simple linear regression              |
 | `mysql_stats_sampling`      | Random row sampling                   |
-| `mysql_stats_histogram`     | Generate histogram buckets            |
+| `mysql_stats_histogram`     | Generate histogram buckets. Supports `update: true`            |
 | `mysql_stats_row_number`    | ROW_NUMBER() window function          |
 | `mysql_stats_rank`          | RANK()/DENSE_RANK() window function   |
 | `mysql_stats_lag_lead`      | LAG()/LEAD() window function          |
@@ -220,7 +220,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_kill_query`     | KILL connection/query    |
 | `mysql_append_insight` | Append insight to log    |
 | `mysql_server_config`  | Manage server configs |
-| `mysql_audit_search`   | Search and filter system audit logs. Requires at least one filter |
+| `mysql_audit_search`   | Search and filter system audit logs. Requires at least one filter (default `limit: 5`) |
 
 ---
 
@@ -231,7 +231,7 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_security_audit`             | Audit user privileges and settings                 |
 | `mysql_security_firewall_status`   | Firewall status (Enterprise/MariaDB)               |
 | `mysql_security_firewall_rules`    | List firewall rules                                |
-| `mysql_security_mask_data`         | Mask PII data patterns |
+| `mysql_security_mask_data`         | Mask PII data patterns. Supports `type`, `keepFirst`, `keepLast` |
 | `mysql_security_password_validate` | Check password strength policy                     |
 | `mysql_security_ssl_status`        | SSL/TLS connection status                          |
 | `mysql_security_user_privileges`   | List privileges for user with `summary` mode |
@@ -262,8 +262,8 @@ View the complete list of all **available tools** across groups below. Every too
 | Tool                       | Description                                         |
 | -------------------------- | --------------------------------------------------- |
 | `mysql_show_processlist`   | SHOW PROCESSLIST                                    |
-| `mysql_show_status`        | SHOW STATUS variables                               |
-| `mysql_show_variables`     | SHOW VARIABLES                                      |
+| `mysql_show_status`        | SHOW STATUS variables. Supports `like`, `limit`                               |
+| `mysql_show_variables`     | SHOW VARIABLES. Supports `like`, `limit`                                      |
 | `mysql_innodb_status`      | SHOW ENGINE INNODB STATUS. `summary` mode |
 | `mysql_replication_status` | SHOW SLAVE STATUS                                   |
 | `mysql_pool_stats`         | Connection pool statistics                          |
@@ -290,7 +290,7 @@ View the complete list of all **available tools** across groups below. Every too
 
 | Tool                         | Description                                                         |
 | ---------------------------- | ------------------------------------------------------------------- |
-| `mysql_export_table`         | Export table to SQL/CSV with `limit` parameter (default: 5) |
+| `mysql_export_table`         | Export table to SQL/CSV with `limit` (default: 5) and `where` parameter |
 | `mysql_import_data`          | LOAD DATA INFILE                                                    |
 | `mysql_create_dump`          | mysqldump command generation                                        |
 | `mysql_restore_dump`         | Restore from dump                                                   |
@@ -406,12 +406,12 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysqlsh_version`       | Get MySQL Shell version and installation status                                     |
 | `mysqlsh_check_upgrade` | Check server upgrade compatibility                                                  |
 | `mysqlsh_export_table`  | Export table to file (CSV, TSV)                                                     |
-| `mysqlsh_import_table`  | Parallel table import. `updateServerSettings` auto-enables `local_infile` |
+| `mysqlsh_import_table`  | Parallel table import. `updateServerSettings` auto-enables `local_infile`. Supports `skipRows`, `columns` |
 | `mysqlsh_import_json`   | Import JSON documents to collection or table                                        |
-| `mysqlsh_dump_instance` | Dump entire MySQL instance                                                          |
-| `mysqlsh_dump_schemas`  | Dump selected schemas. `ddlOnly` dumps only DDL                           |
-| `mysqlsh_dump_tables`   | Dump specific tables. `all` controls trigger inclusion                    |
-| `mysqlsh_load_dump`     | Load MySQL Shell dump. `updateServerSettings` auto-enables `local_infile` |
+| `mysqlsh_dump_instance` | Dump entire MySQL instance. Supports `dryRun`                                                          |
+| `mysqlsh_dump_schemas`  | Dump selected schemas. `ddlOnly` dumps only DDL. Supports `dryRun`                           |
+| `mysqlsh_dump_tables`   | Dump specific tables. `all` controls trigger inclusion. Supports `dryRun`                    |
+| `mysqlsh_load_dump`     | Load MySQL Shell dump. `updateServerSettings` auto-enables `local_infile`. Supports `dryRun` |
 | `mysqlsh_run_script`    | Execute JS/Python/SQL script via MySQL Shell                                        |
 
 ---
@@ -426,8 +426,8 @@ View the complete list of all **available tools** across groups below. Every too
 | `mysql_vector_batch_store`     | Bulk insert vector embeddings                                               |
 | `mysql_vector_delete`          | Delete a vector by primary key                                              |
 | `mysql_vector_get`             | Retrieve a vector by primary key                                            |
-| `mysql_vector_search`          | Top-k nearest neighbors (KNN) search                                        |
-| `mysql_vector_range_search`    | Find all vectors within a distance threshold                                |
+| `mysql_vector_search`          | Top-k nearest neighbors (KNN) search. Supports `k`, `metric`, `filter`, `select`                                        |
+| `mysql_vector_range_search`    | Find all vectors within a distance threshold. Supports `maxDistance`                                |
 | `mysql_vector_hybrid_search`   | Combine vector distance with FULLTEXT relevance using Reciprocal Rank Fusion. Supports `metric`, `rrfK`, `select`, `filter` parameters|
 | `mysql_vector_info`            | View table vector columns and dimensions                                    |
 | `mysql_vector_create_index`    | Create HNSW vector index (MySQL 9.1+)                                       |

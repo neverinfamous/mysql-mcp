@@ -67,10 +67,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.partitioning.partitionInfo` |   |   |
-| `mysql.partitioning.addPartition` |   |   |
-| `mysql.partitioning.dropPartition` |   |   |
-| `mysql.partitioning.reorganizePartition` |   |   |
+
 
 ---
 
@@ -82,7 +79,6 @@
 - `mysql.partitioning.addPartition`
 - `mysql.partitioning.dropPartition`
 - `mysql.partitioning.reorganizePartition`
-
 
 ## Category 1: Partition Lifecycle Stress
 1. Create `stress_part_range` table with RANGE partitioning on an INT column (p0: <100, p1: <200, p2: MAXVALUE)

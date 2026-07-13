@@ -28,10 +28,12 @@
     "mysql_audit_restore_backup",
     "mysql_audit_diff_backup"
   ],
-  "test-cluster-gr.md": [
+  "test-cluster-gr-part1.md": [
     "mysql_gr_status",
     "mysql_gr_members",
-    "mysql_gr_primary",
+    "mysql_gr_primary"
+  ],
+  "test-cluster-gr-part2.md": [
     "mysql_gr_transactions",
     "mysql_gr_flow_control"
   ],
@@ -168,14 +170,18 @@
     "mysql_fulltext_boolean",
     "mysql_fulltext_expand"
   ],
-  "test-codemode-advanced-introspection-part1.md": [
+  "test-codemode-advanced-introspection-part1a.md": [
     "mysql_dependency_graph",
-    "mysql_topological_sort",
+    "mysql_topological_sort"
+  ],
+  "test-codemode-advanced-introspection-part1b.md": [
     "mysql_cascade_simulator"
   ],
-  "test-codemode-advanced-introspection-part2.md": [
+  "test-codemode-advanced-introspection-part2a.md": [
     "mysql_schema_snapshot",
-    "mysql_constraint_analysis",
+    "mysql_constraint_analysis"
+  ],
+  "test-codemode-advanced-introspection-part2b.md": [
     "mysql_migration_risks"
   ],
   "test-codemode-advanced-json-core-part1a.md": [
@@ -214,9 +220,11 @@
     "mysql_migration_record",
     "mysql_migration_apply"
   ],
-  "test-codemode-advanced-migration-part2.md": [
+  "test-codemode-advanced-migration-part2a.md": [
     "mysql_migration_rollback",
-    "mysql_migration_history",
+    "mysql_migration_history"
+  ],
+  "test-codemode-advanced-migration-part2b.md": [
     "mysql_migration_status"
   ],
   "test-codemode-advanced-monitoring-health-part1.md": [
@@ -232,17 +240,21 @@
     "mysql_pool_stats",
     "mysql_server_health"
   ],
-  "test-codemode-advanced-optimization-part1.md": [
+  "test-codemode-advanced-optimization-part1a.md": [
     "mysql_index_recommendation",
-    "mysql_query_rewrite",
+    "mysql_query_rewrite"
+  ],
+  "test-codemode-advanced-optimization-part1b.md": [
     "mysql_force_index"
   ],
   "test-codemode-advanced-optimization-part2.md": [
     "mysql_optimizer_trace"
   ],
-  "test-codemode-advanced-partitioning-part1.md": [
+  "test-codemode-advanced-partitioning-part1a.md": [
     "mysql_partition_info",
-    "mysql_add_partition",
+    "mysql_add_partition"
+  ],
+  "test-codemode-advanced-partitioning-part1b.md": [
     "mysql_drop_partition",
     "mysql_reorganize_partition"
   ],
@@ -286,13 +298,17 @@
     "proxysql_commands",
     "proxysql_process_list"
   ],
-  "test-codemode-advanced-replication-part1.md": [
+  "test-codemode-advanced-replication-part1a.md": [
     "mysql_master_status",
-    "mysql_slave_status",
+    "mysql_slave_status"
+  ],
+  "test-codemode-advanced-replication-part1b.md": [
     "mysql_binlog_events"
   ],
-  "test-codemode-advanced-replication-part2.md": [
-    "mysql_gtid_status",
+  "test-codemode-advanced-replication-part2a.md": [
+    "mysql_gtid_status"
+  ],
+  "test-codemode-advanced-replication-part2b.md": [
     "mysql_replication_lag"
   ],
   "test-codemode-advanced-roles-assignment-part1.md": [
@@ -950,6 +966,9 @@
   "test-codemode-versioning-part2.md": [
     "mysql_check_version",
     "mysql_conditional_update"
+  ],
+  "test-codemode.md": [
+    "mysql_execute_code"
   ],
   "test-core-part1.md": [
     "mysql_read_query",
@@ -2171,17 +2190,5 @@
   "test-vector-storage-part2.md": [
     "mysql_vector_get",
     "mysql_vector_delete"
-  ],
-  "test-codemode.md": [
-    "mysql_execute_code"
-  ],
-  "test-cluster-gr-part1.md": [
-    "mysql_gr_status",
-    "mysql_gr_members",
-    "mysql_gr_primary"
-  ],
-  "test-cluster-gr-part2.md": [
-    "mysql_gr_transactions",
-    "mysql_gr_flow_control"
   ]
 }

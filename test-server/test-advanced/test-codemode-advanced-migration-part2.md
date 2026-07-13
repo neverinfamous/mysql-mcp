@@ -67,9 +67,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.migration.rollback` |   |   |
-| `mysql.migration.history` |   |   |
-| `mysql.migration.status` |   |   |
+
 
 ---
 
@@ -80,7 +78,6 @@
 - `mysql.migration.rollback`
 - `mysql.migration.history`
 - `mysql.migration.status`
-
 
 ## Category 1: Checksum & State Corruption Resilience
 1. Record a migration `001_base` with `migrationSql: "SELECT 1"`.

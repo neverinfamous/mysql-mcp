@@ -67,9 +67,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.optimization.indexRecommendation` |   |   |
-| `mysql.optimization.queryRewrite` |   |   |
-| `mysql.optimization.forceIndex` |   |   |
+
 
 ---
 
@@ -80,7 +78,6 @@
 - `mysql.optimization.indexRecommendation`
 - `mysql.optimization.queryRewrite`
 - `mysql.optimization.forceIndex`
-
 
 ## Category 1: Complex Query Rewrites
 1. `mysql.optimization.queryRewrite` with a subquery: `"SELECT * FROM test_products WHERE id IN (SELECT product_id FROM test_orders)"` → verify rewrite suggestions

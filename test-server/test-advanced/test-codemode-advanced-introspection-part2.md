@@ -67,9 +67,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.introspection.schemaSnapshot` |   |   |
-| `mysql.introspection.constraintAnalysis` |   |   |
-| `mysql.introspection.migrationRisks` |   |   |
+
 
 ---
 
@@ -80,7 +78,6 @@
 - `mysql.introspection.schemaSnapshot`
 - `mysql.introspection.constraintAnalysis`
 - `mysql.introspection.migrationRisks`
-
 
 ## Category 1: Deep Hierarchy & Traversal Limits
 1. Create a schema `stress_hierarchies` with 10 sequentially linked tables (`t1` -> `t2` -> ... -> `t10`).
