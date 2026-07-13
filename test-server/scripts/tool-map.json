@@ -2,49 +2,40 @@
   "README.md": [],
   "test-admin-part1.md": [
     "mysql_optimize_table",
-    "mysql_repair_table",
-    "mysql_append_insight"
+    "mysql_analyze_table",
+    "mysql_check_table"
   ],
   "test-admin-part2.md": [
-    "mysql_analyze_table",
+    "mysql_repair_table",
     "mysql_flush_tables",
-    "mysql_server_config"
+    "mysql_kill_query"
   ],
   "test-admin-part3.md": [
-    "mysql_check_table",
-    "mysql_kill_query",
+    "mysql_append_insight",
+    "mysql_server_config",
     "mysql_audit_search"
   ],
   "test-backup-part1.md": [
     "mysql_export_table",
-    "mysql_restore_dump",
-    "mysql_audit_diff_backup"
+    "mysql_import_data"
   ],
   "test-backup-part2.md": [
-    "mysql_import_data",
-    "mysql_audit_list_backups"
+    "mysql_create_dump",
+    "mysql_restore_dump"
   ],
   "test-backup-part3.md": [
-    "mysql_create_dump",
-    "mysql_audit_restore_backup"
-  ],
-  "test-cluster-gr.md": [
-    "mysql_gr_status",
-    "mysql_gr_flow_control",
-    "mysql_cluster_router_status"
+    "mysql_audit_list_backups",
+    "mysql_audit_restore_backup",
+    "mysql_audit_diff_backup"
   ],
   "test-cluster-innodb-part1.md": [
-    "mysql_gr_members",
     "mysql_cluster_status",
-    "mysql_cluster_switchover"
+    "mysql_cluster_instances",
+    "mysql_cluster_topology"
   ],
   "test-cluster-innodb-part2.md": [
-    "mysql_gr_primary",
-    "mysql_cluster_instances"
-  ],
-  "test-cluster-innodb-part3.md": [
-    "mysql_gr_transactions",
-    "mysql_cluster_topology"
+    "mysql_cluster_router_status",
+    "mysql_cluster_switchover"
   ],
   "test-codemode-admin-audit.md": [
     "mysql_append_insight",
@@ -245,9 +236,7 @@
   "test-codemode-advanced-partitioning-part1.md": [
     "mysql_partition_info",
     "mysql_add_partition",
-    "mysql_drop_partition"
-  ],
-  "test-codemode-advanced-partitioning-part2.md": [
+    "mysql_drop_partition",
     "mysql_reorganize_partition"
   ],
   "test-codemode-advanced-performance-analysis-part1a.md": [
@@ -863,16 +852,6 @@
     "mysql_stats_frequency",
     "mysql_stats_summary"
   ],
-  "test-codemode-stats-advanced-part2a.md": [
-    "mysql_stats_distinct",
-    "mysql_stats_frequency",
-    "mysql_stats_summary"
-  ],
-  "test-codemode-stats-advanced-part2b.md": [
-    "mysql_stats_hypothesis",
-    "mysql_stats_outliers",
-    "mysql_stats_top_n"
-  ],
   "test-codemode-stats-analytics.md": [
     "mysql_stats_correlation",
     "mysql_stats_time_series",
@@ -1177,25 +1156,25 @@
   ],
   "test-schema-management-part1.md": [
     "mysql_list_schemas",
-    "mysql_drop_view",
-    "mysql_drop_trigger"
+    "mysql_create_schema",
+    "mysql_drop_schema"
   ],
   "test-schema-management-part2.md": [
-    "mysql_create_schema",
-    "mysql_list_stored_procedures",
-    "mysql_list_constraints"
+    "mysql_list_views",
+    "mysql_create_view",
+    "mysql_drop_view"
   ],
   "test-schema-management-part3.md": [
-    "mysql_drop_schema",
-    "mysql_list_functions"
+    "mysql_list_constraints"
   ],
   "test-schema-routines-part1.md": [
-    "mysql_list_views",
-    "mysql_list_triggers"
+    "mysql_list_stored_procedures",
+    "mysql_list_functions"
   ],
   "test-schema-routines-part2.md": [
-    "mysql_create_view",
-    "mysql_create_trigger"
+    "mysql_list_triggers",
+    "mysql_create_trigger",
+    "mysql_drop_trigger"
   ],
   "test-security-part1.md": [
     "mysql_security_audit",
@@ -1231,28 +1210,28 @@
     "mysqlsh_dump_tables"
   ],
   "test-spatial-geometry.md": [
-    "mysql_spatial_create_column",
-    "mysql_spatial_contains"
+    "mysql_spatial_point",
+    "mysql_spatial_polygon",
+    "mysql_spatial_geojson"
   ],
   "test-spatial-operations-part1.md": [
-    "mysql_spatial_create_index",
-    "mysql_spatial_within"
+    "mysql_spatial_distance",
+    "mysql_spatial_distance_sphere"
   ],
   "test-spatial-operations-part2.md": [
-    "mysql_spatial_point",
-    "mysql_spatial_intersection"
-  ],
-  "test-spatial-queries-part1.md": [
-    "mysql_spatial_polygon",
-    "mysql_spatial_buffer"
-  ],
-  "test-spatial-queries-part2.md": [
-    "mysql_spatial_distance",
+    "mysql_spatial_buffer",
     "mysql_spatial_transform"
   ],
+  "test-spatial-queries-part1.md": [
+    "mysql_spatial_contains",
+    "mysql_spatial_within"
+  ],
+  "test-spatial-queries-part2.md": [
+    "mysql_spatial_intersection"
+  ],
   "test-spatial-setup.md": [
-    "mysql_spatial_distance_sphere",
-    "mysql_spatial_geojson"
+    "mysql_spatial_create_column",
+    "mysql_spatial_create_index"
   ],
   "test-stats-advanced-part1.md": [
     "mysql_stats_descriptive",
@@ -2166,27 +2145,36 @@
     "mysql_vector_stats"
   ],
   "test-vector-management-part1.md": [
-    "mysql_vector_store",
-    "mysql_vector_range_search",
-    "mysql_vector_stats"
+    "mysql_vector_create_index",
+    "mysql_vector_optimize"
   ],
   "test-vector-management-part2.md": [
-    "mysql_vector_batch_store",
-    "mysql_vector_hybrid_search"
-  ],
-  "test-vector-search.md": [
-    "mysql_vector_delete",
+    "mysql_vector_stats",
     "mysql_vector_info"
   ],
+  "test-vector-search.md": [
+    "mysql_vector_search",
+    "mysql_vector_range_search",
+    "mysql_vector_hybrid_search"
+  ],
   "test-vector-storage-part1.md": [
-    "mysql_vector_get",
-    "mysql_vector_create_index"
+    "mysql_vector_store",
+    "mysql_vector_batch_store"
   ],
   "test-vector-storage-part2.md": [
-    "mysql_vector_search",
-    "mysql_vector_optimize"
+    "mysql_vector_get",
+    "mysql_vector_delete"
   ],
   "test-codemode.md": [
     "mysql_execute_code"
+  ],
+  "test-cluster-gr-part1.md": [
+    "mysql_gr_status",
+    "mysql_gr_members",
+    "mysql_gr_primary"
+  ],
+  "test-cluster-gr-part2.md": [
+    "mysql_gr_transactions",
+    "mysql_gr_flow_control"
   ]
 }

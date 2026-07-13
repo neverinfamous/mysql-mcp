@@ -60,16 +60,16 @@
 > [!IMPORTANT]
 > **Avoid Context Exhaustion:** To save context window tokens, the detailed rules for Code Mode execution, Structured Error Formatting, Dual-Schema verification, and Test Cleanup have been moved to the central READMEs.
 > 
-> You **MUST** adhere to the testing standards defined in `test-server/test-tool-groups/README.md`, `test-server/test-codemode/README.md`, `test-server/test-advanced/README.md`, and `test-server/test-usability/README.md`.
+> You **MUST** adhere to the testing standards defined in the `README.md` file located in the same directory as this test.
 > - Always return structured error responses (never raw MCP `-32602`).
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_security_mask_data` |   |   |   |
+| `mysql_security_firewall_status` |   |   |   |
 | `mysql_security_password_validate` |   |   |   |
-| `mysql_security_ssl_status` |   |   |   |
+| `mysql_security_sensitive_tables` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_security_mask_data`
+- `mysql_security_firewall_status`
 - `mysql_security_password_validate`
-- `mysql_security_ssl_status`
+- `mysql_security_sensitive_tables`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_security_mask_data
+- [ ] Ensure full coverage for mysql_security_firewall_status
 - [ ] Ensure full coverage for mysql_security_password_validate
-- [ ] Ensure full coverage for mysql_security_ssl_status
+- [ ] Ensure full coverage for mysql_security_sensitive_tables
 
 ---
 

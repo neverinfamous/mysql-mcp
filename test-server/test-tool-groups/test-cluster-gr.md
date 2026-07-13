@@ -60,16 +60,14 @@
 > [!IMPORTANT]
 > **Avoid Context Exhaustion:** To save context window tokens, the detailed rules for Code Mode execution, Structured Error Formatting, Dual-Schema verification, and Test Cleanup have been moved to the central READMEs.
 > 
-> You **MUST** adhere to the testing standards defined in `test-server/test-tool-groups/README.md`, `test-server/test-codemode/README.md`, `test-server/test-advanced/README.md`, and `test-server/test-usability/README.md`.
+> You **MUST** adhere to the testing standards defined in the `README.md` file located in the same directory as this test.
 > - Always return structured error responses (never raw MCP `-32602`).
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_gr_status` |   |   |   |   |
-| `mysql_gr_flow_control` |   |   |   |   |
-| `mysql_cluster_router_status` |   |   |   |   |
+
 
 ---
 
@@ -81,15 +79,12 @@
 - `mysql_gr_flow_control`
 - `mysql_cluster_router_status`
 
-
 ## Group Focus: cluster
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_gr_status
-- [ ] mysql_gr_flow_control
-- [ ] mysql_cluster_router_status
+
 
 ## Tasks
 

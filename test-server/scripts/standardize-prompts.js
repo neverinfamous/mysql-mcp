@@ -125,8 +125,9 @@ function processDirectory(dirName) {
     const colCount = coverageMatrix.split("|").length - 2;
     const divider = "|" + Array(colCount).fill("---").join("|") + "|";
 
-    if ((dirName === "test-codemode" || dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability" || dirName === "test-usability-direct") && toolMap[file] && toolMap[file].length > 0) {
-        const tools = toolMap[file];
+    const mapKey = file.replace(/^test-(?:usability(?:-direct)?-)?/, "test-");
+    if ((dirName === "test-codemode" || dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability" || dirName === "test-usability-direct") && toolMap[mapKey] && toolMap[mapKey].length > 0) {
+        const tools = toolMap[mapKey];
         explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n`;
         explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";
         
@@ -353,9 +354,9 @@ function processDirectory(dirName) {
         .replace(/mysql\.events\.status/g, "mysql_event_status")
         .replace(/mysql\.events\.schedulerStatus/g, "mysql_scheduler_status")
         .replace(/mysql\.partitioning\.partitionInfo/g, "mysql_partition_info")
-        .replace(/mysql\.partitioning\.addPartition/g, "mysql_partition_addPartition")
-        .replace(/mysql\.partitioning\.dropPartition/g, "mysql_partition_dropPartition")
-        .replace(/mysql\.partitioning\.reorganizePartition/g, "mysql_partition_reorganizePartition")
+        .replace(/mysql\.partitioning\.addPartition/g, "mysql_add_partition")
+        .replace(/mysql\.partitioning\.dropPartition/g, "mysql_drop_partition")
+        .replace(/mysql\.partitioning\.reorganizePartition/g, "mysql_reorganize_partition")
         .replace(/mysql\.replication\.masterStatus/g, "mysql_master_status")
         .replace(/mysql\.replication\.slaveStatus/g, "mysql_slave_status")
         .replace(/mysql\.replication\.replicationLag/g, "mysql_replication_lag")
@@ -465,10 +466,7 @@ function processDirectory(dirName) {
       commitScope
     );
 
-    if (dirName === 'test-usability-direct' || dirName === 'test-usability') {
-      newContent = newContent.replace(/4\. \*\*Validate\*\*: Run `pnpm run check` to validate your changes via lint, typecheck, and test\./g, "4. **Validate**: Run `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` to validate your changes. Do NOT run `pnpm run test` or `pnpm run check` to save time.");
-    }
-
+    // Hallucinated block removed
     fs.writeFileSync(filePath, newContent, "utf-8");
     console.log(`Standardized ${file} (${titleType})`);
   }

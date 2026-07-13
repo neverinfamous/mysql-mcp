@@ -60,7 +60,7 @@
 > [!IMPORTANT]
 > **Avoid Context Exhaustion:** To save context window tokens, the detailed rules for Code Mode execution, Structured Error Formatting, Dual-Schema verification, and Test Cleanup have been moved to the central READMEs.
 > 
-> You **MUST** adhere to the testing standards defined in `test-server/test-tool-groups/README.md`, `test-server/test-codemode/README.md`, `test-server/test-advanced/README.md`, and `test-server/test-usability/README.md`.
+> You **MUST** adhere to the testing standards defined in the `README.md` file located in the same directory as this test.
 > - Always return structured error responses (never raw MCP `-32602`).
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
@@ -70,6 +70,7 @@
 | `mysql.partitioning.partitionInfo` |   |   |
 | `mysql.partitioning.addPartition` |   |   |
 | `mysql.partitioning.dropPartition` |   |   |
+| `mysql.partitioning.reorganizePartition` |   |   |
 
 ---
 
@@ -80,6 +81,7 @@
 - `mysql.partitioning.partitionInfo`
 - `mysql.partitioning.addPartition`
 - `mysql.partitioning.dropPartition`
+- `mysql.partitioning.reorganizePartition`
 
 
 ## Category 1: Partition Lifecycle Stress
@@ -110,6 +112,7 @@
 - [ ] Ensure full coverage for mysql.partitioning.partitionInfo
 - [ ] Ensure full coverage for mysql.partitioning.addPartition
 - [ ] Ensure full coverage for mysql.partitioning.dropPartition
+- [ ] Ensure full coverage for mysql.partitioning.reorganizePartition
 
 ---
 

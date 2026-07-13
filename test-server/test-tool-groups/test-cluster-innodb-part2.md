@@ -60,15 +60,15 @@
 > [!IMPORTANT]
 > **Avoid Context Exhaustion:** To save context window tokens, the detailed rules for Code Mode execution, Structured Error Formatting, Dual-Schema verification, and Test Cleanup have been moved to the central READMEs.
 > 
-> You **MUST** adhere to the testing standards defined in `test-server/test-tool-groups/README.md`, `test-server/test-codemode/README.md`, `test-server/test-advanced/README.md`, and `test-server/test-usability/README.md`.
+> You **MUST** adhere to the testing standards defined in the `README.md` file located in the same directory as this test.
 > - Always return structured error responses (never raw MCP `-32602`).
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_gr_primary` |   |   |   |   |
-| `mysql_cluster_instances` |   |   |   |   |
+| `mysql_cluster_router_status` |   |   |   |   |
+| `mysql_cluster_switchover` |   |   |   |   |
 
 ---
 
@@ -76,8 +76,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_gr_primary`
-- `mysql_cluster_instances`
+- `mysql_cluster_router_status`
+- `mysql_cluster_switchover`
 
 
 ## Group Focus: cluster
@@ -85,13 +85,13 @@
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_gr_primary
-- [ ] mysql_cluster_instances
+- [ ] mysql_cluster_router_status
+- [ ] mysql_cluster_switchover
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_gr_primary
-- [ ] Ensure full coverage for mysql_cluster_instances
+- [ ] Ensure full coverage for mysql_cluster_router_status
+- [ ] Ensure full coverage for mysql_cluster_switchover
 
 ---
 

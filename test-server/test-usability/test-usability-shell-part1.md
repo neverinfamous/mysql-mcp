@@ -60,7 +60,7 @@
 > [!IMPORTANT]
 > **Avoid Context Exhaustion:** To save context window tokens, the detailed rules for Code Mode execution, Structured Error Formatting, Dual-Schema verification, and Test Cleanup have been moved to the central READMEs.
 > 
-> You **MUST** adhere to the testing standards defined in `test-server/test-tool-groups/README.md`, `test-server/test-codemode/README.md`, `test-server/test-advanced/README.md`, and `test-server/test-usability/README.md`.
+> You **MUST** adhere to the testing standards defined in the `README.md` file located in the same directory as this test.
 > - Always return structured error responses (never raw MCP `-32602`).
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.shell.version` |   |   |   |
-| `mysql.shell.checkUpgrade` |   |   |   |
-| `mysql.shell.exportTable` |   |   |   |
+| `mysql.shell.importJson` |   |   |   |
+| `mysql.shell.loadDump` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.shell.version`
-- `mysql.shell.checkUpgrade`
-- `mysql.shell.exportTable`
+- `mysql.shell.importJson`
+- `mysql.shell.loadDump`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.shell.version
-- [ ] Ensure full coverage for mysql.shell.checkUpgrade
-- [ ] Ensure full coverage for mysql.shell.exportTable
+- [ ] Ensure full coverage for mysql.shell.importJson
+- [ ] Ensure full coverage for mysql.shell.loadDump
 
 ---
 

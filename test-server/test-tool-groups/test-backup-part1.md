@@ -60,7 +60,7 @@
 > [!IMPORTANT]
 > **Avoid Context Exhaustion:** To save context window tokens, the detailed rules for Code Mode execution, Structured Error Formatting, Dual-Schema verification, and Test Cleanup have been moved to the central READMEs.
 > 
-> You **MUST** adhere to the testing standards defined in `test-server/test-tool-groups/README.md`, `test-server/test-codemode/README.md`, `test-server/test-advanced/README.md`, and `test-server/test-usability/README.md`.
+> You **MUST** adhere to the testing standards defined in the `README.md` file located in the same directory as this test.
 > - Always return structured error responses (never raw MCP `-32602`).
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
@@ -68,8 +68,7 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_export_table` |   |   |   |   |
-| `mysql_restore_dump` |   |   |   |   |
-| `mysql_audit_diff_backup` |   |   |   |   |
+| `mysql_import_data` |   |   |   |   |
 
 ---
 
@@ -78,8 +77,7 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_export_table`
-- `mysql_restore_dump`
-- `mysql_audit_diff_backup`
+- `mysql_import_data`
 
 
 ## Group Focus: backup
@@ -88,14 +86,12 @@
 
 ### Tool Checklist
 - [ ] mysql_export_table
-- [ ] mysql_restore_dump
-- [ ] mysql_audit_diff_backup
+- [ ] mysql_import_data
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_export_table
-- [ ] Ensure full coverage for mysql_restore_dump
-- [ ] Ensure full coverage for mysql_audit_diff_backup
+- [ ] Ensure full coverage for mysql_import_data
 
 ---
 
