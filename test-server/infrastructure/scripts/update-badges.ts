@@ -31,6 +31,10 @@ function updateBadges() {
     hasCoverage = true;
   } else {
     console.warn(`Coverage summary not found at ${summaryPath}`);
+    if (process.env.CI || process.argv.includes("--strict")) {
+      console.error("Strict mode active: Failing because coverage summary is missing.");
+      process.exit(1);
+    }
   }
 
   let e2ePassing = 0;
@@ -47,13 +51,11 @@ function updateBadges() {
   }
 
   // ![Coverage](https://img.shields.io/badge/Coverage-96.7%25-brightgreen.svg)
-  const covRegex =
-    /!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[^)]+\)/g;
+  const covRegex = /!\[Coverage\]\(https:\/\/img\.shields\.io\/badge\/Coverage-[0-9.]+.*?\.svg\)/g;
   const newCovBadge = `![Coverage](https://img.shields.io/badge/Coverage-${linesPct}%25-${coverageColor}.svg)`;
 
   // ![E2E](https://img.shields.io/badge/E2E-179%20tests%20%C2%B7%20224%20tools-blue.svg)
-  const e2eRegex =
-    /!\[E2E\]\(https:\/\/img\.shields\.io\/badge\/E2E-[^)]+\)/g;
+  const e2eRegex = /!\[E2E\]\(https:\/\/img\.shields\.io\/badge\/E2E-[^)]+\)/g;
   const newE2eBadge = `![E2E](https://img.shields.io/badge/E2E-${e2ePassing}%20passing%20%C2%B7%20${e2eSkipped}%20skipped-blue.svg)`;
 
   const filesToUpdate = ["README.md", "DOCKER_README.md"];
@@ -61,6 +63,10 @@ function updateBadges() {
 
   for (const file of filesToUpdate) {
     const filePath = path.join(ROOT_DIR, file);
+    if (!fs.existsSync(filePath)) {
+      continue;
+    }
+    
     try {
       let content = fs.readFileSync(filePath, "utf-8");
       const originalNormalized = content.replace(/\r\n/g, "\n");
@@ -79,6 +85,11 @@ function updateBadges() {
             content = content.replace(licenseRegex, `$1 ${newCovBadge}`);
             changed = true;
             console.log(`Inserted coverage badge in ${file} to ${linesPct}%`);
+          } else {
+            console.warn(`Could not find anchor to insert coverage badge in ${file}`);
+            if (process.env.CI || process.argv.includes("--strict")) {
+                process.exit(1);
+            }
           }
         }
       }
@@ -89,9 +100,7 @@ function updateBadges() {
           e2eRegex.lastIndex = 0;
           content = content.replace(e2eRegex, newE2eBadge);
           changed = true;
-          console.log(
-            `Updated E2E badge in ${file} to ${e2ePassing} passing, ${e2eSkipped} skipped`,
-          );
+          console.log(`Updated E2E badge in ${file} to ${e2ePassing} passing, ${e2eSkipped} skipped`);
         } else {
           if (content.includes(newCovBadge)) {
             content = content.replace(newCovBadge, `${newCovBadge} ${newE2eBadge}`);
@@ -125,10 +134,10 @@ function updateBadges() {
   }
 
   if (updatedFiles.length > 0) {
-    console.log(`\\nAuto-committing badge updates for: ${updatedFiles.join(", ")}`);
+    console.log(`\nAuto-committing badge updates for: ${updatedFiles.join(", ")}`);
     const commitScript = path.join(ROOT_DIR, ".agents", "scripts", "commit.ts");
     const addArgs = updatedFiles.map(f => `--add "${f}"`).join(" ");
-    const cmd = `bun "${commitScript}" --msg "chore(docs): update coverage and E2E badges" --impact 0.1 --confidence 1.0 --validation none --no-history ${addArgs}`;
+    const cmd = `bun "${commitScript}" --msg "chore(docs): update test badges" --impact 0.1 --confidence 1.0 --validation none --no-history ${addArgs}`;
     
     try {
       execSync(cmd, { stdio: "inherit", cwd: ROOT_DIR });

@@ -14,7 +14,7 @@ Do NOT randomly `grep` or guess the repository structure. Use the following refe
 |-----------------|---------|
 | [test-server/code-map.md](test-server/code-map.md) | **[CRITICAL]** The definitive architectural map. Details directory layout, tool-to-handler mappings, and the typed error class hierarchy. Read this before modifying tools. |
 | [test-server/tool-reference.md](test-server/tool-reference.md) | Categorized tool inventory with extensive capabilities spanning multiple functional groups. |
-| [src/constants/server-instructions.ts](src/constants/server-instructions.ts) | The compiled instructions sent to connecting clients. Handled dynamically via `mysql://help` resources. |
+| [src/constants/instructions/markdown/](src/constants/instructions/markdown/) | The source markdown files for the compiled instructions sent to connecting clients. Handled dynamically via `mysql://help` resources. |
 | [SECURITY.md](SECURITY.md) | Security policy, vulnerability management, and authentication rules. |
 
 ---

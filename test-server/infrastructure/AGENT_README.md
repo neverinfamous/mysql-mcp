@@ -4,9 +4,7 @@
 
 _Updated: July 2026_
 
-This guide explains how to spin up, manage, and troubleshoot the MySQL-focused test infrastructure (InnoDB Cluster, MySQL Router, ProxySQL, Redis) for the mysql-mcp integration testing environment. This is a lightweight subset of the full Adamic unified ecosystem, automatically synchronized via the `sync-test-infra` workflow.
-
-> **Note on Datadog:** This environment includes full Datadog Agent monitoring with host-level system metrics (CPU, memory, disk, I/O, load, network), Docker container monitoring, process collection, eBPF system-probe (network performance monitoring), APM tracing, and MySQL/Redis/ProxySQL database integrations. Native Prometheus and Grafana are also available as secondary observability.
+This guide explains how to spin up, manage, and troubleshoot the MySQL-focused test infrastructure (InnoDB Cluster, MySQL Router, ProxySQL, Redis) for the mysql-mcp integration testing environment.
 
 ---
 

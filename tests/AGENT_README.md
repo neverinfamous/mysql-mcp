@@ -60,11 +60,12 @@ test("validates success", async () => {
 
 ## 3. State Management & Side Effects
 
-The tests run against a live local database (defaulting to `mysql://root:root@localhost:3306/testdb` via `MYSQL_TEST_URL`).
+The tests run against a live local database. Depending on your environment, this defaults to `mysql://root:root@localhost:3306/testdb` for Standalone setups, or `mysql://root:root@localhost:3307/testdb` for Cluster (`mysql-node1`) setups. Use the appropriate `MYSQL_TEST_URL`.
 
 - **Do NOT pollute `testdb`**: If your test creates tables, inserts rows, or modifies schema, you must isolate it within a transaction or explicitly drop the tables in a `test.afterAll` block.
 - **Audit File Cleanup**: If you test the `--audit-log` functionality, you MUST call `cleanupAuditFiles(logPath)` in your teardown block to prevent leftover SQLite WAL/SHM files from causing locking errors in subsequent test runs.
-- **Global Reset**: If a test irrecoverably corrupts the test database, you can instruct the user to run `node scripts/reset-database.mjs` to rebuild the schema from scratch.
+- **Global Reset**: If a test irrecoverably corrupts the test database, you can instruct the user to run `node test-server/infrastructure/scripts/reset-database.mjs` to rebuild the schema from scratch.
+- **Server Instructions**: If you modify any markdown files in `src/constants/instructions/markdown/`, you MUST compile them by running `pnpm run generate:instructions` before testing, or the MCP server will run with stale `mysql://help` resources.
 
 ---
 

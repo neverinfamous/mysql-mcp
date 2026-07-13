@@ -3,7 +3,8 @@
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
-
+> **Value Proposition**
+> Accelerate your database orchestration with enterprise-grade reliability. This robust suite of operational scripts empowers administrators and AI agents to effortlessly manage, validate, and recover the mysql-mcp ecosystem—from deploying full InnoDB test clusters to dynamically compiling server instructions.
 
 ## 🚀 Cluster Management
 
@@ -61,7 +62,7 @@ Config: innodb-cluster.yml (gitignored, local only)
 
 - `group_replication_start_on_boot=ON` — auto-rejoin on container restart
 - `group_replication_bootstrap_group=OFF` — no auto-bootstrap (safety)
-- Data volumes: `mysql-node1-data`, `mysql-node2-data`, `mysql-node3-data`
+- Data volumes: `mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`
 
 ## 🛠️ MCP Server Validation
 
@@ -187,7 +188,7 @@ npx tsx test-server/infrastructure/scripts/redis-setup.ts
 
 ### `generate-server-instructions.ts`
 
-Builds `src/constants/server-instructions.ts` module. Reads and compiles markdown files from `src/constants/server-instructions/*.md`. Provides MCP server with `mysql://help` resource content.
+Builds `src/constants/server-instructions.ts` module. Reads and compiles markdown files from `src/constants/instructions/markdown/*.md`. Provides MCP server with `mysql://help` resource content.
 
 ```bash
 npm run generate:instructions

@@ -2,6 +2,9 @@
 
 _Updated: July 2026_
 
+> **Value Proposition**
+> Ensure production-grade reliability with a comprehensive, lightweight test ecosystem. Instantly spin up a complete InnoDB Cluster, MySQL Router, and ProxySQL topology integrated with Datadog observability to rigorously validate your AI agents against complex database scenarios.
+
 This directory contains the `docker-compose.yml` for the MySQL-focused test infrastructure used by mysql-mcp integration tests. It is a lightweight subset of the full Adamic unified database ecosystem, automatically synchronized via the `sync-test-infra` workflow.
 
 ## 1. Quick Start

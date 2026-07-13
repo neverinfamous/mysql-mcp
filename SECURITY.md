@@ -2,10 +2,6 @@
 
 The mysql-mcp server protects your databases. It secures stdio, HTTP, and SSE transports.
 
-## 💎 Value Proposition
-
-MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
-
 ## 🛡️ **Secure Your Database**
 
 ### Prevent SQL Injection

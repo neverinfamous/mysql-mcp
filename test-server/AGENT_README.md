@@ -59,14 +59,25 @@
 
 ## Configure Connection Details
 
+The project provides two local testing environments. Use the appropriate connection details depending on which docker-compose setup is running.
+
+**Standalone (Root `docker-compose.yml`)**
 | Property  | Value         |
 | --------- | ------------- |
 | Host      | `localhost`   |
 | Port      | `3306`        |
 | Database  | `testdb`      |
+| Container | `mysql`       |
+
+**Cluster Ecosystem (`test-server/infrastructure/docker-compose.yml`)**
+| Property  | Value         |
+| --------- | ------------- |
+| Host      | `localhost`   |
+| Port      | `3307`        |
+| Database  | `testdb`      |
 | Container | `mysql-node1` |
 
-> Note: Use `docker ps` / `docker start mysql-node1` if connection is refused. Ecosystem tools connect on alternate ports (cluster: 3307, router: 6446, proxysql: 6032).
+> Note: Use `docker ps` if connection is refused. The ecosystem also provides the MySQL Router on `6446` and ProxySQL on `6032`.
 
 ## Infrastructure Management (Docker)
 
