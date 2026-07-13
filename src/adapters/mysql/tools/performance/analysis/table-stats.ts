@@ -51,7 +51,7 @@ export function createTableStatsTool(adapter: MySQLAdapter): ToolDefinition {
           const response = {
             success: false,
             error: `Table '${table}' does not exist`,
-            code: "NOT_FOUND",
+            code: "TABLE_NOT_FOUND",
             category: "resource",
             suggestion: "Verify the table name exists in the target database.",
             recoverable: true,
