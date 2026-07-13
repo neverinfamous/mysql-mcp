@@ -82,20 +82,15 @@
 - `mysql.security.firewallRules`
 
 
-## Category 1: Password Validation Boundaries
+## Category 1: Audit Log Filtering
+1. Test with `limit`, `user`, `eventType`, `startTime`
 
-## Category 2: Sensitive Table Detection
-1. Create `testdb.stress_sensitive` table with columns: `id INT`, `password VARCHAR(255)`, `ssn VARCHAR(11)`, `credit_card VARCHAR(20)`
-2. Create `testdb.stress_safe` table with columns: `id INT`, `name VARCHAR(100)`, `quantity INT`
-
-## Category 3: Privilege Enumeration Edge Cases
-1. Verify summary is smaller than full output
-
-## Category 4: Payload Monitoring
+## Category 2: Payload Monitoring
 1. `mysql.security.audit()` → log token estimate, flag > 500 tokens as 📦
-## Cleanup
-2. Drop `testdb.stress_sensitive` and `testdb.stress_safe` tables
 
+## Category 3: Firewall Information
+1. Test `mysql.security.firewallStatus()`
+2. Test `mysql.security.firewallRules()`
 
 ## Tasks
 

@@ -20,7 +20,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
 
@@ -119,11 +118,6 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         const { limit, user, eventType, startTime } =
           AuditLogSchema.parse(params);
           
-        if (!user && !eventType && !startTime) {
-          return formatHandlerErrorResponse(
-            new ValidationError("At least one filter ('user', 'eventType', or 'startTime') is required.")
-          );
-        }
         
         const checkResult = await adapter.executeQuery(`
                     SELECT TABLE_NAME
