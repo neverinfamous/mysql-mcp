@@ -19,6 +19,7 @@ export const SpatialColumnSchemaBase = z.object({
   spatialColumn: z.unknown().optional().describe("Spatial column name"),
   geometryColumn: z.unknown().optional(),
   column: z.unknown().optional().describe("Column name"),
+  columnName: z.unknown().optional(),
   col: z.unknown().optional(),
   type: z.unknown().optional().describe("Geometry type (default: GEOMETRY)"),
   srid: z
@@ -40,6 +41,7 @@ export const SpatialColumnSchema = z.preprocess(
     spatialColumn: z.string().optional(),
     geometryColumn: z.string().optional(),
     column: z.string().optional(),
+    columnName: z.string().optional(),
     col: z.string().optional(),
     type: z.unknown().optional(),
     srid: z.unknown().optional(),
@@ -47,12 +49,14 @@ export const SpatialColumnSchema = z.preprocess(
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
+    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.columnName ?? data.col ?? "",
     type: typeof data.type === "string" ? data.type : "GEOMETRY",
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
     nullable: data.nullable !== undefined ? Boolean(data.nullable) : false,
   }))
 )
+  .refine((data) => data.table !== "", { message: "table is required" })
+  .refine((data) => data.column !== "", { message: "column is required" })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   });
@@ -64,6 +68,7 @@ export const SpatialIndexSchemaBase = z.object({
   spatialColumn: z.unknown().optional().describe("Spatial column name"),
   geometryColumn: z.unknown().optional(),
   column: z.unknown().optional().describe("Spatial column name"),
+  columnName: z.unknown().optional(),
   col: z.unknown().optional(),
   columns: z.unknown().optional(),
   indexName: z
@@ -81,16 +86,19 @@ export const SpatialIndexSchema = z.preprocess(
     spatialColumn: z.string().optional(),
     geometryColumn: z.string().optional(),
     column: z.string().optional(),
+    columnName: z.string().optional(),
     col: z.string().optional(),
     columns: z.string().optional(),
     indexName: z.unknown().optional(),
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? data.columns ?? "",
+    column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.columnName ?? data.col ?? data.columns ?? "",
     indexName: typeof data.indexName === "string" ? data.indexName : undefined,
   }))
-);
+)
+  .refine((data) => data.table !== "", { message: "table is required" })
+  .refine((data) => data.column !== "", { message: "column is required" });
 
 export const PointSchemaBase = z.object({
   longitude: z.unknown().optional().describe("Longitude coordinate"),
