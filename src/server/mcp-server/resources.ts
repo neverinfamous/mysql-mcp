@@ -106,6 +106,40 @@ export function registerHelpResources(server: McpServer): void {
         throw new Error(`Help group '${group}' not found`);
       }
 
+      const toolFilter = server.getToolFilter();
+      let enabledGroups = getEnabledGroups(toolFilter.enabledTools);
+      if (enabledGroups.has("codemode")) {
+        const allGroups = new Set<ToolGroup>();
+        for (const g of Object.keys(TOOL_GROUPS)) {
+          allGroups.add(g as ToolGroup);
+        }
+        enabledGroups = allGroups;
+      }
+
+      if (group !== "gotchas" && !enabledGroups.has(group as ToolGroup)) {
+        throw new Error(`Help group '${group}' is disabled`);
+      }
+
+      const toolSchemas: unknown[] = [];
+      if (group !== "gotchas") {
+        const groupToolNames = TOOL_GROUPS[group as keyof typeof TOOL_GROUPS] || [];
+        for (const adapter of server.getAdapters().values()) {
+          const tools = adapter.getToolDefinitions();
+          for (const tool of tools) {
+            if (groupToolNames.includes(tool.name)) {
+              if (toolFilter.enabledTools.has(tool.name) || enabledGroups.has("codemode")) {
+                toolSchemas.push({
+                  name: tool.name,
+                  description: tool.description,
+                  inputSchema: tool.inputSchema,
+                  ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {})
+                });
+              }
+            }
+          }
+        }
+      }
+
       return {
         contents: [
           {
@@ -114,7 +148,8 @@ export function registerHelpResources(server: McpServer): void {
             text: JSON.stringify(
               {
                 group,
-                documentation: content
+                documentation: content,
+                tools: toolSchemas
               },
               null,
               2
