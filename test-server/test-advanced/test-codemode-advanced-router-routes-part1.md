@@ -86,7 +86,7 @@
 1. `mysql.router.routeDestinations({routeName: "test"})` → verify structured response
 2. `mysql.router.routeBlockedHosts({routeName: "test"})` → verify structured response
 3. `mysql.router.metadataStatus({metadataName: "test"})` → verify structured response
-5. All 9 errors must use consistent `{success: false, error: "..."}` format
+5. All 3 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 3: Happy-Path Stress (When Router IS Available)
 1. For first available route name: `mysql.router.routeDestinations` → verify backend listing
