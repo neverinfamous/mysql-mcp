@@ -517,6 +517,11 @@ export function createOptimizerTraceTool(
                           k === "table_dependencies" ||
                           k === "finalizing_table_conditions" ||
                           k === "analyzing_range_alternatives" ||
+                          k === "join_preparation" ||
+                          k === "join_execution" ||
+                          k === "potential_range_indexes" ||
+                          k === "best_covering_index_scan" ||
+                          k === "refine_plan" ||
                           k === "considered_access_paths" && Array.isArray(v) && v.length === 0 ||
                           k === "chosen" && v === true ||
                           k === "usable" && v === true
