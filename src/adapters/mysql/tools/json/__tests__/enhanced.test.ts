@@ -395,7 +395,7 @@ describe("JSON Enhanced Tools", () => {
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result.data.suggestions).toHaveLength(2);
-      expect(result.data.suggestions[0].path).toBe("$.id"); // higher cardinality first
+      expect(result.data.suggestions[0].path).toBe('$."id"'); // higher cardinality first
       expect(result.data.suggestions[0].indexDdl).toContain("BIGINT");
     });
 

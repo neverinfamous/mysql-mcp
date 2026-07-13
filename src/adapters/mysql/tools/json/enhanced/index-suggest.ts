@@ -65,6 +65,9 @@ export function createJsonIndexSuggestTool(
 
         for (const key of keys.slice(0, 10)) {
           // Analyze top 10 keys
+          // Construct proper JSON path with quotes to handle spaces and special characters
+          const jsonPath = `$."${key.replace(/"/g, '\\"')}"`;
+          
           // Use standard SQL structure for strict FULL_GROUP_BY compliance
           const cardQuery = `
                     SELECT 
@@ -72,23 +75,23 @@ export function createJsonIndexSuggestTool(
                         COUNT(DISTINCT t.val) as cardinality
                     FROM (
                         SELECT 
-                            JSON_TYPE(JSON_EXTRACT(\`sub\`.\`${column}\`, CONCAT('$.', ?))) as value_type,
-                            JSON_EXTRACT(\`sub\`.\`${column}\`, CONCAT('$.', ?)) as val
+                            JSON_TYPE(JSON_EXTRACT(\`sub\`.\`${column}\`, ?)) as value_type,
+                            JSON_EXTRACT(\`sub\`.\`${column}\`, ?) as val
                         FROM (
                             SELECT \`${column}\` 
                             FROM ${escapeQualifiedTable(table)} 
                             LIMIT ${String(sampleSize)}
                         ) as sub
-                        WHERE JSON_EXTRACT(\`sub\`.\`${column}\`, CONCAT('$.', ?)) IS NOT NULL
+                        WHERE JSON_EXTRACT(\`sub\`.\`${column}\`, ?) IS NOT NULL
                     ) as t
                     GROUP BY t.value_type
                     ORDER BY cardinality DESC
                     LIMIT 1
                 `;
           const cardResult = await adapter.executeQuery(cardQuery, [
-            key,
-            key,
-            key,
+            jsonPath,
+            jsonPath,
+            jsonPath,
           ]);
           const cardRow = cardResult.rows?.[0];
 
@@ -102,10 +105,10 @@ export function createJsonIndexSuggestTool(
             else if (valueType === "BOOLEAN") dataType = "TINYINT(1)";
 
             suggestions.push({
-              path: `$.${key}`,
+              path: jsonPath,
               type: valueType ?? "UNKNOWN",
               cardinality,
-              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${key} ((CAST(JSON_EXTRACT(\`${column}\`, '$.${key}') AS ${dataType})));`,
+              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${key.replace(/[^a-zA-Z0-9_]/g, '')} ((CAST(JSON_EXTRACT(\`${column}\`, '${jsonPath}') AS ${dataType})));`,
             });
           }
         }
