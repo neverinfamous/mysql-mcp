@@ -9,6 +9,23 @@ import type {
 } from "../../types/index.js";
 import type { DatabaseAdapter } from "./database-adapter.js";
 
+interface StandardSchema {
+  '~standard': {
+    jsonSchema: {
+      input: () => unknown;
+      output: () => unknown;
+    };
+  };
+}
+
+interface ZodLikeSchema {
+  toJSONSchema: (...args: unknown[]) => unknown;
+}
+
+function isStandardSchema(schema: unknown): schema is StandardSchema {
+  return typeof schema === 'object' && schema !== null && '~standard' in schema;
+}
+
 /**
  * Register all enabled tools with the MCP server
  */
@@ -50,23 +67,25 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
 
   if (tool.inputSchema !== undefined) {
     // Intercept toJSONSchema to bypass MCP SDK's Zod 4 transform crash
-    const patchedInput = Object.create(tool.inputSchema);
-    patchedInput.toJSONSchema = function(this: any, ...args: any[]) {
-      if (this && '~standard' in this && typeof this['~standard']?.jsonSchema?.input === 'function') {
+    const patchedInput = Object.create(tool.inputSchema) as ZodLikeSchema & Partial<StandardSchema>;
+    patchedInput.toJSONSchema = function(this: ZodLikeSchema & Partial<StandardSchema>, ...args: unknown[]) {
+      if (isStandardSchema(this) && typeof this['~standard'].jsonSchema.input === 'function') {
         return this['~standard'].jsonSchema.input();
       }
-      return Object.getPrototypeOf(this).toJSONSchema.apply(this, args);
+      const proto = Object.getPrototypeOf(this) as ZodLikeSchema;
+      return proto.toJSONSchema.apply(this, args);
     };
     toolOptions["inputSchema"] = patchedInput;
   }
 
   if (tool.outputSchema !== undefined) {
-    const patchedOutput = Object.create(tool.outputSchema);
-    patchedOutput.toJSONSchema = function(this: any, ...args: any[]) {
-      if (this && '~standard' in this && typeof this['~standard']?.jsonSchema?.output === 'function') {
+    const patchedOutput = Object.create(tool.outputSchema) as ZodLikeSchema & Partial<StandardSchema>;
+    patchedOutput.toJSONSchema = function(this: ZodLikeSchema & Partial<StandardSchema>, ...args: unknown[]) {
+      if (isStandardSchema(this) && typeof this['~standard'].jsonSchema.output === 'function') {
         return this['~standard'].jsonSchema.output();
       }
-      return Object.getPrototypeOf(this).toJSONSchema.apply(this, args);
+      const proto = Object.getPrototypeOf(this) as ZodLikeSchema;
+      return proto.toJSONSchema.apply(this, args);
     };
     toolOptions["outputSchema"] = patchedOutput;
   }
