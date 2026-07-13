@@ -359,7 +359,7 @@ services:
     networks:
       - default
     stop_grace_period: 30s
-    mem_limit: 768m
+    mem_limit: 1024m
     logging:
       driver: json-file
       options:
