@@ -30,7 +30,8 @@ const getTemplate = (
   testContent,
   executionMode,
   coverageMatrix,
-  explicitToolsList
+  explicitToolsList,
+  commitScope
 ) => {
   return templateStr
     .replace("{{TITLE_TYPE}}", () => titleType)
@@ -39,7 +40,8 @@ const getTemplate = (
     .replace("{{EXECUTION_MODE}}", () => executionMode)
     .replace("{{COVERAGE_MATRIX}}", () => coverageMatrix)
     .replace("{{EXPLICIT_TOOLS}}", () => explicitToolsList || "")
-    .replace("{{TEST_CONTENT}}", () => testContent.trim());
+    .replace("{{TEST_CONTENT}}", () => testContent.trim())
+    .replace("{{COMMIT_SCOPE}}", () => commitScope);
 };
 
 function processDirectory(dirName) {
@@ -110,6 +112,13 @@ function processDirectory(dirName) {
       titleType = "Usability & Hallucination Test";
       executionMode = "Organically test the tool group using ONLY code mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.";
       coverageMatrix = "| Tool | Fuzz Call | Hallucination Found | Fix Applied |";
+    }
+
+    let commitScope = "tool-groups";
+    if (dirName === "test-codemode" || dirName === "test-advanced") {
+        commitScope = "codemode";
+    } else if (dirName === "test-usability" || dirName === "test-usability-direct") {
+        commitScope = "usability";
     }
 
     let explicitToolsList = "";
@@ -231,10 +240,10 @@ function processDirectory(dirName) {
     const actualToolCount = TOOL_GROUPS[baseGroup] ? TOOL_GROUPS[baseGroup].length : 0;
 
     if (dirName === 'test-codemode') {
-        testContent = `## Group Focus: ${baseGroup}\\n\\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.`;
+        testContent = `## Group Focus: ${baseGroup}\n\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.\n> **API Reference**: You MUST read the \`mysql://help/${baseGroup}\` resource (or view \`src/constants/server-instructions/${baseGroup}.md\`) to understand the exact API signatures and expected parameters before writing any code.`;
     } else if (dirName === 'test-tool-groups') {
-        const checklist = (toolMap[file] || []).map(t => `- [ ] ${t}`).join('\\n');
-        testContent = `## Group Focus: ${baseGroup}\\n\\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\\n\\n### Tool Checklist\\n${checklist}`;
+        const checklist = (toolMap[file] || []).map(t => `- [ ] ${t}`).join('\n');
+        testContent = `## Group Focus: ${baseGroup}\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n${checklist}`;
     } else {
         testContent = testContent.replace(/## Group Focus:\s*.*/g, `## Group Focus: ${baseGroup}`);
         testContent = testContent.replace(/### .*? Group-Specific Testing/g, `### ${baseGroup} Group-Specific Testing`);
@@ -452,7 +461,8 @@ function processDirectory(dirName) {
       testContent,
       executionMode,
       coverageMatrix,
-      explicitToolsList
+      explicitToolsList,
+      commitScope
     );
 
     if (dirName === 'test-usability-direct' || dirName === 'test-usability') {

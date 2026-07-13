@@ -82,7 +82,11 @@
 - `mysql.backup.auditDiffBackup`
 
 
-## Group Focus: backup\n\n> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+## Group Focus: backup
+
+> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
+> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
+> **API Reference**: You MUST read the `mysql://help/backup` resource (or view `src/constants/server-instructions/backup.md`) to understand the exact API signatures and expected parameters before writing any code.
 
 ## Tasks
 
@@ -113,5 +117,5 @@
 
 4. **Validate**: Run `pnpm run lint` and `pnpm run typecheck` to validate your changes. Do NOT run `pnpm run test`, `pnpm run check`, or `pnpm run build` as this takes too long. The main coordinator agent will run the test suite at the end.
 5. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-6. **Commit**: Commit all changes locally using `bun .\\.agents\\scripts\\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
-7. **Final summary**: Provide the final summary of testing and any issues fixed.
+6. **Commit**: Commit all changes locally using `bun .\\.agents\\scripts\\commit.ts --msg "test(codemode): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
+7. **Final summary**: Provide the final summary of testing and any issues fixed. You MUST explicitly state if you applied any fixes in your final message, and explicitly report if any tests triggered graceful degradation. FORMAT THIS STRING EXACTLY AS **\`Y Prompt Fixes / Z Code Fixes / W Graceful Degradations\`** in bold at the very top of your final result summary. Also include the explicit status line \`STATUS: SUCCESS\`.
