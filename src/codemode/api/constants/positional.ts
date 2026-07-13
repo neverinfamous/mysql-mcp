@@ -150,6 +150,8 @@ export const POSITIONAL_PARAM_MAP: Record<string, string | string[]> = {
   showProcesslist: "limit",
   innodbStatus: "summary",
   replicationStatus: "summary",
+  poolStats: "summary",
+  serverHealth: "summary",
 
   // ============ BACKUP GROUP ============
   createDump: "database",
