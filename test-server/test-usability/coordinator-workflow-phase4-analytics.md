@@ -1,4 +1,6 @@
-# MySQL MCP Usability Test Phase: analytics
+# MySQL MCP Usability Testing - Phase 4: Analytics
+
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
 
 We're working in the `mysql-mcp` project in this thread.
 
@@ -12,66 +14,66 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 58).
 - Terminate subagents when done to save context.
 
-## Tasks
+## Test Sequence Queue (Phase 4: Analytics)
 
-- [ ] [test-usability-backup-part1.md](test-usability-backup-part1.md)
-- [ ] [test-usability-backup-part2.md](test-usability-backup-part2.md)
-- [ ] [test-usability-backup-part3.md](test-usability-backup-part3.md)
-- [ ] [test-usability-cluster-part1.md](test-usability-cluster-part1.md)
-- [ ] [test-usability-cluster-part2.md](test-usability-cluster-part2.md)
-- [ ] [test-usability-cluster-part3.md](test-usability-cluster-part3.md)
-- [ ] [test-usability-cluster-part4.md](test-usability-cluster-part4.md)
-- [ ] [test-usability-docstore-part1.md](test-usability-docstore-part1.md)
-- [ ] [test-usability-docstore-part2.md](test-usability-docstore-part2.md)
-- [ ] [test-usability-docstore-part3.md](test-usability-docstore-part3.md)
-- [ ] [test-usability-events-part1.md](test-usability-events-part1.md)
-- [ ] [test-usability-events-part2.md](test-usability-events-part2.md)
-- [ ] [test-usability-fulltext-part1.md](test-usability-fulltext-part1.md)
-- [ ] [test-usability-fulltext-part2.md](test-usability-fulltext-part2.md)
-- [ ] [test-usability-introspection-part1.md](test-usability-introspection-part1.md)
-- [ ] [test-usability-introspection-part2.md](test-usability-introspection-part2.md)
-- [ ] [test-usability-migration-part1.md](test-usability-migration-part1.md)
-- [ ] [test-usability-migration-part2.md](test-usability-migration-part2.md)
-- [ ] [test-usability-monitoring-part1.md](test-usability-monitoring-part1.md)
-- [ ] [test-usability-monitoring-part2.md](test-usability-monitoring-part2.md)
-- [ ] [test-usability-monitoring-part3.md](test-usability-monitoring-part3.md)
-- [ ] [test-usability-optimization-part1.md](test-usability-optimization-part1.md)
-- [ ] [test-usability-optimization-part2.md](test-usability-optimization-part2.md)
-- [ ] [test-usability-partitioning-part1.md](test-usability-partitioning-part1.md)
-- [ ] [test-usability-partitioning-part2.md](test-usability-partitioning-part2.md)
-- [ ] [test-usability-proxysql-part1.md](test-usability-proxysql-part1.md)
-- [ ] [test-usability-proxysql-part2.md](test-usability-proxysql-part2.md)
-- [ ] [test-usability-proxysql-part3.md](test-usability-proxysql-part3.md)
-- [ ] [test-usability-proxysql-part4.md](test-usability-proxysql-part4.md)
-- [ ] [test-usability-replication-part1.md](test-usability-replication-part1.md)
-- [ ] [test-usability-replication-part2.md](test-usability-replication-part2.md)
-- [ ] [test-usability-roles-part1.md](test-usability-roles-part1.md)
-- [ ] [test-usability-roles-part2.md](test-usability-roles-part2.md)
-- [ ] [test-usability-roles-part3.md](test-usability-roles-part3.md)
-- [ ] [test-usability-router-part1.md](test-usability-router-part1.md)
-- [ ] [test-usability-router-part2.md](test-usability-router-part2.md)
-- [ ] [test-usability-router-part3.md](test-usability-router-part3.md)
-- [ ] [test-usability-security-part1.md](test-usability-security-part1.md)
-- [ ] [test-usability-security-part2.md](test-usability-security-part2.md)
-- [ ] [test-usability-security-part3.md](test-usability-security-part3.md)
-- [ ] [test-usability-shell-part1.md](test-usability-shell-part1.md)
-- [ ] [test-usability-shell-part2.md](test-usability-shell-part2.md)
-- [ ] [test-usability-shell-part3.md](test-usability-shell-part3.md)
-- [ ] [test-usability-shell-part4.md](test-usability-shell-part4.md)
-- [ ] [test-usability-spatial-part1.md](test-usability-spatial-part1.md)
-- [ ] [test-usability-spatial-part2.md](test-usability-spatial-part2.md)
-- [ ] [test-usability-spatial-part3.md](test-usability-spatial-part3.md)
-- [ ] [test-usability-spatial-part4.md](test-usability-spatial-part4.md)
-- [ ] [test-usability-sysschema-part1.md](test-usability-sysschema-part1.md)
-- [ ] [test-usability-sysschema-part2.md](test-usability-sysschema-part2.md)
-- [ ] [test-usability-sysschema-part3.md](test-usability-sysschema-part3.md)
-- [ ] [test-usability-transactions-part1.md](test-usability-transactions-part1.md)
-- [ ] [test-usability-transactions-part2.md](test-usability-transactions-part2.md)
-- [ ] [test-usability-transactions-part3.md](test-usability-transactions-part3.md)
-- [ ] [test-usability-vector-part1.md](test-usability-vector-part1.md)
-- [ ] [test-usability-vector-part2.md](test-usability-vector-part2.md)
-- [ ] [test-usability-vector-part3.md](test-usability-vector-part3.md)
-- [ ] [test-usability-vector-part4.md](test-usability-vector-part4.md)
+1. `test-usability-backup-part1.md` (**MUST PASS FIRST**)
+2. `test-usability-backup-part2.md`
+3. `test-usability-backup-part3.md`
+4. `test-usability-cluster-part1.md`
+5. `test-usability-cluster-part2.md`
+6. `test-usability-cluster-part3.md`
+7. `test-usability-cluster-part4.md`
+8. `test-usability-docstore-part1.md`
+9. `test-usability-docstore-part2.md`
+10. `test-usability-docstore-part3.md`
+11. `test-usability-events-part1.md`
+12. `test-usability-events-part2.md`
+13. `test-usability-fulltext-part1.md`
+14. `test-usability-fulltext-part2.md`
+15. `test-usability-introspection-part1.md`
+16. `test-usability-introspection-part2.md`
+17. `test-usability-migration-part1.md`
+18. `test-usability-migration-part2.md`
+19. `test-usability-monitoring-part1.md`
+20. `test-usability-monitoring-part2.md`
+21. `test-usability-monitoring-part3.md`
+22. `test-usability-optimization-part1.md`
+23. `test-usability-optimization-part2.md`
+24. `test-usability-partitioning-part1.md`
+25. `test-usability-partitioning-part2.md`
+26. `test-usability-proxysql-part1.md`
+27. `test-usability-proxysql-part2.md`
+28. `test-usability-proxysql-part3.md`
+29. `test-usability-proxysql-part4.md`
+30. `test-usability-replication-part1.md`
+31. `test-usability-replication-part2.md`
+32. `test-usability-roles-part1.md`
+33. `test-usability-roles-part2.md`
+34. `test-usability-roles-part3.md`
+35. `test-usability-router-part1.md`
+36. `test-usability-router-part2.md`
+37. `test-usability-router-part3.md`
+38. `test-usability-security-part1.md`
+39. `test-usability-security-part2.md`
+40. `test-usability-security-part3.md`
+41. `test-usability-shell-part1.md`
+42. `test-usability-shell-part2.md`
+43. `test-usability-shell-part3.md`
+44. `test-usability-shell-part4.md`
+45. `test-usability-spatial-part1.md`
+46. `test-usability-spatial-part2.md`
+47. `test-usability-spatial-part3.md`
+48. `test-usability-spatial-part4.md`
+49. `test-usability-sysschema-part1.md`
+50. `test-usability-sysschema-part2.md`
+51. `test-usability-sysschema-part3.md`
+52. `test-usability-transactions-part1.md`
+53. `test-usability-transactions-part2.md`
+54. `test-usability-transactions-part3.md`
+55. `test-usability-vector-part1.md`
+56. `test-usability-vector-part2.md`
+57. `test-usability-vector-part3.md`
+58. `test-usability-vector-part4.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

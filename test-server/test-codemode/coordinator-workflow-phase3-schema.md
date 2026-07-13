@@ -16,7 +16,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 
 ## Test Sequence Queue (Phase 3: Schema & Security (Roles, Router, Schema, Security))
 
-1. `test-codemode-roles-grants-part1.md`
+1. `test-codemode-roles-grants-part1.md` (**MUST PASS FIRST**)
 2. `test-codemode-roles-grants-part2.md`
 3. `test-codemode-roles-management-part1.md`
 4. `test-codemode-roles-management-part2.md`

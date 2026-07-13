@@ -1,12 +1,8 @@
 # MySQL MCP Advanced Code Mode Testing - Phase 3: Security
 
-> 🚀 **Core Features Tested:** Orchestrates deep validation of our advanced capabilities: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
 
 We're working in the `mysql-mcp` project in this thread.
-
-> **This document is optimized for an autonomous agent acting as a Coordinator.**
-
-This guide instructs the Coordinator agent on how to run the `mysql-mcp` Advanced Code Mode test suite using subagents.
 
 ## Execution Rules
 Follow the exact same workflow rules defined in the [Master Coordinator Index](coordinator-workflow.md).
@@ -20,37 +16,36 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 
 ## Test Sequence Queue (Phase 3: Security)
 
-56. `test-codemode-advanced-roles-assignment-part1.md`
-57. `test-codemode-advanced-roles-assignment-part2.md`
-58. `test-codemode-advanced-roles-management-part1.md`
-59. `test-codemode-advanced-roles-management-part2.md`
-60. `test-codemode-advanced-router-advanced-part1.md`
-61. `test-codemode-advanced-router-advanced-part2.md`
-62. `test-codemode-advanced-router-routes-part1.md`
-63. `test-codemode-advanced-router-routes-part2.md`
-64. `test-codemode-advanced-sandbox.md`
-65. `test-codemode-advanced-schema-management.md`
-66. `test-codemode-advanced-schema-routines.md`
-67. `test-codemode-advanced-schema-triggers.md`
-68. `test-codemode-advanced-schema-views-part1.md`
-69. `test-codemode-advanced-schema-views-part2.md`
-70. `test-codemode-advanced-security-audit-part1.md`
-71. `test-codemode-advanced-security-audit-part2.md`
-72. `test-codemode-advanced-security-system-part1.md`
-73. `test-codemode-advanced-security-system-part2.md`
-74. `test-codemode-advanced-sessions-part1.md`
-75. `test-codemode-advanced-sessions-part2.md`
-76. `test-codemode-advanced-shell-data-part1.md`
-77. `test-codemode-advanced-shell-data-part2.md`
-78. `test-codemode-advanced-shell-utils-part1a.md`
-79. `test-codemode-advanced-shell-utils-part1b.md`
-80. `test-codemode-advanced-shell-utils-part2.md`
-81. `test-codemode-advanced-spatial-geometry.md`
-82. `test-codemode-advanced-spatial-operations-part1.md`
-83. `test-codemode-advanced-spatial-operations-part2.md`
-84. `test-codemode-advanced-spatial-queries.md`
-85. `test-codemode-advanced-spatial-setup.md`
-
+1. `test-codemode-advanced-roles-assignment-part1.md` (**MUST PASS FIRST**)
+2. `test-codemode-advanced-roles-assignment-part2.md`
+3. `test-codemode-advanced-roles-management-part1.md`
+4. `test-codemode-advanced-roles-management-part2.md`
+5. `test-codemode-advanced-router-advanced-part1.md`
+6. `test-codemode-advanced-router-advanced-part2.md`
+7. `test-codemode-advanced-router-routes-part1.md`
+8. `test-codemode-advanced-router-routes-part2.md`
+9. `test-codemode-advanced-sandbox.md`
+10. `test-codemode-advanced-schema-management.md`
+11. `test-codemode-advanced-schema-routines.md`
+12. `test-codemode-advanced-schema-triggers.md`
+13. `test-codemode-advanced-schema-views-part1.md`
+14. `test-codemode-advanced-schema-views-part2.md`
+15. `test-codemode-advanced-security-audit-part1.md`
+16. `test-codemode-advanced-security-audit-part2.md`
+17. `test-codemode-advanced-security-system-part1.md`
+18. `test-codemode-advanced-security-system-part2.md`
+19. `test-codemode-advanced-sessions-part1.md`
+20. `test-codemode-advanced-sessions-part2.md`
+21. `test-codemode-advanced-shell-data-part1.md`
+22. `test-codemode-advanced-shell-data-part2.md`
+23. `test-codemode-advanced-shell-utils-part1a.md`
+24. `test-codemode-advanced-shell-utils-part1b.md`
+25. `test-codemode-advanced-shell-utils-part2.md`
+26. `test-codemode-advanced-spatial-geometry.md`
+27. `test-codemode-advanced-spatial-operations-part1.md`
+28. `test-codemode-advanced-spatial-operations-part2.md`
+29. `test-codemode-advanced-spatial-queries.md`
+30. `test-codemode-advanced-spatial-setup.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

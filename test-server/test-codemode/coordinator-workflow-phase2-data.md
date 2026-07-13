@@ -16,7 +16,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 
 ## Test Sequence Queue (Phase 2: Data & Performance (JSON, Migration, Perf, Rep))
 
-1. `test-codemode-json-core-read.md`
+1. `test-codemode-json-core-read.md` (**MUST PASS FIRST**)
 2. `test-codemode-json-core-write-part1.md`
 3. `test-codemode-json-core-write-part2.md`
 4. `test-codemode-json-enhanced-part1.md`

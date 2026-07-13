@@ -1,4 +1,6 @@
-# MySQL MCP Direct Usability Test Phase: admin
+# MySQL MCP Direct Usability Testing - Phase 2: Admin
+
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
 
 We're working in the `mysql-mcp` project in this thread.
 
@@ -12,24 +14,24 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 16).
 - Terminate subagents when done to save context.
 
-## Tasks
+## Test Sequence Queue (Phase 2: Admin)
 
-- [test-usability-direct-performance-part1.md](test-usability-direct-performance-part1.md)
-- [test-usability-direct-performance-part2.md](test-usability-direct-performance-part2.md)
-- [test-usability-direct-performance-part3.md](test-usability-direct-performance-part3.md)
-- [test-usability-direct-performance-part4.md](test-usability-direct-performance-part4.md)
-- [test-usability-direct-admin-part1.md](test-usability-direct-admin-part1.md)
-- [test-usability-direct-admin-part2.md](test-usability-direct-admin-part2.md)
-- [test-usability-direct-admin-part3.md](test-usability-direct-admin-part3.md)
-- [test-usability-direct-monitoring-part1.md](test-usability-direct-monitoring-part1.md)
-- [test-usability-direct-monitoring-part2.md](test-usability-direct-monitoring-part2.md)
-- [test-usability-direct-monitoring-part3.md](test-usability-direct-monitoring-part3.md)
-- [test-usability-direct-backup-part1.md](test-usability-direct-backup-part1.md)
-- [test-usability-direct-backup-part2.md](test-usability-direct-backup-part2.md)
-- [test-usability-direct-backup-part3.md](test-usability-direct-backup-part3.md)
-- [test-usability-direct-transactions-part1.md](test-usability-direct-transactions-part1.md)
-- [test-usability-direct-transactions-part2.md](test-usability-direct-transactions-part2.md)
-- [test-usability-direct-transactions-part3.md](test-usability-direct-transactions-part3.md)
+1. `test-usability-direct-performance-part1.md` (**MUST PASS FIRST**)
+2. `test-usability-direct-performance-part2.md`
+3. `test-usability-direct-performance-part3.md`
+4. `test-usability-direct-performance-part4.md`
+5. `test-usability-direct-admin-part1.md`
+6. `test-usability-direct-admin-part2.md`
+7. `test-usability-direct-admin-part3.md`
+8. `test-usability-direct-monitoring-part1.md`
+9. `test-usability-direct-monitoring-part2.md`
+10. `test-usability-direct-monitoring-part3.md`
+11. `test-usability-direct-backup-part1.md`
+12. `test-usability-direct-backup-part2.md`
+13. `test-usability-direct-backup-part3.md`
+14. `test-usability-direct-transactions-part1.md`
+15. `test-usability-direct-transactions-part2.md`
+16. `test-usability-direct-transactions-part3.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

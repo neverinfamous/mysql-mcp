@@ -16,7 +16,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 
 ## Test Sequence Queue (Phase 4: Analytics & Sandbox (Spatial, Stats, Sys, Vector))
 
-1. `test-codemode-spatial-geometry.md`
+1. `test-codemode-spatial-geometry.md` (**MUST PASS FIRST**)
 2. `test-codemode-spatial-operations-part1.md`
 3. `test-codemode-spatial-operations-part2.md`
 4. `test-codemode-spatial-queries-part1.md`

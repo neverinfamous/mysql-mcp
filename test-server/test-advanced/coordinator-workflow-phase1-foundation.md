@@ -1,12 +1,8 @@
 # MySQL MCP Advanced Code Mode Testing - Phase 1: Foundation
 
-> 🚀 **Core Features Tested:** Orchestrates deep validation of our advanced capabilities: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
 
 We're working in the `mysql-mcp` project in this thread.
-
-> **This document is optimized for an autonomous agent acting as a Coordinator.**
-
-This guide instructs the Coordinator agent on how to run the `mysql-mcp` Advanced Code Mode test suite using subagents.
 
 ## Execution Rules
 Follow the exact same workflow rules defined in the [Master Coordinator Index](coordinator-workflow.md).
@@ -19,6 +15,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 1: Foundation)
+
 1. `test-codemode-advanced-admin-control-part1.md` (**MUST PASS FIRST**)
 2. `test-codemode-advanced-admin-control-part2.md`
 3. `test-codemode-advanced-admin-maintenance-part1.md`
@@ -47,7 +44,6 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 26. `test-codemode-advanced-fulltext-part2.md`
 27. `test-codemode-advanced-introspection-part1.md`
 28. `test-codemode-advanced-introspection-part2.md`
-
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

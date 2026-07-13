@@ -1,4 +1,6 @@
-# MySQL MCP Direct Usability Test Phase: schema
+# MySQL MCP Direct Usability Testing - Phase 3: Schema
+
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
 
 We're working in the `mysql-mcp` project in this thread.
 
@@ -12,25 +14,25 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 17).
 - Terminate subagents when done to save context.
 
-## Tasks
+## Test Sequence Queue (Phase 3: Schema)
 
-- [test-usability-direct-partitioning-part1.md](test-usability-direct-partitioning-part1.md)
-- [test-usability-direct-partitioning-part2.md](test-usability-direct-partitioning-part2.md)
-- [test-usability-direct-schema-part1.md](test-usability-direct-schema-part1.md)
-- [test-usability-direct-schema-part2.md](test-usability-direct-schema-part2.md)
-- [test-usability-direct-schema-part3.md](test-usability-direct-schema-part3.md)
-- [test-usability-direct-schema-part4.md](test-usability-direct-schema-part4.md)
-- [test-usability-direct-stats-part1.md](test-usability-direct-stats-part1.md)
-- [test-usability-direct-stats-part2.md](test-usability-direct-stats-part2.md)
-- [test-usability-direct-stats-part3.md](test-usability-direct-stats-part3.md)
-- [test-usability-direct-stats-part4.md](test-usability-direct-stats-part4.md)
-- [test-usability-direct-stats-part5.md](test-usability-direct-stats-part5.md)
-- [test-usability-direct-stats-part6.md](test-usability-direct-stats-part6.md)
-- [test-usability-direct-stats-part7.md](test-usability-direct-stats-part7.md)
-- [test-usability-direct-introspection-part1.md](test-usability-direct-introspection-part1.md)
-- [test-usability-direct-introspection-part2.md](test-usability-direct-introspection-part2.md)
-- [test-usability-direct-migration-part1.md](test-usability-direct-migration-part1.md)
-- [test-usability-direct-migration-part2.md](test-usability-direct-migration-part2.md)
+1. `test-usability-direct-partitioning-part1.md` (**MUST PASS FIRST**)
+2. `test-usability-direct-partitioning-part2.md`
+3. `test-usability-direct-schema-part1.md`
+4. `test-usability-direct-schema-part2.md`
+5. `test-usability-direct-schema-part3.md`
+6. `test-usability-direct-schema-part4.md`
+7. `test-usability-direct-stats-part1.md`
+8. `test-usability-direct-stats-part2.md`
+9. `test-usability-direct-stats-part3.md`
+10. `test-usability-direct-stats-part4.md`
+11. `test-usability-direct-stats-part5.md`
+12. `test-usability-direct-stats-part6.md`
+13. `test-usability-direct-stats-part7.md`
+14. `test-usability-direct-introspection-part1.md`
+15. `test-usability-direct-introspection-part2.md`
+16. `test-usability-direct-migration-part1.md`
+17. `test-usability-direct-migration-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

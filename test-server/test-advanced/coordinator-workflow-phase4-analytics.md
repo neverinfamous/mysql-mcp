@@ -1,12 +1,8 @@
 # MySQL MCP Advanced Code Mode Testing - Phase 4: Analytics
 
-> 🚀 **Core Features Tested:** Orchestrates deep validation of our advanced capabilities: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
 
 We're working in the `mysql-mcp` project in this thread.
-
-> **This document is optimized for an autonomous agent acting as a Coordinator.**
-
-This guide instructs the Coordinator agent on how to run the `mysql-mcp` Advanced Code Mode test suite using subagents.
 
 ## Execution Rules
 Follow the exact same workflow rules defined in the [Master Coordinator Index](coordinator-workflow.md).
@@ -20,33 +16,32 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 
 ## Test Sequence Queue (Phase 4: Analytics)
 
-86. `test-codemode-advanced-stats-advanced-part1.md`
-87. `test-codemode-advanced-stats-advanced-part2.md`
-88. `test-codemode-advanced-stats-descriptive-part1.md`
-89. `test-codemode-advanced-stats-descriptive-part2.md`
-90. `test-codemode-advanced-stats-time-series-part1.md`
-91. `test-codemode-advanced-stats-time-series-part2.md`
-92. `test-codemode-advanced-stats-window-part1.md`
-93. `test-codemode-advanced-stats-window-part2.md`
-94. `test-codemode-advanced-sys-part1a.md`
-95. `test-codemode-advanced-sys-part1b.md`
-96. `test-codemode-advanced-sys-part2a.md`
-97. `test-codemode-advanced-sys-part2b.md`
-98. `test-codemode-advanced-text-part1.md`
-99. `test-codemode-advanced-text-part2.md`
-100. `test-codemode-advanced-transactions-part1a.md`
-101. `test-codemode-advanced-transactions-part1b.md`
-102. `test-codemode-advanced-transactions-part2.md`
-103. `test-codemode-advanced-types-binary.md`
-104. `test-codemode-advanced-types-date.md`
-105. `test-codemode-advanced-types-json.md`
-106. `test-codemode-advanced-types-numeric.md`
-107. `test-codemode-advanced-vector-management-part1.md`
-108. `test-codemode-advanced-vector-management-part2.md`
-109. `test-codemode-advanced-vector-search-part1.md`
-110. `test-codemode-advanced-vector-search-part2.md`
-111. `test-codemode-advanced-vector-storage.md`
-
+1. `test-codemode-advanced-stats-advanced-part1.md` (**MUST PASS FIRST**)
+2. `test-codemode-advanced-stats-advanced-part2.md`
+3. `test-codemode-advanced-stats-descriptive-part1.md`
+4. `test-codemode-advanced-stats-descriptive-part2.md`
+5. `test-codemode-advanced-stats-time-series-part1.md`
+6. `test-codemode-advanced-stats-time-series-part2.md`
+7. `test-codemode-advanced-stats-window-part1.md`
+8. `test-codemode-advanced-stats-window-part2.md`
+9. `test-codemode-advanced-sys-part1a.md`
+10. `test-codemode-advanced-sys-part1b.md`
+11. `test-codemode-advanced-sys-part2a.md`
+12. `test-codemode-advanced-sys-part2b.md`
+13. `test-codemode-advanced-text-part1.md`
+14. `test-codemode-advanced-text-part2.md`
+15. `test-codemode-advanced-transactions-part1a.md`
+16. `test-codemode-advanced-transactions-part1b.md`
+17. `test-codemode-advanced-transactions-part2.md`
+18. `test-codemode-advanced-types-binary.md`
+19. `test-codemode-advanced-types-date.md`
+20. `test-codemode-advanced-types-json.md`
+21. `test-codemode-advanced-types-numeric.md`
+22. `test-codemode-advanced-vector-management-part1.md`
+23. `test-codemode-advanced-vector-management-part2.md`
+24. `test-codemode-advanced-vector-search-part1.md`
+25. `test-codemode-advanced-vector-search-part2.md`
+26. `test-codemode-advanced-vector-storage.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

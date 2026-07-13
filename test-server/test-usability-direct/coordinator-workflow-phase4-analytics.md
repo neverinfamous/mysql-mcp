@@ -1,4 +1,6 @@
-# MySQL MCP Direct Usability Test Phase: analytics
+# MySQL MCP Direct Usability Testing - Phase 4: Analytics
+
+> **This is a sharded workflow phase.** The main test suite has been split into phases to prevent context window exhaustion.
 
 We're working in the `mysql-mcp` project in this thread.
 
@@ -12,51 +14,51 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 43).
 - Terminate subagents when done to save context.
 
-## Tasks
+## Test Sequence Queue (Phase 4: Analytics)
 
-- [test-usability-direct-fulltext-part1.md](test-usability-direct-fulltext-part1.md)
-- [test-usability-direct-fulltext-part2.md](test-usability-direct-fulltext-part2.md)
-- [test-usability-direct-optimization-part1.md](test-usability-direct-optimization-part1.md)
-- [test-usability-direct-optimization-part2.md](test-usability-direct-optimization-part2.md)
-- [test-usability-direct-replication-part1.md](test-usability-direct-replication-part1.md)
-- [test-usability-direct-replication-part2.md](test-usability-direct-replication-part2.md)
-- [test-usability-direct-router-part1.md](test-usability-direct-router-part1.md)
-- [test-usability-direct-router-part2.md](test-usability-direct-router-part2.md)
-- [test-usability-direct-router-part3.md](test-usability-direct-router-part3.md)
-- [test-usability-direct-proxysql-part1.md](test-usability-direct-proxysql-part1.md)
-- [test-usability-direct-proxysql-part2.md](test-usability-direct-proxysql-part2.md)
-- [test-usability-direct-proxysql-part3.md](test-usability-direct-proxysql-part3.md)
-- [test-usability-direct-proxysql-part4.md](test-usability-direct-proxysql-part4.md)
-- [test-usability-direct-shell-part1.md](test-usability-direct-shell-part1.md)
-- [test-usability-direct-shell-part2.md](test-usability-direct-shell-part2.md)
-- [test-usability-direct-shell-part3.md](test-usability-direct-shell-part3.md)
-- [test-usability-direct-shell-part4.md](test-usability-direct-shell-part4.md)
-- [test-usability-direct-events-part1.md](test-usability-direct-events-part1.md)
-- [test-usability-direct-events-part2.md](test-usability-direct-events-part2.md)
-- [test-usability-direct-sysschema-part1.md](test-usability-direct-sysschema-part1.md)
-- [test-usability-direct-sysschema-part2.md](test-usability-direct-sysschema-part2.md)
-- [test-usability-direct-sysschema-part3.md](test-usability-direct-sysschema-part3.md)
-- [test-usability-direct-spatial-part1.md](test-usability-direct-spatial-part1.md)
-- [test-usability-direct-spatial-part2.md](test-usability-direct-spatial-part2.md)
-- [test-usability-direct-spatial-part3.md](test-usability-direct-spatial-part3.md)
-- [test-usability-direct-spatial-part4.md](test-usability-direct-spatial-part4.md)
-- [test-usability-direct-security-part1.md](test-usability-direct-security-part1.md)
-- [test-usability-direct-security-part2.md](test-usability-direct-security-part2.md)
-- [test-usability-direct-security-part3.md](test-usability-direct-security-part3.md)
-- [test-usability-direct-cluster-part1.md](test-usability-direct-cluster-part1.md)
-- [test-usability-direct-cluster-part2.md](test-usability-direct-cluster-part2.md)
-- [test-usability-direct-cluster-part3.md](test-usability-direct-cluster-part3.md)
-- [test-usability-direct-cluster-part4.md](test-usability-direct-cluster-part4.md)
-- [test-usability-direct-roles-part1.md](test-usability-direct-roles-part1.md)
-- [test-usability-direct-roles-part2.md](test-usability-direct-roles-part2.md)
-- [test-usability-direct-roles-part3.md](test-usability-direct-roles-part3.md)
-- [test-usability-direct-docstore-part1.md](test-usability-direct-docstore-part1.md)
-- [test-usability-direct-docstore-part2.md](test-usability-direct-docstore-part2.md)
-- [test-usability-direct-docstore-part3.md](test-usability-direct-docstore-part3.md)
-- [test-usability-direct-vector-part1.md](test-usability-direct-vector-part1.md)
-- [test-usability-direct-vector-part2.md](test-usability-direct-vector-part2.md)
-- [test-usability-direct-vector-part3.md](test-usability-direct-vector-part3.md)
-- [test-usability-direct-vector-part4.md](test-usability-direct-vector-part4.md)
+1. `test-usability-direct-fulltext-part1.md` (**MUST PASS FIRST**)
+2. `test-usability-direct-fulltext-part2.md`
+3. `test-usability-direct-optimization-part1.md`
+4. `test-usability-direct-optimization-part2.md`
+5. `test-usability-direct-replication-part1.md`
+6. `test-usability-direct-replication-part2.md`
+7. `test-usability-direct-router-part1.md`
+8. `test-usability-direct-router-part2.md`
+9. `test-usability-direct-router-part3.md`
+10. `test-usability-direct-proxysql-part1.md`
+11. `test-usability-direct-proxysql-part2.md`
+12. `test-usability-direct-proxysql-part3.md`
+13. `test-usability-direct-proxysql-part4.md`
+14. `test-usability-direct-shell-part1.md`
+15. `test-usability-direct-shell-part2.md`
+16. `test-usability-direct-shell-part3.md`
+17. `test-usability-direct-shell-part4.md`
+18. `test-usability-direct-events-part1.md`
+19. `test-usability-direct-events-part2.md`
+20. `test-usability-direct-sysschema-part1.md`
+21. `test-usability-direct-sysschema-part2.md`
+22. `test-usability-direct-sysschema-part3.md`
+23. `test-usability-direct-spatial-part1.md`
+24. `test-usability-direct-spatial-part2.md`
+25. `test-usability-direct-spatial-part3.md`
+26. `test-usability-direct-spatial-part4.md`
+27. `test-usability-direct-security-part1.md`
+28. `test-usability-direct-security-part2.md`
+29. `test-usability-direct-security-part3.md`
+30. `test-usability-direct-cluster-part1.md`
+31. `test-usability-direct-cluster-part2.md`
+32. `test-usability-direct-cluster-part3.md`
+33. `test-usability-direct-cluster-part4.md`
+34. `test-usability-direct-roles-part1.md`
+35. `test-usability-direct-roles-part2.md`
+36. `test-usability-direct-roles-part3.md`
+37. `test-usability-direct-docstore-part1.md`
+38. `test-usability-direct-docstore-part2.md`
+39. `test-usability-direct-docstore-part3.md`
+40. `test-usability-direct-vector-part1.md`
+41. `test-usability-direct-vector-part2.md`
+42. `test-usability-direct-vector-part3.md`
+43. `test-usability-direct-vector-part4.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.
