@@ -67,8 +67,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_query_stats` |   |   |   |   |
-| `mysql_thread_stats` |   |   |   |   |
+| `mysql_detect_query_anomalies` |   |   |   |   |
+| `mysql_detect_bloat_risk` |   |   |   |   |
+| `mysql_detect_connection_spike` |   |   |   |   |
 
 ---
 
@@ -76,8 +77,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_query_stats`
-- `mysql_thread_stats`
+- `mysql_detect_query_anomalies`
+- `mysql_detect_bloat_risk`
+- `mysql_detect_connection_spike`
 
 
 ## Group Focus: performance
@@ -85,13 +87,15 @@
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_query_stats
-- [ ] mysql_thread_stats
+- [ ] mysql_detect_query_anomalies
+- [ ] mysql_detect_bloat_risk
+- [ ] mysql_detect_connection_spike
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_query_stats
-- [ ] Ensure full coverage for mysql_thread_stats
+- [ ] Ensure full coverage for mysql_detect_query_anomalies
+- [ ] Ensure full coverage for mysql_detect_bloat_risk
+- [ ] Ensure full coverage for mysql_detect_connection_spike
 
 ---
 

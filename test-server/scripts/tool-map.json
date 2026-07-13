@@ -1101,22 +1101,22 @@
   ],
   "test-performance-analysis-part1.md": [
     "mysql_explain",
-    "mysql_index_usage",
-    "mysql_detect_query_anomalies"
+    "mysql_explain_analyze",
+    "mysql_slow_queries"
   ],
   "test-performance-analysis-part2.md": [
-    "mysql_explain_analyze",
-    "mysql_table_stats",
-    "mysql_detect_bloat_risk"
+    "mysql_query_stats",
+    "mysql_index_usage",
+    "mysql_table_stats"
   ],
   "test-performance-analysis-part3.md": [
-    "mysql_slow_queries",
     "mysql_buffer_pool_stats",
-    "mysql_detect_connection_spike"
+    "mysql_thread_stats"
   ],
   "test-performance-anomaly.md": [
-    "mysql_query_stats",
-    "mysql_thread_stats"
+    "mysql_detect_query_anomalies",
+    "mysql_detect_bloat_risk",
+    "mysql_detect_connection_spike"
   ],
   "test-proxysql-part1.md": [
     "proxysql_status",

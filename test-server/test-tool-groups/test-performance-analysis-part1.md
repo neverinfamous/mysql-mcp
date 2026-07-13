@@ -68,8 +68,8 @@
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
 | `mysql_explain` |   |   |   |   |
-| `mysql_index_usage` |   |   |   |   |
-| `mysql_detect_query_anomalies` |   |   |   |   |
+| `mysql_explain_analyze` |   |   |   |   |
+| `mysql_slow_queries` |   |   |   |   |
 
 ---
 
@@ -78,8 +78,8 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_explain`
-- `mysql_index_usage`
-- `mysql_detect_query_anomalies`
+- `mysql_explain_analyze`
+- `mysql_slow_queries`
 
 
 ## Group Focus: performance
@@ -88,14 +88,14 @@
 
 ### Tool Checklist
 - [ ] mysql_explain
-- [ ] mysql_index_usage
-- [ ] mysql_detect_query_anomalies
+- [ ] mysql_explain_analyze
+- [ ] mysql_slow_queries
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_explain
-- [ ] Ensure full coverage for mysql_index_usage
-- [ ] Ensure full coverage for mysql_detect_query_anomalies
+- [ ] Ensure full coverage for mysql_explain_analyze
+- [ ] Ensure full coverage for mysql_slow_queries
 
 ---
 
