@@ -54,7 +54,7 @@ Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final m
 | 20  | `mysql://insights`     | String text                                    | Returns a memo string from insights logging                               |
 | 21  | `mysql://metrics`      | `{ tools, resources, timestamp }`              | Returns populated metrics object tracking telemetry                       |
 | 22  | `mysql://audit-log`    | `{ entries: [...], ... }`                      | Returns forensic audit trail object                                       |
-| 23  | `mysql://help`         | Markdown text                                  | Returns API reference documentation                                       |
+| 23  | `mysql://help`         | `{ groups: [...], _meta: ... }`                | Returns JSON directory of available help groups                           |
 
 ### How to Read Resources
 
