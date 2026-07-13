@@ -49,11 +49,26 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
   }
 
   if (tool.inputSchema !== undefined) {
-    toolOptions["inputSchema"] = tool.inputSchema;
+    // Intercept toJSONSchema to bypass MCP SDK's Zod 4 transform crash
+    const patchedInput = Object.create(tool.inputSchema);
+    patchedInput.toJSONSchema = function(this: any, ...args: any[]) {
+      if (this && '~standard' in this && typeof this['~standard']?.jsonSchema?.input === 'function') {
+        return this['~standard'].jsonSchema.input();
+      }
+      return Object.getPrototypeOf(this).toJSONSchema.apply(this, args);
+    };
+    toolOptions["inputSchema"] = patchedInput;
   }
 
   if (tool.outputSchema !== undefined) {
-    toolOptions["outputSchema"] = tool.outputSchema;
+    const patchedOutput = Object.create(tool.outputSchema);
+    patchedOutput.toJSONSchema = function(this: any, ...args: any[]) {
+      if (this && '~standard' in this && typeof this['~standard']?.jsonSchema?.output === 'function') {
+        return this['~standard'].jsonSchema.output();
+      }
+      return Object.getPrototypeOf(this).toJSONSchema.apply(this, args);
+    };
+    toolOptions["outputSchema"] = patchedOutput;
   }
 
   const hasOutputSchema = Boolean(tool.outputSchema);

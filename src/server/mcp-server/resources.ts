@@ -10,7 +10,6 @@ import { logger } from "../../utils/logger.js";
 import type { ToolGroup } from "../../types/index.js";
 import type { AuditLogger } from "../../audit/logger.js";
 import type { BackupManager } from "../../audit/backup-manager/index.js";
-import { zodToJsonSchema } from "zod-to-json-schema";
 
 /**
  * Register mysql://help resources for on-demand reference documentation.
@@ -123,7 +122,7 @@ export function registerHelpResources(server: McpServer): void {
 
       const toolSchemas: unknown[] = [];
       if (group !== "gotchas") {
-        const groupToolNames = TOOL_GROUPS[group as keyof typeof TOOL_GROUPS] || [];
+        const groupToolNames = (TOOL_GROUPS as Record<string, string[]>)[group] ?? [];
         for (const adapter of server.getAdapters().values()) {
           const tools = adapter.getToolDefinitions();
           for (const tool of tools) {
@@ -132,8 +131,14 @@ export function registerHelpResources(server: McpServer): void {
                 toolSchemas.push({
                   name: tool.name,
                   description: tool.description,
-                  inputSchema: zodToJsonSchema(tool.inputSchema as any, { name: tool.name }),
-                  ...(tool.outputSchema ? { outputSchema: zodToJsonSchema(tool.outputSchema as any, { name: `${tool.name}_output` }) } : {})
+                  inputSchema: ('~standard' in (tool.inputSchema as any))
+                    ? (tool.inputSchema as any)['~standard'].jsonSchema.input()
+                    : (tool.inputSchema as { toJSONSchema: () => unknown }).toJSONSchema(),
+                  ...(tool.outputSchema 
+                    ? { outputSchema: ('~standard' in (tool.outputSchema as any))
+                        ? (tool.outputSchema as any)['~standard'].jsonSchema.output()
+                        : (tool.outputSchema as { toJSONSchema: () => unknown }).toJSONSchema() } 
+                    : {})
                 });
               }
             }
