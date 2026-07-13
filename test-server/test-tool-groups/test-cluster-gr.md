@@ -67,7 +67,11 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-
+| `mysql_gr_status` |   |   |   |   |
+| `mysql_gr_members` |   |   |   |   |
+| `mysql_gr_primary` |   |   |   |   |
+| `mysql_gr_transactions` |   |   |   |   |
+| `mysql_gr_flow_control` |   |   |   |   |
 
 ---
 
@@ -76,21 +80,30 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_gr_status`
+- `mysql_gr_members`
+- `mysql_gr_primary`
+- `mysql_gr_transactions`
 - `mysql_gr_flow_control`
-- `mysql_cluster_router_status`
+
 
 ## Group Focus: cluster
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-
+- [ ] mysql_gr_status
+- [ ] mysql_gr_members
+- [ ] mysql_gr_primary
+- [ ] mysql_gr_transactions
+- [ ] mysql_gr_flow_control
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_gr_status
+- [ ] Ensure full coverage for mysql_gr_members
+- [ ] Ensure full coverage for mysql_gr_primary
+- [ ] Ensure full coverage for mysql_gr_transactions
 - [ ] Ensure full coverage for mysql_gr_flow_control
-- [ ] Ensure full coverage for mysql_cluster_router_status
 
 ---
 
@@ -109,7 +122,7 @@
    - Handler code
    - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
-   - This prompt
+   - Prompt generation logic (`test-server/scripts/prompt-template.md`, `test-server/scripts/tool-map.json`, or `test-server/scripts/standardize-prompts.js`) — run `node test-server/scripts/standardize-prompts.js` after editing.
 
 ### Perform Steps After Implementation
 

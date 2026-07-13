@@ -28,6 +28,13 @@
     "mysql_audit_restore_backup",
     "mysql_audit_diff_backup"
   ],
+  "test-cluster-gr.md": [
+    "mysql_gr_status",
+    "mysql_gr_members",
+    "mysql_gr_primary",
+    "mysql_gr_transactions",
+    "mysql_gr_flow_control"
+  ],
   "test-cluster-innodb-part1.md": [
     "mysql_cluster_status",
     "mysql_cluster_instances",

@@ -124,7 +124,7 @@ The `activeSessions` count should return to `0` (or its baseline value).
    - Handler code
    - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
-   - This prompt
+   - Prompt generation logic (`test-server/scripts/prompt-template.md`, `test-server/scripts/tool-map.json`, or `test-server/scripts/standardize-prompts.js`) — run `node test-server/scripts/standardize-prompts.js` after editing.
 
 ### Perform Steps After Implementation
 
