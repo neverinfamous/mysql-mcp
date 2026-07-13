@@ -64,6 +64,9 @@ vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
       lastMockMcpServerOptions = options;
     }
   },
+  ResourceTemplate: class MockResourceTemplate {
+    constructor(public template: string, public options?: any) {}
+  }
 }));
 
 // Mock logger
