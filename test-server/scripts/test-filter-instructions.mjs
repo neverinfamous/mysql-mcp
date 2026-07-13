@@ -34,7 +34,7 @@ const ALL_GROUPS = [
     'admin', 'monitoring', 'performance', 'optimization', 'backup',
     'replication', 'partitioning', 'schema', 'introspection', 'migration',
     'events', 'sysschema', 'security', 'roles', 'docstore', 'cluster',
-    'proxysql', 'router', 'shell', 'vector'
+    'proxysql', 'router', 'shell', 'vector', 'gotchas'
 ]
 
 const TEST_CONFIGS = [
@@ -48,19 +48,19 @@ const TEST_CONFIGS = [
         label: 'Core-only Filter (--tool-filter core,-codemode)',
         filter: 'core,-codemode',
         expect: { CORE: true, CODE_MODE: false, HELP_POINTERS: true },
-        expectedGroups: ['core']
+        expectedGroups: ['core', 'gotchas']
     },
     {
         label: 'Stats Filter (--tool-filter stats,-codemode)',
         filter: 'stats,-codemode',
         expect: { CORE: true, CODE_MODE: false, HELP_POINTERS: true },
-        expectedGroups: ['stats']
+        expectedGroups: ['stats', 'gotchas']
     },
     {
         label: 'Multi-group Filter (--tool-filter core,json,text,stats,-codemode)',
         filter: 'core,json,text,stats,-codemode',
         expect: { CORE: true, CODE_MODE: false, HELP_POINTERS: true },
-        expectedGroups: ['core', 'json', 'text', 'stats']
+        expectedGroups: ['core', 'json', 'text', 'stats', 'gotchas']
     },
     {
         label: 'Full Filter (--tool-filter full)',
@@ -105,24 +105,24 @@ function runConfig(config) {
                             JSON.stringify({
                                 jsonrpc: '2.0',
                                 id: 2,
-                                method: 'resources/list',
-                                params: {},
+                                method: 'resources/read',
+                                params: { uri: 'mysql://help' },
                             }) + '\n'
                         )
                     } else if (msg.id === 2 && msg.result) {
                         try {
-                            const resources = msg.result.resources || []
-                            availableGroups = resources
-                                .map(r => r.uri)
-                                .filter(u => u.startsWith('mysql://help/'))
-                                .map(u => u.replace('mysql://help/', ''))
+                            const contents = msg.result.contents || []
+                            if (contents.length > 0 && contents[0].text) {
+                                const parsed = JSON.parse(contents[0].text)
+                                availableGroups = parsed.groups || []
+                            }
                         } catch {
                             // parse error
                         }
                         proc.kill()
                         resolve({ instructions, availableGroups })
                     } else if (msg.id === 2 && msg.error) {
-                         console.error('Resource list error:', msg.error)
+                         console.error('Resource read error:', msg.error)
                          proc.kill()
                          resolve({ instructions, availableGroups: [] })
                     }

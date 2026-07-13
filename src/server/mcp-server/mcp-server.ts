@@ -90,7 +90,7 @@ export class McpServer {
     this.healthInterval.unref();
 
     // Register resources
-    registerHelpResources(this.server, this.toolFilter.enabledTools);
+    registerHelpResources(this);
     registerObservabilityResource(this.server);
 
     // Initialize MCP protocol logging
