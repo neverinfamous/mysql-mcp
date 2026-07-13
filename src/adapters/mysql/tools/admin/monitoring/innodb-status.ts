@@ -96,7 +96,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
     name: "mysql_innodb_status",
     title: "MySQL InnoDB Status",
     description:
-      "Get detailed InnoDB engine status. Defaults to parsed summary. Use summary=false for raw output.",
+      "Get detailed InnoDB engine status. Defaults to raw output. Use summary=true for parsed summary.",
     group: "monitoring",
     inputSchema: InnodbStatusSchemaBase,
     outputSchema: InnodbStatusOutputSchema,

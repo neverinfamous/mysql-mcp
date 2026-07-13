@@ -332,9 +332,9 @@ export const InnodbStatusSchemaBase = z.object({
   summary: z
     .boolean()
     .optional()
-    .default(true)
+    .default(false)
     .describe(
-      "Return parsed summary with key metrics. Defaults to true. Set to false for raw string output.",
+      "Return parsed summary with key metrics. Defaults to false. Set to true for parsed summary.",
     ),
   format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
