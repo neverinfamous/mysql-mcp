@@ -5,7 +5,6 @@ import type {
 } from "../../../../../types/index.js";
 import {
   ShowStatusSchema,
-  ShowStatusSchemaBase,
   ShowStatusOutputSchema,
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
@@ -17,7 +16,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Show Status",
     description: "Show server status variables.",
     group: "monitoring",
-    inputSchema: ShowStatusSchemaBase,
+    inputSchema: ShowStatusSchema,
     outputSchema: ShowStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

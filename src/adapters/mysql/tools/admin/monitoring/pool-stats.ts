@@ -3,7 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { PoolStatsSchemaBase, PoolStatsOutputSchema } from "../../../schemas/index.js";
+import { PoolStatsSchema, PoolStatsOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -14,7 +14,7 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Pool Stats",
     description: "Get connection pool statistics.",
     group: "monitoring",
-    inputSchema: PoolStatsSchemaBase,
+    inputSchema: PoolStatsSchema,
     outputSchema: PoolStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
