@@ -119,8 +119,8 @@ describe("Admin Schemas", () => {
   });
 
   describe("InnodbStatusSchema", () => {
-    it("should default to summary=false", () => {
-      expect(InnodbStatusSchema.parse({})).toMatchObject({ summary: false });
+    it("should default to summary=true", () => {
+      expect(InnodbStatusSchema.parse({})).toMatchObject({ summary: true });
     });
     it("should handle aliases to disable summary", () => {
       expect(InnodbStatusSchema.parse({ format: "raw" })).toMatchObject({ summary: false });
