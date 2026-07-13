@@ -8,6 +8,7 @@
 import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { INSTRUCTIONS } from "../../constants/server-instructions.js";
+import { CODEMODE_HELP } from "../../constants/instructions/codemode.js";
 import type { DatabaseAdapter } from "../../adapters/database-adapter/index.js";
 import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
 import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
@@ -55,6 +56,12 @@ export class McpServer {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.toolFilter = parseToolFilter(this.config.toolFilter);
 
+    const hasCodeMode = this.toolFilter.enabledTools.has('mysql_execute_code');
+    const dynamicInstructions = [
+        INSTRUCTIONS,
+        hasCodeMode ? '\n\n' + CODEMODE_HELP : ''
+    ].filter(Boolean).join('');
+
     this.server = new SdkMcpServer(
       {
         name: this.config.name,
@@ -67,7 +74,7 @@ export class McpServer {
             subscribe: true,
           },
         },
-        instructions: INSTRUCTIONS,
+        instructions: dynamicInstructions,
       },
     );
 
