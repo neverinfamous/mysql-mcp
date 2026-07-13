@@ -74,22 +74,26 @@ const UserPrivilegesSchemaBase = z.object({
     .describe(
       "Return condensed summary (privilege counts) instead of raw GRANT strings",
     ),
+  format: z.string().optional().describe("Alias for summary: 'summary' or 'full'"),
 });
 
 const UserPrivilegesSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
     const obj = val as Record<string, unknown>;
-    if (!("user" in obj)) {
-      if ("userName" in obj) {
-        return { ...obj, user: obj["userName"] };
-      } else if ("username" in obj) {
-        return { ...obj, user: obj["username"] };
-      } else if ("name" in obj) {
-        return { ...obj, user: obj["name"] };
-      }
+    let user = obj["user"];
+    if (user === undefined || user === null || user === "") {
+      if ("userName" in obj) user = obj["userName"];
+      else if ("username" in obj) user = obj["username"];
+      else if ("name" in obj) user = obj["name"];
     }
-    return val;
+    
+    let summary = obj["summary"];
+    if (summary === undefined && "format" in obj) {
+      summary = obj["format"] === "summary";
+    }
+
+    return { ...obj, user, summary };
   },
   z.object({
     user: z.string().default(""),
