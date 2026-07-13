@@ -362,10 +362,11 @@ export function createShellRunScriptTool(
         }
 
         if (result.exitCode !== 0) {
+          const cleanStderr = result.stderr
+            ? result.stderr.replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "").trim()
+            : "";
           throw new MySQLMcpError(
-            result.stderr
-              ? result.stderr.trim()
-              : `Script failed with exit code ${result.exitCode}`,
+            cleanStderr || `Script failed with exit code ${result.exitCode}`,
             "QUERY_ERROR",
             ErrorCategory.QUERY,
             { details: {
