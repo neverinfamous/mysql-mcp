@@ -61,6 +61,13 @@ const ERROR_SUGGESTIONS: {
     code: "DATABASE_NOT_FOUND",
   },
   {
+    pattern: /Event (?:'.*?' )?(?:doesn't|does not) exist/i,
+    suggestion:
+      "Event does not exist. Run mysql_event_list to see available events.",
+    category: ErrorCategory.RESOURCE,
+    code: "OBJECT_NOT_FOUND",
+  },
+  {
     pattern: /index ['"].*['"] (?:does not exist|not found)/i,
     suggestion:
       "Index not found. Use mysql_get_indexes to see available indexes.",
