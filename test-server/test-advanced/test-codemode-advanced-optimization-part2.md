@@ -78,21 +78,11 @@
 - `mysql.optimization.optimizerTrace`
 
 
-## Category 1: Complex Query Rewrites
-
 ## Category 2: Optimizer Trace Payload
 1. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1", summary: false})` → log token estimate (full)
 2. `mysql.optimization.optimizerTrace({query: "SELECT * FROM test_products WHERE id = 1"})` → log token estimate (summary)
 1. Verify summary token estimate is ≥ 30% smaller than full trace
 4. `mysql.optimization.optimizerTrace` with complex JOIN query and `summary: false` → log token estimate, flag > 500 tokens as 📦
-
-## Category 3: Force Index Edge Cases
-
-## Category 4: Index Recommendation Comparison
-2. Create `stress_no_idx` table with columns but no indexes, insert 10 rows
-4. Verify recommendations include actionable column suggestions
-## Cleanup
-5. Drop all `stress_*` tables
 
 
 ## Tasks
