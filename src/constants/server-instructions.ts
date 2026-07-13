@@ -245,6 +245,10 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
   - Resources use the \`mysql://\` URI scheme (e.g., \`mysql://capabilities\`, \`mysql://schema\`).
   - When listing or fetching resources, use the corresponding server name (e.g., \`fetch_mcp_resource(server: "user-mysql", uri: "mysql://schema")\`).
 
+## Code Mode
+
+- **Code Mode Execution**: Advanced tool interactions, testing, and script executions are verified via \`mysql_execute_code\` (Code Mode), which evaluates logic inside an isolated Node.js VM.
+
 ## Parameter Aliases
 
 Many tools accept **alternative parameter names** (aliases) for commonly used fields. The server normalizes these automatically—use whichever feels most natural:
