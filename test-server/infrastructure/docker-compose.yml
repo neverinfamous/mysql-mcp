@@ -24,7 +24,7 @@ services:
       - mysql-node1-data-v4:/var/lib/mysql
       - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     stop_grace_period: 30s
-    mem_limit: 1536m
+    mem_limit: 2048m
     logging:
       driver: json-file
       options:
@@ -59,7 +59,7 @@ services:
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
     stop_grace_period: 30s
-    mem_limit: 1536m
+    mem_limit: 2048m
     logging:
       driver: json-file
       options:
@@ -94,7 +94,7 @@ services:
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
     stop_grace_period: 30s
-    mem_limit: 1536m
+    mem_limit: 2048m
     logging:
       driver: json-file
       options:
@@ -182,7 +182,9 @@ services:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032,
-        "username":"radmin", "password":"radmin"}]'
+        "username":"radmin", "password":"radmin", "additional_metrics":
+        ["connection_pool_metrics", "backends_metrics", "users_metrics",
+        "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
     healthcheck:
       test:
@@ -294,7 +296,7 @@ services:
       - ./config/grafana/provisioning:/etc/grafana/provisioning
       - ./config/grafana/dashboards:/var/lib/grafana/dashboards
     stop_grace_period: 15s
-    mem_limit: 256m
+    mem_limit: 384m
     logging:
       driver: json-file
       options:
