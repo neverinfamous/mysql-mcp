@@ -255,7 +255,7 @@ Core Observability Resources + multiple help resources providing read-only metad
 | URI                    | Source                                           | Content                                                |
 | ---------------------- | ------------------------------------------------ | ------------------------------------------------------ |
 | `mysql://help`         | Dynamic JSON                                     | Directory of available tool groups and tools           |
-| `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
+| `mysql://help/{group}` | Dynamic JSON + `server-instructions/{group}.md`  | Per-group tool schemas and narrative help — filtered by `--tool-filter` |
 
 Multiple group-specific help resources (one per tool group) are discoverable via the JSON payload from `mysql://help`. Only groups enabled by `--tool-filter` are accessible.
 
