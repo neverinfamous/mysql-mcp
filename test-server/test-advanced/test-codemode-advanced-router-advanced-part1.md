@@ -82,16 +82,11 @@
 - `mysql.router.routeStatus`
 
 
-## Category 1: Graceful Degradation (No-Router Environment)
-1. `mysql.router.status()` → verify structured `{success: false}` (not raw connection error)
-2. `mysql.router.routes()` → verify structured response
-3. `mysql.router.routeStatus({routeName: "test"})` → verify structured response
-6. All 9 errors must use consistent `{success: false, error: "..."}` format
 
 ## Category 2: Invalid Route Name Stress
 1. `mysql.router.routeStatus({routeName: ""})` → verify structured error (empty string)
 2. `mysql.router.routeStatus({routeName: "nonexistent_route_xyz"})` → verify structured `{success: false}`
-5. `mysql.router.routeStatus({name: "test"})` → verify alias acceptance (should behave identical to `routeName`)
+3. `mysql.router.routeStatus({name: "test"})` → verify alias acceptance (should behave identical to `routeName`)
 
 ## Category 3: Happy-Path Stress (When Router IS Available)
 1. `mysql.router.status()` → verify version and process info
@@ -99,7 +94,7 @@
 3. For first available route name: `mysql.router.routeStatus` → verify status fields
 
 ## Category 4: Payload Monitoring
-2. Flag any response > 500 tokens as 📦
+1. Flag any response > 500 tokens as 📦
 
 
 ## Tasks
