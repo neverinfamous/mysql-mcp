@@ -2,6 +2,8 @@
 
 Due to the extreme length of the Advanced Code Mode test suite (111 tests), the coordinator workflow has been sharded into 4 domain-specific phases. This prevents context-window exhaustion and ensures subagents complete their queues reliably.
 
+We're working in the `mysql-mcp` project in this thread.
+
 ## Execution Rules
 
 **CRITICAL**: You MUST start a **new conversation thread** for each phase and provide the agent with the specific phase file (e.g., `test-server/test-advanced/coordinator-workflow-phase1-foundation.md`). 

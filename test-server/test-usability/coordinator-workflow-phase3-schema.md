@@ -1,5 +1,7 @@
 # MySQL MCP Usability Test Phase: schema
 
+We're working in the `mysql-mcp` project in this thread.
+
 ## Execution Rules
 Follow the exact same workflow rules defined in the [Master Coordinator Index](coordinator-workflow.md).
 
