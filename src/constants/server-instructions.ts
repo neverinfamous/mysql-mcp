@@ -135,22 +135,9 @@ export const HELP_CONTENT: ReadonlyMap<string, string> = new Map([
 - **Topology**: \`mysql_cluster_topology\` returns a structured \`topology\` object (with \`primary\`, \`secondaries\`, \`recovering\`, \`offline\` arrays) and a \`visualization\` string grouping members by role.
 - **Router status**: \`mysql_cluster_router_status\` lists registered routers from cluster metadata. Use \`summary: true\` to return routerId, routerName, address, version, lastCheckIn, roPort, rwPort, and localCluster. Each router includes \`isStale\` (true if lastCheckIn is null or >1 hour old). The response includes \`staleCount\` for quick filtering.
 - **Switchover analysis**: \`mysql_cluster_switchover\` evaluates replication lag on secondaries and rates each as GOOD (fully synced), ACCEPTABLE (<100 pending), or NOT_RECOMMENDED (>=100 pending). Response includes \`currentPrimary\` field (\`null\` when no primary exists, never absent). Returns \`canSwitchover: false\` with a \`warning\` field if no viable candidates exist. Note: This tool does NOT execute a switchover.`],
-  ["codemode", `# Code Mode (\`mysql_execute_code\`)
+  ["codemode", `# Code Mode
 
-**Encapsulated Tools**: \`mysql_execute_code\`
-
-- **Purpose**: Use \`mysql_execute_code\` to execute JavaScript in a secure worker-thread sandbox (separate V8 isolate) with full access to all 200+ MySQL MCP tools via the global \`mysql.*\` API.
-- **Capabilities**: The sandbox allows you to script complex multi-step workflows, loops, logic, and data transformations natively on the server, saving 70-90% on token consumption compared to making individual MCP tool calls.
-- **API Access**: 
-  - All tools are organized into groups on the \`mysql\` object (e.g., \`mysql.core.readQuery()\`, \`mysql.admin.optimizeTable()\`, \`mysql.json.extract()\`, \`mysql.shell.version()\`).
-  - Tools that take a single object parameter can be called positionally or with the object (e.g. \`mysql.core.readQuery("SELECT 1")\` or \`mysql.core.readQuery({ query: "SELECT 1" })\`).
-- **Safety & Execution**: 
-  - The sandbox intercepts all tool calls and routes them through the same \`AuditInterceptor\` as standard MCP calls.
-  - The last expression in the script is automatically returned (Node REPL semantics) via an auto-return transform. You do not need explicit \`return\` statements for the final value.
-  - Smart result proxies handle missing \`await\` statements, preventing Promise-related errors.
-- **Best Practices**:
-  - **Always** use Code Mode for iterative tasks (like paginating through records, bulk updates, or parsing results to feed into another query).
-  - You can combine tools from multiple groups (e.g., fetch data with \`mysql.core.readQuery\`, transform it in JS, and insert via \`mysql.core.writeQuery\`).`],
+**Encapsulated Tools**: \`mysql_execute_code\``],
   ["core", `# Core Tools (\`mysql_read_query\`, \`mysql_write_query\`, \`mysql_list_tables\`, etc.)
 
 **Encapsulated Tools**: \`mysql_read_query\`, \`mysql_write_query\`, \`mysql_list_tables\`, \`mysql_describe_table\`, \`mysql_create_table\`, \`mysql_drop_table\`, \`mysql_create_index\`, \`mysql_get_indexes\`, \`mysql_enable_versioning\`, \`mysql_disable_versioning\`, \`mysql_check_version\`, \`mysql_conditional_update\`
@@ -292,23 +279,7 @@ All errors carry a \`code\` field for programmatic handling:
 | \`CONFLICT_ERROR\` | query | ✅ | Optimistic concurrency version mismatch |
 | \`EXTENSION_MISSING\` | config | ❌ | Required MySQL plugin/extension not loaded |
 
-Recoverable errors can be retried. Check \`recoverable: true\` in the response.
-
-## Code Mode (\`mysql_execute_code\`)
-
-- **Purpose**: Execute JavaScript/TypeScript code in a sandboxed VM with access to all MySQL tools via the \`mysql.*\` API namespace. Ideal for multi-step workflows, data aggregation, conditional logic, and complex orchestrations that would otherwise require many sequential tool calls.
-- **When to use**: Prefer Code Mode when a task requires 3+ sequential tool calls, conditional branching based on query results, data transformation between steps, or aggregation across multiple tables.
-- **API namespace**: The \`mysql\` object exposes 28 groups matching the tool groups (including \`vector\`): \`mysql.core\`, \`mysql.json\`, \`mysql.transactions\`, \`mysql.text\`, \`mysql.fulltext\`, \`mysql.performance\`, \`mysql.optimization\`, \`mysql.admin\`, \`mysql.monitoring\`, \`mysql.backup\`, \`mysql.replication\`, \`mysql.partitioning\`, \`mysql.schema\`, \`mysql.introspection\`, \`mysql.migration\`, \`mysql.shell\`, \`mysql.events\`, \`mysql.sysschema\`, \`mysql.stats\`, \`mysql.spatial\`, \`mysql.security\`, \`mysql.roles\`, \`mysql.docstore\`, \`mysql.cluster\`, \`mysql.proxysql\`, \`mysql.router\`, \`mysql.vector\`.
-- **Method naming**: Tool names map to methods by stripping the prefix: \`mysql_read_query\` → \`mysql.core.readQuery(sql)\`, \`mysql_json_extract\` → \`mysql.json.extract({...})\`, \`mysqlsh_version\` → \`mysql.shell.version()\`.
-- **Positional shorthand**: Common tools accept positional arguments: \`mysql.core.readQuery("SELECT 1")\` instead of \`mysql.core.readQuery({ query: "SELECT 1" })\`.
-- **Smart Proxies**: The API automatically unwraps common array operations (e.g., \`(await mysql.core.readQuery("...")).map(...)\` works directly) via the \`wrapPromise\` and \`wrapResult\` proxies, which safely intercept missing \`await\` errors and destructuring faults.
-- **Progress Notifications**: Call \`await mysql.reportProgress(progress, total, "message")\` to emit native MCP progress events from the sandbox.
-- **Help**: Call \`mysql.help()\` for a full API overview, or \`mysql.<group>.help()\` for group-specific methods and examples.
-- **Return value**: The last expression in the code block is returned as the result. Use \`return\` in async functions or let the final expression evaluate.
-- **Security**: Code runs in a strict C++ V8 isolate engine (\`isolated-vm\`), not \`worker_threads\`. Blocked patterns include \`require\`, \`import\`, \`process\`, \`eval\`, \`Function\`, filesystem/network access. Execution is synchronous with a hard timeout. Rate-limited to 60 executions/min (Redis-backed with in-memory fallback).
-- **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
-- **JSON Tool Return Values**: Code Mode proxy unwraps the \`.data\` payload for JSON tool responses. For example, \`mysql.json.validate\` returns \`{ valid: true }\` directly, not \`{ success: true, data: { valid: true } }\`. Similarly, \`mysql.json.update\` returns \`{ rowsAffected: N }\` (not \`affectedRows\`).
-- **Scope**: Requires \`admin\` scope.`],
+Recoverable errors can be retried. Check \`recoverable: true\` in the response.`],
   ["introspection", `# Introspection Tools
 
 **Encapsulated Tools**: \`mysql_dependency_graph\`, \`mysql_topological_sort\`, \`mysql_cascade_simulator\`, \`mysql_schema_snapshot\`, \`mysql_constraint_analysis\`, \`mysql_migration_risks\`
