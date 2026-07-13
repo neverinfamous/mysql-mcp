@@ -69,7 +69,6 @@
 |---|---|---|
 | `mysql.performance.bufferPoolStats` |   |   |
 | `mysql.performance.threadStats` |   |   |
-| `mysql.performance.explain` |   |   |
 
 ---
 
@@ -79,7 +78,6 @@
 
 - `mysql.performance.bufferPoolStats`
 - `mysql.performance.threadStats`
-- `mysql.performance.explain`
 
 
 ## Group Focus: performance
@@ -92,7 +90,6 @@
 
 - [ ] Ensure full coverage for mysql.performance.bufferPoolStats
 - [ ] Ensure full coverage for mysql.performance.threadStats
-- [ ] Ensure full coverage for mysql.performance.explain
 
 ---
 

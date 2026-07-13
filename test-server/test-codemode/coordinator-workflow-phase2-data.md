@@ -11,7 +11,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - **CRITICAL WARNING FOR SUBAGENTS:** "Graceful Degradations" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS GRACEFUL DEGRADATIONS.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 35).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 28).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 2: Data & Performance (JSON, Migration, Perf, Rep))
@@ -25,32 +25,25 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 7. `test-codemode-json-helpers-part2.md`
 8. `test-codemode-migration-part1a.md`
 9. `test-codemode-migration-part1b.md`
-10. `test-codemode-migration-part2a.md`
-11. `test-codemode-migration-part2b.md`
-12. `test-codemode-monitoring-part1a.md`
-13. `test-codemode-monitoring-part1b.md`
-14. `test-codemode-monitoring-part2a.md`
-15. `test-codemode-monitoring-part2b.md`
-16. `test-codemode-monitoring-part2c.md`
-17. `test-codemode-optimization-part1.md`
-18. `test-codemode-optimization-part2.md`
-19. `test-codemode-partitioning-part1.md`
-20. `test-codemode-partitioning-part2.md`
-21. `test-codemode-performance-analysis-queries-part1.md`
-22. `test-codemode-performance-analysis-queries-part2.md`
-23. `test-codemode-performance-analysis-system-part1.md`
-24. `test-codemode-performance-analysis-system-part2a.md`
-25. `test-codemode-performance-analysis-system-part2b.md`
-26. `test-codemode-performance-anomaly.md`
-27. `test-codemode-proxysql-config-part1.md`
-28. `test-codemode-proxysql-config-part2.md`
-29. `test-codemode-proxysql-status-part1a.md`
-30. `test-codemode-proxysql-status-part1b.md`
-31. `test-codemode-proxysql-status-part2a.md`
-32. `test-codemode-proxysql-status-part2b.md`
-33. `test-codemode-proxysql-status-part2c.md`
-34. `test-codemode-replication-part1.md`
-35. `test-codemode-replication-part2.md`
+10. `test-codemode-monitoring-part1a.md`
+11. `test-codemode-monitoring-part1b.md`
+12. `test-codemode-monitoring-part2a.md`
+13. `test-codemode-optimization-part1.md`
+14. `test-codemode-optimization-part2.md`
+15. `test-codemode-partitioning-part1.md`
+16. `test-codemode-partitioning-part2.md`
+17. `test-codemode-performance-analysis-queries-part1.md`
+18. `test-codemode-performance-analysis-queries-part2.md`
+19. `test-codemode-performance-analysis-system-part1.md`
+20. `test-codemode-performance-analysis-system-part2a.md`
+21. `test-codemode-performance-anomaly.md`
+22. `test-codemode-proxysql-config-part1.md`
+23. `test-codemode-proxysql-config-part2.md`
+24. `test-codemode-proxysql-status-part1a.md`
+25. `test-codemode-proxysql-status-part1b.md`
+26. `test-codemode-proxysql-status-part2a.md`
+27. `test-codemode-replication-part1.md`
+28. `test-codemode-replication-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

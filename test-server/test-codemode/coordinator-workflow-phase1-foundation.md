@@ -11,7 +11,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - **CRITICAL WARNING FOR SUBAGENTS:** "Graceful Degradations" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS GRACEFUL DEGRADATIONS.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 32).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 25).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 1: Foundation (Core, Admin, Cluster, Docstore))
@@ -23,31 +23,24 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 5. `test-codemode-admin-audit.md`
 6. `test-codemode-admin-maintenance-part1a.md`
 7. `test-codemode-admin-maintenance-part1b.md`
-8. `test-codemode-admin-maintenance-part2a.md`
-9. `test-codemode-admin-maintenance-part2b.md`
-10. `test-codemode-backup-audit.md`
-11. `test-codemode-backup-data-part1.md`
-12. `test-codemode-backup-data-part2.md`
-13. `test-codemode-cluster-group-replication-part1.md`
-14. `test-codemode-cluster-group-replication-part2.md`
-15. `test-codemode-cluster-innodb-part1.md`
-16. `test-codemode-cluster-innodb-part2.md`
-17. `test-codemode-docstore-collections-part1.md`
-18. `test-codemode-docstore-collections-part2.md`
-19. `test-codemode-docstore-documents-part1.md`
-20. `test-codemode-docstore-documents-part2.md`
-21. `test-codemode-events-part1a.md`
-22. `test-codemode-events-part1b.md`
-23. `test-codemode-events-part2a.md`
-24. `test-codemode-events-part2b.md`
-25. `test-codemode-fulltext-part1a.md`
-26. `test-codemode-fulltext-part1b.md`
-27. `test-codemode-fulltext-part2a.md`
-28. `test-codemode-fulltext-part2b.md`
-29. `test-codemode-introspection-part1a.md`
-30. `test-codemode-introspection-part1b.md`
-31. `test-codemode-introspection-part2a.md`
-32. `test-codemode-introspection-part2b.md`
+8. `test-codemode-backup-audit.md`
+9. `test-codemode-backup-data-part1.md`
+10. `test-codemode-backup-data-part2.md`
+11. `test-codemode-cluster-group-replication-part1.md`
+12. `test-codemode-cluster-group-replication-part2.md`
+13. `test-codemode-cluster-innodb-part1.md`
+14. `test-codemode-cluster-innodb-part2.md`
+15. `test-codemode-docstore-collections-part1.md`
+16. `test-codemode-docstore-collections-part2.md`
+17. `test-codemode-docstore-documents-part1.md`
+18. `test-codemode-docstore-documents-part2.md`
+19. `test-codemode-events-part1a.md`
+20. `test-codemode-events-part1b.md`
+21. `test-codemode-fulltext-part1a.md`
+22. `test-codemode-fulltext-part1b.md`
+23. `test-codemode-fulltext-part2a.md`
+24. `test-codemode-introspection-part1a.md`
+25. `test-codemode-introspection-part1b.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

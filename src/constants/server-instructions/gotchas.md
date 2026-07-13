@@ -45,18 +45,3 @@ All errors carry a `code` field for programmatic handling:
 
 Recoverable errors can be retried. Check `recoverable: true` in the response.
 
-## Code Mode (`mysql_execute_code`)
-
-- **Purpose**: Execute JavaScript/TypeScript code in a sandboxed VM with access to all MySQL tools via the `mysql.*` API namespace. Ideal for multi-step workflows, data aggregation, conditional logic, and complex orchestrations that would otherwise require many sequential tool calls.
-- **When to use**: Prefer Code Mode when a task requires 3+ sequential tool calls, conditional branching based on query results, data transformation between steps, or aggregation across multiple tables.
-- **API namespace**: The `mysql` object exposes 28 groups matching the tool groups (including `vector`): `mysql.core`, `mysql.json`, `mysql.transactions`, `mysql.text`, `mysql.fulltext`, `mysql.performance`, `mysql.optimization`, `mysql.admin`, `mysql.monitoring`, `mysql.backup`, `mysql.replication`, `mysql.partitioning`, `mysql.schema`, `mysql.introspection`, `mysql.migration`, `mysql.shell`, `mysql.events`, `mysql.sysschema`, `mysql.stats`, `mysql.spatial`, `mysql.security`, `mysql.roles`, `mysql.docstore`, `mysql.cluster`, `mysql.proxysql`, `mysql.router`, `mysql.vector`.
-- **Method naming**: Tool names map to methods by stripping the prefix: `mysql_read_query` → `mysql.core.readQuery(sql)`, `mysql_json_extract` → `mysql.json.extract({...})`, `mysqlsh_version` → `mysql.shell.version()`.
-- **Positional shorthand**: Common tools accept positional arguments: `mysql.core.readQuery("SELECT 1")` instead of `mysql.core.readQuery({ query: "SELECT 1" })`.
-- **Smart Proxies**: The API automatically unwraps common array operations (e.g., `(await mysql.core.readQuery("...")).map(...)` works directly) via the `wrapPromise` and `wrapResult` proxies, which safely intercept missing `await` errors and destructuring faults.
-- **Progress Notifications**: Call `await mysql.reportProgress(progress, total, "message")` to emit native MCP progress events from the sandbox.
-- **Help**: Call `mysql.help()` for a full API overview, or `mysql.<group>.help()` for group-specific methods and examples.
-- **Return value**: The last expression in the code block is returned as the result. Use `return` in async functions or let the final expression evaluate.
-- **Security**: Code runs in a strict C++ V8 isolate engine (`isolated-vm`), not `worker_threads`. Blocked patterns include `require`, `import`, `process`, `eval`, `Function`, filesystem/network access. Execution is synchronous with a hard timeout. Rate-limited to 60 executions/min (Redis-backed with in-memory fallback).
-- **Transaction cleanup**: Any transactions opened but not committed are automatically rolled back when execution completes.
-- **JSON Tool Return Values**: Code Mode proxy unwraps the `.data` payload for JSON tool responses. For example, `mysql.json.validate` returns `{ valid: true }` directly, not `{ success: true, data: { valid: true } }`. Similarly, `mysql.json.update` returns `{ rowsAffected: N }` (not `affectedRows`).
-- **Scope**: Requires `admin` scope.

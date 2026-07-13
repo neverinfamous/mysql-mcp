@@ -11,7 +11,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - **CRITICAL WARNING FOR SUBAGENTS:** "Graceful Degradations" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS GRACEFUL DEGRADATIONS.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 38).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 32).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 4: Analytics & Sandbox (Spatial, Stats, Sys, Vector))
@@ -31,29 +31,23 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 13. `test-codemode-stats-basic-part2.md`
 14. `test-codemode-stats-window-part1a.md`
 15. `test-codemode-stats-window-part1b.md`
-16. `test-codemode-stats-window-part2a.md`
-17. `test-codemode-stats-window-part2b.md`
-18. `test-codemode-sys-analysis-part1.md`
-19. `test-codemode-sys-analysis-part2.md`
-20. `test-codemode-sys-metrics-part1.md`
-21. `test-codemode-sys-metrics-part2.md`
-22. `test-codemode-text-part1a.md`
-23. `test-codemode-text-part1b.md`
-24. `test-codemode-text-part2a.md`
-25. `test-codemode-text-part2b.md`
-26. `test-codemode-transactions-part1a.md`
-27. `test-codemode-transactions-part1b.md`
-28. `test-codemode-transactions-part2a.md`
-29. `test-codemode-transactions-part2b.md`
-30. `test-codemode-transactions-part2c.md`
-31. `test-codemode-vector-management-part1.md`
-32. `test-codemode-vector-management-part2.md`
-33. `test-codemode-vector-search.md`
-34. `test-codemode-vector-storage-part1.md`
-35. `test-codemode-vector-storage-part2.md`
-36. `test-codemode-versioning-part1.md`
-37. `test-codemode-versioning-part2.md`
-38. `test-codemode-sandbox.md`
+16. `test-codemode-sys-analysis-part1.md`
+17. `test-codemode-sys-analysis-part2.md`
+18. `test-codemode-sys-metrics-part1.md`
+19. `test-codemode-sys-metrics-part2.md`
+20. `test-codemode-text-part1a.md`
+21. `test-codemode-text-part1b.md`
+22. `test-codemode-transactions-part1a.md`
+23. `test-codemode-transactions-part1b.md`
+24. `test-codemode-transactions-part2a.md`
+25. `test-codemode-vector-management-part1.md`
+26. `test-codemode-vector-management-part2.md`
+27. `test-codemode-vector-search.md`
+28. `test-codemode-vector-storage-part1.md`
+29. `test-codemode-vector-storage-part2.md`
+30. `test-codemode-versioning-part1.md`
+31. `test-codemode-versioning-part2.md`
+32. `test-codemode-sandbox.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

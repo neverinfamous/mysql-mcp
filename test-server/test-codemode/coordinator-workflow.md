@@ -50,7 +50,7 @@ Execute all tests in `test-server/test-codemode/`. Verify sandbox isolation, wor
 
 > [!WARNING]
 > **ANTI-EXHAUSTION ARCHITECTURE**
-> Do NOT execute these tests in a single thread. The 129 tests have been sharded into 4 phases to prevent LLM context window exhaustion.
+> Do NOT execute these tests in a single thread. The 107 tests have been sharded into 4 phases to prevent LLM context window exhaustion.
 > 
 > **How to run:**
 > 1. Start a NEW thread for Phase 1 and pass the agent the `coordinator-workflow-phase1-foundation.md` file.
