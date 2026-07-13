@@ -190,6 +190,7 @@ export const ShowProcesslistSchemaBase = z.object({
     .describe(
       "Maximum number of processes to return (default: 10). Set higher to see all.",
     ),
+  summary: z.boolean().optional().describe("Return only summarized counts"),
 });
 
 export const ShowProcesslistSchema = z.preprocess(
@@ -207,10 +208,12 @@ export const ShowProcesslistSchema = z.preprocess(
     .object({
       full: z.boolean().optional().default(false),
     limit: z.unknown().optional(),
+    summary: z.boolean().optional(),
   })
   .transform((data) => ({
     full: data.full,
     limit: data.limit !== undefined ? Number(data.limit) : 10,
+    summary: data.summary ?? false,
   }))
   .refine(
     (data) =>
@@ -236,6 +239,7 @@ export const ShowStatusSchemaBase = z.object({
     .describe(
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
+  summary: z.boolean().optional().describe("Return key metrics only"),
 });
 
 export const ShowStatusSchema = z.preprocess(
@@ -254,11 +258,13 @@ export const ShowStatusSchema = z.preprocess(
       like: z.string().optional(),
       global: z.boolean().optional().default(true),
       limit: z.unknown().optional(),
+      summary: z.boolean().optional(),
     })
     .transform((data) => ({
       like: data.like,
       global: data.global,
       limit: data.limit !== undefined ? Number(data.limit) : 10,
+      summary: data.summary ?? false,
     }))
     .refine(
       (data) =>
@@ -288,6 +294,7 @@ export const ShowVariablesSchemaBase = z.object({
     .describe(
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
+  summary: z.boolean().optional().describe("Return key metrics only"),
 });
 
 export const ShowVariablesSchema = z.preprocess(
@@ -306,11 +313,13 @@ export const ShowVariablesSchema = z.preprocess(
       like: z.string().optional(),
       global: z.boolean().optional().default(true),
       limit: z.unknown().optional(),
+      summary: z.boolean().optional(),
     })
     .transform((data) => ({
       like: data.like,
       global: data.global,
       limit: data.limit !== undefined ? Number(data.limit) : 10,
+      summary: data.summary ?? false,
     }))
     .refine(
       (data) =>
@@ -554,7 +563,8 @@ export const ShowProcesslistOutputSchema = BaseOutputSchema.extend({
     processes: z.array(z.record(z.string(), z.unknown())),
     count: z.number(),
     limited: z.boolean().optional(),
-    totalAvailable: z.number().optional()
+    totalAvailable: z.number().optional(),
+    summary: z.record(z.string(), z.unknown()).optional()
   }).optional()
 });
 
@@ -563,7 +573,8 @@ export const ShowStatusOutputSchema = BaseOutputSchema.extend({
     status: z.record(z.string(), z.unknown()),
     rowCount: z.number(),
     totalAvailable: z.number(),
-    limited: z.boolean().optional()
+    limited: z.boolean().optional(),
+    summary: z.record(z.string(), z.unknown()).optional()
   }).optional()
 });
 
@@ -572,7 +583,8 @@ export const ShowVariablesOutputSchema = BaseOutputSchema.extend({
     variables: z.record(z.string(), z.unknown()),
     rowCount: z.number(),
     totalAvailable: z.number(),
-    limited: z.boolean().optional()
+    limited: z.boolean().optional(),
+    summary: z.record(z.string(), z.unknown()).optional()
   }).optional()
 });
 
