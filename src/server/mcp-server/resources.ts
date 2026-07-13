@@ -123,6 +123,20 @@ export function registerHelpResources(server: McpServer): void {
       const toolSchemas: unknown[] = [];
       if (group !== "gotchas") {
         const groupToolNames = (TOOL_GROUPS as Record<string, string[]>)[group] ?? [];
+
+        interface StandardSchema {
+          '~standard': {
+            jsonSchema: {
+              input: () => unknown;
+              output: () => unknown;
+            };
+          };
+        }
+
+        function isStandardSchema(schema: unknown): schema is StandardSchema {
+          return typeof schema === 'object' && schema !== null && '~standard' in schema;
+        }
+
         for (const adapter of server.getAdapters().values()) {
           const tools = adapter.getToolDefinitions();
           for (const tool of tools) {
@@ -131,12 +145,14 @@ export function registerHelpResources(server: McpServer): void {
                 toolSchemas.push({
                   name: tool.name,
                   description: tool.description,
-                  inputSchema: ('~standard' in (tool.inputSchema as any))
-                    ? (tool.inputSchema as any)['~standard'].jsonSchema.input()
-                    : (tool.inputSchema as { toJSONSchema: () => unknown }).toJSONSchema(),
-                  ...(tool.outputSchema 
-                    ? { outputSchema: ('~standard' in (tool.outputSchema as any))
-                        ? (tool.outputSchema as any)['~standard'].jsonSchema.output()
+                  inputSchema: tool.inputSchema !== undefined
+                    ? (isStandardSchema(tool.inputSchema)
+                      ? tool.inputSchema['~standard'].jsonSchema.input()
+                      : (tool.inputSchema as { toJSONSchema: () => unknown }).toJSONSchema())
+                    : {},
+                  ...(tool.outputSchema !== undefined
+                    ? { outputSchema: isStandardSchema(tool.outputSchema)
+                        ? tool.outputSchema['~standard'].jsonSchema.output()
                         : (tool.outputSchema as { toJSONSchema: () => unknown }).toJSONSchema() } 
                     : {})
                 });
