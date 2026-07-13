@@ -82,21 +82,6 @@
 - `mysql.router.routeStatus`
 
 
-
-## Category 2: Invalid Route Name Stress
-1. `mysql.router.routeStatus({routeName: ""})` → verify structured error (empty string)
-2. `mysql.router.routeStatus({routeName: "nonexistent_route_xyz"})` → verify structured `{success: false}`
-3. `mysql.router.routeStatus({name: "test"})` → verify alias acceptance (should behave identical to `routeName`)
-
-## Category 3: Happy-Path Stress (When Router IS Available)
-1. `mysql.router.status()` → verify version and process info
-2. `mysql.router.routes()` → verify route listing with names
-3. For first available route name: `mysql.router.routeStatus` → verify status fields
-
-## Category 4: Payload Monitoring
-1. Flag any response > 500 tokens as 📦
-
-
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.router.status

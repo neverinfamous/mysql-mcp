@@ -6,6 +6,10 @@ import {
 } from "../core/error-helpers.js";
 import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import {
+  MySQLMcpError,
+  ErrorCategory,
+} from "../../../../types/index.js";
 import type {
   ToolDefinition,
   RequestContext,
@@ -401,7 +405,11 @@ export function createDropTriggerTool(adapter: MySQLAdapter): ToolDefinition {
             });
           } else {
             return formatHandlerErrorResponse(
-              new Error(`Unknown trigger '${schemaForCheck ? schemaForCheck + '.' : ''}${unqualifiedName}'`),
+              new MySQLMcpError(
+                `Unknown trigger '${schemaForCheck ? schemaForCheck + '.' : ''}${unqualifiedName}'`,
+                "TRIGGER_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
             );
           }
         }
