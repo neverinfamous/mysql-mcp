@@ -10,6 +10,7 @@ import { logger } from "../../utils/logger.js";
 import type { ToolGroup } from "../../types/index.js";
 import type { AuditLogger } from "../../audit/logger.js";
 import type { BackupManager } from "../../audit/backup-manager/index.js";
+import { zodToJsonSchema } from "zod-to-json-schema";
 
 /**
  * Register mysql://help resources for on-demand reference documentation.
@@ -131,8 +132,8 @@ export function registerHelpResources(server: McpServer): void {
                 toolSchemas.push({
                   name: tool.name,
                   description: tool.description,
-                  inputSchema: tool.inputSchema,
-                  ...(tool.outputSchema ? { outputSchema: tool.outputSchema } : {})
+                  inputSchema: zodToJsonSchema(tool.inputSchema as any),
+                  ...(tool.outputSchema ? { outputSchema: zodToJsonSchema(tool.outputSchema as any) } : {})
                 });
               }
             }
