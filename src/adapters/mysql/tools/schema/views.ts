@@ -19,9 +19,9 @@ import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 const ListViewsSchemaBase = z.object({
   schema: z
     .string()
-    .default("")
-    .describe("Schema name (database)"),
-  database: z.string().default("").describe("Alias for schema"),
+    .optional()
+    .describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
 });
@@ -38,7 +38,7 @@ const ListViewsSchema = z.preprocess(
     return val;
   },
   z.object({
-    schema: z.string().min(1, "Schema name is required"),
+    schema: z.string().optional(),
     limit: z.number().default(50),
     offset: z.number().default(0),
   })
@@ -162,15 +162,17 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
         const parsedParams = ListViewsSchema.parse(params);
         const targetSchema = parsedParams.schema;
 
-        // P154: Schema existence check
-        const schemaCheck = await adapter.executeQuery(
-          "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-          [targetSchema],
-        );
-        if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
-          return formatHandlerErrorResponse(
-            new Error(`Schema '${targetSchema}' does not exist`),
+        // P154: Schema existence check when explicitly provided
+        if (targetSchema !== undefined && targetSchema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [targetSchema],
           );
+          if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${targetSchema}' does not exist`),
+            );
+          }
         }
 
         const query = `
@@ -182,13 +184,13 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                     CHECK_OPTION as checkOption,
                     IS_UPDATABLE as isUpdatable
                 FROM information_schema.VIEWS
-                WHERE TABLE_SCHEMA = ?
+                WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
                 ORDER BY TABLE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
         const result = await adapter.executeQuery(query, [
-          targetSchema,
+          targetSchema ?? null,
         ]);
         return withTokenEstimate({
           success: true,
