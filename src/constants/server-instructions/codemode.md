@@ -1,3 +1,3 @@
 # Code Mode
 
-**Encapsulated Tools**: None (according to SSoT mapping)
+**Encapsulated Tools**: `mysql_execute_code`
