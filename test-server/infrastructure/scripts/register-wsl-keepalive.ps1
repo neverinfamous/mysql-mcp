@@ -2,7 +2,7 @@
 # Re-registers the task to use a VBS wrapper so no console window is visible.
 
 $taskName = 'WSL-KeepAlive'
-$vbsPath = 'C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem\scripts\wsl-keepalive.vbs'
+$vbsPath = Join-Path $PSScriptRoot 'wsl-keepalive.vbs'
 
 # Stop any running instance first
 Stop-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue

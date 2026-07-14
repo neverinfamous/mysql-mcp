@@ -3,7 +3,7 @@ import { setTimeout } from 'timers/promises';
 
 const MAX_RETRIES = 60;
 const RETRY_DELAY_MS = 2000;
-const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
+const dockerCmd = 'docker';
 
 const execCommand = (cmd, ignoreError = false) => {
   try {
@@ -38,34 +38,35 @@ async function main() {
 
   try {
     console.log("\n[1/4] Ensuring cluster nodes are healthy...");
-    await waitForMySQL('mysql-node1');
-    await waitForMySQL('mysql-node2');
-    await waitForMySQL('mysql-node3');
+    let servicesRaw = execCommand(`${dockerCmd} compose config --services`, true);
+    if (!servicesRaw) {
+        servicesRaw = execCommand(`docker-compose config --services`, true);
+    }
+    let nodes = servicesRaw ? servicesRaw.trim().split('\n').filter(s => s.startsWith('mysql-node')).sort() : ['mysql-node1', 'mysql-node2', 'mysql-node3'];
+    
+    for (const node of nodes) {
+        await waitForMySQL(node);
+    }
 
     console.log("\n[2/4] Creating cluster on primary node...");
-    const createCmd = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: 'mysql-node1:33061', communicationStack: 'XCOM', exitStateAction: 'READ_ONLY'}); console.log('Cluster created'); } catch(e) { console.log('Cluster may already exist or error: ' + e); }"`;
+    const primaryNode = nodes[0];
+    const createCmd = `${dockerCmd} exec ${primaryNode} mysqlsh --uri root:root@${primaryNode}:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: '${primaryNode}:33061', communicationStack: 'XCOM', exitStateAction: 'READ_ONLY'}); console.log('Cluster created'); } catch(e) { console.log('Cluster may already exist or error: ' + e); }"`;
     const createOut = execCommand(createCmd);
     console.log(createOut);
 
-    console.log("\n[3/4] Adding node2 to cluster...");
-    const addNode2 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node2:3306', {recoveryMethod: 'clone', localAddress: 'mysql-node2:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('Node2 add error (may already be in cluster): ' + e); }"`;
-    const node2Out = execCommand(addNode2, true);
-    console.log(node2Out);
+    console.log("\n[3/4] Adding secondary nodes to cluster...");
+    for (let i = 1; i < nodes.length; i++) {
+        const node = nodes[i];
+        console.log(`Adding ${node} to cluster...`);
+        const addNode = `${dockerCmd} exec ${primaryNode} mysqlsh --uri root:root@${primaryNode}:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@${node}:3306', {recoveryMethod: 'clone', localAddress: '${node}:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('${node} add error (may already be in cluster): ' + e); }"`;
+        const nodeOut = execCommand(addNode, true);
+        console.log(nodeOut);
 
-    // After clone, node2 might restart, wait for it
-    await waitForMySQL('mysql-node2');
-    console.log('[Wait] Allowing Group Replication to stabilize...');
-    await setTimeout(5000);
-
-    console.log("\n[4/4] Adding node3 to cluster...");
-    const addNode3 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node3:3306', {recoveryMethod: 'clone', localAddress: 'mysql-node3:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('Node3 add error (may already be in cluster): ' + e); }"`;
-    const node3Out = execCommand(addNode3, true);
-    console.log(node3Out);
-
-    // After clone, node3 might restart, wait for it
-    await waitForMySQL('mysql-node3');
-    console.log('[Wait] Allowing Group Replication to stabilize...');
-    await setTimeout(5000);
+        // After clone, node might restart, wait for it
+        await waitForMySQL(node);
+        console.log('[Wait] Allowing Group Replication to stabilize...');
+        await setTimeout(5000);
+    }
 
     console.log("\n=== Cluster configuration complete! ===");
     

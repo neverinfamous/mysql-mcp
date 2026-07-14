@@ -1,12 +1,15 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-const dockerCmd = 'docker';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const REPO_ROOT = path.resolve(__dirname, '..');
 
 const execCommand = (cmd, args, ignoreError = false) => {
   try {
-    return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe' });
+    return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe', cwd: REPO_ROOT });
   } catch (e) {
     if (!ignoreError) {
       console.error(`Error: ${e.message}`);
@@ -17,9 +20,13 @@ const execCommand = (cmd, args, ignoreError = false) => {
 
 
 // Dynamically discover expected containers from docker-compose.yml
-let servicesRaw = execCommand('docker', ['compose', 'config', '--services'], true);
+const isWindows = process.platform === 'win32';
+const dockerCmd = isWindows ? 'wsl' : 'docker';
+const dockerArgs = isWindows ? ['docker', 'compose'] : ['compose'];
+
+let servicesRaw = execCommand(dockerCmd, [...dockerArgs, 'config', '--services'], true);
 if (!servicesRaw) {
-    servicesRaw = execCommand('docker-compose', ['config', '--services'], true);
+    servicesRaw = execCommand(isWindows ? 'wsl' : 'docker-compose', isWindows ? ['docker-compose', 'config', '--services'] : ['config', '--services'], true);
 }
 
 let containers = [];
@@ -62,14 +69,14 @@ console.log(`1. Container Status (${containers.length} services):`);
 console.log('----------------------------------------');
 let allUp = true;
 
-const psOutput = execCommand(dockerCmd, ['ps', '-a', '--format', '{{.Names}}|{{.State}}|{{.Status}}'], false);
-if (psOutput === null) {
-    console.error('Failed to get docker ps output. Is docker running?');
+const psOutput = execCommand(dockerCmd, isWindows ? ['docker', 'ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'], false);
+if (!psOutput) {
+    console.error(`Error: Failed to execute docker ps. Docker daemon might not be running.`);
     process.exit(1);
 }
 
 const runningContainers = psOutput.trim().split('\n').reduce((acc, line) => {
-    const [name, state, status] = line.split('|');
+    const [name, state, status] = line.split(',');
     if (name) {
         acc[name] = { state, status };
     }
@@ -102,8 +109,11 @@ for (const name of containers) {
 console.log('\n2. InnoDB Cluster Status:');
 console.log('----------------------------------------');
 
-const clusterOut = execCommand(dockerCmd, ['exec', 'mysql-node1', 'mysql', '-uroot', '-proot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], false);
+const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
+const primaryNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
+const clusterOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'] : ['exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], false);
 if (clusterOut !== null) {
+    // Check how many are ONLINE
     const onlineCount = (clusterOut.match(/ONLINE/g) || []).length;
     if (onlineCount >= 3) {
         console.log(`✅ Cluster Quorum is ONLINE (${onlineCount} nodes)`);

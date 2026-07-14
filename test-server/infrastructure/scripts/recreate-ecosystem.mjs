@@ -41,7 +41,7 @@ function exec(cmd, ignoreError = false) {
 async function waitForMySQL(containerName) {
     console.log(`  Waiting for MySQL in ${containerName}...`);
     for (let i = 1; i <= MAX_RETRIES; i++) {
-        const out = exec(`${dockerCmd} exec ${containerName} mysqladmin ping -h 127.0.0.1 -uroot -proot`, true);
+        const out = exec(`${dockerCmd} exec -e MYSQL_PWD=root ${containerName} mysqladmin ping -h 127.0.0.1 -uroot`, true);
         if (out && out.includes('mysqld is alive')) {
             console.log(`  ✅ ${containerName} is ready`);
             return;
@@ -52,7 +52,7 @@ async function waitForMySQL(containerName) {
     throw new Error(`Timeout waiting for ${containerName} to become ready.`);
 }
 
-console.log('=== Recreating MySQL Test Ecosystem ===');
+console.log('=== Recreating Unified Database Ecosystem ===');
 
 try {
     // ── Phase 1: Cleanup ──────────────────────────────────────────────
@@ -73,34 +73,32 @@ try {
 
     // ── Phase 2: Start containers ─────────────────────────────────────
     console.log('\n[3/6] Starting fresh containers...');
-    run('docker compose up -d');
+    run('docker compose up -d --build');
 
     // ── Phase 3: Bootstrap InnoDB Cluster ──────────────────────────────
     console.log('\n[4/6] Bootstrapping InnoDB Cluster...');
-    await waitForMySQL('mysql-node1');
-    await waitForMySQL('mysql-node2');
-    await waitForMySQL('mysql-node3');
+    const mysqlNodes = services.filter(s => s.startsWith('mysql-node')).sort();
+    
+    for (const node of mysqlNodes) {
+        await waitForMySQL(node);
+    }
 
     console.log('\n  Creating cluster on primary node...');
-    const createCmd = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: 'mysql-node1:33061', communicationStack: 'XCOM', exitStateAction: 'READ_ONLY'}); console.log('Cluster created'); } catch(e) { console.log('Cluster may already exist or error: ' + e); }"`;
+    const primaryNode = mysqlNodes[0];
+    const createCmd = `${dockerCmd} exec ${primaryNode} mysqlsh --uri root:root@${primaryNode}:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: '${primaryNode}:33061', communicationStack: 'XCOM', exitStateAction: 'READ_ONLY'}); console.log('Cluster created'); } catch(e) { console.log('Cluster may already exist or error: ' + e); }"`;
     const createOut = exec(createCmd);
     if (createOut) console.log(createOut.trim());
 
-    console.log('  Adding mysql-node2 to cluster...');
-    const addNode2 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node2:3306', {recoveryMethod: 'clone', localAddress: 'mysql-node2:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('Node2 add error (may already be in cluster): ' + e); }"`;
-    exec(addNode2, true);
+    for (let i = 1; i < mysqlNodes.length; i++) {
+        const node = mysqlNodes[i];
+        console.log(`  Adding ${node} to cluster...`);
+        const addNode = `${dockerCmd} exec ${primaryNode} mysqlsh --uri root:root@${primaryNode}:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@${node}:3306', {recoveryMethod: 'clone', localAddress: '${node}:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('${node} add error (may already be in cluster): ' + e); }"`;
+        exec(addNode, true);
 
-    await waitForMySQL('mysql-node2');
-    console.log('  Allowing Group Replication to stabilize...');
-    await setTimeout(5000);
-
-    console.log('  Adding mysql-node3 to cluster...');
-    const addNode3 = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@mysql-node3:3306', {recoveryMethod: 'clone', localAddress: 'mysql-node3:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('Node3 add error (may already be in cluster): ' + e); }"`;
-    exec(addNode3, true);
-
-    await waitForMySQL('mysql-node3');
-    console.log('  Allowing Group Replication to stabilize...');
-    await setTimeout(5000);
+        await waitForMySQL(node);
+        console.log('  Allowing Group Replication to stabilize...');
+        await setTimeout(5000);
+    }
 
     // ── Phase 4: Verify cluster ───────────────────────────────────────
     console.log('\n[5/6] Verifying cluster status...');
@@ -115,6 +113,7 @@ try {
     }
 
     if (statusOut) {
+        // Count ONLINE members
         const onlineCount = (statusOut.match(/"status":\s*"ONLINE"/g) || []).length;
         if (onlineCount >= 3) {
             console.log(`  ✅ Cluster is ONLINE with ${onlineCount} nodes`);
@@ -128,7 +127,7 @@ try {
     console.log('\n[6/6] Seeding the test database...');
     run('node scripts/reset-database.mjs --skip-verify');
 
-    console.log('\n✅ MySQL Test Ecosystem Successfully Recreated.');
+    console.log('\n✅ Unified Database Ecosystem Successfully Recreated.');
 } catch (error) {
     console.error('\n❌ Ecosystem recreation failed:', error.message);
     process.exit(1);

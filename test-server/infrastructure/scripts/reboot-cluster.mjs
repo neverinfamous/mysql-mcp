@@ -1,4 +1,4 @@
-import { execSync, exec, execFileSync } from 'child_process';
+import { execSync, exec } from 'child_process';
 import { promisify } from 'util';
 const sleep = promisify(setTimeout);
 const execAsync = promisify(exec);
@@ -11,18 +11,24 @@ async function run() {
         return def;
     };
 
-    const mysqlshPath = getArg('mysqlshpath', process.platform === 'win32' ? "C:\\Program Files\\MySQL\\MySQL Shell 9.5\\bin\\mysqlsh.exe" : "mysqlsh");
+    // mysqlsh is always run via docker exec (no local install needed)
     const primaryHost = getArg('primaryhost', "localhost");
     const primaryPort = parseInt(getArg('primaryport', "3307"), 10);
     const user = getArg('user', "root");
     const password = getArg('password', "root");
     const clusterName = getArg('clustername', "testCluster");
-    const dockerCmd = process.platform === 'win32' ? 'wsl docker' : 'docker';
+    
+    const isWindows = process.platform === 'win32';
+    const dockerCmd = isWindows ? 'wsl' : 'docker';
+    const dockerBaseArgs = isWindows ? ['docker'] : [];
 
     console.log(`\n=== InnoDB Cluster Reboot ===`);
 
     console.log(`\n[1/6] Checking container status...`);
-    const nodes = ["mysql-node1", "mysql-node2", "mysql-node3"];
+    let servicesRaw;
+    try { servicesRaw = execSync(`${dockerCmd} compose config --services`, { encoding: 'utf-8', stdio: 'pipe' }); } catch(e) {}
+    if (!servicesRaw) try { servicesRaw = execSync(`docker-compose config --services`, { encoding: 'utf-8', stdio: 'pipe' }); } catch(e) {}
+    const nodes = servicesRaw ? servicesRaw.trim().split('\n').filter(s => s.startsWith('mysql-node')).sort() : ["mysql-node1", "mysql-node2", "mysql-node3"];
     for (const node of nodes) {
         try {
             const status = execSync(`${dockerCmd} inspect -f "{{.State.Status}}" ${node}`, { encoding: 'utf-8' }).trim();
@@ -41,7 +47,7 @@ async function run() {
     let ready = false;
     for (let i = 1; i <= maxRetries; i++) {
         try {
-            execSync(`${dockerCmd} exec mysql-node1 mysqladmin ping -h 127.0.0.1 -u${user} -p${password}`, { stdio: 'ignore' });
+            execSync(`${dockerCmd} exec -e MYSQL_PWD=${password} mysql-node1 mysqladmin ping -h 127.0.0.1 -u${user}`, { stdio: 'ignore' });
             ready = true;
             break;
         } catch (e) {
@@ -58,11 +64,20 @@ async function run() {
 
     console.log(`\n[3/6] Cleaning up non-PK tables to satisfy Group Replication...`);
     try {
+        const checkOut = await execAsync(`${dockerCmd} ${dockerBaseArgs.join(' ')} exec -e MYSQL_PWD=${password} ${primaryHost} mysql -u${user} -e "SELECT member_state FROM performance_schema.replication_group_members;"`);
+        if (checkOut.stdout.includes('ONLINE')) {
+            console.log(`  ✅ Cluster is already ONLINE and healthy. No reboot needed.`);
+            return;
+        }
+    } catch (e) {
+        // Expected if completely offline
+    }
+    try {
         const query = "SELECT CONCAT('DROP TABLE IF EXISTS ', TABLE_SCHEMA, '.', TABLE_NAME, ';') FROM information_schema.tables WHERE TABLE_SCHEMA = 'testdb' AND TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME NOT IN (SELECT TABLE_NAME FROM information_schema.statistics WHERE TABLE_SCHEMA = 'testdb' AND INDEX_NAME = 'PRIMARY');";
-        const dropCmds = execSync(`${dockerCmd} exec mysql-node1 mysql -h 127.0.0.1 -u${user} -p${password} -N -s -e "${query}"`, { encoding: 'utf-8' }).trim();
+        const dropCmds = execSync(`${dockerCmd} ${dockerBaseArgs.join(' ')} exec -e MYSQL_PWD=${password} ${primaryHost} mysql -h 127.0.0.1 -u${user} -N -s -e "${query}"`, { encoding: 'utf-8' }).trim();
         if (dropCmds) {
             console.log(`  Dropping non-PK tables...`);
-            execSync(`${dockerCmd} exec mysql-node1 mysql -h 127.0.0.1 -u${user} -p${password} -e "SET GLOBAL super_read_only=0; ${dropCmds.replace(/\n/g, ' ')}"`);
+            execSync(`${dockerCmd} ${dockerBaseArgs.join(' ')} exec -e MYSQL_PWD=${password} ${primaryHost} mysql -h 127.0.0.1 -u${user} -e "SET GLOBAL super_read_only=0; ${dropCmds.replace(/\n/g, ' ')}"`);
         } else {
             console.log(`  No non-PK tables found.`);
         }
@@ -71,9 +86,11 @@ async function run() {
     }
 
     console.log(`\n[4/6] Rebooting cluster '${clusterName}' from complete outage...`);
-    const uri = `${user}:${password}@${primaryHost}:${primaryPort}`;
     try {
-        execSync(`${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { dba.rebootClusterFromCompleteOutage('${clusterName.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}', {force: true}); } catch(e) { if (!e.message.includes('The Cluster is ONLINE')) throw e; print('Cluster is already ONLINE.'); }"`, { stdio: 'inherit' });
+        const shellCmd = `mysqlsh --uri ${user}:${password}@${primaryHost}:${primaryPort} --js -e "try { dba.rebootClusterFromCompleteOutage('${clusterName}'); } catch(e) { print(e.message); process.exit(1); }"`;
+        const { stdout, stderr } = await execAsync(`${dockerCmd} ${dockerBaseArgs.join(' ')} exec ${primaryHost} ${shellCmd}`);
+        
+        if (stdout) console.log(stdout.split('\n').map(l => `    ${l}`).join('\n'));
         console.log(`  Cluster reboot step completed`);
     } catch (e) {
         console.error(`  Error rebooting cluster. Cannot proceed.`);
@@ -83,7 +100,7 @@ async function run() {
     console.log(`\n[5/6] Rejoining secondaries from inside Docker network...`);
     const clusterUser = "root";
     const clusterPass = "root";
-    const secondaries = ["mysql-node2", "mysql-node3"];
+    const secondaries = nodes.slice(1);
     
     for (const node of secondaries) {
         console.log(`  Rejoining ${node}...`);
@@ -143,11 +160,7 @@ async function run() {
     console.log(`\n[6/6] Verifying cluster status...`);
     await sleep(3000);
     try {
-        execFileSync(mysqlshPath, [
-            '--uri', uri,
-            '--js',
-            '-e', 'print(JSON.stringify(dba.getCluster().status(), null, 2))'
-        ], { stdio: 'inherit' });
+        execSync(`${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "print(JSON.stringify(dba.getCluster().status(), null, 2));"`, { stdio: 'inherit' });
     } catch(e) {
         console.error(`  Error checking status: ${e.message}`);
     }
@@ -155,4 +168,4 @@ async function run() {
     console.log(`\n=== Cluster reboot complete ===`);
 }
 
-run().catch(console.error);
+run().catch((e) => { console.error(e); process.exit(1); });
