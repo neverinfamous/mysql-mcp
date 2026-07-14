@@ -26,9 +26,9 @@ const ERROR_SUGGESTIONS: {
   // Resource errors — table/column/schema/index not found
   // =========================================================================
   {
-    pattern: /Table '.*' (?:doesn't|does not) exist/i,
+    pattern: /(?:Table|Collection) '.*' (?:doesn't|does not) exist/i,
     suggestion:
-      "Table does not exist. Run mysql_list_tables to see available tables.",
+      "Table or collection does not exist. Run mysql_list_tables or mysql_doc_list_collections to see available objects.",
     category: ErrorCategory.RESOURCE,
     code: "TABLE_NOT_FOUND",
   },
