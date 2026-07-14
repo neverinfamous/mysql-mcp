@@ -16,13 +16,6 @@ const DIRECTORY_CONFIGS: Record<TestDirectory, DirectoryConfig> = {
     commitScope: "tool-groups",
     useCodeModeNamespace: false,
   },
-  "test-codemode": {
-    titleType: "Code Mode Testing",
-    executionMode: "Conduct an exhaustive test of the tool group listed below using ONLY code mode (`mysql_execute_code`). Ensure your validation script returns an aggregated array of failures if any exist. Group multiple tests into a single script to save context window tokens.",
-    coverageMatrixHeaders: ["Tool", "Code Mode (Happy Path)", "Code Mode (Domain Error/Zod Error)"],
-    commitScope: "codemode",
-    useCodeModeNamespace: true,
-  },
   "test-advanced": {
     titleType: "Advanced Stress Testing",
     executionMode: "Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.",

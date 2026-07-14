@@ -12,7 +12,7 @@ export default defineConfig({
     hookTimeout: 30000,
     coverage: {
       provider: "v8",
-      reporter: ["text", "html", "json-summary", "lcov"],
+      reporter: ["text", "text-summary", "html", "json-summary", "lcov"],
       reportsDirectory: ".test-output/coverage",
       exclude: [
         "**/node_modules/**",
