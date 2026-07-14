@@ -248,16 +248,16 @@ Core Observability Resources + multiple help resources providing read-only metad
 | --- | ------- |
 | `mysql://audit-log` | Parses and streams the configured `--audit-log` JSONL file to agents. |
 | `mysql://metrics` | In-memory streaming telemetry (p50/p95/p99 latency). |
-| `mysql://help` | Directory of available tool groups and tools (JSON). |
+| `mysql://help` | Critical gotchas, parameter aliases, and API reference. |
 
 ### Help Resources (registered dynamically by McpServer)
 
 | URI                    | Source                                           | Content                                                |
 | ---------------------- | ------------------------------------------------ | ------------------------------------------------------ |
-| `mysql://help`         | Dynamic JSON                                     | Directory of available tool groups and tools           |
-| `mysql://help/{group}` | Dynamic JSON + `server-instructions/{group}.md`  | Per-group tool schemas and narrative help — filtered by `--tool-filter` |
+| `mysql://help`         | `gotchas.md`                                     | Critical gotchas, parameter aliases, and API reference |
+| `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
 
-Multiple group-specific help resources (one per tool group) are discoverable via the JSON payload from `mysql://help`. Only groups enabled by `--tool-filter` are accessible.
+Multiple group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
 ---
 
