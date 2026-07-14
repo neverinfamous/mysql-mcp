@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_fulltext_create` |   |   |   |
 | `mysql_fulltext_drop` |   |   |   |
-| `mysql_fulltext_search` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_fulltext_create`
 - `mysql_fulltext_drop`
-- `mysql_fulltext_search`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_fulltext_create
 - [ ] Ensure full coverage for mysql_fulltext_drop
-- [ ] Ensure full coverage for mysql_fulltext_search
 
 
 ---

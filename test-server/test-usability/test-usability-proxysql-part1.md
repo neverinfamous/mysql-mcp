@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.proxysql.status` |   |   |   |
 | `mysql.proxysql.servers` |   |   |   |
-| `mysql.proxysql.queryRules` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.proxysql.status`
 - `mysql.proxysql.servers`
-- `mysql.proxysql.queryRules`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.proxysql.status
 - [ ] Ensure full coverage for mysql.proxysql.servers
-- [ ] Ensure full coverage for mysql.proxysql.queryRules
 
 
 ---

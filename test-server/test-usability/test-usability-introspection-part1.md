@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.introspection.dependencyGraph` |   |   |   |
 | `mysql.introspection.topologicalSort` |   |   |   |
-| `mysql.introspection.cascadeSimulator` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.introspection.dependencyGraph`
 - `mysql.introspection.topologicalSort`
-- `mysql.introspection.cascadeSimulator`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.introspection.dependencyGraph
 - [ ] Ensure full coverage for mysql.introspection.topologicalSort
-- [ ] Ensure full coverage for mysql.introspection.cascadeSimulator
 
 
 ---

@@ -16,7 +16,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 
 ## Test Sequence Queue (Phase 2: Admin)
 
-1. `test-usability-direct-admin-part1.md`
+1. `test-usability-direct-admin-part1.md` (**MUST PASS FIRST**)
 2. `test-usability-direct-admin-part2.md`
 3. `test-usability-direct-admin-part3.md`
 4. `test-usability-direct-admin-part4.md`

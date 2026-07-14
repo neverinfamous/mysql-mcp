@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.partitioning.partitionInfo` |   |   |   |
 | `mysql.partitioning.addPartition` |   |   |   |
-| `mysql.partitioning.dropPartition` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.partitioning.partitionInfo`
 - `mysql.partitioning.addPartition`
-- `mysql.partitioning.dropPartition`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.partitioning.partitionInfo
 - [ ] Ensure full coverage for mysql.partitioning.addPartition
-- [ ] Ensure full coverage for mysql.partitioning.dropPartition
 
 
 ---

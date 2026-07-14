@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.spatial.contains` |   |   |   |
-| `mysql.spatial.within` |   |   |   |
-| `mysql.spatial.intersection` |   |   |   |
+| `mysql.spatial.distance` |   |   |   |
+| `mysql.spatial.distanceSphere` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.spatial.contains`
-- `mysql.spatial.within`
-- `mysql.spatial.intersection`
+- `mysql.spatial.distance`
+- `mysql.spatial.distanceSphere`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.spatial.contains
-- [ ] Ensure full coverage for mysql.spatial.within
-- [ ] Ensure full coverage for mysql.spatial.intersection
+- [ ] Ensure full coverage for mysql.spatial.distance
+- [ ] Ensure full coverage for mysql.spatial.distanceSphere
 
 
 ---

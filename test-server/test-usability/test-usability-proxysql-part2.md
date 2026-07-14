@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql.proxysql.queryRules` |   |   |   |
 | `mysql.proxysql.queryDigest` |   |   |   |
-| `mysql.proxysql.connectionPool` |   |   |   |
-| `mysql.proxysql.users` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql.proxysql.queryRules`
 - `mysql.proxysql.queryDigest`
-- `mysql.proxysql.connectionPool`
-- `mysql.proxysql.users`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.proxysql.queryRules
 - [ ] Ensure full coverage for mysql.proxysql.queryDigest
-- [ ] Ensure full coverage for mysql.proxysql.connectionPool
-- [ ] Ensure full coverage for mysql.proxysql.users
 
 
 ---

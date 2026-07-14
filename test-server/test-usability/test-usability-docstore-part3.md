@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.docstore.remove` |   |   |   |
-| `mysql.docstore.createIndex` |   |   |   |
-| `mysql.docstore.collectionInfo` |   |   |   |
+| `mysql.docstore.add` |   |   |   |
+| `mysql.docstore.modify` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.docstore.remove`
-- `mysql.docstore.createIndex`
-- `mysql.docstore.collectionInfo`
+- `mysql.docstore.add`
+- `mysql.docstore.modify`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.remove
-- [ ] Ensure full coverage for mysql.docstore.createIndex
-- [ ] Ensure full coverage for mysql.docstore.collectionInfo
+- [ ] Ensure full coverage for mysql.docstore.add
+- [ ] Ensure full coverage for mysql.docstore.modify
 
 
 ---

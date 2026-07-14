@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql_gr_primary` |   |   |   |
 | `mysql_gr_transactions` |   |   |   |
-| `mysql_gr_flow_control` |   |   |   |
-| `mysql_cluster_status` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_gr_primary`
 - `mysql_gr_transactions`
-- `mysql_gr_flow_control`
-- `mysql_cluster_status`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_gr_primary
 - [ ] Ensure full coverage for mysql_gr_transactions
-- [ ] Ensure full coverage for mysql_gr_flow_control
-- [ ] Ensure full coverage for mysql_cluster_status
 
 
 ---

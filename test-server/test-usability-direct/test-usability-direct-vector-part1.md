@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_vector_store` |   |   |   |
 | `mysql_vector_batch_store` |   |   |   |
-| `mysql_vector_delete` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_vector_store`
 - `mysql_vector_batch_store`
-- `mysql_vector_delete`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_vector_store
 - [ ] Ensure full coverage for mysql_vector_batch_store
-- [ ] Ensure full coverage for mysql_vector_delete
 
 
 ---

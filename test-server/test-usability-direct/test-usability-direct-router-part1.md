@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_router_status` |   |   |   |
 | `mysql_router_routes` |   |   |   |
-| `mysql_router_route_status` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_router_status`
 - `mysql_router_routes`
-- `mysql_router_route_status`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_router_status
 - [ ] Ensure full coverage for mysql_router_routes
-- [ ] Ensure full coverage for mysql_router_route_status
 
 
 ---

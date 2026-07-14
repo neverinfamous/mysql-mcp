@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.schema.listSchemas` |   |   |   |
 | `mysql.schema.createSchema` |   |   |   |
-| `mysql.schema.dropSchema` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.schema.listSchemas`
 - `mysql.schema.createSchema`
-- `mysql.schema.dropSchema`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.schema.listSchemas
 - [ ] Ensure full coverage for mysql.schema.createSchema
-- [ ] Ensure full coverage for mysql.schema.dropSchema
 
 
 ---

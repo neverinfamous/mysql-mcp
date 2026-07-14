@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_sys_user_summary` |   |   |   |
 | `mysql_sys_io_summary` |   |   |   |
-| `mysql_sys_statement_summary` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_sys_user_summary`
 - `mysql_sys_io_summary`
-- `mysql_sys_statement_summary`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_sys_user_summary
 - [ ] Ensure full coverage for mysql_sys_io_summary
-- [ ] Ensure full coverage for mysql_sys_statement_summary
 
 
 ---

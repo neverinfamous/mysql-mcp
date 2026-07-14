@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.cluster.grStatus` |   |   |   |
 | `mysql.cluster.grMembers` |   |   |   |
-| `mysql.cluster.grPrimary` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.cluster.grStatus`
 - `mysql.cluster.grMembers`
-- `mysql.cluster.grPrimary`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.cluster.grStatus
 - [ ] Ensure full coverage for mysql.cluster.grMembers
-- [ ] Ensure full coverage for mysql.cluster.grPrimary
 
 
 ---

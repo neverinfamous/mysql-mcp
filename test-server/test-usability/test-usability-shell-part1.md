@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.shell.version` |   |   |   |
 | `mysql.shell.checkUpgrade` |   |   |   |
-| `mysql.shell.exportTable` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.shell.version`
 - `mysql.shell.checkUpgrade`
-- `mysql.shell.exportTable`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.shell.version
 - [ ] Ensure full coverage for mysql.shell.checkUpgrade
-- [ ] Ensure full coverage for mysql.shell.exportTable
 
 
 ---

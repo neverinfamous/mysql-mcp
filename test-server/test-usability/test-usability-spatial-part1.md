@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.spatial.createColumn` |   |   |   |
 | `mysql.spatial.createIndex` |   |   |   |
-| `mysql.spatial.point` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.spatial.createColumn`
 - `mysql.spatial.createIndex`
-- `mysql.spatial.point`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.spatial.createColumn
 - [ ] Ensure full coverage for mysql.spatial.createIndex
-- [ ] Ensure full coverage for mysql.spatial.point
 
 
 ---

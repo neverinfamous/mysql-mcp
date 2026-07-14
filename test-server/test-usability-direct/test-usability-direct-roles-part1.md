@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_role_list` |   |   |   |
 | `mysql_role_create` |   |   |   |
-| `mysql_role_drop` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_role_list`
 - `mysql_role_create`
-- `mysql_role_drop`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_role_list
 - [ ] Ensure full coverage for mysql_role_create
-- [ ] Ensure full coverage for mysql_role_drop
 
 
 ---

@@ -71,8 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.json.stats` |   |   |   |
-| `mysql.json.indexSuggest` |   |   |   |
+| `mysql.json.search` |   |   |   |
+| `mysql.json.validate` |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.json.stats`
-- `mysql.json.indexSuggest`
+- `mysql.json.search`
+- `mysql.json.validate`
 
 
 ## Hallucination & Usability Fuzzing
@@ -93,8 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.json.stats
-- [ ] Ensure full coverage for mysql.json.indexSuggest
+- [ ] Ensure full coverage for mysql.json.search
+- [ ] Ensure full coverage for mysql.json.validate
 
 
 ---

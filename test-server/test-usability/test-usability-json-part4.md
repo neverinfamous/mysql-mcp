@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.json.update` |   |   |   |
-| `mysql.json.search` |   |   |   |
-| `mysql.json.validate` |   |   |   |
+| `mysql.json.keys` |   |   |   |
+| `mysql.json.arrayAppend` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.json.update`
-- `mysql.json.search`
-- `mysql.json.validate`
+- `mysql.json.keys`
+- `mysql.json.arrayAppend`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.json.update
-- [ ] Ensure full coverage for mysql.json.search
-- [ ] Ensure full coverage for mysql.json.validate
+- [ ] Ensure full coverage for mysql.json.keys
+- [ ] Ensure full coverage for mysql.json.arrayAppend
 
 
 ---

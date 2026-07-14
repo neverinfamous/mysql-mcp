@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.optimization.indexRecommendation` |   |   |   |
 | `mysql.optimization.queryRewrite` |   |   |   |
-| `mysql.optimization.forceIndex` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.optimization.indexRecommendation`
 - `mysql.optimization.queryRewrite`
-- `mysql.optimization.forceIndex`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.optimization.indexRecommendation
 - [ ] Ensure full coverage for mysql.optimization.queryRewrite
-- [ ] Ensure full coverage for mysql.optimization.forceIndex
 
 
 ---

@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysqlsh_version` |   |   |   |
 | `mysqlsh_check_upgrade` |   |   |   |
-| `mysqlsh_export_table` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysqlsh_version`
 - `mysqlsh_check_upgrade`
-- `mysqlsh_export_table`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysqlsh_version
 - [ ] Ensure full coverage for mysqlsh_check_upgrade
-- [ ] Ensure full coverage for mysqlsh_export_table
 
 
 ---

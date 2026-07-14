@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.json.extract` |   |   |   |
 | `mysql.json.set` |   |   |   |
-| `mysql.json.insert` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.json.extract`
 - `mysql.json.set`
-- `mysql.json.insert`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.json.extract
 - [ ] Ensure full coverage for mysql.json.set
-- [ ] Ensure full coverage for mysql.json.insert
 
 
 ---

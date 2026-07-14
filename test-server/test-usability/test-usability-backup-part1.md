@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.backup.exportTable` |   |   |   |
 | `mysql.backup.importData` |   |   |   |
-| `mysql.backup.createDump` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.backup.exportTable`
 - `mysql.backup.importData`
-- `mysql.backup.createDump`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.backup.exportTable
 - [ ] Ensure full coverage for mysql.backup.importData
-- [ ] Ensure full coverage for mysql.backup.createDump
 
 
 ---

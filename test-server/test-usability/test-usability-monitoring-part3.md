@@ -71,7 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.monitoring.serverHealth` |   |   |   |
+| `mysql.monitoring.replicationStatus` |   |   |   |
+| `mysql.monitoring.poolStats` |   |   |   |
 
 ---
 
@@ -79,7 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.monitoring.serverHealth`
+- `mysql.monitoring.replicationStatus`
+- `mysql.monitoring.poolStats`
 
 
 ## Hallucination & Usability Fuzzing
@@ -91,7 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.monitoring.serverHealth
+- [ ] Ensure full coverage for mysql.monitoring.replicationStatus
+- [ ] Ensure full coverage for mysql.monitoring.poolStats
 
 
 ---

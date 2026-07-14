@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_list_schemas` |   |   |   |
 | `mysql_create_schema` |   |   |   |
-| `mysql_drop_schema` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_list_schemas`
 - `mysql_create_schema`
-- `mysql_drop_schema`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_list_schemas
 - [ ] Ensure full coverage for mysql_create_schema
-- [ ] Ensure full coverage for mysql_drop_schema
 
 
 ---

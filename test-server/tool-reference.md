@@ -19,8 +19,8 @@ View the complete list of all **available tools** across groups below. Every too
 > **Note**: The exhaustive list of tools, aliases, and their configurations has been moved to a single source of truth to prevent documentation drift.
 
 For the complete and authoritative list of tools, please refer to:
-- 	est-server/scripts/test-manifest.ts
-- 	est-server/*/coordinator-workflow.md files
+- test-server/scripts/test-manifest.ts
+- test-server/*/coordinator-workflow.md files
 
 ## Review See Also
 

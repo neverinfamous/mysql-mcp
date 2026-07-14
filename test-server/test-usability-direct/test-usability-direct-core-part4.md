@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_disable_versioning` |   |   |   |
-| `mysql_check_version` |   |   |   |
-| `mysql_conditional_update` |   |   |   |
+| `mysql_create_index` |   |   |   |
+| `mysql_get_indexes` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_disable_versioning`
-- `mysql_check_version`
-- `mysql_conditional_update`
+- `mysql_create_index`
+- `mysql_get_indexes`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_disable_versioning
-- [ ] Ensure full coverage for mysql_check_version
-- [ ] Ensure full coverage for mysql_conditional_update
+- [ ] Ensure full coverage for mysql_create_index
+- [ ] Ensure full coverage for mysql_get_indexes
 
 
 ---

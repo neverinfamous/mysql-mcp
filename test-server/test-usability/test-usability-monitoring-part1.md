@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.monitoring.showProcesslist` |   |   |   |
 | `mysql.monitoring.showStatus` |   |   |   |
-| `mysql.monitoring.showVariables` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.monitoring.showProcesslist`
 - `mysql.monitoring.showStatus`
-- `mysql.monitoring.showVariables`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.monitoring.showProcesslist
 - [ ] Ensure full coverage for mysql.monitoring.showStatus
-- [ ] Ensure full coverage for mysql.monitoring.showVariables
 
 
 ---

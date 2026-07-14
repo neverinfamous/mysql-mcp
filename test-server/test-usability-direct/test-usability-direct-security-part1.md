@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_security_audit` |   |   |   |
 | `mysql_security_firewall_status` |   |   |   |
-| `mysql_security_firewall_rules` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_security_audit`
 - `mysql_security_firewall_status`
-- `mysql_security_firewall_rules`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_security_audit
 - [ ] Ensure full coverage for mysql_security_firewall_status
-- [ ] Ensure full coverage for mysql_security_firewall_rules
 
 
 ---

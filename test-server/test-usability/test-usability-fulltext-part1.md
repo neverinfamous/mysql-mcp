@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.fulltext.create` |   |   |   |
 | `mysql.fulltext.drop` |   |   |   |
-| `mysql.fulltext.search` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.fulltext.create`
 - `mysql.fulltext.drop`
-- `mysql.fulltext.search`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.fulltext.create
 - [ ] Ensure full coverage for mysql.fulltext.drop
-- [ ] Ensure full coverage for mysql.fulltext.search
 
 
 ---

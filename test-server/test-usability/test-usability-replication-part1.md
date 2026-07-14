@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.replication.masterStatus` |   |   |   |
 | `mysql.replication.slaveStatus` |   |   |   |
-| `mysql.replication.binlogEvents` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.replication.masterStatus`
 - `mysql.replication.slaveStatus`
-- `mysql.replication.binlogEvents`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.replication.masterStatus
 - [ ] Ensure full coverage for mysql.replication.slaveStatus
-- [ ] Ensure full coverage for mysql.replication.binlogEvents
 
 
 ---

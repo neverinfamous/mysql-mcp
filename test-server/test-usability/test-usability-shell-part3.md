@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.shell.dumpSchemas` |   |   |   |
-| `mysql.shell.dumpTables` |   |   |   |
-| `mysql.shell.loadDump` |   |   |   |
+| `mysql.shell.importJson` |   |   |   |
+| `mysql.shell.dumpInstance` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.shell.dumpSchemas`
-- `mysql.shell.dumpTables`
-- `mysql.shell.loadDump`
+- `mysql.shell.importJson`
+- `mysql.shell.dumpInstance`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.shell.dumpSchemas
-- [ ] Ensure full coverage for mysql.shell.dumpTables
-- [ ] Ensure full coverage for mysql.shell.loadDump
+- [ ] Ensure full coverage for mysql.shell.importJson
+- [ ] Ensure full coverage for mysql.shell.dumpInstance
 
 
 ---

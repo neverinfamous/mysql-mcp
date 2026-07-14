@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql_soundex` |   |   |   |
 | `mysql_substring` |   |   |   |
-| `mysql_concat` |   |   |   |
-| `mysql_collation_convert` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_soundex`
 - `mysql_substring`
-- `mysql_concat`
-- `mysql_collation_convert`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_soundex
 - [ ] Ensure full coverage for mysql_substring
-- [ ] Ensure full coverage for mysql_concat
-- [ ] Ensure full coverage for mysql_collation_convert
 
 
 ---

@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.migration.init` |   |   |   |
 | `mysql.migration.record` |   |   |   |
-| `mysql.migration.apply` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.migration.init`
 - `mysql.migration.record`
-- `mysql.migration.apply`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.migration.init
 - [ ] Ensure full coverage for mysql.migration.record
-- [ ] Ensure full coverage for mysql.migration.apply
 
 
 ---

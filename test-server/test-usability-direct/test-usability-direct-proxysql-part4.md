@@ -71,8 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `proxysql_commands` |   |   |   |
-| `proxysql_process_list` |   |   |   |
+| `proxysql_global_variables` |   |   |   |
+| `proxysql_runtime_status` |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_commands`
-- `proxysql_process_list`
+- `proxysql_global_variables`
+- `proxysql_runtime_status`
 
 
 ## Hallucination & Usability Fuzzing
@@ -93,8 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_commands
-- [ ] Ensure full coverage for proxysql_process_list
+- [ ] Ensure full coverage for proxysql_global_variables
+- [ ] Ensure full coverage for proxysql_runtime_status
 
 
 ---

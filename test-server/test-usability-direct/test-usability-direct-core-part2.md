@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql_list_tables` |   |   |   |
 | `mysql_describe_table` |   |   |   |
-| `mysql_create_table` |   |   |   |
-| `mysql_drop_table` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_list_tables`
 - `mysql_describe_table`
-- `mysql_create_table`
-- `mysql_drop_table`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_list_tables
 - [ ] Ensure full coverage for mysql_describe_table
-- [ ] Ensure full coverage for mysql_create_table
-- [ ] Ensure full coverage for mysql_drop_table
 
 
 ---

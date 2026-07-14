@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.performance.explain` |   |   |   |
 | `mysql.performance.explainAnalyze` |   |   |   |
-| `mysql.performance.slowQueries` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.performance.explain`
 - `mysql.performance.explainAnalyze`
-- `mysql.performance.slowQueries`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.performance.explain
 - [ ] Ensure full coverage for mysql.performance.explainAnalyze
-- [ ] Ensure full coverage for mysql.performance.slowQueries
 
 
 ---

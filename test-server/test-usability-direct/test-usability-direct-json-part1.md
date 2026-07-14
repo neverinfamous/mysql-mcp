@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_json_extract` |   |   |   |
 | `mysql_json_set` |   |   |   |
-| `mysql_json_insert` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_json_extract`
 - `mysql_json_set`
-- `mysql_json_insert`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_json_extract
 - [ ] Ensure full coverage for mysql_json_set
-- [ ] Ensure full coverage for mysql_json_insert
 
 
 ---

@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `proxysql_status` |   |   |   |
 | `proxysql_servers` |   |   |   |
-| `proxysql_query_rules` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `proxysql_status`
 - `proxysql_servers`
-- `proxysql_query_rules`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for proxysql_status
 - [ ] Ensure full coverage for proxysql_servers
-- [ ] Ensure full coverage for proxysql_query_rules
 
 
 ---

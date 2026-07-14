@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_gr_status` |   |   |   |
 | `mysql_gr_members` |   |   |   |
-| `mysql_gr_primary` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_gr_status`
 - `mysql_gr_members`
-- `mysql_gr_primary`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_gr_status
 - [ ] Ensure full coverage for mysql_gr_members
-- [ ] Ensure full coverage for mysql_gr_primary
 
 
 ---

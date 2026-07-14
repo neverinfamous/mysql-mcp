@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.admin.optimizeTable` |   |   |   |
 | `mysql.admin.analyzeTable` |   |   |   |
-| `mysql.admin.checkTable` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.admin.optimizeTable`
 - `mysql.admin.analyzeTable`
-- `mysql.admin.checkTable`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.admin.optimizeTable
 - [ ] Ensure full coverage for mysql.admin.analyzeTable
-- [ ] Ensure full coverage for mysql.admin.checkTable
 
 
 ---

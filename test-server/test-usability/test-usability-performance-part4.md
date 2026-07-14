@@ -71,8 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.performance.detectBloatRisk` |   |   |   |
-| `mysql.performance.detectConnectionSpike` |   |   |   |
+| `mysql.performance.bufferPoolStats` |   |   |   |
+| `mysql.performance.threadStats` |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.performance.detectBloatRisk`
-- `mysql.performance.detectConnectionSpike`
+- `mysql.performance.bufferPoolStats`
+- `mysql.performance.threadStats`
 
 
 ## Hallucination & Usability Fuzzing
@@ -93,8 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.performance.detectBloatRisk
-- [ ] Ensure full coverage for mysql.performance.detectConnectionSpike
+- [ ] Ensure full coverage for mysql.performance.bufferPoolStats
+- [ ] Ensure full coverage for mysql.performance.threadStats
 
 
 ---

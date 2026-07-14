@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_create_trigger` |   |   |   |
-| `mysql_drop_trigger` |   |   |   |
-| `mysql_list_constraints` |   |   |   |
+| `mysql_list_stored_procedures` |   |   |   |
+| `mysql_list_functions` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_create_trigger`
-- `mysql_drop_trigger`
-- `mysql_list_constraints`
+- `mysql_list_stored_procedures`
+- `mysql_list_functions`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_create_trigger
-- [ ] Ensure full coverage for mysql_drop_trigger
-- [ ] Ensure full coverage for mysql_list_constraints
+- [ ] Ensure full coverage for mysql_list_stored_procedures
+- [ ] Ensure full coverage for mysql_list_functions
 
 
 ---

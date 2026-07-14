@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql.json.insert` |   |   |   |
 | `mysql.json.replace` |   |   |   |
-| `mysql.json.remove` |   |   |   |
-| `mysql.json.contains` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql.json.insert`
 - `mysql.json.replace`
-- `mysql.json.remove`
-- `mysql.json.contains`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.json.insert
 - [ ] Ensure full coverage for mysql.json.replace
-- [ ] Ensure full coverage for mysql.json.remove
-- [ ] Ensure full coverage for mysql.json.contains
 
 
 ---

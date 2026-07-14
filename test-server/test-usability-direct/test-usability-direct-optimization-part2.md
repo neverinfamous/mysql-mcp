@@ -71,6 +71,7 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql_force_index` |   |   |   |
 | `mysql_optimizer_trace` |   |   |   |
 
 ---
@@ -79,6 +80,7 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_force_index`
 - `mysql_optimizer_trace`
 
 
@@ -91,6 +93,7 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_force_index
 - [ ] Ensure full coverage for mysql_optimizer_trace
 
 

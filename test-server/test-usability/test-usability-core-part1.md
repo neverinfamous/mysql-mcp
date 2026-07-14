@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.core.readQuery` |   |   |   |
 | `mysql.core.writeQuery` |   |   |   |
-| `mysql.core.listTables` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.core.readQuery`
 - `mysql.core.writeQuery`
-- `mysql.core.listTables`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.core.readQuery
 - [ ] Ensure full coverage for mysql.core.writeQuery
-- [ ] Ensure full coverage for mysql.core.listTables
 
 
 ---

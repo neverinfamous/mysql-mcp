@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_regexp_match` |   |   |   |
 | `mysql_like_search` |   |   |   |
-| `mysql_soundex` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_regexp_match`
 - `mysql_like_search`
-- `mysql_soundex`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_regexp_match
 - [ ] Ensure full coverage for mysql_like_search
-- [ ] Ensure full coverage for mysql_soundex
 
 
 ---

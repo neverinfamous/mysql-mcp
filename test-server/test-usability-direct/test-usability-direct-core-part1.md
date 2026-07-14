@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_read_query` |   |   |   |
 | `mysql_write_query` |   |   |   |
-| `mysql_list_tables` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_read_query`
 - `mysql_write_query`
-- `mysql_list_tables`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_read_query
 - [ ] Ensure full coverage for mysql_write_query
-- [ ] Ensure full coverage for mysql_list_tables
 
 
 ---

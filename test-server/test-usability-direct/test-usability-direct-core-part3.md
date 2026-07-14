@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_create_index` |   |   |   |
-| `mysql_get_indexes` |   |   |   |
-| `mysql_enable_versioning` |   |   |   |
+| `mysql_create_table` |   |   |   |
+| `mysql_drop_table` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_create_index`
-- `mysql_get_indexes`
-- `mysql_enable_versioning`
+- `mysql_create_table`
+- `mysql_drop_table`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_create_index
-- [ ] Ensure full coverage for mysql_get_indexes
-- [ ] Ensure full coverage for mysql_enable_versioning
+- [ ] Ensure full coverage for mysql_create_table
+- [ ] Ensure full coverage for mysql_drop_table
 
 
 ---

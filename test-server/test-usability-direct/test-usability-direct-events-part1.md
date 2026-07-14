@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_event_create` |   |   |   |
 | `mysql_event_alter` |   |   |   |
-| `mysql_event_drop` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_event_create`
 - `mysql_event_alter`
-- `mysql_event_drop`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_event_create
 - [ ] Ensure full coverage for mysql_event_alter
-- [ ] Ensure full coverage for mysql_event_drop
 
 
 ---

@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_master_status` |   |   |   |
 | `mysql_slave_status` |   |   |   |
-| `mysql_binlog_events` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_master_status`
 - `mysql_slave_status`
-- `mysql_binlog_events`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_master_status
 - [ ] Ensure full coverage for mysql_slave_status
-- [ ] Ensure full coverage for mysql_binlog_events
 
 
 ---

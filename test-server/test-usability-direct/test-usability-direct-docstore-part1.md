@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_doc_list_collections` |   |   |   |
 | `mysql_doc_create_collection` |   |   |   |
-| `mysql_doc_drop_collection` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_doc_list_collections`
 - `mysql_doc_create_collection`
-- `mysql_doc_drop_collection`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_doc_list_collections
 - [ ] Ensure full coverage for mysql_doc_create_collection
-- [ ] Ensure full coverage for mysql_doc_drop_collection
 
 
 ---

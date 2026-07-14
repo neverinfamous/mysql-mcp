@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.json.merge` |   |   |   |
-| `mysql.json.diff` |   |   |   |
-| `mysql.json.normalize` |   |   |   |
+| `mysql.json.get` |   |   |   |
+| `mysql.json.update` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.json.merge`
-- `mysql.json.diff`
-- `mysql.json.normalize`
+- `mysql.json.get`
+- `mysql.json.update`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.json.merge
-- [ ] Ensure full coverage for mysql.json.diff
-- [ ] Ensure full coverage for mysql.json.normalize
+- [ ] Ensure full coverage for mysql.json.get
+- [ ] Ensure full coverage for mysql.json.update
 
 
 ---

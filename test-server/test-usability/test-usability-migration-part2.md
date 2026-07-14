@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql.migration.apply` |   |   |   |
 | `mysql.migration.rollback` |   |   |   |
-| `mysql.migration.history` |   |   |   |
-| `mysql.migration.status` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql.migration.apply`
 - `mysql.migration.rollback`
-- `mysql.migration.history`
-- `mysql.migration.status`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.migration.apply
 - [ ] Ensure full coverage for mysql.migration.rollback
-- [ ] Ensure full coverage for mysql.migration.history
-- [ ] Ensure full coverage for mysql.migration.status
 
 
 ---

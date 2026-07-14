@@ -22,17 +22,24 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 4. `test-usability-direct-schema-part2.md`
 5. `test-usability-direct-schema-part3.md`
 6. `test-usability-direct-schema-part4.md`
-7. `test-usability-direct-stats-part1.md`
-8. `test-usability-direct-stats-part2.md`
-9. `test-usability-direct-stats-part3.md`
-10. `test-usability-direct-stats-part4.md`
-11. `test-usability-direct-stats-part5.md`
-12. `test-usability-direct-stats-part6.md`
-13. `test-usability-direct-stats-part7.md`
-14. `test-usability-direct-introspection-part1.md`
-15. `test-usability-direct-introspection-part2.md`
-16. `test-usability-direct-migration-part1.md`
-17. `test-usability-direct-migration-part2.md`
+7. `test-usability-direct-schema-part5.md`
+8. `test-usability-direct-schema-part6.md`
+9. `test-usability-direct-stats-part1.md`
+10. `test-usability-direct-stats-part2.md`
+11. `test-usability-direct-stats-part3.md`
+12. `test-usability-direct-stats-part4.md`
+13. `test-usability-direct-stats-part5.md`
+14. `test-usability-direct-stats-part6.md`
+15. `test-usability-direct-stats-part7.md`
+16. `test-usability-direct-stats-part8.md`
+17. `test-usability-direct-stats-part9.md`
+18. `test-usability-direct-stats-part10.md`
+19. `test-usability-direct-introspection-part1.md`
+20. `test-usability-direct-introspection-part2.md`
+21. `test-usability-direct-introspection-part3.md`
+22. `test-usability-direct-migration-part1.md`
+23. `test-usability-direct-migration-part2.md`
+24. `test-usability-direct-migration-part3.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

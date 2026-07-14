@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql.spatial.point` |   |   |   |
 | `mysql.spatial.polygon` |   |   |   |
-| `mysql.spatial.distance` |   |   |   |
-| `mysql.spatial.distanceSphere` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql.spatial.point`
 - `mysql.spatial.polygon`
-- `mysql.spatial.distance`
-- `mysql.spatial.distanceSphere`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.spatial.point
 - [ ] Ensure full coverage for mysql.spatial.polygon
-- [ ] Ensure full coverage for mysql.spatial.distance
-- [ ] Ensure full coverage for mysql.spatial.distanceSphere
 
 
 ---

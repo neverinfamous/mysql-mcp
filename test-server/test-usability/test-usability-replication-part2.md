@@ -71,8 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql.replication.binlogEvents` |   |   |   |
 | `mysql.replication.gtidStatus` |   |   |   |
-| `mysql.replication.replicationLag` |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql.replication.binlogEvents`
 - `mysql.replication.gtidStatus`
-- `mysql.replication.replicationLag`
 
 
 ## Hallucination & Usability Fuzzing
@@ -93,8 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.replication.binlogEvents
 - [ ] Ensure full coverage for mysql.replication.gtidStatus
-- [ ] Ensure full coverage for mysql.replication.replicationLag
 
 
 ---

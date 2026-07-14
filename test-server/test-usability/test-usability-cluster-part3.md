@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.cluster.instances` |   |   |   |
-| `mysql.cluster.topology` |   |   |   |
-| `mysql.cluster.routerStatus` |   |   |   |
+| `mysql.cluster.grFlowControl` |   |   |   |
+| `mysql.cluster.status` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.cluster.instances`
-- `mysql.cluster.topology`
-- `mysql.cluster.routerStatus`
+- `mysql.cluster.grFlowControl`
+- `mysql.cluster.status`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.cluster.instances
-- [ ] Ensure full coverage for mysql.cluster.topology
-- [ ] Ensure full coverage for mysql.cluster.routerStatus
+- [ ] Ensure full coverage for mysql.cluster.grFlowControl
+- [ ] Ensure full coverage for mysql.cluster.status
 
 
 ---

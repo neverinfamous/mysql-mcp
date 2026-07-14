@@ -71,8 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_vector_optimize` |   |   |   |
-| `mysql_vector_stats` |   |   |   |
+| `mysql_vector_hybrid_search` |   |   |   |
+| `mysql_vector_info` |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_vector_optimize`
-- `mysql_vector_stats`
+- `mysql_vector_hybrid_search`
+- `mysql_vector_info`
 
 
 ## Hallucination & Usability Fuzzing
@@ -93,8 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_vector_optimize
-- [ ] Ensure full coverage for mysql_vector_stats
+- [ ] Ensure full coverage for mysql_vector_hybrid_search
+- [ ] Ensure full coverage for mysql_vector_info
 
 
 ---

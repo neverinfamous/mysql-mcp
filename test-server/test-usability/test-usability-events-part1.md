@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.events.eventCreate` |   |   |   |
 | `mysql.events.eventAlter` |   |   |   |
-| `mysql.events.eventDrop` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.events.eventCreate`
 - `mysql.events.eventAlter`
-- `mysql.events.eventDrop`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.events.eventCreate
 - [ ] Ensure full coverage for mysql.events.eventAlter
-- [ ] Ensure full coverage for mysql.events.eventDrop
 
 
 ---

@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql_cascade_simulator` |   |   |   |
 | `mysql_schema_snapshot` |   |   |   |
-| `mysql_constraint_analysis` |   |   |   |
-| `mysql_migration_risks` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_cascade_simulator`
 - `mysql_schema_snapshot`
-- `mysql_constraint_analysis`
-- `mysql_migration_risks`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_cascade_simulator
 - [ ] Ensure full coverage for mysql_schema_snapshot
-- [ ] Ensure full coverage for mysql_constraint_analysis
-- [ ] Ensure full coverage for mysql_migration_risks
 
 
 ---

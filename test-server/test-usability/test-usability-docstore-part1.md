@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.docstore.listCollections` |   |   |   |
 | `mysql.docstore.createCollection` |   |   |   |
-| `mysql.docstore.dropCollection` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.docstore.listCollections`
 - `mysql.docstore.createCollection`
-- `mysql.docstore.dropCollection`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.docstore.listCollections
 - [ ] Ensure full coverage for mysql.docstore.createCollection
-- [ ] Ensure full coverage for mysql.docstore.dropCollection
 
 
 ---

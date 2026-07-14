@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_partition_info` |   |   |   |
 | `mysql_add_partition` |   |   |   |
-| `mysql_drop_partition` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_partition_info`
 - `mysql_add_partition`
-- `mysql_drop_partition`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_partition_info
 - [ ] Ensure full coverage for mysql_add_partition
-- [ ] Ensure full coverage for mysql_drop_partition
 
 
 ---
