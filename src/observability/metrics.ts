@@ -128,14 +128,8 @@ export class MetricsRegistry {
   }
 
   private startHistoricalSync(): void {
-    // Initial load
+    // Initial load only. Do not sync continuously as it blocks the event loop.
     this.loadHistorical();
-    
-    // Continuous sync every 5 seconds
-    const syncTimer = setInterval(() => {
-      this.loadHistorical();
-    }, 5000);
-    syncTimer.unref();
   }
 
   private loadHistorical(): void {
@@ -146,9 +140,9 @@ export class MetricsRegistry {
       const rows = db
         .prepare(
           `
-        SELECT tool, MAX(calls) as max_calls, MAX(errors) as max_errors, MAX(tokens) as max_tokens
+        SELECT tool, calls as max_calls, errors as max_errors, tokens as max_tokens
         FROM metrics_snapshots
-        GROUP BY tool
+        WHERE id IN (SELECT MAX(id) FROM metrics_snapshots GROUP BY tool)
       `,
         )
         .all();
