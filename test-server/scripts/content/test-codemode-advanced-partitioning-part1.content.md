@@ -1,6 +1,6 @@
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.partitioning.partitionInfo
-- [ ] Ensure full coverage for mysql.partitioning.addPartition
-- [ ] Ensure full coverage for mysql.partitioning.dropPartition
-- [ ] Ensure full coverage for mysql.partitioning.reorganizePartition
+- [ ] Ensure full coverage for `mysql_partition_info`
+- [ ] Ensure full coverage for `mysql_add_partition`
+- [ ] Ensure full coverage for `mysql_drop_partition`
+- [ ] Ensure full coverage for `mysql_reorganize_partition`

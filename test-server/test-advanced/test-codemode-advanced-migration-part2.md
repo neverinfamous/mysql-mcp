@@ -67,16 +67,28 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
+| `mysql.advanced-migration.migrationRollback` |   |   |
+| `mysql.advanced-migration.migrationHistory` |   |   |
+| `mysql.advanced-migration.migrationStatus` |   |   |
+| `mysql.advanced-migration.executeCode` |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql.advanced-migration.migrationRollback`
+- `mysql.advanced-migration.migrationHistory`
+- `mysql.advanced-migration.migrationStatus`
+- `mysql.advanced-migration.executeCode`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.migration.rollback
-- [ ] Ensure full coverage for mysql.migration.history
-- [ ] Ensure full coverage for mysql.migration.status
+- [ ] Ensure full coverage for `mysql_migration_rollback`
+- [ ] Ensure full coverage for `mysql_migration_history`
+- [ ] Ensure full coverage for `mysql_migration_status`
 
 ---
 

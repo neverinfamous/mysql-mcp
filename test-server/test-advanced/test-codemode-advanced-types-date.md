@@ -67,14 +67,20 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
+| `mysql.advanced-types-date.executeCode` |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql.advanced-types-date.executeCode`
 
 
 ## Tasks
 
-1. Test date and time type parsing using `mysql_execute_code`. time data (DATE, TIME, DATETIME, TIMESTAMP, YEAR) using `mysql_execute_code`.
+1. Test date and time type parsing (DATE, TIME, DATETIME, TIMESTAMP, YEAR) using `mysql_execute_code`.
 2. Ensure date/time data does not break JSON serialization and is parsed correctly in JS.
 3. Check error paths and timezone handling.
 

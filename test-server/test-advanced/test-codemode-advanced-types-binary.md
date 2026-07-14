@@ -67,9 +67,15 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
+| `mysql.advanced-types-binary.executeCode` |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql.advanced-types-binary.executeCode`
 
 
 ## Tasks

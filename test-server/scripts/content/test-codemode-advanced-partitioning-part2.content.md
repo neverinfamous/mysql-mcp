@@ -1,3 +1,3 @@
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.partitioning.reorganizePartition
+- [ ] Ensure full coverage for `mysql_reorganize_partition`

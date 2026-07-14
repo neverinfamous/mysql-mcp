@@ -67,16 +67,28 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
+| `mysql.optimization.indexRecommendation` |   |   |
+| `mysql.optimization.queryRewrite` |   |   |
+| `mysql.optimization.forceIndex` |   |   |
+| `mysql.advanced-optimization.executeCode` |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql.optimization.indexRecommendation`
+- `mysql.optimization.queryRewrite`
+- `mysql.optimization.forceIndex`
+- `mysql.advanced-optimization.executeCode`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.optimization.indexRecommendation
-- [ ] Ensure full coverage for mysql.optimization.queryRewrite
-- [ ] Ensure full coverage for mysql.optimization.forceIndex
+- [ ] Ensure full coverage for `mysql_index_recommendation`
+- [ ] Ensure full coverage for `mysql_query_rewrite`
+- [ ] Ensure full coverage for `mysql_force_index`
 
 ---
 

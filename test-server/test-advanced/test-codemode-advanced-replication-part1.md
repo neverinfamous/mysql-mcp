@@ -67,16 +67,28 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
+| `mysql.advanced-replication.masterStatus` |   |   |
+| `mysql.advanced-replication.slaveStatus` |   |   |
+| `mysql.advanced-replication.binlogEvents` |   |   |
+| `mysql.advanced-replication.executeCode` |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql.advanced-replication.masterStatus`
+- `mysql.advanced-replication.slaveStatus`
+- `mysql.advanced-replication.binlogEvents`
+- `mysql.advanced-replication.executeCode`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.replication.masterStatus
-- [ ] Ensure full coverage for mysql.replication.slaveStatus
-- [ ] Ensure full coverage for mysql.replication.binlogEvents
+- [ ] Ensure full coverage for `mysql_master_status`
+- [ ] Ensure full coverage for `mysql_slave_status`
+- [ ] Ensure full coverage for `mysql_binlog_events`
 
 ---
 

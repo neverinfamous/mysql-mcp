@@ -2,9 +2,6 @@
 
 This document provides testing instructions to validate the server's connection pool and query queuing behavior under high concurrency using Code Mode.
 
-
-
-## Tasks
 ## Tasks
 
 ### 1. Promise.all() Connection Saturation

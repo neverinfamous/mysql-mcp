@@ -451,433 +451,63 @@
         "mysql_check_version",
         "mysql_conditional_update"
     ],
-    "test-codemode-advanced-admin-control-part1.md": [
-        "mysql_optimize_table",
-        "mysql_analyze_table",
-        "mysql_check_table"
-    ],
-    "test-codemode-advanced-admin-control-part2.md": [
-        "mysql_repair_table",
-        "mysql_flush_tables"
-    ],
-    "test-codemode-advanced-admin-maintenance-part1.md": [
-        "mysql_kill_query",
-        "mysql_append_insight",
-        "mysql_server_config"
-    ],
-    "test-codemode-advanced-admin-maintenance-part2.md": [
-        "mysql_audit_search"
-    ],
-    "test-codemode-advanced-backup-audit-part1.md": [
-        "mysql_audit_list_backups",
-        "mysql_audit_restore_backup"
-    ],
-    "test-codemode-advanced-backup-audit-part2.md": [
-        "mysql_audit_diff_backup",
-        "mysql_restore_dump"
-    ],
-    "test-codemode-advanced-backup-export-part1.md": [
-        "mysql_export_table",
-        "mysql_import_data"
-    ],
-    "test-codemode-advanced-backup-export-part2.md": [
-        "mysql_create_dump"
-    ],
-    "test-codemode-advanced-cluster-group-replication-part1.md": [
-        "mysql_gr_status",
-        "mysql_gr_members",
-        "mysql_gr_primary"
-    ],
-    "test-codemode-advanced-cluster-group-replication-part2.md": [
-        "mysql_gr_transactions",
-        "mysql_gr_flow_control"
-    ],
-    "test-codemode-advanced-cluster-innodb-part1.md": [
-        "mysql_cluster_status",
-        "mysql_cluster_instances",
-        "mysql_cluster_topology"
-    ],
-    "test-codemode-advanced-cluster-innodb-part2.md": [
-        "mysql_cluster_router_status",
-        "mysql_cluster_switchover"
-    ],
-    "test-codemode-advanced-concurrency.md": [],
-    "test-codemode-advanced-core-part1a.md": [
-        "mysql_read_query",
-        "mysql_write_query",
-        "mysql_list_tables"
-    ],
-    "test-codemode-advanced-core-part1b.md": [
-        "mysql_describe_table",
-        "mysql_create_table",
-        "mysql_drop_table"
-    ],
-    "test-codemode-advanced-core-part2a.md": [
-        "mysql_create_index",
-        "mysql_get_indexes"
-    ],
-    "test-codemode-advanced-core-part3a.md": [
-        "mysql_enable_versioning",
-        "mysql_disable_versioning",
-        "mysql_check_version"
-    ],
-    "test-codemode-advanced-core-part3b.md": [
-        "mysql_conditional_update"
-    ],
-    "test-codemode-advanced-docstore-collections-part1.md": [
-        "mysql_doc_list_collections",
-        "mysql_doc_create_collection",
-        "mysql_doc_drop_collection"
-    ],
-    "test-codemode-advanced-docstore-collections-part2.md": [
-        "mysql_doc_create_index",
-        "mysql_doc_collection_info"
-    ],
-    "test-codemode-advanced-docstore-documents-part1.md": [
-        "mysql_doc_find",
-        "mysql_doc_add"
-    ],
-    "test-codemode-advanced-docstore-documents-part2.md": [
-        "mysql_doc_modify",
-        "mysql_doc_remove"
-    ],
-    "test-codemode-advanced-events-part1.md": [
-        "mysql_event_create",
-        "mysql_event_alter",
-        "mysql_event_drop"
-    ],
-    "test-codemode-advanced-events-part2.md": [
-        "mysql_event_list",
-        "mysql_event_status",
-        "mysql_scheduler_status"
-    ],
-    "test-codemode-advanced-fulltext-part1.md": [
-        "mysql_fulltext_create",
-        "mysql_fulltext_drop",
-        "mysql_fulltext_search"
-    ],
-    "test-codemode-advanced-fulltext-part2.md": [
-        "mysql_fulltext_boolean",
-        "mysql_fulltext_expand"
-    ],
-    "test-codemode-advanced-introspection-part1.md": [],
-    "test-codemode-advanced-introspection-part2.md": [],
-    "test-codemode-advanced-json-core-part1a.md": [
-        "mysql_json_extract",
-        "mysql_json_set",
-        "mysql_json_insert"
-    ],
-    "test-codemode-advanced-json-core-part1b.md": [
-        "mysql_json_replace",
-        "mysql_json_remove"
-    ],
-    "test-codemode-advanced-json-core-part2a.md": [
-        "mysql_json_contains",
-        "mysql_json_keys",
-        "mysql_json_array_append"
-    ],
-    "test-codemode-advanced-json-core-part2b.md": [
-        "mysql_json_get",
-        "mysql_json_update"
-    ],
-    "test-codemode-advanced-json-enhanced-part1.md": [
-        "mysql_json_search",
-        "mysql_json_validate",
-        "mysql_json_merge"
-    ],
-    "test-codemode-advanced-json-enhanced-part2.md": [
-        "mysql_json_diff",
-        "mysql_json_normalize"
-    ],
-    "test-codemode-advanced-json-helpers.md": [
-        "mysql_json_stats",
-        "mysql_json_index_suggest"
-    ],
-    "test-codemode-advanced-migration-part1.md": [
-        "mysql_migration_init",
-        "mysql_migration_record",
-        "mysql_migration_apply"
-    ],
-    "test-codemode-advanced-migration-part2.md": [],
-    "test-codemode-advanced-monitoring-health-part1.md": [
-        "mysql_show_processlist",
-        "mysql_show_status",
-        "mysql_show_variables"
-    ],
-    "test-codemode-advanced-monitoring-health-part2.md": [
-        "mysql_innodb_status"
-    ],
-    "test-codemode-advanced-monitoring-status.md": [
-        "mysql_replication_status",
-        "mysql_pool_stats",
-        "mysql_server_health"
-    ],
-    "test-codemode-advanced-optimization-part1.md": [],
-    "test-codemode-advanced-optimization-part2.md": [
-        "mysql_optimizer_trace"
-    ],
-    "test-codemode-advanced-partitioning-part1.md": [],
-    "test-codemode-advanced-partitioning-part2.md": [],
-    "test-codemode-advanced-performance-analysis-part1a.md": [
-        "mysql_explain",
-        "mysql_explain_analyze",
-        "mysql_slow_queries"
-    ],
-    "test-codemode-advanced-performance-analysis-part1b.md": [
-        "mysql_query_stats"
-    ],
-    "test-codemode-advanced-performance-analysis-part2a.md": [
-        "mysql_index_usage",
-        "mysql_table_stats",
-        "mysql_buffer_pool_stats"
-    ],
-    "test-codemode-advanced-performance-analysis-part2b.md": [
-        "mysql_thread_stats"
-    ],
-    "test-codemode-advanced-performance-anomaly.md": [
-        "mysql_detect_query_anomalies",
-        "mysql_detect_bloat_risk",
-        "mysql_detect_connection_spike"
-    ],
-    "test-codemode-advanced-proxysql-config-part1.md": [
-        "proxysql_status",
-        "proxysql_servers",
-        "proxysql_query_rules"
-    ],
-    "test-codemode-advanced-proxysql-config-part2.md": [
-        "proxysql_query_digest",
-        "proxysql_connection_pool",
-        "proxysql_users"
-    ],
-    "test-codemode-advanced-proxysql-status-part1.md": [
-        "proxysql_global_variables",
-        "proxysql_runtime_status",
-        "proxysql_memory_stats"
-    ],
-    "test-codemode-advanced-proxysql-status-part2.md": [
-        "proxysql_commands",
-        "proxysql_process_list"
-    ],
-    "test-codemode-advanced-replication-part1.md": [],
-    "test-codemode-advanced-replication-part2.md": [],
-    "test-codemode-advanced-roles-assignment-part1.md": [
-        "mysql_role_list",
-        "mysql_role_create",
-        "mysql_role_drop"
-    ],
-    "test-codemode-advanced-roles-assignment-part2.md": [
-        "mysql_role_grants"
-    ],
-    "test-codemode-advanced-roles-management-part1.md": [
-        "mysql_role_grant",
-        "mysql_role_assign",
-        "mysql_role_revoke"
-    ],
-    "test-codemode-advanced-roles-management-part2.md": [
-        "mysql_user_roles"
-    ],
-    "test-codemode-advanced-router-advanced-part1.md": [
-        "mysql_router_status",
-        "mysql_router_routes",
-        "mysql_router_route_status"
-    ],
-    "test-codemode-advanced-router-advanced-part2.md": [
-        "mysql_router_route_health",
-        "mysql_router_route_connections"
-    ],
-    "test-codemode-advanced-router-routes-part1.md": [
-        "mysql_router_route_destinations",
-        "mysql_router_route_blocked_hosts",
-        "mysql_router_metadata_status"
-    ],
-    "test-codemode-advanced-router-routes-part2.md": [
-        "mysql_router_pool_status"
-    ],
-    "test-codemode-advanced-sandbox.md": [
+    "test-codemode-advanced-concurrency.md": [
         "mysql_execute_code"
     ],
-    "test-codemode-advanced-schema-management.md": [
-        "mysql_list_schemas",
-        "mysql_create_schema",
-        "mysql_drop_schema"
+    "test-codemode-advanced-introspection-part1.md": [
+        "mysql_dependency_graph",
+        "mysql_topological_sort",
+        "mysql_cascade_simulator",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-schema-routines.md": [
-        "mysql_list_stored_procedures",
-        "mysql_list_functions"
+    "test-codemode-advanced-introspection-part2.md": [
+        "mysql_schema_snapshot",
+        "mysql_constraint_analysis",
+        "mysql_migration_risks",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-schema-triggers.md": [
-        "mysql_list_triggers",
-        "mysql_create_trigger",
-        "mysql_drop_trigger"
+    "test-codemode-advanced-migration-part2.md": [
+        "mysql_migration_rollback",
+        "mysql_migration_history",
+        "mysql_migration_status",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-schema-views-part1.md": [
-        "mysql_list_views",
-        "mysql_create_view"
+    "test-codemode-advanced-optimization-part1.md": [
+        "mysql_index_recommendation",
+        "mysql_query_rewrite",
+        "mysql_force_index",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-schema-views-part2.md": [
-        "mysql_drop_view",
-        "mysql_list_constraints"
+    "test-codemode-advanced-partitioning-part1.md": [
+        "mysql_partition_info",
+        "mysql_add_partition",
+        "mysql_drop_partition",
+        "mysql_reorganize_partition",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-security-audit-part1.md": [
-        "mysql_security_audit",
-        "mysql_security_firewall_status",
-        "mysql_security_firewall_rules"
+    "test-codemode-advanced-partitioning-part2.md": [
+        "mysql_reorganize_partition",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-security-audit-part2.md": [
-        "mysql_security_mask_data",
-        "mysql_security_password_validate"
+    "test-codemode-advanced-replication-part1.md": [
+        "mysql_master_status",
+        "mysql_slave_status",
+        "mysql_binlog_events",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-security-system-part1.md": [
-        "mysql_security_ssl_status",
-        "mysql_security_user_privileges",
-        "mysql_security_sensitive_tables"
+    "test-codemode-advanced-replication-part2.md": [
+        "mysql_gtid_status",
+        "mysql_replication_lag",
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-security-system-part2.md": [
-        "mysql_security_encryption_status"
+    "test-codemode-advanced-types-binary.md": [
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-sessions-part1.md": [],
-    "test-codemode-advanced-sessions-part2.md": [],
-    "test-codemode-advanced-shell-data-part1.md": [
-        "mysqlsh_export_table",
-        "mysqlsh_import_table",
-        "mysqlsh_import_json"
+    "test-codemode-advanced-types-date.md": [
+        "mysql_execute_code"
     ],
-    "test-codemode-advanced-shell-data-part2.md": [
-        "mysqlsh_dump_tables",
-        "mysqlsh_load_dump"
-    ],
-    "test-codemode-advanced-shell-utils-part1a.md": [
-        "mysqlsh_version",
-        "mysqlsh_check_upgrade"
-    ],
-    "test-codemode-advanced-shell-utils-part1b.md": [
-        "mysqlsh_run_script"
-    ],
-    "test-codemode-advanced-shell-utils-part2.md": [
-        "mysqlsh_dump_instance",
-        "mysqlsh_dump_schemas"
-    ],
-    "test-codemode-advanced-spatial-geometry.md": [
-        "mysql_spatial_point",
-        "mysql_spatial_polygon",
-        "mysql_spatial_geojson"
-    ],
-    "test-codemode-advanced-spatial-operations-part1.md": [
-        "mysql_spatial_distance",
-        "mysql_spatial_distance_sphere"
-    ],
-    "test-codemode-advanced-spatial-operations-part2.md": [
-        "mysql_spatial_buffer",
-        "mysql_spatial_transform"
-    ],
-    "test-codemode-advanced-spatial-queries.md": [
-        "mysql_spatial_contains",
-        "mysql_spatial_within",
-        "mysql_spatial_intersection"
-    ],
-    "test-codemode-advanced-spatial-setup.md": [
-        "mysql_spatial_create_column",
-        "mysql_spatial_create_index"
-    ],
-    "test-codemode-advanced-stats-advanced-part1.md": [
-        "mysql_stats_correlation",
-        "mysql_stats_regression",
-        "mysql_stats_sampling"
-    ],
-    "test-codemode-advanced-stats-advanced-part2.md": [
-        "mysql_stats_hypothesis",
-        "mysql_stats_outliers",
-        "mysql_stats_distinct"
-    ],
-    "test-codemode-advanced-stats-descriptive-part1.md": [
-        "mysql_stats_descriptive",
-        "mysql_stats_summary",
-        "mysql_stats_percentiles"
-    ],
-    "test-codemode-advanced-stats-descriptive-part2.md": [
-        "mysql_stats_histogram",
-        "mysql_stats_frequency",
-        "mysql_stats_distribution"
-    ],
-    "test-codemode-advanced-stats-time-series-part1.md": [
-        "mysql_stats_time_series",
-        "mysql_stats_moving_avg",
-        "mysql_stats_running_total"
-    ],
-    "test-codemode-advanced-stats-time-series-part2.md": [
-        "mysql_stats_lag_lead",
-        "mysql_stats_ntile"
-    ],
-    "test-codemode-advanced-stats-window-part1.md": [
-        "mysql_stats_row_number",
-        "mysql_stats_rank"
-    ],
-    "test-codemode-advanced-stats-window-part2.md": [
-        "mysql_stats_top_n"
-    ],
-    "test-codemode-advanced-sys-part1a.md": [
-        "mysql_sys_user_summary",
-        "mysql_sys_io_summary",
-        "mysql_sys_statement_summary"
-    ],
-    "test-codemode-advanced-sys-part1b.md": [
-        "mysql_sys_wait_summary"
-    ],
-    "test-codemode-advanced-sys-part2a.md": [
-        "mysql_sys_innodb_lock_waits",
-        "mysql_sys_schema_stats",
-        "mysql_sys_host_summary"
-    ],
-    "test-codemode-advanced-sys-part2b.md": [
-        "mysql_sys_memory_summary"
-    ],
-    "test-codemode-advanced-text-part1.md": [
-        "mysql_regexp_match",
-        "mysql_like_search",
-        "mysql_collation_convert"
-    ],
-    "test-codemode-advanced-text-part2.md": [
-        "mysql_soundex",
-        "mysql_substring",
-        "mysql_concat"
-    ],
-    "test-codemode-advanced-transactions-part1a.md": [
-        "mysql_transaction_begin",
-        "mysql_transaction_commit",
-        "mysql_transaction_rollback"
-    ],
-    "test-codemode-advanced-transactions-part1b.md": [
-        "mysql_transaction_savepoint"
-    ],
-    "test-codemode-advanced-transactions-part2.md": [
-        "mysql_transaction_release",
-        "mysql_transaction_rollback_to",
-        "mysql_transaction_execute"
-    ],
-    "test-codemode-advanced-types-binary.md": [],
-    "test-codemode-advanced-types-date.md": [],
-    "test-codemode-advanced-types-json.md": [],
-    "test-codemode-advanced-types-numeric.md": [],
-    "test-codemode-advanced-vector-management-part1.md": [
-        "mysql_vector_store",
-        "mysql_vector_batch_store",
-        "mysql_vector_delete"
-    ],
-    "test-codemode-advanced-vector-management-part2.md": [
-        "mysql_vector_get"
-    ],
-    "test-codemode-advanced-vector-search-part1.md": [
-        "mysql_vector_search",
-        "mysql_vector_range_search",
-        "mysql_vector_hybrid_search"
-    ],
-    "test-codemode-advanced-vector-search-part2.md": [
-        "mysql_vector_info"
-    ],
-    "test-codemode-advanced-vector-storage.md": [
-        "mysql_vector_create_index",
-        "mysql_vector_optimize",
-        "mysql_vector_stats"
+    "test-codemode-advanced-types-json.md": [
+        "mysql_execute_code"
     ],
     "test-admin-part1.md": [
         "mysql_optimize_table",

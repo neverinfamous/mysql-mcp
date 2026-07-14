@@ -9,7 +9,7 @@ The test generation engine follows a strict "Single Source of Truth" (SSoT) para
 1. **`test-manifest.ts` (SSoT)**: This file contains the complete array of all tests, tracking which tools belong to which test file, what execution mode to use, and what the baseline group is.
 2. **`lib/render-template.ts`**: Contains the core layout and boilerplate instructions that are shared universally across the test suite (such as DDL constraints, DML limits, and `mysql_execute_code` constraints).
 3. **`content/*.content.md`**: Hand-written Markdown "partials". For tests that require bespoke, organic instructions (e.g., Usability or Advanced Stress tests), these partials contain the custom content and are safely injected into the rendered output.
-4. **`generate-tests.ts`**: The main orchestrator. When run, it validates the `test-manifest.ts` against the live `TOOL_GROUPS` definitions, auto-generates the `tool-map.json` (for legacy/coordinator backward compatibility), and fully writes all 488 tests into their respective directories.
+4. **`generate-tests.ts`**: The main orchestrator. When run, it validates the `test-manifest.ts` against the live `TOOL_GROUPS` definitions, and fully writes all tests into their respective directories.
 
 ## Editing Tests
 

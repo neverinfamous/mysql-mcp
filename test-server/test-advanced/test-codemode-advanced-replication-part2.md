@@ -67,15 +67,25 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
+| `mysql.advanced-replication.gtidStatus` |   |   |
+| `mysql.advanced-replication.replicationLag` |   |   |
+| `mysql.advanced-replication.executeCode` |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql.advanced-replication.gtidStatus`
+- `mysql.advanced-replication.replicationLag`
+- `mysql.advanced-replication.executeCode`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.replication.gtidStatus
-- [ ] Ensure full coverage for mysql.replication.replicationLag
+- [ ] Ensure full coverage for `mysql_gtid_status`
+- [ ] Ensure full coverage for `mysql_replication_lag`
 
 ---
 

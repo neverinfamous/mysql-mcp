@@ -67,18 +67,21 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
+| `mysql.concurrency.executeCode` |   |   |
 
 ---
 
+### Explicit Tool Coverage Requirements
+
+**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
+
+- `mysql.concurrency.executeCode`
 
 
 ## Group Focus: concurrency
 
 This document provides testing instructions to validate the server's connection pool and query queuing behavior under high concurrency using Code Mode.
 
-
-
-## Tasks
 ## Tasks
 
 ### 1. Promise.all() Connection Saturation
