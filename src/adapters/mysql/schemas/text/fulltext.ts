@@ -59,6 +59,8 @@ export const FulltextCreateSchemaBase = z.object({
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
   index: z.string().optional().describe("Alias for indexName"),
+  col: z.array(z.string()).optional().describe("Alias for columns"),
+  column: z.array(z.string()).optional().describe("Alias for columns"),
 });
 
 export const FulltextCreateSchema = z
@@ -69,6 +71,8 @@ export const FulltextCreateSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       columns: z.array(z.string()).optional(),
+      col: z.array(z.string()).optional(),
+      column: z.array(z.string()).optional(),
       indexName: z.string().optional(),
       index_name: z.string().optional(),
       index: z.string().optional(),
@@ -76,7 +80,7 @@ export const FulltextCreateSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? "",
-    columns: data.columns ?? [],
+    columns: data.columns ?? data.col ?? data.column ?? [],
     indexName: data.indexName ?? data.index_name ?? data.index ?? data.name,
   }))
   .refine((data) => data.table !== "", {
