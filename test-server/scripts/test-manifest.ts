@@ -38,121 +38,12 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-codemode-advanced-types-json.content.md"
   },
   {
-    "filename": "test-usability-stats-part1.md",
-    "directory": "test-usability",
-    "group": "stats",
-    "tools": [
-      "mysql_stats_descriptive",
-      "mysql_stats_percentiles",
-      "mysql_stats_correlation"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-stats-part2.md",
-    "directory": "test-usability",
-    "group": "stats",
-    "tools": [
-      "mysql_stats_distribution",
-      "mysql_stats_time_series",
-      "mysql_stats_regression"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-stats-part3.md",
-    "directory": "test-usability",
-    "group": "stats",
-    "tools": [
-      "mysql_stats_sampling",
-      "mysql_stats_histogram",
-      "mysql_stats_row_number"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-stats-part4.md",
-    "directory": "test-usability",
-    "group": "stats",
-    "tools": [
-      "mysql_stats_rank",
-      "mysql_stats_lag_lead",
-      "mysql_stats_running_total"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-stats-part5.md",
-    "directory": "test-usability",
-    "group": "stats",
-    "tools": [
-      "mysql_stats_moving_avg",
-      "mysql_stats_ntile",
-      "mysql_stats_hypothesis"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-stats-part6.md",
-    "directory": "test-usability",
-    "group": "stats",
-    "tools": [
-      "mysql_stats_outliers",
-      "mysql_stats_top_n",
-      "mysql_stats_distinct"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-stats-part7.md",
-    "directory": "test-usability",
-    "group": "stats",
-    "tools": [
-      "mysql_stats_frequency",
-      "mysql_stats_summary"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-sysschema-part1.md",
-    "directory": "test-usability",
-    "group": "sysschema",
-    "tools": [
-      "mysql_sys_user_summary",
-      "mysql_sys_io_summary",
-      "mysql_sys_statement_summary"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-sysschema-part2.md",
-    "directory": "test-usability",
-    "group": "sysschema",
-    "tools": [
-      "mysql_sys_wait_summary",
-      "mysql_sys_innodb_lock_waits",
-      "mysql_sys_schema_stats"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
-    "filename": "test-usability-sysschema-part3.md",
-    "directory": "test-usability",
-    "group": "sysschema",
-    "tools": [
-      "mysql_sys_host_summary",
-      "mysql_sys_memory_summary"
-    ],
-    "contentPartial": "test-usability-fuzzing.content.md"
-  },
-  {
     "filename": "test-usability-transactions-part1.md",
     "directory": "test-usability",
     "group": "transactions",
     "tools": [
       "mysql_transaction_begin",
-      "mysql_transaction_commit",
-      "mysql_transaction_rollback"
+      "mysql_transaction_commit"
     ],
     "contentPartial": "test-usability-fuzzing.content.md"
   },
@@ -161,14 +52,23 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability",
     "group": "transactions",
     "tools": [
-      "mysql_transaction_savepoint",
+      "mysql_transaction_rollback",
+      "mysql_transaction_savepoint"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-transactions-part3.md",
+    "directory": "test-usability",
+    "group": "transactions",
+    "tools": [
       "mysql_transaction_release",
       "mysql_transaction_rollback_to"
     ],
     "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
-    "filename": "test-usability-transactions-part3.md",
+    "filename": "test-usability-transactions-part4.md",
     "directory": "test-usability",
     "group": "transactions",
     "tools": [
@@ -182,8 +82,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "vector",
     "tools": [
       "mysql_vector_store",
-      "mysql_vector_batch_store",
-      "mysql_vector_delete"
+      "mysql_vector_batch_store"
     ],
     "contentPartial": "test-usability-fuzzing.content.md"
   },
@@ -192,9 +91,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability",
     "group": "vector",
     "tools": [
-      "mysql_vector_get",
-      "mysql_vector_search",
-      "mysql_vector_range_search"
+      "mysql_vector_delete",
+      "mysql_vector_get"
     ],
     "contentPartial": "test-usability-fuzzing.content.md"
   },
@@ -203,9 +101,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability",
     "group": "vector",
     "tools": [
-      "mysql_vector_hybrid_search",
-      "mysql_vector_info",
-      "mysql_vector_create_index"
+      "mysql_vector_search",
+      "mysql_vector_range_search"
     ],
     "contentPartial": "test-usability-fuzzing.content.md"
   },
@@ -214,7 +111,26 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability",
     "group": "vector",
     "tools": [
-      "mysql_vector_optimize",
+      "mysql_vector_hybrid_search",
+      "mysql_vector_info"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-vector-part5.md",
+    "directory": "test-usability",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_create_index",
+      "mysql_vector_optimize"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-vector-part6.md",
+    "directory": "test-usability",
+    "group": "vector",
+    "tools": [
       "mysql_vector_stats"
     ],
     "contentPartial": "test-usability-fuzzing.content.md"
@@ -673,7 +589,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-migration-part1a.md",
+    "filename": "test-migration-part1.md",
     "directory": "test-tool-groups",
     "group": "migration",
     "tools": [
@@ -683,35 +599,27 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-migration-part1c.md",
+    "filename": "test-migration-part2.md",
     "directory": "test-tool-groups",
     "group": "migration",
     "tools": [
-      "mysql_migration_apply"
+      "mysql_migration_apply",
+      "mysql_migration_rollback"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-migration-part1b.md",
+    "filename": "test-migration-part3.md",
     "directory": "test-tool-groups",
     "group": "migration",
     "tools": [
-      "mysql_migration_rollback",
-      "mysql_migration_history"
-    ],
-    "contentPartial": "test-tool-groups.content.md"
-  },
-  {
-    "filename": "test-migration-part1d.md",
-    "directory": "test-tool-groups",
-    "group": "migration",
-    "tools": [
+      "mysql_migration_history",
       "mysql_migration_status"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-monitoring-part1a.md",
+    "filename": "test-monitoring-part1.md",
     "directory": "test-tool-groups",
     "group": "monitoring",
     "tools": [
@@ -721,7 +629,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-monitoring-part1b.md",
+    "filename": "test-monitoring-part2.md",
     "directory": "test-tool-groups",
     "group": "monitoring",
     "tools": [
@@ -731,7 +639,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-monitoring-part2a.md",
+    "filename": "test-monitoring-part3.md",
     "directory": "test-tool-groups",
     "group": "monitoring",
     "tools": [
@@ -741,7 +649,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-monitoring-part2b.md",
+    "filename": "test-monitoring-part4.md",
     "directory": "test-tool-groups",
     "group": "monitoring",
     "tools": [
@@ -3847,5 +3755,145 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_vector_stats"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part1.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_descriptive",
+      "mysql_stats_percentiles"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part2.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_correlation",
+      "mysql_stats_distribution"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part3.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_time_series",
+      "mysql_stats_regression"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part4.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_sampling",
+      "mysql_stats_histogram"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part5.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_row_number",
+      "mysql_stats_rank"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part6.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_lag_lead",
+      "mysql_stats_running_total"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part7.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_moving_avg",
+      "mysql_stats_ntile"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part8.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_hypothesis",
+      "mysql_stats_outliers"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part9.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_top_n",
+      "mysql_stats_distinct"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-stats-part10.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_frequency",
+      "mysql_stats_summary"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-sysschema-part1.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_user_summary",
+      "mysql_sys_io_summary"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-sysschema-part2.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_statement_summary",
+      "mysql_sys_wait_summary"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-sysschema-part3.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_innodb_lock_waits",
+      "mysql_sys_schema_stats"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-sysschema-part4.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_host_summary",
+      "mysql_sys_memory_summary"
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   }
 ];

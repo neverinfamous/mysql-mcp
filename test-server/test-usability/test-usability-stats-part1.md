@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql.stats.descriptive` |   |   |   |
 | `mysql.stats.percentiles` |   |   |   |
-| `mysql.stats.correlation` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql.stats.descriptive`
 - `mysql.stats.percentiles`
-- `mysql.stats.correlation`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql.stats.descriptive
 - [ ] Ensure full coverage for mysql.stats.percentiles
-- [ ] Ensure full coverage for mysql.stats.correlation
 
 
 ---

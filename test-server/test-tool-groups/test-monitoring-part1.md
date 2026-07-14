@@ -71,8 +71,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_replication_status` |   |   |   |   |
-| `mysql_pool_stats` |   |   |   |   |
+| `mysql_show_processlist` |   |   |   |   |
+| `mysql_show_status` |   |   |   |   |
 
 ---
 
@@ -80,11 +80,11 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_replication_status`
-- `mysql_pool_stats`
+- `mysql_show_processlist`
+- `mysql_show_status`
 
 
-## Group Focus: {{groupName}}
+## Group Focus
 
 > **Instructions**: The subagent MUST autonomously generate and execute exhaustive, adversarial tests for the explicitly required tools below. 
 > 
@@ -94,13 +94,10 @@
 > 3. **Error Paths & Graceful Degradation**: You MUST test negative scenarios (e.g. invalid permissions, non-existent tables) and ensure the tool returns a properly formatted MCP error, not an unhandled stack trace.
 > 4. **No Hallucination**: You MUST strictly adhere to the defined tool schema in `tool-reference.md`. Do NOT invent parameters.
 
-### Tool Checklist
-{{checklist}}
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_replication_status
-- [ ] Ensure full coverage for mysql_pool_stats
+- [ ] Ensure full coverage for mysql_show_processlist
+- [ ] Ensure full coverage for mysql_show_status
 
 
 ---

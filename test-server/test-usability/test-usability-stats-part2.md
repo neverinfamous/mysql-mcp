@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql.stats.correlation` |   |   |   |
 | `mysql.stats.distribution` |   |   |   |
-| `mysql.stats.timeSeries` |   |   |   |
-| `mysql.stats.regression` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql.stats.correlation`
 - `mysql.stats.distribution`
-- `mysql.stats.timeSeries`
-- `mysql.stats.regression`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql.stats.correlation
 - [ ] Ensure full coverage for mysql.stats.distribution
-- [ ] Ensure full coverage for mysql.stats.timeSeries
-- [ ] Ensure full coverage for mysql.stats.regression
 
 
 ---

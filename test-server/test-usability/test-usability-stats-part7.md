@@ -71,8 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.stats.frequency` |   |   |   |
-| `mysql.stats.summary` |   |   |   |
+| `mysql.stats.movingAvg` |   |   |   |
+| `mysql.stats.ntile` |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.stats.frequency`
-- `mysql.stats.summary`
+- `mysql.stats.movingAvg`
+- `mysql.stats.ntile`
 
 
 ## Hallucination & Usability Fuzzing
@@ -93,8 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.frequency
-- [ ] Ensure full coverage for mysql.stats.summary
+- [ ] Ensure full coverage for mysql.stats.movingAvg
+- [ ] Ensure full coverage for mysql.stats.ntile
 
 
 ---

@@ -17,10 +17,10 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 
 ## Test Sequence Queue
 
-1. `test-monitoring-part1a.md` (**MUST PASS FIRST**)
-2. `test-monitoring-part1b.md`
-3. `test-monitoring-part2a.md`
-4. `test-monitoring-part2b.md`
+1. `test-monitoring-part1.md` (**MUST PASS FIRST**)
+2. `test-monitoring-part2.md`
+3. `test-monitoring-part3.md`
+4. `test-monitoring-part4.md`
 5. `test-optimization-part1.md`
 6. `test-optimization-part2.md`
 7. `test-sys-analysis-part1.md`

@@ -20,6 +20,7 @@ View the complete list of all **available tools** across groups below. Every too
 
 For the complete and authoritative list of tools, please refer to:
 - test-server/scripts/test-manifest.ts
+- test-server/scripts/generate-tests.ts (Engine)
 - test-server/*/coordinator-workflow.md files
 
 ## Review See Also

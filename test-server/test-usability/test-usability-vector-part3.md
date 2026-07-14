@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.vector.hybridSearch` |   |   |   |
-| `mysql.vector.info` |   |   |   |
-| `mysql.vector.createIndex` |   |   |   |
+| `mysql.vector.search` |   |   |   |
+| `mysql.vector.rangeSearch` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.vector.hybridSearch`
-- `mysql.vector.info`
-- `mysql.vector.createIndex`
+- `mysql.vector.search`
+- `mysql.vector.rangeSearch`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.vector.hybridSearch
-- [ ] Ensure full coverage for mysql.vector.info
-- [ ] Ensure full coverage for mysql.vector.createIndex
+- [ ] Ensure full coverage for mysql.vector.search
+- [ ] Ensure full coverage for mysql.vector.rangeSearch
 
 
 ---

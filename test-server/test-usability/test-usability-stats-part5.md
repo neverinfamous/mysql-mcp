@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.stats.movingAvg` |   |   |   |
-| `mysql.stats.ntile` |   |   |   |
-| `mysql.stats.hypothesis` |   |   |   |
+| `mysql.stats.rowNumber` |   |   |   |
+| `mysql.stats.rank` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.stats.movingAvg`
-- `mysql.stats.ntile`
-- `mysql.stats.hypothesis`
+- `mysql.stats.rowNumber`
+- `mysql.stats.rank`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.movingAvg
-- [ ] Ensure full coverage for mysql.stats.ntile
-- [ ] Ensure full coverage for mysql.stats.hypothesis
+- [ ] Ensure full coverage for mysql.stats.rowNumber
+- [ ] Ensure full coverage for mysql.stats.rank
 
 
 ---

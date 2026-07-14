@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.stats.outliers` |   |   |   |
-| `mysql.stats.topN` |   |   |   |
-| `mysql.stats.distinct` |   |   |   |
+| `mysql.stats.lagLead` |   |   |   |
+| `mysql.stats.runningTotal` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.stats.outliers`
-- `mysql.stats.topN`
-- `mysql.stats.distinct`
+- `mysql.stats.lagLead`
+- `mysql.stats.runningTotal`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.stats.outliers
-- [ ] Ensure full coverage for mysql.stats.topN
-- [ ] Ensure full coverage for mysql.stats.distinct
+- [ ] Ensure full coverage for mysql.stats.lagLead
+- [ ] Ensure full coverage for mysql.stats.runningTotal
 
 
 ---

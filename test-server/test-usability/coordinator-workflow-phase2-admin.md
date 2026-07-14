@@ -11,7 +11,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - **CRITICAL WARNING FOR SUBAGENTS:** "Graceful Degradations" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS GRACEFUL DEGRADATIONS.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 9).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 11).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 2: Admin)
@@ -22,8 +22,11 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 4. `test-usability-admin-part4.md`
 5. `test-usability-admin-part5.md`
 6. `test-usability-performance-part1.md`
-6. `test-usability-performance-part5.md`
-6. `test-usability-performance-part6.md`
+7. `test-usability-performance-part2.md`
+8. `test-usability-performance-part3.md`
+9. `test-usability-performance-part4.md`
+10. `test-usability-performance-part5.md`
+11. `test-usability-performance-part6.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

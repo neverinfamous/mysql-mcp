@@ -1,6 +1,6 @@
 # Test Generation Engine — Agent Instructions
 
-> **This README is optimized for AI agent consumption.** It explains the data-driven templating engine used to generate all 488 tests across the `mysql-mcp` testing suite.
+> **This README is optimized for AI agent consumption.** It explains the data-driven templating engine used to generate all tests across the `mysql-mcp` testing suite.
 
 ## Architecture
 
