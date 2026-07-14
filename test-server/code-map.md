@@ -46,7 +46,7 @@ src/
 │
 ├── constants/
 │   ├── server-instructions.ts      # Generated: slim INSTRUCTIONS constant (~634 chars) + HELP_CONTENT map (per-group help)
-│   └── server-instructions/        # Source .md files for each help resource (Multiple files: overview, gotchas, core, json, etc.)
+│   └── instructions/markdown/      # Source .md files for each help resource (Multiple files: overview, gotchas, core, json, etc.)
 │
 ├── filtering/
 │   ├── tool-constants.ts            # TOOL_GROUPS arrays, META_GROUPS shortcuts (Multiple Shortcuts), group→tools map
@@ -255,7 +255,7 @@ Core Observability Resources + multiple help resources providing read-only metad
 | URI                    | Source                                           | Content                                                |
 | ---------------------- | ------------------------------------------------ | ------------------------------------------------------ |
 | `mysql://help`         | `gotchas.md`                                     | Critical gotchas, parameter aliases, and API reference |
-| `mysql://help/{group}` | `server-instructions/{group}.md`                 | Per-group tool reference — filtered by `--tool-filter` |
+| `mysql://help/{group}` | `instructions/markdown/{group}.md`               | Per-group tool reference — filtered by `--tool-filter` |
 
 Multiple group-specific help resources (one per tool group). Only groups enabled by `--tool-filter` are registered.
 
@@ -339,7 +339,7 @@ try {
 
 | What                               | Where                                     | Notes                                                                                                           |
 | ---------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `server-instructions/*.md` (Multiple files) |
+| Server instructions (agent prompt) | `src/constants/server-instructions.ts`    | Generated: slim `INSTRUCTIONS` (~634 chars) + `HELP_CONTENT` map. Source: `instructions/markdown/*.md` (Multiple files) |
 | Generator script                   | `scripts/generate-server-instructions.ts` | Reads per-group `.md` files → produces `server-instructions.ts`                                                 |
 | Tool group arrays                  | `src/filtering/tool-constants.ts`         | `TOOL_GROUPS` map, `META_GROUPS` shortcuts (Multiple predefined shortcuts)                                                                      |
 | Tool filter logic                  | `src/filtering/tool-filter.ts`            | `ToolFilter` class                                                                                              |

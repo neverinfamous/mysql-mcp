@@ -91,7 +91,7 @@ function generateFiles() {
       }
     } else {
       if (entry.directory === 'test-codemode') {
-        testContent = `## Group Focus: ${entry.group}\n\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.\n> **API Reference**: You MUST read the \`mysql://help/${entry.group}\` resource (or view \`src/constants/server-instructions/${entry.group}.md\`) to understand the exact API signatures and expected parameters before writing any code.`;
+        testContent = `## Group Focus: ${entry.group}\n\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.\n> **API Reference**: You MUST read the \`mysql://help/${entry.group}\` resource (or view \`src/constants/instructions/markdown/${entry.group}.md\`) to understand the exact API signatures and expected parameters before writing any code.`;
       } else if (entry.directory === 'test-tool-groups') {
         const checklist = toolNames.map(t => `- [ ] ${t}`).join('\n');
         testContent = `## Group Focus: ${entry.group}\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n${checklist}`;

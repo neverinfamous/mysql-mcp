@@ -26,7 +26,7 @@ The most robust way to prevent a hallucination is to explicitly instruct the age
 
 * **Schema \`.describe()\` Tags:** When an agent hallucinates a property, update the Zod schema in \`src/adapters/mysql/schemas/*.ts\`. Add an explicit "Anti-Hallucination Hint" in the \`.describe()\` string. These surface directly in the JSON Schema that agents see on \`tools/list\`.
 * **Tool Descriptions:** Update the \`description\` fields on tool definition files (e.g., \`src/adapters/mysql/tools/*/index.ts\`). This is the agent's first impression of each tool.
-* **Server Instructions:** If a structural hallucination persists, update the markdown fragments in \`src/constants/server-instructions/\` and run the generator script (\`pnpm run generate:instructions\`). **DO NOT** edit \`src/constants/server-instructions.ts\` directly.
+* **Server Instructions:** If a structural hallucination persists, update the markdown fragments in \`src/constants/instructions/markdown/\` and run the generator script (\`pnpm run generate:instructions\`). **DO NOT** edit \`src/constants/server-instructions.ts\` directly.
 
 ### Layer 2: Heal Parameter Normalization (Dual-Schema Pattern)
 If agents consistently hallucinate inputs that can be logically inferred or normalized, heal them silently via \`z.preprocess()\` wrappers or positional params.

@@ -64,10 +64,10 @@ describe("mcp-server resources", () => {
       const baseResult = baseHandler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
       
       const parsed = JSON.parse(baseResult.contents[0].text);
-      expect(parsed.groups).toContain("gotchas");
-      expect(parsed.groups).toContain("core");
-      expect(parsed.groups).toContain("admin");
-      expect(parsed._meta.groups.gotchas).toBeDefined();
+      const groupNames = parsed.groups.map((g: any) => g.name);
+      expect(groupNames).toContain("gotchas");
+      expect(groupNames).toContain("core");
+      expect(groupNames).toContain("admin");
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://help");
     });
 
@@ -82,7 +82,7 @@ describe("mcp-server resources", () => {
       
       const result = groupHandler(new URL("mysql://help/gotchas"), { group: "gotchas" });
       const parsed = JSON.parse(result.contents[0].text);
-      expect(parsed.documentation).toBe("Mock gotchas content");
+      expect(parsed.helpContent).toBe("Mock gotchas content");
       expect(parsed.group).toBe("gotchas");
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://help/gotchas");
       

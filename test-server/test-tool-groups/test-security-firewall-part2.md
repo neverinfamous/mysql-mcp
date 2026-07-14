@@ -13,7 +13,7 @@
 
 ## Complete Setup Prerequisites
 
-**Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
+**Step 1:** Read the server help content in `src/constants/instructions/markdown/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
 **Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
@@ -117,7 +117,7 @@
 2. **Triage findings**: If issues were found, create an implementation plan, making sure they are consistent with working patterns in other tools/tool groups. If the plan requires no user decisions, proceed directly to implementation.
 3. **Scope of fixes** includes corrections to any of:
    - Handler code
-   - `src/constants/server-instructions/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
+   - `src/constants/instructions/markdown/*.md` (per-group help files) — run `pnpm run generate:instructions` after editing to regenerate `server-instructions.ts`
    - Test database (`test-server/test-seed.sql`)
    - Prompt generation logic (`test-server/scripts/test-manifest.ts`, `test-server/scripts/lib/render-template.ts`, or `test-server/scripts/content/*.content.md`) — run `bun test-server/scripts/generate-tests.ts` after editing.
 
