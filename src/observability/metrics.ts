@@ -115,6 +115,7 @@ export class MetricsRegistry {
   private resources = new Map<string, ResourceMetric>();
   private systemDb: SystemDb | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
+  private readonly startedAt = Date.now();
 
   setSystemDb(systemDb: SystemDb): void {
     this.systemDb = systemDb;
@@ -279,6 +280,17 @@ export class MetricsRegistry {
       lines.push(`mysql_mcp_tool_latency_ms_p99${labels} ${summary.p99}`);
     }
 
+    // Derived: tokens per call
+    lines.push("# HELP mysql_mcp_tool_tokens_per_call Average tokens per tool call");
+    lines.push("# TYPE mysql_mcp_tool_tokens_per_call gauge");
+
+    for (const [name, metric] of this.tools.entries()) {
+      const summary = metric.getSummary();
+      const labels = `{tool="${name}"}`;
+      const avg = summary.calls > 0 ? Math.round(summary.tokens / summary.calls) : 0;
+      lines.push(`mysql_mcp_tool_tokens_per_call${labels} ${avg}`);
+    }
+
     // Resources
     lines.push("# HELP mysql_mcp_resource_reads_total Total resource reads");
     lines.push("# TYPE mysql_mcp_resource_reads_total counter");
@@ -288,6 +300,11 @@ export class MetricsRegistry {
       const labels = `{resource="${uri}"}`;
       lines.push(`mysql_mcp_resource_reads_total${labels} ${summary.reads}`);
     }
+
+    // Server uptime
+    lines.push("# HELP mysql_mcp_uptime_seconds Server uptime in seconds");
+    lines.push("# TYPE mysql_mcp_uptime_seconds gauge");
+    lines.push(`mysql_mcp_uptime_seconds ${Math.floor((Date.now() - this.startedAt) / 1000)}`);
 
     return lines.join("\n") + "\n";
   }

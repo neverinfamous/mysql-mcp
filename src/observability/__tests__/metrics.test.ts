@@ -94,6 +94,19 @@ describe("metrics", () => {
       expect(prom).toContain('mysql_mcp_tool_tokens_total{tool="test_tool"} 100');
       expect(prom).toContain('mysql_mcp_tool_latency_ms_p50{tool="test_tool"} 50');
       expect(prom).toContain('mysql_mcp_resource_reads_total{resource="test_uri"} 1');
+      // Derived: tokens per call
+      expect(prom).toContain('mysql_mcp_tool_tokens_per_call{tool="test_tool"} 100');
+      // Uptime
+      expect(prom).toContain("# TYPE mysql_mcp_uptime_seconds gauge");
+      expect(prom).toMatch(/mysql_mcp_uptime_seconds \d+/);
+    });
+
+    it("should report zero tokens_per_call when no calls exist", () => {
+      // Record and check a tool with zero calls won't happen (no entry created)
+      // But a tool with calls=1, tokens=0 should show 0
+      metrics.recordToolCall("zero_token_tool", 10, true, 0);
+      const prom = metrics.toPrometheus();
+      expect(prom).toContain('mysql_mcp_tool_tokens_per_call{tool="zero_token_tool"} 0');
     });
   });
 

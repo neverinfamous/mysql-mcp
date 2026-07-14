@@ -1,0 +1,19 @@
+init_config:
+
+instances:
+  - openmetrics_endpoint: http://host.docker.internal:3000/metrics
+    namespace: mysql_mcp
+    metrics:
+      - mysql_mcp_tool_calls_total
+      - mysql_mcp_tool_errors_total
+      - mysql_mcp_tool_tokens_total
+      - mysql_mcp_tool_tokens_per_call
+      - mysql_mcp_tool_latency_ms_p50
+      - mysql_mcp_tool_latency_ms_p95
+      - mysql_mcp_tool_latency_ms_p99
+      - mysql_mcp_resource_reads_total
+      - mysql_mcp_uptime_seconds
+    tags:
+      - service:mysql-mcp
+      - env:development
+    min_collection_interval: 15
