@@ -82,6 +82,7 @@ test.describe("Help Resources", () => {
       const parsed = JSON.parse(text);
       expect(parsed.groups).toBeDefined();
       expect(Array.isArray(parsed.groups)).toBe(true);
+      expect(parsed.groups.length).toBeGreaterThan(0);
     } finally {
       await client.close();
     }
@@ -92,9 +93,10 @@ test.describe("Help Resources", () => {
     try {
       const response = await client.readResource({ uri: "mysql://help" });
       const parsed = JSON.parse(response.contents[0].text as string);
+      const groupNames = parsed.groups.map((g: any) => g.name);
 
-      expect(parsed.groups).toContain("gotchas");
-      expect(parsed.groups).toContain("core");
+      expect(groupNames).toContain("gotchas");
+      expect(groupNames).toContain("core");
     } finally {
       await client.close();
     }
@@ -116,7 +118,7 @@ test.describe("Help Resources", () => {
         const text = response.contents[0].text as string;
         const parsed = JSON.parse(text);
         expect(parsed.group).toBe(group);
-        expect(parsed.documentation.length, `${group} help content too short`).toBeGreaterThan(
+        expect(parsed.helpContent.length, `${group} help content too short`).toBeGreaterThan(
           50,
         );
       } finally {
