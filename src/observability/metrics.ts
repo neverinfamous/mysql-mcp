@@ -119,12 +119,22 @@ export class MetricsRegistry {
 
   setSystemDb(systemDb: SystemDb): void {
     this.systemDb = systemDb;
-    // Defer loading historical metrics to ensure the MCP handshake completes first.
-    // Heavy SQLite aggregations can block the event loop for seconds on large databases.
+    // Start continuous historical sync to act as an exporter for ephemeral processes
+    this.startHistoricalSync();
     setTimeout(() => {
-      this.loadHistorical();
       this.startFlushTimer();
     }, 1000).unref();
+  }
+
+  private startHistoricalSync(): void {
+    // Initial load
+    this.loadHistorical();
+    
+    // Continuous sync every 5 seconds
+    const syncTimer = setInterval(() => {
+      this.loadHistorical();
+    }, 5000);
+    syncTimer.unref();
   }
 
   private loadHistorical(): void {
@@ -145,11 +155,14 @@ export class MetricsRegistry {
       const parsedRows = z.array(SnapshotRowSchema).parse(rows);
 
       for (const row of parsedRows) {
-        const metric = new ToolMetric();
-        metric.calls = row.max_calls;
-        metric.errors = row.max_errors;
-        metric.tokens = row.max_tokens;
-        this.tools.set(row.tool, metric);
+        let metric = this.tools.get(row.tool);
+        if (!metric) {
+          metric = new ToolMetric();
+          this.tools.set(row.tool, metric);
+        }
+        metric.calls = Math.max(metric.calls, row.max_calls);
+        metric.errors = Math.max(metric.errors, row.max_errors);
+        metric.tokens = Math.max(metric.tokens, row.max_tokens);
       }
       logger.info(`Loaded historical metrics for ${rows.length} tools`);
     } catch (err) {
@@ -255,29 +268,40 @@ export class MetricsRegistry {
   toPrometheus(): string {
     const lines: string[] = [];
 
-    // Tools
     lines.push("# HELP mysql_mcp_tool_calls_total Total tool calls");
     lines.push("# TYPE mysql_mcp_tool_calls_total counter");
+    for (const [name, metric] of this.tools.entries()) {
+      lines.push(`mysql_mcp_tool_calls_total{tool="${name}"} ${metric.getSummary().calls}`);
+    }
+
     lines.push("# HELP mysql_mcp_tool_errors_total Total tool errors");
     lines.push("# TYPE mysql_mcp_tool_errors_total counter");
+    for (const [name, metric] of this.tools.entries()) {
+      lines.push(`mysql_mcp_tool_errors_total{tool="${name}"} ${metric.getSummary().errors}`);
+    }
+
     lines.push("# HELP mysql_mcp_tool_tokens_total Total tokens estimated");
     lines.push("# TYPE mysql_mcp_tool_tokens_total counter");
+    for (const [name, metric] of this.tools.entries()) {
+      lines.push(`mysql_mcp_tool_tokens_total{tool="${name}"} ${metric.getSummary().tokens}`);
+    }
+
     lines.push("# HELP mysql_mcp_tool_latency_ms_p50 P50 Latency (ms)");
     lines.push("# TYPE mysql_mcp_tool_latency_ms_p50 gauge");
+    for (const [name, metric] of this.tools.entries()) {
+      lines.push(`mysql_mcp_tool_latency_ms_p50{tool="${name}"} ${metric.getSummary().p50}`);
+    }
+
     lines.push("# HELP mysql_mcp_tool_latency_ms_p95 P95 Latency (ms)");
     lines.push("# TYPE mysql_mcp_tool_latency_ms_p95 gauge");
+    for (const [name, metric] of this.tools.entries()) {
+      lines.push(`mysql_mcp_tool_latency_ms_p95{tool="${name}"} ${metric.getSummary().p95}`);
+    }
+
     lines.push("# HELP mysql_mcp_tool_latency_ms_p99 P99 Latency (ms)");
     lines.push("# TYPE mysql_mcp_tool_latency_ms_p99 gauge");
-
     for (const [name, metric] of this.tools.entries()) {
-      const summary = metric.getSummary();
-      const labels = `{tool="${name}"}`;
-      lines.push(`mysql_mcp_tool_calls_total${labels} ${summary.calls}`);
-      lines.push(`mysql_mcp_tool_errors_total${labels} ${summary.errors}`);
-      lines.push(`mysql_mcp_tool_tokens_total${labels} ${summary.tokens}`);
-      lines.push(`mysql_mcp_tool_latency_ms_p50${labels} ${summary.p50}`);
-      lines.push(`mysql_mcp_tool_latency_ms_p95${labels} ${summary.p95}`);
-      lines.push(`mysql_mcp_tool_latency_ms_p99${labels} ${summary.p99}`);
+      lines.push(`mysql_mcp_tool_latency_ms_p99{tool="${name}"} ${metric.getSummary().p99}`);
     }
 
     // Derived: tokens per call
