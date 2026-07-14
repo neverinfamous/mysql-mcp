@@ -67,8 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.shell.exportTable` |   |   |   |
 | `mysql.shell.dumpSchemas` |   |   |   |
+| `mysql.shell.dumpTables` |   |   |   |
+| `mysql.shell.loadDump` |   |   |   |
 
 ---
 
@@ -76,14 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.shell.exportTable`
 - `mysql.shell.dumpSchemas`
+- `mysql.shell.dumpTables`
+- `mysql.shell.loadDump`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.shell.exportTable
 - [ ] Ensure full coverage for mysql.shell.dumpSchemas
+- [ ] Ensure full coverage for mysql.shell.dumpTables
+- [ ] Ensure full coverage for mysql.shell.loadDump
 
 ---
 

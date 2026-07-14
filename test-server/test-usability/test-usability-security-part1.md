@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.security.audit` |   |   |   |
-| `mysql.security.maskData` |   |   |   |
-| `mysql.security.userPrivileges` |   |   |   |
+| `mysql.security.firewallStatus` |   |   |   |
+| `mysql.security.firewallRules` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.security.audit`
-- `mysql.security.maskData`
-- `mysql.security.userPrivileges`
+- `mysql.security.firewallStatus`
+- `mysql.security.firewallRules`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.security.audit
-- [ ] Ensure full coverage for mysql.security.maskData
-- [ ] Ensure full coverage for mysql.security.userPrivileges
+- [ ] Ensure full coverage for mysql.security.firewallStatus
+- [ ] Ensure full coverage for mysql.security.firewallRules
 
 ---
 

@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.vector.hybridSearch` |   |   |   |
+| `mysql.vector.info` |   |   |   |
+| `mysql.vector.createIndex` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.vector.hybridSearch`
 - `mysql.vector.info`
 - `mysql.vector.createIndex`
+
 
 ## Tasks
 

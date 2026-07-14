@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql_show_processlist` |   |   |   |
-| `mysql_innodb_status` |   |   |   |
-| `mysql_server_health` |   |   |   |
+| `mysql_show_status` |   |   |   |
+| `mysql_show_variables` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_show_processlist`
-- `mysql_innodb_status`
-- `mysql_server_health`
+- `mysql_show_status`
+- `mysql_show_variables`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_show_processlist
-- [ ] Ensure full coverage for mysql_innodb_status
-- [ ] Ensure full coverage for mysql_server_health
+- [ ] Ensure full coverage for mysql_show_status
+- [ ] Ensure full coverage for mysql_show_variables
 
 ---
 

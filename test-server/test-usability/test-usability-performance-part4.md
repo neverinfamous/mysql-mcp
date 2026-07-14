@@ -67,7 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.performance.detectBloatRisk` |   |   |   |
+| `mysql.performance.detectConnectionSpike` |   |   |   |
 
 ---
 
@@ -77,6 +78,7 @@
 
 - `mysql.performance.detectBloatRisk`
 - `mysql.performance.detectConnectionSpike`
+
 
 ## Tasks
 

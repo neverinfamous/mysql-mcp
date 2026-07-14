@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql_transaction_begin` |   |   |   |
-| `mysql_transaction_savepoint` |   |   |   |
-| `mysql_transaction_execute` |   |   |   |
+| `mysql_transaction_commit` |   |   |   |
+| `mysql_transaction_rollback` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_transaction_begin`
-- `mysql_transaction_savepoint`
-- `mysql_transaction_execute`
+- `mysql_transaction_commit`
+- `mysql_transaction_rollback`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_transaction_begin
-- [ ] Ensure full coverage for mysql_transaction_savepoint
-- [ ] Ensure full coverage for mysql_transaction_execute
+- [ ] Ensure full coverage for mysql_transaction_commit
+- [ ] Ensure full coverage for mysql_transaction_rollback
 
 ---
 

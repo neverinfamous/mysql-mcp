@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.cluster.grTransactions` |   |   |   |
+| `mysql.cluster.grFlowControl` |   |   |   |
+| `mysql.cluster.status` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.cluster.grTransactions`
 - `mysql.cluster.grFlowControl`
 - `mysql.cluster.status`
+
 
 ## Tasks
 

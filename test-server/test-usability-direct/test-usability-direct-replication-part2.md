@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_slave_status` |   |   |   |
 | `mysql_gtid_status` |   |   |   |
+| `mysql_replication_lag` |   |   |   |
 
 ---
 
@@ -76,14 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_slave_status`
 - `mysql_gtid_status`
+- `mysql_replication_lag`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_slave_status
 - [ ] Ensure full coverage for mysql_gtid_status
+- [ ] Ensure full coverage for mysql_replication_lag
 
 ---
 

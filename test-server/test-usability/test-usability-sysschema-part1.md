@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.sysschema.userSummary` |   |   |   |
+| `mysql.sysschema.ioSummary` |   |   |   |
+| `mysql.sysschema.statementSummary` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.sysschema.userSummary`
 - `mysql.sysschema.ioSummary`
 - `mysql.sysschema.statementSummary`
+
 
 ## Tasks
 

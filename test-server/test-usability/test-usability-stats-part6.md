@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.stats.outliers` |   |   |   |
+| `mysql.stats.topN` |   |   |   |
+| `mysql.stats.distinct` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.stats.outliers`
 - `mysql.stats.topN`
 - `mysql.stats.distinct`
+
 
 ## Tasks
 

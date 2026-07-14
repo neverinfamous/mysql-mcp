@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.performance.bufferPoolStats` |   |   |   |
+| `mysql.performance.threadStats` |   |   |   |
+| `mysql.performance.detectQueryAnomalies` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.performance.bufferPoolStats`
 - `mysql.performance.threadStats`
 - `mysql.performance.detectQueryAnomalies`
+
 
 ## Tasks
 

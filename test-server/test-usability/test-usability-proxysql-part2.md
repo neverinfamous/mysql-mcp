@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.proxysql.servers` |   |   |   |
+| `mysql.proxysql.queryDigest` |   |   |   |
+| `mysql.proxysql.connectionPool` |   |   |   |
 | `mysql.proxysql.users` |   |   |   |
-| `mysql.proxysql.commands` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.proxysql.servers`
+- `mysql.proxysql.queryDigest`
+- `mysql.proxysql.connectionPool`
 - `mysql.proxysql.users`
-- `mysql.proxysql.commands`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.proxysql.servers
+- [ ] Ensure full coverage for mysql.proxysql.queryDigest
+- [ ] Ensure full coverage for mysql.proxysql.connectionPool
 - [ ] Ensure full coverage for mysql.proxysql.users
-- [ ] Ensure full coverage for mysql.proxysql.commands
 
 ---
 

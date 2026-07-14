@@ -68,6 +68,7 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.optimization.indexRecommendation` |   |   |   |
+| `mysql.optimization.queryRewrite` |   |   |   |
 | `mysql.optimization.forceIndex` |   |   |   |
 
 ---
@@ -77,12 +78,14 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.optimization.indexRecommendation`
+- `mysql.optimization.queryRewrite`
 - `mysql.optimization.forceIndex`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.optimization.indexRecommendation
+- [ ] Ensure full coverage for mysql.optimization.queryRewrite
 - [ ] Ensure full coverage for mysql.optimization.forceIndex
 
 ---

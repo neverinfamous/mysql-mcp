@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.migration.init` |   |   |   |
+| `mysql.migration.record` |   |   |   |
 | `mysql.migration.apply` |   |   |   |
-| `mysql.migration.history` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.migration.init`
+- `mysql.migration.record`
 - `mysql.migration.apply`
-- `mysql.migration.history`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.migration.init
+- [ ] Ensure full coverage for mysql.migration.record
 - [ ] Ensure full coverage for mysql.migration.apply
-- [ ] Ensure full coverage for mysql.migration.history
 
 ---
 

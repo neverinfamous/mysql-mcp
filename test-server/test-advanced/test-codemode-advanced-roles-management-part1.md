@@ -67,9 +67,9 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.roles.grant` |   |   |
-| `mysql.roles.assign` |   |   |
-| `mysql.roles.revoke` |   |   |
+| `mysql.roles.roleGrant` |   |   |
+| `mysql.roles.roleAssign` |   |   |
+| `mysql.roles.roleRevoke` |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.roles.grant`
-- `mysql.roles.assign`
-- `mysql.roles.revoke`
+- `mysql.roles.roleGrant`
+- `mysql.roles.roleAssign`
+- `mysql.roles.roleRevoke`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.grant
-- [ ] Ensure full coverage for mysql.roles.assign
-- [ ] Ensure full coverage for mysql.roles.revoke
+- [ ] Ensure full coverage for mysql.roles.roleGrant
+- [ ] Ensure full coverage for mysql.roles.roleAssign
+- [ ] Ensure full coverage for mysql.roles.roleRevoke
 
 ---
 

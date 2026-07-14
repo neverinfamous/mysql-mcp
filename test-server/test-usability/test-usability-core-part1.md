@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.core.readQuery` |   |   |   |
-| `mysql.core.createTable` |   |   |   |
-| `mysql.core.enableVersioning` |   |   |   |
+| `mysql.core.writeQuery` |   |   |   |
+| `mysql.core.listTables` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.core.readQuery`
-- `mysql.core.createTable`
-- `mysql.core.enableVersioning`
+- `mysql.core.writeQuery`
+- `mysql.core.listTables`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.core.readQuery
-- [ ] Ensure full coverage for mysql.core.createTable
-- [ ] Ensure full coverage for mysql.core.enableVersioning
+- [ ] Ensure full coverage for mysql.core.writeQuery
+- [ ] Ensure full coverage for mysql.core.listTables
 
 ---
 

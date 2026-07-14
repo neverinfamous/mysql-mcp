@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.stats.distribution` |   |   |   |
+| `mysql.stats.timeSeries` |   |   |   |
+| `mysql.stats.regression` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.stats.distribution`
 - `mysql.stats.timeSeries`
 - `mysql.stats.regression`
+
 
 ## Tasks
 

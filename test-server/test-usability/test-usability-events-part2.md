@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.events.alter` |   |   |   |
-| `mysql.events.list` |   |   |   |
+| `mysql.events.eventList` |   |   |   |
+| `mysql.events.eventStatus` |   |   |   |
 | `mysql.events.schedulerStatus` |   |   |   |
 
 ---
@@ -77,15 +77,15 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.events.alter`
-- `mysql.events.list`
+- `mysql.events.eventList`
+- `mysql.events.eventStatus`
 - `mysql.events.schedulerStatus`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.events.alter
-- [ ] Ensure full coverage for mysql.events.list
+- [ ] Ensure full coverage for mysql.events.eventList
+- [ ] Ensure full coverage for mysql.events.eventStatus
 - [ ] Ensure full coverage for mysql.events.schedulerStatus
 
 ---

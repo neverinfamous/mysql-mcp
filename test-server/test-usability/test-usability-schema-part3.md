@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.schema.listStoredProcedures` |   |   |   |
+| `mysql.schema.listFunctions` |   |   |   |
+| `mysql.schema.listTriggers` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.schema.listStoredProcedures`
 - `mysql.schema.listFunctions`
 - `mysql.schema.listTriggers`
+
 
 ## Tasks
 

@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.cluster.instances` |   |   |   |
+| `mysql.cluster.topology` |   |   |   |
+| `mysql.cluster.routerStatus` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.cluster.instances`
 - `mysql.cluster.topology`
 - `mysql.cluster.routerStatus`
+
 
 ## Tasks
 

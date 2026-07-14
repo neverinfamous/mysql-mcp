@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql_regexp_match` |   |   |   |
+| `mysql_like_search` |   |   |   |
 | `mysql_soundex` |   |   |   |
-| `mysql_concat` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_regexp_match`
+- `mysql_like_search`
 - `mysql_soundex`
-- `mysql_concat`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_regexp_match
+- [ ] Ensure full coverage for mysql_like_search
 - [ ] Ensure full coverage for mysql_soundex
-- [ ] Ensure full coverage for mysql_concat
 
 ---
 

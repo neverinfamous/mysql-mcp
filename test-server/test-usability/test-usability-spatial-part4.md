@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.spatial.buffer` |   |   |   |
+| `mysql.spatial.transform` |   |   |   |
+| `mysql.spatial.geojson` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.spatial.buffer`
 - `mysql.spatial.transform`
 - `mysql.spatial.geojson`
+
 
 ## Tasks
 

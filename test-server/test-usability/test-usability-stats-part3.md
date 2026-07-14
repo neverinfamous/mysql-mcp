@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.stats.sampling` |   |   |   |
+| `mysql.stats.histogram` |   |   |   |
+| `mysql.stats.rowNumber` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.stats.sampling`
 - `mysql.stats.histogram`
 - `mysql.stats.rowNumber`
+
 
 ## Tasks
 

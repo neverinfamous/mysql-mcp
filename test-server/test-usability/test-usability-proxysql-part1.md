@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.proxysql.status` |   |   |   |
-| `mysql.proxysql.connectionPool` |   |   |   |
-| `mysql.proxysql.memoryStats` |   |   |   |
+| `mysql.proxysql.servers` |   |   |   |
+| `mysql.proxysql.queryRules` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.proxysql.status`
-- `mysql.proxysql.connectionPool`
-- `mysql.proxysql.memoryStats`
+- `mysql.proxysql.servers`
+- `mysql.proxysql.queryRules`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.proxysql.status
-- [ ] Ensure full coverage for mysql.proxysql.connectionPool
-- [ ] Ensure full coverage for mysql.proxysql.memoryStats
+- [ ] Ensure full coverage for mysql.proxysql.servers
+- [ ] Ensure full coverage for mysql.proxysql.queryRules
 
 ---
 

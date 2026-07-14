@@ -67,8 +67,7 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysqlsh_import_table` |   |   |   |
-| `mysqlsh_dump_tables` |   |   |   |
+| `mysqlsh_run_script` |   |   |   |
 
 ---
 
@@ -76,14 +75,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysqlsh_import_table`
-- `mysqlsh_dump_tables`
+- `mysqlsh_run_script`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysqlsh_import_table
-- [ ] Ensure full coverage for mysqlsh_dump_tables
+- [ ] Ensure full coverage for mysqlsh_run_script
 
 ---
 

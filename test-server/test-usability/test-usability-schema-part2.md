@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.schema.listViews` |   |   |   |
+| `mysql.schema.createView` |   |   |   |
+| `mysql.schema.dropView` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.schema.listViews`
 - `mysql.schema.createView`
 - `mysql.schema.dropView`
+
 
 ## Tasks
 

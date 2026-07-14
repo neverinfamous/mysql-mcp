@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.json.extract` |   |   |   |
+| `mysql.json.set` |   |   |   |
+| `mysql.json.insert` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.json.extract`
 - `mysql.json.set`
 - `mysql.json.insert`
+
 
 ## Tasks
 

@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.schema.listSchemas` |   |   |   |
+| `mysql.schema.createSchema` |   |   |   |
+| `mysql.schema.dropSchema` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.schema.listSchemas`
 - `mysql.schema.createSchema`
 - `mysql.schema.dropSchema`
+
 
 ## Tasks
 

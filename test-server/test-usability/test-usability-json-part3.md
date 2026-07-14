@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.json.keys` |   |   |   |
+| `mysql.json.arrayAppend` |   |   |   |
+| `mysql.json.get` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.json.keys`
 - `mysql.json.arrayAppend`
 - `mysql.json.get`
+
 
 ## Tasks
 

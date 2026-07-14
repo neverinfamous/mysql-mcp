@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql_sys_wait_summary` |   |   |   |
+| `mysql_sys_innodb_lock_waits` |   |   |   |
+| `mysql_sys_schema_stats` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql_sys_wait_summary`
 - `mysql_sys_innodb_lock_waits`
 - `mysql_sys_schema_stats`
+
 
 ## Tasks
 

@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.core.describeTable` |   |   |   |
-| `mysql.core.getIndexes` |   |   |   |
+| `mysql.core.disableVersioning` |   |   |   |
+| `mysql.core.checkVersion` |   |   |   |
 | `mysql.core.conditionalUpdate` |   |   |   |
 
 ---
@@ -77,15 +77,15 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.core.describeTable`
-- `mysql.core.getIndexes`
+- `mysql.core.disableVersioning`
+- `mysql.core.checkVersion`
 - `mysql.core.conditionalUpdate`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.core.describeTable
-- [ ] Ensure full coverage for mysql.core.getIndexes
+- [ ] Ensure full coverage for mysql.core.disableVersioning
+- [ ] Ensure full coverage for mysql.core.checkVersion
 - [ ] Ensure full coverage for mysql.core.conditionalUpdate
 
 ---

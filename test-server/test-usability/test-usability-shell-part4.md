@@ -67,8 +67,7 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.shell.importTable` |   |   |   |
-| `mysql.shell.dumpTables` |   |   |   |
+| `mysql.shell.runScript` |   |   |   |
 
 ---
 
@@ -76,14 +75,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.shell.importTable`
-- `mysql.shell.dumpTables`
+- `mysql.shell.runScript`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.shell.importTable
-- [ ] Ensure full coverage for mysql.shell.dumpTables
+- [ ] Ensure full coverage for mysql.shell.runScript
 
 ---
 

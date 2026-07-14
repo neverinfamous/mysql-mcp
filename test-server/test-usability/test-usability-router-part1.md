@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.router.status` |   |   |   |
-| `mysql.router.routeHealth` |   |   |   |
-| `mysql.router.routeBlockedHosts` |   |   |   |
+| `mysql.router.routes` |   |   |   |
+| `mysql.router.routeStatus` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.router.status`
-- `mysql.router.routeHealth`
-- `mysql.router.routeBlockedHosts`
+- `mysql.router.routes`
+- `mysql.router.routeStatus`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.router.status
-- [ ] Ensure full coverage for mysql.router.routeHealth
-- [ ] Ensure full coverage for mysql.router.routeBlockedHosts
+- [ ] Ensure full coverage for mysql.router.routes
+- [ ] Ensure full coverage for mysql.router.routeStatus
 
 ---
 

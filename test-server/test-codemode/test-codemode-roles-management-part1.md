@@ -67,8 +67,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.roles.list` |   |   |
-| `mysql.roles.create` |   |   |
+| `mysql.roles.roleList` |   |   |
+| `mysql.roles.roleCreate` |   |   |
 
 ---
 
@@ -76,8 +76,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.roles.list`
-- `mysql.roles.create`
+- `mysql.roles.roleList`
+- `mysql.roles.roleCreate`
 
 
 ## Group Focus: roles
@@ -88,8 +88,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.list
-- [ ] Ensure full coverage for mysql.roles.create
+- [ ] Ensure full coverage for mysql.roles.roleList
+- [ ] Ensure full coverage for mysql.roles.roleCreate
 
 ---
 

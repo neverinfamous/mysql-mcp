@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql_vector_store` |   |   |   |
+| `mysql_vector_batch_store` |   |   |   |
+| `mysql_vector_delete` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql_vector_store`
 - `mysql_vector_batch_store`
 - `mysql_vector_delete`
+
 
 ## Tasks
 

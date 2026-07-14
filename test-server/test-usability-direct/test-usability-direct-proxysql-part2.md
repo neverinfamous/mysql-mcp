@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `proxysql_servers` |   |   |   |
+| `proxysql_query_digest` |   |   |   |
+| `proxysql_connection_pool` |   |   |   |
 | `proxysql_users` |   |   |   |
-| `proxysql_commands` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_servers`
+- `proxysql_query_digest`
+- `proxysql_connection_pool`
 - `proxysql_users`
-- `proxysql_commands`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_servers
+- [ ] Ensure full coverage for proxysql_query_digest
+- [ ] Ensure full coverage for proxysql_connection_pool
 - [ ] Ensure full coverage for proxysql_users
-- [ ] Ensure full coverage for proxysql_commands
 
 ---
 

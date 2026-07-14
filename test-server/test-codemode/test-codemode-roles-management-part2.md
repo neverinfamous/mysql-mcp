@@ -67,7 +67,7 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.roles.drop` |   |   |
+| `mysql.roles.roleDrop` |   |   |
 | `mysql.roles.userRoles` |   |   |
 
 ---
@@ -76,7 +76,7 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.roles.drop`
+- `mysql.roles.roleDrop`
 - `mysql.roles.userRoles`
 
 
@@ -88,7 +88,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.drop
+- [ ] Ensure full coverage for mysql.roles.roleDrop
 - [ ] Ensure full coverage for mysql.roles.userRoles
 
 ---

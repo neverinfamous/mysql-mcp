@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.docstore.dropCollection` |   |   |   |
-| `mysql.docstore.modify` |   |   |   |
+| `mysql.docstore.remove` |   |   |   |
+| `mysql.docstore.createIndex` |   |   |   |
 | `mysql.docstore.collectionInfo` |   |   |   |
 
 ---
@@ -77,15 +77,15 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.docstore.dropCollection`
-- `mysql.docstore.modify`
+- `mysql.docstore.remove`
+- `mysql.docstore.createIndex`
 - `mysql.docstore.collectionInfo`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.docstore.dropCollection
-- [ ] Ensure full coverage for mysql.docstore.modify
+- [ ] Ensure full coverage for mysql.docstore.remove
+- [ ] Ensure full coverage for mysql.docstore.createIndex
 - [ ] Ensure full coverage for mysql.docstore.collectionInfo
 
 ---

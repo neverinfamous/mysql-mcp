@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.performance.queryStats` |   |   |   |
+| `mysql.performance.indexUsage` |   |   |   |
+| `mysql.performance.tableStats` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.performance.queryStats`
 - `mysql.performance.indexUsage`
 - `mysql.performance.tableStats`
+
 
 ## Tasks
 

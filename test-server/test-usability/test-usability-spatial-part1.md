@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.spatial.createColumn` |   |   |   |
+| `mysql.spatial.createIndex` |   |   |   |
+| `mysql.spatial.point` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.spatial.createColumn`
 - `mysql.spatial.createIndex`
 - `mysql.spatial.point`
+
 
 ## Tasks
 

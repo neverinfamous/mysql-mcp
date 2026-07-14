@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.proxysql.queryRules` |   |   |   |
 | `mysql.proxysql.globalVariables` |   |   |   |
-| `mysql.proxysql.processList` |   |   |   |
+| `mysql.proxysql.runtimeStatus` |   |   |   |
+| `mysql.proxysql.memoryStats` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.proxysql.queryRules`
 - `mysql.proxysql.globalVariables`
-- `mysql.proxysql.processList`
+- `mysql.proxysql.runtimeStatus`
+- `mysql.proxysql.memoryStats`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.proxysql.queryRules
 - [ ] Ensure full coverage for mysql.proxysql.globalVariables
-- [ ] Ensure full coverage for mysql.proxysql.processList
+- [ ] Ensure full coverage for mysql.proxysql.runtimeStatus
+- [ ] Ensure full coverage for mysql.proxysql.memoryStats
 
 ---
 

@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.security.firewallStatus` |   |   |   |
+| `mysql.security.maskData` |   |   |   |
 | `mysql.security.passwordValidate` |   |   |   |
-| `mysql.security.sensitiveTables` |   |   |   |
+| `mysql.security.sslStatus` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.security.firewallStatus`
+- `mysql.security.maskData`
 - `mysql.security.passwordValidate`
-- `mysql.security.sensitiveTables`
+- `mysql.security.sslStatus`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.security.firewallStatus
+- [ ] Ensure full coverage for mysql.security.maskData
 - [ ] Ensure full coverage for mysql.security.passwordValidate
-- [ ] Ensure full coverage for mysql.security.sensitiveTables
+- [ ] Ensure full coverage for mysql.security.sslStatus
 
 ---
 

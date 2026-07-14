@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_like_search` |   |   |   |
 | `mysql_substring` |   |   |   |
+| `mysql_concat` |   |   |   |
 | `mysql_collation_convert` |   |   |   |
 
 ---
@@ -77,15 +77,15 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_like_search`
 - `mysql_substring`
+- `mysql_concat`
 - `mysql_collation_convert`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_like_search
 - [ ] Ensure full coverage for mysql_substring
+- [ ] Ensure full coverage for mysql_concat
 - [ ] Ensure full coverage for mysql_collation_convert
 
 ---

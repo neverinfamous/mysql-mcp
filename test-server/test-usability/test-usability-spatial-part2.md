@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.spatial.polygon` |   |   |   |
+| `mysql.spatial.distance` |   |   |   |
+| `mysql.spatial.distanceSphere` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.spatial.polygon`
 - `mysql.spatial.distance`
 - `mysql.spatial.distanceSphere`
+
 
 ## Tasks
 

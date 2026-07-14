@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.cluster.grStatus` |   |   |   |
+| `mysql.cluster.grMembers` |   |   |   |
+| `mysql.cluster.grPrimary` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.cluster.grStatus`
 - `mysql.cluster.grMembers`
 - `mysql.cluster.grPrimary`
+
 
 ## Tasks
 

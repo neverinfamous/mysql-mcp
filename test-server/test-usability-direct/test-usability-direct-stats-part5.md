@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql_stats_moving_avg` |   |   |   |
+| `mysql_stats_ntile` |   |   |   |
+| `mysql_stats_hypothesis` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql_stats_moving_avg`
 - `mysql_stats_ntile`
 - `mysql_stats_hypothesis`
+
 
 ## Tasks
 

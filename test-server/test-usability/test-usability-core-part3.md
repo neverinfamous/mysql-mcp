@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.core.listTables` |   |   |   |
 | `mysql.core.createIndex` |   |   |   |
-| `mysql.core.checkVersion` |   |   |   |
+| `mysql.core.getIndexes` |   |   |   |
+| `mysql.core.enableVersioning` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.core.listTables`
 - `mysql.core.createIndex`
-- `mysql.core.checkVersion`
+- `mysql.core.getIndexes`
+- `mysql.core.enableVersioning`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.core.listTables
 - [ ] Ensure full coverage for mysql.core.createIndex
-- [ ] Ensure full coverage for mysql.core.checkVersion
+- [ ] Ensure full coverage for mysql.core.getIndexes
+- [ ] Ensure full coverage for mysql.core.enableVersioning
 
 ---
 

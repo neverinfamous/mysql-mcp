@@ -67,7 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.stats.frequency` |   |   |   |
+| `mysql.stats.summary` |   |   |   |
 
 ---
 
@@ -77,6 +78,7 @@
 
 - `mysql.stats.frequency`
 - `mysql.stats.summary`
+
 
 ## Tasks
 

@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.events.create` |   |   |   |
-| `mysql.events.drop` |   |   |   |
-| `mysql.events.status` |   |   |   |
+| `mysql.events.eventCreate` |   |   |   |
+| `mysql.events.eventAlter` |   |   |   |
+| `mysql.events.eventDrop` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.events.create`
-- `mysql.events.drop`
-- `mysql.events.status`
+- `mysql.events.eventCreate`
+- `mysql.events.eventAlter`
+- `mysql.events.eventDrop`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.events.create
-- [ ] Ensure full coverage for mysql.events.drop
-- [ ] Ensure full coverage for mysql.events.status
+- [ ] Ensure full coverage for mysql.events.eventCreate
+- [ ] Ensure full coverage for mysql.events.eventAlter
+- [ ] Ensure full coverage for mysql.events.eventDrop
 
 ---
 

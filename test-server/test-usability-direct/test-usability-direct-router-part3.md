@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_router_route_status` |   |   |   |
-| `mysql_router_route_destinations` |   |   |   |
+| `mysql_router_route_blocked_hosts` |   |   |   |
+| `mysql_router_metadata_status` |   |   |   |
 | `mysql_router_pool_status` |   |   |   |
 
 ---
@@ -77,15 +77,15 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_router_route_status`
-- `mysql_router_route_destinations`
+- `mysql_router_route_blocked_hosts`
+- `mysql_router_metadata_status`
 - `mysql_router_pool_status`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_route_status
-- [ ] Ensure full coverage for mysql_router_route_destinations
+- [ ] Ensure full coverage for mysql_router_route_blocked_hosts
+- [ ] Ensure full coverage for mysql_router_metadata_status
 - [ ] Ensure full coverage for mysql_router_pool_status
 
 ---

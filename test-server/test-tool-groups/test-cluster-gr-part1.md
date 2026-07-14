@@ -67,7 +67,9 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-
+| `mysql_gr_status` |   |   |   |   |
+| `mysql_gr_members` |   |   |   |   |
+| `mysql_gr_primary` |   |   |   |   |
 
 ---
 
@@ -78,23 +80,22 @@
 - `mysql_gr_status`
 - `mysql_gr_members`
 - `mysql_gr_primary`
-- `mysql_gr_transactions`
-- `mysql_gr_flow_control`
+
 
 ## Group Focus: cluster
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-
+- [ ] mysql_gr_status
+- [ ] mysql_gr_members
+- [ ] mysql_gr_primary
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_gr_status
 - [ ] Ensure full coverage for mysql_gr_members
 - [ ] Ensure full coverage for mysql_gr_primary
-- [ ] Ensure full coverage for mysql_gr_transactions
-- [ ] Ensure full coverage for mysql_gr_flow_control
 
 ---
 

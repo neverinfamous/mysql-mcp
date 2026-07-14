@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql_gr_status` |   |   |   |
+| `mysql_gr_members` |   |   |   |
+| `mysql_gr_primary` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql_gr_status`
 - `mysql_gr_members`
 - `mysql_gr_primary`
+
 
 ## Tasks
 

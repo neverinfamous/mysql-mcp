@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.json.replace` |   |   |   |
+| `mysql.json.remove` |   |   |   |
+| `mysql.json.contains` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.json.replace`
 - `mysql.json.remove`
 - `mysql.json.contains`
+
 
 ## Tasks
 

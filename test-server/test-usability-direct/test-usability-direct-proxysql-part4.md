@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `proxysql_query_digest` |   |   |   |
-| `proxysql_runtime_status` |   |   |   |
+| `proxysql_commands` |   |   |   |
+| `proxysql_process_list` |   |   |   |
 
 ---
 
@@ -76,14 +76,14 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `proxysql_query_digest`
-- `proxysql_runtime_status`
+- `proxysql_commands`
+- `proxysql_process_list`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_query_digest
-- [ ] Ensure full coverage for proxysql_runtime_status
+- [ ] Ensure full coverage for proxysql_commands
+- [ ] Ensure full coverage for proxysql_process_list
 
 ---
 

@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql_create_trigger` |   |   |   |
+| `mysql_drop_trigger` |   |   |   |
+| `mysql_list_constraints` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql_create_trigger`
 - `mysql_drop_trigger`
 - `mysql_list_constraints`
+
 
 ## Tasks
 

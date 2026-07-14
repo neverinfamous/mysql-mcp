@@ -67,7 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.vector.optimize` |   |   |   |
+| `mysql.vector.stats` |   |   |   |
 
 ---
 
@@ -77,6 +78,7 @@
 
 - `mysql.vector.optimize`
 - `mysql.vector.stats`
+
 
 ## Tasks
 

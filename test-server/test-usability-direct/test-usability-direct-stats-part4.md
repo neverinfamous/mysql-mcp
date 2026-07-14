@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql_stats_rank` |   |   |   |
+| `mysql_stats_lag_lead` |   |   |   |
+| `mysql_stats_running_total` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql_stats_rank`
 - `mysql_stats_lag_lead`
 - `mysql_stats_running_total`
+
 
 ## Tasks
 

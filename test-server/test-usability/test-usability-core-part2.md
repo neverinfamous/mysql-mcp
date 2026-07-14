@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.core.writeQuery` |   |   |   |
+| `mysql.core.describeTable` |   |   |   |
+| `mysql.core.createTable` |   |   |   |
 | `mysql.core.dropTable` |   |   |   |
-| `mysql.core.disableVersioning` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.core.writeQuery`
+- `mysql.core.describeTable`
+- `mysql.core.createTable`
 - `mysql.core.dropTable`
-- `mysql.core.disableVersioning`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.core.writeQuery
+- [ ] Ensure full coverage for mysql.core.describeTable
+- [ ] Ensure full coverage for mysql.core.createTable
 - [ ] Ensure full coverage for mysql.core.dropTable
-- [ ] Ensure full coverage for mysql.core.disableVersioning
 
 ---
 

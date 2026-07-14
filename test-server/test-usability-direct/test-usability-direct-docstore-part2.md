@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_doc_create_collection` |   |   |   |
+| `mysql_doc_find` |   |   |   |
 | `mysql_doc_add` |   |   |   |
-| `mysql_doc_create_index` |   |   |   |
+| `mysql_doc_modify` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_doc_create_collection`
+- `mysql_doc_find`
 - `mysql_doc_add`
-- `mysql_doc_create_index`
+- `mysql_doc_modify`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_doc_create_collection
+- [ ] Ensure full coverage for mysql_doc_find
 - [ ] Ensure full coverage for mysql_doc_add
-- [ ] Ensure full coverage for mysql_doc_create_index
+- [ ] Ensure full coverage for mysql_doc_modify
 
 ---
 

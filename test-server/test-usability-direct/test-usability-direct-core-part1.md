@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql_read_query` |   |   |   |
-| `mysql_create_table` |   |   |   |
-| `mysql_enable_versioning` |   |   |   |
+| `mysql_write_query` |   |   |   |
+| `mysql_list_tables` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql_read_query`
-- `mysql_create_table`
-- `mysql_enable_versioning`
+- `mysql_write_query`
+- `mysql_list_tables`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_read_query
-- [ ] Ensure full coverage for mysql_create_table
-- [ ] Ensure full coverage for mysql_enable_versioning
+- [ ] Ensure full coverage for mysql_write_query
+- [ ] Ensure full coverage for mysql_list_tables
 
 ---
 

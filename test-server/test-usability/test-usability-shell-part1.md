@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysql.shell.version` |   |   |   |
-| `mysql.shell.importJson` |   |   |   |
-| `mysql.shell.loadDump` |   |   |   |
+| `mysql.shell.checkUpgrade` |   |   |   |
+| `mysql.shell.exportTable` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysql.shell.version`
-- `mysql.shell.importJson`
-- `mysql.shell.loadDump`
+- `mysql.shell.checkUpgrade`
+- `mysql.shell.exportTable`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysql.shell.version
-- [ ] Ensure full coverage for mysql.shell.importJson
-- [ ] Ensure full coverage for mysql.shell.loadDump
+- [ ] Ensure full coverage for mysql.shell.checkUpgrade
+- [ ] Ensure full coverage for mysql.shell.exportTable
 
 ---
 

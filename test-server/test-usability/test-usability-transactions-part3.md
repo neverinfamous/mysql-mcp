@@ -67,8 +67,7 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.transactions.rollback` |   |   |   |
-| `mysql.transactions.rollbackTo` |   |   |   |
+| `mysql.transactions.execute` |   |   |   |
 
 ---
 
@@ -76,14 +75,12 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.transactions.rollback`
-- `mysql.transactions.rollbackTo`
+- `mysql.transactions.execute`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.transactions.rollback
-- [ ] Ensure full coverage for mysql.transactions.rollbackTo
+- [ ] Ensure full coverage for mysql.transactions.execute
 
 ---
 

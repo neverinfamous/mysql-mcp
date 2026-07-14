@@ -126,8 +126,9 @@ function processDirectory(dirName) {
     const divider = "|" + Array(colCount).fill("---").join("|") + "|";
 
     const mapKey = file.replace(/^test-(?:usability(?:-direct)?-)?/, "test-");
-    if ((dirName === "test-codemode" || dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability" || dirName === "test-usability-direct") && toolMap[mapKey] && toolMap[mapKey].length > 0) {
-        const tools = toolMap[mapKey];
+    const targetKey = (toolMap[file] && toolMap[file].length > 0) ? file : mapKey;
+    if ((dirName === "test-codemode" || dirName === "test-advanced" || dirName === "test-tool-groups" || dirName === "test-usability" || dirName === "test-usability-direct") && toolMap[targetKey] && toolMap[targetKey].length > 0) {
+        const tools = toolMap[targetKey];
         explicitToolsList = `### Explicit Tool Coverage Requirements\n\n**CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:\n\n`;
         explicitToolsList += tools.map(t => `- \`${t}\``).join("\n") + "\n";
         
@@ -272,7 +273,7 @@ function processDirectory(dirName) {
       let name = toolName.replace(/^mysql_/, "");
       const groupPrefixMap = { sysschema: "sys_", fulltext: "fulltext_", docstore: "doc_", transactions: "transaction_", shell: "mysqlsh_" };
       const groupPrefix = groupPrefixMap[groupName] ?? groupName + "_";
-      const keepPrefix = new Set(["fulltext", "sysschema", "docstore", "transactions", "cluster", "roles", "events", "replication", "vector"]);
+      const keepPrefix = new Set(["replication"]);
       if (!keepPrefix.has(groupName) && name.startsWith(groupPrefix)) {
         name = name.substring(groupPrefix.length);
       }
@@ -309,14 +310,6 @@ function processDirectory(dirName) {
       const applyCodeModeFixes = (str) => {
           if (!str) return str;
           return str
-            .replace(/mysql\.vector\.vector([A-Z])/g, (match, p1) => "mysql.vector." + p1.toLowerCase())
-            .replace(/mysql\.sysschema\.sys([A-Z])/g, (match, p1) => "mysql.sysschema." + p1.toLowerCase())
-            .replace(/mysql\.docstore\.doc([A-Z])/g, (match, p1) => "mysql.docstore." + p1.toLowerCase())
-            .replace(/mysql\.fulltext\.fulltext([A-Z])/g, (match, p1) => "mysql.fulltext." + p1.toLowerCase())
-            .replace(/mysql\.transactions\.transaction([A-Z])/g, (match, p1) => "mysql.transactions." + p1.toLowerCase())
-            .replace(/mysql\.cluster\.cluster([A-Z])/g, (match, p1) => "mysql.cluster." + p1.toLowerCase())
-            .replace(/mysql\.roles\.role([A-Z])/g, (match, p1) => "mysql.roles." + p1.toLowerCase())
-            .replace(/mysql\.events\.event([A-Z])/g, (match, p1) => "mysql.events." + p1.toLowerCase())
             // Fix optimization parameters
             .replace(/mysql_index_recommendation/g, "mysql.optimization.indexRecommendation")
             .replace(/mysql_query_rewrite/g, "mysql.optimization.queryRewrite")
@@ -432,13 +425,13 @@ function processDirectory(dirName) {
       .replace(/column: "vector", matchColumn: "body", queryVector:/g, 'vectorColumn: "vector", textColumn: "body", queryVector:')
       .replace(/matchQuery:/g, 'queryText:')
       // Fix sys-metrics numbering gaps
-      .replace(/10\. 🔴 `mysql\.sysschema\.userSummary/g, "6. 🔴 `mysql.sysschema.userSummary")
-      .replace(/11\. 🔴 `mysql\.sysschema\.ioSummary/g, "7. 🔴 `mysql.sysschema.ioSummary")
+      .replace(/10\. 🔴 `(mysql\.sysschema\.userSummary|mysql_sys_user_summary)/g, "6. 🔴 `$1")
+      .replace(/11\. 🔴 `(mysql\.sysschema\.ioSummary|mysql_sys_io_summary)/g, "7. 🔴 `$1")
       .replace(/12\. 🟢 Verify/g, "8. 🟢 Verify")
       // Fix sys-analysis numbering gaps and Zod error
-      .replace(/10\. 🔴 `mysql\.sysschema\.schemaStats/g, "6. 🔴 `mysql.sysschema.schemaStats")
-      .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary\(\{ limit: "abc" \}\)/g, "7. 🔴 `mysql.sysschema.statementSummary({ orderBy: 123 })")
-      .replace(/11\. 🔴 `mysql\.sysschema\.statementSummary/g, "7. 🔴 `mysql.sysschema.statementSummary")
+      .replace(/10\. 🔴 `(mysql\.sysschema\.schemaStats|mysql_sys_schema_stats)/g, "6. 🔴 `$1")
+      .replace(/11\. 🔴 `(mysql\.sysschema\.statementSummary|mysql_sys_statement_summary)\(\{ limit: "abc" \}\)/g, "7. 🔴 `$1({ orderBy: 123 })")
+      .replace(/11\. 🔴 `(mysql\.sysschema\.statementSummary|mysql_sys_statement_summary)/g, "7. 🔴 `$1")
       // Remove hallucinated tasks
       .replace(/- \[ \] Ensure full coverage for .*\r?\n?/g, "");
 

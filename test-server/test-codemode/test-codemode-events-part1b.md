@@ -67,8 +67,8 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.events.list` |   |   |
-| `mysql.events.status` |   |   |
+| `mysql.events.eventList` |   |   |
+| `mysql.events.eventStatus` |   |   |
 | `mysql.events.schedulerStatus` |   |   |
 
 ---
@@ -77,8 +77,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.events.list`
-- `mysql.events.status`
+- `mysql.events.eventList`
+- `mysql.events.eventStatus`
 - `mysql.events.schedulerStatus`
 
 
@@ -90,8 +90,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.events.list
-- [ ] Ensure full coverage for mysql.events.status
+- [ ] Ensure full coverage for mysql.events.eventList
+- [ ] Ensure full coverage for mysql.events.eventStatus
 - [ ] Ensure full coverage for mysql.events.schedulerStatus
 
 ---

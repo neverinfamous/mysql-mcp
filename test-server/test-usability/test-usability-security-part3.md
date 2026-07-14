@@ -67,8 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.security.firewallRules` |   |   |   |
-| `mysql.security.sslStatus` |   |   |   |
+| `mysql.security.userPrivileges` |   |   |   |
+| `mysql.security.sensitiveTables` |   |   |   |
 | `mysql.security.encryptionStatus` |   |   |   |
 
 ---
@@ -77,15 +77,15 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.security.firewallRules`
-- `mysql.security.sslStatus`
+- `mysql.security.userPrivileges`
+- `mysql.security.sensitiveTables`
 - `mysql.security.encryptionStatus`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.security.firewallRules
-- [ ] Ensure full coverage for mysql.security.sslStatus
+- [ ] Ensure full coverage for mysql.security.userPrivileges
+- [ ] Ensure full coverage for mysql.security.sensitiveTables
 - [ ] Ensure full coverage for mysql.security.encryptionStatus
 
 ---

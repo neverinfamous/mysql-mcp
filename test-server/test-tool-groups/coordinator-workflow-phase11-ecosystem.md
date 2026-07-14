@@ -20,7 +20,6 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 1. `test-cluster-gr.md` (**MUST PASS FIRST**)
 2. `test-cluster-innodb-part1.md`
 3. `test-cluster-innodb-part2.md`
-4. `test-cluster-innodb-part3.md`
 5. `test-proxysql-part1.md`
 6. `test-proxysql-part2.md`
 7. `test-proxysql-part3.md`

@@ -7,8 +7,8 @@
 - **Drop**: Removes it. Returns `{ success: false, error }` if it does not exist.
 
 ### Search (`mysql_fulltext_search`, `mysql_fulltext_boolean`, `mysql_fulltext_expand`)
-- **NATURAL Mode** (`mysql_fulltext_search`): Standard natural language matching.
-- **BOOLEAN Mode** (`mysql_fulltext_boolean`):
+- **NATURAL Mode** (`mysql_fulltext_search`): Standard natural language matching. Supports `includeFacets` for aggregate term counts.
+- **BOOLEAN Mode** (`mysql_fulltext_boolean`): Supports `includeFacets` for aggregate term counts.
   - `+word` (required), `-word` (excluded), `word*` (prefix wildcard), `>word`/`<word` (relevance weighting).
   ```json
   { "query": "+database -sql" }

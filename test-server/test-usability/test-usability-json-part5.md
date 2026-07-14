@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.json.merge` |   |   |   |
+| `mysql.json.diff` |   |   |   |
+| `mysql.json.normalize` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.json.merge`
 - `mysql.json.diff`
 - `mysql.json.normalize`
+
 
 ## Tasks
 

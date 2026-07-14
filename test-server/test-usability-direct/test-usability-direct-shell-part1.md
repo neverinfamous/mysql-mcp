@@ -68,8 +68,8 @@
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
 | `mysqlsh_version` |   |   |   |
-| `mysqlsh_import_json` |   |   |   |
-| `mysqlsh_load_dump` |   |   |   |
+| `mysqlsh_check_upgrade` |   |   |   |
+| `mysqlsh_export_table` |   |   |   |
 
 ---
 
@@ -78,15 +78,15 @@
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
 - `mysqlsh_version`
-- `mysqlsh_import_json`
-- `mysqlsh_load_dump`
+- `mysqlsh_check_upgrade`
+- `mysqlsh_export_table`
 
 
 ## Tasks
 
 - [ ] Ensure full coverage for mysqlsh_version
-- [ ] Ensure full coverage for mysqlsh_import_json
-- [ ] Ensure full coverage for mysqlsh_load_dump
+- [ ] Ensure full coverage for mysqlsh_check_upgrade
+- [ ] Ensure full coverage for mysqlsh_export_table
 
 ---
 

@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.vector.get` |   |   |   |
+| `mysql.vector.search` |   |   |   |
+| `mysql.vector.rangeSearch` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.vector.get`
 - `mysql.vector.search`
 - `mysql.vector.rangeSearch`
+
 
 ## Tasks
 

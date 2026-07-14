@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.performance.explain` |   |   |   |
+| `mysql.performance.explainAnalyze` |   |   |   |
+| `mysql.performance.slowQueries` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.performance.explain`
 - `mysql.performance.explainAnalyze`
 - `mysql.performance.slowQueries`
+
 
 ## Tasks
 

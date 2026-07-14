@@ -67,9 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.roles.list` |   |   |   |
-| `mysql.roles.grants` |   |   |   |
-| `mysql.roles.revoke` |   |   |   |
+| `mysql.roles.roleList` |   |   |   |
+| `mysql.roles.roleCreate` |   |   |   |
+| `mysql.roles.roleDrop` |   |   |   |
 
 ---
 
@@ -77,16 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.roles.list`
-- `mysql.roles.grants`
-- `mysql.roles.revoke`
+- `mysql.roles.roleList`
+- `mysql.roles.roleCreate`
+- `mysql.roles.roleDrop`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.list
-- [ ] Ensure full coverage for mysql.roles.grants
-- [ ] Ensure full coverage for mysql.roles.revoke
+- [ ] Ensure full coverage for mysql.roles.roleList
+- [ ] Ensure full coverage for mysql.roles.roleCreate
+- [ ] Ensure full coverage for mysql.roles.roleDrop
 
 ---
 

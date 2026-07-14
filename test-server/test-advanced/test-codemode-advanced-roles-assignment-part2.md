@@ -67,7 +67,7 @@
 
 | Tool | Focus Area | Code Mode Validation |
 |---|---|---|
-| `mysql.roles.grants` |   |   |
+| `mysql.roles.roleGrants` |   |   |
 
 ---
 
@@ -75,7 +75,7 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.roles.grants`
+- `mysql.roles.roleGrants`
 
 
 ## Category 1: Role Assignment Lifecycles
@@ -89,7 +89,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.roles.grants
+- [ ] Ensure full coverage for mysql.roles.roleGrants
 
 ---
 

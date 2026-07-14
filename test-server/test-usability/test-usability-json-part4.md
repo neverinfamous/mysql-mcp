@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.json.update` |   |   |   |
+| `mysql.json.search` |   |   |   |
+| `mysql.json.validate` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.json.update`
 - `mysql.json.search`
 - `mysql.json.validate`
+
 
 ## Tasks
 

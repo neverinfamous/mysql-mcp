@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql_list_views` |   |   |   |
+| `mysql_create_view` |   |   |   |
+| `mysql_drop_view` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql_list_views`
 - `mysql_create_view`
 - `mysql_drop_view`
+
 
 ## Tasks
 

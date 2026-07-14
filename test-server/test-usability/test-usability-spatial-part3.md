@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.spatial.contains` |   |   |   |
+| `mysql.spatial.within` |   |   |   |
+| `mysql.spatial.intersection` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.spatial.contains`
 - `mysql.spatial.within`
 - `mysql.spatial.intersection`
+
 
 ## Tasks
 

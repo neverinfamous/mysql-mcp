@@ -67,8 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql.monitoring.showStatus` |   |   |   |
+| `mysql.monitoring.innodbStatus` |   |   |   |
 | `mysql.monitoring.replicationStatus` |   |   |   |
+| `mysql.monitoring.poolStats` |   |   |   |
 
 ---
 
@@ -76,14 +77,16 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.monitoring.showStatus`
+- `mysql.monitoring.innodbStatus`
 - `mysql.monitoring.replicationStatus`
+- `mysql.monitoring.poolStats`
 
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.monitoring.showStatus
+- [ ] Ensure full coverage for mysql.monitoring.innodbStatus
 - [ ] Ensure full coverage for mysql.monitoring.replicationStatus
+- [ ] Ensure full coverage for mysql.monitoring.poolStats
 
 ---
 

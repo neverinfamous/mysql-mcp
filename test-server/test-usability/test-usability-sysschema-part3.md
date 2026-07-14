@@ -67,7 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.sysschema.hostSummary` |   |   |   |
+| `mysql.sysschema.memorySummary` |   |   |   |
 
 ---
 
@@ -77,6 +78,7 @@
 
 - `mysql.sysschema.hostSummary`
 - `mysql.sysschema.memorySummary`
+
 
 ## Tasks
 

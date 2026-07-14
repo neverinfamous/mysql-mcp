@@ -67,7 +67,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.json.stats` |   |   |   |
+| `mysql.json.indexSuggest` |   |   |   |
 
 ---
 
@@ -77,6 +78,7 @@
 
 - `mysql.json.stats`
 - `mysql.json.indexSuggest`
+
 
 ## Tasks
 

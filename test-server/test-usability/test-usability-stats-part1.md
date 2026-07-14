@@ -67,7 +67,9 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-
+| `mysql.stats.descriptive` |   |   |   |
+| `mysql.stats.percentiles` |   |   |   |
+| `mysql.stats.correlation` |   |   |   |
 
 ---
 
@@ -78,6 +80,7 @@
 - `mysql.stats.descriptive`
 - `mysql.stats.percentiles`
 - `mysql.stats.correlation`
+
 
 ## Tasks
 

@@ -1,4 +1,4 @@
-# MySQL MCP Usability & Hallucination Test: [proxysql]
+# MySQL MCP Tool Group Testing: [cluster-group-replication]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Organically test the tool group using ONLY code mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
+**Step 2:** Please conduct an exhaustive test of the tool group specified in the checklist below using live MCP server tool calls directly — not scripts/terminal.
 
 **Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -65,10 +65,10 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Fuzz Call | Hallucination Found | Fix Applied |
-|---|---|---|---|
-| `mysql.proxysql.commands` |   |   |   |
-| `mysql.proxysql.processList` |   |   |   |
+| Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
+|---|---|---|---|---|
+| `mysql_gr_transactions` |   |   |   |   |
+| `mysql_gr_flow_control` |   |   |   |   |
 
 ---
 
@@ -76,14 +76,22 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.proxysql.commands`
-- `mysql.proxysql.processList`
+- `mysql_gr_transactions`
+- `mysql_gr_flow_control`
 
+
+## Group Focus: cluster
+
+> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
+
+### Tool Checklist
+- [ ] mysql_gr_transactions
+- [ ] mysql_gr_flow_control
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.proxysql.commands
-- [ ] Ensure full coverage for mysql.proxysql.processList
+- [ ] Ensure full coverage for mysql_gr_transactions
+- [ ] Ensure full coverage for mysql_gr_flow_control
 
 ---
 
@@ -108,5 +116,5 @@
 
 4. **Validate**: Run `pnpm run lint` and `pnpm run typecheck` to validate your changes. Do NOT run `pnpm run test`, `pnpm run check`, or `pnpm run build` as this takes too long. The main coordinator agent will run the test suite at the end.
 5. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-6. **Commit**: Commit all changes locally using `bun .\\.agents\\scripts\\commit.ts --msg "test(usability): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
+6. **Commit**: Commit all changes locally using `bun .\\.agents\\scripts\\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
 7. **Final summary**: Provide the final summary of testing and any issues fixed. You MUST explicitly state if you applied any fixes in your final message, and explicitly report if any tests triggered graceful degradation. FORMAT THIS STRING EXACTLY AS **\`Y Prompt Fixes / Z Code Fixes / W Graceful Degradations\`** in bold at the very top of your final result summary. Also include the explicit status line \`STATUS: SUCCESS\`.
