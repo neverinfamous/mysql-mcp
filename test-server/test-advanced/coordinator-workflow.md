@@ -44,16 +44,6 @@ This structure is fully compatible with the `/dynamic-context-audit` skill. Audi
 ## Test Sequence Queue
 
 - [test-codemode-advanced-concurrency.md](test-codemode-advanced-concurrency.md)
-- [test-codemode-advanced-introspection-part1.md](test-codemode-advanced-introspection-part1.md)
-- [test-codemode-advanced-introspection-part2.md](test-codemode-advanced-introspection-part2.md)
-- [test-codemode-advanced-migration-part1.md](test-codemode-advanced-migration-part1.md)
-- [test-codemode-advanced-migration-part2.md](test-codemode-advanced-migration-part2.md)
-- [test-codemode-advanced-optimization-part1.md](test-codemode-advanced-optimization-part1.md)
-- [test-codemode-advanced-optimization-part2.md](test-codemode-advanced-optimization-part2.md)
-- [test-codemode-advanced-partitioning-part1.md](test-codemode-advanced-partitioning-part1.md)
-- [test-codemode-advanced-partitioning-part2.md](test-codemode-advanced-partitioning-part2.md)
-- [test-codemode-advanced-replication-part1.md](test-codemode-advanced-replication-part1.md)
-- [test-codemode-advanced-replication-part2.md](test-codemode-advanced-replication-part2.md)
 - [test-codemode-advanced-types-binary.md](test-codemode-advanced-types-binary.md)
 - [test-codemode-advanced-types-date.md](test-codemode-advanced-types-date.md)
 - [test-codemode-advanced-types-json.md](test-codemode-advanced-types-json.md)

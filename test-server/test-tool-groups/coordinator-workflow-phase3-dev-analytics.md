@@ -15,15 +15,15 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 7).
 - Terminate subagents when done to save context.
 
-## Test Sequence Queue (Phase 3: Dev-analytics)
+## Test Sequence Queue
 
-1. `test-stats-advanced-part1.md` (**MUST PASS FIRST**)
-2. `test-stats-advanced-part2.md`
-3. `test-stats-descriptive-part1.md`
-4. `test-stats-descriptive-part2.md`
-5. `test-stats-descriptive-part3.md`
-6. `test-stats-window-part1.md`
-7. `test-stats-window-part2.md`
+1. `test-stats-advanced-part1a.md` (**MUST PASS FIRST**)
+2. `test-stats-advanced-part1b.md`
+3. `test-stats-analytics.md`
+4. `test-stats-basic-part1.md`
+5. `test-stats-basic-part2.md`
+6. `test-stats-window-part1a.md`
+7. `test-stats-window-part1b.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

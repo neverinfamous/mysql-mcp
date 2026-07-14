@@ -15,7 +15,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 6).
 - Terminate subagents when done to save context.
 
-## Test Sequence Queue (Phase 6: Ai-spatial)
+## Test Sequence Queue
 
 1. `test-spatial-geometry.md` (**MUST PASS FIRST**)
 2. `test-spatial-operations-part1.md`

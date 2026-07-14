@@ -71,8 +71,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_slave_status` |   |   |   |   |
 | `mysql_gtid_status` |   |   |   |   |
+| `mysql_replication_lag` |   |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_slave_status`
 - `mysql_gtid_status`
+- `mysql_replication_lag`
 
 
 ## Group Focus: replication
@@ -89,13 +89,13 @@
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_slave_status
 - [ ] mysql_gtid_status
+- [ ] mysql_replication_lag
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_slave_status
 - [ ] Ensure full coverage for mysql_gtid_status
+- [ ] Ensure full coverage for mysql_replication_lag
 
 
 ---
@@ -121,5 +121,5 @@
 
 4. **Validate**: Run `pnpm run lint` and `pnpm run typecheck` to validate your changes. Do NOT run `pnpm run test`, `pnpm run check`, or `pnpm run build` as this takes too long. The main coordinator agent will run the test suite at the end.
 5. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-6. **Commit**: Commit all changes locally using `bun .\\.agents\\scripts\\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add . `. Do NOT push.
+6. **Commit**: Commit all changes locally using `bun ./.agents/scripts/commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
 7. **Final summary**: Provide the final summary of testing and any issues fixed. You MUST explicitly state if you applied any fixes in your final message, and explicitly report if any tests triggered graceful degradation. FORMAT THIS STRING EXACTLY AS **`Y Prompt Fixes / Z Code Fixes / W Graceful Degradations`** in bold at the very top of your final result summary. Also include the explicit status line `STATUS: SUCCESS`.

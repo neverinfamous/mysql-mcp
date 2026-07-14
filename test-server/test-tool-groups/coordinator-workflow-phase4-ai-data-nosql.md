@@ -12,14 +12,15 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `ai-data-nosql` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 3).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 4).
 - Terminate subagents when done to save context.
 
-## Test Sequence Queue (Phase 4: Ai-data-nosql)
+## Test Sequence Queue
 
-1. `test-docstore-part1.md` (**MUST PASS FIRST**)
-2. `test-docstore-part2.md`
-3. `test-docstore-part3.md`
+1. `test-docstore-collections-part1.md` (**MUST PASS FIRST**)
+2. `test-docstore-collections-part2.md`
+3. `test-docstore-documents-part1.md`
+4. `test-docstore-documents-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

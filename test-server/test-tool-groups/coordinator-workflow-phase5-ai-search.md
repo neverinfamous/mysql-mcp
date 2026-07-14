@@ -15,7 +15,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 5).
 - Terminate subagents when done to save context.
 
-## Test Sequence Queue (Phase 5: Ai-search)
+## Test Sequence Queue
 
 1. `test-vector-management-part1.md` (**MUST PASS FIRST**)
 2. `test-vector-management-part2.md`

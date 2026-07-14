@@ -15,12 +15,12 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 4).
 - Terminate subagents when done to save context.
 
-## Test Sequence Queue (Phase 10: Dba-schema)
+## Test Sequence Queue
 
-1. `test-introspection-part1.md` (**MUST PASS FIRST**)
-2. `test-introspection-part2.md`
-3. `test-migration-part1.md`
-4. `test-migration-part2.md`
+1. `test-introspection-part1a.md` (**MUST PASS FIRST**)
+2. `test-introspection-part1b.md`
+3. `test-migration-part1a.md`
+4. `test-migration-part1b.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:
