@@ -27,6 +27,8 @@ export class SystemDb {
       this.db = new BetterSqlite3(this.config.dbPath);
 
       // Initialize schema
+      const key = process.env['DB_ENCRYPTION_KEY'] || "adamic123";
+      this.db.pragma(`key = '${key}'`);
       this.db.pragma("journal_mode = WAL");
       this.db.pragma("synchronous = NORMAL");
 
