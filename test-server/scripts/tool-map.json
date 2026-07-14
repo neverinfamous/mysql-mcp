@@ -515,6 +515,51 @@
     "test-codemode-advanced-types-json.md": [
         "mysql_execute_code"
     ],
+    "test-codemode-advanced-introspection-part1.md": [
+        "mysql_dependency_graph",
+        "mysql_topological_sort",
+        "mysql_cascade_simulator"
+    ],
+    "test-codemode-advanced-introspection-part2.md": [
+        "mysql_schema_snapshot",
+        "mysql_constraint_analysis",
+        "mysql_migration_risks"
+    ],
+    "test-codemode-advanced-migration-part1.md": [
+        "mysql_migration_init",
+        "mysql_migration_record",
+        "mysql_migration_apply"
+    ],
+    "test-codemode-advanced-migration-part2.md": [
+        "mysql_migration_rollback",
+        "mysql_migration_history",
+        "mysql_migration_status"
+    ],
+    "test-codemode-advanced-optimization-part1.md": [
+        "mysql_index_recommendation",
+        "mysql_query_rewrite"
+    ],
+    "test-codemode-advanced-optimization-part2.md": [
+        "mysql_force_index",
+        "mysql_optimizer_trace"
+    ],
+    "test-codemode-advanced-partitioning-part1.md": [
+        "mysql_partition_info",
+        "mysql_add_partition"
+    ],
+    "test-codemode-advanced-partitioning-part2.md": [
+        "mysql_drop_partition",
+        "mysql_reorganize_partition"
+    ],
+    "test-codemode-advanced-replication-part1.md": [
+        "mysql_master_status",
+        "mysql_slave_status",
+        "mysql_binlog_events"
+    ],
+    "test-codemode-advanced-replication-part2.md": [
+        "mysql_gtid_status",
+        "mysql_replication_lag"
+    ],
     "test-usability-backup-part1.md": [
         "mysql_export_table",
         "mysql_import_data",

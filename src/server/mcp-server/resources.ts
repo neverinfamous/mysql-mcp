@@ -10,6 +10,39 @@ import { logger } from "../../utils/logger.js";
 import type { ToolGroup } from "../../types/index.js";
 import type { AuditLogger } from "../../audit/logger.js";
 import type { BackupManager } from "../../audit/backup-manager/index.js";
+import { extractJsonSchema, extractParameterSummary } from "./schema-extractor.js";
+
+const GROUP_DESCRIPTIONS: Record<string, string> = {
+  core: "Basic CRUD, schema operations, and query execution",
+  json: "JSON data manipulation and querying",
+  text: "Text string operations and manipulation",
+  fulltext: "Full-text search indexing and querying",
+  performance: "Performance Schema insights and tuning",
+  optimization: "Query optimization and EXPLAIN analysis",
+  admin: "Server administration and configuration",
+  monitoring: "Server status and monitoring metrics",
+  backup: "Database backup and restoration",
+  replication: "Replication status and management",
+  partitioning: "Table partitioning operations",
+  transactions: "Transaction management and isolation levels",
+  router: "MySQL Router configuration and status",
+  proxysql: "ProxySQL configuration and connection pooling",
+  shell: "MySQL Shell operations and script execution",
+  schema: "Information Schema queries and database metadata",
+  events: "Event Scheduler and scheduled tasks",
+  sysschema: "Sys Schema for DBA diagnostics",
+  stats: "Optimizer statistics and histogram management",
+  spatial: "Geospatial data types and GIS functions",
+  security: "Users, grants, and TLS configuration",
+  cluster: "InnoDB Cluster and Group Replication",
+  roles: "Role-based access control (RBAC)",
+  docstore: "X DevAPI and Document Store",
+  introspection: "Agent reflection and MCP tool metadata",
+  migration: "Data import, export, and migration",
+  vector: "Vector embeddings and similarity search",
+  codemode: "Advanced ad-hoc scripting via Node.js sandbox",
+  gotchas: "Crucial context and behavioral rules for MySQL interactions",
+};
 
 /**
  * Register mysql://help resources for on-demand reference documentation.
@@ -45,28 +78,43 @@ export function registerHelpResources(server: McpServer): void {
       const groups: Record<string, { tools: string[] }> = {};
       
       // Gather actual tools dynamically from adapters
-      for (const adapter of server.getAdapters().values()) {
-        const tools = adapter.getToolDefinitions();
-        for (const tool of tools) {
-          if (!toolFilter.enabledTools.has(tool.name) && !enabledGroups.has("codemode")) continue;
-          
-          let toolGroup = "core";
-          for (const [g, groupTools] of Object.entries(TOOL_GROUPS)) {
-            if (groupTools.includes(tool.name)) {
-              toolGroup = g;
-              break;
-            }
+      const allTools = Array.from(server.getAdapters().values()).flatMap(adapter => adapter.getToolDefinitions());
+      
+      for (const tool of allTools) {
+        if (!toolFilter.enabledTools.has(tool.name) && !enabledGroups.has("codemode")) continue;
+        
+        let toolGroup = "core";
+        for (const [g, groupTools] of Object.entries(TOOL_GROUPS)) {
+          if (groupTools.includes(tool.name)) {
+            toolGroup = g;
+            break;
           }
-          
-          if (toolGroup === "codemode") continue;
-          
-          groups[toolGroup] ??= { tools: [] };
-          groups[toolGroup]?.tools.push(tool.name);
         }
+        
+        if (toolGroup === "codemode") continue;
+        
+        groups[toolGroup] ??= { tools: [] };
+        groups[toolGroup]?.tools.push(tool.name);
       }
 
       // Ensure 'gotchas' is included
       groups["gotchas"] = { tools: [] };
+
+      // Calculate an approximate token count based on stringification
+      const payloadString = JSON.stringify(groups);
+      const tokenEstimate = Math.ceil(payloadString.length / 4);
+
+      const formattedGroups = Object.keys(groups).map((groupName) => {
+        const groupInfo = groups[groupName];
+        return {
+          name: groupName,
+          description: GROUP_DESCRIPTIONS[groupName] || `Tools related to ${groupName}`,
+          toolCount: groupInfo?.tools.length ?? 0,
+          readOnly: false, // Could be derived from tool annotations if needed
+          tools: groupInfo?.tools ?? [],
+          helpUri: `mysql://help/${groupName}`,
+        };
+      });
 
       return {
         contents: [
@@ -75,9 +123,11 @@ export function registerHelpResources(server: McpServer): void {
             mimeType: "application/json",
             text: JSON.stringify(
               {
-                description: "List of available tool groups. Read mysql://help/{group} for specific tool documentation.",
-                groups: Object.keys(groups),
-                _meta: { groups }
+                totalTools: allTools.length,
+                totalGroups: formattedGroups.length,
+                groups: formattedGroups,
+                hint: "Read mysql://help/{group} for detailed parameter info on each tool.",
+                _meta: { tokenEstimate }
               },
               null,
               2
@@ -106,6 +156,55 @@ export function registerHelpResources(server: McpServer): void {
         throw new Error(`Help group '${group}' not found`);
       }
 
+      const allTools = Array.from(server.getAdapters().values()).flatMap(adapter => adapter.getToolDefinitions());
+      const toolFilter = server.getToolFilter();
+      const codemodeEnabled = getEnabledGroups(toolFilter.enabledTools).has("codemode");
+
+      // Find tools belonging to this group
+      const groupToolsList = TOOL_GROUPS[group as keyof typeof TOOL_GROUPS] ?? [];
+      const toolDefs = allTools.filter(t => groupToolsList.includes(t.name));
+
+      const formattedTools = toolDefs.map(tool => {
+        let parameters: { name: string; type: string; required: boolean; description?: string }[] = [];
+        const hasOutputSchema = !!tool.outputSchema;
+        
+        try {
+          const jsonSchema = extractJsonSchema(tool.inputSchema);
+          if (jsonSchema !== null) {
+            parameters = extractParameterSummary(jsonSchema);
+          }
+        } catch {
+          // Fallback if extraction fails
+        }
+
+        // Apply codemode name rewriting if codemode is enabled
+        let toolName = tool.name;
+        if (codemodeEnabled && toolName.startsWith("mysql_")) {
+          const camelName = toolName.slice(6).replace(/_([a-z])/g, (_, p1: string) => p1.toUpperCase());
+          toolName = `mysql.${group}.${camelName}`;
+        }
+
+        return {
+          name: toolName,
+          title: tool.title ?? toolName,
+          description: tool.description,
+          parameters,
+          annotations: tool.annotations ?? {},
+          hasOutputSchema,
+        };
+      });
+
+      const payload = {
+        group,
+        description: GROUP_DESCRIPTIONS[group] ?? `Documentation for ${group}`,
+        toolCount: formattedTools.length,
+        tools: formattedTools,
+        helpContent: content,
+      };
+
+      const payloadString = JSON.stringify(payload);
+      const tokenEstimate = Math.ceil(payloadString.length / 4);
+
       return {
         contents: [
           {
@@ -113,8 +212,8 @@ export function registerHelpResources(server: McpServer): void {
             mimeType: "application/json",
             text: JSON.stringify(
               {
-                group,
-                documentation: content
+                ...payload,
+                _meta: { tokenEstimate }
               },
               null,
               2

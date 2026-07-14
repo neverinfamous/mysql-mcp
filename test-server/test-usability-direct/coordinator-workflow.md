@@ -43,7 +43,7 @@ Execute usability tests in `test-server/test-usability-direct/`. Fuzz tools to t
    - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced (there should not be any).
    - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
 8. **Strict Verification and Anti-Hallucination**:
-   - The Coordinator MUST use the `list_dir` tool on `test-server/test-usability-direct/` BEFORE starting, and cross-reference the actual directory contents against the queues inside the Phase files.
+   - The Coordinator MUST use the `list_dir` tool on `test-server/test-usability-direct/` BEFORE starting, and cross-reference the actual directory contents against the queues inside the Phase files and `test-server/scripts/test-manifest.ts`. The definitive generation logic is in `test-server/scripts/generate-tests.ts`.
    - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue to track progress.
    - NEVER rely on memory for filenames or current test counts. ALWAYS read your exact position from the checklist artifact or this file.
    - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND`, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly increment the counter or count it as a successful test.

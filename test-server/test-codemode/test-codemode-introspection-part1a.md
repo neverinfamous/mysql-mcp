@@ -86,18 +86,11 @@
 - `mysql.introspection.cascadeSimulator`
 
 
-## Group Focus: introspection
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
-> **API Reference**: You MUST read the `mysql://help/introspection` resource (or view `src/constants/server-instructions/introspection.md`) to understand the exact API signatures and expected parameters before writing any code.
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.introspection.dependencyGraph
-- [ ] Ensure full coverage for mysql.introspection.topologicalSort
-- [ ] Ensure full coverage for mysql.introspection.cascadeSimulator
-
+- [ ] Ensure full coverage for `mysql_dependency_graph`
+- [ ] Ensure full coverage for `mysql_topological_sort`
+- [ ] Ensure full coverage for `mysql_cascade_simulator`
 
 ---
 

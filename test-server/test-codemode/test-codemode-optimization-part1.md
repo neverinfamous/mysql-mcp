@@ -84,17 +84,11 @@
 - `mysql.optimization.queryRewrite`
 
 
-## Group Focus: optimization
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
-> **API Reference**: You MUST read the `mysql://help/optimization` resource (or view `src/constants/server-instructions/optimization.md`) to understand the exact API signatures and expected parameters before writing any code.
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.optimization.indexRecommendation
-- [ ] Ensure full coverage for mysql.optimization.queryRewrite
-
+- [ ] Ensure full coverage for `mysql_index_recommendation`
+- [ ] Ensure full coverage for `mysql_query_rewrite`
+- [ ] Ensure full coverage for `mysql_force_index`
 
 ---
 

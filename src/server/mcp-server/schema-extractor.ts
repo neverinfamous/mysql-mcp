@@ -27,7 +27,7 @@ function isStandardSchema(value: unknown): value is StandardSchemaLike {
 export function extractJsonSchema(
   inputSchema: unknown,
 ): Record<string, unknown> | null {
-  if (!inputSchema || !isStandardSchema(inputSchema)) {
+  if (inputSchema == null || !isStandardSchema(inputSchema)) {
     return null;
   }
 
@@ -73,10 +73,10 @@ export function extractParameterSummary(
 }
 
 function resolveType(prop: Record<string, unknown>): string {
-  if (prop['anyOf']) return 'union';
-  if (prop['oneOf']) return 'union';
+  if (prop['anyOf'] !== undefined) return 'union';
+  if (prop['oneOf'] !== undefined) return 'union';
   if (prop['const'] !== undefined) return 'literal';
-  if (prop['enum']) return 'enum';
+  if (prop['enum'] !== undefined) return 'enum';
   if (typeof prop['type'] === 'string') return prop['type'];
   return 'unknown';
 }

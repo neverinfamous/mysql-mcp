@@ -84,17 +84,10 @@
 - `mysql.replication.replicationLag`
 
 
-## Group Focus: replication
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
-> **API Reference**: You MUST read the `mysql://help/replication` resource (or view `src/constants/server-instructions/replication.md`) to understand the exact API signatures and expected parameters before writing any code.
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.replication.gtidStatus
-- [ ] Ensure full coverage for mysql.replication.replicationLag
-
+- [ ] Ensure full coverage for `mysql_gtid_status`
+- [ ] Ensure full coverage for `mysql_replication_lag`
 
 ---
 

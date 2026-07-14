@@ -345,7 +345,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_dependency_graph",
       "mysql_topological_sort",
       "mysql_cascade_simulator"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-introspection-part1.content.md"
   },
   {
     "filename": "test-codemode-introspection-part1b.md",
@@ -355,7 +356,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_schema_snapshot",
       "mysql_constraint_analysis",
       "mysql_migration_risks"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-introspection-part2.content.md"
   },
   {
     "filename": "test-codemode-json-core-read.md",
@@ -431,7 +433,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_migration_init",
       "mysql_migration_record",
       "mysql_migration_apply"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-migration-part1.content.md"
   },
   {
     "filename": "test-codemode-migration-part1b.md",
@@ -441,7 +444,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_migration_rollback",
       "mysql_migration_history",
       "mysql_migration_status"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-migration-part2.content.md"
   },
   {
     "filename": "test-codemode-monitoring-part1a.md",
@@ -478,7 +482,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_index_recommendation",
       "mysql_query_rewrite"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-optimization-part1.content.md"
   },
   {
     "filename": "test-codemode-optimization-part2.md",
@@ -487,7 +492,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_force_index",
       "mysql_optimizer_trace"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-optimization-part2.content.md"
   },
   {
     "filename": "test-codemode-partitioning-part1.md",
@@ -496,7 +502,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_partition_info",
       "mysql_add_partition"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-partitioning-part1.content.md"
   },
   {
     "filename": "test-codemode-partitioning-part2.md",
@@ -505,7 +512,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_drop_partition",
       "mysql_reorganize_partition"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-partitioning-part2.content.md"
   },
   {
     "filename": "test-codemode-performance-analysis-queries-part1.md",
@@ -607,7 +615,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_master_status",
       "mysql_slave_status",
       "mysql_binlog_events"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-replication-part1.content.md"
   },
   {
     "filename": "test-codemode-replication-part2.md",
@@ -616,7 +625,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_gtid_status",
       "mysql_replication_lag"
-    ]
+    ],
+    "contentPartial": "test-codemode-advanced-replication-part2.content.md"
   },
   {
     "filename": "test-codemode-roles-grants-part1.md",
@@ -1126,6 +1136,111 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_execute_code"
     ],
     "contentPartial": "test-codemode-advanced-types-json.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-introspection-part1.md",
+    "directory": "test-advanced",
+    "group": "introspection",
+    "tools": [
+      "mysql_dependency_graph",
+      "mysql_topological_sort",
+      "mysql_cascade_simulator"
+    ],
+    "contentPartial": "test-codemode-advanced-introspection-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-introspection-part2.md",
+    "directory": "test-advanced",
+    "group": "introspection",
+    "tools": [
+      "mysql_schema_snapshot",
+      "mysql_constraint_analysis",
+      "mysql_migration_risks"
+    ],
+    "contentPartial": "test-codemode-advanced-introspection-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-migration-part1.md",
+    "directory": "test-advanced",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_init",
+      "mysql_migration_record",
+      "mysql_migration_apply"
+    ],
+    "contentPartial": "test-codemode-advanced-migration-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-migration-part2.md",
+    "directory": "test-advanced",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_rollback",
+      "mysql_migration_history",
+      "mysql_migration_status"
+    ],
+    "contentPartial": "test-codemode-advanced-migration-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-optimization-part1.md",
+    "directory": "test-advanced",
+    "group": "optimization",
+    "tools": [
+      "mysql_index_recommendation",
+      "mysql_query_rewrite"
+    ],
+    "contentPartial": "test-codemode-advanced-optimization-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-optimization-part2.md",
+    "directory": "test-advanced",
+    "group": "optimization",
+    "tools": [
+      "mysql_force_index",
+      "mysql_optimizer_trace"
+    ],
+    "contentPartial": "test-codemode-advanced-optimization-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-partitioning-part1.md",
+    "directory": "test-advanced",
+    "group": "partitioning",
+    "tools": [
+      "mysql_partition_info",
+      "mysql_add_partition"
+    ],
+    "contentPartial": "test-codemode-advanced-partitioning-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-partitioning-part2.md",
+    "directory": "test-advanced",
+    "group": "partitioning",
+    "tools": [
+      "mysql_drop_partition",
+      "mysql_reorganize_partition"
+    ],
+    "contentPartial": "test-codemode-advanced-partitioning-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-replication-part1.md",
+    "directory": "test-advanced",
+    "group": "replication",
+    "tools": [
+      "mysql_master_status",
+      "mysql_slave_status",
+      "mysql_binlog_events"
+    ],
+    "contentPartial": "test-codemode-advanced-replication-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-replication-part2.md",
+    "directory": "test-advanced",
+    "group": "replication",
+    "tools": [
+      "mysql_gtid_status",
+      "mysql_replication_lag"
+    ],
+    "contentPartial": "test-codemode-advanced-replication-part2.content.md"
   },
   {
     "filename": "test-usability-backup-part1.md",
@@ -2907,7 +3022,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-core-read-part1.md",
     "directory": "test-tool-groups",
-    "group": "core-read",
+    "group": "core",
     "tools": [
       "mysql_read_query",
       "mysql_list_tables"
@@ -2916,7 +3031,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-core-read-part2.md",
     "directory": "test-tool-groups",
-    "group": "core-read",
+    "group": "core",
     "tools": [
       "mysql_describe_table",
       "mysql_get_indexes"
@@ -2925,7 +3040,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-core-write-part1.md",
     "directory": "test-tool-groups",
-    "group": "core-write",
+    "group": "core",
     "tools": [
       "mysql_write_query",
       "mysql_create_table"
@@ -2934,7 +3049,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-core-write-part2.md",
     "directory": "test-tool-groups",
-    "group": "core-write",
+    "group": "core",
     "tools": [
       "mysql_drop_table",
       "mysql_create_index"
@@ -3762,7 +3877,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-versioning-part1.md",
     "directory": "test-tool-groups",
-    "group": "versioning",
+    "group": "core",
     "tools": [
       "mysql_enable_versioning",
       "mysql_disable_versioning"
@@ -3771,7 +3886,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-versioning-part2.md",
     "directory": "test-tool-groups",
-    "group": "versioning",
+    "group": "core",
     "tools": [
       "mysql_check_version",
       "mysql_conditional_update"

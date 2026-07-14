@@ -86,18 +86,11 @@
 - `mysql.introspection.migrationRisks`
 
 
-## Group Focus: introspection
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
-> **API Reference**: You MUST read the `mysql://help/introspection` resource (or view `src/constants/server-instructions/introspection.md`) to understand the exact API signatures and expected parameters before writing any code.
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.introspection.schemaSnapshot
-- [ ] Ensure full coverage for mysql.introspection.constraintAnalysis
-- [ ] Ensure full coverage for mysql.introspection.migrationRisks
-
+- [ ] Ensure full coverage for `mysql_schema_snapshot`
+- [ ] Ensure full coverage for `mysql_constraint_analysis`
+- [ ] Ensure full coverage for `mysql_migration_risks`
 
 ---
 

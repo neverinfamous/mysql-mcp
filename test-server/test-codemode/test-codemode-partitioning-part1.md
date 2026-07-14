@@ -84,17 +84,11 @@
 - `mysql.partitioning.addPartition`
 
 
-## Group Focus: partitioning
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
-> **API Reference**: You MUST read the `mysql://help/partitioning` resource (or view `src/constants/server-instructions/partitioning.md`) to understand the exact API signatures and expected parameters before writing any code.
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.partitioning.partitionInfo
-- [ ] Ensure full coverage for mysql.partitioning.addPartition
-
+- [ ] Ensure full coverage for `mysql_partition_info`
+- [ ] Ensure full coverage for `mysql_add_partition`
+- [ ] Ensure full coverage for `mysql_drop_partition`
 
 ---
 

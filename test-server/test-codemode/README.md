@@ -9,7 +9,7 @@ This folder contains modular test prompts covering every tool group in `mysql-mc
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
 ### Enable Anti-Hallucination Guardrails
-- **Strict Parsing**: Read exact filenames from `../test-manifest.ts`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
+- **Strict Parsing**: Read exact filenames from `../scripts/test-manifest.ts`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
 
 ### Enforce Execution Strictness
 

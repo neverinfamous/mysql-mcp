@@ -86,18 +86,11 @@
 - `mysql.replication.binlogEvents`
 
 
-## Group Focus: replication
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
-> **API Reference**: You MUST read the `mysql://help/replication` resource (or view `src/constants/server-instructions/replication.md`) to understand the exact API signatures and expected parameters before writing any code.
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.replication.masterStatus
-- [ ] Ensure full coverage for mysql.replication.slaveStatus
-- [ ] Ensure full coverage for mysql.replication.binlogEvents
-
+- [ ] Ensure full coverage for `mysql_master_status`
+- [ ] Ensure full coverage for `mysql_slave_status`
+- [ ] Ensure full coverage for `mysql_binlog_events`
 
 ---
 

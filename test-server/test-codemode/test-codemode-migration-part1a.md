@@ -86,18 +86,11 @@
 - `mysql.migration.apply`
 
 
-## Group Focus: migration
-
-> **Instructions**: Use `mysql.*` namespace, push deviations to `failures` array.
-> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.
-> **API Reference**: You MUST read the `mysql://help/migration` resource (or view `src/constants/server-instructions/migration.md`) to understand the exact API signatures and expected parameters before writing any code.
-
 ## Tasks
 
-- [ ] Ensure full coverage for mysql.migration.init
-- [ ] Ensure full coverage for mysql.migration.record
-- [ ] Ensure full coverage for mysql.migration.apply
-
+- [ ] Ensure full coverage for `mysql_migration_init`
+- [ ] Ensure full coverage for `mysql_migration_record`
+- [ ] Ensure full coverage for `mysql_migration_apply`
 
 ---
 

@@ -9,7 +9,7 @@ This folder contains 104 modular test prompts covering every tool group. These p
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
 ### Enable Anti-Hallucination Guardrails
-- **Strict Parsing**: Read exact filenames from `../test-manifest.ts`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
+- **Strict Parsing**: Read exact filenames from `../scripts/test-manifest.ts`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
 - **Checklist Integrity**: Take extreme care when updating statuses in `task.md`. Modify completion brackets only. Never alter or abbreviate filename strings.
 
 ### Enforce Execution Strictness
@@ -42,7 +42,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ## Access Available Test Files
 
-> **Note**: Please refer to [`test-manifest.ts`](../scripts/test-manifest.ts) and the [`test-server/scripts/generate-tests.ts`](../scripts/generate-tests.ts) engine for the definitive test list and generation logic. Refer to [`coordinator-workflow.md`](../coordinator-workflow.md) for the orchestration sequence.
+> **Note**: Please refer to [`test-manifest.ts`](../scripts/test-manifest.ts) and the [`test-server/scripts/generate-tests.ts`](../scripts/generate-tests.ts) engine for the definitive test list and generation logic. Refer to [`coordinator-workflow.md`](coordinator-workflow.md) for the orchestration sequence.
 
 ## Begin Execution
 
