@@ -12,14 +12,15 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `ecosystem` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 15).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 16).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 11: Ecosystem)
 
-1. `test-cluster-gr.md` (**MUST PASS FIRST**)
-2. `test-cluster-innodb-part1.md`
-3. `test-cluster-innodb-part2.md`
+1. `test-cluster-gr-part1.md` (**MUST PASS FIRST**)
+2. `test-cluster-gr-part2.md`
+3. `test-cluster-innodb-part1.md`
+4. `test-cluster-innodb-part2.md`
 5. `test-proxysql-part1.md`
 6. `test-proxysql-part2.md`
 7. `test-proxysql-part3.md`

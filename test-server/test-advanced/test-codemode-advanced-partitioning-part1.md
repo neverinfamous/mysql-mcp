@@ -74,7 +74,6 @@
 | `mysql.advanced-partitioning.partitionInfo` |   |   |
 | `mysql.advanced-partitioning.addPartition` |   |   |
 | `mysql.advanced-partitioning.dropPartition` |   |   |
-| `mysql.advanced-partitioning.reorganizePartition` |   |   |
 | `mysql.advanced-partitioning.executeCode` |   |   |
 
 ---
@@ -86,7 +85,6 @@
 - `mysql.advanced-partitioning.partitionInfo`
 - `mysql.advanced-partitioning.addPartition`
 - `mysql.advanced-partitioning.dropPartition`
-- `mysql.advanced-partitioning.reorganizePartition`
 - `mysql.advanced-partitioning.executeCode`
 
 
@@ -95,7 +93,6 @@
 - [ ] Ensure full coverage for `mysql_partition_info`
 - [ ] Ensure full coverage for `mysql_add_partition`
 - [ ] Ensure full coverage for `mysql_drop_partition`
-- [ ] Ensure full coverage for `mysql_reorganize_partition`
 
 ---
 

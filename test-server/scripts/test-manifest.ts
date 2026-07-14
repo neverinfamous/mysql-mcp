@@ -580,14 +580,6 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
-    "filename": "test-codemode-sandbox.md",
-    "directory": "test-codemode",
-    "group": "codemode",
-    "tools": [
-      "mysql_execute_code"
-    ]
-  },
-  {
     "filename": "test-codemode-schema-management-part1a.md",
     "directory": "test-codemode",
     "group": "schema",
@@ -1052,7 +1044,6 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_partition_info",
       "mysql_add_partition",
       "mysql_drop_partition",
-      "mysql_reorganize_partition",
       "mysql_execute_code"
     ],
     "contentPartial": "test-codemode-advanced-partitioning-part1.content.md"
@@ -2018,36 +2009,6 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
-    "filename": "test-usability-admin-part1.md",
-    "directory": "test-usability",
-    "group": "admin",
-    "tools": [
-      "mysql_optimize_table",
-      "mysql_analyze_table",
-      "mysql_check_table"
-    ]
-  },
-  {
-    "filename": "test-usability-admin-part2.md",
-    "directory": "test-usability",
-    "group": "admin",
-    "tools": [
-      "mysql_repair_table",
-      "mysql_flush_tables",
-      "mysql_kill_query"
-    ]
-  },
-  {
-    "filename": "test-usability-admin-part3.md",
-    "directory": "test-usability",
-    "group": "admin",
-    "tools": [
-      "mysql_append_insight",
-      "mysql_server_config",
-      "mysql_audit_search"
-    ]
-  },
-  {
     "filename": "test-usability-backup-part1.md",
     "directory": "test-usability",
     "group": "backup",
@@ -2076,16 +2037,6 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
-    "filename": "test-usability-cluster-part1.md",
-    "directory": "test-usability",
-    "group": "cluster",
-    "tools": [
-      "mysql_gr_status",
-      "mysql_gr_members",
-      "mysql_gr_primary"
-    ]
-  },
-  {
     "filename": "test-usability-cluster-part2.md",
     "directory": "test-usability",
     "group": "cluster",
@@ -2111,14 +2062,6 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "cluster",
     "tools": [
       "mysql_cluster_switchover"
-    ]
-  },
-  {
-    "filename": "test-usability-codemode.md",
-    "directory": "test-usability",
-    "group": "codemode",
-    "tools": [
-      "mysql_execute_code"
     ]
   },
   {
@@ -2162,16 +2105,6 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
-    "filename": "test-usability-docstore-part1.md",
-    "directory": "test-usability",
-    "group": "docstore",
-    "tools": [
-      "mysql_doc_list_collections",
-      "mysql_doc_create_collection",
-      "mysql_doc_drop_collection"
-    ]
-  },
-  {
     "filename": "test-usability-docstore-part2.md",
     "directory": "test-usability",
     "group": "docstore",
@@ -2192,26 +2125,6 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
-    "filename": "test-usability-events-part1.md",
-    "directory": "test-usability",
-    "group": "events",
-    "tools": [
-      "mysql_event_create",
-      "mysql_event_alter",
-      "mysql_event_drop"
-    ]
-  },
-  {
-    "filename": "test-usability-events-part2.md",
-    "directory": "test-usability",
-    "group": "events",
-    "tools": [
-      "mysql_event_list",
-      "mysql_event_status",
-      "mysql_scheduler_status"
-    ]
-  },
-  {
     "filename": "test-usability-fulltext-part1.md",
     "directory": "test-usability",
     "group": "fulltext",
@@ -2228,26 +2141,6 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_fulltext_boolean",
       "mysql_fulltext_expand"
-    ]
-  },
-  {
-    "filename": "test-usability-introspection-part1.md",
-    "directory": "test-usability",
-    "group": "introspection",
-    "tools": [
-      "mysql_dependency_graph",
-      "mysql_topological_sort",
-      "mysql_cascade_simulator"
-    ]
-  },
-  {
-    "filename": "test-usability-introspection-part2.md",
-    "directory": "test-usability",
-    "group": "introspection",
-    "tools": [
-      "mysql_schema_snapshot",
-      "mysql_constraint_analysis",
-      "mysql_migration_risks"
     ]
   },
   {
@@ -2307,26 +2200,6 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_json_stats",
       "mysql_json_index_suggest"
-    ]
-  },
-  {
-    "filename": "test-usability-migration-part1.md",
-    "directory": "test-usability",
-    "group": "migration",
-    "tools": [
-      "mysql_migration_init",
-      "mysql_migration_record",
-      "mysql_migration_apply"
-    ]
-  },
-  {
-    "filename": "test-usability-migration-part2.md",
-    "directory": "test-usability",
-    "group": "migration",
-    "tools": [
-      "mysql_migration_rollback",
-      "mysql_migration_history",
-      "mysql_migration_status"
     ]
   },
   {
@@ -2472,25 +2345,6 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
-    "filename": "test-usability-replication-part1.md",
-    "directory": "test-usability",
-    "group": "replication",
-    "tools": [
-      "mysql_master_status",
-      "mysql_slave_status",
-      "mysql_binlog_events"
-    ]
-  },
-  {
-    "filename": "test-usability-replication-part2.md",
-    "directory": "test-usability",
-    "group": "replication",
-    "tools": [
-      "mysql_gtid_status",
-      "mysql_replication_lag"
-    ]
-  },
-  {
     "filename": "test-usability-roles-part1.md",
     "directory": "test-usability",
     "group": "roles",
@@ -2567,16 +2421,6 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_list_views",
       "mysql_create_view",
       "mysql_drop_view"
-    ]
-  },
-  {
-    "filename": "test-usability-schema-part3.md",
-    "directory": "test-usability",
-    "group": "schema",
-    "tools": [
-      "mysql_list_stored_procedures",
-      "mysql_list_functions",
-      "mysql_list_triggers"
     ]
   },
   {
@@ -2787,35 +2631,6 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
-    "filename": "test-usability-sysschema-part3.md",
-    "directory": "test-usability",
-    "group": "sysschema",
-    "tools": [
-      "mysql_sys_host_summary",
-      "mysql_sys_memory_summary"
-    ]
-  },
-  {
-    "filename": "test-usability-text-part1.md",
-    "directory": "test-usability",
-    "group": "text",
-    "tools": [
-      "mysql_regexp_match",
-      "mysql_like_search",
-      "mysql_soundex"
-    ]
-  },
-  {
-    "filename": "test-usability-text-part2.md",
-    "directory": "test-usability",
-    "group": "text",
-    "tools": [
-      "mysql_substring",
-      "mysql_concat",
-      "mysql_collation_convert"
-    ]
-  },
-  {
     "filename": "test-usability-transactions-part1.md",
     "directory": "test-usability",
     "group": "transactions",
@@ -2871,15 +2686,6 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_vector_hybrid_search",
       "mysql_vector_info",
       "mysql_vector_create_index"
-    ]
-  },
-  {
-    "filename": "test-usability-vector-part4.md",
-    "directory": "test-usability",
-    "group": "vector",
-    "tools": [
-      "mysql_vector_optimize",
-      "mysql_vector_stats"
     ]
   },
   {

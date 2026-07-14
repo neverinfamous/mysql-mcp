@@ -263,9 +263,6 @@
         "mysql_router_route_destinations",
         "mysql_router_route_blocked_hosts"
     ],
-    "test-codemode-sandbox.md": [
-        "mysql_execute_code"
-    ],
     "test-codemode-schema-management-part1a.md": [
         "mysql_list_schemas",
         "mysql_create_schema"
@@ -482,7 +479,6 @@
         "mysql_partition_info",
         "mysql_add_partition",
         "mysql_drop_partition",
-        "mysql_reorganize_partition",
         "mysql_execute_code"
     ],
     "test-codemode-advanced-partitioning-part2.md": [
@@ -939,21 +935,6 @@
         "mysql_vector_get",
         "mysql_vector_delete"
     ],
-    "test-usability-admin-part1.md": [
-        "mysql_optimize_table",
-        "mysql_analyze_table",
-        "mysql_check_table"
-    ],
-    "test-usability-admin-part2.md": [
-        "mysql_repair_table",
-        "mysql_flush_tables",
-        "mysql_kill_query"
-    ],
-    "test-usability-admin-part3.md": [
-        "mysql_append_insight",
-        "mysql_server_config",
-        "mysql_audit_search"
-    ],
     "test-usability-backup-part1.md": [
         "mysql_export_table",
         "mysql_import_data",
@@ -967,11 +948,6 @@
     "test-usability-backup-part3.md": [
         "mysql_audit_diff_backup"
     ],
-    "test-usability-cluster-part1.md": [
-        "mysql_gr_status",
-        "mysql_gr_members",
-        "mysql_gr_primary"
-    ],
     "test-usability-cluster-part2.md": [
         "mysql_gr_transactions",
         "mysql_gr_flow_control",
@@ -984,9 +960,6 @@
     ],
     "test-usability-cluster-part4.md": [
         "mysql_cluster_switchover"
-    ],
-    "test-usability-codemode.md": [
-        "mysql_execute_code"
     ],
     "test-usability-core-part1.md": [
         "mysql_read_query",
@@ -1008,11 +981,6 @@
         "mysql_check_version",
         "mysql_conditional_update"
     ],
-    "test-usability-docstore-part1.md": [
-        "mysql_doc_list_collections",
-        "mysql_doc_create_collection",
-        "mysql_doc_drop_collection"
-    ],
     "test-usability-docstore-part2.md": [
         "mysql_doc_find",
         "mysql_doc_add",
@@ -1023,16 +991,6 @@
         "mysql_doc_create_index",
         "mysql_doc_collection_info"
     ],
-    "test-usability-events-part1.md": [
-        "mysql_event_create",
-        "mysql_event_alter",
-        "mysql_event_drop"
-    ],
-    "test-usability-events-part2.md": [
-        "mysql_event_list",
-        "mysql_event_status",
-        "mysql_scheduler_status"
-    ],
     "test-usability-fulltext-part1.md": [
         "mysql_fulltext_create",
         "mysql_fulltext_drop",
@@ -1041,16 +999,6 @@
     "test-usability-fulltext-part2.md": [
         "mysql_fulltext_boolean",
         "mysql_fulltext_expand"
-    ],
-    "test-usability-introspection-part1.md": [
-        "mysql_dependency_graph",
-        "mysql_topological_sort",
-        "mysql_cascade_simulator"
-    ],
-    "test-usability-introspection-part2.md": [
-        "mysql_schema_snapshot",
-        "mysql_constraint_analysis",
-        "mysql_migration_risks"
     ],
     "test-usability-json-part1.md": [
         "mysql_json_extract",
@@ -1080,16 +1028,6 @@
     "test-usability-json-part6.md": [
         "mysql_json_stats",
         "mysql_json_index_suggest"
-    ],
-    "test-usability-migration-part1.md": [
-        "mysql_migration_init",
-        "mysql_migration_record",
-        "mysql_migration_apply"
-    ],
-    "test-usability-migration-part2.md": [
-        "mysql_migration_rollback",
-        "mysql_migration_history",
-        "mysql_migration_status"
     ],
     "test-usability-monitoring-part1.md": [
         "mysql_show_processlist",
@@ -1158,15 +1096,6 @@
         "proxysql_commands",
         "proxysql_process_list"
     ],
-    "test-usability-replication-part1.md": [
-        "mysql_master_status",
-        "mysql_slave_status",
-        "mysql_binlog_events"
-    ],
-    "test-usability-replication-part2.md": [
-        "mysql_gtid_status",
-        "mysql_replication_lag"
-    ],
     "test-usability-roles-part1.md": [
         "mysql_role_list",
         "mysql_role_create",
@@ -1205,11 +1134,6 @@
         "mysql_list_views",
         "mysql_create_view",
         "mysql_drop_view"
-    ],
-    "test-usability-schema-part3.md": [
-        "mysql_list_stored_procedures",
-        "mysql_list_functions",
-        "mysql_list_triggers"
     ],
     "test-usability-schema-part4.md": [
         "mysql_create_trigger",
@@ -1313,20 +1237,6 @@
         "mysql_sys_innodb_lock_waits",
         "mysql_sys_schema_stats"
     ],
-    "test-usability-sysschema-part3.md": [
-        "mysql_sys_host_summary",
-        "mysql_sys_memory_summary"
-    ],
-    "test-usability-text-part1.md": [
-        "mysql_regexp_match",
-        "mysql_like_search",
-        "mysql_soundex"
-    ],
-    "test-usability-text-part2.md": [
-        "mysql_substring",
-        "mysql_concat",
-        "mysql_collation_convert"
-    ],
     "test-usability-transactions-part1.md": [
         "mysql_transaction_begin",
         "mysql_transaction_commit",
@@ -1354,10 +1264,6 @@
         "mysql_vector_hybrid_search",
         "mysql_vector_info",
         "mysql_vector_create_index"
-    ],
-    "test-usability-vector-part4.md": [
-        "mysql_vector_optimize",
-        "mysql_vector_stats"
     ],
     "test-usability-direct-admin-part1.md": [
         "mysql_optimize_table",
