@@ -114,7 +114,7 @@ function runConfig(config) {
                             const contents = msg.result.contents || []
                             if (contents.length > 0 && contents[0].text) {
                                 const parsed = JSON.parse(contents[0].text)
-                                availableGroups = parsed.groups || []
+                                availableGroups = (parsed.groups || []).map(g => typeof g === 'string' ? g : g.name)
                             }
                         } catch {
                             // parse error
