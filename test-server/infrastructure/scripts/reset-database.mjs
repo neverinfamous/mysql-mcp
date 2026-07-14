@@ -138,19 +138,26 @@ const filesToClean = [
 ];
 
 let cleanedCount = 0;
+let foundCount = 0;
 for (const file of filesToClean) {
     const filePath = resolve(logsDir, file);
     if (existsSync(filePath)) {
+        foundCount++;
         try {
             rmSync(filePath, { force: true });
             cleanedCount++;
         } catch (e) {
-            console.warn(`  [WARN] Failed to delete ${file}: ${e.message}`);
+            console.log(`  [WARN] Failed to delete ${file}: ${e.message}`);
+            if (e.code === 'EPERM' || e.code === 'EBUSY') {
+                console.log(`         (Ensure the MCP server is STOPPED before running this script, as Windows locks open databases)`);
+            }
         }
     }
 }
 if (cleanedCount > 0) {
     console.log(`  [PASS] Cleared ${cleanedCount} observability database files`);
+} else if (foundCount > 0) {
+    console.log(`  [FAIL] Found ${foundCount} files but could not delete them due to file locks`);
 } else {
     console.log(`  [INFO] No observability database found to clean`);
 }
