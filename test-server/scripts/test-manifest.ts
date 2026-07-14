@@ -2897,7 +2897,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
 {
-    "filename": "test-codemode-test-admin-audit.md",
+    "filename": "test-codemode-admin-audit.md",
     "directory": "test-codemode",
     "group": "admin",
     "tools": [
@@ -2907,7 +2907,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-admin-maintenance-part1a.md",
+    "filename": "test-codemode-admin-maintenance-part1a.md",
     "directory": "test-codemode",
     "group": "admin",
     "tools": [
@@ -2917,7 +2917,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-admin-maintenance-part1b.md",
+    "filename": "test-codemode-admin-maintenance-part1b.md",
     "directory": "test-codemode",
     "group": "admin",
     "tools": [
@@ -2927,7 +2927,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-backup-audit.md",
+    "filename": "test-codemode-backup-audit.md",
     "directory": "test-codemode",
     "group": "backup",
     "tools": [
@@ -2937,7 +2937,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-backup-data-part1.md",
+    "filename": "test-codemode-backup-data-part1.md",
     "directory": "test-codemode",
     "group": "backup",
     "tools": [
@@ -2946,7 +2946,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-backup-data-part2.md",
+    "filename": "test-codemode-backup-data-part2.md",
     "directory": "test-codemode",
     "group": "backup",
     "tools": [
@@ -2955,7 +2955,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-cluster-group-replication-part1.md",
+    "filename": "test-codemode-cluster-group-replication-part1.md",
     "directory": "test-codemode",
     "group": "cluster",
     "tools": [
@@ -2965,7 +2965,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-cluster-group-replication-part2.md",
+    "filename": "test-codemode-cluster-group-replication-part2.md",
     "directory": "test-codemode",
     "group": "cluster",
     "tools": [
@@ -2974,7 +2974,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-cluster-innodb-part1.md",
+    "filename": "test-codemode-cluster-innodb-part1.md",
     "directory": "test-codemode",
     "group": "cluster",
     "tools": [
@@ -2984,7 +2984,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-cluster-innodb-part2.md",
+    "filename": "test-codemode-cluster-innodb-part2.md",
     "directory": "test-codemode",
     "group": "cluster",
     "tools": [
@@ -2993,7 +2993,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-core-read-part1.md",
+    "filename": "test-codemode-core-read-part1.md",
     "directory": "test-codemode",
     "group": "core",
     "tools": [
@@ -3002,7 +3002,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-core-read-part2.md",
+    "filename": "test-codemode-core-read-part2.md",
     "directory": "test-codemode",
     "group": "core",
     "tools": [
@@ -3011,7 +3011,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-core-write-part1.md",
+    "filename": "test-codemode-core-write-part1.md",
     "directory": "test-codemode",
     "group": "core",
     "tools": [
@@ -3020,7 +3020,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-core-write-part2.md",
+    "filename": "test-codemode-core-write-part2.md",
     "directory": "test-codemode",
     "group": "core",
     "tools": [
@@ -3029,7 +3029,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-docstore-collections-part1.md",
+    "filename": "test-codemode-docstore-collections-part1.md",
     "directory": "test-codemode",
     "group": "docstore",
     "tools": [
@@ -3039,7 +3039,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-docstore-collections-part2.md",
+    "filename": "test-codemode-docstore-collections-part2.md",
     "directory": "test-codemode",
     "group": "docstore",
     "tools": [
@@ -3048,7 +3048,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-docstore-documents-part1.md",
+    "filename": "test-codemode-docstore-documents-part1.md",
     "directory": "test-codemode",
     "group": "docstore",
     "tools": [
@@ -3057,7 +3057,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-docstore-documents-part2.md",
+    "filename": "test-codemode-docstore-documents-part2.md",
     "directory": "test-codemode",
     "group": "docstore",
     "tools": [
@@ -3066,7 +3066,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-events-part1a.md",
+    "filename": "test-codemode-events-part1a.md",
     "directory": "test-codemode",
     "group": "events",
     "tools": [
@@ -3076,7 +3076,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-events-part1b.md",
+    "filename": "test-codemode-events-part1b.md",
     "directory": "test-codemode",
     "group": "events",
     "tools": [
@@ -3086,7 +3086,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-fulltext-part1a.md",
+    "filename": "test-codemode-fulltext-part1a.md",
     "directory": "test-codemode",
     "group": "fulltext",
     "tools": [
@@ -3094,7 +3094,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-fulltext-part1b.md",
+    "filename": "test-codemode-fulltext-part1b.md",
     "directory": "test-codemode",
     "group": "fulltext",
     "tools": [
@@ -3102,7 +3102,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-fulltext-part2a.md",
+    "filename": "test-codemode-fulltext-part2a.md",
     "directory": "test-codemode",
     "group": "fulltext",
     "tools": [
@@ -3112,7 +3112,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-introspection-part1a.md",
+    "filename": "test-codemode-introspection-part1a.md",
     "directory": "test-codemode",
     "group": "introspection",
     "tools": [
@@ -3122,7 +3122,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-introspection-part1b.md",
+    "filename": "test-codemode-introspection-part1b.md",
     "directory": "test-codemode",
     "group": "introspection",
     "tools": [
@@ -3132,7 +3132,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-json-core-read.md",
+    "filename": "test-codemode-json-core-read.md",
     "directory": "test-codemode",
     "group": "json",
     "tools": [
@@ -3142,7 +3142,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-json-core-write-part1.md",
+    "filename": "test-codemode-json-core-write-part1.md",
     "directory": "test-codemode",
     "group": "json",
     "tools": [
@@ -3152,7 +3152,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-json-core-write-part2.md",
+    "filename": "test-codemode-json-core-write-part2.md",
     "directory": "test-codemode",
     "group": "json",
     "tools": [
@@ -3161,7 +3161,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-json-enhanced-part1.md",
+    "filename": "test-codemode-json-enhanced-part1.md",
     "directory": "test-codemode",
     "group": "json",
     "tools": [
@@ -3170,7 +3170,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-json-enhanced-part2.md",
+    "filename": "test-codemode-json-enhanced-part2.md",
     "directory": "test-codemode",
     "group": "json",
     "tools": [
@@ -3180,7 +3180,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-json-helpers-part1.md",
+    "filename": "test-codemode-json-helpers-part1.md",
     "directory": "test-codemode",
     "group": "json",
     "tools": [
@@ -3189,7 +3189,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-json-helpers-part2.md",
+    "filename": "test-codemode-json-helpers-part2.md",
     "directory": "test-codemode",
     "group": "json",
     "tools": [
@@ -3198,7 +3198,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-migration-part1a.md",
+    "filename": "test-codemode-migration-part1a.md",
     "directory": "test-codemode",
     "group": "migration",
     "tools": [
@@ -3208,7 +3208,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-migration-part1b.md",
+    "filename": "test-codemode-migration-part1b.md",
     "directory": "test-codemode",
     "group": "migration",
     "tools": [
@@ -3218,7 +3218,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-monitoring-part1a.md",
+    "filename": "test-codemode-monitoring-part1a.md",
     "directory": "test-codemode",
     "group": "monitoring",
     "tools": [
@@ -3227,7 +3227,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-monitoring-part1b.md",
+    "filename": "test-codemode-monitoring-part1b.md",
     "directory": "test-codemode",
     "group": "monitoring",
     "tools": [
@@ -3236,7 +3236,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-monitoring-part2a.md",
+    "filename": "test-codemode-monitoring-part2a.md",
     "directory": "test-codemode",
     "group": "monitoring",
     "tools": [
@@ -3246,7 +3246,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-optimization-part1.md",
+    "filename": "test-codemode-optimization-part1.md",
     "directory": "test-codemode",
     "group": "optimization",
     "tools": [
@@ -3255,7 +3255,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-optimization-part2.md",
+    "filename": "test-codemode-optimization-part2.md",
     "directory": "test-codemode",
     "group": "optimization",
     "tools": [
@@ -3264,7 +3264,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-partitioning-part1.md",
+    "filename": "test-codemode-partitioning-part1.md",
     "directory": "test-codemode",
     "group": "partitioning",
     "tools": [
@@ -3273,7 +3273,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-partitioning-part2.md",
+    "filename": "test-codemode-partitioning-part2.md",
     "directory": "test-codemode",
     "group": "partitioning",
     "tools": [
@@ -3282,7 +3282,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-performance-analysis-queries-part1.md",
+    "filename": "test-codemode-performance-analysis-queries-part1.md",
     "directory": "test-codemode",
     "group": "performance",
     "tools": [
@@ -3291,7 +3291,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-performance-analysis-queries-part2.md",
+    "filename": "test-codemode-performance-analysis-queries-part2.md",
     "directory": "test-codemode",
     "group": "performance",
     "tools": [
@@ -3300,7 +3300,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-performance-analysis-system-part1.md",
+    "filename": "test-codemode-performance-analysis-system-part1.md",
     "directory": "test-codemode",
     "group": "performance",
     "tools": [
@@ -3309,7 +3309,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-performance-analysis-system-part2a.md",
+    "filename": "test-codemode-performance-analysis-system-part2a.md",
     "directory": "test-codemode",
     "group": "performance",
     "tools": [
@@ -3318,7 +3318,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-performance-anomaly.md",
+    "filename": "test-codemode-performance-anomaly.md",
     "directory": "test-codemode",
     "group": "performance",
     "tools": [
@@ -3328,7 +3328,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-proxysql-config-part1.md",
+    "filename": "test-codemode-proxysql-config-part1.md",
     "directory": "test-codemode",
     "group": "proxysql",
     "tools": [
@@ -3337,7 +3337,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-proxysql-config-part2.md",
+    "filename": "test-codemode-proxysql-config-part2.md",
     "directory": "test-codemode",
     "group": "proxysql",
     "tools": [
@@ -3346,7 +3346,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-proxysql-status-part1a.md",
+    "filename": "test-codemode-proxysql-status-part1a.md",
     "directory": "test-codemode",
     "group": "proxysql",
     "tools": [
@@ -3355,7 +3355,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-proxysql-status-part1b.md",
+    "filename": "test-codemode-proxysql-status-part1b.md",
     "directory": "test-codemode",
     "group": "proxysql",
     "tools": [
@@ -3364,7 +3364,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-proxysql-status-part2a.md",
+    "filename": "test-codemode-proxysql-status-part2a.md",
     "directory": "test-codemode",
     "group": "proxysql",
     "tools": [
@@ -3374,7 +3374,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-replication-part1.md",
+    "filename": "test-codemode-replication-part1.md",
     "directory": "test-codemode",
     "group": "replication",
     "tools": [
@@ -3384,7 +3384,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-replication-part2.md",
+    "filename": "test-codemode-replication-part2.md",
     "directory": "test-codemode",
     "group": "replication",
     "tools": [
@@ -3393,7 +3393,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-roles-grants-part1.md",
+    "filename": "test-codemode-roles-grants-part1.md",
     "directory": "test-codemode",
     "group": "roles",
     "tools": [
@@ -3402,7 +3402,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-roles-grants-part2.md",
+    "filename": "test-codemode-roles-grants-part2.md",
     "directory": "test-codemode",
     "group": "roles",
     "tools": [
@@ -3411,7 +3411,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-roles-management-part1.md",
+    "filename": "test-codemode-roles-management-part1.md",
     "directory": "test-codemode",
     "group": "roles",
     "tools": [
@@ -3420,7 +3420,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-roles-management-part2.md",
+    "filename": "test-codemode-roles-management-part2.md",
     "directory": "test-codemode",
     "group": "roles",
     "tools": [
@@ -3429,7 +3429,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-router-core-part1.md",
+    "filename": "test-codemode-router-core-part1.md",
     "directory": "test-codemode",
     "group": "router",
     "tools": [
@@ -3438,7 +3438,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-router-core-part2.md",
+    "filename": "test-codemode-router-core-part2.md",
     "directory": "test-codemode",
     "group": "router",
     "tools": [
@@ -3447,7 +3447,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-router-routes-part1.md",
+    "filename": "test-codemode-router-routes-part1.md",
     "directory": "test-codemode",
     "group": "router",
     "tools": [
@@ -3457,7 +3457,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-router-routes-part2.md",
+    "filename": "test-codemode-router-routes-part2.md",
     "directory": "test-codemode",
     "group": "router",
     "tools": [
@@ -3466,7 +3466,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-schema-management-part1a.md",
+    "filename": "test-codemode-schema-management-part1a.md",
     "directory": "test-codemode",
     "group": "schema",
     "tools": [
@@ -3475,7 +3475,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-schema-management-part1b.md",
+    "filename": "test-codemode-schema-management-part1b.md",
     "directory": "test-codemode",
     "group": "schema",
     "tools": [
@@ -3484,7 +3484,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-schema-management-part2a.md",
+    "filename": "test-codemode-schema-management-part2a.md",
     "directory": "test-codemode",
     "group": "schema",
     "tools": [
@@ -3494,7 +3494,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-schema-routines-part1.md",
+    "filename": "test-codemode-schema-routines-part1.md",
     "directory": "test-codemode",
     "group": "schema",
     "tools": [
@@ -3504,7 +3504,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-schema-routines-part2.md",
+    "filename": "test-codemode-schema-routines-part2.md",
     "directory": "test-codemode",
     "group": "schema",
     "tools": [
@@ -3513,7 +3513,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-security-audit-part1.md",
+    "filename": "test-codemode-security-audit-part1.md",
     "directory": "test-codemode",
     "group": "security",
     "tools": [
@@ -3522,7 +3522,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-security-audit-part2.md",
+    "filename": "test-codemode-security-audit-part2.md",
     "directory": "test-codemode",
     "group": "security",
     "tools": [
@@ -3531,7 +3531,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-security-firewall-part1.md",
+    "filename": "test-codemode-security-firewall-part1.md",
     "directory": "test-codemode",
     "group": "security",
     "tools": [
@@ -3540,7 +3540,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-security-firewall-part2.md",
+    "filename": "test-codemode-security-firewall-part2.md",
     "directory": "test-codemode",
     "group": "security",
     "tools": [
@@ -3550,7 +3550,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-shell-data-part1a.md",
+    "filename": "test-codemode-shell-data-part1a.md",
     "directory": "test-codemode",
     "group": "shell",
     "tools": [
@@ -3559,7 +3559,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-shell-data-part1b.md",
+    "filename": "test-codemode-shell-data-part1b.md",
     "directory": "test-codemode",
     "group": "shell",
     "tools": [
@@ -3568,7 +3568,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-shell-data-part2a.md",
+    "filename": "test-codemode-shell-data-part2a.md",
     "directory": "test-codemode",
     "group": "shell",
     "tools": [
@@ -3577,7 +3577,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-shell-data-part2b.md",
+    "filename": "test-codemode-shell-data-part2b.md",
     "directory": "test-codemode",
     "group": "shell",
     "tools": [
@@ -3586,7 +3586,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-shell-utils.md",
+    "filename": "test-codemode-shell-utils.md",
     "directory": "test-codemode",
     "group": "shell",
     "tools": [
@@ -3595,7 +3595,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-spatial-geometry.md",
+    "filename": "test-codemode-spatial-geometry.md",
     "directory": "test-codemode",
     "group": "spatial",
     "tools": [
@@ -3604,7 +3604,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-spatial-operations-part1.md",
+    "filename": "test-codemode-spatial-operations-part1.md",
     "directory": "test-codemode",
     "group": "spatial",
     "tools": [
@@ -3613,7 +3613,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-spatial-operations-part2.md",
+    "filename": "test-codemode-spatial-operations-part2.md",
     "directory": "test-codemode",
     "group": "spatial",
     "tools": [
@@ -3622,7 +3622,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-spatial-queries-part1.md",
+    "filename": "test-codemode-spatial-queries-part1.md",
     "directory": "test-codemode",
     "group": "spatial",
     "tools": [
@@ -3631,7 +3631,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-spatial-queries-part2.md",
+    "filename": "test-codemode-spatial-queries-part2.md",
     "directory": "test-codemode",
     "group": "spatial",
     "tools": [
@@ -3640,7 +3640,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-spatial-setup.md",
+    "filename": "test-codemode-spatial-setup.md",
     "directory": "test-codemode",
     "group": "spatial",
     "tools": [
@@ -3649,7 +3649,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-stats-advanced-part1a.md",
+    "filename": "test-codemode-stats-advanced-part1a.md",
     "directory": "test-codemode",
     "group": "stats",
     "tools": [
@@ -3659,7 +3659,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-stats-advanced-part1b.md",
+    "filename": "test-codemode-stats-advanced-part1b.md",
     "directory": "test-codemode",
     "group": "stats",
     "tools": [
@@ -3669,7 +3669,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-stats-analytics.md",
+    "filename": "test-codemode-stats-analytics.md",
     "directory": "test-codemode",
     "group": "stats",
     "tools": [
@@ -3679,7 +3679,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-stats-basic-part1.md",
+    "filename": "test-codemode-stats-basic-part1.md",
     "directory": "test-codemode",
     "group": "stats",
     "tools": [
@@ -3689,7 +3689,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-stats-basic-part2.md",
+    "filename": "test-codemode-stats-basic-part2.md",
     "directory": "test-codemode",
     "group": "stats",
     "tools": [
@@ -3698,7 +3698,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-stats-window-part1a.md",
+    "filename": "test-codemode-stats-window-part1a.md",
     "directory": "test-codemode",
     "group": "stats",
     "tools": [
@@ -3708,7 +3708,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-stats-window-part1b.md",
+    "filename": "test-codemode-stats-window-part1b.md",
     "directory": "test-codemode",
     "group": "stats",
     "tools": [
@@ -3718,7 +3718,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-sys-analysis-part1.md",
+    "filename": "test-codemode-sys-analysis-part1.md",
     "directory": "test-codemode",
     "group": "sysschema",
     "tools": [
@@ -3727,7 +3727,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-sys-analysis-part2.md",
+    "filename": "test-codemode-sys-analysis-part2.md",
     "directory": "test-codemode",
     "group": "sysschema",
     "tools": [
@@ -3736,7 +3736,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-sys-metrics-part1.md",
+    "filename": "test-codemode-sys-metrics-part1.md",
     "directory": "test-codemode",
     "group": "sysschema",
     "tools": [
@@ -3745,7 +3745,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-sys-metrics-part2.md",
+    "filename": "test-codemode-sys-metrics-part2.md",
     "directory": "test-codemode",
     "group": "sysschema",
     "tools": [
@@ -3754,7 +3754,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-text-part1a.md",
+    "filename": "test-codemode-text-part1a.md",
     "directory": "test-codemode",
     "group": "text",
     "tools": [
@@ -3764,7 +3764,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-text-part1b.md",
+    "filename": "test-codemode-text-part1b.md",
     "directory": "test-codemode",
     "group": "text",
     "tools": [
@@ -3774,7 +3774,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-transactions-part1a.md",
+    "filename": "test-codemode-transactions-part1a.md",
     "directory": "test-codemode",
     "group": "transactions",
     "tools": [
@@ -3783,7 +3783,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-transactions-part1b.md",
+    "filename": "test-codemode-transactions-part1b.md",
     "directory": "test-codemode",
     "group": "transactions",
     "tools": [
@@ -3792,7 +3792,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-transactions-part2a.md",
+    "filename": "test-codemode-transactions-part2a.md",
     "directory": "test-codemode",
     "group": "transactions",
     "tools": [
@@ -3802,7 +3802,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-vector-management-part1.md",
+    "filename": "test-codemode-vector-management-part1.md",
     "directory": "test-codemode",
     "group": "vector",
     "tools": [
@@ -3811,7 +3811,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-vector-management-part2.md",
+    "filename": "test-codemode-vector-management-part2.md",
     "directory": "test-codemode",
     "group": "vector",
     "tools": [
@@ -3820,7 +3820,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-vector-search.md",
+    "filename": "test-codemode-vector-search.md",
     "directory": "test-codemode",
     "group": "vector",
     "tools": [
@@ -3830,7 +3830,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-vector-storage-part1.md",
+    "filename": "test-codemode-vector-storage-part1.md",
     "directory": "test-codemode",
     "group": "vector",
     "tools": [
@@ -3839,7 +3839,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-vector-storage-part2.md",
+    "filename": "test-codemode-vector-storage-part2.md",
     "directory": "test-codemode",
     "group": "vector",
     "tools": [
@@ -3848,7 +3848,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-versioning-part1.md",
+    "filename": "test-codemode-versioning-part1.md",
     "directory": "test-codemode",
     "group": "core",
     "tools": [
@@ -3857,7 +3857,7 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
 },
 {
-    "filename": "test-codemode-test-versioning-part2.md",
+    "filename": "test-codemode-versioning-part2.md",
     "directory": "test-codemode",
     "group": "core",
     "tools": [
