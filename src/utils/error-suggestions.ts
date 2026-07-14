@@ -111,18 +111,21 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "Table names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /invalid column name/i,
     suggestion:
       "Column names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /invalid (view|index|schema|database) name/i,
     suggestion:
       "Names must follow MySQL identifier rules: 1-64 characters, alphanumeric or underscores.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /invalid name syntax/i,
@@ -162,6 +165,7 @@ const ERROR_SUGGESTIONS: {
     pattern: /^Missing required parameters:/i,
     suggestion: "Provide all required parameters in your request.",
     category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
   },
   {
     pattern: /already exists/i,
