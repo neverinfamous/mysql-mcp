@@ -4,8 +4,6 @@
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
-
-
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` Tool Groups test suite using subagents.
 
 ## Goal
@@ -43,7 +41,7 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 7. **Coordinator Progress Reporting**:
    - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "Test X (<test name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (e.g., "Test 32 (Spatial queries part 1) out of 77: 1 Prompt Fixes / 0 Code Fixes / 0 Graceful Degradations")
    - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and graceful degradations were experienced (there should not be any).
-   - The Coordinator is allowed to output additional information and custom messages *only* during phase transitions. Do not wrap the message in quotes or add preamble.
+   - The Coordinator is allowed to output additional information and custom messages _only_ during phase transitions. Do not wrap the message in quotes or add preamble.
 8. **Strict Verification and Anti-Hallucination**:
    - The Coordinator MUST use the `list_dir` tool on `test-server/test-tool-groups/` BEFORE starting, and cross-reference the actual directory contents against the list in the current phase file.
    - The Coordinator MUST explicitly create a checklist (e.g., using a `task.md` artifact) copying the exact Test Sequence Queue from the current phase file to track progress.
@@ -56,13 +54,15 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 > [!WARNING]
 > **ANTI-EXHAUSTION ARCHITECTURE**
 > Do NOT execute these tests in a single thread. The tests have been sharded into 11 phases to prevent LLM context window exhaustion.
-> 
+>
 > **How to run:**
+>
 > 1. Start the server with the shortcut for Phase 1.
 > 2. Start a NEW thread for Phase 1 and pass the agent the `coordinator-workflow-phase1-starter.md` file.
 > 3. When Phase 1 completes, update the shortcut, restart the server, and start a NEW thread for Phase 2, etc.
 
 ### Execution Phases:
+
 - [Phase 1 (starter)](coordinator-workflow-phase1-starter.md)
 - [Phase 2 (dev-power)](coordinator-workflow-phase2-dev-power.md)
 - [Phase 3 (dev-analytics)](coordinator-workflow-phase3-dev-analytics.md)
@@ -74,7 +74,6 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 - [Phase 9 (dba-secure)](coordinator-workflow-phase9-dba-secure.md)
 - [Phase 10 (dba-schema)](coordinator-workflow-phase10-dba-schema.md)
 - [Phase 11 (ecosystem)](coordinator-workflow-phase11-ecosystem.md)
-
 
 ## Telemetry Collection
 

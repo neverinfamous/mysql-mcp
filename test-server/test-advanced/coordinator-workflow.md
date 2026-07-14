@@ -2,8 +2,6 @@
 
 This directory contains the advanced Code Mode testing suite, focusing on complex scenarios and edge cases.
 
-
-
 ## Execution Rules
 
 1. **Sequential Execution**: Execute tests sequentially based on the files listed in the Test Sequence Queue below. The `../scripts/test-manifest.ts` is the single source of truth.
@@ -39,6 +37,7 @@ This directory contains the advanced Code Mode testing suite, focusing on comple
    - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND`, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly increment the counter or count it as a successful test.
 
 ## Compatibility with Dynamic Context Audit
+
 This structure is fully compatible with the `/dynamic-context-audit` skill. Audit subagents will enumerate all `.md` files in `test-server/test-advanced/` and automatically verify the sequential test queues.
 
 ## Test Sequence Queue
