@@ -9,7 +9,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_optimize_table",
       "mysql_analyze_table",
       "mysql_check_table"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-admin-part2.md",
@@ -19,7 +20,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_repair_table",
       "mysql_flush_tables",
       "mysql_kill_query"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-admin-part3.md",
@@ -29,7 +31,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_append_insight",
       "mysql_server_config",
       "mysql_audit_search"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-events-part1.md",
@@ -39,7 +42,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_event_create",
       "mysql_event_alter",
       "mysql_event_drop"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-events-part2.md",
@@ -49,7 +53,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_event_list",
       "mysql_event_status",
       "mysql_scheduler_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-introspection-part1.md",
@@ -59,7 +64,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_dependency_graph",
       "mysql_topological_sort",
       "mysql_cascade_simulator"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-introspection-part2.md",
@@ -69,7 +75,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_schema_snapshot",
       "mysql_constraint_analysis",
       "mysql_migration_risks"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-migration-part1.md",
@@ -79,7 +86,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_migration_init",
       "mysql_migration_record",
       "mysql_migration_apply"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-migration-part2.md",
@@ -89,7 +97,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_migration_rollback",
       "mysql_migration_history",
       "mysql_migration_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-text-part1.md",
@@ -99,7 +108,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_regexp_match",
       "mysql_like_search",
       "mysql_soundex"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-text-part2.md",
@@ -109,7 +119,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_substring",
       "mysql_concat",
       "mysql_collation_convert"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-codemode-admin-audit.md",
@@ -1124,7 +1135,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_export_table",
       "mysql_import_data",
       "mysql_create_dump"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-backup-part2.md",
@@ -1134,7 +1146,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_restore_dump",
       "mysql_audit_list_backups",
       "mysql_audit_restore_backup"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-backup-part3.md",
@@ -1142,7 +1155,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "backup",
     "tools": [
       "mysql_audit_diff_backup"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-cluster-part1.md",
@@ -1152,7 +1166,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_gr_status",
       "mysql_gr_members",
       "mysql_gr_primary"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-cluster-part2.md",
@@ -1162,7 +1177,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_gr_transactions",
       "mysql_gr_flow_control",
       "mysql_cluster_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-cluster-part3.md",
@@ -1172,7 +1188,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_cluster_instances",
       "mysql_cluster_topology",
       "mysql_cluster_router_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-cluster-part4.md",
@@ -1180,7 +1197,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "cluster",
     "tools": [
       "mysql_cluster_switchover"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-core-part1.md",
@@ -1190,7 +1208,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_read_query",
       "mysql_write_query",
       "mysql_list_tables"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-core-part2.md",
@@ -1200,7 +1219,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_describe_table",
       "mysql_create_table",
       "mysql_drop_table"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-core-part3.md",
@@ -1210,7 +1230,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_create_index",
       "mysql_get_indexes",
       "mysql_enable_versioning"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-core-part4.md",
@@ -1220,7 +1241,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_disable_versioning",
       "mysql_check_version",
       "mysql_conditional_update"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-docstore-part1.md",
@@ -1230,7 +1252,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_doc_list_collections",
       "mysql_doc_create_collection",
       "mysql_doc_drop_collection"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-docstore-part2.md",
@@ -1240,7 +1263,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_doc_find",
       "mysql_doc_add",
       "mysql_doc_modify"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-docstore-part3.md",
@@ -1250,7 +1274,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_doc_remove",
       "mysql_doc_create_index",
       "mysql_doc_collection_info"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-fulltext-part1.md",
@@ -1260,7 +1285,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_fulltext_create",
       "mysql_fulltext_drop",
       "mysql_fulltext_search"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-fulltext-part2.md",
@@ -1269,7 +1295,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_fulltext_boolean",
       "mysql_fulltext_expand"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-json-part1.md",
@@ -1279,7 +1306,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_json_extract",
       "mysql_json_set",
       "mysql_json_insert"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-json-part2.md",
@@ -1289,7 +1317,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_json_replace",
       "mysql_json_remove",
       "mysql_json_contains"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-json-part3.md",
@@ -1299,7 +1328,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_json_keys",
       "mysql_json_array_append",
       "mysql_json_get"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-json-part4.md",
@@ -1309,7 +1339,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_json_update",
       "mysql_json_search",
       "mysql_json_validate"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-json-part5.md",
@@ -1319,7 +1350,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_json_merge",
       "mysql_json_diff",
       "mysql_json_normalize"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-json-part6.md",
@@ -1328,7 +1360,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_json_stats",
       "mysql_json_index_suggest"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-monitoring-part1.md",
@@ -1338,7 +1371,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_show_processlist",
       "mysql_show_status",
       "mysql_show_variables"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-monitoring-part2.md",
@@ -1348,7 +1382,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_innodb_status",
       "mysql_replication_status",
       "mysql_pool_stats"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-monitoring-part3.md",
@@ -1356,7 +1391,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "monitoring",
     "tools": [
       "mysql_server_health"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-optimization-part1.md",
@@ -1366,7 +1402,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_index_recommendation",
       "mysql_query_rewrite",
       "mysql_force_index"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-optimization-part2.md",
@@ -1374,7 +1411,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "optimization",
     "tools": [
       "mysql_optimizer_trace"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-partitioning-part1.md",
@@ -1384,7 +1422,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_partition_info",
       "mysql_add_partition",
       "mysql_drop_partition"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-partitioning-part2.md",
@@ -1392,7 +1431,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "partitioning",
     "tools": [
       "mysql_reorganize_partition"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-performance-part1.md",
@@ -1402,7 +1442,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_explain",
       "mysql_explain_analyze",
       "mysql_slow_queries"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-performance-part2.md",
@@ -1412,7 +1453,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_query_stats",
       "mysql_index_usage",
       "mysql_table_stats"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-performance-part3.md",
@@ -1422,7 +1464,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_buffer_pool_stats",
       "mysql_thread_stats",
       "mysql_detect_query_anomalies"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-performance-part4.md",
@@ -1431,7 +1474,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_detect_bloat_risk",
       "mysql_detect_connection_spike"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-proxysql-part1.md",
@@ -1441,7 +1485,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "proxysql_status",
       "proxysql_servers",
       "proxysql_query_rules"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-proxysql-part2.md",
@@ -1451,7 +1496,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "proxysql_query_digest",
       "proxysql_connection_pool",
       "proxysql_users"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-proxysql-part3.md",
@@ -1461,7 +1507,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "proxysql_global_variables",
       "proxysql_runtime_status",
       "proxysql_memory_stats"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-proxysql-part4.md",
@@ -1470,7 +1517,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "proxysql_commands",
       "proxysql_process_list"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-replication-part1.md",
@@ -1480,7 +1528,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_master_status",
       "mysql_slave_status",
       "mysql_binlog_events"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-replication-part2.md",
@@ -1489,7 +1538,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_gtid_status",
       "mysql_replication_lag"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-roles-part1.md",
@@ -1499,7 +1549,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_role_list",
       "mysql_role_create",
       "mysql_role_drop"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-roles-part2.md",
@@ -1509,7 +1560,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_role_grants",
       "mysql_role_grant",
       "mysql_role_assign"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-roles-part3.md",
@@ -1518,7 +1570,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_role_revoke",
       "mysql_user_roles"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-router-part1.md",
@@ -1528,7 +1581,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_router_status",
       "mysql_router_routes",
       "mysql_router_route_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-router-part2.md",
@@ -1538,7 +1592,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_router_route_health",
       "mysql_router_route_connections",
       "mysql_router_route_destinations"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-router-part3.md",
@@ -1548,7 +1603,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_router_route_blocked_hosts",
       "mysql_router_metadata_status",
       "mysql_router_pool_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-schema-part1.md",
@@ -1558,7 +1614,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_list_schemas",
       "mysql_create_schema",
       "mysql_drop_schema"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-schema-part2.md",
@@ -1568,7 +1625,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_list_views",
       "mysql_create_view",
       "mysql_drop_view"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-schema-part3.md",
@@ -1578,7 +1636,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_list_stored_procedures",
       "mysql_list_functions",
       "mysql_list_triggers"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-schema-part4.md",
@@ -1588,7 +1647,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_create_trigger",
       "mysql_drop_trigger",
       "mysql_list_constraints"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-security-part1.md",
@@ -1598,7 +1658,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_security_audit",
       "mysql_security_firewall_status",
       "mysql_security_firewall_rules"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-security-part2.md",
@@ -1608,7 +1669,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_security_mask_data",
       "mysql_security_password_validate",
       "mysql_security_ssl_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-security-part3.md",
@@ -1618,7 +1680,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_security_user_privileges",
       "mysql_security_sensitive_tables",
       "mysql_security_encryption_status"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-shell-part1.md",
@@ -1628,7 +1691,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysqlsh_version",
       "mysqlsh_check_upgrade",
       "mysqlsh_export_table"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-shell-part2.md",
@@ -1638,7 +1702,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysqlsh_import_table",
       "mysqlsh_import_json",
       "mysqlsh_dump_instance"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-shell-part3.md",
@@ -1648,7 +1713,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysqlsh_dump_schemas",
       "mysqlsh_dump_tables",
       "mysqlsh_load_dump"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-shell-part4.md",
@@ -1656,7 +1722,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "shell",
     "tools": [
       "mysqlsh_run_script"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-spatial-part1.md",
@@ -1666,7 +1733,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_spatial_create_column",
       "mysql_spatial_create_index",
       "mysql_spatial_point"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-spatial-part2.md",
@@ -1676,7 +1744,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_spatial_polygon",
       "mysql_spatial_distance",
       "mysql_spatial_distance_sphere"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-spatial-part3.md",
@@ -1686,7 +1755,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_spatial_contains",
       "mysql_spatial_within",
       "mysql_spatial_intersection"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-spatial-part4.md",
@@ -1696,7 +1766,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_spatial_buffer",
       "mysql_spatial_transform",
       "mysql_spatial_geojson"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-stats-part1.md",
@@ -1706,7 +1777,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_stats_descriptive",
       "mysql_stats_percentiles",
       "mysql_stats_correlation"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-stats-part2.md",
@@ -1716,7 +1788,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_stats_distribution",
       "mysql_stats_time_series",
       "mysql_stats_regression"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-stats-part3.md",
@@ -1726,7 +1799,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_stats_sampling",
       "mysql_stats_histogram",
       "mysql_stats_row_number"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-stats-part4.md",
@@ -1736,7 +1810,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_stats_rank",
       "mysql_stats_lag_lead",
       "mysql_stats_running_total"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-stats-part5.md",
@@ -1746,7 +1821,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_stats_moving_avg",
       "mysql_stats_ntile",
       "mysql_stats_hypothesis"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-stats-part6.md",
@@ -1756,7 +1832,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_stats_outliers",
       "mysql_stats_top_n",
       "mysql_stats_distinct"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-stats-part7.md",
@@ -1765,7 +1842,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_stats_frequency",
       "mysql_stats_summary"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-sysschema-part1.md",
@@ -1775,7 +1853,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_sys_user_summary",
       "mysql_sys_io_summary",
       "mysql_sys_statement_summary"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-sysschema-part2.md",
@@ -1785,7 +1864,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_sys_wait_summary",
       "mysql_sys_innodb_lock_waits",
       "mysql_sys_schema_stats"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-sysschema-part3.md",
@@ -1794,7 +1874,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_sys_host_summary",
       "mysql_sys_memory_summary"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-transactions-part1.md",
@@ -1804,7 +1885,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_transaction_begin",
       "mysql_transaction_commit",
       "mysql_transaction_rollback"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-transactions-part2.md",
@@ -1814,7 +1896,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_transaction_savepoint",
       "mysql_transaction_release",
       "mysql_transaction_rollback_to"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-transactions-part3.md",
@@ -1822,7 +1905,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "transactions",
     "tools": [
       "mysql_transaction_execute"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-vector-part1.md",
@@ -1832,7 +1916,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_vector_store",
       "mysql_vector_batch_store",
       "mysql_vector_delete"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-vector-part2.md",
@@ -1842,7 +1927,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_vector_get",
       "mysql_vector_search",
       "mysql_vector_range_search"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-vector-part3.md",
@@ -1852,7 +1938,8 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_vector_hybrid_search",
       "mysql_vector_info",
       "mysql_vector_create_index"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-vector-part4.md",
@@ -1861,12 +1948,13 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_vector_optimize",
       "mysql_vector_stats"
-    ]
+    ],
+    "contentPartial": "test-usability-fuzzing.content.md"
   },
   {
     "filename": "test-usability-direct-admin-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-admin",
+    "group": "admin",
     "tools": [
       "mysql_optimize_table",
       "mysql_analyze_table",
@@ -1876,7 +1964,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-admin-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-admin",
+    "group": "admin",
     "tools": [
       "mysql_repair_table",
       "mysql_flush_tables",
@@ -1886,7 +1974,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-admin-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-admin",
+    "group": "admin",
     "tools": [
       "mysql_append_insight",
       "mysql_server_config",
@@ -1896,7 +1984,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-backup-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-backup",
+    "group": "backup",
     "tools": [
       "mysql_export_table",
       "mysql_import_data",
@@ -1906,7 +1994,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-backup-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-backup",
+    "group": "backup",
     "tools": [
       "mysql_restore_dump",
       "mysql_audit_list_backups",
@@ -1916,7 +2004,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-backup-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-backup",
+    "group": "backup",
     "tools": [
       "mysql_audit_diff_backup"
     ]
@@ -1924,7 +2012,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-cluster-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-cluster",
+    "group": "cluster",
     "tools": [
       "mysql_gr_status",
       "mysql_gr_members",
@@ -1934,7 +2022,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-cluster-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-cluster",
+    "group": "cluster",
     "tools": [
       "mysql_gr_transactions",
       "mysql_gr_flow_control",
@@ -1944,7 +2032,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-cluster-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-cluster",
+    "group": "cluster",
     "tools": [
       "mysql_cluster_instances",
       "mysql_cluster_topology",
@@ -1954,7 +2042,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-cluster-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-cluster",
+    "group": "cluster",
     "tools": [
       "mysql_cluster_switchover"
     ]
@@ -1962,7 +2050,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-core-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-core",
+    "group": "core",
     "tools": [
       "mysql_read_query",
       "mysql_write_query",
@@ -1972,7 +2060,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-core-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-core",
+    "group": "core",
     "tools": [
       "mysql_describe_table",
       "mysql_create_table",
@@ -1982,7 +2070,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-core-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-core",
+    "group": "core",
     "tools": [
       "mysql_create_index",
       "mysql_get_indexes",
@@ -1992,7 +2080,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-core-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-core",
+    "group": "core",
     "tools": [
       "mysql_disable_versioning",
       "mysql_check_version",
@@ -2002,7 +2090,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-docstore-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-docstore",
+    "group": "docstore",
     "tools": [
       "mysql_doc_list_collections",
       "mysql_doc_create_collection",
@@ -2012,7 +2100,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-docstore-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-docstore",
+    "group": "docstore",
     "tools": [
       "mysql_doc_find",
       "mysql_doc_add",
@@ -2022,7 +2110,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-docstore-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-docstore",
+    "group": "docstore",
     "tools": [
       "mysql_doc_remove",
       "mysql_doc_create_index",
@@ -2032,7 +2120,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-events-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-events",
+    "group": "events",
     "tools": [
       "mysql_event_create",
       "mysql_event_alter",
@@ -2042,7 +2130,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-events-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-events",
+    "group": "events",
     "tools": [
       "mysql_event_list",
       "mysql_event_status",
@@ -2052,7 +2140,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-fulltext-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-fulltext",
+    "group": "fulltext",
     "tools": [
       "mysql_fulltext_create",
       "mysql_fulltext_drop",
@@ -2062,7 +2150,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-fulltext-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-fulltext",
+    "group": "fulltext",
     "tools": [
       "mysql_fulltext_boolean",
       "mysql_fulltext_expand"
@@ -2071,7 +2159,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-introspection-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-introspection",
+    "group": "introspection",
     "tools": [
       "mysql_dependency_graph",
       "mysql_topological_sort",
@@ -2081,7 +2169,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-introspection-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-introspection",
+    "group": "introspection",
     "tools": [
       "mysql_schema_snapshot",
       "mysql_constraint_analysis",
@@ -2091,7 +2179,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-json-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-json",
+    "group": "json",
     "tools": [
       "mysql_json_extract",
       "mysql_json_set",
@@ -2101,7 +2189,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-json-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-json",
+    "group": "json",
     "tools": [
       "mysql_json_replace",
       "mysql_json_remove",
@@ -2111,7 +2199,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-json-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-json",
+    "group": "json",
     "tools": [
       "mysql_json_keys",
       "mysql_json_array_append",
@@ -2121,7 +2209,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-json-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-json",
+    "group": "json",
     "tools": [
       "mysql_json_update",
       "mysql_json_search",
@@ -2131,7 +2219,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-json-part5.md",
     "directory": "test-usability-direct",
-    "group": "direct-json",
+    "group": "json",
     "tools": [
       "mysql_json_merge",
       "mysql_json_diff",
@@ -2141,7 +2229,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-json-part6.md",
     "directory": "test-usability-direct",
-    "group": "direct-json",
+    "group": "json",
     "tools": [
       "mysql_json_stats",
       "mysql_json_index_suggest"
@@ -2150,7 +2238,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-migration-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-migration",
+    "group": "migration",
     "tools": [
       "mysql_migration_init",
       "mysql_migration_record",
@@ -2160,7 +2248,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-migration-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-migration",
+    "group": "migration",
     "tools": [
       "mysql_migration_rollback",
       "mysql_migration_history",
@@ -2170,7 +2258,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-monitoring-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-monitoring",
+    "group": "monitoring",
     "tools": [
       "mysql_show_processlist",
       "mysql_show_status",
@@ -2180,7 +2268,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-monitoring-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-monitoring",
+    "group": "monitoring",
     "tools": [
       "mysql_innodb_status",
       "mysql_replication_status",
@@ -2190,7 +2278,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-monitoring-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-monitoring",
+    "group": "monitoring",
     "tools": [
       "mysql_server_health"
     ]
@@ -2198,7 +2286,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-optimization-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-optimization",
+    "group": "optimization",
     "tools": [
       "mysql_index_recommendation",
       "mysql_query_rewrite",
@@ -2208,7 +2296,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-optimization-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-optimization",
+    "group": "optimization",
     "tools": [
       "mysql_optimizer_trace"
     ]
@@ -2216,7 +2304,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-partitioning-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-partitioning",
+    "group": "partitioning",
     "tools": [
       "mysql_partition_info",
       "mysql_add_partition",
@@ -2226,7 +2314,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-partitioning-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-partitioning",
+    "group": "partitioning",
     "tools": [
       "mysql_reorganize_partition"
     ]
@@ -2234,7 +2322,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-performance-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-performance",
+    "group": "performance",
     "tools": [
       "mysql_explain",
       "mysql_explain_analyze",
@@ -2244,7 +2332,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-performance-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-performance",
+    "group": "performance",
     "tools": [
       "mysql_query_stats",
       "mysql_index_usage",
@@ -2254,7 +2342,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-performance-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-performance",
+    "group": "performance",
     "tools": [
       "mysql_buffer_pool_stats",
       "mysql_thread_stats",
@@ -2264,7 +2352,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-performance-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-performance",
+    "group": "performance",
     "tools": [
       "mysql_detect_bloat_risk",
       "mysql_detect_connection_spike"
@@ -2273,7 +2361,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-proxysql-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-proxysql",
+    "group": "proxysql",
     "tools": [
       "proxysql_status",
       "proxysql_servers",
@@ -2283,7 +2371,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-proxysql-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-proxysql",
+    "group": "proxysql",
     "tools": [
       "proxysql_query_digest",
       "proxysql_connection_pool",
@@ -2293,7 +2381,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-proxysql-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-proxysql",
+    "group": "proxysql",
     "tools": [
       "proxysql_global_variables",
       "proxysql_runtime_status",
@@ -2303,7 +2391,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-proxysql-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-proxysql",
+    "group": "proxysql",
     "tools": [
       "proxysql_commands",
       "proxysql_process_list"
@@ -2312,7 +2400,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-replication-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-replication",
+    "group": "replication",
     "tools": [
       "mysql_master_status",
       "mysql_slave_status",
@@ -2322,7 +2410,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-replication-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-replication",
+    "group": "replication",
     "tools": [
       "mysql_gtid_status",
       "mysql_replication_lag"
@@ -2331,7 +2419,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-roles-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-roles",
+    "group": "roles",
     "tools": [
       "mysql_role_list",
       "mysql_role_create",
@@ -2341,7 +2429,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-roles-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-roles",
+    "group": "roles",
     "tools": [
       "mysql_role_grants",
       "mysql_role_grant",
@@ -2351,7 +2439,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-roles-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-roles",
+    "group": "roles",
     "tools": [
       "mysql_role_revoke",
       "mysql_user_roles"
@@ -2360,7 +2448,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-router-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-router",
+    "group": "router",
     "tools": [
       "mysql_router_status",
       "mysql_router_routes",
@@ -2370,7 +2458,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-router-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-router",
+    "group": "router",
     "tools": [
       "mysql_router_route_health",
       "mysql_router_route_connections",
@@ -2380,7 +2468,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-router-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-router",
+    "group": "router",
     "tools": [
       "mysql_router_route_blocked_hosts",
       "mysql_router_metadata_status",
@@ -2390,7 +2478,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-schema-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-schema",
+    "group": "schema",
     "tools": [
       "mysql_list_schemas",
       "mysql_create_schema",
@@ -2400,7 +2488,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-schema-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-schema",
+    "group": "schema",
     "tools": [
       "mysql_list_views",
       "mysql_create_view",
@@ -2410,7 +2498,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-schema-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-schema",
+    "group": "schema",
     "tools": [
       "mysql_list_stored_procedures",
       "mysql_list_functions",
@@ -2420,7 +2508,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-schema-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-schema",
+    "group": "schema",
     "tools": [
       "mysql_create_trigger",
       "mysql_drop_trigger",
@@ -2430,7 +2518,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-security-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-security",
+    "group": "security",
     "tools": [
       "mysql_security_audit",
       "mysql_security_firewall_status",
@@ -2440,7 +2528,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-security-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-security",
+    "group": "security",
     "tools": [
       "mysql_security_mask_data",
       "mysql_security_password_validate",
@@ -2450,7 +2538,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-security-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-security",
+    "group": "security",
     "tools": [
       "mysql_security_user_privileges",
       "mysql_security_sensitive_tables",
@@ -2460,7 +2548,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-shell-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-shell",
+    "group": "shell",
     "tools": [
       "mysqlsh_version",
       "mysqlsh_check_upgrade",
@@ -2470,7 +2558,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-shell-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-shell",
+    "group": "shell",
     "tools": [
       "mysqlsh_import_table",
       "mysqlsh_import_json",
@@ -2480,7 +2568,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-shell-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-shell",
+    "group": "shell",
     "tools": [
       "mysqlsh_dump_schemas",
       "mysqlsh_dump_tables",
@@ -2490,7 +2578,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-shell-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-shell",
+    "group": "shell",
     "tools": [
       "mysqlsh_run_script"
     ]
@@ -2498,7 +2586,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-spatial-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-spatial",
+    "group": "spatial",
     "tools": [
       "mysql_spatial_create_column",
       "mysql_spatial_create_index",
@@ -2508,7 +2596,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-spatial-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-spatial",
+    "group": "spatial",
     "tools": [
       "mysql_spatial_polygon",
       "mysql_spatial_distance",
@@ -2518,7 +2606,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-spatial-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-spatial",
+    "group": "spatial",
     "tools": [
       "mysql_spatial_contains",
       "mysql_spatial_within",
@@ -2528,7 +2616,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-spatial-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-spatial",
+    "group": "spatial",
     "tools": [
       "mysql_spatial_buffer",
       "mysql_spatial_transform",
@@ -2538,7 +2626,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-stats-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-stats",
+    "group": "stats",
     "tools": [
       "mysql_stats_descriptive",
       "mysql_stats_percentiles",
@@ -2548,7 +2636,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-stats-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-stats",
+    "group": "stats",
     "tools": [
       "mysql_stats_distribution",
       "mysql_stats_time_series",
@@ -2558,7 +2646,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-stats-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-stats",
+    "group": "stats",
     "tools": [
       "mysql_stats_sampling",
       "mysql_stats_histogram",
@@ -2568,7 +2656,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-stats-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-stats",
+    "group": "stats",
     "tools": [
       "mysql_stats_rank",
       "mysql_stats_lag_lead",
@@ -2578,7 +2666,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-stats-part5.md",
     "directory": "test-usability-direct",
-    "group": "direct-stats",
+    "group": "stats",
     "tools": [
       "mysql_stats_moving_avg",
       "mysql_stats_ntile",
@@ -2588,7 +2676,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-stats-part6.md",
     "directory": "test-usability-direct",
-    "group": "direct-stats",
+    "group": "stats",
     "tools": [
       "mysql_stats_outliers",
       "mysql_stats_top_n",
@@ -2598,7 +2686,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-stats-part7.md",
     "directory": "test-usability-direct",
-    "group": "direct-stats",
+    "group": "stats",
     "tools": [
       "mysql_stats_frequency",
       "mysql_stats_summary"
@@ -2607,7 +2695,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-sysschema-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-sysschema",
+    "group": "sysschema",
     "tools": [
       "mysql_sys_user_summary",
       "mysql_sys_io_summary",
@@ -2617,7 +2705,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-sysschema-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-sysschema",
+    "group": "sysschema",
     "tools": [
       "mysql_sys_wait_summary",
       "mysql_sys_innodb_lock_waits",
@@ -2627,7 +2715,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-sysschema-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-sysschema",
+    "group": "sysschema",
     "tools": [
       "mysql_sys_host_summary",
       "mysql_sys_memory_summary"
@@ -2636,7 +2724,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-text-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-text",
+    "group": "text",
     "tools": [
       "mysql_regexp_match",
       "mysql_like_search",
@@ -2646,7 +2734,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-text-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-text",
+    "group": "text",
     "tools": [
       "mysql_substring",
       "mysql_concat",
@@ -2656,7 +2744,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-transactions-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-transactions",
+    "group": "transactions",
     "tools": [
       "mysql_transaction_begin",
       "mysql_transaction_commit",
@@ -2666,7 +2754,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-transactions-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-transactions",
+    "group": "transactions",
     "tools": [
       "mysql_transaction_savepoint",
       "mysql_transaction_release",
@@ -2676,7 +2764,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-transactions-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-transactions",
+    "group": "transactions",
     "tools": [
       "mysql_transaction_execute"
     ]
@@ -2684,7 +2772,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-vector-part1.md",
     "directory": "test-usability-direct",
-    "group": "direct-vector",
+    "group": "vector",
     "tools": [
       "mysql_vector_store",
       "mysql_vector_batch_store",
@@ -2694,7 +2782,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-vector-part2.md",
     "directory": "test-usability-direct",
-    "group": "direct-vector",
+    "group": "vector",
     "tools": [
       "mysql_vector_get",
       "mysql_vector_search",
@@ -2704,7 +2792,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-vector-part3.md",
     "directory": "test-usability-direct",
-    "group": "direct-vector",
+    "group": "vector",
     "tools": [
       "mysql_vector_hybrid_search",
       "mysql_vector_info",
@@ -2714,7 +2802,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-usability-direct-vector-part4.md",
     "directory": "test-usability-direct",
-    "group": "direct-vector",
+    "group": "vector",
     "tools": [
       "mysql_vector_optimize",
       "mysql_vector_stats"

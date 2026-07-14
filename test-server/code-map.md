@@ -38,7 +38,7 @@ src/
 │       │                           #   ConstraintInfo, RoutineInfo, TriggerInfo
 │       ├── server.ts               # TransportType, McpServerConfig (port, host, toolFilter, metricsExport, name, allowedIoRoots, stateless, enableHSTS, trustProxy, authToken, auditConfig)
 │       ├── oauth.ts                # OAuthConfig, OAuthScope, TokenClaims, RequestContext
-│       ├── errors.ts               # MySQLMcpError base + 12 subclasses (see § Error Classes)
+│       ├── errors.ts               # MySQLMcpError base + 11 subclasses (see § Error Classes)
 │       ├── error-types.ts          # ErrorCategory enum (Multiple categories), ErrorResponse interface, ErrorContext
 │       └── tools.ts                # ToolGroup, MetaGroup, RouterConfig, MySQLShellConfig,
 │                                   #   ToolFilterConfig, AdapterCapabilities, ToolDefinition,
@@ -277,7 +277,6 @@ MySQLMcpError (modules/errors.ts)         code: string, category: ErrorCategory,
 ├── TimeoutError          code: TIMEOUT_ERROR        category: CONNECTION
 ├── RateLimitError        code: RATE_LIMIT_ERROR     category: CONNECTION
 ├── ConflictError         code: CONFLICT_ERROR       category: QUERY
-├── SecurityError         code: SECURITY_ERROR       category: PERMISSION
 └── ExtensionNotAvailableError  code: EXTENSION_MISSING  category: CONFIGURATION
 ```
 
