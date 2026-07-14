@@ -275,11 +275,11 @@ describe("Handler Execution", () => {
   });
 
   describe("mysql_doc_drop_collection", () => {
-    it("should drop collection without IF EXISTS by default", async () => {
+    it("should drop collection without IF EXISTS when false", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([])); // DROP TABLE
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
-      const result = await tool.handler({ name: "users" }, mockContext);
+      const result = await tool.handler({ name: "users", ifExists: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
       const dropCall = mockAdapter.executeQuery.mock.calls[0][0];
