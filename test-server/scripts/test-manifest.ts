@@ -1,0 +1,4615 @@
+import type { TestDirectory } from "./lib/types.js";
+
+export interface TestFileEntry {
+  filename: string;
+  directory: TestDirectory;
+  group: string;
+  tools: string[];
+  contentPartial?: string;
+  executionModeOverride?: string;
+}
+
+export const TEST_FILES: TestFileEntry[] = [
+  {
+    "filename": "test-codemode-admin-audit.md",
+    "directory": "test-codemode",
+    "group": "admin",
+    "tools": [
+      "mysql_append_insight",
+      "mysql_server_config",
+      "mysql_audit_search"
+    ]
+  },
+  {
+    "filename": "test-codemode-admin-maintenance-part1a.md",
+    "directory": "test-codemode",
+    "group": "admin",
+    "tools": [
+      "mysql_optimize_table",
+      "mysql_analyze_table",
+      "mysql_check_table"
+    ]
+  },
+  {
+    "filename": "test-codemode-admin-maintenance-part1b.md",
+    "directory": "test-codemode",
+    "group": "admin",
+    "tools": [
+      "mysql_repair_table",
+      "mysql_flush_tables",
+      "mysql_kill_query"
+    ]
+  },
+  {
+    "filename": "test-codemode-backup-audit.md",
+    "directory": "test-codemode",
+    "group": "backup",
+    "tools": [
+      "mysql_audit_list_backups",
+      "mysql_audit_restore_backup",
+      "mysql_audit_diff_backup"
+    ]
+  },
+  {
+    "filename": "test-codemode-backup-data-part1.md",
+    "directory": "test-codemode",
+    "group": "backup",
+    "tools": [
+      "mysql_export_table",
+      "mysql_import_data"
+    ]
+  },
+  {
+    "filename": "test-codemode-backup-data-part2.md",
+    "directory": "test-codemode",
+    "group": "backup",
+    "tools": [
+      "mysql_create_dump",
+      "mysql_restore_dump"
+    ]
+  },
+  {
+    "filename": "test-codemode-cluster-group-replication-part1.md",
+    "directory": "test-codemode",
+    "group": "cluster",
+    "tools": [
+      "mysql_gr_status",
+      "mysql_gr_members",
+      "mysql_gr_primary"
+    ]
+  },
+  {
+    "filename": "test-codemode-cluster-group-replication-part2.md",
+    "directory": "test-codemode",
+    "group": "cluster",
+    "tools": [
+      "mysql_gr_transactions",
+      "mysql_gr_flow_control"
+    ]
+  },
+  {
+    "filename": "test-codemode-cluster-innodb-part1.md",
+    "directory": "test-codemode",
+    "group": "cluster",
+    "tools": [
+      "mysql_cluster_status",
+      "mysql_cluster_instances",
+      "mysql_cluster_topology"
+    ]
+  },
+  {
+    "filename": "test-codemode-cluster-innodb-part2.md",
+    "directory": "test-codemode",
+    "group": "cluster",
+    "tools": [
+      "mysql_cluster_router_status",
+      "mysql_cluster_switchover"
+    ]
+  },
+  {
+    "filename": "test-codemode-core-read-part1.md",
+    "directory": "test-codemode",
+    "group": "core-read",
+    "tools": [
+      "mysql_read_query",
+      "mysql_list_tables"
+    ]
+  },
+  {
+    "filename": "test-codemode-core-read-part2.md",
+    "directory": "test-codemode",
+    "group": "core-read",
+    "tools": [
+      "mysql_describe_table",
+      "mysql_get_indexes"
+    ]
+  },
+  {
+    "filename": "test-codemode-core-write-part1.md",
+    "directory": "test-codemode",
+    "group": "core-write",
+    "tools": [
+      "mysql_write_query",
+      "mysql_create_table"
+    ]
+  },
+  {
+    "filename": "test-codemode-core-write-part2.md",
+    "directory": "test-codemode",
+    "group": "core-write",
+    "tools": [
+      "mysql_drop_table",
+      "mysql_create_index"
+    ]
+  },
+  {
+    "filename": "test-codemode-docstore-collections-part1.md",
+    "directory": "test-codemode",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_list_collections",
+      "mysql_doc_create_collection",
+      "mysql_doc_drop_collection"
+    ]
+  },
+  {
+    "filename": "test-codemode-docstore-collections-part2.md",
+    "directory": "test-codemode",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_create_index",
+      "mysql_doc_collection_info"
+    ]
+  },
+  {
+    "filename": "test-codemode-docstore-documents-part1.md",
+    "directory": "test-codemode",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_find",
+      "mysql_doc_add"
+    ]
+  },
+  {
+    "filename": "test-codemode-docstore-documents-part2.md",
+    "directory": "test-codemode",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_modify",
+      "mysql_doc_remove"
+    ]
+  },
+  {
+    "filename": "test-codemode-events-part1a.md",
+    "directory": "test-codemode",
+    "group": "events",
+    "tools": [
+      "mysql_event_create",
+      "mysql_event_alter",
+      "mysql_event_drop"
+    ]
+  },
+  {
+    "filename": "test-codemode-events-part1b.md",
+    "directory": "test-codemode",
+    "group": "events",
+    "tools": [
+      "mysql_event_list",
+      "mysql_event_status",
+      "mysql_scheduler_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-fulltext-part1a.md",
+    "directory": "test-codemode",
+    "group": "fulltext",
+    "tools": [
+      "mysql_fulltext_create"
+    ]
+  },
+  {
+    "filename": "test-codemode-fulltext-part1b.md",
+    "directory": "test-codemode",
+    "group": "fulltext",
+    "tools": [
+      "mysql_fulltext_drop"
+    ]
+  },
+  {
+    "filename": "test-codemode-fulltext-part2a.md",
+    "directory": "test-codemode",
+    "group": "fulltext",
+    "tools": [
+      "mysql_fulltext_search",
+      "mysql_fulltext_boolean",
+      "mysql_fulltext_expand"
+    ]
+  },
+  {
+    "filename": "test-codemode-introspection-part1a.md",
+    "directory": "test-codemode",
+    "group": "introspection",
+    "tools": [
+      "mysql_dependency_graph",
+      "mysql_topological_sort",
+      "mysql_cascade_simulator"
+    ]
+  },
+  {
+    "filename": "test-codemode-introspection-part1b.md",
+    "directory": "test-codemode",
+    "group": "introspection",
+    "tools": [
+      "mysql_schema_snapshot",
+      "mysql_constraint_analysis",
+      "mysql_migration_risks"
+    ]
+  },
+  {
+    "filename": "test-codemode-json-core-read.md",
+    "directory": "test-codemode",
+    "group": "json",
+    "tools": [
+      "mysql_json_extract",
+      "mysql_json_contains",
+      "mysql_json_keys"
+    ]
+  },
+  {
+    "filename": "test-codemode-json-core-write-part1.md",
+    "directory": "test-codemode",
+    "group": "json",
+    "tools": [
+      "mysql_json_set",
+      "mysql_json_insert",
+      "mysql_json_replace"
+    ]
+  },
+  {
+    "filename": "test-codemode-json-core-write-part2.md",
+    "directory": "test-codemode",
+    "group": "json",
+    "tools": [
+      "mysql_json_remove",
+      "mysql_json_array_append"
+    ]
+  },
+  {
+    "filename": "test-codemode-json-enhanced-part1.md",
+    "directory": "test-codemode",
+    "group": "json",
+    "tools": [
+      "mysql_json_merge",
+      "mysql_json_diff"
+    ]
+  },
+  {
+    "filename": "test-codemode-json-enhanced-part2.md",
+    "directory": "test-codemode",
+    "group": "json",
+    "tools": [
+      "mysql_json_normalize",
+      "mysql_json_stats",
+      "mysql_json_index_suggest"
+    ]
+  },
+  {
+    "filename": "test-codemode-json-helpers-part1.md",
+    "directory": "test-codemode",
+    "group": "json",
+    "tools": [
+      "mysql_json_get",
+      "mysql_json_update"
+    ]
+  },
+  {
+    "filename": "test-codemode-json-helpers-part2.md",
+    "directory": "test-codemode",
+    "group": "json",
+    "tools": [
+      "mysql_json_search",
+      "mysql_json_validate"
+    ]
+  },
+  {
+    "filename": "test-codemode-migration-part1a.md",
+    "directory": "test-codemode",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_init",
+      "mysql_migration_record",
+      "mysql_migration_apply"
+    ]
+  },
+  {
+    "filename": "test-codemode-migration-part1b.md",
+    "directory": "test-codemode",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_rollback",
+      "mysql_migration_history",
+      "mysql_migration_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-monitoring-part1a.md",
+    "directory": "test-codemode",
+    "group": "monitoring",
+    "tools": [
+      "mysql_show_processlist",
+      "mysql_show_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-monitoring-part1b.md",
+    "directory": "test-codemode",
+    "group": "monitoring",
+    "tools": [
+      "mysql_show_variables",
+      "mysql_innodb_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-monitoring-part2a.md",
+    "directory": "test-codemode",
+    "group": "monitoring",
+    "tools": [
+      "mysql_replication_status",
+      "mysql_pool_stats",
+      "mysql_server_health"
+    ]
+  },
+  {
+    "filename": "test-codemode-optimization-part1.md",
+    "directory": "test-codemode",
+    "group": "optimization",
+    "tools": [
+      "mysql_index_recommendation",
+      "mysql_query_rewrite"
+    ]
+  },
+  {
+    "filename": "test-codemode-optimization-part2.md",
+    "directory": "test-codemode",
+    "group": "optimization",
+    "tools": [
+      "mysql_force_index",
+      "mysql_optimizer_trace"
+    ]
+  },
+  {
+    "filename": "test-codemode-partitioning-part1.md",
+    "directory": "test-codemode",
+    "group": "partitioning",
+    "tools": [
+      "mysql_partition_info",
+      "mysql_add_partition"
+    ]
+  },
+  {
+    "filename": "test-codemode-partitioning-part2.md",
+    "directory": "test-codemode",
+    "group": "partitioning",
+    "tools": [
+      "mysql_drop_partition",
+      "mysql_reorganize_partition"
+    ]
+  },
+  {
+    "filename": "test-codemode-performance-analysis-queries-part1.md",
+    "directory": "test-codemode",
+    "group": "performance",
+    "tools": [
+      "mysql_explain",
+      "mysql_explain_analyze"
+    ]
+  },
+  {
+    "filename": "test-codemode-performance-analysis-queries-part2.md",
+    "directory": "test-codemode",
+    "group": "performance",
+    "tools": [
+      "mysql_slow_queries",
+      "mysql_query_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-performance-analysis-system-part1.md",
+    "directory": "test-codemode",
+    "group": "performance",
+    "tools": [
+      "mysql_index_usage",
+      "mysql_table_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-performance-analysis-system-part2a.md",
+    "directory": "test-codemode",
+    "group": "performance",
+    "tools": [
+      "mysql_buffer_pool_stats",
+      "mysql_thread_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-performance-anomaly.md",
+    "directory": "test-codemode",
+    "group": "performance",
+    "tools": [
+      "mysql_detect_query_anomalies",
+      "mysql_detect_bloat_risk",
+      "mysql_detect_connection_spike"
+    ]
+  },
+  {
+    "filename": "test-codemode-proxysql-config-part1.md",
+    "directory": "test-codemode",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_query_rules",
+      "proxysql_users"
+    ]
+  },
+  {
+    "filename": "test-codemode-proxysql-config-part2.md",
+    "directory": "test-codemode",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_global_variables",
+      "proxysql_commands"
+    ]
+  },
+  {
+    "filename": "test-codemode-proxysql-status-part1a.md",
+    "directory": "test-codemode",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_status",
+      "proxysql_servers"
+    ]
+  },
+  {
+    "filename": "test-codemode-proxysql-status-part1b.md",
+    "directory": "test-codemode",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_connection_pool",
+      "proxysql_runtime_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-proxysql-status-part2a.md",
+    "directory": "test-codemode",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_memory_stats",
+      "proxysql_process_list",
+      "proxysql_query_digest"
+    ]
+  },
+  {
+    "filename": "test-codemode-replication-part1.md",
+    "directory": "test-codemode",
+    "group": "replication",
+    "tools": [
+      "mysql_master_status",
+      "mysql_slave_status",
+      "mysql_binlog_events"
+    ]
+  },
+  {
+    "filename": "test-codemode-replication-part2.md",
+    "directory": "test-codemode",
+    "group": "replication",
+    "tools": [
+      "mysql_gtid_status",
+      "mysql_replication_lag"
+    ]
+  },
+  {
+    "filename": "test-codemode-roles-grants-part1.md",
+    "directory": "test-codemode",
+    "group": "roles",
+    "tools": [
+      "mysql_role_grants",
+      "mysql_role_grant"
+    ]
+  },
+  {
+    "filename": "test-codemode-roles-grants-part2.md",
+    "directory": "test-codemode",
+    "group": "roles",
+    "tools": [
+      "mysql_role_assign",
+      "mysql_role_revoke"
+    ]
+  },
+  {
+    "filename": "test-codemode-roles-management-part1.md",
+    "directory": "test-codemode",
+    "group": "roles",
+    "tools": [
+      "mysql_role_list",
+      "mysql_role_create"
+    ]
+  },
+  {
+    "filename": "test-codemode-roles-management-part2.md",
+    "directory": "test-codemode",
+    "group": "roles",
+    "tools": [
+      "mysql_role_drop",
+      "mysql_user_roles"
+    ]
+  },
+  {
+    "filename": "test-codemode-router-core-part1.md",
+    "directory": "test-codemode",
+    "group": "router",
+    "tools": [
+      "mysql_router_status",
+      "mysql_router_routes"
+    ]
+  },
+  {
+    "filename": "test-codemode-router-core-part2.md",
+    "directory": "test-codemode",
+    "group": "router",
+    "tools": [
+      "mysql_router_metadata_status",
+      "mysql_router_pool_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-router-routes-part1.md",
+    "directory": "test-codemode",
+    "group": "router",
+    "tools": [
+      "mysql_router_route_status",
+      "mysql_router_route_health",
+      "mysql_router_route_connections"
+    ]
+  },
+  {
+    "filename": "test-codemode-router-routes-part2.md",
+    "directory": "test-codemode",
+    "group": "router",
+    "tools": [
+      "mysql_router_route_destinations",
+      "mysql_router_route_blocked_hosts"
+    ]
+  },
+  {
+    "filename": "test-codemode-sandbox.md",
+    "directory": "test-codemode",
+    "group": "codemode",
+    "tools": [
+      "mysql_execute_code"
+    ]
+  },
+  {
+    "filename": "test-codemode-schema-management-part1a.md",
+    "directory": "test-codemode",
+    "group": "schema",
+    "tools": [
+      "mysql_list_schemas",
+      "mysql_create_schema"
+    ]
+  },
+  {
+    "filename": "test-codemode-schema-management-part1b.md",
+    "directory": "test-codemode",
+    "group": "schema",
+    "tools": [
+      "mysql_drop_schema",
+      "mysql_list_views"
+    ]
+  },
+  {
+    "filename": "test-codemode-schema-management-part2a.md",
+    "directory": "test-codemode",
+    "group": "schema",
+    "tools": [
+      "mysql_create_view",
+      "mysql_drop_view",
+      "mysql_list_constraints"
+    ]
+  },
+  {
+    "filename": "test-codemode-schema-routines-part1.md",
+    "directory": "test-codemode",
+    "group": "schema",
+    "tools": [
+      "mysql_list_stored_procedures",
+      "mysql_list_functions",
+      "mysql_list_triggers"
+    ]
+  },
+  {
+    "filename": "test-codemode-schema-routines-part2.md",
+    "directory": "test-codemode",
+    "group": "schema",
+    "tools": [
+      "mysql_create_trigger",
+      "mysql_drop_trigger"
+    ]
+  },
+  {
+    "filename": "test-codemode-security-audit-part1.md",
+    "directory": "test-codemode",
+    "group": "security",
+    "tools": [
+      "mysql_security_audit",
+      "mysql_security_mask_data"
+    ]
+  },
+  {
+    "filename": "test-codemode-security-audit-part2.md",
+    "directory": "test-codemode",
+    "group": "security",
+    "tools": [
+      "mysql_security_user_privileges",
+      "mysql_security_sensitive_tables"
+    ]
+  },
+  {
+    "filename": "test-codemode-security-firewall-part1.md",
+    "directory": "test-codemode",
+    "group": "security",
+    "tools": [
+      "mysql_security_firewall_status",
+      "mysql_security_firewall_rules"
+    ]
+  },
+  {
+    "filename": "test-codemode-security-firewall-part2.md",
+    "directory": "test-codemode",
+    "group": "security",
+    "tools": [
+      "mysql_security_ssl_status",
+      "mysql_security_encryption_status",
+      "mysql_security_password_validate"
+    ]
+  },
+  {
+    "filename": "test-codemode-shell-data-part1a.md",
+    "directory": "test-codemode",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_version",
+      "mysqlsh_check_upgrade"
+    ]
+  },
+  {
+    "filename": "test-codemode-shell-data-part1b.md",
+    "directory": "test-codemode",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_export_table",
+      "mysqlsh_import_table"
+    ]
+  },
+  {
+    "filename": "test-codemode-shell-data-part2a.md",
+    "directory": "test-codemode",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_import_json",
+      "mysqlsh_dump_instance"
+    ]
+  },
+  {
+    "filename": "test-codemode-shell-data-part2b.md",
+    "directory": "test-codemode",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_dump_schemas",
+      "mysqlsh_dump_tables"
+    ]
+  },
+  {
+    "filename": "test-codemode-shell-utils.md",
+    "directory": "test-codemode",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_load_dump",
+      "mysqlsh_run_script"
+    ]
+  },
+  {
+    "filename": "test-codemode-spatial-geometry.md",
+    "directory": "test-codemode",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_point",
+      "mysql_spatial_polygon"
+    ]
+  },
+  {
+    "filename": "test-codemode-spatial-operations-part1.md",
+    "directory": "test-codemode",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_intersection",
+      "mysql_spatial_buffer"
+    ]
+  },
+  {
+    "filename": "test-codemode-spatial-operations-part2.md",
+    "directory": "test-codemode",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_transform",
+      "mysql_spatial_geojson"
+    ]
+  },
+  {
+    "filename": "test-codemode-spatial-queries-part1.md",
+    "directory": "test-codemode",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_distance",
+      "mysql_spatial_distance_sphere"
+    ]
+  },
+  {
+    "filename": "test-codemode-spatial-queries-part2.md",
+    "directory": "test-codemode",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_contains",
+      "mysql_spatial_within"
+    ]
+  },
+  {
+    "filename": "test-codemode-spatial-setup.md",
+    "directory": "test-codemode",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_create_column",
+      "mysql_spatial_create_index"
+    ]
+  },
+  {
+    "filename": "test-codemode-stats-advanced-part1a.md",
+    "directory": "test-codemode",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_hypothesis",
+      "mysql_stats_outliers",
+      "mysql_stats_top_n"
+    ]
+  },
+  {
+    "filename": "test-codemode-stats-advanced-part1b.md",
+    "directory": "test-codemode",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_distinct",
+      "mysql_stats_frequency",
+      "mysql_stats_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-stats-analytics.md",
+    "directory": "test-codemode",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_correlation",
+      "mysql_stats_time_series",
+      "mysql_stats_regression"
+    ]
+  },
+  {
+    "filename": "test-codemode-stats-basic-part1.md",
+    "directory": "test-codemode",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_descriptive",
+      "mysql_stats_percentiles",
+      "mysql_stats_distribution"
+    ]
+  },
+  {
+    "filename": "test-codemode-stats-basic-part2.md",
+    "directory": "test-codemode",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_sampling",
+      "mysql_stats_histogram"
+    ]
+  },
+  {
+    "filename": "test-codemode-stats-window-part1a.md",
+    "directory": "test-codemode",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_row_number",
+      "mysql_stats_rank",
+      "mysql_stats_lag_lead"
+    ]
+  },
+  {
+    "filename": "test-codemode-stats-window-part1b.md",
+    "directory": "test-codemode",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_running_total",
+      "mysql_stats_moving_avg",
+      "mysql_stats_ntile"
+    ]
+  },
+  {
+    "filename": "test-codemode-sys-analysis-part1.md",
+    "directory": "test-codemode",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_statement_summary",
+      "mysql_sys_wait_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-sys-analysis-part2.md",
+    "directory": "test-codemode",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_innodb_lock_waits",
+      "mysql_sys_schema_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-sys-metrics-part1.md",
+    "directory": "test-codemode",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_user_summary",
+      "mysql_sys_io_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-sys-metrics-part2.md",
+    "directory": "test-codemode",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_host_summary",
+      "mysql_sys_memory_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-text-part1a.md",
+    "directory": "test-codemode",
+    "group": "text",
+    "tools": [
+      "mysql_regexp_match",
+      "mysql_like_search",
+      "mysql_soundex"
+    ]
+  },
+  {
+    "filename": "test-codemode-text-part1b.md",
+    "directory": "test-codemode",
+    "group": "text",
+    "tools": [
+      "mysql_substring",
+      "mysql_concat",
+      "mysql_collation_convert"
+    ]
+  },
+  {
+    "filename": "test-codemode-transactions-part1a.md",
+    "directory": "test-codemode",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_begin",
+      "mysql_transaction_commit"
+    ]
+  },
+  {
+    "filename": "test-codemode-transactions-part1b.md",
+    "directory": "test-codemode",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_rollback",
+      "mysql_transaction_savepoint"
+    ]
+  },
+  {
+    "filename": "test-codemode-transactions-part2a.md",
+    "directory": "test-codemode",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_release",
+      "mysql_transaction_rollback_to",
+      "mysql_transaction_execute"
+    ]
+  },
+  {
+    "filename": "test-codemode-vector-management-part1.md",
+    "directory": "test-codemode",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_info",
+      "mysql_vector_create_index"
+    ]
+  },
+  {
+    "filename": "test-codemode-vector-management-part2.md",
+    "directory": "test-codemode",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_optimize",
+      "mysql_vector_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-vector-search.md",
+    "directory": "test-codemode",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_search",
+      "mysql_vector_range_search",
+      "mysql_vector_hybrid_search"
+    ]
+  },
+  {
+    "filename": "test-codemode-vector-storage-part1.md",
+    "directory": "test-codemode",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_store",
+      "mysql_vector_batch_store"
+    ]
+  },
+  {
+    "filename": "test-codemode-vector-storage-part2.md",
+    "directory": "test-codemode",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_delete",
+      "mysql_vector_get"
+    ]
+  },
+  {
+    "filename": "test-codemode-versioning-part1.md",
+    "directory": "test-codemode",
+    "group": "versioning",
+    "tools": [
+      "mysql_enable_versioning",
+      "mysql_disable_versioning"
+    ]
+  },
+  {
+    "filename": "test-codemode-versioning-part2.md",
+    "directory": "test-codemode",
+    "group": "versioning",
+    "tools": [
+      "mysql_check_version",
+      "mysql_conditional_update"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-admin-control-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-admin-control",
+    "tools": [
+      "mysql_optimize_table",
+      "mysql_analyze_table",
+      "mysql_check_table"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-admin-control-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-admin-control",
+    "tools": [
+      "mysql_repair_table",
+      "mysql_flush_tables"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-admin-maintenance-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-admin-maintenance",
+    "tools": [
+      "mysql_kill_query",
+      "mysql_append_insight",
+      "mysql_server_config"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-admin-maintenance-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-admin-maintenance",
+    "tools": [
+      "mysql_audit_search"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-backup-audit-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-backup-audit",
+    "tools": [
+      "mysql_audit_list_backups",
+      "mysql_audit_restore_backup"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-backup-audit-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-backup-audit",
+    "tools": [
+      "mysql_audit_diff_backup",
+      "mysql_restore_dump"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-backup-export-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-backup-export",
+    "tools": [
+      "mysql_export_table",
+      "mysql_import_data"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-backup-export-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-backup-export",
+    "tools": [
+      "mysql_create_dump"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-cluster-group-replication-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-cluster-group-replication",
+    "tools": [
+      "mysql_gr_status",
+      "mysql_gr_members",
+      "mysql_gr_primary"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-cluster-group-replication-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-cluster-group-replication",
+    "tools": [
+      "mysql_gr_transactions",
+      "mysql_gr_flow_control"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-cluster-innodb-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-cluster-innodb",
+    "tools": [
+      "mysql_cluster_status",
+      "mysql_cluster_instances",
+      "mysql_cluster_topology"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-cluster-innodb-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-cluster-innodb",
+    "tools": [
+      "mysql_cluster_router_status",
+      "mysql_cluster_switchover"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-concurrency.md",
+    "directory": "test-advanced",
+    "group": "concurrency",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-concurrency.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-core-part1a.md",
+    "directory": "test-advanced",
+    "group": "advanced-core",
+    "tools": [
+      "mysql_read_query",
+      "mysql_write_query",
+      "mysql_list_tables"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-core-part1b.md",
+    "directory": "test-advanced",
+    "group": "advanced-core",
+    "tools": [
+      "mysql_describe_table",
+      "mysql_create_table",
+      "mysql_drop_table"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-core-part2a.md",
+    "directory": "test-advanced",
+    "group": "advanced-core",
+    "tools": [
+      "mysql_create_index",
+      "mysql_get_indexes"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-core-part3a.md",
+    "directory": "test-advanced",
+    "group": "core",
+    "tools": [
+      "mysql_enable_versioning",
+      "mysql_disable_versioning",
+      "mysql_check_version"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-core-part3b.md",
+    "directory": "test-advanced",
+    "group": "core",
+    "tools": [
+      "mysql_conditional_update"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-docstore-collections-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-docstore-collections",
+    "tools": [
+      "mysql_doc_list_collections",
+      "mysql_doc_create_collection",
+      "mysql_doc_drop_collection"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-docstore-collections-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-docstore-collections",
+    "tools": [
+      "mysql_doc_create_index",
+      "mysql_doc_collection_info"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-docstore-documents-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-docstore-documents",
+    "tools": [
+      "mysql_doc_find",
+      "mysql_doc_add"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-docstore-documents-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-docstore-documents",
+    "tools": [
+      "mysql_doc_modify",
+      "mysql_doc_remove"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-events-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-events",
+    "tools": [
+      "mysql_event_create",
+      "mysql_event_alter",
+      "mysql_event_drop"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-events-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-events",
+    "tools": [
+      "mysql_event_list",
+      "mysql_event_status",
+      "mysql_scheduler_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-fulltext-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-fulltext",
+    "tools": [
+      "mysql_fulltext_create",
+      "mysql_fulltext_drop",
+      "mysql_fulltext_search"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-fulltext-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-fulltext",
+    "tools": [
+      "mysql_fulltext_boolean",
+      "mysql_fulltext_expand"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-introspection-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-introspection",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-introspection-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-introspection-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-introspection",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-introspection-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-json-core-part1a.md",
+    "directory": "test-advanced",
+    "group": "json",
+    "tools": [
+      "mysql_json_extract",
+      "mysql_json_set",
+      "mysql_json_insert"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-json-core-part1b.md",
+    "directory": "test-advanced",
+    "group": "json",
+    "tools": [
+      "mysql_json_replace",
+      "mysql_json_remove"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-json-core-part2a.md",
+    "directory": "test-advanced",
+    "group": "json",
+    "tools": [
+      "mysql_json_contains",
+      "mysql_json_keys",
+      "mysql_json_array_append"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-json-core-part2b.md",
+    "directory": "test-advanced",
+    "group": "json",
+    "tools": [
+      "mysql_json_get",
+      "mysql_json_update"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-json-enhanced-part1.md",
+    "directory": "test-advanced",
+    "group": "json",
+    "tools": [
+      "mysql_json_search",
+      "mysql_json_validate",
+      "mysql_json_merge"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-json-enhanced-part2.md",
+    "directory": "test-advanced",
+    "group": "json",
+    "tools": [
+      "mysql_json_diff",
+      "mysql_json_normalize"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-json-helpers.md",
+    "directory": "test-advanced",
+    "group": "json",
+    "tools": [
+      "mysql_json_stats",
+      "mysql_json_index_suggest"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-migration-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-migration",
+    "tools": [
+      "mysql_migration_init",
+      "mysql_migration_record",
+      "mysql_migration_apply"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-migration-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-migration",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-migration-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-monitoring-health-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-monitoring-health",
+    "tools": [
+      "mysql_show_processlist",
+      "mysql_show_status",
+      "mysql_show_variables"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-monitoring-health-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-monitoring-health",
+    "tools": [
+      "mysql_innodb_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-monitoring-status.md",
+    "directory": "test-advanced",
+    "group": "advanced-monitoring-status",
+    "tools": [
+      "mysql_replication_status",
+      "mysql_pool_stats",
+      "mysql_server_health"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-optimization-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-optimization",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-optimization-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-optimization-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-optimization",
+    "tools": [
+      "mysql_optimizer_trace"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-partitioning-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-partitioning",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-partitioning-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-partitioning-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-partitioning",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-partitioning-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-performance-analysis-part1a.md",
+    "directory": "test-advanced",
+    "group": "advanced-performance-analysis",
+    "tools": [
+      "mysql_explain",
+      "mysql_explain_analyze",
+      "mysql_slow_queries"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-performance-analysis-part1b.md",
+    "directory": "test-advanced",
+    "group": "advanced-performance-analysis",
+    "tools": [
+      "mysql_query_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-performance-analysis-part2a.md",
+    "directory": "test-advanced",
+    "group": "advanced-performance-analysis",
+    "tools": [
+      "mysql_index_usage",
+      "mysql_table_stats",
+      "mysql_buffer_pool_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-performance-analysis-part2b.md",
+    "directory": "test-advanced",
+    "group": "advanced-performance-analysis",
+    "tools": [
+      "mysql_thread_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-performance-anomaly.md",
+    "directory": "test-advanced",
+    "group": "advanced-performance-anomaly",
+    "tools": [
+      "mysql_detect_query_anomalies",
+      "mysql_detect_bloat_risk",
+      "mysql_detect_connection_spike"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-proxysql-config-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-proxysql-config",
+    "tools": [
+      "proxysql_status",
+      "proxysql_servers",
+      "proxysql_query_rules"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-proxysql-config-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-proxysql-config",
+    "tools": [
+      "proxysql_query_digest",
+      "proxysql_connection_pool",
+      "proxysql_users"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-proxysql-status-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-proxysql-status",
+    "tools": [
+      "proxysql_global_variables",
+      "proxysql_runtime_status",
+      "proxysql_memory_stats"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-proxysql-status-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-proxysql-status",
+    "tools": [
+      "proxysql_commands",
+      "proxysql_process_list"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-replication-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-replication",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-replication-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-replication-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-replication",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-replication-part2.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-roles-assignment-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-roles-assignment",
+    "tools": [
+      "mysql_role_list",
+      "mysql_role_create",
+      "mysql_role_drop"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-roles-assignment-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-roles-assignment",
+    "tools": [
+      "mysql_role_grants"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-roles-management-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-roles-management",
+    "tools": [
+      "mysql_role_grant",
+      "mysql_role_assign",
+      "mysql_role_revoke"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-roles-management-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-roles-management",
+    "tools": [
+      "mysql_user_roles"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-router-advanced-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-router-advanced",
+    "tools": [
+      "mysql_router_status",
+      "mysql_router_routes",
+      "mysql_router_route_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-router-advanced-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-router-advanced",
+    "tools": [
+      "mysql_router_route_health",
+      "mysql_router_route_connections"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-router-routes-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-router-routes",
+    "tools": [
+      "mysql_router_route_destinations",
+      "mysql_router_route_blocked_hosts",
+      "mysql_router_metadata_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-router-routes-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-router-routes",
+    "tools": [
+      "mysql_router_pool_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-sandbox.md",
+    "directory": "test-advanced",
+    "group": "codemode",
+    "tools": [
+      "mysql_execute_code"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-schema-management.md",
+    "directory": "test-advanced",
+    "group": "advanced-schema-management",
+    "tools": [
+      "mysql_list_schemas",
+      "mysql_create_schema",
+      "mysql_drop_schema"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-schema-routines.md",
+    "directory": "test-advanced",
+    "group": "advanced-schema-routines",
+    "tools": [
+      "mysql_list_stored_procedures",
+      "mysql_list_functions"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-schema-triggers.md",
+    "directory": "test-advanced",
+    "group": "schema",
+    "tools": [
+      "mysql_list_triggers",
+      "mysql_create_trigger",
+      "mysql_drop_trigger"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-schema-views-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-schema-views",
+    "tools": [
+      "mysql_list_views",
+      "mysql_create_view"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-schema-views-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-schema-views",
+    "tools": [
+      "mysql_drop_view",
+      "mysql_list_constraints"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-security-audit-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-security-audit",
+    "tools": [
+      "mysql_security_audit",
+      "mysql_security_firewall_status",
+      "mysql_security_firewall_rules"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-security-audit-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-security-audit",
+    "tools": [
+      "mysql_security_mask_data",
+      "mysql_security_password_validate"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-security-system-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-security-system",
+    "tools": [
+      "mysql_security_ssl_status",
+      "mysql_security_user_privileges",
+      "mysql_security_sensitive_tables"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-security-system-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-security-system",
+    "tools": [
+      "mysql_security_encryption_status"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-sessions-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-sessions",
+    "tools": []
+  },
+  {
+    "filename": "test-codemode-advanced-sessions-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-sessions",
+    "tools": []
+  },
+  {
+    "filename": "test-codemode-advanced-shell-data-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-shell-data",
+    "tools": [
+      "mysqlsh_export_table",
+      "mysqlsh_import_table",
+      "mysqlsh_import_json"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-shell-data-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-shell-data",
+    "tools": [
+      "mysqlsh_dump_tables",
+      "mysqlsh_load_dump"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-shell-utils-part1a.md",
+    "directory": "test-advanced",
+    "group": "advanced-shell-utils",
+    "tools": [
+      "mysqlsh_version",
+      "mysqlsh_check_upgrade"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-shell-utils-part1b.md",
+    "directory": "test-advanced",
+    "group": "advanced-shell-utils",
+    "tools": [
+      "mysqlsh_run_script"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-shell-utils-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-shell-utils",
+    "tools": [
+      "mysqlsh_dump_instance",
+      "mysqlsh_dump_schemas"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-spatial-geometry.md",
+    "directory": "test-advanced",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_point",
+      "mysql_spatial_polygon",
+      "mysql_spatial_geojson"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-spatial-operations-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-spatial-operations",
+    "tools": [
+      "mysql_spatial_distance",
+      "mysql_spatial_distance_sphere"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-spatial-operations-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-spatial-operations",
+    "tools": [
+      "mysql_spatial_buffer",
+      "mysql_spatial_transform"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-spatial-queries.md",
+    "directory": "test-advanced",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_contains",
+      "mysql_spatial_within",
+      "mysql_spatial_intersection"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-spatial-setup.md",
+    "directory": "test-advanced",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_create_column",
+      "mysql_spatial_create_index"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-advanced-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-advanced",
+    "tools": [
+      "mysql_stats_correlation",
+      "mysql_stats_regression",
+      "mysql_stats_sampling"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-advanced-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-advanced",
+    "tools": [
+      "mysql_stats_hypothesis",
+      "mysql_stats_outliers",
+      "mysql_stats_distinct"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-descriptive-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-descriptive",
+    "tools": [
+      "mysql_stats_descriptive",
+      "mysql_stats_summary",
+      "mysql_stats_percentiles"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-descriptive-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-descriptive",
+    "tools": [
+      "mysql_stats_histogram",
+      "mysql_stats_frequency",
+      "mysql_stats_distribution"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-time-series-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-time-series",
+    "tools": [
+      "mysql_stats_time_series",
+      "mysql_stats_moving_avg",
+      "mysql_stats_running_total"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-time-series-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-time-series",
+    "tools": [
+      "mysql_stats_lag_lead",
+      "mysql_stats_ntile"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-window-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-window",
+    "tools": [
+      "mysql_stats_row_number",
+      "mysql_stats_rank"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-stats-window-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-stats-window",
+    "tools": [
+      "mysql_stats_top_n"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-sys-part1a.md",
+    "directory": "test-advanced",
+    "group": "advanced-sys",
+    "tools": [
+      "mysql_sys_user_summary",
+      "mysql_sys_io_summary",
+      "mysql_sys_statement_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-sys-part1b.md",
+    "directory": "test-advanced",
+    "group": "advanced-sys",
+    "tools": [
+      "mysql_sys_wait_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-sys-part2a.md",
+    "directory": "test-advanced",
+    "group": "advanced-sys",
+    "tools": [
+      "mysql_sys_innodb_lock_waits",
+      "mysql_sys_schema_stats",
+      "mysql_sys_host_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-sys-part2b.md",
+    "directory": "test-advanced",
+    "group": "advanced-sys",
+    "tools": [
+      "mysql_sys_memory_summary"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-text-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-text",
+    "tools": [
+      "mysql_regexp_match",
+      "mysql_like_search",
+      "mysql_collation_convert"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-text-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-text",
+    "tools": [
+      "mysql_soundex",
+      "mysql_substring",
+      "mysql_concat"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-transactions-part1a.md",
+    "directory": "test-advanced",
+    "group": "advanced-transactions",
+    "tools": [
+      "mysql_transaction_begin",
+      "mysql_transaction_commit",
+      "mysql_transaction_rollback"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-transactions-part1b.md",
+    "directory": "test-advanced",
+    "group": "advanced-transactions",
+    "tools": [
+      "mysql_transaction_savepoint"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-transactions-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-transactions",
+    "tools": [
+      "mysql_transaction_release",
+      "mysql_transaction_rollback_to",
+      "mysql_transaction_execute"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-types-binary.md",
+    "directory": "test-advanced",
+    "group": "advanced-types-binary",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-types-binary.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-types-date.md",
+    "directory": "test-advanced",
+    "group": "advanced-types-date",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-types-date.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-types-json.md",
+    "directory": "test-advanced",
+    "group": "advanced-types-json",
+    "tools": [],
+    "contentPartial": "test-codemode-advanced-types-json.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-types-numeric.md",
+    "directory": "test-advanced",
+    "group": "advanced-types-numeric",
+    "tools": []
+  },
+  {
+    "filename": "test-codemode-advanced-vector-management-part1.md",
+    "directory": "test-advanced",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_store",
+      "mysql_vector_batch_store",
+      "mysql_vector_delete"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-vector-management-part2.md",
+    "directory": "test-advanced",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_get"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-vector-search-part1.md",
+    "directory": "test-advanced",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_search",
+      "mysql_vector_range_search",
+      "mysql_vector_hybrid_search"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-vector-search-part2.md",
+    "directory": "test-advanced",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_info"
+    ]
+  },
+  {
+    "filename": "test-codemode-advanced-vector-storage.md",
+    "directory": "test-advanced",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_create_index",
+      "mysql_vector_optimize",
+      "mysql_vector_stats"
+    ]
+  },
+  {
+    "filename": "test-admin-part1.md",
+    "directory": "test-tool-groups",
+    "group": "admin",
+    "tools": [
+      "mysql_optimize_table",
+      "mysql_analyze_table",
+      "mysql_check_table"
+    ]
+  },
+  {
+    "filename": "test-admin-part2.md",
+    "directory": "test-tool-groups",
+    "group": "admin",
+    "tools": [
+      "mysql_repair_table",
+      "mysql_flush_tables",
+      "mysql_kill_query"
+    ]
+  },
+  {
+    "filename": "test-admin-part3.md",
+    "directory": "test-tool-groups",
+    "group": "admin",
+    "tools": [
+      "mysql_append_insight",
+      "mysql_server_config",
+      "mysql_audit_search"
+    ]
+  },
+  {
+    "filename": "test-backup-part1.md",
+    "directory": "test-tool-groups",
+    "group": "backup",
+    "tools": [
+      "mysql_export_table",
+      "mysql_import_data"
+    ]
+  },
+  {
+    "filename": "test-backup-part2.md",
+    "directory": "test-tool-groups",
+    "group": "backup",
+    "tools": [
+      "mysql_create_dump",
+      "mysql_restore_dump"
+    ]
+  },
+  {
+    "filename": "test-backup-part3.md",
+    "directory": "test-tool-groups",
+    "group": "backup",
+    "tools": [
+      "mysql_audit_list_backups",
+      "mysql_audit_restore_backup",
+      "mysql_audit_diff_backup"
+    ]
+  },
+  {
+    "filename": "test-cluster-gr-part1.md",
+    "directory": "test-tool-groups",
+    "group": "cluster",
+    "tools": [
+      "mysql_gr_status",
+      "mysql_gr_members",
+      "mysql_gr_primary"
+    ]
+  },
+  {
+    "filename": "test-cluster-gr-part2.md",
+    "directory": "test-tool-groups",
+    "group": "cluster",
+    "tools": [
+      "mysql_gr_transactions",
+      "mysql_gr_flow_control"
+    ]
+  },
+  {
+    "filename": "test-cluster-innodb-part1.md",
+    "directory": "test-tool-groups",
+    "group": "cluster",
+    "tools": [
+      "mysql_cluster_status",
+      "mysql_cluster_instances",
+      "mysql_cluster_topology"
+    ]
+  },
+  {
+    "filename": "test-cluster-innodb-part2.md",
+    "directory": "test-tool-groups",
+    "group": "cluster",
+    "tools": [
+      "mysql_cluster_router_status",
+      "mysql_cluster_switchover"
+    ]
+  },
+  {
+    "filename": "test-codemode.md",
+    "directory": "test-tool-groups",
+    "group": "codemode",
+    "tools": [
+      "mysql_execute_code"
+    ]
+  },
+  {
+    "filename": "test-core-part1.md",
+    "directory": "test-tool-groups",
+    "group": "core",
+    "tools": [
+      "mysql_read_query",
+      "mysql_create_table",
+      "mysql_enable_versioning"
+    ]
+  },
+  {
+    "filename": "test-core-part2.md",
+    "directory": "test-tool-groups",
+    "group": "core",
+    "tools": [
+      "mysql_write_query",
+      "mysql_drop_table",
+      "mysql_disable_versioning"
+    ]
+  },
+  {
+    "filename": "test-core-part3.md",
+    "directory": "test-tool-groups",
+    "group": "core",
+    "tools": [
+      "mysql_list_tables",
+      "mysql_create_index",
+      "mysql_check_version"
+    ]
+  },
+  {
+    "filename": "test-core-part4.md",
+    "directory": "test-tool-groups",
+    "group": "core",
+    "tools": [
+      "mysql_describe_table",
+      "mysql_get_indexes",
+      "mysql_conditional_update"
+    ]
+  },
+  {
+    "filename": "test-docstore-part1.md",
+    "directory": "test-tool-groups",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_list_collections",
+      "mysql_doc_find",
+      "mysql_doc_remove"
+    ]
+  },
+  {
+    "filename": "test-docstore-part2.md",
+    "directory": "test-tool-groups",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_create_collection",
+      "mysql_doc_add",
+      "mysql_doc_create_index"
+    ]
+  },
+  {
+    "filename": "test-docstore-part3.md",
+    "directory": "test-tool-groups",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_drop_collection",
+      "mysql_doc_modify",
+      "mysql_doc_collection_info"
+    ]
+  },
+  {
+    "filename": "test-events-part1.md",
+    "directory": "test-tool-groups",
+    "group": "events",
+    "tools": [
+      "mysql_event_create",
+      "mysql_event_drop",
+      "mysql_event_status"
+    ]
+  },
+  {
+    "filename": "test-events-part2.md",
+    "directory": "test-tool-groups",
+    "group": "events",
+    "tools": [
+      "mysql_event_alter",
+      "mysql_event_list",
+      "mysql_scheduler_status"
+    ]
+  },
+  {
+    "filename": "test-fulltext-part1.md",
+    "directory": "test-tool-groups",
+    "group": "fulltext",
+    "tools": [
+      "mysql_fulltext_create",
+      "mysql_fulltext_search",
+      "mysql_fulltext_expand"
+    ]
+  },
+  {
+    "filename": "test-fulltext-part2.md",
+    "directory": "test-tool-groups",
+    "group": "fulltext",
+    "tools": [
+      "mysql_fulltext_drop",
+      "mysql_fulltext_boolean"
+    ]
+  },
+  {
+    "filename": "test-introspection-part1.md",
+    "directory": "test-tool-groups",
+    "group": "introspection",
+    "tools": [
+      "mysql_dependency_graph",
+      "mysql_cascade_simulator",
+      "mysql_constraint_analysis"
+    ]
+  },
+  {
+    "filename": "test-introspection-part2.md",
+    "directory": "test-tool-groups",
+    "group": "introspection",
+    "tools": [
+      "mysql_topological_sort",
+      "mysql_schema_snapshot",
+      "mysql_migration_risks"
+    ]
+  },
+  {
+    "filename": "test-json-core-part1.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
+      "mysql_json_extract",
+      "mysql_json_array_append",
+      "mysql_json_normalize"
+    ]
+  },
+  {
+    "filename": "test-json-core-part2.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
+      "mysql_json_set",
+      "mysql_json_get",
+      "mysql_json_stats"
+    ]
+  },
+  {
+    "filename": "test-json-core-part3.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
+      "mysql_json_insert",
+      "mysql_json_update",
+      "mysql_json_index_suggest"
+    ]
+  },
+  {
+    "filename": "test-json-enhanced-part1.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
+      "mysql_json_replace",
+      "mysql_json_search"
+    ]
+  },
+  {
+    "filename": "test-json-enhanced-part2.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
+      "mysql_json_remove",
+      "mysql_json_validate"
+    ]
+  },
+  {
+    "filename": "test-json-helpers-part1.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
+      "mysql_json_contains",
+      "mysql_json_merge"
+    ]
+  },
+  {
+    "filename": "test-json-helpers-part2.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
+      "mysql_json_keys",
+      "mysql_json_diff"
+    ]
+  },
+  {
+    "filename": "test-migration-part1.md",
+    "directory": "test-tool-groups",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_init",
+      "mysql_migration_apply",
+      "mysql_migration_history"
+    ]
+  },
+  {
+    "filename": "test-migration-part2.md",
+    "directory": "test-tool-groups",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_record",
+      "mysql_migration_rollback",
+      "mysql_migration_status"
+    ]
+  },
+  {
+    "filename": "test-monitoring-part1.md",
+    "directory": "test-tool-groups",
+    "group": "monitoring",
+    "tools": [
+      "mysql_show_processlist",
+      "mysql_innodb_status",
+      "mysql_server_health"
+    ]
+  },
+  {
+    "filename": "test-monitoring-part2.md",
+    "directory": "test-tool-groups",
+    "group": "monitoring",
+    "tools": [
+      "mysql_show_status",
+      "mysql_replication_status"
+    ]
+  },
+  {
+    "filename": "test-monitoring-part3.md",
+    "directory": "test-tool-groups",
+    "group": "monitoring",
+    "tools": [
+      "mysql_show_variables",
+      "mysql_pool_stats"
+    ]
+  },
+  {
+    "filename": "test-optimization-part1.md",
+    "directory": "test-tool-groups",
+    "group": "optimization",
+    "tools": [
+      "mysql_index_recommendation",
+      "mysql_force_index"
+    ]
+  },
+  {
+    "filename": "test-optimization-part2.md",
+    "directory": "test-tool-groups",
+    "group": "optimization",
+    "tools": [
+      "mysql_query_rewrite",
+      "mysql_optimizer_trace"
+    ]
+  },
+  {
+    "filename": "test-partitioning-part1.md",
+    "directory": "test-tool-groups",
+    "group": "partitioning",
+    "tools": [
+      "mysql_partition_info",
+      "mysql_drop_partition"
+    ]
+  },
+  {
+    "filename": "test-partitioning-part2.md",
+    "directory": "test-tool-groups",
+    "group": "partitioning",
+    "tools": [
+      "mysql_add_partition",
+      "mysql_reorganize_partition"
+    ]
+  },
+  {
+    "filename": "test-performance-analysis-part1.md",
+    "directory": "test-tool-groups",
+    "group": "performance",
+    "tools": [
+      "mysql_explain",
+      "mysql_explain_analyze",
+      "mysql_slow_queries"
+    ]
+  },
+  {
+    "filename": "test-performance-analysis-part2.md",
+    "directory": "test-tool-groups",
+    "group": "performance",
+    "tools": [
+      "mysql_query_stats",
+      "mysql_index_usage",
+      "mysql_table_stats"
+    ]
+  },
+  {
+    "filename": "test-performance-analysis-part3.md",
+    "directory": "test-tool-groups",
+    "group": "performance",
+    "tools": [
+      "mysql_buffer_pool_stats",
+      "mysql_thread_stats"
+    ]
+  },
+  {
+    "filename": "test-performance-anomaly.md",
+    "directory": "test-tool-groups",
+    "group": "performance",
+    "tools": [
+      "mysql_detect_query_anomalies",
+      "mysql_detect_bloat_risk",
+      "mysql_detect_connection_spike"
+    ]
+  },
+  {
+    "filename": "test-proxysql-part1.md",
+    "directory": "test-tool-groups",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_status",
+      "proxysql_connection_pool",
+      "proxysql_memory_stats"
+    ]
+  },
+  {
+    "filename": "test-proxysql-part2.md",
+    "directory": "test-tool-groups",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_servers",
+      "proxysql_users",
+      "proxysql_commands"
+    ]
+  },
+  {
+    "filename": "test-proxysql-part3.md",
+    "directory": "test-tool-groups",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_query_rules",
+      "proxysql_global_variables",
+      "proxysql_process_list"
+    ]
+  },
+  {
+    "filename": "test-proxysql-part4.md",
+    "directory": "test-tool-groups",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_query_digest",
+      "proxysql_runtime_status"
+    ]
+  },
+  {
+    "filename": "test-replication-part1.md",
+    "directory": "test-tool-groups",
+    "group": "replication",
+    "tools": [
+      "mysql_master_status",
+      "mysql_binlog_events",
+      "mysql_replication_lag"
+    ]
+  },
+  {
+    "filename": "test-replication-part2.md",
+    "directory": "test-tool-groups",
+    "group": "replication",
+    "tools": [
+      "mysql_slave_status",
+      "mysql_gtid_status"
+    ]
+  },
+  {
+    "filename": "test-roles-part1.md",
+    "directory": "test-tool-groups",
+    "group": "roles",
+    "tools": [
+      "mysql_role_list",
+      "mysql_role_grants",
+      "mysql_role_revoke"
+    ]
+  },
+  {
+    "filename": "test-roles-part2.md",
+    "directory": "test-tool-groups",
+    "group": "roles",
+    "tools": [
+      "mysql_role_create",
+      "mysql_role_grant",
+      "mysql_user_roles"
+    ]
+  },
+  {
+    "filename": "test-roles-part3.md",
+    "directory": "test-tool-groups",
+    "group": "roles",
+    "tools": [
+      "mysql_role_drop",
+      "mysql_role_assign"
+    ]
+  },
+  {
+    "filename": "test-router-part1.md",
+    "directory": "test-tool-groups",
+    "group": "router",
+    "tools": [
+      "mysql_router_status",
+      "mysql_router_route_health",
+      "mysql_router_route_blocked_hosts"
+    ]
+  },
+  {
+    "filename": "test-router-part2.md",
+    "directory": "test-tool-groups",
+    "group": "router",
+    "tools": [
+      "mysql_router_routes",
+      "mysql_router_route_connections",
+      "mysql_router_metadata_status"
+    ]
+  },
+  {
+    "filename": "test-router-part3.md",
+    "directory": "test-tool-groups",
+    "group": "router",
+    "tools": [
+      "mysql_router_route_status",
+      "mysql_router_route_destinations",
+      "mysql_router_pool_status"
+    ]
+  },
+  {
+    "filename": "test-schema-management-part1.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
+      "mysql_list_schemas",
+      "mysql_create_schema",
+      "mysql_drop_schema"
+    ]
+  },
+  {
+    "filename": "test-schema-management-part2.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
+      "mysql_list_views",
+      "mysql_create_view",
+      "mysql_drop_view"
+    ]
+  },
+  {
+    "filename": "test-schema-management-part3.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
+      "mysql_list_constraints"
+    ]
+  },
+  {
+    "filename": "test-schema-routines-part1.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
+      "mysql_list_stored_procedures",
+      "mysql_list_functions"
+    ]
+  },
+  {
+    "filename": "test-schema-routines-part2.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
+      "mysql_list_triggers",
+      "mysql_create_trigger",
+      "mysql_drop_trigger"
+    ]
+  },
+  {
+    "filename": "test-security-part1.md",
+    "directory": "test-tool-groups",
+    "group": "security",
+    "tools": [
+      "mysql_security_audit",
+      "mysql_security_mask_data",
+      "mysql_security_user_privileges"
+    ]
+  },
+  {
+    "filename": "test-security-part2.md",
+    "directory": "test-tool-groups",
+    "group": "security",
+    "tools": [
+      "mysql_security_firewall_status",
+      "mysql_security_password_validate",
+      "mysql_security_sensitive_tables"
+    ]
+  },
+  {
+    "filename": "test-security-part3.md",
+    "directory": "test-tool-groups",
+    "group": "security",
+    "tools": [
+      "mysql_security_firewall_rules",
+      "mysql_security_ssl_status",
+      "mysql_security_encryption_status"
+    ]
+  },
+  {
+    "filename": "test-shell-part1.md",
+    "directory": "test-tool-groups",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_version",
+      "mysqlsh_import_json",
+      "mysqlsh_load_dump"
+    ]
+  },
+  {
+    "filename": "test-shell-part2.md",
+    "directory": "test-tool-groups",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_check_upgrade",
+      "mysqlsh_dump_instance",
+      "mysqlsh_run_script"
+    ]
+  },
+  {
+    "filename": "test-shell-part3.md",
+    "directory": "test-tool-groups",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_export_table",
+      "mysqlsh_dump_schemas"
+    ]
+  },
+  {
+    "filename": "test-shell-part4.md",
+    "directory": "test-tool-groups",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_import_table",
+      "mysqlsh_dump_tables"
+    ]
+  },
+  {
+    "filename": "test-spatial-geometry.md",
+    "directory": "test-tool-groups",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_point",
+      "mysql_spatial_polygon",
+      "mysql_spatial_geojson"
+    ]
+  },
+  {
+    "filename": "test-spatial-operations-part1.md",
+    "directory": "test-tool-groups",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_distance",
+      "mysql_spatial_distance_sphere"
+    ]
+  },
+  {
+    "filename": "test-spatial-operations-part2.md",
+    "directory": "test-tool-groups",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_buffer",
+      "mysql_spatial_transform"
+    ]
+  },
+  {
+    "filename": "test-spatial-queries-part1.md",
+    "directory": "test-tool-groups",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_contains",
+      "mysql_spatial_within"
+    ]
+  },
+  {
+    "filename": "test-spatial-queries-part2.md",
+    "directory": "test-tool-groups",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_intersection"
+    ]
+  },
+  {
+    "filename": "test-spatial-setup.md",
+    "directory": "test-tool-groups",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_create_column",
+      "mysql_spatial_create_index"
+    ]
+  },
+  {
+    "filename": "test-stats-advanced-part1.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_descriptive",
+      "mysql_stats_histogram",
+      "mysql_stats_hypothesis"
+    ]
+  },
+  {
+    "filename": "test-stats-advanced-part2.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_percentiles",
+      "mysql_stats_row_number",
+      "mysql_stats_outliers"
+    ]
+  },
+  {
+    "filename": "test-stats-descriptive-part1.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_correlation",
+      "mysql_stats_rank",
+      "mysql_stats_top_n"
+    ]
+  },
+  {
+    "filename": "test-stats-descriptive-part2.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_distribution",
+      "mysql_stats_lag_lead",
+      "mysql_stats_distinct"
+    ]
+  },
+  {
+    "filename": "test-stats-descriptive-part3.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_time_series",
+      "mysql_stats_running_total",
+      "mysql_stats_frequency"
+    ]
+  },
+  {
+    "filename": "test-stats-window-part1.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_regression",
+      "mysql_stats_moving_avg",
+      "mysql_stats_summary"
+    ]
+  },
+  {
+    "filename": "test-stats-window-part2.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_sampling",
+      "mysql_stats_ntile"
+    ]
+  },
+  {
+    "filename": "test-sys-part1.md",
+    "directory": "test-tool-groups",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_user_summary",
+      "mysql_sys_wait_summary",
+      "mysql_sys_host_summary"
+    ]
+  },
+  {
+    "filename": "test-sys-part2.md",
+    "directory": "test-tool-groups",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_io_summary",
+      "mysql_sys_innodb_lock_waits",
+      "mysql_sys_memory_summary"
+    ]
+  },
+  {
+    "filename": "test-sys-part3.md",
+    "directory": "test-tool-groups",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_statement_summary",
+      "mysql_sys_schema_stats"
+    ]
+  },
+  {
+    "filename": "test-text-part1.md",
+    "directory": "test-tool-groups",
+    "group": "text",
+    "tools": [
+      "mysql_regexp_match",
+      "mysql_soundex",
+      "mysql_concat"
+    ]
+  },
+  {
+    "filename": "test-text-part2.md",
+    "directory": "test-tool-groups",
+    "group": "text",
+    "tools": [
+      "mysql_like_search",
+      "mysql_substring",
+      "mysql_collation_convert"
+    ]
+  },
+  {
+    "filename": "test-transactions-part1.md",
+    "directory": "test-tool-groups",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_begin",
+      "mysql_transaction_savepoint",
+      "mysql_transaction_execute"
+    ]
+  },
+  {
+    "filename": "test-transactions-part2.md",
+    "directory": "test-tool-groups",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_commit",
+      "mysql_transaction_release"
+    ]
+  },
+  {
+    "filename": "test-transactions-part3.md",
+    "directory": "test-tool-groups",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_rollback",
+      "mysql_transaction_rollback_to"
+    ]
+  },
+  {
+    "filename": "test-vector-management-part1.md",
+    "directory": "test-tool-groups",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_create_index",
+      "mysql_vector_optimize"
+    ]
+  },
+  {
+    "filename": "test-vector-management-part2.md",
+    "directory": "test-tool-groups",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_stats",
+      "mysql_vector_info"
+    ]
+  },
+  {
+    "filename": "test-vector-search.md",
+    "directory": "test-tool-groups",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_search",
+      "mysql_vector_range_search",
+      "mysql_vector_hybrid_search"
+    ]
+  },
+  {
+    "filename": "test-vector-storage-part1.md",
+    "directory": "test-tool-groups",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_store",
+      "mysql_vector_batch_store"
+    ]
+  },
+  {
+    "filename": "test-vector-storage-part2.md",
+    "directory": "test-tool-groups",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_get",
+      "mysql_vector_delete"
+    ]
+  },
+  {
+    "filename": "test-usability-admin-part1.md",
+    "directory": "test-usability",
+    "group": "admin",
+    "tools": [
+      "mysql_optimize_table",
+      "mysql_analyze_table",
+      "mysql_check_table"
+    ]
+  },
+  {
+    "filename": "test-usability-admin-part2.md",
+    "directory": "test-usability",
+    "group": "admin",
+    "tools": [
+      "mysql_repair_table",
+      "mysql_flush_tables",
+      "mysql_kill_query"
+    ]
+  },
+  {
+    "filename": "test-usability-admin-part3.md",
+    "directory": "test-usability",
+    "group": "admin",
+    "tools": [
+      "mysql_append_insight",
+      "mysql_server_config",
+      "mysql_audit_search"
+    ]
+  },
+  {
+    "filename": "test-usability-backup-part1.md",
+    "directory": "test-usability",
+    "group": "backup",
+    "tools": [
+      "mysql_export_table",
+      "mysql_import_data",
+      "mysql_create_dump"
+    ]
+  },
+  {
+    "filename": "test-usability-backup-part2.md",
+    "directory": "test-usability",
+    "group": "backup",
+    "tools": [
+      "mysql_restore_dump",
+      "mysql_audit_list_backups",
+      "mysql_audit_restore_backup"
+    ]
+  },
+  {
+    "filename": "test-usability-backup-part3.md",
+    "directory": "test-usability",
+    "group": "backup",
+    "tools": [
+      "mysql_audit_diff_backup"
+    ]
+  },
+  {
+    "filename": "test-usability-cluster-part1.md",
+    "directory": "test-usability",
+    "group": "cluster",
+    "tools": [
+      "mysql_gr_status",
+      "mysql_gr_members",
+      "mysql_gr_primary"
+    ]
+  },
+  {
+    "filename": "test-usability-cluster-part2.md",
+    "directory": "test-usability",
+    "group": "cluster",
+    "tools": [
+      "mysql_gr_transactions",
+      "mysql_gr_flow_control",
+      "mysql_cluster_status"
+    ]
+  },
+  {
+    "filename": "test-usability-cluster-part3.md",
+    "directory": "test-usability",
+    "group": "cluster",
+    "tools": [
+      "mysql_cluster_instances",
+      "mysql_cluster_topology",
+      "mysql_cluster_router_status"
+    ]
+  },
+  {
+    "filename": "test-usability-cluster-part4.md",
+    "directory": "test-usability",
+    "group": "cluster",
+    "tools": [
+      "mysql_cluster_switchover"
+    ]
+  },
+  {
+    "filename": "test-usability-codemode.md",
+    "directory": "test-usability",
+    "group": "codemode",
+    "tools": [
+      "mysql_execute_code"
+    ]
+  },
+  {
+    "filename": "test-usability-core-part1.md",
+    "directory": "test-usability",
+    "group": "core",
+    "tools": [
+      "mysql_read_query",
+      "mysql_write_query",
+      "mysql_list_tables"
+    ]
+  },
+  {
+    "filename": "test-usability-core-part2.md",
+    "directory": "test-usability",
+    "group": "core",
+    "tools": [
+      "mysql_describe_table",
+      "mysql_create_table",
+      "mysql_drop_table"
+    ]
+  },
+  {
+    "filename": "test-usability-core-part3.md",
+    "directory": "test-usability",
+    "group": "core",
+    "tools": [
+      "mysql_create_index",
+      "mysql_get_indexes",
+      "mysql_enable_versioning"
+    ]
+  },
+  {
+    "filename": "test-usability-core-part4.md",
+    "directory": "test-usability",
+    "group": "core",
+    "tools": [
+      "mysql_disable_versioning",
+      "mysql_check_version",
+      "mysql_conditional_update"
+    ]
+  },
+  {
+    "filename": "test-usability-docstore-part1.md",
+    "directory": "test-usability",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_list_collections",
+      "mysql_doc_create_collection",
+      "mysql_doc_drop_collection"
+    ]
+  },
+  {
+    "filename": "test-usability-docstore-part2.md",
+    "directory": "test-usability",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_find",
+      "mysql_doc_add",
+      "mysql_doc_modify"
+    ]
+  },
+  {
+    "filename": "test-usability-docstore-part3.md",
+    "directory": "test-usability",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_remove",
+      "mysql_doc_create_index",
+      "mysql_doc_collection_info"
+    ]
+  },
+  {
+    "filename": "test-usability-events-part1.md",
+    "directory": "test-usability",
+    "group": "events",
+    "tools": [
+      "mysql_event_create",
+      "mysql_event_alter",
+      "mysql_event_drop"
+    ]
+  },
+  {
+    "filename": "test-usability-events-part2.md",
+    "directory": "test-usability",
+    "group": "events",
+    "tools": [
+      "mysql_event_list",
+      "mysql_event_status",
+      "mysql_scheduler_status"
+    ]
+  },
+  {
+    "filename": "test-usability-fulltext-part1.md",
+    "directory": "test-usability",
+    "group": "fulltext",
+    "tools": [
+      "mysql_fulltext_create",
+      "mysql_fulltext_drop",
+      "mysql_fulltext_search"
+    ]
+  },
+  {
+    "filename": "test-usability-fulltext-part2.md",
+    "directory": "test-usability",
+    "group": "fulltext",
+    "tools": [
+      "mysql_fulltext_boolean",
+      "mysql_fulltext_expand"
+    ]
+  },
+  {
+    "filename": "test-usability-introspection-part1.md",
+    "directory": "test-usability",
+    "group": "introspection",
+    "tools": [
+      "mysql_dependency_graph",
+      "mysql_topological_sort",
+      "mysql_cascade_simulator"
+    ]
+  },
+  {
+    "filename": "test-usability-introspection-part2.md",
+    "directory": "test-usability",
+    "group": "introspection",
+    "tools": [
+      "mysql_schema_snapshot",
+      "mysql_constraint_analysis",
+      "mysql_migration_risks"
+    ]
+  },
+  {
+    "filename": "test-usability-json-part1.md",
+    "directory": "test-usability",
+    "group": "json",
+    "tools": [
+      "mysql_json_extract",
+      "mysql_json_set",
+      "mysql_json_insert"
+    ]
+  },
+  {
+    "filename": "test-usability-json-part2.md",
+    "directory": "test-usability",
+    "group": "json",
+    "tools": [
+      "mysql_json_replace",
+      "mysql_json_remove",
+      "mysql_json_contains"
+    ]
+  },
+  {
+    "filename": "test-usability-json-part3.md",
+    "directory": "test-usability",
+    "group": "json",
+    "tools": [
+      "mysql_json_keys",
+      "mysql_json_array_append",
+      "mysql_json_get"
+    ]
+  },
+  {
+    "filename": "test-usability-json-part4.md",
+    "directory": "test-usability",
+    "group": "json",
+    "tools": [
+      "mysql_json_update",
+      "mysql_json_search",
+      "mysql_json_validate"
+    ]
+  },
+  {
+    "filename": "test-usability-json-part5.md",
+    "directory": "test-usability",
+    "group": "json",
+    "tools": [
+      "mysql_json_merge",
+      "mysql_json_diff",
+      "mysql_json_normalize"
+    ]
+  },
+  {
+    "filename": "test-usability-json-part6.md",
+    "directory": "test-usability",
+    "group": "json",
+    "tools": [
+      "mysql_json_stats",
+      "mysql_json_index_suggest"
+    ]
+  },
+  {
+    "filename": "test-usability-migration-part1.md",
+    "directory": "test-usability",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_init",
+      "mysql_migration_record",
+      "mysql_migration_apply"
+    ]
+  },
+  {
+    "filename": "test-usability-migration-part2.md",
+    "directory": "test-usability",
+    "group": "migration",
+    "tools": [
+      "mysql_migration_rollback",
+      "mysql_migration_history",
+      "mysql_migration_status"
+    ]
+  },
+  {
+    "filename": "test-usability-monitoring-part1.md",
+    "directory": "test-usability",
+    "group": "monitoring",
+    "tools": [
+      "mysql_show_processlist",
+      "mysql_show_status",
+      "mysql_show_variables"
+    ]
+  },
+  {
+    "filename": "test-usability-monitoring-part2.md",
+    "directory": "test-usability",
+    "group": "monitoring",
+    "tools": [
+      "mysql_innodb_status",
+      "mysql_replication_status",
+      "mysql_pool_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-monitoring-part3.md",
+    "directory": "test-usability",
+    "group": "monitoring",
+    "tools": [
+      "mysql_server_health"
+    ]
+  },
+  {
+    "filename": "test-usability-optimization-part1.md",
+    "directory": "test-usability",
+    "group": "optimization",
+    "tools": [
+      "mysql_index_recommendation",
+      "mysql_query_rewrite",
+      "mysql_force_index"
+    ]
+  },
+  {
+    "filename": "test-usability-optimization-part2.md",
+    "directory": "test-usability",
+    "group": "optimization",
+    "tools": [
+      "mysql_optimizer_trace"
+    ]
+  },
+  {
+    "filename": "test-usability-partitioning-part1.md",
+    "directory": "test-usability",
+    "group": "partitioning",
+    "tools": [
+      "mysql_partition_info",
+      "mysql_add_partition",
+      "mysql_drop_partition"
+    ]
+  },
+  {
+    "filename": "test-usability-partitioning-part2.md",
+    "directory": "test-usability",
+    "group": "partitioning",
+    "tools": [
+      "mysql_reorganize_partition"
+    ]
+  },
+  {
+    "filename": "test-usability-performance-part1.md",
+    "directory": "test-usability",
+    "group": "performance",
+    "tools": [
+      "mysql_explain",
+      "mysql_explain_analyze",
+      "mysql_slow_queries"
+    ]
+  },
+  {
+    "filename": "test-usability-performance-part2.md",
+    "directory": "test-usability",
+    "group": "performance",
+    "tools": [
+      "mysql_query_stats",
+      "mysql_index_usage",
+      "mysql_table_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-performance-part3.md",
+    "directory": "test-usability",
+    "group": "performance",
+    "tools": [
+      "mysql_buffer_pool_stats",
+      "mysql_thread_stats",
+      "mysql_detect_query_anomalies"
+    ]
+  },
+  {
+    "filename": "test-usability-performance-part4.md",
+    "directory": "test-usability",
+    "group": "performance",
+    "tools": [
+      "mysql_detect_bloat_risk",
+      "mysql_detect_connection_spike"
+    ]
+  },
+  {
+    "filename": "test-usability-proxysql-part1.md",
+    "directory": "test-usability",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_status",
+      "proxysql_servers",
+      "proxysql_query_rules"
+    ]
+  },
+  {
+    "filename": "test-usability-proxysql-part2.md",
+    "directory": "test-usability",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_query_digest",
+      "proxysql_connection_pool",
+      "proxysql_users"
+    ]
+  },
+  {
+    "filename": "test-usability-proxysql-part3.md",
+    "directory": "test-usability",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_global_variables",
+      "proxysql_runtime_status",
+      "proxysql_memory_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-proxysql-part4.md",
+    "directory": "test-usability",
+    "group": "proxysql",
+    "tools": [
+      "proxysql_commands",
+      "proxysql_process_list"
+    ]
+  },
+  {
+    "filename": "test-usability-replication-part1.md",
+    "directory": "test-usability",
+    "group": "replication",
+    "tools": [
+      "mysql_master_status",
+      "mysql_slave_status",
+      "mysql_binlog_events"
+    ]
+  },
+  {
+    "filename": "test-usability-replication-part2.md",
+    "directory": "test-usability",
+    "group": "replication",
+    "tools": [
+      "mysql_gtid_status",
+      "mysql_replication_lag"
+    ]
+  },
+  {
+    "filename": "test-usability-roles-part1.md",
+    "directory": "test-usability",
+    "group": "roles",
+    "tools": [
+      "mysql_role_list",
+      "mysql_role_create",
+      "mysql_role_drop"
+    ]
+  },
+  {
+    "filename": "test-usability-roles-part2.md",
+    "directory": "test-usability",
+    "group": "roles",
+    "tools": [
+      "mysql_role_grants",
+      "mysql_role_grant",
+      "mysql_role_assign"
+    ]
+  },
+  {
+    "filename": "test-usability-roles-part3.md",
+    "directory": "test-usability",
+    "group": "roles",
+    "tools": [
+      "mysql_role_revoke",
+      "mysql_user_roles"
+    ]
+  },
+  {
+    "filename": "test-usability-router-part1.md",
+    "directory": "test-usability",
+    "group": "router",
+    "tools": [
+      "mysql_router_status",
+      "mysql_router_routes",
+      "mysql_router_route_status"
+    ]
+  },
+  {
+    "filename": "test-usability-router-part2.md",
+    "directory": "test-usability",
+    "group": "router",
+    "tools": [
+      "mysql_router_route_health",
+      "mysql_router_route_connections",
+      "mysql_router_route_destinations"
+    ]
+  },
+  {
+    "filename": "test-usability-router-part3.md",
+    "directory": "test-usability",
+    "group": "router",
+    "tools": [
+      "mysql_router_route_blocked_hosts",
+      "mysql_router_metadata_status",
+      "mysql_router_pool_status"
+    ]
+  },
+  {
+    "filename": "test-usability-schema-part1.md",
+    "directory": "test-usability",
+    "group": "schema",
+    "tools": [
+      "mysql_list_schemas",
+      "mysql_create_schema",
+      "mysql_drop_schema"
+    ]
+  },
+  {
+    "filename": "test-usability-schema-part2.md",
+    "directory": "test-usability",
+    "group": "schema",
+    "tools": [
+      "mysql_list_views",
+      "mysql_create_view",
+      "mysql_drop_view"
+    ]
+  },
+  {
+    "filename": "test-usability-schema-part3.md",
+    "directory": "test-usability",
+    "group": "schema",
+    "tools": [
+      "mysql_list_stored_procedures",
+      "mysql_list_functions",
+      "mysql_list_triggers"
+    ]
+  },
+  {
+    "filename": "test-usability-schema-part4.md",
+    "directory": "test-usability",
+    "group": "schema",
+    "tools": [
+      "mysql_create_trigger",
+      "mysql_drop_trigger",
+      "mysql_list_constraints"
+    ]
+  },
+  {
+    "filename": "test-usability-security-part1.md",
+    "directory": "test-usability",
+    "group": "security",
+    "tools": [
+      "mysql_security_audit",
+      "mysql_security_firewall_status",
+      "mysql_security_firewall_rules"
+    ]
+  },
+  {
+    "filename": "test-usability-security-part2.md",
+    "directory": "test-usability",
+    "group": "security",
+    "tools": [
+      "mysql_security_mask_data",
+      "mysql_security_password_validate",
+      "mysql_security_ssl_status"
+    ]
+  },
+  {
+    "filename": "test-usability-security-part3.md",
+    "directory": "test-usability",
+    "group": "security",
+    "tools": [
+      "mysql_security_user_privileges",
+      "mysql_security_sensitive_tables",
+      "mysql_security_encryption_status"
+    ]
+  },
+  {
+    "filename": "test-usability-shell-part1.md",
+    "directory": "test-usability",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_version",
+      "mysqlsh_check_upgrade",
+      "mysqlsh_export_table"
+    ]
+  },
+  {
+    "filename": "test-usability-shell-part2.md",
+    "directory": "test-usability",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_import_table",
+      "mysqlsh_import_json",
+      "mysqlsh_dump_instance"
+    ]
+  },
+  {
+    "filename": "test-usability-shell-part3.md",
+    "directory": "test-usability",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_dump_schemas",
+      "mysqlsh_dump_tables",
+      "mysqlsh_load_dump"
+    ]
+  },
+  {
+    "filename": "test-usability-shell-part4.md",
+    "directory": "test-usability",
+    "group": "shell",
+    "tools": [
+      "mysqlsh_run_script"
+    ]
+  },
+  {
+    "filename": "test-usability-spatial-part1.md",
+    "directory": "test-usability",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_create_column",
+      "mysql_spatial_create_index",
+      "mysql_spatial_point"
+    ]
+  },
+  {
+    "filename": "test-usability-spatial-part2.md",
+    "directory": "test-usability",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_polygon",
+      "mysql_spatial_distance",
+      "mysql_spatial_distance_sphere"
+    ]
+  },
+  {
+    "filename": "test-usability-spatial-part3.md",
+    "directory": "test-usability",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_contains",
+      "mysql_spatial_within",
+      "mysql_spatial_intersection"
+    ]
+  },
+  {
+    "filename": "test-usability-spatial-part4.md",
+    "directory": "test-usability",
+    "group": "spatial",
+    "tools": [
+      "mysql_spatial_buffer",
+      "mysql_spatial_transform",
+      "mysql_spatial_geojson"
+    ]
+  },
+  {
+    "filename": "test-usability-stats-part1.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_descriptive",
+      "mysql_stats_percentiles",
+      "mysql_stats_correlation"
+    ]
+  },
+  {
+    "filename": "test-usability-stats-part2.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_distribution",
+      "mysql_stats_time_series",
+      "mysql_stats_regression"
+    ]
+  },
+  {
+    "filename": "test-usability-stats-part3.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_sampling",
+      "mysql_stats_histogram",
+      "mysql_stats_row_number"
+    ]
+  },
+  {
+    "filename": "test-usability-stats-part4.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_rank",
+      "mysql_stats_lag_lead",
+      "mysql_stats_running_total"
+    ]
+  },
+  {
+    "filename": "test-usability-stats-part5.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_moving_avg",
+      "mysql_stats_ntile",
+      "mysql_stats_hypothesis"
+    ]
+  },
+  {
+    "filename": "test-usability-stats-part6.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_outliers",
+      "mysql_stats_top_n",
+      "mysql_stats_distinct"
+    ]
+  },
+  {
+    "filename": "test-usability-stats-part7.md",
+    "directory": "test-usability",
+    "group": "stats",
+    "tools": [
+      "mysql_stats_frequency",
+      "mysql_stats_summary"
+    ]
+  },
+  {
+    "filename": "test-usability-sysschema-part1.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_user_summary",
+      "mysql_sys_io_summary",
+      "mysql_sys_statement_summary"
+    ]
+  },
+  {
+    "filename": "test-usability-sysschema-part2.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_wait_summary",
+      "mysql_sys_innodb_lock_waits",
+      "mysql_sys_schema_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-sysschema-part3.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_host_summary",
+      "mysql_sys_memory_summary"
+    ]
+  },
+  {
+    "filename": "test-usability-text-part1.md",
+    "directory": "test-usability",
+    "group": "text",
+    "tools": [
+      "mysql_regexp_match",
+      "mysql_like_search",
+      "mysql_soundex"
+    ]
+  },
+  {
+    "filename": "test-usability-text-part2.md",
+    "directory": "test-usability",
+    "group": "text",
+    "tools": [
+      "mysql_substring",
+      "mysql_concat",
+      "mysql_collation_convert"
+    ]
+  },
+  {
+    "filename": "test-usability-transactions-part1.md",
+    "directory": "test-usability",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_begin",
+      "mysql_transaction_commit",
+      "mysql_transaction_rollback"
+    ]
+  },
+  {
+    "filename": "test-usability-transactions-part2.md",
+    "directory": "test-usability",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_savepoint",
+      "mysql_transaction_release",
+      "mysql_transaction_rollback_to"
+    ]
+  },
+  {
+    "filename": "test-usability-transactions-part3.md",
+    "directory": "test-usability",
+    "group": "transactions",
+    "tools": [
+      "mysql_transaction_execute"
+    ]
+  },
+  {
+    "filename": "test-usability-vector-part1.md",
+    "directory": "test-usability",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_store",
+      "mysql_vector_batch_store",
+      "mysql_vector_delete"
+    ]
+  },
+  {
+    "filename": "test-usability-vector-part2.md",
+    "directory": "test-usability",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_get",
+      "mysql_vector_search",
+      "mysql_vector_range_search"
+    ]
+  },
+  {
+    "filename": "test-usability-vector-part3.md",
+    "directory": "test-usability",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_hybrid_search",
+      "mysql_vector_info",
+      "mysql_vector_create_index"
+    ]
+  },
+  {
+    "filename": "test-usability-vector-part4.md",
+    "directory": "test-usability",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_optimize",
+      "mysql_vector_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-admin-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-admin",
+    "tools": [
+      "mysql_optimize_table",
+      "mysql_analyze_table",
+      "mysql_check_table"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-admin-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-admin",
+    "tools": [
+      "mysql_repair_table",
+      "mysql_flush_tables",
+      "mysql_kill_query"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-admin-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-admin",
+    "tools": [
+      "mysql_append_insight",
+      "mysql_server_config",
+      "mysql_audit_search"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-backup-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-backup",
+    "tools": [
+      "mysql_export_table",
+      "mysql_import_data",
+      "mysql_create_dump"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-backup-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-backup",
+    "tools": [
+      "mysql_restore_dump",
+      "mysql_audit_list_backups",
+      "mysql_audit_restore_backup"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-backup-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-backup",
+    "tools": [
+      "mysql_audit_diff_backup"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-cluster-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-cluster",
+    "tools": [
+      "mysql_gr_status",
+      "mysql_gr_members",
+      "mysql_gr_primary"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-cluster-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-cluster",
+    "tools": [
+      "mysql_gr_transactions",
+      "mysql_gr_flow_control",
+      "mysql_cluster_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-cluster-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-cluster",
+    "tools": [
+      "mysql_cluster_instances",
+      "mysql_cluster_topology",
+      "mysql_cluster_router_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-cluster-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-cluster",
+    "tools": [
+      "mysql_cluster_switchover"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-codemode.md",
+    "directory": "test-usability-direct",
+    "group": "direct-codemode",
+    "tools": [
+      "mysql_execute_code"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-core-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-core",
+    "tools": [
+      "mysql_read_query",
+      "mysql_write_query",
+      "mysql_list_tables"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-core-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-core",
+    "tools": [
+      "mysql_describe_table",
+      "mysql_create_table",
+      "mysql_drop_table"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-core-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-core",
+    "tools": [
+      "mysql_create_index",
+      "mysql_get_indexes",
+      "mysql_enable_versioning"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-core-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-core",
+    "tools": [
+      "mysql_disable_versioning",
+      "mysql_check_version",
+      "mysql_conditional_update"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-docstore-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-docstore",
+    "tools": [
+      "mysql_doc_list_collections",
+      "mysql_doc_create_collection",
+      "mysql_doc_drop_collection"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-docstore-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-docstore",
+    "tools": [
+      "mysql_doc_find",
+      "mysql_doc_add",
+      "mysql_doc_modify"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-docstore-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-docstore",
+    "tools": [
+      "mysql_doc_remove",
+      "mysql_doc_create_index",
+      "mysql_doc_collection_info"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-events-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-events",
+    "tools": [
+      "mysql_event_create",
+      "mysql_event_alter",
+      "mysql_event_drop"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-events-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-events",
+    "tools": [
+      "mysql_event_list",
+      "mysql_event_status",
+      "mysql_scheduler_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-fulltext-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-fulltext",
+    "tools": [
+      "mysql_fulltext_create",
+      "mysql_fulltext_drop",
+      "mysql_fulltext_search"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-fulltext-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-fulltext",
+    "tools": [
+      "mysql_fulltext_boolean",
+      "mysql_fulltext_expand"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-introspection-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-introspection",
+    "tools": [
+      "mysql_dependency_graph",
+      "mysql_topological_sort",
+      "mysql_cascade_simulator"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-introspection-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-introspection",
+    "tools": [
+      "mysql_schema_snapshot",
+      "mysql_constraint_analysis",
+      "mysql_migration_risks"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-json-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-json",
+    "tools": [
+      "mysql_json_extract",
+      "mysql_json_set",
+      "mysql_json_insert"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-json-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-json",
+    "tools": [
+      "mysql_json_replace",
+      "mysql_json_remove",
+      "mysql_json_contains"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-json-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-json",
+    "tools": [
+      "mysql_json_keys",
+      "mysql_json_array_append",
+      "mysql_json_get"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-json-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-json",
+    "tools": [
+      "mysql_json_update",
+      "mysql_json_search",
+      "mysql_json_validate"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-json-part5.md",
+    "directory": "test-usability-direct",
+    "group": "direct-json",
+    "tools": [
+      "mysql_json_merge",
+      "mysql_json_diff",
+      "mysql_json_normalize"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-json-part6.md",
+    "directory": "test-usability-direct",
+    "group": "direct-json",
+    "tools": [
+      "mysql_json_stats",
+      "mysql_json_index_suggest"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-migration-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-migration",
+    "tools": [
+      "mysql_migration_init",
+      "mysql_migration_record",
+      "mysql_migration_apply"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-migration-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-migration",
+    "tools": [
+      "mysql_migration_rollback",
+      "mysql_migration_history",
+      "mysql_migration_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-monitoring-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-monitoring",
+    "tools": [
+      "mysql_show_processlist",
+      "mysql_show_status",
+      "mysql_show_variables"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-monitoring-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-monitoring",
+    "tools": [
+      "mysql_innodb_status",
+      "mysql_replication_status",
+      "mysql_pool_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-monitoring-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-monitoring",
+    "tools": [
+      "mysql_server_health"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-optimization-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-optimization",
+    "tools": [
+      "mysql_index_recommendation",
+      "mysql_query_rewrite",
+      "mysql_force_index"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-optimization-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-optimization",
+    "tools": [
+      "mysql_optimizer_trace"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-partitioning-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-partitioning",
+    "tools": [
+      "mysql_partition_info",
+      "mysql_add_partition",
+      "mysql_drop_partition"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-partitioning-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-partitioning",
+    "tools": [
+      "mysql_reorganize_partition"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-performance-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-performance",
+    "tools": [
+      "mysql_explain",
+      "mysql_explain_analyze",
+      "mysql_slow_queries"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-performance-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-performance",
+    "tools": [
+      "mysql_query_stats",
+      "mysql_index_usage",
+      "mysql_table_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-performance-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-performance",
+    "tools": [
+      "mysql_buffer_pool_stats",
+      "mysql_thread_stats",
+      "mysql_detect_query_anomalies"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-performance-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-performance",
+    "tools": [
+      "mysql_detect_bloat_risk",
+      "mysql_detect_connection_spike"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-proxysql-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-proxysql",
+    "tools": [
+      "proxysql_status",
+      "proxysql_servers",
+      "proxysql_query_rules"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-proxysql-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-proxysql",
+    "tools": [
+      "proxysql_query_digest",
+      "proxysql_connection_pool",
+      "proxysql_users"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-proxysql-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-proxysql",
+    "tools": [
+      "proxysql_global_variables",
+      "proxysql_runtime_status",
+      "proxysql_memory_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-proxysql-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-proxysql",
+    "tools": [
+      "proxysql_commands",
+      "proxysql_process_list"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-replication-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-replication",
+    "tools": [
+      "mysql_master_status",
+      "mysql_slave_status",
+      "mysql_binlog_events"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-replication-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-replication",
+    "tools": [
+      "mysql_gtid_status",
+      "mysql_replication_lag"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-roles-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-roles",
+    "tools": [
+      "mysql_role_list",
+      "mysql_role_create",
+      "mysql_role_drop"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-roles-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-roles",
+    "tools": [
+      "mysql_role_grants",
+      "mysql_role_grant",
+      "mysql_role_assign"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-roles-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-roles",
+    "tools": [
+      "mysql_role_revoke",
+      "mysql_user_roles"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-router-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-router",
+    "tools": [
+      "mysql_router_status",
+      "mysql_router_routes",
+      "mysql_router_route_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-router-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-router",
+    "tools": [
+      "mysql_router_route_health",
+      "mysql_router_route_connections",
+      "mysql_router_route_destinations"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-router-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-router",
+    "tools": [
+      "mysql_router_route_blocked_hosts",
+      "mysql_router_metadata_status",
+      "mysql_router_pool_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-schema-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-schema",
+    "tools": [
+      "mysql_list_schemas",
+      "mysql_create_schema",
+      "mysql_drop_schema"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-schema-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-schema",
+    "tools": [
+      "mysql_list_views",
+      "mysql_create_view",
+      "mysql_drop_view"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-schema-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-schema",
+    "tools": [
+      "mysql_list_stored_procedures",
+      "mysql_list_functions",
+      "mysql_list_triggers"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-schema-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-schema",
+    "tools": [
+      "mysql_create_trigger",
+      "mysql_drop_trigger",
+      "mysql_list_constraints"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-security-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-security",
+    "tools": [
+      "mysql_security_audit",
+      "mysql_security_firewall_status",
+      "mysql_security_firewall_rules"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-security-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-security",
+    "tools": [
+      "mysql_security_mask_data",
+      "mysql_security_password_validate",
+      "mysql_security_ssl_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-security-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-security",
+    "tools": [
+      "mysql_security_user_privileges",
+      "mysql_security_sensitive_tables",
+      "mysql_security_encryption_status"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-shell-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-shell",
+    "tools": [
+      "mysqlsh_version",
+      "mysqlsh_check_upgrade",
+      "mysqlsh_export_table"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-shell-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-shell",
+    "tools": [
+      "mysqlsh_import_table",
+      "mysqlsh_import_json",
+      "mysqlsh_dump_instance"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-shell-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-shell",
+    "tools": [
+      "mysqlsh_dump_schemas",
+      "mysqlsh_dump_tables",
+      "mysqlsh_load_dump"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-shell-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-shell",
+    "tools": [
+      "mysqlsh_run_script"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-spatial-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-spatial",
+    "tools": [
+      "mysql_spatial_create_column",
+      "mysql_spatial_create_index",
+      "mysql_spatial_point"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-spatial-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-spatial",
+    "tools": [
+      "mysql_spatial_polygon",
+      "mysql_spatial_distance",
+      "mysql_spatial_distance_sphere"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-spatial-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-spatial",
+    "tools": [
+      "mysql_spatial_contains",
+      "mysql_spatial_within",
+      "mysql_spatial_intersection"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-spatial-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-spatial",
+    "tools": [
+      "mysql_spatial_buffer",
+      "mysql_spatial_transform",
+      "mysql_spatial_geojson"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-stats-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-stats",
+    "tools": [
+      "mysql_stats_descriptive",
+      "mysql_stats_percentiles",
+      "mysql_stats_correlation"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-stats-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-stats",
+    "tools": [
+      "mysql_stats_distribution",
+      "mysql_stats_time_series",
+      "mysql_stats_regression"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-stats-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-stats",
+    "tools": [
+      "mysql_stats_sampling",
+      "mysql_stats_histogram",
+      "mysql_stats_row_number"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-stats-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-stats",
+    "tools": [
+      "mysql_stats_rank",
+      "mysql_stats_lag_lead",
+      "mysql_stats_running_total"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-stats-part5.md",
+    "directory": "test-usability-direct",
+    "group": "direct-stats",
+    "tools": [
+      "mysql_stats_moving_avg",
+      "mysql_stats_ntile",
+      "mysql_stats_hypothesis"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-stats-part6.md",
+    "directory": "test-usability-direct",
+    "group": "direct-stats",
+    "tools": [
+      "mysql_stats_outliers",
+      "mysql_stats_top_n",
+      "mysql_stats_distinct"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-stats-part7.md",
+    "directory": "test-usability-direct",
+    "group": "direct-stats",
+    "tools": [
+      "mysql_stats_frequency",
+      "mysql_stats_summary"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-sysschema-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-sysschema",
+    "tools": [
+      "mysql_sys_user_summary",
+      "mysql_sys_io_summary",
+      "mysql_sys_statement_summary"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-sysschema-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-sysschema",
+    "tools": [
+      "mysql_sys_wait_summary",
+      "mysql_sys_innodb_lock_waits",
+      "mysql_sys_schema_stats"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-sysschema-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-sysschema",
+    "tools": [
+      "mysql_sys_host_summary",
+      "mysql_sys_memory_summary"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-text-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-text",
+    "tools": [
+      "mysql_regexp_match",
+      "mysql_like_search",
+      "mysql_soundex"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-text-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-text",
+    "tools": [
+      "mysql_substring",
+      "mysql_concat",
+      "mysql_collation_convert"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-transactions-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-transactions",
+    "tools": [
+      "mysql_transaction_begin",
+      "mysql_transaction_commit",
+      "mysql_transaction_rollback"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-transactions-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-transactions",
+    "tools": [
+      "mysql_transaction_savepoint",
+      "mysql_transaction_release",
+      "mysql_transaction_rollback_to"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-transactions-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-transactions",
+    "tools": [
+      "mysql_transaction_execute"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-vector-part1.md",
+    "directory": "test-usability-direct",
+    "group": "direct-vector",
+    "tools": [
+      "mysql_vector_store",
+      "mysql_vector_batch_store",
+      "mysql_vector_delete"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-vector-part2.md",
+    "directory": "test-usability-direct",
+    "group": "direct-vector",
+    "tools": [
+      "mysql_vector_get",
+      "mysql_vector_search",
+      "mysql_vector_range_search"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-vector-part3.md",
+    "directory": "test-usability-direct",
+    "group": "direct-vector",
+    "tools": [
+      "mysql_vector_hybrid_search",
+      "mysql_vector_info",
+      "mysql_vector_create_index"
+    ]
+  },
+  {
+    "filename": "test-usability-direct-vector-part4.md",
+    "directory": "test-usability-direct",
+    "group": "direct-vector",
+    "tools": [
+      "mysql_vector_optimize",
+      "mysql_vector_stats"
+    ]
+  }
+];

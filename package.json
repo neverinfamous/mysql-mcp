@@ -25,6 +25,7 @@
     "clean": "rimraf dist",
     "generate:instructions": "node scripts/generate-server-instructions.ts",
     "generate:code-map": "tsx scripts/update-code-map.ts",
+    "generate:tests": "bun test-server/scripts/generate-tests.ts",
     "bench": "vitest bench --run",
     "prepublishOnly": "pnpm run build"
   },
