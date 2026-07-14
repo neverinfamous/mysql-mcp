@@ -1928,12 +1928,20 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
   {
-    "filename": "test-admin-audit.md",
+    "filename": "test-admin-audit-part1.md",
     "directory": "test-tool-groups",
     "group": "admin",
     "tools": [
       "mysql_append_insight",
-      "mysql_server_config",
+      "mysql_server_config"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-admin-audit-part2.md",
+    "directory": "test-tool-groups",
+    "group": "admin",
+    "tools": [
       "mysql_audit_search"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -1944,7 +1952,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "admin",
     "tools": [
       "mysql_optimize_table",
-      "mysql_analyze_table",
+      "mysql_analyze_table"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-admin-maintenance-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "admin",
+    "tools": [
       "mysql_check_table"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -1955,18 +1971,34 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "admin",
     "tools": [
       "mysql_repair_table",
-      "mysql_flush_tables",
+      "mysql_flush_tables"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-admin-maintenance-part1d.md",
+    "directory": "test-tool-groups",
+    "group": "admin",
+    "tools": [
       "mysql_kill_query"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-backup-audit.md",
+    "filename": "test-backup-audit-part1.md",
     "directory": "test-tool-groups",
     "group": "backup",
     "tools": [
       "mysql_audit_list_backups",
-      "mysql_audit_restore_backup",
+      "mysql_audit_restore_backup"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-backup-audit-part2.md",
+    "directory": "test-tool-groups",
+    "group": "backup",
+    "tools": [
       "mysql_audit_diff_backup"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -1997,7 +2029,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "cluster",
     "tools": [
       "mysql_gr_status",
-      "mysql_gr_members",
+      "mysql_gr_members"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-cluster-group-replication-part3.md",
+    "directory": "test-tool-groups",
+    "group": "cluster",
+    "tools": [
       "mysql_gr_primary"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2018,7 +2058,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "cluster",
     "tools": [
       "mysql_cluster_status",
-      "mysql_cluster_instances",
+      "mysql_cluster_instances"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-cluster-innodb-part3.md",
+    "directory": "test-tool-groups",
+    "group": "cluster",
+    "tools": [
       "mysql_cluster_topology"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2079,7 +2127,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "docstore",
     "tools": [
       "mysql_doc_list_collections",
-      "mysql_doc_create_collection",
+      "mysql_doc_create_collection"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-docstore-collections-part3.md",
+    "directory": "test-tool-groups",
+    "group": "docstore",
+    "tools": [
       "mysql_doc_drop_collection"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2120,7 +2176,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "events",
     "tools": [
       "mysql_event_create",
-      "mysql_event_alter",
+      "mysql_event_alter"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-events-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "events",
+    "tools": [
       "mysql_event_drop"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2131,7 +2195,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "events",
     "tools": [
       "mysql_event_list",
-      "mysql_event_status",
+      "mysql_event_status"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-events-part1d.md",
+    "directory": "test-tool-groups",
+    "group": "events",
+    "tools": [
       "mysql_scheduler_status"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2160,7 +2232,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "fulltext",
     "tools": [
       "mysql_fulltext_search",
-      "mysql_fulltext_boolean",
+      "mysql_fulltext_boolean"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-fulltext-part2b.md",
+    "directory": "test-tool-groups",
+    "group": "fulltext",
+    "tools": [
       "mysql_fulltext_expand"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2171,7 +2251,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "introspection",
     "tools": [
       "mysql_dependency_graph",
-      "mysql_topological_sort",
+      "mysql_topological_sort"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-introspection-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "introspection",
+    "tools": [
       "mysql_cascade_simulator"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2182,18 +2270,34 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "introspection",
     "tools": [
       "mysql_schema_snapshot",
-      "mysql_constraint_analysis",
+      "mysql_constraint_analysis"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-introspection-part1d.md",
+    "directory": "test-tool-groups",
+    "group": "introspection",
+    "tools": [
       "mysql_migration_risks"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-json-core-read.md",
+    "filename": "test-json-core-read-part1.md",
     "directory": "test-tool-groups",
     "group": "json",
     "tools": [
       "mysql_json_extract",
-      "mysql_json_contains",
+      "mysql_json_contains"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-json-core-read-part2.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
       "mysql_json_keys"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2204,7 +2308,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "json",
     "tools": [
       "mysql_json_set",
-      "mysql_json_insert",
+      "mysql_json_insert"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-json-core-write-part3.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
       "mysql_json_replace"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2230,12 +2342,20 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-json-enhanced-part2.md",
+    "filename": "test-json-enhanced-part2-part1.md",
     "directory": "test-tool-groups",
     "group": "json",
     "tools": [
       "mysql_json_normalize",
-      "mysql_json_stats",
+      "mysql_json_stats"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-json-enhanced-part2-part2.md",
+    "directory": "test-tool-groups",
+    "group": "json",
+    "tools": [
       "mysql_json_index_suggest"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2266,7 +2386,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "migration",
     "tools": [
       "mysql_migration_init",
-      "mysql_migration_record",
+      "mysql_migration_record"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-migration-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "migration",
+    "tools": [
       "mysql_migration_apply"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2277,7 +2405,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "migration",
     "tools": [
       "mysql_migration_rollback",
-      "mysql_migration_history",
+      "mysql_migration_history"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-migration-part1d.md",
+    "directory": "test-tool-groups",
+    "group": "migration",
+    "tools": [
       "mysql_migration_status"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2308,7 +2444,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "monitoring",
     "tools": [
       "mysql_replication_status",
-      "mysql_pool_stats",
+      "mysql_pool_stats"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-monitoring-part2b.md",
+    "directory": "test-tool-groups",
+    "group": "monitoring",
+    "tools": [
       "mysql_server_health"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2394,12 +2538,20 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-performance-anomaly.md",
+    "filename": "test-performance-anomaly-part1.md",
     "directory": "test-tool-groups",
     "group": "performance",
     "tools": [
       "mysql_detect_query_anomalies",
-      "mysql_detect_bloat_risk",
+      "mysql_detect_bloat_risk"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-performance-anomaly-part2.md",
+    "directory": "test-tool-groups",
+    "group": "performance",
+    "tools": [
       "mysql_detect_connection_spike"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2450,7 +2602,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "proxysql",
     "tools": [
       "proxysql_memory_stats",
-      "proxysql_process_list",
+      "proxysql_process_list"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-proxysql-status-part2b.md",
+    "directory": "test-tool-groups",
+    "group": "proxysql",
+    "tools": [
       "proxysql_query_digest"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2461,7 +2621,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "replication",
     "tools": [
       "mysql_master_status",
-      "mysql_slave_status",
+      "mysql_slave_status"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-replication-part3.md",
+    "directory": "test-tool-groups",
+    "group": "replication",
+    "tools": [
       "mysql_binlog_events"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2542,7 +2710,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "router",
     "tools": [
       "mysql_router_route_status",
-      "mysql_router_route_health",
+      "mysql_router_route_health"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-router-routes-part3.md",
+    "directory": "test-tool-groups",
+    "group": "router",
+    "tools": [
       "mysql_router_route_connections"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2583,7 +2759,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "schema",
     "tools": [
       "mysql_create_view",
-      "mysql_drop_view",
+      "mysql_drop_view"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-schema-management-part2b.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
       "mysql_list_constraints"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2594,7 +2778,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "schema",
     "tools": [
       "mysql_list_stored_procedures",
-      "mysql_list_functions",
+      "mysql_list_functions"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-schema-routines-part3.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
       "mysql_list_triggers"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2640,12 +2832,20 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-security-firewall-part2.md",
+    "filename": "test-security-firewall-part2-part1.md",
     "directory": "test-tool-groups",
     "group": "security",
     "tools": [
       "mysql_security_ssl_status",
-      "mysql_security_encryption_status",
+      "mysql_security_encryption_status"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-security-firewall-part2-part2.md",
+    "directory": "test-tool-groups",
+    "group": "security",
+    "tools": [
       "mysql_security_password_validate"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2766,7 +2966,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "stats",
     "tools": [
       "mysql_stats_hypothesis",
-      "mysql_stats_outliers",
+      "mysql_stats_outliers"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-stats-advanced-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
       "mysql_stats_top_n"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2777,18 +2985,34 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "stats",
     "tools": [
       "mysql_stats_distinct",
-      "mysql_stats_frequency",
+      "mysql_stats_frequency"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-stats-advanced-part1d.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
       "mysql_stats_summary"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-stats-analytics.md",
+    "filename": "test-stats-analytics-part1.md",
     "directory": "test-tool-groups",
     "group": "stats",
     "tools": [
       "mysql_stats_correlation",
-      "mysql_stats_time_series",
+      "mysql_stats_time_series"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-stats-analytics-part2.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
       "mysql_stats_regression"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2799,7 +3023,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "stats",
     "tools": [
       "mysql_stats_descriptive",
-      "mysql_stats_percentiles",
+      "mysql_stats_percentiles"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-stats-basic-part3.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
       "mysql_stats_distribution"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2820,7 +3052,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "stats",
     "tools": [
       "mysql_stats_row_number",
-      "mysql_stats_rank",
+      "mysql_stats_rank"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-stats-window-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
       "mysql_stats_lag_lead"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2831,7 +3071,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "stats",
     "tools": [
       "mysql_stats_running_total",
-      "mysql_stats_moving_avg",
+      "mysql_stats_moving_avg"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-stats-window-part1d.md",
+    "directory": "test-tool-groups",
+    "group": "stats",
+    "tools": [
       "mysql_stats_ntile"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2882,7 +3130,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "text",
     "tools": [
       "mysql_regexp_match",
-      "mysql_like_search",
+      "mysql_like_search"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-text-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "text",
+    "tools": [
       "mysql_soundex"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2893,7 +3149,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "text",
     "tools": [
       "mysql_substring",
-      "mysql_concat",
+      "mysql_concat"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-text-part1d.md",
+    "directory": "test-tool-groups",
+    "group": "text",
+    "tools": [
       "mysql_collation_convert"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2924,7 +3188,15 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "transactions",
     "tools": [
       "mysql_transaction_release",
-      "mysql_transaction_rollback_to",
+      "mysql_transaction_rollback_to"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-transactions-part2b.md",
+    "directory": "test-tool-groups",
+    "group": "transactions",
+    "tools": [
       "mysql_transaction_execute"
     ],
     "contentPartial": "test-tool-groups.content.md"
@@ -2950,12 +3222,20 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-vector-search.md",
+    "filename": "test-vector-search-part1.md",
     "directory": "test-tool-groups",
     "group": "vector",
     "tools": [
       "mysql_vector_search",
-      "mysql_vector_range_search",
+      "mysql_vector_range_search"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-vector-search-part2.md",
+    "directory": "test-tool-groups",
+    "group": "vector",
+    "tools": [
       "mysql_vector_hybrid_search"
     ],
     "contentPartial": "test-tool-groups.content.md"

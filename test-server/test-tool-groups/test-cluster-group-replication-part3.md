@@ -1,4 +1,4 @@
-# MySQL MCP Tool Group Testing: [json]
+# MySQL MCP Tool Group Testing: [cluster]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -71,9 +71,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_json_extract` |   |   |   |   |
-| `mysql_json_contains` |   |   |   |   |
-| `mysql_json_keys` |   |   |   |   |
+| `mysql_gr_primary` |   |   |   |   |
 
 ---
 
@@ -81,23 +79,25 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_json_extract`
-- `mysql_json_contains`
-- `mysql_json_keys`
+- `mysql_gr_primary`
 
 
 ## Group Focus: {{groupName}}
 
-> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
+> **Instructions**: The subagent MUST autonomously generate and execute exhaustive, adversarial tests for the explicitly required tools below. 
+> 
+> **CRITICAL EXECUTION REQUIREMENTS**:
+> 1. **Live Execution**: You MUST execute live direct MCP tool calls. Do NOT simulate or mock responses.
+> 2. **Realistic Data**: You MUST use realistic database schemas, queries, and scenarios relevant to this domain. Do NOT use lazy placeholders like `foo` or `bar`.
+> 3. **Error Paths & Graceful Degradation**: You MUST test negative scenarios (e.g. invalid permissions, non-existent tables) and ensure the tool returns a properly formatted MCP error, not an unhandled stack trace.
+> 4. **No Hallucination**: You MUST strictly adhere to the defined tool schema in `tool-reference.md`. Do NOT invent parameters.
 
 ### Tool Checklist
 {{checklist}}
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_extract
-- [ ] Ensure full coverage for mysql_json_contains
-- [ ] Ensure full coverage for mysql_json_keys
+- [ ] Ensure full coverage for mysql_gr_primary
 
 
 ---

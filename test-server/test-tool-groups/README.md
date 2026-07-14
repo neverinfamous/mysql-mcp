@@ -2,7 +2,7 @@
 
 **🤖 AGENT INSTRUCTIONS**
 
-This folder contains 104 modular test prompts covering every tool group. These prompts are strictly designed for direct MCP tool call validation.
+This folder contains modular test prompts covering every tool group. These prompts are strictly designed for direct MCP tool call validation.
 
 ## Follow Agent Instructions
 

@@ -6,14 +6,14 @@ This directory contains advanced stress tests for the tool groups. These tests s
 
 ## Meet Fast Prerequisites
 
-1. Basic deterministic tool group checklists in `../test-codemode/*.md` MUST pass first.
+1. Basic deterministic tool group checklists in `../test-usability/*.md` MUST pass first.
 2. The testing database MUST be freshly seeded or reset. Run `node ../../scripts/reset-database.mjs` to ensure deterministic results.
 
 ## Understand Execution Parts
 
 The original monolithic advanced stress testing suite was split into granular parts. This preserves agent attention spans and prevents LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
-See `../coordinator-workflow.md` for execution rules and rely on `../scripts/test-manifest.ts` and the `../scripts/generate-tests.ts` engine for the definitive test list and generation logic.
+See `coordinator-workflow.md` for execution rules and rely on `../scripts/test-manifest.ts` and the `../scripts/generate-tests.ts` engine for the definitive test list and generation logic.
 
 ## Follow Execution Protocol
 
