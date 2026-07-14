@@ -19,6 +19,7 @@
 | `test-advanced/`             | **Advanced stress tests** — Complex, chained prompts covering boundaries like isolated-vm escapes and concurrency.                            | When validating infrastructure stability     |
 | `test-tool-groups/`          | **Standard Tool groups** — Simple, atomic tests that manually call MCP functions directly.                                                    | When verifying standard capabilities         |
 | `scripts/generate-tests.ts`  | **Test Generation Engine** — Auto-generates the entire test suite from `test-manifest.ts` and template partials. See `scripts/AGENT_README.md`. | When modifying test structure or adding tools|
+| `scripts/verify-ssot.ts`     | **SSoT Verification Script** — Mathematically verifies parity between `tool-constants.ts` and `test-manifest.ts`, generating an output mapping | When verifying coverage or running the dynamic-audit workflow |
 | `tool-reference.md`          | Complete 242 tool reference mapped to groups                                                                                               | Reference                                    |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns          | When debugging source code or making changes |
 | `infrastructure/scripts/reset-database.mjs` | Reset + re-seed `testdb`                                                                                          | When data is dirty                           |
