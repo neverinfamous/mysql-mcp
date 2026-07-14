@@ -11,6 +11,7 @@ export interface SystemDbConfig {
 export class SystemDb {
   private db: Database | null = null;
   private readonly config: SystemDbConfig;
+  private pruneInterval: ReturnType<typeof setInterval> | null = null;
 
   constructor(config: SystemDbConfig) {
     this.config = config;
@@ -72,6 +73,14 @@ export class SystemDb {
       `);
 
       logger.info(`System database initialized at ${this.config.dbPath}`);
+
+      if (this.config.dbPath !== ":memory:") {
+        this.pruneInterval = setInterval(() => this.prune(), 5 * 60 * 1000); // 5 minutes
+        this.pruneInterval.unref();
+        
+        // Run initial prune shortly after startup
+        setTimeout(() => this.prune(), 1000).unref();
+      }
     } catch (err) {
       logger.error("Failed to initialize SystemDb. better-sqlite3 may not be installed.", {
         error: err instanceof Error ? err.message : String(err),
@@ -92,9 +101,31 @@ export class SystemDb {
   }
 
   close(): void {
+    if (this.pruneInterval) {
+      clearInterval(this.pruneInterval);
+      this.pruneInterval = null;
+    }
     if (this.db) {
       this.db.close();
       this.db = null;
+    }
+  }
+
+  /**
+   * Automatically trims the database to prevent unbounded growth.
+   * Keeps the latest 100,000 audit logs and 10,000 metrics snapshots.
+   */
+  prune(): void {
+    if (!this.db) return;
+    try {
+      this.db.exec(`
+        DELETE FROM audit_logs WHERE id NOT IN (SELECT id FROM audit_logs ORDER BY timestamp DESC LIMIT 100000);
+        DELETE FROM metrics_snapshots WHERE id NOT IN (SELECT id FROM metrics_snapshots ORDER BY timestamp DESC LIMIT 10000);
+      `);
+    } catch (err) {
+      logger.error("Failed to prune SystemDb", {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 }
