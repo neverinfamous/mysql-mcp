@@ -23,6 +23,7 @@ export const DescriptiveStatsOutputSchema = BaseOutputSchema.extend({
 export const PercentilesOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
+    totalCount: z.number().optional(),
     percentiles: z.record(z.string(), z.union([z.number(), z.string()]).nullish()),
   }).loose().optional(),
 });
