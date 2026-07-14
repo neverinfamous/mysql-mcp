@@ -32,8 +32,8 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 13. `test-schema-management-part2a.md`
 14. `test-schema-management-part2b.md`
 15. `test-schema-routines-part1.md`
-16. `test-schema-routines-part3.md`
-17. `test-schema-routines-part2.md`
+16. `test-schema-routines-part2.md`
+17. `test-schema-routines-part3.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

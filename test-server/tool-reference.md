@@ -17,6 +17,8 @@ View the complete list of all **available tools** across groups below. Every too
 ## Tools Inventory
 
 > **Note**: The exhaustive list of tools, aliases, and their configurations has been moved to a single source of truth to prevent documentation drift.
+> 
+> 🛑 **CRITICAL RULE:** `test-server/scripts/test-manifest.ts` is the single source of truth generating all markdown tests via `scripts/content/*.content.md` partials. Manual editing of the generated markdown files in `test-usability/`, `test-usability-direct/`, `test-advanced/`, and `test-tool-groups/` is **STRICTLY FORBIDDEN** as they will be overwritten by the generator.
 
 For the complete and authoritative list of tools, please refer to:
 - test-server/scripts/test-manifest.ts

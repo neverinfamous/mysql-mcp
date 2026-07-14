@@ -28,14 +28,14 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 9. `test-backup-data-part1.md`
 10. `test-backup-data-part2.md`
 11. `test-events-part1a.md`
-12. `test-events-part1c.md`
-13. `test-events-part1b.md`
+12. `test-events-part1b.md`
+13. `test-events-part1c.md`
 14. `test-events-part1d.md`
 15. `test-partitioning-part1.md`
 16. `test-partitioning-part2.md`
 17. `test-replication-part1.md`
-18. `test-replication-part3.md`
-19. `test-replication-part2.md`
+18. `test-replication-part2.md`
+19. `test-replication-part3.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

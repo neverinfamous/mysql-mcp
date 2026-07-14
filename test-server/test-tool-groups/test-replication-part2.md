@@ -71,8 +71,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_gtid_status` |   |   |   |   |
-| `mysql_replication_lag` |   |   |   |   |
+| `mysql_binlog_events` |   |   |   |   |
 
 ---
 
@@ -80,8 +79,7 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_gtid_status`
-- `mysql_replication_lag`
+- `mysql_binlog_events`
 
 
 ## Group Focus
@@ -96,8 +94,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_gtid_status
-- [ ] Ensure full coverage for mysql_replication_lag
+- [ ] Ensure full coverage for mysql_binlog_events
 
 
 ---

@@ -389,21 +389,21 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-events-part1c.md",
-    "directory": "test-tool-groups",
-    "group": "events",
-    "tools": [
-      "mysql_event_drop"
-    ],
-    "contentPartial": "test-tool-groups.content.md"
-  },
-  {
     "filename": "test-events-part1b.md",
     "directory": "test-tool-groups",
     "group": "events",
     "tools": [
       "mysql_event_list",
       "mysql_event_status"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-events-part1c.md",
+    "directory": "test-tool-groups",
+    "group": "events",
+    "tools": [
+      "mysql_event_drop"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },
@@ -826,7 +826,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-replication-part3.md",
+    "filename": "test-replication-part2.md",
     "directory": "test-tool-groups",
     "group": "replication",
     "tools": [
@@ -835,7 +835,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-replication-part2.md",
+    "filename": "test-replication-part3.md",
     "directory": "test-tool-groups",
     "group": "replication",
     "tools": [
@@ -983,21 +983,21 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-schema-routines-part3.md",
-    "directory": "test-tool-groups",
-    "group": "schema",
-    "tools": [
-      "mysql_list_triggers"
-    ],
-    "contentPartial": "test-tool-groups.content.md"
-  },
-  {
     "filename": "test-schema-routines-part2.md",
     "directory": "test-tool-groups",
     "group": "schema",
     "tools": [
       "mysql_create_trigger",
       "mysql_drop_trigger"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-schema-routines-part3.md",
+    "directory": "test-tool-groups",
+    "group": "schema",
+    "tools": [
+      "mysql_list_triggers"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },

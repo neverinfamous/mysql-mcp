@@ -404,3 +404,5 @@ try {
 | `src/__tests__/`                            | Vitest unit tests (top-level)                                        |
 | `src/adapters/mysql/tools/*/___tests__/`    | Per-group Vitest unit tests                                          |
 | `tests/e2e/`                                | Playwright E2E tests (payload contracts, auth, stateless)            |
+
+> 🛑 **CRITICAL RULE:** `scripts/test-manifest.ts` is the single source of truth generating all markdown tests via `scripts/content/*.content.md` partials. Manual editing of the generated markdown files in `test-usability/`, `test-usability-direct/`, `test-advanced/`, and `test-tool-groups/` is **STRICTLY FORBIDDEN** as they will be overwritten by the generator.
