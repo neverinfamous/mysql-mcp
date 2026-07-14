@@ -49,7 +49,7 @@ The repository contains a comprehensive suite of testing environments:
   - `test-server/test-tool-groups/`: Direct JSON-RPC tool group functionality.
   - `test-server/test-usability/`: Prompt tuning, hallucination reduction.
   - `test-server/test-usability-direct/`: Direct tool invocation usability and schema fuzzing.
-  > 🛑 **CRITICAL RULE:** `test-server/scripts/test-manifest.ts` is the single source of truth generating all markdown tests in the folders above via `scripts/content/*.content.md` partials. Manual editing of the generated test files is **STRICTLY FORBIDDEN**.
+  > 🛑 **CRITICAL RULE:** `test-server/scripts/test-manifest.ts` is the single source of truth generating all markdown tests in the folders above via the `generate-tests.ts` engine. Manual editing of the generated test files is **STRICTLY FORBIDDEN**.
 
 ---
 

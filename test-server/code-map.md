@@ -396,7 +396,7 @@ try {
 | `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
 | `test-server/test-usability-direct/`        | Direct tool invocation usability and schema fuzzing                  |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
-| `test-server/scripts/generate-tests.ts`     | Orchestrator that rebuilds all test prompts from the test directories|
+| `test-server/scripts/generate-tests.ts`     | Orchestrator that auto-generates all tests into the test directories from test-manifest.ts and partials |
 | `test-server/scripts/test-manifest.ts`      | Single Source of Truth (SSoT) tracking tools → test files mapping    |
 | `test-server/scripts/lib/`                  | Rendering templates and boilerplate                                  |
 | `test-server/scripts/content/`              | Organic custom prompt partials injected into the tests               |
