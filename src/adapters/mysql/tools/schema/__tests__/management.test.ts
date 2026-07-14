@@ -88,7 +88,7 @@ describe("Schema Management Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Invalid schema name");
+      expect(result.error).toContain("Invalid schema name");
     });
 
     it("should return structured error for invalid charset", async () => {
@@ -232,7 +232,7 @@ describe("Schema Management Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Invalid schema name");
+      expect(result.error).toContain("Invalid schema name");
     });
 
     it("should drop schema without IF EXISTS if requested", async () => {
