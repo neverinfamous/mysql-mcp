@@ -15,6 +15,7 @@ import {
   WRITE,
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
+import { validateIdentifier } from "../../../../utils/validators.js";
 
 const ListSchemasSchemaBase = z.object({
   pattern: z
@@ -189,8 +190,10 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         const { name, charset, collation, ifNotExists } =
           CreateSchemaSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return formatHandlerErrorResponse(new Error("Invalid schema name"));
+        try {
+          validateIdentifier(name, "schema");
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
         }
 
         if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
@@ -270,8 +273,10 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { name, ifExists } = DropSchemaSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
-          return formatHandlerErrorResponse(new Error("Invalid schema name"));
+        try {
+          validateIdentifier(name, "schema");
+        } catch (err: unknown) {
+          return formatHandlerErrorResponse(err);
         }
 
         const systemSchemas = [
