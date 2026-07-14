@@ -86,14 +86,12 @@
 - `mysql_audit_diff_backup`
 
 
-## Group Focus: backup
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_audit_list_backups
-- [ ] mysql_audit_restore_backup
-- [ ] mysql_audit_diff_backup
+{{checklist}}
 
 ## Tasks
 

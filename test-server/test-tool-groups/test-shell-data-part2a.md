@@ -84,13 +84,12 @@
 - `mysqlsh_dump_instance`
 
 
-## Group Focus: shell
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysqlsh_import_json
-- [ ] mysqlsh_dump_instance
+{{checklist}}
 
 ## Tasks
 

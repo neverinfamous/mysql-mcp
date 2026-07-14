@@ -86,14 +86,12 @@
 - `mysql_doc_drop_collection`
 
 
-## Group Focus: docstore
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_doc_list_collections
-- [ ] mysql_doc_create_collection
-- [ ] mysql_doc_drop_collection
+{{checklist}}
 
 ## Tasks
 

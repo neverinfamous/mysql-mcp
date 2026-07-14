@@ -84,13 +84,12 @@
 - `mysqlsh_import_table`
 
 
-## Group Focus: shell
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysqlsh_export_table
-- [ ] mysqlsh_import_table
+{{checklist}}
 
 ## Tasks
 

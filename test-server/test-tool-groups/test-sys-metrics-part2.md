@@ -84,13 +84,12 @@
 - `mysql_sys_memory_summary`
 
 
-## Group Focus: sysschema
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_sys_host_summary
-- [ ] mysql_sys_memory_summary
+{{checklist}}
 
 ## Tasks
 

@@ -84,13 +84,12 @@
 - `mysql_spatial_polygon`
 
 
-## Group Focus: spatial
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_spatial_point
-- [ ] mysql_spatial_polygon
+{{checklist}}
 
 ## Tasks
 

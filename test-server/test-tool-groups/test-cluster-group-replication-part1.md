@@ -86,14 +86,12 @@
 - `mysql_gr_primary`
 
 
-## Group Focus: cluster
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_gr_status
-- [ ] mysql_gr_members
-- [ ] mysql_gr_primary
+{{checklist}}
 
 ## Tasks
 

@@ -84,13 +84,12 @@
 - `proxysql_runtime_status`
 
 
-## Group Focus: proxysql
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] proxysql_connection_pool
-- [ ] proxysql_runtime_status
+{{checklist}}
 
 ## Tasks
 

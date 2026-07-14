@@ -86,14 +86,12 @@
 - `mysql_migration_status`
 
 
-## Group Focus: migration
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_migration_rollback
-- [ ] mysql_migration_history
-- [ ] mysql_migration_status
+{{checklist}}
 
 ## Tasks
 

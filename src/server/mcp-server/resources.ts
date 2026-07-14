@@ -4,7 +4,7 @@ import type { Variables } from "@modelcontextprotocol/sdk/shared/uriTemplate.js"
 import type { McpServer } from "./mcp-server.js";
 import { HELP_CONTENT } from "../../constants/server-instructions.js";
 import { TOOL_GROUPS } from "../../filtering/tool-constants.js";
-import { getEnabledGroups } from "../../filtering/tool-filter.js";
+import { getEnabledGroups, getToolGroup } from "../../filtering/tool-filter.js";
 import { metrics } from "../../observability/metrics.js";
 import { logger } from "../../utils/logger.js";
 import type { ToolGroup } from "../../types/index.js";
@@ -83,13 +83,7 @@ export function registerHelpResources(server: McpServer): void {
       for (const tool of allTools) {
         if (!toolFilter.enabledTools.has(tool.name) && !enabledGroups.has("codemode")) continue;
         
-        let toolGroup = "core";
-        for (const [g, groupTools] of Object.entries(TOOL_GROUPS)) {
-          if (groupTools.includes(tool.name)) {
-            toolGroup = g;
-            break;
-          }
-        }
+        const toolGroup = getToolGroup(tool.name) ?? "core";
         
         if (toolGroup === "codemode") continue;
         

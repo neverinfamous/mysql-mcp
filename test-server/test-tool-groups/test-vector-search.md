@@ -86,14 +86,12 @@
 - `mysql_vector_hybrid_search`
 
 
-## Group Focus: vector
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_vector_search
-- [ ] mysql_vector_range_search
-- [ ] mysql_vector_hybrid_search
+{{checklist}}
 
 ## Tasks
 

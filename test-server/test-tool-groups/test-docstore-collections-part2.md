@@ -84,13 +84,12 @@
 - `mysql_doc_collection_info`
 
 
-## Group Focus: docstore
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_doc_create_index
-- [ ] mysql_doc_collection_info
+{{checklist}}
 
 ## Tasks
 

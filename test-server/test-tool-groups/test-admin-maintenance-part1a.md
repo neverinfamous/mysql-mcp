@@ -86,14 +86,12 @@
 - `mysql_check_table`
 
 
-## Group Focus: admin
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_optimize_table
-- [ ] mysql_analyze_table
-- [ ] mysql_check_table
+{{checklist}}
 
 ## Tasks
 

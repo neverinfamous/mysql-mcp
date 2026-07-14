@@ -84,13 +84,12 @@
 - `mysql_restore_dump`
 
 
-## Group Focus: backup
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_create_dump
-- [ ] mysql_restore_dump
+{{checklist}}
 
 ## Tasks
 

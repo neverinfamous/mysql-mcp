@@ -86,14 +86,12 @@
 - `mysql_detect_connection_spike`
 
 
-## Group Focus: performance
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_detect_query_anomalies
-- [ ] mysql_detect_bloat_risk
-- [ ] mysql_detect_connection_spike
+{{checklist}}
 
 ## Tasks
 

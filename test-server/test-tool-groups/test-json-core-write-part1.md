@@ -86,14 +86,12 @@
 - `mysql_json_replace`
 
 
-## Group Focus: json
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_json_set
-- [ ] mysql_json_insert
-- [ ] mysql_json_replace
+{{checklist}}
 
 ## Tasks
 

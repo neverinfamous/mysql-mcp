@@ -86,14 +86,12 @@
 - `mysql_scheduler_status`
 
 
-## Group Focus: events
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_event_list
-- [ ] mysql_event_status
-- [ ] mysql_scheduler_status
+{{checklist}}
 
 ## Tasks
 

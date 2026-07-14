@@ -89,6 +89,11 @@
 3. Ensure JSON data does not break JSON serialization of the tool response.
 4. Check error paths and invalid JSON handling.
 
+## Tasks
+
+- [ ] Ensure full coverage for mysql.codemode.executeCode
+
+
 ---
 
 ## Execute Post-Test Procedures

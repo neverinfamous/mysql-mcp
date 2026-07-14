@@ -86,14 +86,12 @@
 - `mysql_cluster_topology`
 
 
-## Group Focus: cluster
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_cluster_status
-- [ ] mysql_cluster_instances
-- [ ] mysql_cluster_topology
+{{checklist}}
 
 ## Tasks
 

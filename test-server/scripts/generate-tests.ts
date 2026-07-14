@@ -58,14 +58,7 @@ function validateSSoT() {
   }
 }
 
-function generateToolMap() {
-  const map: Record<string, string[]> = {};
-  for (const entry of TEST_FILES) {
-    map[entry.filename] = entry.tools;
-  }
-  map["README.md"] = [];
-  fs.writeFileSync(path.join(TEST_DIR, 'scripts', 'tool-map.json'), JSON.stringify(map, null, 4) + '\n');
-}
+
 
 function generateFiles() {
   for (const entry of TEST_FILES) {
@@ -90,24 +83,15 @@ function generateFiles() {
         throw new Error(`Missing content partial: ${partialPath}`);
       }
     } else {
-      if (entry.directory === 'test-codemode') {
-        testContent = `## Group Focus: ${entry.group}\n\n> **Instructions**: Use \`mysql.*\` namespace, push deviations to \`failures\` array.\n> The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below.\n> **API Reference**: You MUST read the \`mysql://help/${entry.group}\` resource (or view \`src/constants/instructions/markdown/${entry.group}.md\`) to understand the exact API signatures and expected parameters before writing any code.`;
-      } else if (entry.directory === 'test-tool-groups') {
-        const checklist = toolNames.map(t => `- [ ] ${t}`).join('\n');
-        testContent = `## Group Focus: ${entry.group}\n\n> **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.\n\n### Tool Checklist\n${checklist}`;
-      } else {
-        // test-advanced (some), test-usability, test-usability-direct
-        // In the legacy system, these files often had NO "Group Focus" section. We'll just generate Tasks.
-        testContent = ``;
-      }
+      testContent = ``;
+    }
 
-      // Add tasks
-      const tasks = toolNames.map(t => `- [ ] Ensure full coverage for ${t}`).join('\n');
-      if (testContent) {
-          testContent += `\n\n## Tasks\n\n${tasks}\n`;
-      } else {
-          testContent = `## Tasks\n\n${tasks}\n`;
-      }
+    // Add tasks
+    const tasks = toolNames.map(t => `- [ ] Ensure full coverage for ${t}`).join('\n');
+    if (testContent) {
+        testContent += `\n\n## Tasks\n\n${tasks}\n`;
+    } else {
+        testContent = `## Tasks\n\n${tasks}\n`;
     }
 
     // Explicit Tools List
@@ -157,7 +141,6 @@ function generateFiles() {
 
 async function main() {
   validateSSoT();
-  generateToolMap();
   generateFiles();
   console.log("Tests generated successfully.");
 }

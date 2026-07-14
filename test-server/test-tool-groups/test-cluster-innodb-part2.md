@@ -84,13 +84,12 @@
 - `mysql_cluster_switchover`
 
 
-## Group Focus: cluster
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_cluster_router_status
-- [ ] mysql_cluster_switchover
+{{checklist}}
 
 ## Tasks
 

@@ -86,14 +86,12 @@
 - `mysql_transaction_execute`
 
 
-## Group Focus: transactions
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_transaction_release
-- [ ] mysql_transaction_rollback_to
-- [ ] mysql_transaction_execute
+{{checklist}}
 
 ## Tasks
 

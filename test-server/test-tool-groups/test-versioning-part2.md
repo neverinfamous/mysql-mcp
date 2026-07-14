@@ -84,13 +84,12 @@
 - `mysql_conditional_update`
 
 
-## Group Focus: core
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_check_version
-- [ ] mysql_conditional_update
+{{checklist}}
 
 ## Tasks
 

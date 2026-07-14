@@ -86,14 +86,12 @@
 - `mysql_stats_distribution`
 
 
-## Group Focus: stats
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_stats_descriptive
-- [ ] mysql_stats_percentiles
-- [ ] mysql_stats_distribution
+{{checklist}}
 
 ## Tasks
 

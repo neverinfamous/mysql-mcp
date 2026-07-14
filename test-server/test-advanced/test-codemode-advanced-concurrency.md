@@ -102,6 +102,11 @@ This document provides testing instructions to validate the server's connection 
 - Deliberately execute a code snippet that throws an error midway through a transaction or concurrent batch.
 - **CRITICAL**: When the code throws an error, the `mysql_execute_code` tool will legitimately return an `ERROR` status (`EXECUTION_ERROR`). This is EXPECTED behavior. Acknowledge the error, ensure your agent loop doesn't get stuck, and proceed to run a subsequent query to ensure the pool hasn't been exhausted.
 
+## Tasks
+
+- [ ] Ensure full coverage for mysql.codemode.executeCode
+
+
 ---
 
 ## Execute Post-Test Procedures

@@ -86,14 +86,12 @@
 - `mysql_cascade_simulator`
 
 
-## Group Focus: introspection
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_dependency_graph
-- [ ] mysql_topological_sort
-- [ ] mysql_cascade_simulator
+{{checklist}}
 
 ## Tasks
 

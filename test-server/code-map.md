@@ -392,7 +392,6 @@ try {
 | `test-server/test-preflight.md`             | Pre-flight test setup checklist                                      |
 | `infrastructure/`                           | Docker Compose and infrastructure config                             |
 | `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                        |
-| `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
 | `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
 | `test-server/test-usability-direct/`        | Direct tool invocation usability and schema fuzzing                  |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |

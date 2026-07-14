@@ -84,13 +84,12 @@
 - `mysql_show_status`
 
 
-## Group Focus: monitoring
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_show_processlist
-- [ ] mysql_show_status
+{{checklist}}
 
 ## Tasks
 

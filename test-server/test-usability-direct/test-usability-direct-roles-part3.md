@@ -91,6 +91,12 @@
 > 2. Ensure that the tool gracefully handles errors and returns structured domain errors, rather than crashing or returning raw `-32602` or `FAILED_FILE_NOT_FOUND` errors.
 > 3. If you find a hallucination or unhandled edge case, you must apply a permanent fix to the codebase to harden it against this scenario.
 
+## Tasks
+
+- [ ] Ensure full coverage for mysql_role_revoke
+- [ ] Ensure full coverage for mysql_user_roles
+
+
 ---
 
 ## Execute Post-Test Procedures

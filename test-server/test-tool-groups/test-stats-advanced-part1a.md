@@ -86,14 +86,12 @@
 - `mysql_stats_top_n`
 
 
-## Group Focus: stats
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_stats_hypothesis
-- [ ] mysql_stats_outliers
-- [ ] mysql_stats_top_n
+{{checklist}}
 
 ## Tasks
 

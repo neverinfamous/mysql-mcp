@@ -88,6 +88,11 @@
 2. Ensure binary data does not break JSON serialization.
 3. Check error paths and buffer handling.
 
+## Tasks
+
+- [ ] Ensure full coverage for mysql.codemode.executeCode
+
+
 ---
 
 ## Execute Post-Test Procedures

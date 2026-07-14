@@ -45,7 +45,6 @@ The repository contains a comprehensive suite of testing environments:
 
 - **E2E & Unit**: `src/__tests__/`, `src/audit/*.test.ts`, and `tests/e2e/`. Run via `pnpm check`.
 - **Advanced Agent Testing**:
-  - `test-server/test-codemode/`: Code Mode functionality for all tool groups.
   - `test-server/test-advanced/`: Stress testing, sandbox boundary fuzzing, connection saturation.
   - `test-server/test-tool-groups/`: Direct JSON-RPC tool group functionality.
   - `test-server/test-usability/`: Prompt tuning, hallucination reduction.

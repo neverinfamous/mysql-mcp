@@ -84,13 +84,12 @@
 - `mysql_create_schema`
 
 
-## Group Focus: schema
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_list_schemas
-- [ ] mysql_create_schema
+{{checklist}}
 
 ## Tasks
 

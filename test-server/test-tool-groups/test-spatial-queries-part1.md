@@ -84,13 +84,12 @@
 - `mysql_spatial_distance_sphere`
 
 
-## Group Focus: spatial
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_spatial_distance
-- [ ] mysql_spatial_distance_sphere
+{{checklist}}
 
 ## Tasks
 

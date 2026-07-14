@@ -84,13 +84,12 @@
 - `mysql_sys_io_summary`
 
 
-## Group Focus: sysschema
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_sys_user_summary
-- [ ] mysql_sys_io_summary
+{{checklist}}
 
 ## Tasks
 

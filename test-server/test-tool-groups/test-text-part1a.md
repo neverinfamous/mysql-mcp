@@ -86,14 +86,12 @@
 - `mysql_soundex`
 
 
-## Group Focus: text
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_regexp_match
-- [ ] mysql_like_search
-- [ ] mysql_soundex
+{{checklist}}
 
 ## Tasks
 

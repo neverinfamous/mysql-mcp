@@ -86,14 +86,12 @@
 - `mysql_migration_risks`
 
 
-## Group Focus: introspection
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_schema_snapshot
-- [ ] mysql_constraint_analysis
-- [ ] mysql_migration_risks
+{{checklist}}
 
 ## Tasks
 

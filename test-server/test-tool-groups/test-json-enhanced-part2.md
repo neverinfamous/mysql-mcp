@@ -86,14 +86,12 @@
 - `mysql_json_index_suggest`
 
 
-## Group Focus: json
+## Group Focus: {{groupName}}
 
 > **Instructions**: The subagent should autonomously generate and execute exhaustive tests for the explicitly required tools below. Use live direct MCP tool calls.
 
 ### Tool Checklist
-- [ ] mysql_json_normalize
-- [ ] mysql_json_stats
-- [ ] mysql_json_index_suggest
+{{checklist}}
 
 ## Tasks
 
