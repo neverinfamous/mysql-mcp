@@ -10,6 +10,116 @@ export interface TestFileEntry {
 }
 
 export const TEST_FILES: TestFileEntry[] = [
+{
+    "filename": "test-usability-admin-part1.md",
+    "directory": "test-usability",
+    "group": "admin",
+    "tools": [
+        "mysql_optimize_table",
+        "mysql_analyze_table",
+        "mysql_check_table"
+    ]
+},
+{
+    "filename": "test-usability-admin-part2.md",
+    "directory": "test-usability",
+    "group": "admin",
+    "tools": [
+        "mysql_repair_table",
+        "mysql_flush_tables",
+        "mysql_kill_query"
+    ]
+},
+{
+    "filename": "test-usability-admin-part3.md",
+    "directory": "test-usability",
+    "group": "admin",
+    "tools": [
+        "mysql_append_insight",
+        "mysql_server_config",
+        "mysql_audit_search"
+    ]
+},
+{
+    "filename": "test-usability-events-part1.md",
+    "directory": "test-usability",
+    "group": "events",
+    "tools": [
+        "mysql_event_create",
+        "mysql_event_alter",
+        "mysql_event_drop"
+    ]
+},
+{
+    "filename": "test-usability-events-part2.md",
+    "directory": "test-usability",
+    "group": "events",
+    "tools": [
+        "mysql_event_list",
+        "mysql_event_status",
+        "mysql_scheduler_status"
+    ]
+},
+{
+    "filename": "test-usability-introspection-part1.md",
+    "directory": "test-usability",
+    "group": "introspection",
+    "tools": [
+        "mysql_dependency_graph",
+        "mysql_topological_sort",
+        "mysql_cascade_simulator"
+    ]
+},
+{
+    "filename": "test-usability-introspection-part2.md",
+    "directory": "test-usability",
+    "group": "introspection",
+    "tools": [
+        "mysql_schema_snapshot",
+        "mysql_constraint_analysis",
+        "mysql_migration_risks"
+    ]
+},
+{
+    "filename": "test-usability-migration-part1.md",
+    "directory": "test-usability",
+    "group": "migration",
+    "tools": [
+        "mysql_migration_init",
+        "mysql_migration_record",
+        "mysql_migration_apply"
+    ]
+},
+{
+    "filename": "test-usability-migration-part2.md",
+    "directory": "test-usability",
+    "group": "migration",
+    "tools": [
+        "mysql_migration_rollback",
+        "mysql_migration_history",
+        "mysql_migration_status"
+    ]
+},
+{
+    "filename": "test-usability-text-part1.md",
+    "directory": "test-usability",
+    "group": "text",
+    "tools": [
+        "mysql_regexp_match",
+        "mysql_like_search",
+        "mysql_soundex"
+    ]
+},
+{
+    "filename": "test-usability-text-part2.md",
+    "directory": "test-usability",
+    "group": "text",
+    "tools": [
+        "mysql_substring",
+        "mysql_concat",
+        "mysql_collation_convert"
+    ]
+},
   {
     "filename": "test-codemode-admin-audit.md",
     "directory": "test-codemode",
@@ -982,7 +1092,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-codemode-advanced-concurrency.md",
     "directory": "test-advanced",
-    "group": "concurrency",
+    "group": "codemode",
     "tools": [
       "mysql_execute_code"
     ],
@@ -991,122 +1101,112 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-codemode-advanced-introspection-part1.md",
     "directory": "test-advanced",
-    "group": "advanced-introspection",
+    "group": "introspection",
     "tools": [
       "mysql_dependency_graph",
       "mysql_topological_sort",
-      "mysql_cascade_simulator",
-      "mysql_execute_code"
+      "mysql_cascade_simulator"
     ],
     "contentPartial": "test-codemode-advanced-introspection-part1.content.md"
   },
   {
     "filename": "test-codemode-advanced-introspection-part2.md",
     "directory": "test-advanced",
-    "group": "advanced-introspection",
+    "group": "introspection",
     "tools": [
       "mysql_schema_snapshot",
       "mysql_constraint_analysis",
-      "mysql_migration_risks",
-      "mysql_execute_code"
+      "mysql_migration_risks"
     ],
     "contentPartial": "test-codemode-advanced-introspection-part2.content.md"
   },
   {
     "filename": "test-codemode-advanced-migration-part1.md",
     "directory": "test-advanced",
-    "group": "advanced-migration",
+    "group": "migration",
     "tools": [
       "mysql_migration_init",
       "mysql_migration_record",
-      "mysql_migration_apply",
-      "mysql_execute_code"
+      "mysql_migration_apply"
     ],
     "contentPartial": "test-codemode-advanced-migration-part1.content.md"
   },
   {
     "filename": "test-codemode-advanced-migration-part2.md",
     "directory": "test-advanced",
-    "group": "advanced-migration",
+    "group": "migration",
     "tools": [
       "mysql_migration_rollback",
       "mysql_migration_history",
-      "mysql_migration_status",
-      "mysql_execute_code"
+      "mysql_migration_status"
     ],
     "contentPartial": "test-codemode-advanced-migration-part2.content.md"
   },
   {
     "filename": "test-codemode-advanced-optimization-part1.md",
     "directory": "test-advanced",
-    "group": "advanced-optimization",
+    "group": "optimization",
     "tools": [
       "mysql_index_recommendation",
       "mysql_query_rewrite",
-      "mysql_force_index",
-      "mysql_execute_code"
+      "mysql_force_index"
     ],
     "contentPartial": "test-codemode-advanced-optimization-part1.content.md"
   },
   {
     "filename": "test-codemode-advanced-optimization-part2.md",
     "directory": "test-advanced",
-    "group": "advanced-optimization",
+    "group": "optimization",
     "tools": [
-      "mysql_optimizer_trace",
-      "mysql_execute_code"
+      "mysql_optimizer_trace"
     ],
     "contentPartial": "test-codemode-advanced-optimization-part2.content.md"
   },
   {
     "filename": "test-codemode-advanced-partitioning-part1.md",
     "directory": "test-advanced",
-    "group": "advanced-partitioning",
+    "group": "partitioning",
     "tools": [
       "mysql_partition_info",
       "mysql_add_partition",
-      "mysql_drop_partition",
-      "mysql_execute_code"
+      "mysql_drop_partition"
     ],
     "contentPartial": "test-codemode-advanced-partitioning-part1.content.md"
   },
   {
     "filename": "test-codemode-advanced-partitioning-part2.md",
     "directory": "test-advanced",
-    "group": "advanced-partitioning",
+    "group": "partitioning",
     "tools": [
-      "mysql_reorganize_partition",
-      "mysql_execute_code"
+      "mysql_reorganize_partition"
     ],
     "contentPartial": "test-codemode-advanced-partitioning-part2.content.md"
   },
   {
     "filename": "test-codemode-advanced-replication-part1.md",
     "directory": "test-advanced",
-    "group": "advanced-replication",
+    "group": "replication",
     "tools": [
       "mysql_master_status",
       "mysql_slave_status",
-      "mysql_binlog_events",
-      "mysql_execute_code"
+      "mysql_binlog_events"
     ],
     "contentPartial": "test-codemode-advanced-replication-part1.content.md"
   },
   {
     "filename": "test-codemode-advanced-replication-part2.md",
     "directory": "test-advanced",
-    "group": "advanced-replication",
+    "group": "replication",
     "tools": [
       "mysql_gtid_status",
-      "mysql_replication_lag",
-      "mysql_execute_code"
+      "mysql_replication_lag"
     ],
     "contentPartial": "test-codemode-advanced-replication-part2.content.md"
   },
   {
     "filename": "test-codemode-advanced-types-binary.md",
     "directory": "test-advanced",
-    "group": "advanced-types-binary",
+    "group": "codemode",
     "tools": [
       "mysql_execute_code"
     ],
@@ -1115,7 +1215,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-codemode-advanced-types-date.md",
     "directory": "test-advanced",
-    "group": "advanced-types-date",
+    "group": "codemode",
     "tools": [
       "mysql_execute_code"
     ],
@@ -1124,7 +1224,7 @@ export const TEST_FILES: TestFileEntry[] = [
   {
     "filename": "test-codemode-advanced-types-json.md",
     "directory": "test-advanced",
-    "group": "advanced-types-json",
+    "group": "codemode",
     "tools": [
       "mysql_execute_code"
     ],

@@ -1,4 +1,59 @@
 {
+    "test-usability-admin-part1.md": [
+        "mysql_optimize_table",
+        "mysql_analyze_table",
+        "mysql_check_table"
+    ],
+    "test-usability-admin-part2.md": [
+        "mysql_repair_table",
+        "mysql_flush_tables",
+        "mysql_kill_query"
+    ],
+    "test-usability-admin-part3.md": [
+        "mysql_append_insight",
+        "mysql_server_config",
+        "mysql_audit_search"
+    ],
+    "test-usability-events-part1.md": [
+        "mysql_event_create",
+        "mysql_event_alter",
+        "mysql_event_drop"
+    ],
+    "test-usability-events-part2.md": [
+        "mysql_event_list",
+        "mysql_event_status",
+        "mysql_scheduler_status"
+    ],
+    "test-usability-introspection-part1.md": [
+        "mysql_dependency_graph",
+        "mysql_topological_sort",
+        "mysql_cascade_simulator"
+    ],
+    "test-usability-introspection-part2.md": [
+        "mysql_schema_snapshot",
+        "mysql_constraint_analysis",
+        "mysql_migration_risks"
+    ],
+    "test-usability-migration-part1.md": [
+        "mysql_migration_init",
+        "mysql_migration_record",
+        "mysql_migration_apply"
+    ],
+    "test-usability-migration-part2.md": [
+        "mysql_migration_rollback",
+        "mysql_migration_history",
+        "mysql_migration_status"
+    ],
+    "test-usability-text-part1.md": [
+        "mysql_regexp_match",
+        "mysql_like_search",
+        "mysql_soundex"
+    ],
+    "test-usability-text-part2.md": [
+        "mysql_substring",
+        "mysql_concat",
+        "mysql_collation_convert"
+    ],
     "test-codemode-admin-audit.md": [
         "mysql_append_insight",
         "mysql_server_config",
@@ -454,57 +509,47 @@
     "test-codemode-advanced-introspection-part1.md": [
         "mysql_dependency_graph",
         "mysql_topological_sort",
-        "mysql_cascade_simulator",
-        "mysql_execute_code"
+        "mysql_cascade_simulator"
     ],
     "test-codemode-advanced-introspection-part2.md": [
         "mysql_schema_snapshot",
         "mysql_constraint_analysis",
-        "mysql_migration_risks",
-        "mysql_execute_code"
+        "mysql_migration_risks"
     ],
     "test-codemode-advanced-migration-part1.md": [
         "mysql_migration_init",
         "mysql_migration_record",
-        "mysql_migration_apply",
-        "mysql_execute_code"
+        "mysql_migration_apply"
     ],
     "test-codemode-advanced-migration-part2.md": [
         "mysql_migration_rollback",
         "mysql_migration_history",
-        "mysql_migration_status",
-        "mysql_execute_code"
+        "mysql_migration_status"
     ],
     "test-codemode-advanced-optimization-part1.md": [
         "mysql_index_recommendation",
         "mysql_query_rewrite",
-        "mysql_force_index",
-        "mysql_execute_code"
+        "mysql_force_index"
     ],
     "test-codemode-advanced-optimization-part2.md": [
-        "mysql_optimizer_trace",
-        "mysql_execute_code"
+        "mysql_optimizer_trace"
     ],
     "test-codemode-advanced-partitioning-part1.md": [
         "mysql_partition_info",
         "mysql_add_partition",
-        "mysql_drop_partition",
-        "mysql_execute_code"
+        "mysql_drop_partition"
     ],
     "test-codemode-advanced-partitioning-part2.md": [
-        "mysql_reorganize_partition",
-        "mysql_execute_code"
+        "mysql_reorganize_partition"
     ],
     "test-codemode-advanced-replication-part1.md": [
         "mysql_master_status",
         "mysql_slave_status",
-        "mysql_binlog_events",
-        "mysql_execute_code"
+        "mysql_binlog_events"
     ],
     "test-codemode-advanced-replication-part2.md": [
         "mysql_gtid_status",
-        "mysql_replication_lag",
-        "mysql_execute_code"
+        "mysql_replication_lag"
     ],
     "test-codemode-advanced-types-binary.md": [
         "mysql_execute_code"

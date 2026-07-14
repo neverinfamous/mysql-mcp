@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [advanced-partitioning]
+# MySQL MCP Advanced Stress Testing: [partitioning]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -71,10 +71,9 @@
 
 | Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
 |---|---|---|
-| `mysql.advanced-partitioning.partitionInfo` |   |   |
-| `mysql.advanced-partitioning.addPartition` |   |   |
-| `mysql.advanced-partitioning.dropPartition` |   |   |
-| `mysql.advanced-partitioning.executeCode` |   |   |
+| `mysql.partitioning.partitionInfo` |   |   |
+| `mysql.partitioning.addPartition` |   |   |
+| `mysql.partitioning.dropPartition` |   |   |
 
 ---
 
@@ -82,10 +81,9 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.advanced-partitioning.partitionInfo`
-- `mysql.advanced-partitioning.addPartition`
-- `mysql.advanced-partitioning.dropPartition`
-- `mysql.advanced-partitioning.executeCode`
+- `mysql.partitioning.partitionInfo`
+- `mysql.partitioning.addPartition`
+- `mysql.partitioning.dropPartition`
 
 
 ## Tasks

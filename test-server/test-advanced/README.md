@@ -13,13 +13,13 @@ This directory contains advanced stress tests for the tool groups. These tests s
 
 The original monolithic advanced stress testing suite was split into granular parts. This preserves agent attention spans and prevents LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
-See `coordinator-workflow.md` for execution rules and rely on `test-manifest.ts` for the definitive test list.
+See `../coordinator-workflow.md` for execution rules and rely on `../test-manifest.ts` and the `../scripts/generate-tests.ts` engine for the definitive test list and generation logic.
 
 ## Follow Execution Protocol
 
 When testing the contents of this directory, you MUST adhere to the following rules:
 
-0. **Anti-Hallucination Guardrails:** Read exact filenames from `test-manifest.ts` or run a live `list_dir` on `test-server/test-advanced/`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
+0. **Anti-Hallucination Guardrails:** Read exact filenames from `../test-manifest.ts` or run a live `list_dir` on `test-server/test-advanced/`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
 0.5. **Validation Strictness:** If you modify the codebase, you MUST validate changes locally by running `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` along with targeted tests for the changes made. Do NOT run the entire test suites. Do NOT run any validation if you only modified documentation.
 1. **Strict Code Mode Only:** All advanced stress tests must be executed entirely within the `node:worker_threads` sandbox via `mysql_execute_code`. Direct component tool calls are explicitly forbidden here unless specifically instructed for baseline comparison.
 2. **Help Resources (Adaptive Architecture):** Tool and method signatures are NO LONGER automatically injected into your system prompt. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/json`) to understand the `mysql.*` API before writing code.

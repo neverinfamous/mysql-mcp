@@ -18,16 +18,11 @@
 | `test-usability-direct/`     | **Direct Usability testing** — Organic fuzzing of the direct tool invocation payload schemas (bypassing Code Mode).                           | When hardening standard tool input schemas   |
 | `test-advanced/`             | **Advanced stress tests** — Complex, chained prompts covering boundaries like isolated-vm escapes and concurrency.                            | When validating infrastructure stability     |
 | `test-tool-groups/`          | **Standard Tool groups** — Simple, atomic tests that manually call MCP functions directly.                                                    | When verifying standard capabilities         |
-| `scripts/`                   | **Test Generation Engine** — Auto-generates the entire test suite from `test-manifest.ts` and template partials. See `scripts/AGENT_README.md`. | When modifying test structure or adding tools|
+| `scripts/generate-tests.ts`  | **Test Generation Engine** — Auto-generates the entire test suite from `test-manifest.ts` and template partials. See `scripts/AGENT_README.md`. | When modifying test structure or adding tools|
 | `tool-reference.md`          | Complete 242 tool reference mapped to groups                                                                                               | Reference                                    |
 | [`code-map.md`](code-map.md) | **Source Code Map** — Directory tree, handler→tool mapping, type/schema locations, error hierarchy, constants, architecture patterns          | When debugging source code or making changes |
-| `test-resources.md`          | Resource testing plan (Multiple total resources)                                                                                               | When testing resources                       |
-| `test-resources.sql`         | Seed SQL for resource testing                                                                                                                 | Reference                                    |
-| `test-prompts-notes.md`      | Prompt testing plan                                                                                                                           | When testing prompts                         |
-| `test-prompts.sql`           | Seed SQL for prompt testing                                                                                                                   | Reference                                    |
 | `infrastructure/scripts/reset-database.mjs` | Reset + re-seed `testdb`                                                                                          | When data is dirty                           |
 | `test-seed.sql`              | Primary seed SQL (DDL + DML) for all `test_*` tables                                                                                          | Reference only                               |
-| `sample.csv`, `sample.json`  | Fixtures for import/export testing                                                                                                            | Used by text/CSV tools                       |
 | `infrastructure/scripts/recreate-test-ecosystem.mjs` | Completely tear down and recreate the local test cluster                                                    | If the cluster fails                         |
 
 ## Reference Test Database Schema

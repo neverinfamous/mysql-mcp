@@ -49,6 +49,7 @@ The repository contains a comprehensive suite of testing environments:
   - `test-server/test-advanced/`: Stress testing, sandbox boundary fuzzing, connection saturation.
   - `test-server/test-tool-groups/`: Direct JSON-RPC tool group functionality.
   - `test-server/test-usability/`: Prompt tuning, hallucination reduction.
+  - `test-server/test-usability-direct/`: Direct tool invocation usability and schema fuzzing.
 
 ---
 

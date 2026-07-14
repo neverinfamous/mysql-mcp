@@ -194,11 +194,6 @@ Builds `src/constants/server-instructions.ts` module. Reads and compiles markdow
 npm run generate:instructions
 ```
 
-### `tool-map.json`
-
-Configuration file mapping standard tools to prompt generation categories. Used by `scripts/standardize-prompts.js` to patch test output dynamically.
-
-
 ### `test-server/infrastructure/scripts/update-badges.ts`
 
 Updates test coverage badges in `README.md` and `DOCKER_README.md`. Uses Vitest's JSON coverage summary output. Runs automatically during `npm run test:coverage`.

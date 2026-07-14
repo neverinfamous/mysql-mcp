@@ -384,40 +384,24 @@ try {
 
 ## Utilize Test Infrastructure
 
-| File / Directory                            | Purpose                                                              |
-| ------------------------------------------- | -------------------------------------------------------------------- |
-| `test-server/README.md`                     | Agent testing orchestration doc                                      |
+| Location | Purpose |
+| -------- | ------- |
+| `test-server/AGENT_README.md`               | Agent testing orchestration doc                                      |
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
-| `test-server/test-seed.sql`                 | Primary seed DDL+DML (11 tables, ~400+ rows)                         |
+| `test-server/test-seed.sql`                 | Primary seed DDL+DML for test data                                   |
 | `test-server/tool-reference.md`             | Categorized tool inventory                                           |
 | `test-server/test-preflight.md`             | Pre-flight test setup checklist                                      |
-| `test-server/test-resources.sql`            | Seed SQL for resource testing                                        |
-| `docker-compose.yml`                        | Root compose file for spinning up Prometheus and Grafana             |
 | `infrastructure/`                           | Docker Compose and infrastructure config                             |
-| `scripts/reset-database.mjs`                | Reset script - drops + re-seeds `testdb`                             |
-| `test-server/test-tools.md`                 | Entry-point protocol for manual agent testing                        |
-| `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                     |
+| `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                        |
 | `test-server/test-codemode/`                | Code Mode functionality tests for all tool groups                    |
 | `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
 | `test-server/test-usability-direct/`        | Direct tool invocation usability and schema fuzzing                  |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
-| `scripts/generate-tests.ts`                 | Orchestrator that rebuilds all test prompts from the test directories         |
-| `scripts/test-manifest.ts`                  | Single Source of Truth (SSoT) tracking tools \u2192 test files mapping             |
-| `scripts/lib/render-template.ts`            | Standardized boilerplate template for all test prompts                       |
-| `scripts/content/*.content.md`              | Organic custom prompt partials injected into the tests                       |
-| `test-server/test-prompts-notes.md`         | Prompt testing plan                                                  |
-| `test-server/test-prompts.sql`              | Seed SQL for prompt testing (AI-Powered Prompts)                  |
-| `test-server/test-resources.md`             | Resource testing plan (Multiple Observability Resources)                           |
-| `scripts/README.md`                         | Agent-optimized cluster management reference                         |
-| `scripts/reboot-cluster.ps1`                | InnoDB Cluster reboot after complete outage                          |
-| `scripts/generate-server-instructions.ts`   | Generates `server-instructions.ts` from source `.md` files           |
+| `test-server/scripts/generate-tests.ts`     | Orchestrator that rebuilds all test prompts from the test directories|
+| `test-server/scripts/test-manifest.ts`      | Single Source of Truth (SSoT) tracking tools → test files mapping    |
+| `test-server/scripts/lib/`                  | Rendering templates and boilerplate                                  |
+| `test-server/scripts/content/`              | Organic custom prompt partials injected into the tests               |
+| `test-server/scripts/AGENT_README.md`       | Agent-optimized test generation engine reference                     |
 | `src/__tests__/`                            | Vitest unit tests (top-level)                                        |
-| `src/audit/audit-interceptor.test.ts`       | AuditInterceptor unit tests (13 tests)                               |
-| `src/audit/audit-logger.test.ts`            | AuditLogger unit tests (15 tests)                                    |
-| `src/audit/backup-manager.test.ts`          | BackupManager unit tests (23 tests)                                  |
 | `src/adapters/mysql/tools/*/___tests__/`    | Per-group Vitest unit tests                                          |
 | `tests/e2e/`                                | Playwright E2E tests (payload contracts, auth, stateless)            |
-| `tests/e2e/audit-log.spec.ts`               | Audit log E2E tests (write/read scope, redact, resource, corruption) |
-| `tests/e2e/audit-backup.spec.ts`            | Audit backup E2E tests (snapshot, diff, restore dryRun, disabled)    |
-| `tests/e2e/audit-token-summary.spec.ts`     | Audit token summary E2E tests (aggregation accuracy)                 |
-| `tests/e2e/audit-rotation-stress.spec.ts`   | Audit log rotation stress test (40 iterations, 5-file retention)     |

@@ -9,7 +9,7 @@ This folder contains modular test prompts covering every tool group in `mysql-mc
 When tasked with running tests from this folder, adhere to the following optimized protocol:
 
 ### Enable Anti-Hallucination Guardrails
-- **Strict Parsing**: Read exact filenames from `coordinator-workflow.md`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
+- **Strict Parsing**: Read exact filenames from `../test-manifest.ts`. Cross-reference them with a live `list_dir`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
 
 ### Enforce Execution Strictness
 
@@ -43,7 +43,7 @@ Never proceed to the final step until every tool in a given group has both colum
 
 ## Access Available Test Files
 
-> **Note**: Please refer to the Test Sequence Queue in [`coordinator-workflow.md`](./coordinator-workflow.md) for the complete and up-to-date list of all testing prompts to execute.
+> **Note**: Please refer to [`test-manifest.ts`](../test-manifest.ts) and the [`test-server/scripts/generate-tests.ts`](../scripts/generate-tests.ts) engine for the definitive test list and generation logic. Refer to [`coordinator-workflow.md`](../coordinator-workflow.md) for the orchestration sequence.
 
 ## Review Test Results
 
