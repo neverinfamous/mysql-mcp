@@ -6,7 +6,7 @@ We're working in the `mysql-mcp` project in this thread.
 
 ## Execution Rules
 
-1. **Sequential Execution**: Execute tests sequentially based on the files listed in the Test Sequence Queue below. The `test-manifest.ts` is the single source of truth.
+1. **Sequential Execution**: Execute tests sequentially based on the files listed in the Test Sequence Queue below. The `../scripts/test-manifest.ts` is the single source of truth.
 2. **Subagent Delegation**:
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
