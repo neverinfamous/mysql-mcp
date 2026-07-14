@@ -401,19 +401,6 @@ try {
 | `test-server/test-usability/`               | Usability, hallucination fuzzing, and prompt tuning via Code Mode    |
 | `test-server/test-usability-direct/`        | Direct tool invocation usability and schema fuzzing                  |
 | `test-server/test-advanced/`                | Advanced stress tests using Code Mode (nesting, security, etc.)      |
-| `test-server/test-advanced/test-codemode-sandbox.md`| Sandbox security testing for `isolated-vm` execution boundary            |
-| `test-server/test-advanced/test-codemode-advanced-concurrency.md`| Code Mode connection pool and Promise.all() saturation stress tests      |
-| `test-server/test-advanced/test-codemode-advanced-json-helpers.md` | Code Mode Advanced - JSON Helpers (`mysql.json.*`) |
-| `test-server/test-advanced/test-codemode-advanced-router-routes-part1.md` | Code Mode Advanced - Router Routes Part 1 (`mysql.router.*`) |
-| `test-server/test-advanced/test-codemode-advanced-router-routes-part2.md` | Code Mode Advanced - Router Routes Part 2 (`mysql.router.*`) |
-| `test-server/test-advanced/test-codemode-advanced-json-core-part2a.md` | Code Mode Advanced - JSON Core Part 2A |
-| `test-server/test-advanced/test-codemode-advanced-json-core-part2b.md` | Code Mode Advanced - JSON Core Part 2B |
-| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1a.md`| Code Mode Advanced - Shell Utils Part 1A |
-| `test-server/test-advanced/test-codemode-advanced-shell-utils-part1b.md`| Code Mode Advanced - Shell Utils Part 1B |
-| `test-server/test-advanced/test-codemode-advanced-types-json.md`  | Code Mode JSON data type stress testing                              |
-| `test-server/test-advanced/test-codemode-advanced-types-binary.md`| Code Mode binary data type stress testing                            |
-| `test-server/test-advanced/test-codemode-advanced-types-date.md`  | Code Mode date and time data type stress testing                     |
-| `test-server/test-advanced/test-codemode-advanced-types-numeric.md`| Code Mode numeric data type stress testing                           |
 | `scripts/generate-tests.ts`                 | Orchestrator that rebuilds all test prompts from the test directories         |
 | `scripts/test-manifest.ts`                  | Single Source of Truth (SSoT) tracking tools \u2192 test files mapping             |
 | `scripts/lib/render-template.ts`            | Standardized boilerplate template for all test prompts                       |

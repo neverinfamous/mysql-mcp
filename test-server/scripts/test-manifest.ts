@@ -1013,6 +1013,18 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-codemode-advanced-introspection-part2.content.md"
   },
   {
+    "filename": "test-codemode-advanced-migration-part1.md",
+    "directory": "test-advanced",
+    "group": "advanced-migration",
+    "tools": [
+      "mysql_migration_init",
+      "mysql_migration_record",
+      "mysql_migration_apply",
+      "mysql_execute_code"
+    ],
+    "contentPartial": "test-codemode-advanced-migration-part1.content.md"
+  },
+  {
     "filename": "test-codemode-advanced-migration-part2.md",
     "directory": "test-advanced",
     "group": "advanced-migration",
@@ -1035,6 +1047,16 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_execute_code"
     ],
     "contentPartial": "test-codemode-advanced-optimization-part1.content.md"
+  },
+  {
+    "filename": "test-codemode-advanced-optimization-part2.md",
+    "directory": "test-advanced",
+    "group": "advanced-optimization",
+    "tools": [
+      "mysql_optimizer_trace",
+      "mysql_execute_code"
+    ],
+    "contentPartial": "test-codemode-advanced-optimization-part2.content.md"
   },
   {
     "filename": "test-codemode-advanced-partitioning-part1.md",
@@ -2037,6 +2059,16 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
+    "filename": "test-usability-cluster-part1.md",
+    "directory": "test-usability",
+    "group": "cluster",
+    "tools": [
+      "mysql_gr_status",
+      "mysql_gr_members",
+      "mysql_gr_primary"
+    ]
+  },
+  {
     "filename": "test-usability-cluster-part2.md",
     "directory": "test-usability",
     "group": "cluster",
@@ -2102,6 +2134,16 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_disable_versioning",
       "mysql_check_version",
       "mysql_conditional_update"
+    ]
+  },
+  {
+    "filename": "test-usability-docstore-part1.md",
+    "directory": "test-usability",
+    "group": "docstore",
+    "tools": [
+      "mysql_doc_list_collections",
+      "mysql_doc_create_collection",
+      "mysql_doc_drop_collection"
     ]
   },
   {
@@ -2421,6 +2463,16 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_list_views",
       "mysql_create_view",
       "mysql_drop_view"
+    ]
+  },
+  {
+    "filename": "test-usability-schema-part3.md",
+    "directory": "test-usability",
+    "group": "schema",
+    "tools": [
+      "mysql_list_stored_procedures",
+      "mysql_list_functions",
+      "mysql_list_triggers"
     ]
   },
   {

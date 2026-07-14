@@ -6,7 +6,7 @@ We're working in the `mysql-mcp` project in this thread.
 
 ## Execution Rules
 
-1. **Sequential Execution**: Execute tests sequentially based on the files present in `test-server/test-advanced/`. There is no longer a hardcoded list to prevent sync drift. The `test-manifest.ts` is the single source of truth.
+1. **Sequential Execution**: Execute tests sequentially based on the files listed in the Test Sequence Queue below. The `test-manifest.ts` is the single source of truth.
 2. **Subagent Delegation**:
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
    - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
@@ -40,3 +40,20 @@ We're working in the `mysql-mcp` project in this thread.
 
 ## Compatibility with Dynamic Context Audit
 This structure is fully compatible with the `/dynamic-context-audit` skill. Audit subagents will enumerate all `.md` files in `test-server/test-advanced/` and automatically verify the sequential test queues.
+
+## Test Sequence Queue
+
+- [test-codemode-advanced-concurrency.md](test-codemode-advanced-concurrency.md)
+- [test-codemode-advanced-introspection-part1.md](test-codemode-advanced-introspection-part1.md)
+- [test-codemode-advanced-introspection-part2.md](test-codemode-advanced-introspection-part2.md)
+- [test-codemode-advanced-migration-part1.md](test-codemode-advanced-migration-part1.md)
+- [test-codemode-advanced-migration-part2.md](test-codemode-advanced-migration-part2.md)
+- [test-codemode-advanced-optimization-part1.md](test-codemode-advanced-optimization-part1.md)
+- [test-codemode-advanced-optimization-part2.md](test-codemode-advanced-optimization-part2.md)
+- [test-codemode-advanced-partitioning-part1.md](test-codemode-advanced-partitioning-part1.md)
+- [test-codemode-advanced-partitioning-part2.md](test-codemode-advanced-partitioning-part2.md)
+- [test-codemode-advanced-replication-part1.md](test-codemode-advanced-replication-part1.md)
+- [test-codemode-advanced-replication-part2.md](test-codemode-advanced-replication-part2.md)
+- [test-codemode-advanced-types-binary.md](test-codemode-advanced-types-binary.md)
+- [test-codemode-advanced-types-date.md](test-codemode-advanced-types-date.md)
+- [test-codemode-advanced-types-json.md](test-codemode-advanced-types-json.md)

@@ -463,6 +463,12 @@
         "mysql_migration_risks",
         "mysql_execute_code"
     ],
+    "test-codemode-advanced-migration-part1.md": [
+        "mysql_migration_init",
+        "mysql_migration_record",
+        "mysql_migration_apply",
+        "mysql_execute_code"
+    ],
     "test-codemode-advanced-migration-part2.md": [
         "mysql_migration_rollback",
         "mysql_migration_history",
@@ -473,6 +479,10 @@
         "mysql_index_recommendation",
         "mysql_query_rewrite",
         "mysql_force_index",
+        "mysql_execute_code"
+    ],
+    "test-codemode-advanced-optimization-part2.md": [
+        "mysql_optimizer_trace",
         "mysql_execute_code"
     ],
     "test-codemode-advanced-partitioning-part1.md": [
@@ -948,6 +958,11 @@
     "test-usability-backup-part3.md": [
         "mysql_audit_diff_backup"
     ],
+    "test-usability-cluster-part1.md": [
+        "mysql_gr_status",
+        "mysql_gr_members",
+        "mysql_gr_primary"
+    ],
     "test-usability-cluster-part2.md": [
         "mysql_gr_transactions",
         "mysql_gr_flow_control",
@@ -980,6 +995,11 @@
         "mysql_disable_versioning",
         "mysql_check_version",
         "mysql_conditional_update"
+    ],
+    "test-usability-docstore-part1.md": [
+        "mysql_doc_list_collections",
+        "mysql_doc_create_collection",
+        "mysql_doc_drop_collection"
     ],
     "test-usability-docstore-part2.md": [
         "mysql_doc_find",
@@ -1134,6 +1154,11 @@
         "mysql_list_views",
         "mysql_create_view",
         "mysql_drop_view"
+    ],
+    "test-usability-schema-part3.md": [
+        "mysql_list_stored_procedures",
+        "mysql_list_functions",
+        "mysql_list_triggers"
     ],
     "test-usability-schema-part4.md": [
         "mysql_create_trigger",
