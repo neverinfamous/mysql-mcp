@@ -50,6 +50,10 @@ export function renderTestPrompt(config: TemplateConfig): string {
 > - Support relevant flags (\`--audit-log\`, \`--metrics-export\`).
 
 > [!IMPORTANT]
+> **Required Skills**:
+> - You MUST leverage your \`mysql\` and \`zod\` skills when generating test payload queries and verifying schema boundaries. Adhere to the enterprise production rules for query safety (strict parameterization, STRICT_TRANS_TABLES) and strict type-safe boundaries defined in those skills.
+
+> [!IMPORTANT]
 > **Environment Constraints**:
 > - **Sandbox I/O**: If tests write or read temporary files (e.g., export/import operations), the path must be permitted by \`ALLOWED_IO_ROOTS\`. We recommend using \`C:\\Users\\chris\\AppData\\Local\\Temp\`.
 > - **DDL Operations**: If a tool requires DDL (e.g., \`CREATE TABLE\`, \`CREATE INDEX\`), explicitly disable the global read-only lock before execution by running \`SET GLOBAL super_read_only = 0;\`. **DO NOT** re-enable \`super_read_only\` after your test is complete.
