@@ -13,7 +13,7 @@ This directory contains advanced stress tests for the tool groups. These tests s
 
 The original monolithic advanced stress testing suite was split into granular parts. This preserves agent attention spans and prevents LLM context window exhaustion. Each file strictly tests one major domain or cross-domain group.
 
-See `../coordinator-workflow.md` for execution rules and rely on `../test-manifest.ts` and the `../scripts/generate-tests.ts` engine for the definitive test list and generation logic.
+See `../coordinator-workflow.md` for execution rules and rely on `../scripts/test-manifest.ts` and the `../scripts/generate-tests.ts` engine for the definitive test list and generation logic.
 
 ## Follow Execution Protocol
 

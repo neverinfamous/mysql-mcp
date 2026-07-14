@@ -7,7 +7,7 @@ test('test-manifest is fully synchronized with TOOL_GROUPS SSoT', () => {
   
   for (const entry of TEST_FILES) {
     for (const tool of entry.tools) {
-      expect(allValidTools.has(tool), \`Tool '\${tool}' in '\${entry.filename}' does not exist in TOOL_GROUPS\`).toBe(true);
+      expect(allValidTools.has(tool), `Tool '${tool}' in '${entry.filename}' does not exist in TOOL_GROUPS`).toBe(true);
     }
   }
 });
@@ -18,7 +18,7 @@ test('test-manifest files actually exist in the file system', () => {
       const TEST_DIR = path.resolve('./test-server');
       for (const entry of TEST_FILES) {
         const fullPath = path.join(TEST_DIR, entry.directory, entry.filename);
-        expect(fs.existsSync(fullPath), \`File '\${entry.filename}' does not exist at \${fullPath}\`).toBe(true);
+        expect(fs.existsSync(fullPath), `File '${entry.filename}' does not exist at ${fullPath}`).toBe(true);
       }
     });
   });

@@ -1112,9 +1112,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-advanced",
     "group": "codemode",
     "tools": [
-      "mysql_execute_code",
-      "mysql_json_extract",
-      "mysql_json_set"
+      "mysql_execute_code"
     ],
     "contentPartial": "test-codemode-advanced-types-json.content.md"
   },
@@ -1475,6 +1473,25 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
+    "filename": "test-usability-replication-part1.md",
+    "directory": "test-usability",
+    "group": "replication",
+    "tools": [
+      "mysql_master_status",
+      "mysql_slave_status",
+      "mysql_binlog_events"
+    ]
+  },
+  {
+    "filename": "test-usability-replication-part2.md",
+    "directory": "test-usability",
+    "group": "replication",
+    "tools": [
+      "mysql_gtid_status",
+      "mysql_replication_lag"
+    ]
+  },
+  {
     "filename": "test-usability-roles-part1.md",
     "directory": "test-usability",
     "group": "roles",
@@ -1771,6 +1788,15 @@ export const TEST_FILES: TestFileEntry[] = [
     ]
   },
   {
+    "filename": "test-usability-sysschema-part3.md",
+    "directory": "test-usability",
+    "group": "sysschema",
+    "tools": [
+      "mysql_sys_host_summary",
+      "mysql_sys_memory_summary"
+    ]
+  },
+  {
     "filename": "test-usability-transactions-part1.md",
     "directory": "test-usability",
     "group": "transactions",
@@ -1826,6 +1852,15 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_vector_hybrid_search",
       "mysql_vector_info",
       "mysql_vector_create_index"
+    ]
+  },
+  {
+    "filename": "test-usability-vector-part4.md",
+    "directory": "test-usability",
+    "group": "vector",
+    "tools": [
+      "mysql_vector_optimize",
+      "mysql_vector_stats"
     ]
   },
   {

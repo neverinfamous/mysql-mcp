@@ -11,7 +11,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - **CRITICAL WARNING FOR SUBAGENTS:** "Graceful Degradations" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS GRACEFUL DEGRADATIONS.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 52).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 56).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue (Phase 4: Analytics)
@@ -43,31 +43,35 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 25. `test-usability-proxysql-part2.md`
 26. `test-usability-proxysql-part3.md`
 27. `test-usability-proxysql-part4.md`
-28. `test-usability-roles-part1.md`
-29. `test-usability-roles-part2.md`
-30. `test-usability-roles-part3.md`
-31. `test-usability-router-part1.md`
-32. `test-usability-router-part2.md`
-33. `test-usability-router-part3.md`
-34. `test-usability-security-part1.md`
-35. `test-usability-security-part2.md`
-36. `test-usability-security-part3.md`
-37. `test-usability-shell-part1.md`
-38. `test-usability-shell-part2.md`
-39. `test-usability-shell-part3.md`
-40. `test-usability-shell-part4.md`
-41. `test-usability-spatial-part1.md`
-42. `test-usability-spatial-part2.md`
-43. `test-usability-spatial-part3.md`
-44. `test-usability-spatial-part4.md`
-45. `test-usability-sysschema-part1.md`
-46. `test-usability-sysschema-part2.md`
-47. `test-usability-transactions-part1.md`
-48. `test-usability-transactions-part2.md`
-49. `test-usability-transactions-part3.md`
-50. `test-usability-vector-part1.md`
-51. `test-usability-vector-part2.md`
-52. `test-usability-vector-part3.md`
+28. `test-usability-replication-part1.md`
+29. `test-usability-replication-part2.md`
+30. `test-usability-roles-part1.md`
+31. `test-usability-roles-part2.md`
+32. `test-usability-roles-part3.md`
+33. `test-usability-router-part1.md`
+34. `test-usability-router-part2.md`
+35. `test-usability-router-part3.md`
+36. `test-usability-security-part1.md`
+37. `test-usability-security-part2.md`
+38. `test-usability-security-part3.md`
+39. `test-usability-shell-part1.md`
+40. `test-usability-shell-part2.md`
+41. `test-usability-shell-part3.md`
+42. `test-usability-shell-part4.md`
+43. `test-usability-spatial-part1.md`
+44. `test-usability-spatial-part2.md`
+45. `test-usability-spatial-part3.md`
+46. `test-usability-spatial-part4.md`
+47. `test-usability-sysschema-part1.md`
+48. `test-usability-sysschema-part2.md`
+49. `test-usability-sysschema-part3.md`
+50. `test-usability-transactions-part1.md`
+51. `test-usability-transactions-part2.md`
+52. `test-usability-transactions-part3.md`
+53. `test-usability-vector-part1.md`
+54. `test-usability-vector-part2.md`
+55. `test-usability-vector-part3.md`
+56. `test-usability-vector-part4.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.

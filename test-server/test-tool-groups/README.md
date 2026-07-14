@@ -42,7 +42,7 @@ When tasked with running tests from this folder, adhere to the following optimiz
 
 ## Access Available Test Files
 
-> **Note**: Please refer to [`test-manifest.ts`](../test-manifest.ts) and the [`test-server/scripts/generate-tests.ts`](../scripts/generate-tests.ts) engine for the definitive test list and generation logic. Refer to [`coordinator-workflow.md`](../coordinator-workflow.md) for the orchestration sequence.
+> **Note**: Please refer to [`test-manifest.ts`](../scripts/test-manifest.ts) and the [`test-server/scripts/generate-tests.ts`](../scripts/generate-tests.ts) engine for the definitive test list and generation logic. Refer to [`coordinator-workflow.md`](../coordinator-workflow.md) for the orchestration sequence.
 
 ## Begin Execution
 

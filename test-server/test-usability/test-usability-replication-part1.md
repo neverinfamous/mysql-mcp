@@ -1,4 +1,4 @@
-# MySQL MCP Advanced Stress Testing: [codemode]
+# MySQL MCP Usability & Hallucination Test: [replication]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -15,7 +15,7 @@
 
 **Step 1:** Read the server help content in `src/constants/server-instructions/gotchas.md`. Use `view_file`. This helps you understand behaviors, edge cases, and response structures.
 
-**Step 2:** Execute ALL tests below using ONLY code mode (`mysql_execute_code`). These are second-pass stress tests — basic checklists must pass first. Do not skip tests. Return an aggregated `failures` array.
+**Step 2:** Organically test the tool group using ONLY code mode (`mysql_execute_code`), intentionally fuzzing the inputs to discover agent hallucinations, and permanently hardening the codebase against them.
 
 **Step 3:** Update `test-server/code-map.md` if appropriate. Create a `memory-journal-mcp` entry summarizing the changes.
 
@@ -69,9 +69,11 @@
 > - Always verify proper type coercions and structured domain errors.
 > - Track progress in your own `task.md` scratchpad.
 
-| Tool | Code Mode (Happy Path) | Code Mode (Domain Error/Zod Error) |
-|---|---|---|
-| `mysql.codemode.executeCode` |   |   |
+| Tool | Fuzz Call | Hallucination Found | Fix Applied |
+|---|---|---|---|
+| `mysql.replication.masterStatus` |   |   |   |
+| `mysql.replication.slaveStatus` |   |   |   |
+| `mysql.replication.binlogEvents` |   |   |   |
 
 ---
 
@@ -79,15 +81,17 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql.codemode.executeCode`
+- `mysql.replication.masterStatus`
+- `mysql.replication.slaveStatus`
+- `mysql.replication.binlogEvents`
 
 
 ## Tasks
 
-1. Test inserting and reading JSON type columns using `mysql_execute_code`.
-2. Test JSON extraction and modification functions (JSON_EXTRACT, JSON_SET).
-3. Ensure JSON data does not break JSON serialization of the tool response.
-4. Check error paths and invalid JSON handling.
+- [ ] Ensure full coverage for mysql.replication.masterStatus
+- [ ] Ensure full coverage for mysql.replication.slaveStatus
+- [ ] Ensure full coverage for mysql.replication.binlogEvents
+
 
 ---
 
@@ -112,5 +116,5 @@
 
 4. **Validate**: Run `pnpm run lint` and `pnpm run typecheck` to validate your changes. Do NOT run `pnpm run test`, `pnpm run check`, or `pnpm run build` as this takes too long. The main coordinator agent will run the test suite at the end.
 5. **Document**: Update `code-map.md` (if appropriate), and create a `memory-journal-mcp` entry detailing the changes and improvements made.
-6. **Commit**: Commit all changes locally using `bun ./.agents/scripts/commit.ts --msg "test(advanced): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
+6. **Commit**: Commit all changes locally using `bun ./.agents/scripts/commit.ts --msg "test(usability): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`. Do NOT push.
 7. **Final summary**: Provide the final summary of testing and any issues fixed. You MUST explicitly state if you applied any fixes in your final message, and explicitly report if any tests triggered graceful degradation. FORMAT THIS STRING EXACTLY AS **`Y Prompt Fixes / Z Code Fixes / W Graceful Degradations`** in bold at the very top of your final result summary. Also include the explicit status line `STATUS: SUCCESS`.
