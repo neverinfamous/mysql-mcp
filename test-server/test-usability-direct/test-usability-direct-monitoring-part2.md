@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql_show_variables` |   |   |   |
 | `mysql_innodb_status` |   |   |   |
-| `mysql_replication_status` |   |   |   |
-| `mysql_pool_stats` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_show_variables`
 - `mysql_innodb_status`
-- `mysql_replication_status`
-- `mysql_pool_stats`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_show_variables
 - [ ] Ensure full coverage for mysql_innodb_status
-- [ ] Ensure full coverage for mysql_replication_status
-- [ ] Ensure full coverage for mysql_pool_stats
 
 
 ---

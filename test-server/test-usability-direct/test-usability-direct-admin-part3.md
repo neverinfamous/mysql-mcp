@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_append_insight` |   |   |   |
-| `mysql_server_config` |   |   |   |
-| `mysql_audit_search` |   |   |   |
+| `mysql_flush_tables` |   |   |   |
+| `mysql_kill_query` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_append_insight`
-- `mysql_server_config`
-- `mysql_audit_search`
+- `mysql_flush_tables`
+- `mysql_kill_query`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_append_insight
-- [ ] Ensure full coverage for mysql_server_config
-- [ ] Ensure full coverage for mysql_audit_search
+- [ ] Ensure full coverage for mysql_flush_tables
+- [ ] Ensure full coverage for mysql_kill_query
 
 
 ---

@@ -12,16 +12,17 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `ai-search` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 5).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 6).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue
 
 1. `test-vector-management-part1.md` (**MUST PASS FIRST**)
 2. `test-vector-management-part2.md`
-3. `test-vector-search.md`
-4. `test-vector-storage-part1.md`
-5. `test-vector-storage-part2.md`
+3. `test-vector-search-part1.md`
+4. `test-vector-search-part2.md`
+5. `test-vector-storage-part1.md`
+6. `test-vector-storage-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

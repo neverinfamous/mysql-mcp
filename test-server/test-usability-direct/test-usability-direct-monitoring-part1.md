@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_show_processlist` |   |   |   |
 | `mysql_show_status` |   |   |   |
-| `mysql_show_variables` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_show_processlist`
 - `mysql_show_status`
-- `mysql_show_variables`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_show_processlist
 - [ ] Ensure full coverage for mysql_show_status
-- [ ] Ensure full coverage for mysql_show_variables
 
 
 ---

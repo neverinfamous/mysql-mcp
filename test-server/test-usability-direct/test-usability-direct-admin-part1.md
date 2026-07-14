@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_optimize_table` |   |   |   |
 | `mysql_analyze_table` |   |   |   |
-| `mysql_check_table` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_optimize_table`
 - `mysql_analyze_table`
-- `mysql_check_table`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_optimize_table
 - [ ] Ensure full coverage for mysql_analyze_table
-- [ ] Ensure full coverage for mysql_check_table
 
 
 ---

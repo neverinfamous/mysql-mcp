@@ -12,23 +12,30 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `dba-manage` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 12).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 19).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue
 
-1. `test-admin-audit.md` (**MUST PASS FIRST**)
-2. `test-admin-maintenance-part1a.md`
-3. `test-admin-maintenance-part1b.md`
-4. `test-backup-audit.md`
-5. `test-backup-data-part1.md`
-6. `test-backup-data-part2.md`
-7. `test-events-part1a.md`
-8. `test-events-part1b.md`
-9. `test-partitioning-part1.md`
-10. `test-partitioning-part2.md`
-11. `test-replication-part1.md`
-12. `test-replication-part2.md`
+1. `test-admin-audit-part1.md` (**MUST PASS FIRST**)
+2. `test-admin-audit-part2.md`
+3. `test-admin-maintenance-part1a.md`
+4. `test-admin-maintenance-part1c.md`
+5. `test-admin-maintenance-part1b.md`
+6. `test-admin-maintenance-part1d.md`
+7. `test-backup-audit-part1.md`
+8. `test-backup-audit-part2.md`
+9. `test-backup-data-part1.md`
+10. `test-backup-data-part2.md`
+11. `test-events-part1a.md`
+12. `test-events-part1c.md`
+13. `test-events-part1b.md`
+14. `test-events-part1d.md`
+15. `test-partitioning-part1.md`
+16. `test-partitioning-part2.md`
+17. `test-replication-part1.md`
+18. `test-replication-part3.md`
+19. `test-replication-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

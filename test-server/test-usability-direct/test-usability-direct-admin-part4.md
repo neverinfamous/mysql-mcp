@@ -1,4 +1,4 @@
-# MySQL MCP Direct Usability & Hallucination Test: [transactions]
+# MySQL MCP Direct Usability & Hallucination Test: [admin]
 
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -71,8 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_transaction_rollback` |   |   |   |
-| `mysql_transaction_savepoint` |   |   |   |
+| `mysql_append_insight` |   |   |   |
+| `mysql_server_config` |   |   |   |
 
 ---
 
@@ -80,8 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_transaction_rollback`
-- `mysql_transaction_savepoint`
+- `mysql_append_insight`
+- `mysql_server_config`
 
 
 ## Hallucination & Usability Fuzzing
@@ -93,8 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_transaction_rollback
-- [ ] Ensure full coverage for mysql_transaction_savepoint
+- [ ] Ensure full coverage for mysql_append_insight
+- [ ] Ensure full coverage for mysql_server_config
 
 
 ---

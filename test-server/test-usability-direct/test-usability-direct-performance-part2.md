@@ -71,9 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
+| `mysql_slow_queries` |   |   |   |
 | `mysql_query_stats` |   |   |   |
-| `mysql_index_usage` |   |   |   |
-| `mysql_table_stats` |   |   |   |
 
 ---
 
@@ -81,9 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
+- `mysql_slow_queries`
 - `mysql_query_stats`
-- `mysql_index_usage`
-- `mysql_table_stats`
 
 
 ## Hallucination & Usability Fuzzing
@@ -95,9 +93,8 @@
 
 ## Tasks
 
+- [ ] Ensure full coverage for mysql_slow_queries
 - [ ] Ensure full coverage for mysql_query_stats
-- [ ] Ensure full coverage for mysql_index_usage
-- [ ] Ensure full coverage for mysql_table_stats
 
 
 ---

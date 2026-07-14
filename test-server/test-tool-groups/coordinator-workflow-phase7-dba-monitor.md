@@ -12,7 +12,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `dba-monitor` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 9).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 10).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue
@@ -20,12 +20,13 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 1. `test-monitoring-part1a.md` (**MUST PASS FIRST**)
 2. `test-monitoring-part1b.md`
 3. `test-monitoring-part2a.md`
-4. `test-optimization-part1.md`
-5. `test-optimization-part2.md`
-6. `test-sys-analysis-part1.md`
-7. `test-sys-analysis-part2.md`
-8. `test-sys-metrics-part1.md`
-9. `test-sys-metrics-part2.md`
+4. `test-monitoring-part2b.md`
+5. `test-optimization-part1.md`
+6. `test-optimization-part2.md`
+7. `test-sys-analysis-part1.md`
+8. `test-sys-analysis-part2.md`
+9. `test-sys-metrics-part1.md`
+10. `test-sys-metrics-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

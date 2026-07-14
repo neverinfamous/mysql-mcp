@@ -12,29 +12,33 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `ecosystem` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 18).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 22).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue
 
 1. `test-cluster-group-replication-part1.md` (**MUST PASS FIRST**)
-2. `test-cluster-group-replication-part2.md`
-3. `test-cluster-innodb-part1.md`
-4. `test-cluster-innodb-part2.md`
-5. `test-proxysql-config-part1.md`
-6. `test-proxysql-config-part2.md`
-7. `test-proxysql-status-part1a.md`
-8. `test-proxysql-status-part1b.md`
-9. `test-proxysql-status-part2a.md`
-10. `test-router-core-part1.md`
-11. `test-router-core-part2.md`
-12. `test-router-routes-part1.md`
-13. `test-router-routes-part2.md`
-14. `test-shell-data-part1a.md`
-15. `test-shell-data-part1b.md`
-16. `test-shell-data-part2a.md`
-17. `test-shell-data-part2b.md`
-18. `test-shell-utils.md`
+2. `test-cluster-group-replication-part3.md`
+3. `test-cluster-group-replication-part2.md`
+4. `test-cluster-innodb-part1.md`
+5. `test-cluster-innodb-part3.md`
+6. `test-cluster-innodb-part2.md`
+7. `test-proxysql-config-part1.md`
+8. `test-proxysql-config-part2.md`
+9. `test-proxysql-status-part1a.md`
+10. `test-proxysql-status-part1b.md`
+11. `test-proxysql-status-part2a.md`
+12. `test-proxysql-status-part2b.md`
+13. `test-router-core-part1.md`
+14. `test-router-core-part2.md`
+15. `test-router-routes-part1.md`
+16. `test-router-routes-part3.md`
+17. `test-router-routes-part2.md`
+18. `test-shell-data-part1a.md`
+19. `test-shell-data-part1b.md`
+20. `test-shell-data-part2a.md`
+21. `test-shell-data-part2b.md`
+22. `test-shell-utils.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

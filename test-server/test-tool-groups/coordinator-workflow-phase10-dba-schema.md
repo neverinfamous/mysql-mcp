@@ -12,15 +12,19 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `dba-schema` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 4).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 8).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue
 
 1. `test-introspection-part1a.md` (**MUST PASS FIRST**)
-2. `test-introspection-part1b.md`
-3. `test-migration-part1a.md`
-4. `test-migration-part1b.md`
+2. `test-introspection-part1c.md`
+3. `test-introspection-part1b.md`
+4. `test-introspection-part1d.md`
+5. `test-migration-part1a.md`
+6. `test-migration-part1c.md`
+7. `test-migration-part1b.md`
+8. `test-migration-part1d.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

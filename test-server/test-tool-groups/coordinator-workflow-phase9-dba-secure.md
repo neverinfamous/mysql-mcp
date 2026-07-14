@@ -12,7 +12,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `dba-secure` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 8).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 9).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue
@@ -24,7 +24,8 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 5. `test-security-audit-part1.md`
 6. `test-security-audit-part2.md`
 7. `test-security-firewall-part1.md`
-8. `test-security-firewall-part2.md`
+8. `test-security-firewall-part2-part1.md`
+9. `test-security-firewall-part2-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:

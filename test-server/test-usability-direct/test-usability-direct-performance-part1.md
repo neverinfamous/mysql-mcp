@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_explain` |   |   |   |
 | `mysql_explain_analyze` |   |   |   |
-| `mysql_slow_queries` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_explain`
 - `mysql_explain_analyze`
-- `mysql_slow_queries`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_explain
 - [ ] Ensure full coverage for mysql_explain_analyze
-- [ ] Ensure full coverage for mysql_slow_queries
 
 
 ---

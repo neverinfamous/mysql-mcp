@@ -988,8 +988,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "admin",
     "tools": [
       "mysql_optimize_table",
-      "mysql_analyze_table",
-      "mysql_check_table"
+      "mysql_analyze_table"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -998,9 +997,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "admin",
     "tools": [
-      "mysql_repair_table",
-      "mysql_flush_tables",
-      "mysql_kill_query"
+      "mysql_check_table",
+      "mysql_repair_table"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -1009,8 +1007,26 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "admin",
     "tools": [
+      "mysql_flush_tables",
+      "mysql_kill_query"
+    ],
+    "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-direct-admin-part4.md",
+    "directory": "test-usability-direct",
+    "group": "admin",
+    "tools": [
       "mysql_append_insight",
-      "mysql_server_config",
+      "mysql_server_config"
+    ],
+    "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-direct-admin-part5.md",
+    "directory": "test-usability-direct",
+    "group": "admin",
+    "tools": [
       "mysql_audit_search"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
@@ -1021,8 +1037,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "backup",
     "tools": [
       "mysql_export_table",
-      "mysql_import_data",
-      "mysql_create_dump"
+      "mysql_import_data"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -1031,14 +1046,23 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "backup",
     "tools": [
-      "mysql_restore_dump",
+      "mysql_create_dump",
+      "mysql_restore_dump"
+    ],
+    "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-direct-backup-part3.md",
+    "directory": "test-usability-direct",
+    "group": "backup",
+    "tools": [
       "mysql_audit_list_backups",
       "mysql_audit_restore_backup"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
   {
-    "filename": "test-usability-direct-backup-part3.md",
+    "filename": "test-usability-direct-backup-part4.md",
     "directory": "test-usability-direct",
     "group": "backup",
     "tools": [
@@ -1323,8 +1347,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "monitoring",
     "tools": [
       "mysql_show_processlist",
-      "mysql_show_status",
-      "mysql_show_variables"
+      "mysql_show_status"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -1333,14 +1356,23 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "monitoring",
     "tools": [
-      "mysql_innodb_status",
+      "mysql_show_variables",
+      "mysql_innodb_status"
+    ],
+    "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-direct-monitoring-part3.md",
+    "directory": "test-usability-direct",
+    "group": "monitoring",
+    "tools": [
       "mysql_replication_status",
       "mysql_pool_stats"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
   {
-    "filename": "test-usability-direct-monitoring-part3.md",
+    "filename": "test-usability-direct-monitoring-part4.md",
     "directory": "test-usability-direct",
     "group": "monitoring",
     "tools": [
@@ -1394,8 +1426,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "performance",
     "tools": [
       "mysql_explain",
-      "mysql_explain_analyze",
-      "mysql_slow_queries"
+      "mysql_explain_analyze"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -1404,9 +1435,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "performance",
     "tools": [
-      "mysql_query_stats",
-      "mysql_index_usage",
-      "mysql_table_stats"
+      "mysql_slow_queries",
+      "mysql_query_stats"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -1415,9 +1445,8 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "performance",
     "tools": [
-      "mysql_buffer_pool_stats",
-      "mysql_thread_stats",
-      "mysql_detect_query_anomalies"
+      "mysql_index_usage",
+      "mysql_table_stats"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -1426,7 +1455,26 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "performance",
     "tools": [
-      "mysql_detect_bloat_risk",
+      "mysql_buffer_pool_stats",
+      "mysql_thread_stats"
+    ],
+    "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-direct-performance-part5.md",
+    "directory": "test-usability-direct",
+    "group": "performance",
+    "tools": [
+      "mysql_detect_query_anomalies",
+      "mysql_detect_bloat_risk"
+    ],
+    "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-direct-performance-part6.md",
+    "directory": "test-usability-direct",
+    "group": "performance",
+    "tools": [
       "mysql_detect_connection_spike"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
@@ -1859,8 +1907,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "group": "transactions",
     "tools": [
       "mysql_transaction_begin",
-      "mysql_transaction_commit",
-      "mysql_transaction_rollback"
+      "mysql_transaction_commit"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
@@ -1869,14 +1916,23 @@ export const TEST_FILES: TestFileEntry[] = [
     "directory": "test-usability-direct",
     "group": "transactions",
     "tools": [
-      "mysql_transaction_savepoint",
+      "mysql_transaction_rollback",
+      "mysql_transaction_savepoint"
+    ],
+    "contentPartial": "test-usability-direct-fuzzing.content.md"
+  },
+  {
+    "filename": "test-usability-direct-transactions-part3.md",
+    "directory": "test-usability-direct",
+    "group": "transactions",
+    "tools": [
       "mysql_transaction_release",
       "mysql_transaction_rollback_to"
     ],
     "contentPartial": "test-usability-direct-fuzzing.content.md"
   },
   {
-    "filename": "test-usability-direct-transactions-part3.md",
+    "filename": "test-usability-direct-transactions-part4.md",
     "directory": "test-usability-direct",
     "group": "transactions",
     "tools": [

@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_export_table` |   |   |   |
 | `mysql_import_data` |   |   |   |
-| `mysql_create_dump` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_export_table`
 - `mysql_import_data`
-- `mysql_create_dump`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_export_table
 - [ ] Ensure full coverage for mysql_import_data
-- [ ] Ensure full coverage for mysql_create_dump
 
 
 ---

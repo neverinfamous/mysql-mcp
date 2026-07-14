@@ -71,7 +71,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_audit_diff_backup` |   |   |   |
+| `mysql_audit_list_backups` |   |   |   |
+| `mysql_audit_restore_backup` |   |   |   |
 
 ---
 
@@ -79,7 +80,8 @@
 
 **CRITICAL**: You MUST rigorously test every single tool listed below in this test pass. Ensure that realistic data scenarios, edge cases, and all error paths are validated for each tool:
 
-- `mysql_audit_diff_backup`
+- `mysql_audit_list_backups`
+- `mysql_audit_restore_backup`
 
 
 ## Hallucination & Usability Fuzzing
@@ -91,7 +93,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_audit_diff_backup
+- [ ] Ensure full coverage for mysql_audit_list_backups
+- [ ] Ensure full coverage for mysql_audit_restore_backup
 
 
 ---

@@ -73,7 +73,6 @@
 |---|---|---|---|
 | `mysql_transaction_begin` |   |   |   |
 | `mysql_transaction_commit` |   |   |   |
-| `mysql_transaction_rollback` |   |   |   |
 
 ---
 
@@ -83,7 +82,6 @@
 
 - `mysql_transaction_begin`
 - `mysql_transaction_commit`
-- `mysql_transaction_rollback`
 
 
 ## Hallucination & Usability Fuzzing
@@ -97,7 +95,6 @@
 
 - [ ] Ensure full coverage for mysql_transaction_begin
 - [ ] Ensure full coverage for mysql_transaction_commit
-- [ ] Ensure full coverage for mysql_transaction_rollback
 
 
 ---

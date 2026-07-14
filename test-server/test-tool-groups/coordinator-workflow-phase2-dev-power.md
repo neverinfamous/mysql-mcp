@@ -12,7 +12,7 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 - Ensure the user has started the server with the `dev-power` shortcut filter.
 - Execute these tests sequentially.
 - Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 13).
+- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Graceful Degradations" (Where Y is 17).
 - Terminate subagents when done to save context.
 
 ## Test Sequence Queue
@@ -20,16 +20,20 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 1. `test-fulltext-part1a.md` (**MUST PASS FIRST**)
 2. `test-fulltext-part1b.md`
 3. `test-fulltext-part2a.md`
-4. `test-performance-analysis-queries-part1.md`
-5. `test-performance-analysis-queries-part2.md`
-6. `test-performance-analysis-system-part1.md`
-7. `test-performance-analysis-system-part2a.md`
-8. `test-performance-anomaly.md`
-9. `test-schema-management-part1a.md`
-10. `test-schema-management-part1b.md`
-11. `test-schema-management-part2a.md`
-12. `test-schema-routines-part1.md`
-13. `test-schema-routines-part2.md`
+4. `test-fulltext-part2b.md`
+5. `test-performance-analysis-queries-part1.md`
+6. `test-performance-analysis-queries-part2.md`
+7. `test-performance-analysis-system-part1.md`
+8. `test-performance-analysis-system-part2a.md`
+9. `test-performance-anomaly-part1.md`
+10. `test-performance-anomaly-part2.md`
+11. `test-schema-management-part1a.md`
+12. `test-schema-management-part1b.md`
+13. `test-schema-management-part2a.md`
+14. `test-schema-management-part2b.md`
+15. `test-schema-routines-part1.md`
+16. `test-schema-routines-part3.md`
+17. `test-schema-routines-part2.md`
 
 ## Completion
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed:
