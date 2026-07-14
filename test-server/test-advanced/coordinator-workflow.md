@@ -2,7 +2,7 @@
 
 This directory contains the advanced Code Mode testing suite, focusing on complex scenarios and edge cases.
 
-We're working in the `mysql-mcp` project in this thread.
+
 
 ## Execution Rules
 

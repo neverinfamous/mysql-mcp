@@ -4,7 +4,7 @@
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
-We're working in the `mysql-mcp` project in this thread.
+
 
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` usability test suite using subagents.
 
