@@ -358,6 +358,7 @@ services:
       - /etc/os-release:/host/etc/os-release:ro
       - /sys/kernel/debug:/sys/kernel/debug
       - ./config/datadog-integration-configs:/etc/datadog-agent/conf.d:ro
+      - ../../../mysql-mcp/logs:/var/log/mysql-mcp:ro
     networks:
       - default
     stop_grace_period: 30s
