@@ -4,8 +4,6 @@
 
 > **This document is optimized for an autonomous agent acting as a Coordinator.**
 
-
-
 This guide instructs the Coordinator agent on how to run the `mysql-mcp` usability test suite using subagents.
 
 ## Goal
@@ -53,18 +51,18 @@ Execute usability tests in `test-server/test-usability/`. Fuzz tools to trigger 
 > [!WARNING]
 > **ANTI-EXHAUSTION ARCHITECTURE**
 > Do NOT execute these tests in a single thread. The 88 tests have been sharded into 4 phases to prevent LLM context window exhaustion.
-> 
+>
 > **How to run:**
+>
 > 1. Start a NEW thread for Phase 1 and pass the agent the `coordinator-workflow-phase1-foundation.md` file.
 > 2. When Phase 1 completes, start a NEW thread for Phase 2, etc.
 
 ### Execution Phases:
+
 - [Phase 1: Foundation (Core, JSON, Text)](coordinator-workflow-phase1-foundation.md)
 - [Phase 2: Admin & Performance](coordinator-workflow-phase2-admin.md)
 - [Phase 3: Schema & Stats](coordinator-workflow-phase3-schema.md)
 - [Phase 4: Analytics & Advanced](coordinator-workflow-phase4-analytics.md)
-
-
 
 ## Post-Suite Validation
 
