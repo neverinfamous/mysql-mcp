@@ -7,15 +7,23 @@ describe("SystemDb", () => {
   const dbPath = path.join(process.cwd(), "test-system.sqlite");
 
   beforeEach(() => {
-    if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
-    if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
-    if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    try {
+      if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+      if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
+      if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    } catch {
+      // Ignore EBUSY errors on Windows
+    }
   });
 
   afterEach(() => {
-    if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
-    if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
-    if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    try {
+      if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
+      if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
+      if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+    } catch {
+      // Ignore EBUSY errors on Windows
+    }
   });
 
   it("should initialize database and create tables", async () => {

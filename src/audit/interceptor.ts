@@ -85,13 +85,11 @@ export function createAuditInterceptor(
       options?: { logAs?: string },
     ): Promise<T> {
       const scope = getRequiredScope(toolName);
-
-      // Read-scoped tools are only audited when --audit-reads is enabled
-      if (!ALWAYS_AUDITED_SCOPES.has(scope) && !auditReads) {
-        return fn();
-      }
-
       const isReadScope = scope === "read";
+      
+      // Read-scoped tools are only audited when --audit-reads is enabled
+      const shouldAudit = ALWAYS_AUDITED_SCOPES.has(scope) || auditReads;
+
       const authCtx = getAuthContext();
       const start = performance.now();
       let success = true;
@@ -187,37 +185,39 @@ export function createAuditInterceptor(
           tokenEstimate ?? 0,
         );
 
-        if (isReadScope) {
-          // Compact read entries — omit args, user, scopes for ~100 byte entries
-          auditLogger.log({
-            timestamp: new Date().toISOString(),
-            requestId,
-            tool: options?.logAs ?? toolName,
-            category: "read",
-            scope,
-            durationMs,
-            success,
-            error,
-            tokenEstimate,
-          } as Parameters<typeof auditLogger.log>[0]);
-        } else {
-          auditLogger.log({
-            timestamp: new Date().toISOString(),
-            requestId,
-            tool: options?.logAs ?? toolName,
-            category: scopeToCategory(scope),
-            scope,
-            user: authCtx?.claims?.sub ?? null,
-            scopes: authCtx?.scopes ?? [],
-            durationMs,
-            success,
-            error,
-            args: auditLogger.config.redact
-              ? undefined
-              : (args as Record<string, unknown>),
-            backup: backupRef,
-            tokenEstimate,
-          });
+        if (shouldAudit) {
+          if (isReadScope) {
+            // Compact read entries — omit args, user, scopes for ~100 byte entries
+            auditLogger.log({
+              timestamp: new Date().toISOString(),
+              requestId,
+              tool: options?.logAs ?? toolName,
+              category: "read",
+              scope,
+              durationMs,
+              success,
+              error,
+              tokenEstimate,
+            } as Parameters<typeof auditLogger.log>[0]);
+          } else {
+            auditLogger.log({
+              timestamp: new Date().toISOString(),
+              requestId,
+              tool: options?.logAs ?? toolName,
+              category: scopeToCategory(scope),
+              scope,
+              user: authCtx?.claims?.sub ?? null,
+              durationMs,
+              success,
+              error,
+              args: auditLogger.config.redact
+                ? undefined
+                : (args as Record<string, unknown>),
+              scopes: authCtx?.scopes ?? [],
+              backup: backupRef,
+              tokenEstimate,
+            });
+          }
         }
       }
     },

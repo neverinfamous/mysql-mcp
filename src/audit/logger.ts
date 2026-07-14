@@ -149,7 +149,7 @@ export class AuditLogger {
                 log.category,
                 log.scope,
                 log.user ?? null,
-                JSON.stringify(log.scopes),
+                log.scopes !== undefined ? JSON.stringify(log.scopes) : null,
                 log.durationMs,
                 log.success ? 1 : 0,
                 log.tokenEstimate ?? null,

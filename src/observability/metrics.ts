@@ -128,8 +128,14 @@ export class MetricsRegistry {
   }
 
   private startHistoricalSync(): void {
-    // Initial load only. Do not sync continuously as it blocks the event loop.
+    // Initial load
     this.loadHistorical();
+    
+    // Sync continuously so the background metrics server picks up tool calls
+    // made by short-lived stdio processes
+    setInterval(() => {
+      this.loadHistorical();
+    }, 5000).unref();
   }
 
   private loadHistorical(): void {

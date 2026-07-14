@@ -311,6 +311,15 @@ export class McpServer {
     const transport = new StdioServerTransport();
     await this.server.connect(transport);
 
+    // If stdin closes, it means the client has disconnected.
+    // We must shut down gracefully to ensure metrics and audit logs are flushed.
+    process.stdin.on("close", () => {
+      logger.info("Stdio transport closed, triggering graceful shutdown");
+      void this.stop().finally(() => {
+        process.exit(0);
+      });
+    });
+
     if (this.config.metricsExport === "prometheus") {
       const port = this.config.port ?? 3000;
       this.metricsHttpServer = http.createServer((req, res) => {
