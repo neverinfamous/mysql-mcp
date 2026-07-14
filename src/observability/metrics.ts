@@ -119,11 +119,12 @@ export class MetricsRegistry {
 
   setSystemDb(systemDb: SystemDb): void {
     this.systemDb = systemDb;
-    // Start continuous historical sync to act as an exporter for ephemeral processes
-    this.startHistoricalSync();
+    // Defer the historical sync to ensure the MCP handshake completes first
+    // without blocking the event loop during startup.
     setTimeout(() => {
+      this.startHistoricalSync();
       this.startFlushTimer();
-    }, 1000).unref();
+    }, 2000).unref();
   }
 
   private startHistoricalSync(): void {
