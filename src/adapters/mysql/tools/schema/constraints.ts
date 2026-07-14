@@ -41,7 +41,9 @@ const ListConstraintsSchema = z.preprocess(
       .optional()
       .describe("Filter by constraint type"),
   })
-);
+).refine((data) => data.table !== "", {
+  message: "table (or tableName/name alias) is required",
+});
 
 const ListConstraintsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
