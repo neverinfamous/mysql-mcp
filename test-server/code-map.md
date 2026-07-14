@@ -387,10 +387,9 @@ try {
 
 | Location | Purpose |
 | -------- | ------- |
-| `test-server/AGENT_README.md`               | Agent testing orchestration doc                                      |
 | `test-server/code-map.md`                   | This file — agent-optimized codebase navigation reference            |
 | `test-server/test-seed.sql`                 | Primary seed DDL+DML for test data                                   |
-| `test-server/tool-reference.md`             | Categorized tool inventory                                           |
+| `test-server/tool-reference.md`             | Pointer to the Single Source of Truth for tool inventory             |
 | `test-server/test-preflight.md`             | Pre-flight test setup checklist                                      |
 | `infrastructure/`                           | Docker Compose and infrastructure config                             |
 | `test-server/test-tool-groups/`             | Basic functionality tests for all tool groups                        |
