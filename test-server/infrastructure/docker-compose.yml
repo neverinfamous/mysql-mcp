@@ -24,7 +24,7 @@ services:
       - mysql-node1-data-v4:/var/lib/mysql
       - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     stop_grace_period: 30s
-    mem_limit: 2048m
+    mem_limit: 1536m
     logging:
       driver: json-file
       options:
@@ -59,7 +59,7 @@ services:
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
     stop_grace_period: 30s
-    mem_limit: 2048m
+    mem_limit: 1536m
     logging:
       driver: json-file
       options:
@@ -94,7 +94,7 @@ services:
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
     stop_grace_period: 30s
-    mem_limit: 2048m
+    mem_limit: 1536m
     logging:
       driver: json-file
       options:
@@ -131,7 +131,7 @@ services:
       - "6446:6446"
       - "6447:6447"
       - "8443:8443"
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -171,7 +171,7 @@ services:
       - "6033:6033"
     volumes:
       - ./config/proxysql/proxysql.cnf:/etc/proxysql.cnf:ro
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -212,7 +212,7 @@ services:
     environment:
       TZ: America/New_York
     command: redis-server --save 60 1 --loglevel warning
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -323,6 +323,8 @@ services:
       - IPC_LOCK
     security_opt:
       - apparmor:unconfined
+    extra_hosts:
+      - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
     env_file:
       - .env
     environment:
