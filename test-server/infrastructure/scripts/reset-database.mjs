@@ -1,5 +1,5 @@
 import { execFileSync } from 'child_process';
-import { readFileSync, existsSync } from 'fs';
+import { readFileSync, existsSync, rmSync } from 'fs';
 import { dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -126,10 +126,36 @@ if (!skipVerify) {
         console.log(`\n[WARN] Some verifications failed`);
     }
 } else {
-    console.log(`\n[2/3] Skipping verification (--SkipVerify)`);
+    console.log(`\n[2/4] Skipping verification (--SkipVerify)`);
 }
 
-console.log(`\n[3/3] Summary`);
+console.log(`\n[3/4] Cleaning observability database...`);
+const logsDir = resolve(__dirname, '../../../logs');
+const filesToClean = [
+    'mcp-audit.sqlite',
+    'mcp-audit.sqlite-shm',
+    'mcp-audit.sqlite-wal'
+];
+
+let cleanedCount = 0;
+for (const file of filesToClean) {
+    const filePath = resolve(logsDir, file);
+    if (existsSync(filePath)) {
+        try {
+            rmSync(filePath, { force: true });
+            cleanedCount++;
+        } catch (e) {
+            console.warn(`  [WARN] Failed to delete ${file}: ${e.message}`);
+        }
+    }
+}
+if (cleanedCount > 0) {
+    console.log(`  [PASS] Cleared ${cleanedCount} observability database files`);
+} else {
+    console.log(`  [INFO] No observability database found to clean`);
+}
+
+console.log(`\n[4/4] Summary`);
 console.log(`  Database: testdb`);
 console.log(`  Tables: 12`);
 console.log(`  Total rows: ~461\n`);
