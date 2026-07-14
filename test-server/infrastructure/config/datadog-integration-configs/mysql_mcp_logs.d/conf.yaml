@@ -1,0 +1,16 @@
+logs:
+  - type: file
+    path: /var/log/mysql-mcp/agent-issues.jsonl
+    service: mysql_mcp
+    source: mysql_mcp
+    tags:
+      - env:development
+      - log_type:agent_issues
+
+  - type: file
+    path: /var/log/mysql-mcp/mcp-audit.jsonl
+    service: mysql_mcp
+    source: mysql_mcp
+    tags:
+      - env:development
+      - log_type:mcp_audit
