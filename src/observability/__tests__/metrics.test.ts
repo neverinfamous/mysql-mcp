@@ -127,7 +127,15 @@ describe("metrics", () => {
 
     it("should load historical metrics", () => {
       const mockRows = [
-        { tool: "historical_tool", max_calls: 10, max_errors: 1, max_tokens: 50 },
+        {
+          tool: "historical_tool",
+          max_calls: 10,
+          max_errors: 2,
+          max_tokens: 5000,
+          p50: 15,
+          p95: 35,
+          p99: 45,
+        },
       ];
       
       mockDb.prepare.mockReturnValue({ all: vi.fn().mockReturnValue(mockRows) });
@@ -140,8 +148,11 @@ describe("metrics", () => {
       expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining("SELECT tool"));
       const summary = (metrics.getSummary().tools as Record<string, unknown>)["historical_tool"];
       expect(summary.calls).toBe(10);
-      expect(summary.errors).toBe(1);
-      expect(summary.tokens).toBe(50);
+      expect(summary.errors).toBe(2);
+      expect(summary.tokens).toBe(5000);
+      expect(summary.p50).toBe(15);
+      expect(summary.p95).toBe(35);
+      expect(summary.p99).toBe(45);
       expect(logger.info).toHaveBeenCalledWith("Loaded historical metrics for 1 tools");
     });
 

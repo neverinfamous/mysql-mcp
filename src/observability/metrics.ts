@@ -46,15 +46,20 @@ class ToolMetric {
     }
   }
 
+  // Historical loaded percentiles for stdio-based background export
+  public loaded_p50 = 0;
+  public loaded_p95 = 0;
+  public loaded_p99 = 0;
+
   getSummary(): MetricSummary {
     if (this.sampleCount === 0) {
       return {
         calls: this.calls,
         errors: this.errors,
         tokens: this.tokens,
-        p50: 0,
-        p95: 0,
-        p99: 0,
+        p50: this.loaded_p50,
+        p95: this.loaded_p95,
+        p99: this.loaded_p99,
       };
     }
 
@@ -96,6 +101,9 @@ const SnapshotRowSchema = z.object({
   max_calls: z.number(),
   max_errors: z.number(),
   max_tokens: z.number(),
+  p50: z.number(),
+  p95: z.number(),
+  p99: z.number(),
 });
 
 class ResourceMetric {
@@ -146,7 +154,7 @@ export class MetricsRegistry {
       const rows = db
         .prepare(
           `
-        SELECT tool, calls as max_calls, errors as max_errors, tokens as max_tokens
+        SELECT tool, calls as max_calls, errors as max_errors, tokens as max_tokens, p50, p95, p99
         FROM metrics_snapshots
         WHERE id IN (SELECT MAX(id) FROM metrics_snapshots GROUP BY tool)
       `,
@@ -164,6 +172,10 @@ export class MetricsRegistry {
         metric.calls = Math.max(metric.calls, row.max_calls);
         metric.errors = Math.max(metric.errors, row.max_errors);
         metric.tokens = Math.max(metric.tokens, row.max_tokens);
+        // Persist the latest recorded percentiles for background export
+        metric.loaded_p50 = row.p50;
+        metric.loaded_p95 = row.p95;
+        metric.loaded_p99 = row.p99;
       }
       logger.info(`Loaded historical metrics for ${rows.length} tools`);
     } catch (err) {
