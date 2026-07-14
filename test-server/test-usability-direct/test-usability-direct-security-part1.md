@@ -86,12 +86,12 @@
 - `mysql_security_firewall_rules`
 
 
-## Tasks
+## Hallucination & Usability Fuzzing
 
-- [ ] Ensure full coverage for mysql_security_audit
-- [ ] Ensure full coverage for mysql_security_firewall_status
-- [ ] Ensure full coverage for mysql_security_firewall_rules
-
+> **Instructions**: You must organically test the tool group using direct MCP tool calls, intentionally fuzzing the inputs.
+> 1. Provide edge cases, unexpected types, and boundary values directly into the MCP tool payloads.
+> 2. Ensure that the tool gracefully handles errors and returns structured domain errors, rather than crashing or returning raw `-32602` or `FAILED_FILE_NOT_FOUND` errors.
+> 3. If you find a hallucination or unhandled edge case, you must apply a permanent fix to the codebase to harden it against this scenario.
 
 ---
 
