@@ -915,21 +915,21 @@ export const TEST_FILES: TestFileEntry[] = [
     "contentPartial": "test-tool-groups.content.md"
   },
   {
-    "filename": "test-router-routes-part3.md",
-    "directory": "test-tool-groups",
-    "group": "router",
-    "tools": [
-      "mysql_router_route_connections"
-    ],
-    "contentPartial": "test-tool-groups.content.md"
-  },
-  {
     "filename": "test-router-routes-part2.md",
     "directory": "test-tool-groups",
     "group": "router",
     "tools": [
       "mysql_router_route_destinations",
       "mysql_router_route_blocked_hosts"
+    ],
+    "contentPartial": "test-tool-groups.content.md"
+  },
+  {
+    "filename": "test-router-routes-part3.md",
+    "directory": "test-tool-groups",
+    "group": "router",
+    "tools": [
+      "mysql_router_route_connections"
     ],
     "contentPartial": "test-tool-groups.content.md"
   },

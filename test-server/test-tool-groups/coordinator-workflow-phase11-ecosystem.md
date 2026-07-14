@@ -32,8 +32,8 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 13. `test-router-core-part1.md`
 14. `test-router-core-part2.md`
 15. `test-router-routes-part1.md`
-16. `test-router-routes-part3.md`
-17. `test-router-routes-part2.md`
+16. `test-router-routes-part2.md`
+17. `test-router-routes-part3.md`
 18. `test-shell-data-part1a.md`
 19. `test-shell-data-part1b.md`
 20. `test-shell-data-part2a.md`
