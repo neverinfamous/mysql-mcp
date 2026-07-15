@@ -126,16 +126,36 @@ export function createAuditInterceptor(
           // If it's a CallToolResult (which the new execFn returns)
           if ("isError" in result && result.isError === true) {
             success = false;
+            
+            // Try to extract from structuredContent if it exists
             if ("structuredContent" in result && typeof result.structuredContent === "object" && result.structuredContent !== null) {
               const sc = result.structuredContent as Record<string, unknown>;
               if ("error" in sc) {
                 error = typeof sc["error"] === "string" ? sc["error"] : String(sc["error"]);
-                const match = findSuggestion(error);
-                errorType = match?.code ?? "TOOL_ERROR";
               }
-            } else {
+            } 
+            // Otherwise extract from standard MCP content array
+            else if ("content" in result && Array.isArray(result.content) && result.content.length > 0) {
+              const first = result.content[0];
+              if (first && typeof first === "object" && "text" in first) {
+                error = String(first.text);
+              }
+            }
+            
+            if (!error) {
               error = "Tool call failed (isError: true)";
-              errorType = "TOOL_ERROR";
+            }
+
+            const match = findSuggestion(error);
+            errorType = match?.code;
+            
+            // Heuristic fallback if findSuggestion misses but we know it's a Zod/validation error
+            if (!errorType) {
+              if (error.includes("Invalid parameters") || error.includes("validation") || error.includes("ZodError")) {
+                errorType = "VALIDATION_ERROR";
+              } else {
+                errorType = "TOOL_ERROR";
+              }
             }
           }
           // Legacy check in case we ever wrap the handler directly again
