@@ -11,6 +11,7 @@ import { TransactionError } from "../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
+  formatMysqlError,
 } from "./core/error-helpers.js";
 import {
   TransactionBeginSchema,
@@ -364,10 +365,10 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error) {
         await adapter.rollbackTransaction(transactionId);
-        const msg = String(error instanceof Error ? error.message : error);
+        const cleanMsg = formatMysqlError(error);
         return withTokenEstimate({
           success: false,
-          error: `Transaction failed and was rolled back: ${msg}`,
+          error: `Transaction failed and was rolled back: ${cleanMsg}`,
           code: "EXECUTION_ERROR",
           category: "query",
           recoverable: false,
