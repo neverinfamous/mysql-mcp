@@ -104,7 +104,10 @@ export const TopologicalSortSchema = z
     if (val.db && !val.schema) val.schema = val.db;
     return val;
   })
-  .default({});
+  .refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+    message: "schema parameter is required (e.g., { schema: 'my_database' })",
+    path: ["schema"],
+  });
 
 /**
  * mysql_cascade_simulator input
