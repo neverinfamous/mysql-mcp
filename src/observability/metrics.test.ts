@@ -27,7 +27,7 @@ describe("MetricsRegistry", () => {
     
     expect(toolMetrics).toBeDefined();
     expect(toolMetrics.calls).toBe(2);
-    expect(toolMetrics.errors).toBe(0);
+    expect(toolMetrics.errors).toEqual({});
     expect(toolMetrics.tokens).toBe(150);
   });
 
@@ -36,7 +36,7 @@ describe("MetricsRegistry", () => {
     
     const summary = registry.getSummary();
     const tools = summary.tools as Record<string, { calls: number; errors: number; tokens: number }>;
-    expect(tools["mysql_write_query"].errors).toBe(1);
+    expect(tools["mysql_write_query"].errors).toEqual({ unknown: 1 });
   });
 
   describe("SystemDb Integration", () => {

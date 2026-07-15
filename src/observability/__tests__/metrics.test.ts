@@ -34,7 +34,7 @@ describe("metrics", () => {
       const toolSummary = (summary.tools as Record<string, unknown>)["test_tool"];
       
       expect(toolSummary.calls).toBe(100);
-      expect(toolSummary.errors).toBe(0);
+      expect(toolSummary.errors).toEqual({});
       expect(toolSummary.tokens).toBe(1000);
       
       // Check percentiles. 1 to 100 means p50 should be ~50, p95 ~95, p99 ~99
@@ -48,7 +48,7 @@ describe("metrics", () => {
       
       const summary = (metrics.getSummary().tools as Record<string, unknown>)["test_tool"];
       expect(summary.calls).toBe(1);
-      expect(summary.errors).toBe(1);
+      expect(summary.errors).toEqual({ unknown: 1 });
       expect(summary.tokens).toBe(5);
     });
 
@@ -90,7 +90,7 @@ describe("metrics", () => {
       const prom = metrics.toPrometheus();
       
       expect(prom).toContain('mysql_mcp_tool_calls_total{tool="test_tool"} 1');
-      expect(prom).toContain('mysql_mcp_tool_errors_total{tool="test_tool"} 0');
+      // Error type breakdown is sparse; if no errors, it emits nothing.
       expect(prom).toContain('mysql_mcp_tool_tokens_total{tool="test_tool"} 100');
       expect(prom).toContain('mysql_mcp_tool_latency_ms_p50{tool="test_tool"} 50');
       expect(prom).toContain('mysql_mcp_resource_reads_total{resource="test_uri"} 1');
@@ -148,7 +148,7 @@ describe("metrics", () => {
       expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining("SELECT tool"));
       const summary = (metrics.getSummary().tools as Record<string, unknown>)["historical_tool"];
       expect(summary.calls).toBe(10);
-      expect(summary.errors).toBe(2);
+      expect(summary.errors).toEqual({ historical: 2 });
       expect(summary.tokens).toBe(5000);
       expect(summary.p50).toBe(15);
       expect(summary.p95).toBe(35);
