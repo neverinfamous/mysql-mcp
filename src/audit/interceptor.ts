@@ -136,9 +136,9 @@ export function createAuditInterceptor(
             } 
             // Otherwise extract from standard MCP content array
             else if ("content" in result && Array.isArray(result.content) && result.content.length > 0) {
-              const first = result.content[0];
-              if (first && typeof first === "object" && "text" in first) {
-                error = String(first.text);
+              const first: unknown = result.content[0];
+              if (first !== undefined && first !== null && typeof first === "object" && "text" in first) {
+                error = String((first).text);
               }
             }
             
