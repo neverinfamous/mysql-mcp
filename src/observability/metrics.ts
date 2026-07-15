@@ -143,6 +143,21 @@ export class MetricsRegistry {
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
 
+  constructor() {
+    // Pre-register known resources so they emit 0 on startup.
+    // This is required for Datadog's monotonic_diff to calculate the first increment (0 -> 1).
+    const knownResources = [
+      "mysql://help",
+      "mysql://help/core",
+      "mysql://help/advanced",
+      "mysql://audit",
+      "mysql://metrics"
+    ];
+    for (const uri of knownResources) {
+      this.resources.set(uri, new ResourceMetric());
+    }
+  }
+
   setSystemDb(systemDb: SystemDb): void {
     this.systemDb = systemDb;
     // Defer the historical sync to ensure the MCP handshake completes first
@@ -368,11 +383,11 @@ export class MetricsRegistry {
     // Cache
     const cacheSummary = this.cache.getSummary();
     lines.push("# HELP mysql_mcp_cache_hits_total Total schema cache hits");
-    lines.push("# TYPE mysql_mcp_cache_hits_total counter");
+    lines.push("# TYPE mysql_mcp_cache_hits_total gauge");
     lines.push(`mysql_mcp_cache_hits_total ${cacheSummary.hits}`);
     
     lines.push("# HELP mysql_mcp_cache_misses_total Total schema cache misses");
-    lines.push("# TYPE mysql_mcp_cache_misses_total counter");
+    lines.push("# TYPE mysql_mcp_cache_misses_total gauge");
     lines.push(`mysql_mcp_cache_misses_total ${cacheSummary.misses}`);
 
     // Server uptime
