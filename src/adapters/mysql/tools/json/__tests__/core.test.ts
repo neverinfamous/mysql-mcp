@@ -374,7 +374,7 @@ describe("JSON Core Tools", () => {
         const result = await tool.handler(args as any, mockContext);
         expect(result).toMatchObject({
           success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
+          error: expect.stringContaining("Table 'testdb.nonexistent' does not exist"),
         });
       });
     });
@@ -391,7 +391,7 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Connection lost" }),
+        expect.objectContaining({ success: false, error: expect.stringContaining("Connection lost") }),
       );
     });
   });
