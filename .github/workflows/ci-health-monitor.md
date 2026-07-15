@@ -12,8 +12,6 @@ engine:
   id: copilot
   model: claude-3-5-sonnet-latest
 
-env:
-  GH_TOKEN: ghp_dummy12345678901234567890123456789012
 
 network:
   allowed:
@@ -34,14 +32,6 @@ safe-outputs:
 timeout-minutes: 15
 concurrency: ci-health-monitor
 ---
-
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
 
 # CI Health Monitor
 
