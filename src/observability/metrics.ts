@@ -309,19 +309,19 @@ export class MetricsRegistry {
     const lines: string[] = [];
 
     lines.push("# HELP mysql_mcp_tool_calls_total Total tool calls");
-    lines.push("# TYPE mysql_mcp_tool_calls_total counter");
+    lines.push("# TYPE mysql_mcp_tool_calls_total gauge");
     for (const [name, metric] of this.tools.entries()) {
       lines.push(`mysql_mcp_tool_calls_total{tool="${name}"} ${metric.getSummary().calls}`);
     }
 
     lines.push("# HELP mysql_mcp_tool_errors_total Total tool errors");
-    lines.push("# TYPE mysql_mcp_tool_errors_total counter");
+    lines.push("# TYPE mysql_mcp_tool_errors_total gauge");
     for (const [name, metric] of this.tools.entries()) {
       lines.push(`mysql_mcp_tool_errors_total{tool="${name}"} ${metric.getSummary().errors}`);
     }
 
     lines.push("# HELP mysql_mcp_tool_tokens_total Total tokens estimated");
-    lines.push("# TYPE mysql_mcp_tool_tokens_total counter");
+    lines.push("# TYPE mysql_mcp_tool_tokens_total gauge");
     for (const [name, metric] of this.tools.entries()) {
       lines.push(`mysql_mcp_tool_tokens_total{tool="${name}"} ${metric.getSummary().tokens}`);
     }
@@ -357,7 +357,7 @@ export class MetricsRegistry {
 
     // Resources
     lines.push("# HELP mysql_mcp_resource_reads_total Total resource reads");
-    lines.push("# TYPE mysql_mcp_resource_reads_total counter");
+    lines.push("# TYPE mysql_mcp_resource_reads_total gauge");
 
     for (const [uri, metric] of this.resources.entries()) {
       const summary = metric.getSummary();
