@@ -192,7 +192,9 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Connection lost to host");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Connection lost to host (context: mysql_security_audit)",
+      );
     });
 
     it("should handle error when checking audit log", async () => {

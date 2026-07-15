@@ -102,7 +102,9 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Connect error");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Connect error (context: mysql_security_audit)",
+      );
     });
 
     it("should include error field in access-denied response", async () => {
@@ -850,7 +852,9 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Access denied");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Access denied (context: mysql_security_ssl_status)",
+      );
     });
 
     it("mysql_security_encryption_status should return structured error on query failure", async () => {
@@ -864,7 +868,9 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Access denied");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Access denied (context: mysql_security_encryption_status)",
+      );
     });
 
     it("mysql_security_user_privileges should return structured error on query failure", async () => {
@@ -878,7 +884,9 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ user: "root" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Access denied to mysql.user");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Access denied to mysql.user (context: mysql_security_user_privileges)",
+      );
     });
 
     it("mysql_security_sensitive_tables should return structured error on query failure", async () => {
@@ -892,7 +900,9 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({ schema: "test" }, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Connection lost");
+      expect(result.error).toBe(
+        "[ERROR] [security] [UNKNOWN_ERROR] Connection lost (context: mysql_security_sensitive_tables)",
+      );
     });
 
     it("mysql_security_user_privileges should use backtick-quoted identifiers in SHOW GRANTS", async () => {
