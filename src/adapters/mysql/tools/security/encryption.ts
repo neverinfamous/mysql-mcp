@@ -131,7 +131,7 @@ export function createSecuritySSLStatusTool(
           },
         });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_ssl_status" });
       }
     },
   };
@@ -217,7 +217,7 @@ export function createSecurityEncryptionStatusTool(
           },
         });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_encryption_status" });
       }
     },
   };
@@ -293,7 +293,7 @@ export function createSecurityPasswordValidateTool(
         });
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_password_validate" });
         }
         const message = error instanceof Error ? error.message : String(error);
         // Check for known component-not-installed errors
@@ -303,10 +303,11 @@ export function createSecurityPasswordValidateTool(
           lower.includes("function")
         ) {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("validate_password")
+            new ExtensionNotAvailableError("validate_password"),
+            { module: "security", tool: "mysql_security_password_validate" }
           );
         }
-        return formatHandlerErrorResponse(new Error(message));
+        return formatHandlerErrorResponse(new Error(message), { module: "security", tool: "mysql_security_password_validate" });
       }
     },
   };
