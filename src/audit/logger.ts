@@ -386,8 +386,8 @@ export class AuditLogger {
         params.push(filters.toTimestamp);
       }
       if (filters.search) {
-        sql += " AND (error LIKE ? OR args LIKE ? OR tool LIKE ?)";
-        countSql += " AND (error LIKE ? OR args LIKE ? OR tool LIKE ?)";
+        sql += " AND (error LIKE ? OR argsJson LIKE ? OR tool LIKE ?)";
+        countSql += " AND (error LIKE ? OR argsJson LIKE ? OR tool LIKE ?)";
         const searchTerm = `%${filters.search}%`;
         params.push(searchTerm, searchTerm, searchTerm);
       }
