@@ -54,6 +54,7 @@ export const TransactionIdSchemaBase = z.object({
     .describe("Transaction ID from begin operation"),
   txId: z.string().optional().describe("Alias for transactionId"),
   tx: z.string().optional().describe("Alias for transactionId"),
+  transaction_id: z.string().optional().describe("Alias for transactionId"),
 });
 
 // Transformed schema for handler parsing
@@ -81,10 +82,12 @@ export const TransactionSavepointSchemaBase = z.object({
   transactionId: z.string().optional().describe("Transaction ID"),
   txId: z.string().optional().describe("Alias for transactionId"),
   tx: z.string().optional().describe("Alias for transactionId"),
+  transaction_id: z.string().optional().describe("Alias for transactionId"),
   savepoint: z.string().optional().describe("Savepoint name"),
   name: z.string().optional().describe("Alias for savepoint"),
   savepointName: z.string().optional().describe("Alias for savepoint"),
   id: z.string().optional().describe("Alias for savepoint"),
+  savepoint_name: z.string().optional().describe("Alias for savepoint"),
 });
 
 // Transformed schema for handler parsing

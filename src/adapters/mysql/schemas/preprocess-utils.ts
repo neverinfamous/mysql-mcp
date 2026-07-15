@@ -290,6 +290,7 @@ export function preprocessQueryParams(input: unknown): unknown {
   if (result["transactionId"] === undefined) {
     if (result["txId"] !== undefined) result["transactionId"] = result["txId"];
     else if (result["tx"] !== undefined) result["transactionId"] = result["tx"];
+    else if (result["transaction_id"] !== undefined) result["transactionId"] = result["transaction_id"];
   }
   return result;
 }
@@ -305,6 +306,8 @@ export function preprocessTransactionIdParams(input: unknown): unknown {
       normalized["transactionId"] = normalized["txId"];
     else if (normalized["tx"] !== undefined)
       normalized["transactionId"] = normalized["tx"];
+    else if (normalized["transaction_id"] !== undefined)
+      normalized["transactionId"] = normalized["transaction_id"];
   }
   return normalized;
 }
@@ -320,11 +323,13 @@ export function preprocessSavepointParams(input: unknown): unknown {
   if (result["transactionId"] === undefined) {
     if (result["txId"] !== undefined) result["transactionId"] = result["txId"];
     else if (result["tx"] !== undefined) result["transactionId"] = result["tx"];
+    else if (result["transaction_id"] !== undefined) result["transactionId"] = result["transaction_id"];
   }
   if (result["savepoint"] === undefined) {
     if (result["name"] !== undefined) result["savepoint"] = result["name"];
     else if (result["savepointName"] !== undefined) result["savepoint"] = result["savepointName"];
     else if (result["id"] !== undefined) result["savepoint"] = result["id"];
+    else if (result["savepoint_name"] !== undefined) result["savepoint"] = result["savepoint_name"];
   }
   return result;
 }
