@@ -196,6 +196,7 @@ export function createAuditInterceptor(
               scope,
               durationMs,
               success,
+              status: success ? "info" : "error",
               error,
               tokenEstimate,
             } as Parameters<typeof auditLogger.log>[0]);
@@ -209,6 +210,7 @@ export function createAuditInterceptor(
               user: authCtx?.claims?.sub ?? null,
               durationMs,
               success,
+              status: success ? "info" : "error",
               error,
               args: auditLogger.config.redact
                 ? undefined
