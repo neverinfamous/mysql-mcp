@@ -198,6 +198,8 @@ export const StatsSummarySchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
+  collection: z.string().optional().describe("Alias for table"),
+  coll: z.string().optional().describe("Alias for table"),
   column: z.unknown().optional().describe("Alias for columns"),
   col: z.unknown().optional().describe("Alias for columns"),
   columns: z
@@ -217,7 +219,7 @@ export const StatsSummarySchema = z.preprocess(
     const obj = val as Record<string, unknown>;
     return {
       ...obj,
-      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"] ?? obj["collection"] ?? obj["coll"],
       columns: typeof obj["columns"] === "string" ? [obj["columns"]] : (obj["columns"] ?? (typeof obj["column"] === "string" ? [obj["column"]] : obj["column"]) ?? (typeof obj["col"] === "string" ? [obj["col"]] : obj["col"])),
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
