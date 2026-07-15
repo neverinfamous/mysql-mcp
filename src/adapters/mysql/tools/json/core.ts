@@ -112,9 +112,9 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_extract" });
         }
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_extract" });
       }
     },
   };
@@ -151,10 +151,10 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_set" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_set" });
       }
     },
   };
@@ -214,10 +214,10 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_insert" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_insert" });
       }
     },
   };
@@ -254,10 +254,10 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_replace" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_replace" });
       }
     },
   };
@@ -292,10 +292,10 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_remove" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_remove" });
       }
     },
   };
@@ -349,10 +349,10 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_contains" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_contains" });
       }
     },
   };
@@ -407,10 +407,10 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_keys" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_keys" });
       }
     },
   };
@@ -449,10 +449,10 @@ export function createJsonArrayAppendTool(
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_array_append" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_array_append" });
       }
     },
   };
