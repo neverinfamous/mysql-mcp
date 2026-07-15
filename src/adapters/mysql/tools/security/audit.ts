@@ -80,10 +80,20 @@ const FirewallRulesSchemaBase = z.object({
 const FirewallRulesSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
-      const v = val as Record<string, unknown>;
-      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
-      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
-      if (v["userName"] !== undefined && v["user"] === undefined) v["user"] = v["userName"];
+      const v = { ...(val as Record<string, unknown>) };
+      if (v["count"] !== undefined) {
+        if (v["limit"] === undefined) v["limit"] = v["count"];
+        delete v["count"];
+      }
+      if (v["username"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["username"];
+        delete v["username"];
+      }
+      if (v["userName"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["userName"];
+        delete v["userName"];
+      }
+      return v;
     }
     return val;
   },
@@ -225,7 +235,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_audit" });
         }
         const msg = error instanceof Error ? error.message : String(error);
         const stripped = stripErrorPrefix(msg);
@@ -235,10 +245,11 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           lower.includes("access denied")
         ) {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("audit_log", { plugin: "MySQL Enterprise Audit or Percona Audit plugin" })
+            new ExtensionNotAvailableError("audit_log", { plugin: "MySQL Enterprise Audit or Percona Audit plugin" }),
+            { module: "security", tool: "mysql_security_audit" }
           );
         }
-        return formatHandlerErrorResponse(new Error(stripped));
+        return formatHandlerErrorResponse(new Error(stripped), { module: "security", tool: "mysql_security_audit" });
       }
     },
   };
@@ -304,13 +315,14 @@ export function createSecurityFirewallStatusTool(
         });
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_status" });
         }
         const message = error instanceof Error ? error.message : String(error);
         return formatHandlerErrorResponse(
           new Error(
             `Firewall plugin check failed: ${stripErrorPrefix(message)}`,
           ),
+          { module: "security", tool: "mysql_security_firewall_status" }
         );
       }
     },
@@ -414,13 +426,14 @@ export function createSecurityFirewallRulesTool(
         });
       } catch (error) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
         }
         const message = error instanceof Error ? error.message : String(error);
         return formatHandlerErrorResponse(
           new Error(
             `Firewall rules check failed: ${stripErrorPrefix(message)}`,
           ),
+          { module: "security", tool: "mysql_security_firewall_rules" }
         );
       }
     },
