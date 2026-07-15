@@ -47,10 +47,10 @@ export const PercentilesSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  percentiles: z.unknown().optional().describe("Percentiles to calculate"),
-  p: z.unknown().optional().describe("Alias for percentiles"),
-  pct: z.unknown().optional().describe("Alias for percentiles"),
-  percentile: z.unknown().optional().describe("Alias for percentiles"),
+  percentiles: z.array(z.number()).optional().describe("Percentiles to calculate"),
+  p: z.array(z.number()).optional().describe("Alias for percentiles"),
+  pct: z.array(z.number()).optional().describe("Alias for percentiles"),
+  percentile: z.array(z.number()).optional().describe("Alias for percentiles"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
@@ -91,7 +91,7 @@ export const DistributionSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  buckets: z.unknown().optional().describe("Number of histogram buckets"),
+  buckets: z.number().optional().describe("Number of histogram buckets"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
@@ -143,7 +143,7 @@ export const TimeSeriesSchemaBase = z.object({
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
-  limit: z.unknown().optional().describe("Maximum number of data points"),
+  limit: z.number().optional().describe("Maximum number of data points"),
 });
 
 export const TimeSeriesSchema = z.preprocess(
@@ -175,12 +175,12 @@ export const SamplingSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
-  sampleSize: z.unknown().optional().describe("Number of rows to sample"),
+  sampleSize: z.number().optional().describe("Number of rows to sample"),
   columns: z
-    .unknown()
+    .array(z.string())
     .optional()
     .describe("Columns to include (all if not specified)"),
-  seed: z.unknown().optional().describe("Random seed for reproducibility"),
+  seed: z.number().optional().describe("Random seed for reproducibility"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),

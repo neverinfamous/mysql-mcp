@@ -94,11 +94,11 @@ export const HistogramSchemaBase = z.object({
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
   buckets: z
-    .unknown()
+    .number()
     .optional()
     .describe("Number of histogram buckets (max 1024)"),
   update: z
-    .unknown()
+    .boolean()
     .optional()
     .describe("Whether to create/update the histogram"),
 });
