@@ -13,7 +13,7 @@ const MAX_SAMPLES = 1000;
 
 export interface MetricSummary {
   calls: number;
-  errors: number;
+  errors: Record<string, number>;
   tokens: number;
   p50: number;
   p95: number;
@@ -26,7 +26,7 @@ export interface ResourceMetricSummary {
 
 class ToolMetric {
   public calls = 0;
-  public errors = 0;
+  public errors: Record<string, number> = {};
   public tokens = 0;
 
   // Circular buffer for latency samples
@@ -34,9 +34,12 @@ class ToolMetric {
   private sampleIndex = 0;
   private sampleCount = 0;
 
-  record(durationMs: number, success: boolean, tokens = 0): void {
+  record(durationMs: number, success: boolean, tokens = 0, errorType?: string): void {
     this.calls++;
-    if (!success) this.errors++;
+    if (!success) {
+      const type = errorType ?? "unknown";
+      this.errors[type] = (this.errors[type] ?? 0) + 1;
+    }
     this.tokens += tokens;
 
     this.samples[this.sampleIndex] = durationMs;
@@ -203,7 +206,8 @@ export class MetricsRegistry {
           this.tools.set(row.tool, metric);
         }
         metric.calls = Math.max(metric.calls, row.max_calls);
-        metric.errors = Math.max(metric.errors, row.max_errors);
+        // Load historical errors as a special category to avoid breaking the integer DB schema
+        metric.errors["historical"] = Math.max((metric.errors["historical"] ?? 0), row.max_errors);
         metric.tokens = Math.max(metric.tokens, row.max_tokens);
         // Persist the latest recorded percentiles for background export
         metric.loaded_p50 = row.p50;
@@ -242,11 +246,12 @@ export class MetricsRegistry {
       const transaction = db.transaction(() => {
         for (const [name, metric] of this.tools.entries()) {
           const summary = metric.getSummary();
+          const totalErrors = Object.values(summary.errors).reduce((sum, val) => sum + val, 0);
           stmt.run(
             timestamp,
             name,
             summary.calls,
-            summary.errors,
+            totalErrors,
             summary.p50,
             summary.p95,
             summary.p99,
@@ -275,13 +280,14 @@ export class MetricsRegistry {
     durationMs: number,
     success: boolean,
     tokens = 0,
+    errorType?: string
   ): void {
     let metric = this.tools.get(toolName);
     if (!metric) {
       metric = new ToolMetric();
       this.tools.set(toolName, metric);
     }
-    metric.record(durationMs, success, tokens);
+    metric.record(durationMs, success, tokens, errorType);
   }
 
   recordResourceRead(uri: string): void {
@@ -332,7 +338,10 @@ export class MetricsRegistry {
     lines.push("# HELP mysql_mcp_tool_errors_total Total tool errors");
     lines.push("# TYPE mysql_mcp_tool_errors_total gauge");
     for (const [name, metric] of this.tools.entries()) {
-      lines.push(`mysql_mcp_tool_errors_total{tool="${name}"} ${metric.getSummary().errors}`);
+      const summary = metric.getSummary();
+      for (const [errorType, count] of Object.entries(summary.errors)) {
+        lines.push(`mysql_mcp_tool_errors_total{tool="${name}",error_type="${errorType}"} ${count}`);
+      }
     }
 
     lines.push("# HELP mysql_mcp_tool_tokens_total Total tokens estimated");

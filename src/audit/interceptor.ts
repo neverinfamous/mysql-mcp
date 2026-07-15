@@ -23,6 +23,7 @@ import { getAuthContext } from "../auth/auth-context.js";
 import { getRequiredScope } from "../auth/scope-map.js";
 import { estimateTokens, estimateObjectTokens } from "../utils/tokens.js";
 import { metrics } from "../observability/metrics.js";
+import { findSuggestion } from "../utils/error-suggestions.js";
 
 /**
  * Audit interceptor interface — used by `DatabaseAdapter.registerTool()`.
@@ -94,6 +95,7 @@ export function createAuditInterceptor(
       const start = performance.now();
       let success = true;
       let error: string | undefined;
+      let errorType: string | undefined;
       let backupRef: string | undefined;
       let tokenEstimate: number | undefined;
 
@@ -128,9 +130,12 @@ export function createAuditInterceptor(
               const sc = result.structuredContent as Record<string, unknown>;
               if ("error" in sc) {
                 error = typeof sc["error"] === "string" ? sc["error"] : String(sc["error"]);
+                const match = findSuggestion(error);
+                errorType = match?.code ?? "TOOL_ERROR";
               }
             } else {
               error = "Tool call failed (isError: true)";
+              errorType = "TOOL_ERROR";
             }
           }
           // Legacy check in case we ever wrap the handler directly again
@@ -138,6 +143,8 @@ export function createAuditInterceptor(
             success = false;
             if ("error" in result) {
               error = typeof result.error === "string" ? result.error : String(result.error);
+              const match = findSuggestion(error);
+              errorType = match?.code ?? "TOOL_ERROR";
             }
           }
         }
@@ -161,6 +168,15 @@ export function createAuditInterceptor(
         success = false;
         error = err instanceof Error ? err.message : String(err);
 
+        const match = findSuggestion(error);
+        if (match?.code != null) {
+          errorType = match.code;
+        } else if (err instanceof Error && err.name === "ZodError") {
+          errorType = "VALIDATION_ERROR";
+        } else {
+          errorType = "INTERNAL_ERROR";
+        }
+
         // Match mcp-registry.ts raw exception fallback token calculation
         const errorResult = {
           success: false,
@@ -177,12 +193,12 @@ export function createAuditInterceptor(
       } finally {
         const durationMs = Math.round(performance.now() - start);
 
-        // Record metrics
         metrics.recordToolCall(
           options?.logAs ?? toolName,
           durationMs,
           success,
           tokenEstimate ?? 0,
+          errorType
         );
 
         if (shouldAudit) {
