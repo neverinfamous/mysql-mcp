@@ -693,7 +693,7 @@
             ],
             "formulas": [
               {
-                "formula": "(errors / calls) * 100"
+                "formula": "(default_zero(errors) / clamp_min(default_zero(calls), 1)) * 100"
               }
             ],
             "queries": [
