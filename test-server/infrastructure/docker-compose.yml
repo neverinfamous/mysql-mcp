@@ -130,6 +130,7 @@ services:
     ports:
       - "6446:6446"
       - "6447:6447"
+      - "6448:6448"
       - "8443:8443"
     stop_grace_period: 30s
     mem_limit: 256m
