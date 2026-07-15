@@ -5,6 +5,7 @@ import type {
   IndexInfo,
   ColumnInfo,
 } from "../../types/index.js";
+import { metrics } from "../../observability/metrics.js";
 import { ValidationError } from "../../types/index.js";
 
 export interface QueryExecutor {
@@ -35,11 +36,16 @@ export class SchemaManager {
    */
   private getCached(key: string): unknown {
     const entry = this.metadataCache.get(key);
-    if (!entry) return undefined;
-    if (Date.now() - entry.timestamp > this.cacheTtlMs) {
-      this.metadataCache.delete(key);
+    if (!entry) {
+      metrics.recordCacheMiss();
       return undefined;
     }
+    if (Date.now() - entry.timestamp > this.cacheTtlMs) {
+      this.metadataCache.delete(key);
+      metrics.recordCacheMiss();
+      return undefined;
+    }
+    metrics.recordCacheHit();
     return entry.data;
   }
 

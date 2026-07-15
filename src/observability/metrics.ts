@@ -118,9 +118,27 @@ class ResourceMetric {
   }
 }
 
+class CacheMetric {
+  public hits = 0;
+  public misses = 0;
+
+  recordHit(): void {
+    this.hits++;
+  }
+
+  recordMiss(): void {
+    this.misses++;
+  }
+
+  getSummary(): { hits: number; misses: number } {
+    return { hits: this.hits, misses: this.misses };
+  }
+}
+
 export class MetricsRegistry {
   private tools = new Map<string, ToolMetric>();
   private resources = new Map<string, ResourceMetric>();
+  private cache = new CacheMetric();
   private systemDb: SystemDb | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
@@ -260,6 +278,14 @@ export class MetricsRegistry {
     metric.record();
   }
 
+  recordCacheHit(): void {
+    this.cache.recordHit();
+  }
+
+  recordCacheMiss(): void {
+    this.cache.recordMiss();
+  }
+
   getSummary(): Record<string, unknown> {
     const toolsSummary: Record<string, MetricSummary> = {};
     for (const [name, metric] of this.tools.entries()) {
@@ -274,6 +300,7 @@ export class MetricsRegistry {
     return {
       tools: toolsSummary,
       resources: resourcesSummary,
+      cache: this.cache.getSummary(),
       timestamp: new Date().toISOString(),
     };
   }
@@ -337,6 +364,16 @@ export class MetricsRegistry {
       const labels = `{resource="${uri}"}`;
       lines.push(`mysql_mcp_resource_reads_total${labels} ${summary.reads}`);
     }
+
+    // Cache
+    const cacheSummary = this.cache.getSummary();
+    lines.push("# HELP mysql_mcp_cache_hits_total Total schema cache hits");
+    lines.push("# TYPE mysql_mcp_cache_hits_total counter");
+    lines.push(`mysql_mcp_cache_hits_total ${cacheSummary.hits}`);
+    
+    lines.push("# HELP mysql_mcp_cache_misses_total Total schema cache misses");
+    lines.push("# TYPE mysql_mcp_cache_misses_total counter");
+    lines.push(`mysql_mcp_cache_misses_total ${cacheSummary.misses}`);
 
     // Server uptime
     lines.push("# HELP mysql_mcp_uptime_seconds Server uptime in seconds");

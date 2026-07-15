@@ -1,0 +1,230 @@
+{
+  "title": "MySQL-MCP AI Efficiency",
+  "description": "AI Efficiency metrics for mysql-mcp server (Opus/Sonnet 4.6 pricing)",
+  "widgets": [
+    {
+      "definition": {
+        "title": "Estimated Cost (Claude 3.5 Sonnet Rate: $3/1M Input)",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_value",
+        "requests": [
+          {
+            "queries": [
+              {
+                "name": "query1",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "(query1 / 1000000) * 3",
+                "limit": {
+                  "count": 500,
+                  "order": "desc"
+                }
+              }
+            ],
+            "response_format": "scalar",
+            "conditional_formats": []
+          }
+        ],
+        "autoscale": true,
+        "precision": 2,
+        "custom_unit": "$"
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 3,
+        "height": 2
+      }
+    },
+    {
+      "definition": {
+        "title": "Estimated User Wait Time Saved (Hours)",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_value",
+        "requests": [
+          {
+            "queries": [
+              {
+                "name": "calls",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}",
+                "aggregator": "sum"
+              },
+              {
+                "name": "latency",
+                "data_source": "metrics",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*}",
+                "aggregator": "avg"
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "((calls * 60) - (latency / 1000)) / 3600"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "autoscale": true,
+        "precision": 2,
+        "custom_unit": "hrs"
+      },
+      "layout": {
+        "x": 3,
+        "y": 0,
+        "width": 3,
+        "height": 2
+      }
+    },
+    {
+      "definition": {
+        "title": "Total Tokens Used",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_value",
+        "requests": [
+          {
+            "queries": [
+              {
+                "name": "query1",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "autoscale": true,
+        "precision": 0
+      },
+      "layout": {
+        "x": 6,
+        "y": 0,
+        "width": 3,
+        "height": 2
+      }
+    },
+    {
+      "definition": {
+        "title": "Schema Cache Hit Rate (%)",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_value",
+        "requests": [
+          {
+            "queries": [
+              {
+                "name": "hits",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}",
+                "aggregator": "sum"
+              },
+              {
+                "name": "misses",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_cache_misses.count{*}",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "(hits / (hits + misses)) * 100"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "autoscale": true,
+        "precision": 1,
+        "custom_unit": "%"
+      },
+      "layout": {
+        "x": 9,
+        "y": 0,
+        "width": 3,
+        "height": 2
+      }
+    },
+    {
+      "definition": {
+        "title": "Tool Call Volume",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "name": "query1",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}"
+              }
+            ],
+            "display_type": "bars"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 2,
+        "width": 6,
+        "height": 4
+      }
+    },
+    {
+      "definition": {
+        "title": "Top Tools by Tokens",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_table",
+        "requests": [
+          {
+            "queries": [
+              {
+                "name": "query1",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*} by {tool}",
+                "aggregator": "sum"
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1",
+                "cell_display_mode": "bar"
+              }
+            ],
+            "sort": {
+              "order_by": [
+                {
+                  "type": "formula",
+                  "index": 0,
+                  "order": "desc"
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 6,
+        "y": 2,
+        "width": 6,
+        "height": 4
+      }
+    }
+  ],
+  "layout_type": "ordered"
+}
