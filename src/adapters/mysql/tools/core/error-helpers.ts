@@ -100,7 +100,10 @@ const isZodError = (err: unknown): err is ZodError => {
   return err instanceof ZodError || (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError");
 };
 
-export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
+export function formatHandlerErrorResponse(
+  err: unknown,
+  context?: { module: string; tool: string }
+): ErrorResponse {
   let response: ErrorResponse;
 
   // MySQLMcpError — already enriched
@@ -142,6 +145,10 @@ export function formatHandlerErrorResponse(err: unknown): ErrorResponse {
       recoverable: false,
       details: undefined,
     };
+  }
+
+  if (context) {
+    response.error = `[ERROR] [${context.module}] [${response.code}] ${response.error} (context: ${context.tool})`;
   }
 
   // Calculate payload token cost (JSON byte length / 4)

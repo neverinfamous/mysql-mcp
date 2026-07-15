@@ -293,9 +293,9 @@ export function createSecurityMaskDataTool(
         );
       } catch (error) {
         if (error instanceof ZodError) {
-          return Promise.resolve(formatHandlerErrorResponse(error));
+          return Promise.resolve(formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_mask_data" }));
         }
-        return Promise.resolve(formatHandlerErrorResponse(error));
+        return Promise.resolve(formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_mask_data" }));
       }
     },
   };
@@ -323,7 +323,8 @@ export function createSecurityUserPrivilegesTool(
 
         if (!user) {
           return formatHandlerErrorResponse(
-            new ValidationError("Parameter 'user' (or 'userName') is required to prevent payload bloat.")
+            new ValidationError("Parameter 'user' (or 'userName') is required to prevent payload bloat."),
+            { module: "security", tool: "mysql_security_user_privileges" }
           );
         }
         // P154: User existence check when explicitly provided
@@ -334,6 +335,7 @@ export function createSecurityUserPrivilegesTool(
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
               new ValidationError(`User '${user}' does not exist.`),
+              { module: "security", tool: "mysql_security_user_privileges" }
             );
           }
 
@@ -495,7 +497,7 @@ export function createSecurityUserPrivilegesTool(
           },
         });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_user_privileges" });
       }
     },
   };
@@ -522,7 +524,8 @@ export function createSecuritySensitiveTablesTool(
 
         if (!schema) {
           return formatHandlerErrorResponse(
-            new ValidationError("Parameter 'schema' (or 'database') is required to prevent payload bloat.")
+            new ValidationError("Parameter 'schema' (or 'database') is required to prevent payload bloat."),
+            { module: "security", tool: "mysql_security_sensitive_tables" }
           );
         }
         // P154: Schema existence check when explicitly provided
@@ -533,6 +536,7 @@ export function createSecuritySensitiveTablesTool(
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
               new ValidationError(`Schema '${schema}' does not exist.`),
+              { module: "security", tool: "mysql_security_sensitive_tables" }
             );
           }
 
@@ -599,7 +603,7 @@ export function createSecuritySensitiveTablesTool(
           },
         });
       } catch (err) {
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_sensitive_tables" });
       }
     },
   };
