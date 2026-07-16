@@ -365,8 +365,9 @@ export function createMigrationStatusTool(
             const errorResponse = {
               success: false as const,
               error: `Database '${parsed.database}' does not exist.`,
-              code: "NOT_FOUND",
-              category: "validation",
+              code: "DATABASE_NOT_FOUND",
+              category: "resource",
+              suggestion: "Database not found. Use mysql_list_schemas to see available databases.",
               recoverable: true,
             };
             const tokenEstimate = Math.ceil(Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4);
