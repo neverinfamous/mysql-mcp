@@ -1,6 +1,6 @@
 Thank you for contributing to MySQL MCP—the production-ready integration engineered for AI agents!
 
-## Describe Your Changes
+## Detail Your Value-Adding Changes
 
 Provide a brief, clear description of the changes.
 
@@ -15,15 +15,15 @@ Closes #
 - [ ] Breaking change (fix or feature changing existing functionality)
 - [ ] Documentation update
 
-## Detail How You Tested
+## Validate the Integration
 
 Detail the specific tests you ran. Ensure thorough validation.
 
-## Complete the Checklist
+## Ensure Quality with the Checklist
 
 - [ ] I have exported any new types in `src/types/index.ts`
 - [ ] I have not used `eslint-disable` (always forbidden)
-- [ ] I have not used `@ts-ignore` or `as any` (always forbidden)
+- [ ] I have not used `@ts-ignore`, `@ts-expect-error` or `as any` (always forbidden)
 - [ ] I have ensured tool handlers return structured error responses, not raw exceptions
 - [ ] I have referenced `gh copilot` instead of the deprecated `github-copilot-cli`
 - [ ] I have split files approaching 500 lines

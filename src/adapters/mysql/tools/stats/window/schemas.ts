@@ -143,7 +143,7 @@ export const StatsLagLeadSchema = z.preprocess(
     table: z.string().min(1, "Table is required"),
     column: z.string().min(1, "Column is required"),
     orderBy: z.string().min(1, "orderBy is required"),
-    direction: z.enum(["lag", "lead"]).default("lag"),
+    direction: z.preprocess((val: unknown) => typeof val === "string" ? val.toLowerCase() : val, z.enum(["lag", "lead"])).default("lag"),
     offset: z.number().min(1).default(1),
     defaultValue: z.string().optional(),
     partitionBy: z.string().optional(),

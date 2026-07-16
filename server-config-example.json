@@ -6,9 +6,9 @@
   "trustProxy": false,
   "toolFilter": "starter",
   "allowedIoRoots": [
+    "/app/data",
     "C:/temp/mcp-sandbox",
-    "/tmp/mcp-sandbox",
-    "/app/data"
+    "/tmp/mcp-sandbox"
   ],
   "auditConfig": {
     "enabled": true,

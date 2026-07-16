@@ -785,7 +785,7 @@ npx @modelcontextprotocol/inspector --cli node dist/cli.js \
 
 ### Run Unit Tests
 
-The project maintains high test coverage (~90%) using Vitest.
+The project maintains high test coverage using Vitest.
 
 ```bash
 pnpm test

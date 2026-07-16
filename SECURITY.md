@@ -83,8 +83,8 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 ### Protect the Runtime
 
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — Configurable limit to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (Configurable).
+- ✅ **Execution timeout** — Configurable limit to prevent resource exhaustion.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (configurable, default 100KB).
 - ✅ **Rate limiting** — Rate limited per client (Configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
@@ -236,9 +236,9 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
 - [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
 - [x] Code Mode blocked patterns (comprehensive static regex rules + Unicode/NFKC validation)
-- [x] Code Mode RPC quotas (Configurable Code Mode RPC quotas)
+- [x] Code Mode RPC quotas (configurable)
 - [x] Code Mode egress streaming boundary (abort serialization on oversized results)
-- [x] Code Mode execution timeout (configurable, 30s default)
+- [x] Code Mode execution timeout (dynamically configurable)
 - [x] Code Mode rate limiting (configurable via `CODEMODE_RATE_LIMIT_MAX`, Redis-backed with in-memory fallback)
 - [x] Code Mode audit logging
 - [x] HTTP bounds limits

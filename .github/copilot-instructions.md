@@ -104,6 +104,8 @@ src/
 
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
+| `README.md`                     | Primary project documentation       |
+| `AGENT_README.md`               | AI agent specific instructions      |
 | `test-server/code-map.md`       | File → tool/handler mapping         |
 | `test-server/tool-reference.md` | Categorized tool inventory          |
 | `test-server/test-tools.md`     | Test validation reference           |
@@ -117,7 +119,7 @@ When reviewing PRs, check for:
 
 - [ ] Missing barrel exports in `src/types/index.ts` when new types are added
 - [ ] `eslint-disable` usage — always forbidden
-- [ ] `@ts-ignore` or `as any` — always forbidden
+- [ ] `@ts-ignore`, `@ts-expect-error` or `as any` — always forbidden
 - [ ] Raw exceptions from tool handlers — must use structured error responses
 - [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
 - [ ] Files approaching 500 lines — flag for splitting
