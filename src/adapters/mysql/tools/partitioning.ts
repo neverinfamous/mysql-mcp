@@ -338,6 +338,19 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             );
             return { ...response, metrics: { tokenEstimate } };
           }
+          if (msg.includes("column lists for partitioning")) {
+            const response = {
+              success: false as const,
+              error: `Inconsistency in usage of column lists for partitioning (check your VALUES syntax)`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
 
           const response = {
             success: false as const,
@@ -597,6 +610,19 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `One or more source partitions (${fromPartitions.join(", ")}) do not exist on table '${table}'`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("column lists for partitioning")) {
+            const response = {
+              success: false as const,
+              error: `Inconsistency in usage of column lists for partitioning (check your VALUES syntax)`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: false,
