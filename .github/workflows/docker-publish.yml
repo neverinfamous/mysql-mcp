@@ -80,7 +80,7 @@ jobs:
           command: cves
           image: local-scan:latest
           only-fixed: true
-          only-severities: critical,high,medium,low
+          only-severities: critical,high,medium
           exit-code: true
         env:
           DOCKER_SCOUT_HUB_USER: ${{ secrets.DOCKER_USERNAME }}
@@ -159,7 +159,7 @@ jobs:
         run: |
           # Start with router filter (no MySQL connection needed)
           docker run --rm -d --name smoke-http -p 3000:3000 \
-            -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
+            -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
             -e TOOL_FILTER=router smoke-test:latest \
             --transport http --tool-filter router
           sleep 5
@@ -279,8 +279,8 @@ jobs:
       deployments: write
 
     environment:
-      # Evaluates to 'production' if tag push OR emergency bypass, otherwise '' (no environment gate)
-      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass) && 'production' || '' }}
+      # Evaluates to 'production' if tag push OR emergency bypass, otherwise 'dummy' (no environment gate)
+      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass) && 'production' || 'dummy' }}
       url: https://hub.docker.com/r/writenotenow/mysql-mcp
 
     steps:

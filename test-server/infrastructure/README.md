@@ -12,7 +12,7 @@ This directory contains the `docker-compose.yml` for the MySQL-focused test infr
 To spin up the test infrastructure from scratch (teardown + start + cluster bootstrap + seed):
 
 ```powershell
-cd C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure
+cd test-server/infrastructure
 node scripts/recreate-test-ecosystem.mjs
 ```
 
@@ -29,7 +29,7 @@ docker compose up -d
 | **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9` |
 | **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9` |
 | **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9` |
-| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `8443` | `container-registry.oracle.com/mysql/community-router:9` |
+| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448`, `8443` | `container-registry.oracle.com/mysql/community-router:9` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2` |
 | **Redis** | `redis-server` | `6379` | `redis:7` |
 | **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10` |

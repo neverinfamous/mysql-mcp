@@ -1,6 +1,6 @@
 # 🤖 Agent Testing Guidelines
 
-Welcome to the `mysql-mcp` E2E testing directory! This repository uses **Playwright** as its test runner for end-to-end payload contract testing. 
+This repository uses **Playwright** as its test runner for end-to-end payload contract testing. 
 
 If you are an autonomous agent asked to add, fix, or debug a test in this directory, **you MUST follow these domain-specific conventions** to avoid polluting the database or writing redundant boilerplate.
 

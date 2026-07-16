@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-24.04
     environment:
       name: npm
-      url: https://www.npmjs.com/package/${{ github.event.repository.name }}
+      url: https://www.npmjs.com/package/@${{ github.repository }}
 
     steps:
       - name: Require emergency bypass acknowledgment

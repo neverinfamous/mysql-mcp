@@ -163,6 +163,8 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "writenotenow/mysql-mcp:latest",
         "--transport",
         "stdio",
+        "--tool-filter",
+        "starter",
         "--mysql",
         "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
       ],
@@ -191,7 +193,9 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "-e", "MYSQL_XPORT",
         "writenotenow/mysql-mcp:latest",
         "--transport",
-        "stdio"
+        "stdio",
+        "--tool-filter",
+        "starter"
       ],
       "env": {
         "MYSQL_HOST": "host.docker.internal",

@@ -272,6 +272,8 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 > [!WARNING]
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
 
+## ⚡ Simplify AI Integration with Client Configs
+
 ### Configure Cursor or Claude Desktop
 
 ```json
@@ -284,6 +286,8 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
         "@neverinfamous/mysql-mcp",
         "--transport",
         "stdio",
+        "--tool-filter",
+        "starter",
         "--mysql",
         "mysql://mcp_user:secure_password@localhost:3306/testdb"
       ],
@@ -300,7 +304,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
   "mcpServers": {
     "mysql-mcp": {
       "command": "npx",
-      "args": ["-y", "@neverinfamous/mysql-mcp", "--transport", "stdio"],
+      "args": ["-y", "@neverinfamous/mysql-mcp", "--transport", "stdio", "--tool-filter", "starter"],
       "env": {
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
@@ -421,8 +425,6 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `ecosystem`       | External Tools      | cluster, proxysql, router, shell, codemode                       |
 
 ### Leverage Available Tool Groups
-
-> Note: These groups omit Code Mode. The server injects it automatically.
 
 To optimize AI context windows, tool groups are categorized into high-level domains. **[See the Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the exhaustive list.
 
@@ -586,7 +588,6 @@ If you start with a negative filter (e.g., `-ecosystem`), it enables all tools f
 List tool names without `+` prefix to create a custom whitelist.
 
 The easiest way to filter is using **whitelist mode**. Simply specify the shortcut you want. Everything else is automatically disabled.
-> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
 
 ```bash
 # Enable specific tools (whitelist mode)

@@ -25,7 +25,7 @@ jobs:
           MYSQL_DATABASE: testdb
         ports:
           - 3307:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping -h localhost -uroot -proot" --health-interval=10s --health-timeout=5s --health-retries=3
       redis:
         image: redis:alpine
         ports:
@@ -125,7 +125,7 @@ jobs:
       - name: Smoke test — HTTP transport starts
         run: |
           docker run --rm -d --name pr-smoke -p 3000:3000 \
-            -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 \
+            -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 \
             -e ALLOWED_IO_ROOTS=/tmp \
             -e TOOL_FILTER=router pr-smoke-test:latest \
             --transport http --tool-filter router

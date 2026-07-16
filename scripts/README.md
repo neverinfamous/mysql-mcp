@@ -4,7 +4,7 @@
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 > **Value Proposition**
-> Accelerate your database orchestration with enterprise-grade reliability. This robust suite of operational scripts empowers administrators and AI agents to effortlessly manage, validate, and recover the mysql-mcp ecosystem—from deploying full InnoDB test clusters to dynamically compiling server instructions.
+> Accelerate your database orchestration with enterprise-grade reliability. This suite of scripts empowers administrators and AI agents. Manage, validate, and recover the mysql-mcp ecosystem. Deploy InnoDB test clusters easily. Dynamically compile server instructions.
 
 ## 🚀 Cluster Management
 
@@ -12,9 +12,9 @@ These scripts manage the InnoDB Cluster topology.
 
 ### `test-server/infrastructure/scripts/reboot-cluster.mjs`
 
-Reboots the InnoDB Cluster after a **complete outage** (all 3 nodes stopped simultaneously, typically after a machine reboot).
+Reboots the InnoDB Cluster after a **complete outage**. This means all nodes stopped simultaneously. It typically happens after a machine reboot.
 
-**When to use:** The mysql-ecosystem MCP tools return errors like `"super-read-only"` or cluster topology shows all nodes OFFLINE. E2E tests skip write-dependent tests.
+**When to use:** Tools return `"super-read-only"` errors. Cluster topology shows all nodes OFFLINE. E2E tests skip write-dependent tests.
 
 **When NOT needed:** Partial outages (single node restart, Docker upgrade) auto-recover via `group_replication_start_on_boot=ON`.
 
@@ -37,7 +37,7 @@ node test-server/infrastructure/scripts/reboot-cluster.mjs --User cluster_admin 
 
 **Prerequisites:**
 
-- MySQL Shell 9.5+ at `C:\Program Files\MySQL\MySQL Shell 9.5\bin\mysqlsh.exe`
+- MySQL Shell 8.4+ or 9.x
 - Docker containers created from `innodb-cluster.yml`
 
 ### Diagnosing Cluster Issues
@@ -70,7 +70,7 @@ These scripts are used to validate MCP server behavior dynamically:
 
 ### `test-server/infrastructure/scripts/reset-database.mjs`
 
-Resets the `testdb` database with fresh seed data. This is typically used to clean up test tables before running a new suite of tests.
+Resets the `testdb` database with fresh seed data. This cleans up test tables before running new tests.
 By default, it verifies all tables were created and populated correctly.
 
 ```bash
@@ -86,7 +86,7 @@ node test-server/infrastructure/scripts/reset-database.mjs --Cluster
 
 ### `test-server/infrastructure/scripts/seed.ts`
 
-Seeds the test database (`testdb`) with data from `test-server/test-seed.sql`. This is used to quickly inject seed data without running the full `reset-database.mjs` logic.
+Seeds the test database (`testdb`) with data from `test-server/test-seed.sql`. This injects seed data without running the full `reset-database.mjs` script.
 
 ```bash
 npx tsx test-server/infrastructure/scripts/seed.ts

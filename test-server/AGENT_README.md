@@ -1,12 +1,6 @@
 # MySQL MCP Test Server — Agent Testing Instructions
 
-[![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://npmjs.org/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)  
-[![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
-
-
 > **This README is optimized for AI agent consumption.** It serves as the primary orchestration document for running manual MCP functionality tests against the local MySQL database (`testdb`).
->
-> 🚀 **Core Features:** Our test suite rigorously validates the server's flagship features: **OAuth 2.1**, **Code Mode**, and **Connection Pooling**.
 > 
 > 🛑 **CRITICAL RULE:** `scripts/test-manifest.ts` is the single source of truth generating all markdown tests via `scripts/content/*.content.md` partials. Manual editing of the generated markdown files in `test-usability/`, `test-usability-direct/`, `test-advanced/`, and `test-tool-groups/` is **STRICTLY FORBIDDEN** as they will be overwritten by the generator.
 

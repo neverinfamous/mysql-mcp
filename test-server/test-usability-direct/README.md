@@ -7,7 +7,7 @@ This directory contains organic prompts to fuzz tools and trigger hallucinations
 ## Understand Testing Philosophy
 These prompts instruct agents to act intuitively and purposefully omit syntax.
 When an agent fails, they must heal the codebase.
-Use the optimization layers described in `skills/mysql-mcp-heal/SKILL.md`.
+Use the optimization layers described in `../../skills/mysql-mcp-heal/SKILL.md`.
 
 ## Execute Fuzzing Workflow
 
