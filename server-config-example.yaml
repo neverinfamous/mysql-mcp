@@ -24,7 +24,7 @@ allowedIoRoots:
 # Audit Logging Configuration
 auditConfig:
   enabled: true
-  logPath: "/app/data/audit.jsonl"
+  logPath: "/tmp/mcp-sandbox/audit.jsonl"
   redact: true
   auditReads: false
   maxSizeBytes: 10485760 # 10MB
@@ -57,5 +57,5 @@ oauth:
   clockTolerance: 60
 
 # Advanced & Ecosystem Features
-# redisUrl, codeModeIsolation, and proxySql features are injected via environment variables only
+# redisUrl, codeModeIsolation, proxySql, mysqlRouter, mysqlsh, and logLevel features are injected via environment variables only
 # (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser.

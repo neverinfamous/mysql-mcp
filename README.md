@@ -98,7 +98,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ## ⚡ Execute Code Mode (`mysql_execute_code`)
 
-Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations within a secure JavaScript sandbox. It is included by default.
+Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations in a secure JavaScript sandbox. It is included by default.
 
 Code executes in a **C++ V8 isolate sandbox**. The server uses a physically separate V8 isolate via `isolated-vm`. The server enforces strict heap limits and synchronous termination. The server maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
 
@@ -206,7 +206,7 @@ Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 
 mysql-mcp supports two authentication mechanisms for HTTP transport:
 
-### Bearer Token Authentication (`--auth-token`)
+### Authenticate with Bearer Token (`--auth-token`)
 
 Use lightweight authentication for development:
 
@@ -220,7 +220,7 @@ node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mys
 
 Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401` with `WWW-Authenticate: Bearer` headers per RFC 6750.
 
-### OAuth 2.1 Authentication
+### Authenticate with OAuth 2.1
 
 Use full OAuth 2.1 for production deployments:
 
@@ -325,7 +325,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 | **MySQL in Docker**       | Container name or network | `mysql://mcp_user:secure_password@mysql-container:3306/testdb`      |
 | **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://mcp_user:secure_password@db.example.com:3306/testdb`       |
 
-### MySQL on Host Machine
+### Connect to MySQL on Host Machine
 
 If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 
@@ -336,7 +336,7 @@ If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 ]
 ```
 
-### MySQL in Another Docker Container
+### Connect to MySQL in Another Docker Container
 
 For local Docker setups, standardize on `host.docker.internal`. If you are using Docker Compose, you can use the service name `mysql` (or your specific container name) for docker-compose networking:
 
@@ -354,7 +354,7 @@ docker run -i --rm --network mynet writenotenow/mysql-mcp:latest \
   --transport stdio --mysql "mysql://mcp_user:secure_password@mysql-db:3306/testdb"
 ```
 
-### Remote/Cloud MySQL (RDS, Cloud SQL, etc.)
+### Connect to Remote/Cloud MySQL (RDS, Cloud SQL, etc.)
 
 Use the remote hostname directly:
 
@@ -382,7 +382,7 @@ Use the remote hostname directly:
 > [!IMPORTANT]
 > **AI IDEs like Cursor have strict tool limits. You MUST use tool filtering.** This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
-### What Can You Filter?
+### Discover Filtering Options
 
 The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
 
@@ -414,7 +414,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `base-nosql`      | Base NoSQL          | docstore, spatial, vector, codemode                              |
 | `ecosystem`       | External Tools      | cluster, proxysql, router, shell, codemode                       |
 
-### Tool Groups (Available)
+### Leverage Available Tool Groups
 
 > Note: The tool groups below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
@@ -455,8 +455,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
-        "MYSQL_PASSWORD": "your_password",
-        "MYSQL_DATABASE": "your_database",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "testdb",
         "REDIS_URL": "redis://localhost:6379"
       }
     }
@@ -737,7 +737,7 @@ See **[From Source](#from-source)** above for setup. After cloning:
 pnpm run check  # Run lint, typecheck, unit tests, and E2E tests
 ```
 
-### MCP Inspector
+### Debug with MCP Inspector
 
 Use [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to visually test and debug mysql-mcp:
 
@@ -777,7 +777,7 @@ npx @modelcontextprotocol/inspector --cli node dist/cli.js \
 
 > **📖 See the [MCP Inspector Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/MCP-Inspector)** for detailed usage.
 
-### Unit Testing
+### Run Unit Tests
 
 The project maintains high test coverage (~90%) using Vitest.
 
@@ -797,7 +797,7 @@ pnpm run test:coverage
 - All test files use shared mocks for consistency
 - Tests run without database connection (fully mocked)
 
-### Benchmarking
+### Execute Benchmarks
 
 The project includes a performance benchmarking suite to track the efficiency of critical paths like Code Mode sandbox initialization, tool filtering, and URI routing.
 

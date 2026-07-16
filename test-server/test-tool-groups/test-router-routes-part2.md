@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_router_route_destinations` |   |   |   |   |
-| `mysql_router_route_blocked_hosts` |   |   |   |   |
+| `mysql_router_route_destinations` | ✅ | ✅ | ✅ |   |
+| `mysql_router_route_blocked_hosts` | ✅ | ✅ | ✅ |   |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_route_destinations
-- [ ] Ensure full coverage for mysql_router_route_blocked_hosts
+- [x] Ensure full coverage for mysql_router_route_destinations - Pass
+- [x] Ensure full coverage for mysql_router_route_blocked_hosts - Pass
 
 
 ---

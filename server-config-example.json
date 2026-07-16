@@ -12,7 +12,7 @@
   ],
   "auditConfig": {
     "enabled": true,
-    "logPath": "/app/data/audit.jsonl",
+    "logPath": "/tmp/mcp-sandbox/audit.jsonl",
     "redact": true,
     "auditReads": false,
     "maxSizeBytes": 10485760,
@@ -45,5 +45,5 @@
     "jwksUri": "https://auth.example.com/.well-known/jwks.json",
     "clockTolerance": 60
   },
-  "_comment": "redisUrl, codeModeIsolation, and proxySql features are injected via environment variables only (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser."
+  "_comment": "redisUrl, codeModeIsolation, proxySql, mysqlRouter, mysqlsh, and logLevel features are injected via environment variables only (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser."
 }

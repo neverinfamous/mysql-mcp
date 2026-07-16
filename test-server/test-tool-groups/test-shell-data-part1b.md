@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysqlsh_export_table` |   |   |   |   |
-| `mysqlsh_import_table` |   |   |   |   |
+| `mysqlsh_export_table` | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass |
+| `mysqlsh_import_table` | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysqlsh_export_table
-- [ ] Ensure full coverage for mysqlsh_import_table
+- [x] Ensure full coverage for mysqlsh_export_table
+- [x] Ensure full coverage for mysqlsh_import_table
 
 
 ---

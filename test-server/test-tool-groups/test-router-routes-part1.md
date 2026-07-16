@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_router_route_status` |   |   |   |   |
-| `mysql_router_route_health` |   |   |   |   |
+| `mysql_router_route_status` | ✅ | ✅ | ✅ | N/A |
+| `mysql_router_route_health` | ✅ | ✅ | ✅ | N/A |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_route_status
-- [ ] Ensure full coverage for mysql_router_route_health
+- [x] Ensure full coverage for mysql_router_route_status - Pass
+- [x] Ensure full coverage for mysql_router_route_health - Pass
 
 
 ---
