@@ -129,10 +129,7 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
               warningCount: typedResult.warningCount ?? 0,
               noticeCount: typedResult.noticeCount ?? 0,
               checksPerformed: typedResult.checksPerformed?.length ?? 0,
-              upgradeCheck:
-                outputFormat === "TEXT"
-                  ? "Use outputFormat: JSON for detailed results"
-                  : typedResult,
+              upgradeCheck: typedResult,
             },
           });
         }
