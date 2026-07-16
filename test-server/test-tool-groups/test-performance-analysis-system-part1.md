@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_index_usage` |   |   |   |   |
-| `mysql_table_stats` |   |   |   |   |
+| `mysql_index_usage` | ✅ | ✅ | ✅ | ✅ |
+| `mysql_table_stats` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_index_usage
-- [ ] Ensure full coverage for mysql_table_stats
+- [x] Ensure full coverage for mysql_index_usage
+- [x] Ensure full coverage for mysql_table_stats
 
 
 ---
