@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysqlsh_import_json` |   |   |   |   |
-| `mysqlsh_dump_instance` |   |   |   |   |
+| `mysqlsh_import_json` | Pass | Pass | Pass | Pass |
+| `mysqlsh_dump_instance` | Pass | Pass | Pass | Pass |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysqlsh_import_json
-- [ ] Ensure full coverage for mysqlsh_dump_instance
+- [x] Ensure full coverage for mysqlsh_import_json
+- [x] Ensure full coverage for mysqlsh_dump_instance
 
 
 ---
