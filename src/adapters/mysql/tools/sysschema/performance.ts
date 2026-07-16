@@ -52,9 +52,9 @@ const StatementSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; order_by?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown>;
     return {
-      ...val,
+      ...v,
       orderBy: v.orderBy ?? v.order_by ?? v.sortBy ?? v.order ?? v.sort,
       limit: v.limit,
     };
@@ -87,9 +87,9 @@ const WaitSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { type?: unknown; waitType?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown>;
     return {
-      ...val,
+      ...v,
       type: v.type ?? v.waitType,
       limit: v.limit,
     };
@@ -114,9 +114,9 @@ const IOSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { type?: unknown; ioType?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown>;
     return {
-      ...val,
+      ...v,
       type: v.type ?? v.ioType,
       limit: v.limit,
     };

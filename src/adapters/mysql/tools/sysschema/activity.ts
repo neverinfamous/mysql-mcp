@@ -42,8 +42,9 @@ const UserSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown>;
     return {
+      ...v,
       user: v.user ?? v.username ?? v.userName ?? v.account,
       limit: v.limit,
     };
@@ -71,8 +72,9 @@ const HostSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown>;
     return {
+      ...v,
       host: v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address,
       limit: v.limit,
     };
@@ -107,6 +109,8 @@ export function createSysUserSummaryTool(
       try {
         const { user, limit } = UserSummarySchema.parse(params);
 
+        const actualLimit = Math.min(limit, 100);
+
         let query = `
                 SELECT
                     user,
@@ -127,7 +131,7 @@ export function createSysUserSummaryTool(
           queryParams.push(user);
         }
 
-        query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
+        query += ` ORDER BY statement_latency DESC LIMIT ${String(actualLimit)}`;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
@@ -186,6 +190,8 @@ export function createSysHostSummaryTool(
       try {
         const { host, limit } = HostSummarySchema.parse(params);
 
+        const actualLimit = Math.min(limit, 100);
+
         let query = `
                 SELECT
                     host,
@@ -206,7 +212,7 @@ export function createSysHostSummaryTool(
           queryParams.push(host);
         }
 
-        query += ` ORDER BY statement_latency DESC LIMIT ${String(limit)}`;
+        query += ` ORDER BY statement_latency DESC LIMIT ${String(actualLimit)}`;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
