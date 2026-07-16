@@ -112,10 +112,18 @@ export const PointSchemaBase = z.object({
 export const PointSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val ?? {};
-    const data = val as Record<string, unknown>;
+    const data = { ...(val as Record<string, unknown>) };
     
-    const lon = data["longitude"] ?? data["lon"] ?? data["lng"];
-    const lat = data["latitude"] ?? data["lat"];
+    // Explicitly handle empty strings, nulls, and undefined
+    let lon = data["longitude"];
+    if (lon === undefined || lon === null || lon === "") {
+        lon = data["lon"] !== undefined && data["lon"] !== null && data["lon"] !== "" ? data["lon"] : data["lng"];
+    }
+    
+    let lat = data["latitude"];
+    if (lat === undefined || lat === null || lat === "") {
+        lat = data["lat"];
+    }
 
     return { ...data, longitude: lon, latitude: lat };
   },
@@ -148,6 +156,7 @@ export const PolygonSchemaBase = z.object({
   points: z.unknown().optional(),
   coords: z.unknown().optional(),
   polygon: z.unknown().optional().describe("Polygon WKT"),
+  geometry: z.unknown().optional(),
   wkt: z.unknown().optional(),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
@@ -157,7 +166,7 @@ export const PolygonSchema = z.preprocess(
     if (typeof val !== "object" || val === null) return val;
     const data = val as Record<string, unknown>;
     
-    const poly = data["polygon"] ?? data["wkt"];
+    const poly = data["polygon"] ?? data["wkt"] ?? data["geometry"];
     let coords = data["coordinates"] ?? data["coords"] ?? data["points"];
 
     // If coordinates were passed to the first positional argument "table" due to positional.ts mapping
