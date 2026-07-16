@@ -42,7 +42,7 @@ const UserSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown>;
+    const v = val as Record<string, unknown> & { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown };
     return {
       ...v,
       user: v.user ?? v.username ?? v.userName ?? v.account,
@@ -72,7 +72,7 @@ const HostSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown>;
+    const v = val as Record<string, unknown> & { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
     return {
       ...v,
       host: v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address,
