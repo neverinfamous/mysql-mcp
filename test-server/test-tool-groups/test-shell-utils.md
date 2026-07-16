@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysqlsh_load_dump` |   |   |   |   |
-| `mysqlsh_run_script` |   |   |   |   |
+| `mysqlsh_load_dump` | ✅ | ✅ | ✅ | ✅ |
+| `mysqlsh_run_script` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysqlsh_load_dump
-- [ ] Ensure full coverage for mysqlsh_run_script
+- [x] Ensure full coverage for mysqlsh_load_dump
+- [x] Ensure full coverage for mysqlsh_run_script
 
 
 ---
