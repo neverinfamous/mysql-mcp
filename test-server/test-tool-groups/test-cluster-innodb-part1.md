@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_cluster_status` |   |   |   |   |
-| `mysql_cluster_instances` |   |   |   |   |
+| `mysql_cluster_status` | ✅ | ✅ | ✅ | ✅ |
+| `mysql_cluster_instances` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_cluster_status
-- [ ] Ensure full coverage for mysql_cluster_instances
+- [x] Ensure full coverage for mysql_cluster_status - Pass
+- [x] Ensure full coverage for mysql_cluster_instances - Pass
 
 
 ---
