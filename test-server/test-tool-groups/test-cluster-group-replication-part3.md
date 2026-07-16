@@ -70,7 +70,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_gr_primary` |   |   |   |   |
+| `mysql_gr_primary` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_gr_primary
+- [x] Ensure full coverage for mysql_gr_primary - Pass
 
 
 ---

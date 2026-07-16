@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_gr_transactions` |   |   |   |   |
-| `mysql_gr_flow_control` |   |   |   |   |
+| `mysql_gr_transactions` | ✅ | ✅ | ✅ | ✅ |
+| `mysql_gr_flow_control` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_gr_transactions
-- [ ] Ensure full coverage for mysql_gr_flow_control
+- [x] Ensure full coverage for mysql_gr_transactions - Pass
+- [x] Ensure full coverage for mysql_gr_flow_control - Pass
 
 
 ---
