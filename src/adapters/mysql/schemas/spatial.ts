@@ -396,6 +396,8 @@ export const WithinSchema = z.preprocess(
 export const IntersectionSchemaBase = z.object({
   geometry1: z.unknown().optional().describe("First WKT geometry"),
   geometry2: z.unknown().optional().describe("Second WKT geometry"),
+  geomColumn1: z.unknown().optional(),
+  geomColumn2: z.unknown().optional(),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
