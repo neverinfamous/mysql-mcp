@@ -7,7 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { TransactionError } from "../../../types/index.js";
+import { TransactionError, ValidationError } from "../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -173,7 +173,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate savepoint name
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
           return formatHandlerErrorResponse(
-            new Error("Invalid savepoint name"),
+            new ValidationError("Invalid savepoint name"),
           );
         }
 
@@ -217,7 +217,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
           return formatHandlerErrorResponse(
-            new Error("Invalid savepoint name"),
+            new ValidationError("Invalid savepoint name"),
           );
         }
 
@@ -267,7 +267,7 @@ function createTransactionRollbackToTool(
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
           return formatHandlerErrorResponse(
-            new Error("Invalid savepoint name"),
+            new ValidationError("Invalid savepoint name"),
           );
         }
 
