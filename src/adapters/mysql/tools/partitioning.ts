@@ -312,6 +312,33 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             return { ...response, metrics: { tokenEstimate } };
           }
 
+          if (msg.includes("Duplicate partition name")) {
+            const response = {
+              success: false as const,
+              error: `Partition '${partitionName}' already exists`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("strictly increasing")) {
+            const response = {
+              success: false as const,
+              error: `VALUES LESS THAN value must be strictly increasing for each partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+
           const response = {
             success: false as const,
             error: formatMysqlError(error),
