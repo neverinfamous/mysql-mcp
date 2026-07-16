@@ -8,18 +8,18 @@ Provide a brief, clear description of the changes.
 
 Closes #
 
-## Select Type of Change
+## Categorize Your Contribution
 
 - [ ] Bug fix (non-breaking change that fixes an issue)
 - [ ] New feature (non-breaking change that adds functionality)
 - [ ] Breaking change (fix or feature changing existing functionality)
 - [ ] Documentation update
 
-## Validate the Integration
+## Confirm Operational Integrity
 
 Detail the specific tests you ran. Ensure thorough validation.
 
-## Ensure Quality with the Checklist
+## Verify Quality Standards
 
 - [ ] I have exported any new types in `src/types/index.ts`
 - [ ] I have not used `eslint-disable` (always forbidden)
@@ -34,7 +34,8 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have run tests locally (e.g., via `pnpm run check`)
 - [ ] I have enforced the Dual-Schema Pattern
 - [ ] I have ensured Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] I have displayed value proposition blocks prominently in standard README.md (CRITICAL: I did not add value proposition blocks or marketing tone to AGENT_README.md)
+- [ ] Add prominent Value Proposition to standard README.md and Wikis.
+- [ ] CRITICAL: Never add marketing tone to AGENT_README.md.
 - [ ] I have ensured the Docker readme is <= 25,000 chars
 - [ ] I have ensured table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] I have correctly configured the file system sandbox to enforce `ALLOWED_IO_ROOTS`

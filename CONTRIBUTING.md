@@ -3,7 +3,7 @@
 
 Thank you for your interest in contributing to mysql-mcp! Join us in building a robust AI-database integration! We welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
 
-## 🚀 Start Quickly
+## 🚀 Accelerate Your First Contribution
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally
@@ -11,7 +11,7 @@ Thank you for your interest in contributing to mysql-mcp! Join us in building a 
 4. **Make your changes** and test thoroughly
 5. **Submit a pull request** with a clear description
 
-## 🛠️ Setup Your Environment
+## 🛠️ Prepare Your Development Environment
 
 ### Meet Prerequisites
 
@@ -64,7 +64,7 @@ docker build -f Dockerfile -t mysql-mcp-dev .
 docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host:3306/testdb"
 ```
 
-## 📋 Discover Contribution Goals
+## 📋 Focus on High-Impact Contribution Goals
 
 We especially welcome contributions in these areas:
 
@@ -89,7 +89,7 @@ We especially welcome contributions in these areas:
 - **Performance benchmarks** for new hot paths
 - **IDE-specific integrations** beyond MCP
 
-## 🧪 Test Your Changes
+## 🧪 Guarantee Reliability Through Testing
 
 ### Run Automated Tests
 
@@ -155,7 +155,7 @@ docker build -f Dockerfile -t mysql-mcp-dev .
 docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host:3306/testdb"
 ```
 
-## 📝 Follow Coding Standards
+## 📝 Maintain Quality with Coding Standards
 
 ### Follow TypeScript Code Style
 
@@ -209,7 +209,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 - **Multi-platform** — Test on both amd64 and arm64 when possible
 - **Documentation** — Update Docker guides if needed
 
-## 🔧 Add or Modify Tools
+## 🔧 Expand Capabilities with New Tools
 
 mysql-mcp organizes tools into various functional groups.
 
@@ -222,7 +222,7 @@ When adding a new tool:
 5. **Add the tool to the group's help resource** (the markdown file under `src/constants/instructions/markdown/`)
 6. **Verify OAuth Scope**. Ensure the new tool aligns with its group's base scope.
 
-## 🐛 Report Bugs
+## 🐛 Improve Stability by Reporting Bugs
 
 When reporting bugs, please include:
 
@@ -235,7 +235,7 @@ When reporting bugs, please include:
 
 Use our [Bug Report template](.github/ISSUE_TEMPLATE/bug_report.md) for consistency.
 
-## 💡 Request Features
+## 💡 Drive Innovation with Feature Requests
 
 For new features, please provide:
 
@@ -247,7 +247,7 @@ For new features, please provide:
 
 Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
-## 🔄 Submit Pull Requests
+## 🔄 Deliver Value via Pull Requests
 
 ### Check Before Submitting
 
@@ -281,7 +281,7 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
 All checks must pass before merge. Security steps **hard-fail on fixable issues** — this is intentional.
 
-## 📄 Commit and Generate Changelogs
+## 📄 Streamline Releases with Automated Changelogs
 
 The project uses `bun ./.agents/scripts/commit.ts` for all commits with explicit file staging. **Do not use raw `git commit`.**
 
@@ -303,7 +303,7 @@ Available trailers:
 
 > **Do not edit `CHANGELOG.md` directly** — it is assembled automatically during the release process.
 
-## 🎯 Master Development Tips
+## 🎯 Accelerate Workflows with Development Tips
 
 ### Work with MCP
 
@@ -355,7 +355,7 @@ If your change touches a hot path, run benchmarks. This verifies you haven't int
 pnpm run bench
 ```
 
-## 🔐 Report Security Issues
+## 🔐 Safeguard the Community by Reporting Vulnerabilities
 
 If you discover a security vulnerability, **do not** open a public issue. Please follow our [Security Policy](SECURITY.md) and report it to **admin@adamic.tech**.
 
@@ -367,20 +367,20 @@ When contributing code, follow these security practices:
 - **Typed error classes** with descriptive messages — don't expose internal details to end users
 - **Transport Security** — preserve DNS rebinding protection and Slowloris DoS timeouts in HTTP layers
 
-## 🤝 Join the Community
+## 🤝 Collaborate with the Community
 
 - **Be respectful** — Follow our [Code of Conduct](CODE_OF_CONDUCT.md)
 - **Ask questions** — Use GitHub Issues for discussion
 - **Share ideas** — Feature requests and feedback welcome
 - **Help others** — Answer questions and review PRs
 
-## 📞 Get Help
+## 📞 Resolve Blockers Quickly
 
 - **GitHub Issues** — Bug reports and feature requests
 - **Documentation** — Check [README.md](README.md), [Wiki](https://github.com/neverinfamous/mysql-mcp/wiki), and Docker guides first
 - **Email** — **admin@adamic.tech**
 
-## 🏆 Gain Recognition
+## 🏆 Build Your Open Source Profile
 
 Contributors are recognized in:
 

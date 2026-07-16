@@ -3,9 +3,9 @@
 
 MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio, HTTP, and SSE transports. It uses zero-trust, defense-in-depth methodologies.
 
-## 🛡️ **Secure Your Database**
+## 🛡️ **Defend Your Database Infrastructure**
 
-### Prevent SQL Injection
+### Eradicate SQL Injection Vulnerabilities
 
 **Identifier Sanitization** (`src/utils/identifiers.ts`)
 
@@ -26,7 +26,7 @@ Key functions:
 - ✅ **All user-provided values** use parameterized queries via `mysql2` library
 - ✅ **Identifier sanitization** complements parameterized values — defense in depth
 
-### Handle Errors Structurally
+### Prevent Data Leaks with Structured Errors
 
 Every tool returns structured error responses — never raw exceptions or internal details:
 
@@ -43,7 +43,7 @@ Every tool returns structured error responses — never raw exceptions or intern
 
 Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categories). It returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
 
-## 🔐 **Validate Your Inputs**
+## 🔐 **Ensure Integrity with Input Validation**
 
 - ✅ **Zod schemas** — all tool inputs validated at tool boundaries before database operations
 - ✅ **Parameterized queries** used throughout — never string interpolation
@@ -51,7 +51,7 @@ Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categorie
 - ✅ **Data masking aliases** — validated strictly at the MCP boundary to prevent evasion
 - ✅ **Identifier sanitization** — table, column, schema, and index names validated against injection
 
-## 📁 **Enforce Filesystem Boundaries**
+## 📁 **Sandbox Operations with Filesystem Boundaries**
 
 A dedicated security sandbox strictly confines all file I/O operations exposed by the server. This includes MySQL Shell operations and Audit Subsystem snapshots.
 
@@ -61,9 +61,9 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 - ✅ **Hidden Files Protection** — rejects dotfiles and hidden directories (unless explicitly authorized by the root config).
 - ✅ **Drive Letter Validation** — fully cross-platform compatible with strict Windows drive letter (`C:\`) and UNC path checking.
 
-## 🧪 **Secure Code Mode Sandbox**
+## 🧪 **Isolate Threats in Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#⚡-execute-code-mode-mysql_execute_code).**
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#⚡-reduce-token-usage-with-code-mode).**
 
 ### Enforce Engine-Level Restrictions
 
@@ -87,7 +87,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 
-## 🌐 **Secure HTTP Transports**
+## 🌐 **Fortify Remote HTTP Transports**
 
 When running in HTTP mode (`--transport http`), the following security measures apply:
 
@@ -125,9 +125,9 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 - ✅ **Memory Exhaustion Protection** — Strict request bounds prevent memory exhaustion DoS
 
-## 🔑 **Authenticate with OAuth 2.1**
+## 🔑 **Control Access via OAuth 2.1**
 
-Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#🔐-secure-access-with-authentication).**
+Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#🔐-protect-your-data-with-authentication).**
 
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
@@ -138,7 +138,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 > **⚠️ HTTP without OAuth:** When OAuth is not configured, all scope checks are bypassed. If you expose the HTTP transport without enabling OAuth, any client has full unrestricted access. Always enable OAuth for production HTTP deployments.
 
-## 🐳 **Harden Docker Containers**
+## 🐳 **Deploy Secure Docker Containers**
 
 ### Run as Non-Root User
 
@@ -174,7 +174,7 @@ docker run -v ./data:/app/data:rw,noexec,nosuid,nodev writenotenow/mysql-mcp:lat
 docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 ```
 
-## 🔐 **Secure Your Logs**
+## 🔐 **Maintain Compliance with Secure Logs**
 
 ### Enable Audit Subsystem
 
@@ -192,7 +192,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - ✅ **Control character sanitization** (ASCII 0x00-0x1F except tab/newline, 0x7F, C1 characters)
 - ✅ **Prevents log forging** and escape sequence attacks
 
-## 🔄 **Secure CI/CD Pipelines**
+## 🔄 **Automate Security in CI/CD Pipelines**
 
 - ✅ **CodeQL analysis** — automated static analysis on push/PR
 - ✅ **pnpm audit** — dependency vulnerability checking (audit-level: moderate)
@@ -200,7 +200,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
 - ✅ **E2E transport parity** — Playwright suite validates HTTP/SSE security behavior
 
-## 🚨 **Adopt Security Best Practices**
+## 🚨 **Implement Operational Security Best Practices**
 
 ### Follow Best Practices for Users
 
@@ -223,7 +223,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 5. **Regular updates** — keep Node.js and npm dependencies updated
 6. **Security scanning** — regularly scan Docker images for vulnerabilities
 
-## 📋 **Complete the Security Checklist**
+## 📋 **Verify with the Security Checklist**
 
 - [x] Parameterized SQL queries throughout
 - [x] Identifier sanitization (table, column, schema, index names)
@@ -257,7 +257,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Structured error responses (no internal details leaked)
 - [x] Comprehensive security documentation
 
-## 🚨 **Report Security Issues**
+## 🚨 **Disclose Vulnerabilities Responsibly**
 
 | Version | Supported |
 | ------- | --------- |
@@ -279,7 +279,7 @@ If you discover a security vulnerability:
 
 We appreciate responsible disclosure. We will acknowledge your contribution in our release notes.
 
-## 🔄 **Apply Security Updates**
+## 🔄 **Maintain Protection with Security Updates**
 
 - **Container updates**: Rebuild Docker images when base images are updated
 - **Dependency updates**: Keep npm packages updated via `pnpm audit` and Dependabot

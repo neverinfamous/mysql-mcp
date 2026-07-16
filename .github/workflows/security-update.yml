@@ -59,7 +59,6 @@ jobs:
           ignore-unfixed: true
           severity: "CRITICAL,HIGH,MEDIUM"
           trivyignores: ".trivyignore"
-          skip-dirs: "/usr/local/lib/node_modules/npm"
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
@@ -78,7 +77,6 @@ jobs:
           ignore-unfixed: true
           severity: "CRITICAL,HIGH,MEDIUM"
           trivyignores: ".trivyignore"
-          skip-dirs: "/usr/local/lib/node_modules/npm"
 
       - name: Check scan result
         id: check-scan

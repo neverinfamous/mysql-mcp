@@ -190,7 +190,7 @@ In stateless mode: `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and
 
 ### Connect via Legacy SSE (Backward Compatibility)
 
-Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
+Connect via Legacy SSE — for clients like Python `mcp.client.sse`:
 
 | Method | Endpoint                   | Purpose                                                       |
 | ------ | -------------------------- | ------------------------------------------------------------- |

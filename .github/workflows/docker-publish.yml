@@ -161,7 +161,7 @@ jobs:
           docker run --rm -d --name smoke-http -p 3000:3000 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
             -e TOOL_FILTER=router smoke-test:latest \
-            --transport http --port 3000 --server-host 0.0.0.0 --tool-filter router
+            --transport http --tool-filter router
           sleep 5
           if ! docker ps --filter name=smoke-http --format '{{.Status}}' | grep -q "Up"; then
             echo "❌ HTTP smoke test failed — container crashed"
@@ -348,7 +348,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           repository: ${{ env.IMAGE_NAME }}
           readme-filepath: ./DOCKER_README.md
-          short-description: "MySQL MCP server with an extensive suite of tools, Code Mode, OAuth 2.1, HTTP/SSE, and Audit Logs."
+          short-description: "Production-ready MySQL MCP server. Reduces token usage via Code Mode and secures access with OAuth 2.1."
 
       - name: Deployment Summary
         if: startsWith(github.ref, 'refs/tags/v')

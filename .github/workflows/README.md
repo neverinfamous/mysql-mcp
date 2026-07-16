@@ -107,7 +107,7 @@ These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.
 
 ## Understand the Release Pipeline
 
-The full release flow is orchestrated by `gatekeeper.yml` when a tag (e.g., `vX.Y.Z`) is pushed to the repository:
+The `gatekeeper.yml` workflow orchestrates the entire release flow. It triggers upon tag pushes:
 
 ```text
 push to tag (v*)

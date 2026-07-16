@@ -39,7 +39,6 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
         with:
-          version: 9.15.4
           run_install: false
 
       - name: Setup Node.js ${{ matrix.node-version }}
@@ -77,7 +76,6 @@ jobs:
       - name: Install pnpm
         uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
         with:
-          version: 9.15.4
           run_install: false
 
       - name: Setup Node.js
@@ -126,11 +124,11 @@ jobs:
 
       - name: Smoke test — HTTP transport starts
         run: |
-          docker run -d --name pr-smoke -p 3000:3000 \
+          docker run --rm -d --name pr-smoke -p 3000:3000 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e HOST=0.0.0.0 \
             -e ALLOWED_IO_ROOTS=/tmp \
             -e TOOL_FILTER=router pr-smoke-test:latest \
-            --transport http --port 3000 --server-host 0.0.0.0 --tool-filter router
+            --transport http --tool-filter router
           sleep 5
           if ! docker ps --filter name=pr-smoke --format '{{.Status}}' | grep -q "Up"; then
             echo "❌ Docker smoke test failed — container crashed on startup"

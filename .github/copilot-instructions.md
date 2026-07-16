@@ -7,20 +7,20 @@
 
 > MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
-## Review the Project Overview
+## Understand the Project Overview
 
 mysql-mcp is a production-grade TypeScript MCP server for MySQL. It empowers LLMs with an extensive suite of specialized tools and resources.
 
 ## Build Securely with Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
 - **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
-- **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
+- **Code Mode** (`mysql_execute_code`) significantly reduces token usage (70–90%).
 - **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
 - **Transports**: Supports `stdio`, streamable `http`, and standard `sse` transports.
 - **Validation**: Ensure mask data alias validation at the MCP boundary.
 - **Audit Tool**: Requires at least one filter to prevent payload bloat.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
-- **Features**: Tool Filtering, Audit/Token Logging, and ecosystem integrations for MySQL Router, ProxySQL, and MySQL Shell.
+- **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
 
 ## Utilize Session Context
 
@@ -130,7 +130,8 @@ When reviewing PRs, check for:
 - [ ] Verify the author has run tests locally (e.g., via pnpm run check)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Display value proposition blocks prominently in standard README.md (CRITICAL: Do NOT add value proposition blocks or marketing tone to AGENT_README.md)
+- [ ] Add prominent Value Proposition to standard README.md and Wikis.
+- [ ] CRITICAL: Never add marketing tone to AGENT_README.md.
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
