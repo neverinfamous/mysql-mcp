@@ -175,13 +175,14 @@ export const DistinctOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
     count: z.number(),
-    topValues: z.array(z.record(z.string(), z.unknown())).optional(),
+    values: z.array(z.unknown()).optional(),
   }).loose().optional(),
 });
 
 export const FrequencyOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
+    distinctValues: z.number().optional(),
     distribution: z.array(
       z.object({
         value: z.unknown(),
