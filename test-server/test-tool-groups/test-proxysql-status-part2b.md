@@ -70,7 +70,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_query_digest` |   |   |   |   |
+| `proxysql_query_digest` | Pass | Pass | Pass | Pass |
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_query_digest
+- [x] Ensure full coverage for proxysql_query_digest
 
 
 ---
