@@ -395,6 +395,8 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Use Predefined Shortcuts
 
+> Note: `codemode` is listed in the shortcuts table for demonstrative completeness, as it is automatically injected.
+
 | Shortcut        | Use Case           | What's Included                                                    |
 | --------------- | ------------------ | ------------------------------------------------------------------ |
 | `starter`         | Standard Package    | core, json, transactions, text, codemode                         |
@@ -422,7 +424,7 @@ To optimize AI context windows, tool groups are categorized into high-level doma
 
 | Category | Key Tool Groups | Description |
 |---|---|---|
-| **Core CRUD** | `core`, `json`, `transactions`, `vector`, `spatial` | Essential database operations, querying, and specialized data types. |
+| **Core CRUD** | `core`, `json`, `transactions`, `vector`, `spatial`, `text` | Essential database operations, querying, and specialized data types. |
 | **Schema** | `schema`, `introspection`, `migration` | Structure design, dependency analysis, and version management. |
 | **Observability** | `performance`, `monitoring`, `sysschema`, `stats` | Real-time diagnostics, EXPLAIN analysis, and anomaly detection. |
 | **Ecosystem** | `cluster`, `proxysql`, `router`, `shell` | Integration with MySQL Router, ProxySQL, and InnoDB Cluster. |
@@ -458,7 +460,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
         "REDIS_URL": "redis://localhost:6379"
-      }
+      },
+      "timeout": 600
     }
   }
 }
@@ -494,7 +497,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "cluster_password",
         "MYSQL_DATABASE": "mysql"
-      }
+      },
+      "timeout": 600
     }
   }
 }
@@ -540,7 +544,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
         "MYSQLSH_PATH": "/usr/local/bin/mysqlsh"
-      }
+      },
+      "timeout": 600
     }
   }
 }

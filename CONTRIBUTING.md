@@ -14,7 +14,7 @@ Thank you for your interest in contributing to mysql-mcp! We welcome your contri
 
 ### Meet Prerequisites
 
-- Current Node.js LTS (e.g., v24+)
+- Node.js 24+
 - Bun >= 1.0 (for script execution)
 - Current pnpm version (e.g., v9+)
 - **Git** (for version control)

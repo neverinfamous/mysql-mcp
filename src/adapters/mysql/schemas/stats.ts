@@ -166,8 +166,10 @@ export const OutliersOutputSchema = BaseOutputSchema.extend({
 export const TopNOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
-    topN: z.array(z.record(z.string(), z.unknown())).optional(),
-    groups: z.array(z.record(z.string(), z.unknown())).optional(),
+    direction: z.string().optional(),
+    count: z.number().optional(),
+    rows: z.array(z.record(z.string(), z.unknown())).optional(),
+    hint: z.string().optional(),
   }).loose().optional(),
 });
 

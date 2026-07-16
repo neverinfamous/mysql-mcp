@@ -10,7 +10,7 @@
 
 These scripts manage the InnoDB Cluster topology.
 
-### `reboot-cluster.mjs`
+### `test-server/infrastructure/scripts/reboot-cluster.mjs`
 
 Reboots the InnoDB Cluster after a **complete outage** (all 3 nodes stopped simultaneously, typically after a machine reboot).
 
@@ -68,7 +68,7 @@ Config: innodb-cluster.yml (gitignored, local only)
 
 These scripts are used to validate MCP server behavior dynamically:
 
-### `reset-database.mjs`
+### `test-server/infrastructure/scripts/reset-database.mjs`
 
 Resets the `testdb` database with fresh seed data. This is typically used to clean up test tables before running a new suite of tests.
 By default, it verifies all tables were created and populated correctly.
@@ -100,12 +100,12 @@ Starts the server with `--tool-filter +all`. Retrieves schemas for every registe
 node scripts/test-zod-errors.mjs
 ```
 
-### `test-filter-instructions.mjs`
+### `test-server/scripts/test-filter-instructions.mjs`
 
 Starts the server with various `--tool-filter` configurations. Verifies instruction sections are slim. Ensures correct `mysql://help/{group}` resources are registered.
 
 ```bash
-node scripts/test-filter-instructions.mjs
+node test-server/scripts/test-filter-instructions.mjs
 ```
 
 ### `test-prompts.mjs`
@@ -166,7 +166,7 @@ Validates standard database tools properly expose `outputSchema` at protocol lev
 node scripts/verify-schemas.mjs
 ```
 
-### `teardown.ts`
+### `test-server/infrastructure/scripts/teardown.ts`
 
 Global teardown script for E2E testing. Cleans up test artifacts like SQLite database files. Removes WAL/SHM files generated during test execution.
 
@@ -191,7 +191,7 @@ npx tsx test-server/infrastructure/scripts/redis-setup.ts
 Builds `src/constants/server-instructions.ts` module. Reads and compiles markdown files from `src/constants/instructions/markdown/*.md`. Provides MCP server with `mysql://help` resource content.
 
 ```bash
-npm run generate:instructions
+pnpm run generate:instructions
 ```
 
 ### `test-server/infrastructure/scripts/update-badges.ts`

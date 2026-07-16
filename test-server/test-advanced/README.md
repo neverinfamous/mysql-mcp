@@ -7,7 +7,7 @@ This directory contains advanced stress tests for the tool groups. These tests s
 ## Meet Fast Prerequisites
 
 1. Basic deterministic tool group checklists in `../test-usability/*.md` MUST pass first.
-2. The testing database MUST be freshly seeded or reset. Run `node ../../scripts/reset-database.mjs` to ensure deterministic results.
+2. The testing database MUST be freshly seeded or reset. Run `node ../infrastructure/scripts/reset-database.mjs` to ensure deterministic results.
 
 ## Understand Execution Parts
 
@@ -20,7 +20,7 @@ See `coordinator-workflow.md` for execution rules and rely on `../scripts/test-m
 When testing the contents of this directory, you MUST adhere to the following rules:
 
 0. **Anti-Hallucination Guardrails:** Read exact filenames from `../scripts/test-manifest.ts` or run a live `list_dir` on `test-server/test-advanced/`. Subagents MUST output `STATUS: SUCCESS` or `STATUS: FAILED_FILE_NOT_FOUND`. Halt immediately if a file is missing.
-0.5. **Validation Strictness:** If you modify the codebase, you MUST validate changes locally by running `pnpm run lint`, `pnpm run typecheck`, and `pnpm run build` along with targeted tests for the changes made. Do NOT run the entire test suites. Do NOT run any validation if you only modified documentation.
+0.5. **Validation Strictness:** If you modify the codebase, you MUST validate changes locally by running `pnpm run lint` and `pnpm run typecheck` along with targeted tests for the changes made. Do NOT run the entire test suites. Do NOT run any validation if you only modified documentation.
 1. **Strict Code Mode Only:** All advanced stress tests must be executed entirely within the `node:worker_threads` sandbox via `mysql_execute_code`. Direct component tool calls are explicitly forbidden here unless specifically instructed for baseline comparison.
 2. **Help Resources (Adaptive Architecture):** Tool and method signatures are NO LONGER automatically injected into your system prompt. You MUST read the corresponding `mysql://help/{group}` resource (e.g., `mysql://help/json`) to understand the `mysql.*` API before writing code.
 3. **Sequential Grouping & Reporting:** Execute only **one markdown file at a time**. Create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if you made code changes. Fix errors and commit changes before advancing to the next file.

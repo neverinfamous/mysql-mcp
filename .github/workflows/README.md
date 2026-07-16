@@ -1,13 +1,5 @@
 # CI/CD Workflows
 
-## 💎 Value Proposition
-
-- **Execute complex logic via Code Mode**, reducing token usage by 70-90%.
-- **Build AI integrations instantly**.
-- **Empower agents with secure database access**.
-- **Scale operations with robust connection pooling**.
-- **Leverage OAuth 2.1** for enterprise security.
-
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
 ## Visualize the Workflow Map
@@ -91,9 +83,9 @@ flowchart LR
 
 | File                                       | Trigger                                   | Purpose                                                               |
 | ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------- |
-| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` (security-extended) |
+| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` (security-extended and security-and-quality) |
 | [secrets-scanning.yml](secrets-scanning.yml) | `workflow_call` from gatekeeper / PR                      | TruffleHog (verified secrets) + Gitleaks scanning                     |
-| [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule | Trivy vulnerability scanning and automated Dependabot patch integration |
+| [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule | Trivy vulnerability scanning |
 
 ### Publish Reliable Releases
 
