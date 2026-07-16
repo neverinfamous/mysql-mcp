@@ -7,7 +7,7 @@
 
 ## 💎 Value Proposition
 
-MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+MySQL MCP delivers production-ready integration for AI agents. Slash token consumption and consolidate complex operations using Code Mode's isolated sandbox. Scale reliably with built-in connection pooling. Secure database access using strict OAuth 2.1 validation.
 
 ## 🎯 Leverage Core Benefits
 
@@ -68,11 +68,11 @@ docker compose up -d
 
 ---
 
-## ⚡ Execute Code Mode (`mysql_execute_code`)
+## ⚡ Reduce Token Usage with Code Mode
 
 Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations within a secure JavaScript sandbox. It is included by default.
 
-Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. The server maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
+Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limits and synchronous termination. Native wrappers map all API calls across the boundary. This guarantees defense-in-depth and fleet-standard restrictions:
 
 ### Enforce Engine-Level Restrictions
 
@@ -147,7 +147,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ---
 
-## ⚡ Configure Your MCP Client
+## ⚡ Simplify AI Integration with Client Configs
 
 ### Configure Cursor or Claude Desktop
 
@@ -234,7 +234,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-## 🔗 Connect to Any Database
+## 🔗 Integrate Any MySQL Environment
 
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
@@ -246,7 +246,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-## 🛠️ Optimize Limits with Tool Filtering
+## 🛠️ Prevent Token Limits with Tool Filtering
 
 > **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (e.g., ProxySQL, MySQL Router, MySQL Shell) are used.
 
@@ -312,7 +312,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000)       |
+| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
@@ -333,7 +333,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ---
 
-## 💻 Extend and Contribute
+## 💻 Accelerate Development by Contributing
 
 [Contributing Guidelines](https://github.com/neverinfamous/mysql-mcp/blob/main/CONTRIBUTING.md) • [Security Policy](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) • [MIT License](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) • [Code of Conduct](https://github.com/neverinfamous/mysql-mcp/blob/main/CODE_OF_CONDUCT.md)
 

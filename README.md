@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+MySQL MCP delivers production-ready integration for AI agents. Slash token consumption and consolidate complex operations using Code Mode's isolated sandbox. Scale reliably with built-in connection pooling. Secure database access using strict OAuth 2.1 validation.
 
 ## 🎯 Leverage Core Benefits
 
@@ -98,11 +98,11 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ---
 
-## ⚡ Execute Code Mode (`mysql_execute_code`)
+## ⚡ Reduce Token Usage with Code Mode
 
 Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations in a secure JavaScript sandbox. It is included by default.
 
-Code executes in a **C++ V8 isolate sandbox**. The server uses a physically separate V8 isolate via `isolated-vm`. The server enforces strict heap limits and synchronous termination. The server maps all `mysql.*` API calls through the boundary using native wrappers. This includes multiple layers of defense-in-depth and fleet-standard restrictions:
+Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limits and synchronous termination. Native wrappers map all API calls across the boundary. This guarantees defense-in-depth and fleet-standard restrictions:
 
 ### Enforce Engine-Level Restrictions
 
@@ -142,7 +142,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ---
 
-## 🌐 Connect via HTTP & SSE Transports
+## 🌐 Enable Remote Access via HTTP & SSE
 
 Use the HTTP transport for remote access:
 
@@ -204,7 +204,7 @@ Legacy protocol (MCP 2024-11-05) — for clients like Python `mcp.client.sse`:
 | `GET`  | `/health`  | Health check (bypasses rate limiting, always available for monitoring) |
 | `GET`  | `/metrics` | Exports Prometheus metrics (available when `--metrics-export` is enabled) |
 
-## 🔐 Secure Access with Authentication
+## 🔐 Protect Your Data with Authentication
 
 mysql-mcp supports two authentication mechanisms for HTTP transport:
 
@@ -321,7 +321,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 
 ---
 
-## 🔗 Connect to Any Database
+## 🔗 Integrate Any MySQL Environment
 
 | Scenario                  | Host to Use               | Example Connection String                        |
 | ------------------------- | ------------------------- | ------------------------------------------------ |
@@ -381,7 +381,7 @@ Use the remote hostname directly:
 
 ---
 
-## 🛠️ Optimize Limits with Tool Filtering
+## 🛠️ Prevent Token Limits with Tool Filtering
 
 > [!IMPORTANT]
 > **AI IDEs like Cursor have strict tool limits. You MUST use tool filtering.** This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
@@ -605,7 +605,7 @@ Use this for automated clients requiring a minimal capability set.
 
 ---
 
-## 🤖 Execute AI Guided Workflows / Prompts
+## 🤖 Automate Tasks with Guided Workflows
 
 This server includes **intelligent prompts** for guided workflows:
 
@@ -619,7 +619,7 @@ This server includes **intelligent prompts** for guided workflows:
 
 ---
 
-## 📊 Monitor Health with Resources
+## 📊 Improve Observability with Resources
 
 This server exposes **a comprehensive set of resources** for database observability and telemetry:
 
@@ -636,7 +636,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.json` template at the root of the project for setup details.
+> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `mcp-config-example.json` template at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 
@@ -648,7 +648,7 @@ For specialized setups, see these Wiki pages:
 
 ---
 
-## ⚡ Tune Performance
+## ⚡ Maximize Server Performance
 
 The server caches schema metadata to reduce repeated queries during tool/resource invocations.
 
@@ -719,7 +719,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000)       |
+| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
@@ -738,7 +738,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 
-## 💻 Extend and Contribute
+## 💻 Accelerate Development by Contributing
 
 See **[From Source](#from-source)** above for setup. After cloning:
 
