@@ -38,7 +38,8 @@ MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM 
 
 ### Meet Prerequisites
 
-- Recent Node.js (v26+ recommended)
+- Recent Node.js (LTS recommended)
+- Bun >= 1.0
 - MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
 - pnpm
 
@@ -74,7 +75,7 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 #### Observability via Docker Compose
 
-Launch the minimal root-level observability stack, including the MCP server, Prometheus, and a pre-configured Grafana dashboard out-of-the-box:
+Launch the observability stack with MCP, Prometheus, and a pre-configured Grafana dashboard:
 
 ```bash
 docker-compose up -d
@@ -116,7 +117,7 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 
 ### Protect the Runtime
 
-- ✅ **RPC Quotas** — strict cap on RPC calls per execution to prevent unbounded loops.
+- ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — Enforces an execution timeout to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
@@ -338,7 +339,7 @@ If MySQL is installed directly on your computer (via installer, Homebrew, etc.):
 
 ### Connect to MySQL in Another Docker Container
 
-For local Docker setups, standardize on `host.docker.internal`. If you are using Docker Compose, you can use the service name `mysql` (or your specific container name) for docker-compose networking:
+For Docker setups, use `host.docker.internal`. For Docker Compose, use the `mysql` service name.
 
 Create a network and run MySQL:
 
@@ -438,7 +439,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 #### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 
-**Best for:** General MySQL database work with an AI agent. Exposes a single tool (`mysql_execute_code`) that provides access to its full toolset via a JavaScript sandbox.
+**Best for:** General MySQL AI agent tasks. Exposes `mysql_execute_code` for full sandboxed toolset access.
 
 ```json
 {
@@ -579,7 +580,7 @@ If you start with a negative filter (e.g., `-ecosystem`), it enables all tools f
 
 ### Customize Tool Selection
 
-You can list individual tool names (without `+` prefix) to create a fully custom whitelist — only the tools you specify will be enabled:
+List tool names without `+` prefix to create a custom whitelist.
 
 The easiest way to filter is using **whitelist mode**. Simply specify the shortcut you want. Everything else is automatically disabled.
 > **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (`router`, `proxysql`, `shell`) are used.
@@ -655,7 +656,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 > **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
 
-> **Built-in payload optimization:** Many tools support optional `summary: true` for condensed responses. They also support `limit` parameters to cap result sizes. These options condense large payloads for monitoring and sys schema tools. See the code map for per-tool details.
+> **Payload optimization:** Tools support `summary: true` and `limit` parameters. These condense large payloads.
 
 ---
 

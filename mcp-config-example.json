@@ -19,7 +19,7 @@
         "MYSQL_DATABASE": "testdb",
         "MYSQL_POOL_SIZE": "10",
         "TOOL_FILTER": "starter",
-        "ALLOWED_IO_ROOTS": "/app/data,C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
+        "ALLOWED_IO_ROOTS": "C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "AUDIT_LOG_PATH": "/tmp/mcp-sandbox/audit.jsonl",
@@ -38,7 +38,10 @@
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
-        "OAUTH_ENABLED": "false"
+        "OAUTH_ENABLED": "false",
+        "MCP_REQUEST_TIMEOUT": "600000",
+        "MCP_HEADERS_TIMEOUT": "5000",
+        "MCP_AUTH_TOKEN": "your-secure-auth-token"
       }
     }
   }

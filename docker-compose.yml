@@ -28,11 +28,13 @@ services:
     command: --innodb-use-native-aio=0 --innodb-flush-method=fsync
     ports:
       - "3306:3306"
+    env_file:
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_USER: mcp_user
-      MYSQL_PASSWORD: secure_password
-      MYSQL_DATABASE: testdb
+      MYSQL_USER: ${MYSQL_USER:-mcp_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secure_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-testdb}
     volumes:
       - mysql-data:/var/lib/mysql
 

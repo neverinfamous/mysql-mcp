@@ -74,14 +74,14 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
-- ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
+- ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
-- ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — 30s default limit to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
-- ✅ **Rate limiting** — Rate limited per client (default 60/min, configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+- ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — Configurable limit to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (Configurable).
+- ✅ **Rate limiting** — Rate limited per client (Configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — every execution logged with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
@@ -199,7 +199,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
 - ✅ **E2E transport parity** — Playwright suite validates HTTP/SSE security behavior
 
-## 🚨 **Follow Security Best Practices**
+## 🚨 **Security Best Practices**
 
 ### Follow Best Practices for Users
 
