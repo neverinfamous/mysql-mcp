@@ -427,7 +427,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       return res;
     },
     z.object({
-      database: z.string(),
+      database: z.string().optional(),
       db: z.string().optional(),
       dbName: z.string().optional(),
       schema: z.string().optional(),
@@ -440,11 +440,14 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       singleTransaction: z.boolean().optional().default(false),
     })
   ).transform((data) => ({
-    database: data.database,
+    database: data.database ?? "",
     tables: data.tables,
     noData: data.noData,
     singleTransaction: data.singleTransaction,
-  }));
+  }))
+  .refine((data) => data.database !== "", {
+    message: "database (or db/schema alias) is required",
+  });
 
   return {
     name: "mysql_create_dump",
