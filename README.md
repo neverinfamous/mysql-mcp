@@ -816,21 +816,21 @@ pnpm run bench
 
 ---
 
-## Contributing
+## Contribute to the Project
 
 Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
 
-## Security
+## Review Security Policy
 
 For security concerns, please see our [Security Policy](SECURITY.md).
 
 > **⚠️ Never commit credentials** - Store secrets in `.env` (gitignored)
 
-## License
+## View License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## Code of Conduct
+## Follow Code of Conduct
 
 Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
 
