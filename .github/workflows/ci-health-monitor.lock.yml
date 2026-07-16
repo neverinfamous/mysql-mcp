@@ -110,7 +110,7 @@ jobs:
         id: generate_aw_info
         env:
           GH_AW_INFO_ENGINE_ID: "copilot"
-          GH_AW_INFO_ENGINE_NAME: "GitHub Copilot CLI"
+          GH_AW_INFO_ENGINE_NAME: "gh copilot"
           GH_AW_INFO_MODEL: "claude-3-5-sonnet-latest"
           GH_AW_INFO_VERSION: "1.0.65"
           GH_AW_INFO_AGENT_VERSION: "1.0.65"
@@ -178,7 +178,7 @@ jobs:
             await main();
       - name: Validate COPILOT_GITHUB_TOKEN secret
         id: validate-secret
-        run: bash "${RUNNER_TEMP}/gh-aw/actions/validate_multi_secret.sh" COPILOT_GITHUB_TOKEN 'GitHub Copilot CLI' https://github.github.com/gh-aw/reference/engines/#github-copilot-default
+        run: bash "${RUNNER_TEMP}/gh-aw/actions/validate_multi_secret.sh" COPILOT_GITHUB_TOKEN 'gh copilot' https://github.github.com/gh-aw/reference/engines/#github-copilot-default
         env:
           COPILOT_GITHUB_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN }}
       - name: Checkout .github and .agents folders
@@ -455,7 +455,7 @@ jobs:
             setupGlobals(core, github, context, exec, io, getOctokit);
             const { main } = require('${{ runner.temp }}/gh-aw/actions/checkout_pr_branch.cjs');
             await main();
-      - name: Install GitHub Copilot CLI
+      - name: Install gh copilot
         run: bash "${RUNNER_TEMP}/gh-aw/actions/install_copilot_cli.sh" 1.0.65
         env:
           GH_HOST: github.com
@@ -751,7 +751,7 @@ jobs:
         id: pre_agent_audit
         continue-on-error: true
         run: bash "${RUNNER_TEMP}/gh-aw/actions/audit_pre_agent_workspace.sh"
-      - name: Execute GitHub Copilot CLI
+      - name: Execute gh copilot
         id: agentic_execution
         # Copilot CLI tool arguments (sorted):
         timeout-minutes: 15
@@ -1337,13 +1337,13 @@ jobs:
         with:
           node-version: '24'
           package-manager-cache: false
-      - name: Install GitHub Copilot CLI
+      - name: Install gh copilot
         run: bash "${RUNNER_TEMP}/gh-aw/actions/install_copilot_cli.sh" 1.0.65
         env:
           GH_HOST: github.com
       - name: Install AWF binary
         run: bash "${RUNNER_TEMP}/gh-aw/actions/install_awf_binary.sh" v0.27.11
-      - name: Execute GitHub Copilot CLI
+      - name: Execute gh copilot
         if: always() && steps.detection_guard.outputs.run_detection == 'true'
         continue-on-error: true
         id: detection_agentic_execution

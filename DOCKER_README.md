@@ -45,7 +45,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 #### Run with Docker (Recommended)
 
-> **Note on Namespaces:** The Docker image uses the `writenotenow` namespace (`writenotenow/mysql-mcp`), whereas the GitHub repository and NPM package use `neverinfamous` (`@neverinfamous/mysql-mcp`).
+> **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The repository and package use `neverinfamous`.
 
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
@@ -294,7 +294,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
+| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000)       |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.

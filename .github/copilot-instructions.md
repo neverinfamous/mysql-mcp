@@ -9,14 +9,14 @@
 
 ## Review the Project Overview
 
-mysql-mcp is the premier TypeScript MCP server for MySQL. It empowers LLMs with an extensive suite of specialized tools and resources.
+mysql-mcp is a production-grade TypeScript MCP server for MySQL. It empowers LLMs with an extensive suite of specialized tools and resources.
 
 ## Apply Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
 - **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
 - **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
 - **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
-- **Transports**: Supports `stdio`, streamable `http`, and legacy `sse` transports.
+- **Transports**: Supports `stdio`, streamable `http`, and standard `sse` transports.
 - **Validation**: Ensure mask data alias validation at the MCP boundary.
 - **Audit Tool**: Requires at least one filter to prevent payload bloat.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
@@ -128,7 +128,7 @@ When reviewing PRs, check for:
 - [ ] Verify the author has run tests locally (e.g., via pnpm run check)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Display value proposition blocks prominently in README.
+- [ ] Display value proposition blocks prominently in standard README.md (CRITICAL: Do NOT add value proposition blocks or marketing tone to AGENT_README.md)
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`

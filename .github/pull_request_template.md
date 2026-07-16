@@ -1,7 +1,3 @@
-## 💎 Value Proposition
-
-> MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
-
 ## Describe Your Changes
 
 Provide a brief, clear description of the changes.
@@ -36,7 +32,7 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have run tests locally (e.g., via `pnpm run check`)
 - [ ] I have enforced the Dual-Schema Pattern
 - [ ] I have ensured Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] I have displayed value proposition blocks prominently in the README
+- [ ] I have displayed value proposition blocks prominently in the README (excluding AGENT_README.md)
 - [ ] I have ensured the Docker readme is <= 25,000 chars
 - [ ] I have ensured table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] I have correctly configured the file system sandbox to enforce `ALLOWED_IO_ROOTS`

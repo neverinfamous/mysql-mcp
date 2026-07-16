@@ -2,7 +2,7 @@ services:
   mysql-mcp:
     build: .
     ports:
-      - "${MYSQLMCP_PORT:-3000}:3000"
+      - "${MYSQLMCP_PORT:-3000}:${MYSQLMCP_PORT:-3000}"
     command:
       - --transport
       - http

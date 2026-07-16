@@ -268,7 +268,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 > **Per-tool scope enforcement:** Scopes are enforced at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. When OAuth is not configured, scope checks are skipped entirely.
 
 > [!WARNING]
-> **HTTP without authentication:** When using `--transport http` without enabling OAuth or `--auth-token`, all clients have full unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
+> **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
 
 ### Configure Cursor or Claude Desktop
 
@@ -416,7 +416,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Leverage Available Tool Groups
 
-> Note: The tool groups below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
+> Note: These groups omit Code Mode. The server injects it automatically.
 
 To optimize AI context windows, tool groups are categorized into high-level domains. **[See the Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the exhaustive list.
 
@@ -710,7 +710,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 30000)        |
+| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000)       |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.

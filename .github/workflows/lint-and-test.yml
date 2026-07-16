@@ -64,6 +64,7 @@ jobs:
         run: pnpm run check
         env:
           MYSQL_TEST_URL: mysql://root:root@127.0.0.1:3307/testdb
+          REDIS_URL: redis://127.0.0.1:6379
 
   security-scan:
     runs-on: ubuntu-24.04

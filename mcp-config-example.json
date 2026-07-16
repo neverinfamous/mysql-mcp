@@ -34,7 +34,12 @@
         "MCP_REQUEST_TIMEOUT": "600000",
         "MCP_HEADERS_TIMEOUT": "600000",
         "MYSQL_ROUTER_URL": "https://localhost:8443",
+        "MYSQL_ROUTER_USER": "rest_api",
+        "MYSQL_ROUTER_PASSWORD": "password",
         "PROXYSQL_HOST": "localhost",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin",
         "OAUTH_ENABLED": "false"
       }
     }

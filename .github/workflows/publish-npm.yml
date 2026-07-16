@@ -84,11 +84,11 @@ jobs:
       - name: Verify version parameter
         if: github.event_name == 'workflow_dispatch'
         run: |
-          if [ -n "${{ github.event.inputs.version }}" ]; then
+          if [ -n "${{ inputs.version }}" ]; then
             PKG_VERSION="${{ steps.version.outputs.version }}"
-            if [ "$PKG_VERSION" != "${{ github.event.inputs.version }}" ]; then
+            if [ "$PKG_VERSION" != "${{ inputs.version }}" ]; then
               echo "Error: Version mismatch!"
-              echo "Expected: ${{ github.event.inputs.version }}"
+              echo "Expected: ${{ inputs.version }}"
               echo "Got: $PKG_VERSION"
               exit 1
             fi

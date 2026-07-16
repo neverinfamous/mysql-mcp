@@ -219,7 +219,7 @@ When adding a new tool:
 3. **Add structured error handling** by letting the handler return `formatHandlerError()` when exceptions are caught
 4. **Write meaningful Vitest tests** and update E2E spec files if making systemic changes
 5. **Add the tool to the group's help resource** (the markdown file under `src/constants/instructions/markdown/`)
-6. **Verify OAuth Scope** — ensure the new tool aligns with its group's defined OAuth 2.1 scope (`read`, `write`, or `admin`)
+6. **Verify OAuth Scope**. Ensure the new tool aligns with its group's base scope.
 
 ## 🐛 Report Bugs
 
