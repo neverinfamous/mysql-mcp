@@ -13,7 +13,6 @@ on:
       - "package.json"
       - "pnpm-lock.yaml"
   workflow_dispatch:
-  workflow_call:
 
 permissions:
   contents: read

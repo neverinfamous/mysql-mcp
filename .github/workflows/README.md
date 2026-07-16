@@ -3,7 +3,7 @@
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
 ## Value Proposition
-The **mysql-mcp** CI/CD pipeline delivers uncompromising security, high-performance testing, and automated, multi-architecture deployments. Engineered with intelligent agentic workflows and rigorous safety gates, it ensures consistently reliable releases with minimal manual overhead.
+The **mysql-mcp** CI/CD pipeline delivers uncompromising security, high-performance testing, and automated, multi-architecture deployments. It is engineered with intelligent agentic workflows and rigorous safety gates. It ensures consistently reliable releases with minimal manual overhead.
 
 ## Visualize the Workflow Map
 
@@ -43,10 +43,10 @@ flowchart LR
     PR --> LT
     PR --> CQL
     PR --> SS
+    PR --> SU
     PR --> DPD
 
     Tag --> Gate
-    Manual --> Gate
 
     Gate --> LT
     Gate --> CQL
@@ -60,6 +60,7 @@ flowchart LR
     Manual --> DP
     Manual --> CQL
     Manual --> CHM
+    Manual --> SU
     Manual --> DPD
 
     Sched --> CQL
@@ -130,7 +131,7 @@ push to tag (v*)
                 └── Publish to npm with SLSA provenance
 ```
 
-For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and publishing steps. `lint-and-test`, `codeql`, `secrets-scanning`, and `trivy` are blocking requirements that must pass before `docker-publish` and `publish-npm` are triggered.
+For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and publishing steps. The `lint-and-test`, `codeql`, `secrets-scanning`, and `trivy` jobs are blocking requirements. They must pass before `docker-publish` and `publish-npm` are triggered.
 
 ---
 

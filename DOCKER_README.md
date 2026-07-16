@@ -1,13 +1,13 @@
 # MySQL MCP Server
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.22%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-393%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Passing-green.svg) ![E2E](https://img.shields.io/badge/E2E-Passing-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## 💎 Value Proposition
 
-MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 ## 🎯 Leverage Core Benefits
 
@@ -73,14 +73,28 @@ Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating 
 
 Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 isolate via `isolated-vm`. It enforces strict heap limits and synchronous termination guarantees. The server maps all `mysql.*` API calls through the boundary using native wrappers. This provides:
 
-- **Strict Isolate Boundary** — Prevents native object cross-talk. It eliminates prototype pollution vectors.
-- **Comprehensive blocked patterns** — Blocks system commands and network access. Uses static regex rules.
-- **RPC Quotas** — Limits execution to strict RPC quotas. It prevents unbounded loops.
-- **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
-- **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
-- **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after a configurable timeout limit. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
-- **Full API access** — all tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
+### Enforce Engine-Level Restrictions
+
+- ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
+
+### Validate Code Statically
+
+- ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
+- ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
+
+### Protect the Runtime
+
+- ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — Enforces an execution timeout to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
+- ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
+- ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
+- ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
+- ✅ **Full API access** — Exposes all tool groups via the mysql.* namespace.
 
 ### ⚡ Run Only Code Mode
 

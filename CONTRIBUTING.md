@@ -1,6 +1,10 @@
 # Contributing to mysql-mcp
 
-Thank you for your interest in contributing to mysql-mcp! Join us in building a robust AI-database integration! We actively welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
+## 💎 Value Proposition
+
+MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+
+Thank you for your interest in contributing to mysql-mcp! Join us in building a robust AI-database integration! We welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
 
 ## 🚀 Start Quickly
 
@@ -16,9 +20,9 @@ Thank you for your interest in contributing to mysql-mcp! Join us in building a 
 
 - Recent Node.js (LTS recommended)
 - Bun >= 1.0 (for script execution)
-- Current pnpm version (e.g., v9+)
+- Current pnpm version
 - **Git** (for version control)
-- **MySQL 5.7, 8.0+, or 9.x** (local instance or Docker)
+- **MySQL** (local instance or Docker)
 - **Docker** (optional, for container testing)
 
 ### Develop Locally
@@ -77,7 +81,7 @@ We especially welcome contributions in these areas:
 ### Address Medium Priority Goals
 
 - **Enhanced Code Mode** `isolated-vm` operations and sandbox capabilities
-- **Additional MySQL 8.0+ feature coverage** (CTEs, window functions, JSON improvements)
+- **Additional MySQL feature coverage** (CTEs, window functions, JSON improvements)
 - **New MySQL extension integrations** (e.g., ProxySQL, MySQL Router)
 - **Documentation improvements** and Playwright end-to-end examples
 
@@ -162,7 +166,7 @@ docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:sec
 - **ESLint** — Run `pnpm run lint` to check, `pnpm run lint:fix` to auto-fix (when available)
 - **Prettier** — Formatting is handled automatically during the release workflow
 - **Type safety** — Avoid `any`; use proper types and Zod schemas
-- **Modularity** — Keep files under ~500 lines; split into sub-modules when approaching the limit
+- **Modularity** — Keep files concise; split into sub-modules when necessary
 - **Error handling** — Use structured `{success, error, code, category, suggestion, recoverable}` responses in tool handlers
 
 ### Name Files Consistently
@@ -210,7 +214,7 @@ Use the centralized logger with structured payloads. Include: `module`, `operati
 
 ## 🔧 Add or Modify Tools
 
-mysql-mcp organizes tools into various functional groups (e.g., core, schema, performance, security, ecosystem, and codemode).
+mysql-mcp organizes tools into various functional groups.
 
 When adding a new tool:
 

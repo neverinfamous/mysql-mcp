@@ -1,6 +1,10 @@
 # 🔒 Security Policy
 
-MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio, HTTP, and SSE transports using zero-trust, defense-in-depth methodologies.
+## 💎 Value Proposition
+
+MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+
+MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio, HTTP, and SSE transports. It uses zero-trust, defense-in-depth methodologies.
 
 ## 🛡️ **Secure Your Database**
 
@@ -113,7 +117,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 ### Apply Rate Limiting
 
-- ✅ **Built-in Rate Limiting** — Rate limited per IP (default 10000/min, configurable via `MCP_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+- ✅ **Built-in Rate Limiting** — Configurable rate limiting per IP. Configure limits via `MCP_RATE_LIMIT_MAX`. Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Health Endpoint Bypass** — `/health` bypasses limits to ensure reliable load balancer checks
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
 - ✅ **Slowloris DoS Protection** — configurable read timeouts via `MCP_REQUEST_TIMEOUT` and `MCP_HEADERS_TIMEOUT`
@@ -147,7 +151,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 ### Harden the Container
 
-- ✅ **Minimal base image**: `node:26-alpine`
+- ✅ **Minimal base image**: `node:<lts>-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: `npm prune --omit=dev` after build
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
@@ -199,7 +203,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
 - ✅ **E2E transport parity** — Playwright suite validates HTTP/SSE security behavior
 
-## 🚨 **Security Best Practices**
+## 🚨 **Adopt Security Best Practices**
 
 ### Follow Best Practices for Users
 
@@ -232,7 +236,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
 - [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
 - [x] Code Mode blocked patterns (comprehensive static regex rules + Unicode/NFKC validation)
-- [x] Code Mode RPC quotas (100 calls per execution)
+- [x] Code Mode RPC quotas (Configurable Code Mode RPC quotas)
 - [x] Code Mode egress streaming boundary (abort serialization on oversized results)
 - [x] Code Mode execution timeout (configurable, 30s default)
 - [x] Code Mode rate limiting (configurable via `CODEMODE_RATE_LIMIT_MAX`, Redis-backed with in-memory fallback)

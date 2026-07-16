@@ -46,17 +46,20 @@ export function createTimeSeriesToolStats(
         validateIdentifier(valueColumn, "column");
         validateIdentifier(timeColumn, "column");
 
+        const normalizedInterval = interval.toLowerCase();
         const validIntervals = ["minute", "hour", "day", "week", "month"];
-        if (!validIntervals.includes(interval)) {
+        if (!validIntervals.includes(normalizedInterval)) {
           throw new ValidationError(`Invalid interval: '${interval}' — expected one of: ${validIntervals.join(", ")}`);
         }
+        
+        const normalizedAggregation = aggregation.toLowerCase();
         const validAggregations = ["avg", "sum", "count", "min", "max"];
-        if (!validAggregations.includes(aggregation)) {
+        if (!validAggregations.includes(normalizedAggregation)) {
           throw new ValidationError(`Invalid aggregation: '${aggregation}' — expected one of: ${validAggregations.join(", ")}`);
         }
 
         let dateFormat: string;
-        switch (interval) {
+        switch (normalizedInterval) {
           case "minute":
             dateFormat = "%Y-%m-%d %H:%i:00";
             break;
@@ -77,7 +80,7 @@ export function createTimeSeriesToolStats(
         }
 
         const whereClause = where ? `WHERE ${where}` : "";
-        const aggFunc = aggregation.toUpperCase();
+        const aggFunc = normalizedAggregation.toUpperCase();
 
         const query = `
                 SELECT
