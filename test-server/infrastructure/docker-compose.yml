@@ -1,3 +1,4 @@
+name: infrastructure
 services:
   # ==========================================
   # INNODB CLUSTER
