@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_gr_status` | ✅  | N/A  | ✅  | N/A  |
-| `mysql_gr_members` | ✅  | N/A  | ✅  | N/A  |
+| `mysql_gr_status` |   |   |   |   |
+| `mysql_gr_members` |   |   |   |   |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_gr_status
-- [x] Ensure full coverage for mysql_gr_members
+- [ ] Ensure full coverage for mysql_gr_status
+- [ ] Ensure full coverage for mysql_gr_members
 
 
 ---

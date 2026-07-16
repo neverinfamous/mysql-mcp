@@ -185,8 +185,9 @@ export function createProxySQLMemoryStatsTool(): ToolDefinition {
       destructiveHint: false,
       sensitiveHint: false,
     },
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        ProxySQLBaseInputSchema.parse(params);
         const rows = await proxySQLQuery("SELECT * FROM stats_memory_metrics");
         return withTokenEstimate({
           success: true,
