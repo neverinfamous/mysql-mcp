@@ -1,6 +1,6 @@
 # Contributing to mysql-mcp
 
-Thank you for your interest in contributing to mysql-mcp! We welcome your contributions.
+Thank you for your interest in contributing to mysql-mcp! Join us in building the ultimate AI-database integration! We actively welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
 
 ## 🚀 Start Quickly
 
@@ -14,7 +14,7 @@ Thank you for your interest in contributing to mysql-mcp! We welcome your contri
 
 ### Meet Prerequisites
 
-- Node.js 24+
+- Recent Node.js (LTS recommended)
 - Bun >= 1.0 (for script execution)
 - Current pnpm version (e.g., v9+)
 - **Git** (for version control)
@@ -313,26 +313,23 @@ Available trailers:
 
 ### Understand the Architecture
 
-```
-src/
-├── adapters/       # MySQL queries, handlers, Zod schemas, prompts, and resources
-├── audit/          # JSONL audit trail with session token estimates, pre-mutation snapshots, interceptor
-├── auth/           # Transport-agnostic OAuth 2.1, scopes, RFC 6750 enforcement
-├── cli/            # CLI argument parsing and server bootstrap
-├── cli.ts          # Entry point
-├── codemode/       # Sandboxed JavaScript execution (Code Mode — VM & Worker Isolate)
-├── constants/      # Help content generation and dynamic server instructions
-├── logging/        # Structured logging
-├── observability/  # Tracing and metrics
-├── progress/       # Session progress tracking
-├── filtering/      # Tool filter parsing, group resolution
-├── pool/           # Connection pool management
-├── server/         # MCP server setup, handler registration
-├── transports/     # HTTP/SSE/stdio transport layer
-├── types/          # Core TypeScript types (errors, schema, mcp, oauth)
-├── utils/          # Logging, sanitization, validation, errors helpers
-└── index.ts        # Public API exports
-```
+The `mysql-mcp` project is organized into modular directories under `src/`:
+
+- `src/adapters/` — Database driver adapters and comprehensive suite of tool implementations using dual-schema validation.
+- `src/audit/` — JSONL forensic logging and token tracking
+- `src/auth/` — OAuth authentication flow
+- `src/cli/` — CLI argument parsing and help output
+- `src/codemode/` — Isolated-vm sandbox execution and TS type injection
+- `src/constants/` — Static strings, error codes, and configuration defaults
+- `src/filtering/` — Meta-group tool shortcuts and filtering logic
+- `src/logging/` — Console logging utilities
+- `src/observability/` — MCP resources and prompts for database diagnostics
+- `src/pool/` — MySQL connection pool management
+- `src/progress/` — Real-time progress notifications for long-running tasks
+- `src/server/` — Core MCP server initialization and request handling
+- `src/transports/` — Stdio, HTTP, and SSE transport layers
+- `src/types/` — Shared TypeScript interfaces and Zod schemas
+- `src/utils/` — Helper functions and common utilities
 
 ### Use Available Scripts
 

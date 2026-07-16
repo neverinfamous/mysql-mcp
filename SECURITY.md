@@ -1,6 +1,6 @@
 # 🔒 Security Policy
 
-The mysql-mcp server protects your databases. It secures stdio, HTTP, and SSE transports.
+MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio, HTTP, and SSE transports using zero-trust, defense-in-depth methodologies.
 
 ## 🛡️ **Secure Your Database**
 
@@ -147,7 +147,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 ### Harden the Container
 
-- ✅ **Minimal base image**: `node:lts-alpine`
+- ✅ **Minimal base image**: `node:26-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: `npm prune --omit=dev` after build
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)

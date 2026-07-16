@@ -11,7 +11,7 @@
 
 mysql-mcp is a production-grade TypeScript MCP server for MySQL. It empowers LLMs with an extensive suite of specialized tools and resources.
 
-## Apply Architecture Rules
+## Build Securely with Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
 - **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
 - **Code Mode** (`mysql_execute_code`) dramatically reduces token usage (70–90%).
@@ -35,7 +35,7 @@ For detailed session handoff context, search for entries tagged `session-summary
 
 Log review issues using `create_entry` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
 
-## Enforce Coding Standards
+## Ensure Excellence with Coding Standards
 
 ### Format Names Correctly
 

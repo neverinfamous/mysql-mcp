@@ -1,3 +1,5 @@
+Thank you for contributing to MySQL MCP—the production-ready integration engineered for AI agents!
+
 ## Describe Your Changes
 
 Provide a brief, clear description of the changes.

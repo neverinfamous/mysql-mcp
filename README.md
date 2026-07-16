@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-MySQL MCP is a production-ready integration engineered for AI agents. It reduces LLM token consumption by consolidating operations via sandboxed Code Mode. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
+MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 ## 🎯 Leverage Core Benefits
 
@@ -38,7 +38,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 
 ### Meet Prerequisites
 
-- Node.js 24+
+- Recent Node.js (v26+ recommended)
 - MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
 - pnpm
 
@@ -112,12 +112,12 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
-- ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
+- ✅ **Configurable limits (e.g., RPC quotas, execution timeouts, egress caps) code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
-- ✅ **RPC Quotas** — strict cap of 100 API calls per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — Enforces a 30s default limit to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
+- ✅ **RPC Quotas** — strict cap of Configurable limits (e.g., RPC quotas, execution timeouts, egress caps) per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — Enforces a Configurable limits (e.g., RPC quotas, execution timeouts, egress caps) to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
