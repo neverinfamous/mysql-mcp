@@ -70,7 +70,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_stats_regression` |   |   |   |   |
+| `mysql_stats_regression` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_stats_regression
+- [x] Ensure full coverage for mysql_stats_regression
 
 
 ---
