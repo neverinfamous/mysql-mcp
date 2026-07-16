@@ -10,7 +10,6 @@ import {
   withTokenEstimate,
 } from "../../core/error-helpers.js";
 import {
-  SummarySchemaBase,
   ClusterRouterStatusOutputSchema,
 } from "../../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
@@ -24,7 +23,7 @@ export function createClusterRouterStatusTool(
     title: "MySQL Cluster Router Status",
     description: "Get status of MySQL Routers connected to the cluster.",
     group: "cluster",
-    inputSchema: SummarySchemaBase,
+    inputSchema: SummarySchema,
     outputSchema: ClusterRouterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
