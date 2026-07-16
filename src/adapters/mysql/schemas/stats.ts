@@ -80,8 +80,8 @@ export const SampleOutputSchema = BaseOutputSchema.extend({
 
 export const CorrelationOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    columnX: z.string().optional(),
-    columnY: z.string().optional(),
+    column1: z.string().optional(),
+    column2: z.string().optional(),
     correlation: z.number().nullish(),
   }).loose().optional(),
 });
