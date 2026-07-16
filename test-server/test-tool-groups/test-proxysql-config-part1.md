@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_query_rules
-- [ ] Ensure full coverage for proxysql_users
+- [x] Ensure full coverage for proxysql_query_rules - Pass
+- [x] Ensure full coverage for proxysql_users - Pass
 
 
 ---

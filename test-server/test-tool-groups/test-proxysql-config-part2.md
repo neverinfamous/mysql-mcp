@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_global_variables` |   |   |   |   |
-| `proxysql_commands` |   |   |   |   |
+| `proxysql_global_variables` | ✅ | ✅ | ✅ | ✅ |
+| `proxysql_commands` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_global_variables
-- [ ] Ensure full coverage for proxysql_commands
+- [x] Ensure full coverage for proxysql_global_variables
+- [x] Ensure full coverage for proxysql_commands
 
 
 ---

@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_memory_stats` |   |   |   |   |
-| `proxysql_process_list` |   |   |   |   |
+| `proxysql_memory_stats` | Pass | Pass | Pass | N/A |
+| `proxysql_process_list` | Pass | Pass | Pass | N/A |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_memory_stats
-- [ ] Ensure full coverage for proxysql_process_list
+- [x] Ensure full coverage for proxysql_memory_stats
+- [x] Ensure full coverage for proxysql_process_list
 
 
 ---

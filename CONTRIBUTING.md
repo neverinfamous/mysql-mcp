@@ -199,7 +199,7 @@ Error logic should leverage the `MySQLMcpError` hierarchy. Our Auto-refinement s
 
 ### Log Structurally
 
-Use the centralized logger with structured payloads. Include: `module`, `operation`, `entityId`, `context`, and `stack` (for errors). Severity levels: `error`, `warning`, `info`, `debug`.
+Use the centralized logger with structured payloads. Include: `module`, `operation`, `entityId`, `context`, and `stack` (for errors). Severity levels: `error`, `warn`, `info`, `debug`.
 
 ### Consider Docker Optimization
 

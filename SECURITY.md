@@ -72,7 +72,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 ### Validate Code Statically
 
-- ✅ **comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
 - ✅ **50KB code input limit** — prevents payload-based resource exhaustion.
 
@@ -118,7 +118,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 - ✅ **Returns 429 Too Many Requests** with proper `Retry-After` headers when limits are exceeded
 - ✅ **Slowloris DoS Protection** — configurable read timeouts via `MCP_REQUEST_TIMEOUT` and `MCP_HEADERS_TIMEOUT`
 
-> **Reverse Proxy Note:** The server uses `req.socket.remoteAddress` for rate limiting. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. You must ensure your proxy forwards distinct client IPs. Alternatively, you can apply rate limiting at the proxy layer instead.
+> **Reverse Proxy Note:** The server uses `req.socket.remoteAddress` for rate limiting. Behind a reverse proxy (e.g., nginx, Cloudflare Tunnel), all requests may share the same source IP. You must ensure your proxy forwards distinct client IPs. Administrators can pass the `--trust-proxy` flag (or `TRUST_PROXY=true` env var) to instruct the server to trust the `X-Forwarded-For` header for accurate client IP rate-limiting. Alternatively, you can apply rate limiting at the proxy layer instead.
 
 ### Restrict Request Limits
 

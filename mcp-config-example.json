@@ -1,6 +1,8 @@
 {
   "mcpServers": {
     "mysql-mcp": {
+      "_comment_paths": "Paths assume local client execution without Docker.",
+      "_comment_timeout": "Client-side timeout is specified in seconds.",
       "command": "npx",
       "args": [
         "-y",

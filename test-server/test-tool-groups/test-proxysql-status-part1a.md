@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_status` |   |   |   |   |
-| `proxysql_servers` |   |   |   |   |
+| `proxysql_status` | Pass | Pass | Pass | Pass |
+| `proxysql_servers` | Pass | Pass | Pass | Pass |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_status
-- [ ] Ensure full coverage for proxysql_servers
+- [x] Ensure full coverage for proxysql_status
+- [x] Ensure full coverage for proxysql_servers
 
 
 ---

@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for proxysql_connection_pool
-- [ ] Ensure full coverage for proxysql_runtime_status
+- [x] Ensure full coverage for proxysql_connection_pool ✅ Pass
+- [x] Ensure full coverage for proxysql_runtime_status ✅ Pass
 
 
 ---

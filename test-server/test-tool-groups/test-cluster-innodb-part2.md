@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_cluster_router_status
-- [ ] Ensure full coverage for mysql_cluster_switchover
+- [x] Ensure full coverage for mysql_cluster_router_status ✅ Pass
+- [x] Ensure full coverage for mysql_cluster_switchover ✅ Pass
 
 
 ---
