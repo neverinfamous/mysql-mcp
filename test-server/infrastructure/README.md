@@ -3,7 +3,7 @@
 _Updated: July 2026_
 
 > **Value Proposition**
-> Ensure production-grade reliability with a comprehensive, lightweight test ecosystem. Instantly spin up a complete InnoDB Cluster, MySQL Router, and ProxySQL topology integrated with Datadog observability to rigorously validate your AI agents against complex database scenarios.
+> Ensure production-grade reliability with a comprehensive, lightweight test ecosystem. Instantly spin up a complete InnoDB Cluster. It includes MySQL Router and ProxySQL. It integrates Datadog observability. Rigorously validate AI agents against complex database scenarios.
 
 This directory contains the `docker-compose.yml` for the MySQL-focused test infrastructure used by mysql-mcp integration tests. It is a lightweight subset of the full Adamic unified database ecosystem, automatically synchronized via the `sync-test-infra` workflow.
 
@@ -26,17 +26,17 @@ docker compose up -d
 
 | Component | Container Name | Exposes / Ports | Image |
 |---|---|---|---|
-| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.1.0` |
-| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.1.0` |
-| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.1.0` |
-| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1.0` |
-| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2.6.3` |
-| **Redis** | `redis-server` | `6379` | `redis:7.4.0` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.9` |
-| **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4.8.1` |
-| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2.54.1` |
-| **Grafana** | `grafana` | `3001` | `grafana/grafana:11.2.0` |
-| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.0` |
+| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9` |
+| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9` |
+| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9` |
+| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `8443` | `container-registry.oracle.com/mysql/community-router:9` |
+| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2` |
+| **Redis** | `redis-server` | `6379` | `redis:7` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10` |
+| **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4` |
+| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2` |
+| **Grafana** | `grafana` | `3001` | `grafana/grafana:11` |
+| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7` |
 
 - **Datadog Dashboards**: [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
   *(Note: Backups of custom Datadog dashboards like Redis Laptop and MySQL Laptop are stored as JSON files in the `config/` directory).*

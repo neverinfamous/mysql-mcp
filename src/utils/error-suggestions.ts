@@ -183,12 +183,14 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "Check SQL syntax. Common issues: missing quotes, commas, parentheses, or reserved word conflicts.",
     category: ErrorCategory.QUERY,
+    code: "SYNTAX_ERROR",
   },
   {
     pattern: /syntax error/i,
     suggestion:
       "Check SQL syntax. Common issues: missing quotes, commas, parentheses, or reserved word conflicts.",
     category: ErrorCategory.QUERY,
+    code: "SYNTAX_ERROR",
   },
   {
     pattern: /Duplicate entry .* for key/i,

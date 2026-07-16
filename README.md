@@ -28,7 +28,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. It reduces
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics to pre-configured Grafana dashboards. |
+| **Observability**                     | Export Prometheus metrics to Grafana. Trace with Datadog eBPF / APM. Monitor logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
 
@@ -74,7 +74,7 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 #### Observability via Docker Compose
 
-Launch the full stack, including the MCP server, Prometheus, and a pre-configured Grafana dashboard out-of-the-box:
+Launch the minimal root-level observability stack, including the MCP server, Prometheus, and a pre-configured Grafana dashboard out-of-the-box:
 
 ```bash
 docker-compose up -d

@@ -147,7 +147,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 ### Harden the Container
 
-- ✅ **Minimal base image**: `node:26-alpine`
+- ✅ **Minimal base image**: `node:lts-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: `npm prune --omit=dev` after build
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
