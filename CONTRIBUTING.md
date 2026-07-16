@@ -1,8 +1,5 @@
 # Contributing to mysql-mcp
 
-## 💎 Value Proposition
-
-MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 Thank you for your interest in contributing to mysql-mcp! Join us in building a robust AI-database integration! We welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
 

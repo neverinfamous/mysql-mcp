@@ -22,6 +22,7 @@
       "maxDataSizeBytes": 1048576
     }
   },
+  "_comment_databases": "Only the first database in the array is currently connected/supported by the MySQL adapter.",
   "databases": [
     {
       "type": "mysql",

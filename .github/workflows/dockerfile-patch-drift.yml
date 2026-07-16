@@ -20,7 +20,7 @@ permissions:
 jobs:
   check-patches:
     runs-on: ubuntu-24.04
-    container: node:24-alpine
+    container: node:26-alpine
     timeout-minutes: 15
     steps:
       - name: Checkout code
@@ -36,11 +36,8 @@ jobs:
           # These are the versions we manually patch in the Dockerfile.
           # If npm's bundled version is already >= patched version, the patch is stale.
           declare -A PATCHES=(
-            ["diff"]="9.0.0"
-            ["@isaacs/brace-expansion"]="5.0.1"
-            ["tar"]="7.5.15"
+            ["tar"]="7.5.19"
             ["minimatch"]="10.2.5"
-            ["brace-expansion"]="5.0.6"
           )
 
           NPM_DIR="/usr/local/lib/node_modules/npm"

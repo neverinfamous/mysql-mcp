@@ -1,8 +1,5 @@
 # 🔒 Security Policy
 
-## 💎 Value Proposition
-
-MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM token consumption and consolidate complex operations securely using Code Mode's isolated JavaScript sandbox. It scales reliably through built-in connection pooling. It secures database access using strict OAuth 2.1 validation.
 
 MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio, HTTP, and SSE transports. It uses zero-trust, defense-in-depth methodologies.
 
@@ -161,7 +158,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
 
-- ✅ Transitive dependencies (such as npm bundled packages) are explicitly patched during container build to maintain Docker Scout compliance.
+- ✅ Transitive dependencies are explicitly patched during container build. This maintains Docker Scout compliance.
 
 ### Mount Volumes Securely
 
@@ -280,7 +277,7 @@ If you discover a security vulnerability:
 - **Status Update**: Within 7 days
 - **Fix Timeline**: Depends on severity
 
-We appreciate responsible disclosure and will acknowledge your contribution in our release notes (unless you prefer to remain anonymous).
+We appreciate responsible disclosure. We will acknowledge your contribution in our release notes.
 
 ## 🔄 **Apply Security Updates**
 

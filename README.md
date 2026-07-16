@@ -30,7 +30,7 @@ MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM 
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Observability**                     | Export Prometheus metrics to Grafana. Trace with Datadog eBPF / APM. Monitor logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
-| **Protocol Compliant**                | Support MCP 2024-11-05 with tool safety hints, resource priorities, and progress notifications. |
+| **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
 ---
 
@@ -39,8 +39,8 @@ MySQL MCP is a production-ready integration engineered for AI agents. Slash LLM 
 ### Meet Prerequisites
 
 - Recent Node.js (LTS recommended)
-- Bun >= 1.0
-- MySQL 5.7, 8.0+, or 9.x (supported with limitations regarding Shell driver versions) server
+- Bun
+- MySQL 5.7+ server
 - pnpm
 
 ### Install the Server
@@ -285,7 +285,8 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
         "stdio",
         "--mysql",
         "mysql://mcp_user:secure_password@localhost:3306/testdb"
-      ]
+      ],
+      "timeout": 600
     }
   }
 }
@@ -306,7 +307,8 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
         "MYSQL_XPORT": "33060"
-      }
+      },
+      "timeout": 600
     }
   }
 }
