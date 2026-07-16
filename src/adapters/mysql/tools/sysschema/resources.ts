@@ -70,11 +70,11 @@ const SchemaStatsSchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as { schema?: unknown; database?: unknown; db?: unknown; schemaName?: unknown; limit?: unknown };
+    const v = val as { schema?: unknown; database?: unknown; db?: unknown; schemaName?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
       ...val,
       schema: v.schema ?? v.database ?? v.db ?? v.schemaName,
-      limit: v.limit,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
@@ -83,6 +83,8 @@ const SchemaStatsSchema = z.preprocess(
     database: z.any().optional(),
     db: z.any().optional(),
     schemaName: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
