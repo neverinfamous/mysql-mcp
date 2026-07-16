@@ -24,6 +24,7 @@ import type {
 import { ConnectionError } from "../../../types/index.js";
 import { logger } from "../../../utils/logger.js";
 import { VERSION } from "../../../version.js";
+import { metrics } from "../../../observability/metrics.js";
 
 import { SchemaManager } from "../schema-manager.js";
 import { TransactionManager } from "./transactions.js";
@@ -87,6 +88,11 @@ export class MySQLAdapter extends DatabaseAdapter {
 
     try {
       await this.pool.initialize();
+      const pool = this.pool;
+      metrics.setPoolStatsProvider(() => {
+        if (pool === null) return { total: 0, active: 0, idle: 0, waiting: 0, totalQueries: 0 };
+        return pool.getStats();
+      });
       this.connected = true;
       logger.info("MySQL adapter connected", {
         host: poolConfig.host,

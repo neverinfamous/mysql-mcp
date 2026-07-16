@@ -8,6 +8,7 @@
 
 import type { SystemDb } from "./system-db.js";
 import { logger } from "../utils/logger.js";
+import type { PoolStats } from "../types/modules/database.js";
 
 const MAX_SAMPLES = 1000;
 
@@ -145,6 +146,11 @@ export class MetricsRegistry {
   private systemDb: SystemDb | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
+  private poolStatsProvider: (() => PoolStats) | null = null;
+
+  setPoolStatsProvider(fn: () => PoolStats): void {
+    this.poolStatsProvider = fn;
+  }
 
   constructor() {
     // Pre-register known resources so they emit 0 on startup.
@@ -398,6 +404,27 @@ export class MetricsRegistry {
     lines.push("# HELP mysql_mcp_cache_misses_total Total schema cache misses");
     lines.push("# TYPE mysql_mcp_cache_misses_total gauge");
     lines.push(`mysql_mcp_cache_misses_total ${cacheSummary.misses}`);
+
+    // Pool metrics
+    if (this.poolStatsProvider) {
+      const poolStats = this.poolStatsProvider();
+      
+      lines.push("# HELP mysql_mcp_pool_connections_total Total connection slots in pool");
+      lines.push("# TYPE mysql_mcp_pool_connections_total gauge");
+      lines.push(`mysql_mcp_pool_connections_total ${poolStats.total}`);
+      
+      lines.push("# HELP mysql_mcp_pool_connections_active Currently in-use connections");
+      lines.push("# TYPE mysql_mcp_pool_connections_active gauge");
+      lines.push(`mysql_mcp_pool_connections_active ${poolStats.active}`);
+      
+      lines.push("# HELP mysql_mcp_pool_connections_idle Available idle connections");
+      lines.push("# TYPE mysql_mcp_pool_connections_idle gauge");
+      lines.push(`mysql_mcp_pool_connections_idle ${poolStats.idle}`);
+      
+      lines.push("# HELP mysql_mcp_pool_queries_total Cumulative queries through pool");
+      lines.push("# TYPE mysql_mcp_pool_queries_total gauge");
+      lines.push(`mysql_mcp_pool_queries_total ${poolStats.totalQueries}`);
+    }
 
     // Server uptime
     lines.push("# HELP mysql_mcp_uptime_seconds Server uptime in seconds");

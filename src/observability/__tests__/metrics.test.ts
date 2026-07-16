@@ -108,6 +108,30 @@ describe("metrics", () => {
       const prom = metrics.toPrometheus();
       expect(prom).toContain('mysql_mcp_tool_tokens_per_call{tool="zero_token_tool"} 0');
     });
+
+    it("should omit pool metrics when provider is not set", () => {
+      const prom = metrics.toPrometheus();
+      expect(prom).not.toContain("mysql_mcp_pool_connections_total");
+      expect(prom).not.toContain("mysql_mcp_pool_connections_active");
+      expect(prom).not.toContain("mysql_mcp_pool_connections_idle");
+      expect(prom).not.toContain("mysql_mcp_pool_queries_total");
+    });
+
+    it("should include pool metrics when provider is set", () => {
+      metrics.setPoolStatsProvider(() => ({
+        total: 10,
+        active: 3,
+        idle: 7,
+        waiting: 0,
+        totalQueries: 42
+      }));
+
+      const prom = metrics.toPrometheus();
+      expect(prom).toContain("mysql_mcp_pool_connections_total 10");
+      expect(prom).toContain("mysql_mcp_pool_connections_active 3");
+      expect(prom).toContain("mysql_mcp_pool_connections_idle 7");
+      expect(prom).toContain("mysql_mcp_pool_queries_total 42");
+    });
   });
 
   describe("SystemDb Integration", () => {

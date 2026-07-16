@@ -185,8 +185,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.toLowerCase().includes("unknown database")) {
-            // Let formatHandlerErrorResponse handle this, it knows how to map it to SCHEMA_NOT_FOUND.
-            return formatHandlerErrorResponse(new Error(`Schema '${schema ?? "unknown"}' does not exist`));
+            return withTokenEstimate({
+              success: false,
+              error: `Schema '${schema ?? "unknown"}' does not exist`,
+              code: "SCHEMA_NOT_FOUND",
+              category: "resource",
+            });
           }
           if (message.toLowerCase().includes("already exists")) {
             return formatHandlerErrorResponse(
