@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process";
 import os from "node:os";
 
-const ports = [3002, 3101, 3160, 3161, 3162, 3163];
+const ports = [3101, 3160, 3161, 3162, 3163];
 
 console.log(`[cleanup] Checking for orphaned test servers on ports: ${ports.join(", ")}...`);
 

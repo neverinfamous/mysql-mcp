@@ -15,7 +15,7 @@ import { expect } from "@playwright/test";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
 
-export const BASE_URL = "http://127.0.0.1:3002";
+export const BASE_URL = "http://127.0.0.1:3101";
 export const SSE_CONNECT_TIMEOUT_MS = 3000;
 export const HEALTH_QUERY = "SELECT 1";
 
@@ -66,7 +66,7 @@ export function auditLogPath(prefix: string, suffix: string): string {
 /**
  * Create a connected MCP client via SSE transport.
  *
- * @param baseURL - Server base URL. Defaults to `http://localhost:3002`.
+ * @param baseURL - Server base URL. Defaults to `http://localhost:3101`.
  */
 export async function createClient(baseURL?: string): Promise<Client> {
   const url = new URL(`${baseURL ?? BASE_URL}/sse`);
