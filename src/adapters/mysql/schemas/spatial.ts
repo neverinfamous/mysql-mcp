@@ -102,16 +102,29 @@ export const SpatialIndexSchema = z.preprocess(
 
 export const PointSchemaBase = z.object({
   longitude: z.unknown().optional().describe("Longitude coordinate"),
+  lon: z.unknown().optional(),
+  lng: z.unknown().optional(),
   latitude: z.unknown().optional().describe("Latitude coordinate"),
+  lat: z.unknown().optional(),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
-export const PointSchema = z
-  .object({
+export const PointSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val ?? {};
+    const data = val as Record<string, unknown>;
+    
+    const lon = data["longitude"] ?? data["lon"] ?? data["lng"];
+    const lat = data["latitude"] ?? data["lat"];
+
+    return { ...data, longitude: lon, latitude: lat };
+  },
+  z.object({
     longitude: z.unknown().optional(),
     latitude: z.unknown().optional(),
     srid: z.unknown().optional(),
   })
+)
   .transform((data) => ({
     longitude: Number(data.longitude),
     latitude: Number(data.latitude),
