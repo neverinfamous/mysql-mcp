@@ -70,7 +70,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_json_keys` |   |   |   |   |
+| `mysql_json_keys` | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -93,7 +93,7 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_keys
+- [x] Ensure full coverage for mysql_json_keys
 
 
 ---
