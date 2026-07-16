@@ -21,6 +21,7 @@ permissions:
 jobs:
   check-patches:
     runs-on: ubuntu-24.04
+    container: node:24-alpine
     timeout-minutes: 15
     steps:
       - name: Checkout code

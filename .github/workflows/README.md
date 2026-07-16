@@ -2,6 +2,9 @@
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
+## Value Proposition
+The **mysql-mcp** CI/CD pipeline delivers uncompromising security, high-performance testing, and automated, multi-architecture deployments. Engineered with intelligent agentic workflows and rigorous safety gates, it ensures consistently reliable releases with minimal manual overhead.
+
 ## Visualize the Workflow Map
 
 ```mermaid
@@ -25,8 +28,7 @@ flowchart LR
     subgraph Security["Security"]
         CQL["codeql"]
         SS["secrets-scanning"]
-        Trivy["trivy"]
-        SU["security-update"]
+        SU["security-update (trivy)"]
     end
 
     subgraph Release_["Release"]
@@ -49,12 +51,10 @@ flowchart LR
     Gate --> LT
     Gate --> CQL
     Gate --> SS
-    Gate --> Trivy
+    Gate --> SU
 
-    LT & CQL & SS & Trivy --> DP
-    LT & CQL & SS & Trivy --> NPM
-    
-    Trivy -. invokes .-> SU
+    LT & CQL & SS & SU --> DP
+    LT & CQL & SS & SU --> NPM
 
     Manual --> NPM
     Manual --> DP
@@ -76,8 +76,8 @@ flowchart LR
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests (Node [24.x, 26.x] matrix), pnpm audit, Docker smoke test (build + HTTP start) |
-| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects when manually patched transitive dependencies in the Dockerfile have drifted from npm bundles |
+| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests (supported Node.js versions matrix), pnpm audit, Docker smoke test (build + HTTP start) |
+| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual / workflow_call | Detects when manually patched transitive dependencies in the Dockerfile have drifted from npm bundles |
 
 ### Secure the Pipeline
 
@@ -85,13 +85,13 @@ flowchart LR
 | ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------- |
 | [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` (security-extended and security-and-quality) |
 | [secrets-scanning.yml](secrets-scanning.yml) | `workflow_call` from gatekeeper / PR                      | TruffleHog (verified secrets) + Gitleaks scanning                     |
-| [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule | Trivy vulnerability scanning |
+| [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule / PR / manual | Trivy vulnerability scanning |
 
 ### Publish Reliable Releases
 
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scan (Docker Scout + Trivy), smoke test, multi-arch build (amd64 + arm64), manifest merge, Docker Hub description update                 |
+| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scan (Docker Scout + Trivy), smoke test, multi-arch build, manifest merge, Docker Hub description update                 |
 | [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Version verification, build, publish to npm with `--provenance` (SLSA Build L3)                                                                   |
 
 ### Automate with Agentic Workflows
@@ -112,7 +112,7 @@ The full release flow is orchestrated by `gatekeeper.yml` when a tag (e.g., `vX.
 push to tag (v*)
   → gatekeeper
       ├── lint-and-test
-      │     ├── lint (Node 24.x + 26.x matrix)
+      │     ├── lint (supported Node.js versions matrix)
       │     ├── security-scan (pnpm audit)
       │     └── docker-smoke-test (build + HTTP start)
       ├── codeql
@@ -122,7 +122,7 @@ push to tag (v*)
           ├── docker-publish
           │     ├── security-scan (Docker Scout)
           │     ├── smoke-test (binary load + HTTP start)
-          │     ├── build-platform (amd64 + arm64)
+          │     ├── build-platform
           │     │     ↓ all platforms built
           │     └── merge-and-push (multi-arch manifest)
           └── publish-npm

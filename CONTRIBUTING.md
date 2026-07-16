@@ -1,6 +1,6 @@
 # Contributing to mysql-mcp
 
-Thank you for your interest in contributing to mysql-mcp! Join us in building the ultimate AI-database integration! We actively welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
+Thank you for your interest in contributing to mysql-mcp! Join us in building a robust AI-database integration! We actively welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
 
 ## 🚀 Start Quickly
 

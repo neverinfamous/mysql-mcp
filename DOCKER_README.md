@@ -75,11 +75,11 @@ Code executes in a **C++ V8 isolate sandbox**. It uses a physically separate V8 
 
 - **Strict Isolate Boundary** — Prevents native object cross-talk. It eliminates prototype pollution vectors.
 - **Comprehensive blocked patterns** — Blocks system commands and network access. Uses static regex rules.
-- **RPC Quotas** — Limits execution to Configurable limits (e.g., RPC quotas, execution timeouts, egress caps). It prevents unbounded loops.
+- **RPC Quotas** — Limits execution to strict RPC quotas. It prevents unbounded loops.
 - **Egress boundary enforcement** — result serialization aborted mid-flight when exceeding configurable limit (default 100KB)
 - **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing
-- **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after a Configurable limits (e.g., RPC quotas, execution timeouts, egress caps). Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
+- **Hard timeouts** — Enforces synchronous engine-level termination. It stops execution after a configurable timeout limit. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - **Full API access** — all tool groups are available via `mysql.*` (e.g., `mysql.core.readQuery()`, `mysql.json.extract()`)
 
 ### ⚡ Run Only Code Mode

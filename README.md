@@ -112,12 +112,12 @@ Code executes in a **C++ V8 isolate sandbox**. The server uses a physically sepa
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
-- ✅ **Configurable limits (e.g., RPC quotas, execution timeouts, egress caps) code input limit** — prevents payload-based resource exhaustion.
+- ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
-- ✅ **RPC Quotas** — strict cap of Configurable limits (e.g., RPC quotas, execution timeouts, egress caps) per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — Enforces a Configurable limits (e.g., RPC quotas, execution timeouts, egress caps) to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
+- ✅ **RPC Quotas** — strict cap on RPC calls per execution to prevent unbounded loops.
+- ✅ **Execution timeout** — Enforces an execution timeout to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
