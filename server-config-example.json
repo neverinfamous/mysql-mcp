@@ -32,6 +32,7 @@
       "database": "testdb",
       "pool": {
         "connectionLimit": 10,
+        "_comment_acquireTimeout": "recommended lower value for tight integration",
         "acquireTimeout": 10000,
         "waitForConnections": true,
         "queueLimit": 0
@@ -45,5 +46,5 @@
     "jwksUri": "https://auth.example.com/.well-known/jwks.json",
     "clockTolerance": 60
   },
-  "_comment": "redisUrl, codeModeIsolation, proxySql, mysqlRouter, mysqlsh, and logLevel features are injected via environment variables only (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser."
+  "_comment": "redisUrl, codeModeIsolation, proxySql, mysqlRouter, mysqlsh, and logLevel features, as well as CODE_MODE_MAX_RESULT_SIZE, METADATA_CACHE_TTL_MS, MCP_RATE_LIMIT_MAX, CODEMODE_RATE_LIMIT_MAX, MCP_REQUEST_TIMEOUT, and MCP_HEADERS_TIMEOUT are injected via environment variables only (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser."
 }

@@ -679,7 +679,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
-| `--metrics-export`        | `MCP_METRICS_EXPORT`    | Enable prometheus metrics endpoint                  |
+| `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
 | `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
