@@ -78,7 +78,7 @@ flowchart LR
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
 | [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests (supported Node.js versions matrix), pnpm audit, Docker smoke test (build + HTTP start) |
-| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual / workflow_call | Detects when manually patched transitive dependencies in the Dockerfile have drifted from npm bundles |
+| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects when manually patched transitive dependencies in the Dockerfile have drifted from npm bundles |
 
 ### Secure the Pipeline
 

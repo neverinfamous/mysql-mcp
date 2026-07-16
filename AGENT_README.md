@@ -25,7 +25,7 @@ When committing changes to `mysql-mcp`, you **MUST** adhere to the following rul
 
 1. **Strict Validation**: Always run `pnpm run check` before finalizing tasks. This handles linting, typechecking, Vitest unit tests, and Playwright E2E validations. 
 2. **Never Bypass Checks**: Do not use `@ts-ignore`, `eslint-disable`, or `test.skip()`. Hard-fail on security gates. Fix the root cause.
-3. **Structured Errors Only**: Handlers must **never** throw raw exceptions (or leak MCP protocol errors). Always wrap failures in the `ErrorResponse` interface using `formatHandlerError()` (e.g., returning `{ success: false, error: "...", code: "NOT_FOUND", category: "query" }`).
+3. **Structured Errors Only**: Handlers must **never** throw raw exceptions (or leak MCP protocol errors). Always wrap failures in the `ErrorResponse` interface using `formatHandlerError()` (e.g., returning `{ success: false, error: "...", code: "NOT_FOUND", category: "query", suggestion: "...", recoverable: true }`).
 4. **Decentralized Zod Schemas**: Input schemas live in `src/adapters/mysql/schemas/`. Do not clutter handler logic with inline schemas. Use the dual-schema pattern (`Base` vs `Preprocess`) to handle parameter aliasing cleanly.
 
 ---
