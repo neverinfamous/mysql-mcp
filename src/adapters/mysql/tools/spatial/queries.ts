@@ -115,7 +115,8 @@ export function createSpatialDistanceTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
-          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const paramsRec = params as Record<string, unknown> | undefined;
+          const tblObj = paramsRec?.['table'] ?? paramsRec?.['tableName'] ?? paramsRec?.['name'];
           const tbl = typeof tblObj === "string" ? tblObj : "unknown";
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
@@ -207,7 +208,8 @@ export function createSpatialDistanceSphereTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
-          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const paramsRec = params as Record<string, unknown> | undefined;
+          const tblObj = paramsRec?.['table'] ?? paramsRec?.['tableName'] ?? paramsRec?.['name'];
           const tbl = typeof tblObj === "string" ? tblObj : "unknown";
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
@@ -277,7 +279,8 @@ export function createSpatialContainsTool(
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
-          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const paramsRec = params as Record<string, unknown> | undefined;
+          const tblObj = paramsRec?.['table'] ?? paramsRec?.['tableName'] ?? paramsRec?.['name'];
           const tbl = typeof tblObj === "string" ? tblObj : "unknown";
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
@@ -344,7 +347,8 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Table") && (msg.includes("does not exist") || msg.includes("doesn't exist"))) {
-          const tblObj = (params as Record<string, unknown>)?.[`table`];
+          const paramsRec = params as Record<string, unknown> | undefined;
+          const tblObj = paramsRec?.['table'] ?? paramsRec?.['tableName'] ?? paramsRec?.['name'];
           const tbl = typeof tblObj === "string" ? tblObj : "unknown";
           return withTokenEstimate({
             success: false, error: `Table '${tbl}' does not exist`, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false,
