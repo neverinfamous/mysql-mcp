@@ -411,15 +411,28 @@ export const ServerHealthSchemaBase = z.object({
   summary: z.boolean().optional().describe("Return key metrics only"),
   format: z.string().optional().describe("Alias for summary"),
   raw: z.boolean().optional().describe("Alias for summary"),
-});
+}).strict();
 
 export const ServerHealthSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
-      const data = { ...(obj as Record<string, unknown>) };
-      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") data["summary"] = false;
-      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
-      return data;
+      const dataObj = { ...obj };
+      let summaryVal: unknown = undefined;
+      let formatVal: unknown = undefined;
+      let rawVal: unknown = undefined;
+      
+      if ("summary" in dataObj) summaryVal = (dataObj as { summary?: unknown }).summary;
+      if ("format" in dataObj) formatVal = (dataObj as { format?: unknown }).format;
+      if ("raw" in dataObj) rawVal = (dataObj as { raw?: unknown }).raw;
+      
+      if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true") summaryVal = false;
+      if (typeof summaryVal === "string") summaryVal = summaryVal === "true";
+      
+      if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
+      if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
+      if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
+      
+      return dataObj;
     }
     return obj ?? {};
   },
