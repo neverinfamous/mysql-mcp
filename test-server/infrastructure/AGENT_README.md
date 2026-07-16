@@ -119,6 +119,7 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Redis | `localhost:6379` |
 | Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
+| Datadog Local Backups | `config/datadog-*.json` (e.g. Redis Laptop, MySQL Laptop) |
 | Datadog Host Map | `https://app.datadoghq.com/infrastructure/map` (look for `adamic-wsl2`) |
 | Datadog Containers | `https://app.datadoghq.com/containers` |
 | Datadog Live Processes | `https://app.datadoghq.com/process` |

@@ -39,6 +39,7 @@ docker compose up -d
 | **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.0` |
 
 - **Datadog Dashboards**: [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
+  *(Note: Backups of custom Datadog dashboards like Redis Laptop and MySQL Laptop are stored as JSON files in the `config/` directory).*
 
 ## 3. Datadog Agent
 
@@ -81,7 +82,7 @@ All config files are mounted directly from the `config/` directory:
 - `config/proxysql/`: `proxysql.cnf`
 - `config/prometheus/`: `prometheus.yml`
 - `config/grafana/`: Dashboards and provisioning files.
-- `config/datadog-integration-configs/`: Integration configs for MySQL and Redis checks (ProxySQL uses Docker Autodiscovery labels instead), plus host system check defaults (cpu, memory, disk, io, load, network, ntp, file_handle, uptime).
+- `config/datadog-integration-configs/`: Legacy file-based integration configs for database checks (All databases now primarily use Docker Autodiscovery labels in `docker-compose.yml`) plus host system check defaults (cpu, memory, disk, io, load, network, ntp, file_handle, uptime).
 - `config/mysql-router/`: Initializes the router with `bootstrap_ro.connection_sharing=1` to prevent connection exhaustion during high-concurrency testing.
 
 ## 7. Troubleshooting: WSL Background Termination
