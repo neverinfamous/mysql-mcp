@@ -39,20 +39,20 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
 
         const whereClause = where ? `WHERE ${where}` : "";
 
-        // Get all unique top-level keys
+        const sampleSubquery = `(SELECT \`${column}\` FROM ${escapeQualifiedTable(table)} ${whereClause} LIMIT ${String(limit)})`;
+
+        // Get all unique top-level keys from the sample
         const keysQuery = `
                 SELECT DISTINCT jt.key_name
-                FROM ${escapeQualifiedTable(table)},
+                FROM ${sampleSubquery} as sample,
                 JSON_TABLE(
-                    JSON_KEYS(\`${column}\`),
+                    JSON_KEYS(sample.\`${column}\`),
                     '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')
                 ) as jt
-                ${whereClause}
-                LIMIT ${String(limit)}
             `;
 
         const keysResult = await adapter.executeQuery(keysQuery);
-        const uniqueKeys = (keysResult.rows ?? []).map((r) => r["key_name"]);
+        const uniqueKeys = (keysResult.rows ?? []).map((r) => String(r["key_name"]));
 
         // Get type distribution for each key
         const keyStats: Record<string, unknown>[] = [];
@@ -60,10 +60,9 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
           // Limit to 20 keys
           const typeQuery = `
                     SELECT 
-                        JSON_TYPE(JSON_EXTRACT(\`${column}\`, CONCAT('$.', ?))) as value_type,
+                        JSON_TYPE(JSON_EXTRACT(sample.\`${column}\`, CONCAT('$.', ?))) as value_type,
                         COUNT(*) as count
-                    FROM ${escapeQualifiedTable(table)}
-                    ${whereClause}
+                    FROM ${sampleSubquery} as sample
                     GROUP BY value_type
                 `;
           const typeResult = await adapter.executeQuery(typeQuery, [key]);
