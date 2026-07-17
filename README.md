@@ -34,6 +34,36 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 
 ---
 
+## 🤖 Automate Tasks with Guided Workflows
+
+This server includes **intelligent prompts** for guided workflows:
+
+| Prompt                        | Description                                            |
+| ----------------------------- | ------------------------------------------------------ |
+| `mysql_tool_index`            | Complete tool index with categories                    |
+| `mysql_quick_query`           | Quick query execution shortcut                         |
+| `mysql_quick_schema`          | Quick schema exploration                               |
+
+> **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
+
+---
+
+## 📊 Improve Observability with Resources
+
+This server exposes **a comprehensive set of resources** for database observability and telemetry:
+
+| Resource                | Description                                 |
+| ----------------------- | ------------------------------------------- |
+| `mysql://schema`        | Full database schema                                   |
+| `mysql://tables`        | Table listing with metadata                            |
+| `mysql://table/{name}`  | Specific Table Schema                                  |
+| `mysql://sysschema`     | Sys Schema Diagnostics                                 |
+| `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
+
+> **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
+
+---
+
 ## 🚀 Deploy Your AI Database in Minutes
 
 ### Meet Prerequisites
@@ -125,9 +155,9 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — Per-client limits (`CODEMODE_RATE_LIMIT_MAX`). Uses Redis with in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
-- ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
+- ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
-- ✅ **Full API access** — Exposes all tool groups via the mysql.* namespace.
+- ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.
 
 ### ⚡ Run Only Code Mode
 
@@ -145,6 +175,15 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 ---
 
 ## 🌐 Enable Remote Access via HTTP & SSE
+
+> **When to use HTTP mode:** Deploy `mysql-mcp` as a standalone server. Multiple clients can connect remotely. Use `stdio` mode for local development.
+
+**Use cases for HTTP mode:**
+
+- Run the server in a network-accessible Docker container
+- Deploy to cloud platforms (AWS, GCP, Azure)
+- Enable OAuth 2.1 authentication for enterprise security
+- Share one database connection across multiple AI clients
 
 Use the HTTP transport for remote access:
 
@@ -611,36 +650,6 @@ The easiest way to filter is using **whitelist mode**. Simply specify the shortc
 Use this for automated clients requiring a minimal capability set.
 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for advanced examples.
-
----
-
-## 🤖 Automate Tasks with Guided Workflows
-
-This server includes **intelligent prompts** for guided workflows:
-
-| Prompt                        | Description                                            |
-| ----------------------------- | ------------------------------------------------------ |
-| `mysql_tool_index`            | Complete tool index with categories                    |
-| `mysql_quick_query`           | Quick query execution shortcut                         |
-| `mysql_quick_schema`          | Quick schema exploration                               |
-
-> **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
-
----
-
-## 📊 Improve Observability with Resources
-
-This server exposes **a comprehensive set of resources** for database observability and telemetry:
-
-| Resource                | Description                                 |
-| ----------------------- | ------------------------------------------- |
-| `mysql://schema`        | Full database schema                                   |
-| `mysql://tables`        | Table listing with metadata                            |
-| `mysql://table/{name}`  | Specific Table Schema                                  |
-| `mysql://sysschema`     | Sys Schema Diagnostics                                 |
-| `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
-
-> **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
 
 ---
 

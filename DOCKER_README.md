@@ -38,7 +38,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | `mysql_quick_query` | Quick query execution shortcut |
 | `mysql_quick_schema` | Quick schema exploration |
 
-> **Note**: This is a subset of available workflows/resources. The server exposes many more.
+> **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
 
 ### 📊 Improve Observability with Resources
 
@@ -48,7 +48,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | `mysql://tables` | Table listing with metadata |
 | `mysql://sysschema` | Sys Schema Diagnostics |
 
-> **Note**: This is a subset of available workflows/resources. The server exposes many more.
+> **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
 
 ---
 
@@ -59,13 +59,13 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 - Docker or Docker Desktop
 - MySQL server
 
-> **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
-
 ### Install the Server
 
 #### Run with Docker (Recommended)
 
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The repository and package use `neverinfamous`.
+
+> **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
 
 ```bash
 docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \

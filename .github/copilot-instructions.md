@@ -127,7 +127,7 @@ When reviewing PRs, check for:
 - [ ] Verify the author has run tests locally (e.g., via pnpm run check)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Add prominent Value Proposition to standard README.md, Wikis, and DOCKER_README.md.
+- [ ] Add prominent Value Proposition to standard README.md and Wikis.
 - [ ] CRITICAL: Never add marketing tone to AGENT_README.md.
 - [ ] Docker readme <= 25,000 chars
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables

@@ -1,10 +1,6 @@
 # Automate CI/CD Workflows
 
-## Value Proposition
-
-This pipeline ensures robust code quality, unbreakable security, and fast deployments. It automates critical checks and accelerates multi-architecture builds. This frees developers to focus entirely on innovation.
-
-This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features multiple high-performance layers. These are continuous integration, security scanning, and automated publishing.
+This directory contains all GitHub Actions workflows for **mysql-mcp**.
 
 ## Visualize the Workflow Map
 
