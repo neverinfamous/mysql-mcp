@@ -28,7 +28,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics to Grafana. Trace with Datadog eBPF / APM. Monitor logs with Dozzle. |
+| **Observability**                     | Persist local metrics via SystemDb. Export Prometheus metrics to Grafana. Monitor Token & AI Efficiency with Datadog eBPF / APM. Monitor logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
@@ -83,6 +83,7 @@ docker compose up -d
 ```
 
 - **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
+- **Datadog:** Pre-configured with custom AI Efficiency, Token, and Database dashboards (requires API key).
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
@@ -629,6 +630,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 | `mysql://schema`        | Full database schema                        |
 | `mysql://tables`        | Table listing with metadata                 |
 | `mysql://table/{name}`  | Specific Table Schema                       |
+| `mysql://sys/*`         | System insights (e.g. `mysql_sys_memory_summary`, `mysql_server_health`) |
 | `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
 
 > **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
