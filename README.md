@@ -686,6 +686,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
 | `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
 | `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
+| `--pool-min`              | `MYSQL_POOL_MIN`        | Minimum connections in pool (default: 0)            |
 | `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 30000)   |
 | `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
 | `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |

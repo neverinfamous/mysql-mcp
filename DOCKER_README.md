@@ -100,42 +100,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### ⚡ Run Only Code Mode
 
-Run with **only Code Mode enabled**. A single tool provides full capability access:
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e", "MYSQL_HOST",
-        "-e", "MYSQL_PORT",
-        "-e", "MYSQL_USER",
-        "-e", "MYSQL_PASSWORD",
-        "-e", "MYSQL_DATABASE",
-        "-e", "REDIS_URL",
-        "writenotenow/mysql-mcp:latest",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "codemode"
-      ],
-      "env": {
-        "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "mcp_user",
-        "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb",
-        "REDIS_URL": "redis://host.docker.internal:6379"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
+Run with **only Code Mode enabled**. A single tool provides full capability access. See **[Option 1: Code Mode](#option-1-code-mode)** below for the recommended IDE configuration.
 
 This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors standard serverless edge execution patterns. It ensures fixed token costs.
 
@@ -149,35 +114,6 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 ---
 
 ## ⚡ Simplify AI Integration with Client Configs
-
-### Configure IDE Settings
-
-Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
-
-#### Option 1: Code Mode
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "writenotenow/mysql-mcp:latest",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "starter",
-        "--mysql",
-        "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
-      ],
-      "timeout": 600
-    }
-  }
-}
-```
 
 ### Use Environment Variables (Recommended)
 
@@ -219,6 +155,35 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 > **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
+
+### Configure IDE Settings
+
+Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
+
+#### Option 1: Code Mode
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "codemode",
+        "--mysql",
+        "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+      ],
+      "timeout": 600
+    }
+  }
+}
+```
 
 #### Option 2: Cluster (Tools for InnoDB Cluster Monitoring)
 

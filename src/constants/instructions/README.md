@@ -1,6 +1,6 @@
 # Instructions
 
-> **Value Proposition:** This architecture separates documentation from code, allowing non-developers and domain experts to safely manage prompt engineering and server instructions without touching TypeScript, while ensuring agents always receive synchronized, current guidance.
+> **Value Proposition:** This architecture separates documentation from code. Non-developers and domain experts manage prompt engineering. They update server instructions safely without touching TypeScript. This ensures agents always receive synchronized, current guidance.
 
 This directory contains the compiled server instructions in TypeScript format.
 These `.ts` files are auto-generated from the `.md` files in `src/constants/instructions/markdown`.

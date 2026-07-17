@@ -19,7 +19,7 @@
         "MYSQL_DATABASE": "testdb",
         "MYSQL_POOL_SIZE": "10",
         "TOOL_FILTER": "starter",
-        "ALLOWED_IO_ROOTS": "/app/data,C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
+        "ALLOWED_IO_ROOTS": "C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "AUDIT_LOG_PATH": "/tmp/mcp-sandbox/audit.jsonl",

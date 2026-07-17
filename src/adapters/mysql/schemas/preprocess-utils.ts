@@ -425,8 +425,8 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   const v = val as Record<string, unknown>;
   
   let where = v["where"] ?? v["filter"] ?? v["condition"] ?? v["query"] ?? v["sql"];
-  if (where === undefined && v["idColumn"] !== undefined && v["rowId"] !== undefined) {
-    const idCol = v["idColumn"] as string;
+  if (where === undefined && v["rowId"] !== undefined) {
+    const idCol = (v["idColumn"] as string | undefined) ?? "id";
     const rowId = v["rowId"];
     let formattedRowId = "''";
     if (typeof rowId === 'string') {

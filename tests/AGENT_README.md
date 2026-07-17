@@ -12,7 +12,7 @@ To run a specific test file, do **NOT** run the entire suite. Target the exact f
 
 ```bash
 # Correct way to run a single test file
-pnpm run test tests/e2e/auth.spec.ts
+pnpm exec playwright test tests/e2e/auth.spec.ts
 ```
 
 *Note: Never run tests with `continue-on-error: true` or bypass failures. Always fix the root cause of failing tests.*
