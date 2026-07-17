@@ -41,7 +41,7 @@ export const JsonExtractSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    where: data.where ?? data.filter ?? data.query ?? data.sql,
+    where: (data.where ?? data.filter ?? data.query ?? data.sql)?.trim(),
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -92,7 +92,7 @@ export const JsonGetSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    where: data.where ?? data.filter ?? data.query ?? data.sql ?? "",
+    where: (data.where ?? data.filter ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -147,7 +147,7 @@ export const JsonKeysSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    where: data.where ?? data.filter ?? data.query ?? data.sql,
+    where: (data.where ?? data.filter ?? data.query ?? data.sql)?.trim(),
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {

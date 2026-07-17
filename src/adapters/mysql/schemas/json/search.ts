@@ -52,7 +52,7 @@ export const JsonContainsSchema = z
     column: data.column ?? data.col ?? data.columnName ?? "",
     value: data.value ?? data.contains ?? data.candidate ?? data.target,
     path: data.path,
-    where: data.where ?? data.filter ?? data.query ?? data.sql ?? data.condition ?? "",
+    where: (data.where ?? data.filter ?? data.query ?? data.sql ?? data.condition ?? "").trim(),
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -129,7 +129,7 @@ export const JsonSearchSchema = z
     limit: data.limit,
     path: data.path,
     escapeChar: data.escapeChar,
-    where: data.where ?? data.filter ?? data.query ?? data.sql ?? data.condition,
+    where: (data.where ?? data.filter ?? data.query ?? data.sql ?? data.condition)?.trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",

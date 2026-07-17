@@ -32,7 +32,7 @@ export const JsonNormalizeSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    where: data.where ?? data.filter,
+    where: (data.where ?? data.filter)?.trim(),
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -77,7 +77,7 @@ export const JsonStatsSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    where: data.where ?? data.filter ?? data.query ?? data.sql,
+    where: (data.where ?? data.filter ?? data.query ?? data.sql)?.trim(),
     sampleSize: data.sampleSize,
   }))
   .refine((data) => data.table !== "", {

@@ -46,7 +46,7 @@ export const JsonSetSchema = z
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
+    where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -109,7 +109,7 @@ export const JsonInsertSchema = z
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
+    where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -172,7 +172,7 @@ export const JsonReplaceSchema = z
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
+    where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -238,7 +238,7 @@ export const JsonRemoveSchema = z
     paths: (Array.isArray(data.paths) ? data.paths : data.paths ? [data.paths] : null)
       ?? (Array.isArray(data.keys) ? data.keys : data.keys ? [data.keys] : null)
       ?? (data.path ? [data.path] : data.key ? [data.key] : []),
-    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
+    where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -299,7 +299,7 @@ export const JsonArrayAppendSchema = z
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
+    where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
@@ -362,7 +362,7 @@ export const JsonUpdateSchema = z
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
     value: data.value ?? data.val,
-    where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
+    where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
