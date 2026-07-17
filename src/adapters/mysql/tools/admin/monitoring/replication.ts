@@ -3,7 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ReplicationStatusSchema, ReplicationStatusOutputSchema } from "../../../schemas/index.js";
+import { ReplicationStatusSchema, ReplicationStatusSchemaBase, ReplicationStatusOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -49,7 +49,7 @@ export function createReplicationStatusTool(
     description:
       "Show replication slave/replica status. Use summary=true for key metrics only.",
     group: "monitoring",
-    inputSchema: ReplicationStatusSchema,
+    inputSchema: ReplicationStatusSchemaBase,
     outputSchema: ReplicationStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
