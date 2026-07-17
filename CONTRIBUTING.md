@@ -79,7 +79,6 @@ We especially welcome contributions in these areas:
 
 - **Enhanced Code Mode** `isolated-vm` operations and sandbox capabilities
 - **Additional MySQL feature coverage** (CTEs, window functions, JSON improvements)
-- **New MySQL extension integrations** (e.g., ProxySQL, MySQL Router)
 - **Documentation improvements** and Playwright end-to-end examples
 
 ### Build Future Features
@@ -101,7 +100,7 @@ pnpm test
 pnpm run test:coverage
 
 # Run a specific test file
-npx vitest run src/__tests__/your-test-file.test.ts
+pnpm run test src/__tests__/your-test-file.test.ts
 
 # Run benchmarks
 pnpm run bench
