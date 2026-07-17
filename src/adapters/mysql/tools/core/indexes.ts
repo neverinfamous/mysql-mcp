@@ -77,6 +77,12 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
             new MySQLMcpError("Invalid table name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
           );
         }
+        
+        if (columns?.some(c => !isValidId(c))) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Invalid column name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
+        }
 
         const columnList = (columns ?? []).map((c) => `\`${c}\``).join(", ");
         const tableName = escapeId(table);
