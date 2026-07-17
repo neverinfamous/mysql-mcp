@@ -642,7 +642,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** Configure the server using native JSON or YAML files with the `--config` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `mcp-config-example.json` template at the root of the project for setup details.
+> **Tip:** Configure the server using native JSON or YAML files with the `--config` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.json` or `server-config-example.yaml` template at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 

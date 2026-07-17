@@ -61,7 +61,7 @@ node dist/cli.js --transport http --port 3000 --mysql "mysql://mcp_user:secure_p
 docker build -f Dockerfile -t mysql-mcp-dev .
 
 # Run with a connection string
-docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host:3306/testdb"
+docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 📋 Focus on High-Impact Contribution Goals
@@ -152,7 +152,7 @@ Add your local build to `~/.cursor/mcp.json`:
 ```bash
 # Build and run locally
 docker build -f Dockerfile -t mysql-mcp-dev .
-docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host:3306/testdb"
+docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 📝 Maintain Quality with Coding Standards
@@ -252,7 +252,7 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 ### Check Before Submitting
 
 - [ ] **Fork** the repository and create a feature branch
-- [ ] **Test** your changes (`pnpm run check && pnpm test`)
+- [ ] **Test** your changes (`pnpm run check`)
 - [ ] **Update documentation** if you changed APIs or behavior
 - [ ] **Add examples** for new features
 - [ ] **Check** that existing functionality still works

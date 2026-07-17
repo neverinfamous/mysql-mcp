@@ -14,7 +14,6 @@ Ensure PRs adhere to these SSoT architectural rules:
 - **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
 - **Transports**: Supports `stdio`, streamable `http`, and standard `sse` transports.
 - **Validation**: Ensure parameter alias validation at the MCP boundary (via the Dual-Schema Pattern).
-- **Audit Tool**: Requires at least one filter to prevent payload bloat.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
 - **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
 

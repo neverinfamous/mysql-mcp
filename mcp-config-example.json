@@ -29,7 +29,10 @@
         "MYSQLSH_PATH": "mysqlsh",
         "CODEMODE_ISOLATION": "sandbox",
         "LOG_LEVEL": "info",
-        "_comment_advanced": "Ecosystem variables should only be added manually if the corresponding local services are active."
+        "_comment_advanced": "Ecosystem variables should only be added manually if the corresponding local services are active.",
+        "_comment_REDIS_URL": "redis://redis:6379",
+        "_comment_MCP_METRICS_EXPORT": "prometheus",
+        "_comment_OAUTH_ENABLED": "true"
       }
     }
   }

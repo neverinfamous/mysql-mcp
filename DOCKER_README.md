@@ -68,7 +68,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The repository and package use `neverinfamous`.
 
 ```bash
-docker run -i --rm writenotenow/mysql-mcp:latest \
+docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
   --transport stdio \
   --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
@@ -116,7 +116,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
-- ✅ **Full API access** — Exposes all tool groups via the mysql.* namespace.
+- ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.
 
 ### ⚡ Run Only Code Mode
 
@@ -181,112 +181,13 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 **Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
 
-> **⚠️ Prerequisites:**
->
-> - **InnoDB Cluster** must be configured and running with Group Replication enabled
-> - Connect to a cluster node directly (e.g., `host.docker.internal:3307`) — NOT a standalone MySQL instance
-> - Use `cluster_admin` or `root` user with appropriate privileges
-> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for cluster setup instructions
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-cluster": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e", "MYSQL_HOST",
-        "-e", "MYSQL_PORT",
-        "-e", "MYSQL_USER",
-        "-e", "MYSQL_PASSWORD",
-        "-e", "MYSQL_DATABASE",
-        "writenotenow/mysql-mcp:latest",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "cluster"
-      ],
-      "env": {
-        "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3307",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
+> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites and the JSON configuration block.
 
 #### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
 
 **Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 
-> **⚠️ Prerequisites:**
->
-> - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
-> - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
-> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`). This enables `mysqlsh_import_json` and `docstore` tools
-> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-ecosystem": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e", "MYSQL_HOST",
-        "-e", "MYSQL_PORT",
-        "-e", "MYSQL_XPORT",
-        "-e", "MYSQL_USER",
-        "-e", "MYSQL_PASSWORD",
-        "-e", "MYSQL_DATABASE",
-        "-e", "MYSQL_ROUTER_URL",
-        "-e", "MYSQL_ROUTER_USER",
-        "-e", "MYSQL_ROUTER_PASSWORD",
-        "-e", "MYSQL_ROUTER_INSECURE",
-        "-e", "PROXYSQL_HOST",
-        "-e", "PROXYSQL_PORT",
-        "-e", "PROXYSQL_USER",
-        "-e", "PROXYSQL_PASSWORD",
-        "-e", "MYSQLSH_PATH",
-        "writenotenow/mysql-mcp:latest",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "ecosystem"
-      ],
-      "env": {
-        "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3307",
-        "MYSQL_XPORT": "6448",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "testdb",
-        "MYSQL_ROUTER_URL": "https://host.docker.internal:8443",
-        "MYSQL_ROUTER_USER": "rest_api",
-        "MYSQL_ROUTER_PASSWORD": "router_password",
-        "MYSQL_ROUTER_INSECURE": "true",
-        "PROXYSQL_HOST": "host.docker.internal",
-        "PROXYSQL_PORT": "6032",
-        "PROXYSQL_USER": "radmin",
-        "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "mysqlsh"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
-
-> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
-> **Note:** The Dockerfile does not package `mysqlsh`. Mount it or install via a custom image.
+> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites and the JSON configuration block.
 
 ## 🌐 Enable Remote Access via HTTP & SSE
 
@@ -301,8 +202,9 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 ```bash
 docker run --rm -p 3000:3000 \
+  -v ./data:/app/data \
   writenotenow/mysql-mcp:latest \
-  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+  --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 > [!WARNING]
