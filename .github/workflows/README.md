@@ -1,9 +1,5 @@
 # Automate CI/CD Workflows
 
-> [!IMPORTANT]
-> **Value Proposition**
-> This pipeline delivers enterprise-grade reliability and security at scale. By automating continuous integration, comprehensive vulnerability scanning, and robust release orchestration, it accelerates time-to-market while ensuring zero-compromise deployments.
-
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
 ## Visualize the Workflow Map
@@ -140,7 +136,7 @@ For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and p
 
 | Secret            | Used By                    | Purpose                     |
 | ----------------- | -------------------------- | --------------------------- |
-| `GITHUB_TOKEN`    | codeql, secrets-scanning, ci-health-monitor | Git operations and agent authorization |
+| `GITHUB_TOKEN`    | codeql, secrets-scanning, ci-health-monitor, security-update | Git operations and agent authorization |
 | `COPILOT_GITHUB_TOKEN`| ci-health-monitor      | Agent authorization            |
 | `GH_AW_GITHUB_MCP_SERVER_TOKEN`| ci-health-monitor | Agent authorization            |
 | `GH_AW_GITHUB_TOKEN` | ci-health-monitor         | Agent authorization            |

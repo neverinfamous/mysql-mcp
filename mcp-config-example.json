@@ -12,6 +12,7 @@
       ],
       "timeout": 600,
       "env": {
+        "MCP_REQUEST_TIMEOUT": "600000",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",

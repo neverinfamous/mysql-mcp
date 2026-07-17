@@ -34,7 +34,7 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have run tests locally (e.g., via `pnpm run check`)
 - [ ] I have enforced the Dual-Schema Pattern
 - [ ] I have ensured Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] I added a Value Proposition to the standard README.md and Wikis.
+- [ ] I added a Value Proposition to the standard README.md, Wikis, and DOCKER_README.md.
 - [ ] I have not added any marketing tone to AGENT_README.md
 - [ ] I have ensured the Docker readme is <= 25,000 chars
 - [ ] I have ensured table-querying tools return `{exists: false, table}` for nonexistent tables

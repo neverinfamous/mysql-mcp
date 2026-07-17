@@ -467,7 +467,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
-        "REDIS_URL": "redis://localhost:6379"
+        "MCP_REQUEST_TIMEOUT": "600000",
+        "// REDIS_URL": "redis://localhost:6379"
       },
       "timeout": 600
     }
@@ -668,6 +669,8 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 > **Payload optimization:** Tools support `summary: true` and `limit` parameters. These condense large payloads.
 
 ---
+
+## Configuration & CLI Options
 
 ### Configure CLI Options
 

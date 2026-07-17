@@ -35,7 +35,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | Prompt | Description |
 |---|---|
 | `mysql_tool_index` | Complete tool index with categories |
-| `mysql_quick_query` | Quick query execution |
+| `mysql_quick_query` | Quick query execution shortcut |
 | `mysql_quick_schema` | Quick schema exploration |
 
 > **Note**: This is a subset of available workflows/resources. The server exposes many more.
@@ -46,7 +46,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 |---|---|
 | `mysql://schema` | Full database schema |
 | `mysql://tables` | Table listing with metadata |
-| `mysql://sysschema` | System insights (e.g. mysql_sys_memory_summary, mysql_server_health) |
+| `mysql://sysschema` | Sys Schema Diagnostics |
 
 > **Note**: This is a subset of available workflows/resources. The server exposes many more.
 
@@ -57,7 +57,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 ### Meet Prerequisites
 
 - Docker or Docker Desktop
-- MySQL 5.7+ server
+- MySQL server
 
 > **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
 
@@ -124,7 +124,7 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
 
 This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors standard serverless edge execution patterns. It ensures fixed token costs.
 
-> [!TIP]
+> **Tip:**
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
 >
 > _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step operations. This minimizes token usage."_
@@ -208,7 +208,7 @@ docker run --rm -p 3000:3000 \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
-> [!WARNING]
+> **Warning:**
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
 
 ### 🔐 Protect Your Data with Authentication
@@ -234,6 +234,8 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available groups and predefined bundles.
 
 ---
+
+## Configuration & CLI Options
 
 ### Configure CLI Options
 
