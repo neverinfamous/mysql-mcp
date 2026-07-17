@@ -84,10 +84,10 @@ export const FulltextCreateSchema = z
     indexName: data.indexName ?? data.index_name ?? data.index ?? data.name,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName alias) is required",
+    message: "table (or tableName alias) is required",
   })
   .refine((data) => data.columns.length > 0, {
-    message: "Validation error: columns is required",
+    message: "columns is required",
   });
 
 // --- FulltextSearch ---
@@ -160,19 +160,19 @@ export const FulltextSearchSchema = z
     cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
-  .refine((data) => data.columns.length > 0, { message: "Validation error: columns is required" })
+  .refine((data) => data.columns.length > 0, { message: "columns is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
       (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" },
+    { message: "maxLength must be a positive number" },
   )
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );
 
 // --- FulltextDrop ---
@@ -205,10 +205,10 @@ export const FulltextDropSchema = z
     indexName: data.indexName ?? data.index_name ?? data.index ?? data.name ?? "",
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName alias) is required",
+    message: "table (or tableName alias) is required",
   })
   .refine((data) => data.indexName !== "", {
-    message: "Validation error: indexName is required",
+    message: "indexName is required",
   });
 
 // --- FulltextBoolean ---
@@ -274,19 +274,19 @@ export const FulltextBooleanSchema = z
     cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
-  .refine((data) => data.columns.length > 0, { message: "Validation error: columns is required" })
+  .refine((data) => data.columns.length > 0, { message: "columns is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
       (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" },
+    { message: "maxLength must be a positive number" },
   )
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );
 
 // --- FulltextExpand ---
@@ -349,17 +349,17 @@ export const FulltextExpandSchema = z
     cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
-  .refine((data) => data.columns.length > 0, { message: "Validation error: columns is required" })
+  .refine((data) => data.columns.length > 0, { message: "columns is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
       (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "Validation error: maxLength must be a positive number" },
+    { message: "maxLength must be a positive number" },
   )
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );

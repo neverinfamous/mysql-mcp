@@ -44,18 +44,18 @@ export const RegexpMatchSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "Validation error: column (or col alias) is required",
+    message: "column (or col alias) is required",
   })
   .refine((data) => data.pattern !== "", {
-    message: "Validation error: pattern (or query/sql alias) is required",
+    message: "pattern (or query/sql alias) is required",
   })
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );
 
 // --- LikeSearch ---
@@ -101,18 +101,18 @@ export const LikeSearchSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "Validation error: column (or col alias) is required",
+    message: "column (or col alias) is required",
   })
   .refine((data) => data.pattern !== "", {
-    message: "Validation error: pattern (or query/sql alias) is required",
+    message: "pattern (or query/sql alias) is required",
   })
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );
 
 // --- Soundex ---
@@ -167,18 +167,18 @@ export const SoundexSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "Validation error: column (or col alias) is required",
+    message: "column (or col alias) is required",
   })
   .refine((data) => data.value !== "", {
-    message: "Validation error: value (or query/search alias) is required",
+    message: "value (or query/search alias) is required",
   })
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );
 
 // --- Substring ---
@@ -232,14 +232,14 @@ export const SubstringSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "Validation error: column (or col alias) is required",
+    message: "column (or col alias) is required",
   })
   .refine(
     (data) => data.start !== undefined && !Number.isNaN(Number(data.start)),
-    { message: "Validation error: start is required and must be a number" },
+    { message: "start is required and must be a number" },
   )
   .transform((data) => ({
     ...data,
@@ -248,7 +248,7 @@ export const SubstringSchema = z
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );
 
 // --- Concat ---
@@ -312,11 +312,11 @@ export const ConcatSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
   .refine(
     (data) => Array.isArray(data.columns) && data.columns.length > 0,
-    { message: "Validation error: columns must be an array with at least one column" }
+    { message: "columns must be an array with at least one column" }
   )
   .transform((data) => ({
     ...data,
@@ -325,5 +325,5 @@ export const ConcatSchema = z
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );

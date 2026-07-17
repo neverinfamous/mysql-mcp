@@ -72,16 +72,16 @@ export const CollationConvertSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "Validation error: table (or tableName/name alias) is required",
+    message: "table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "Validation error: column (or col alias) is required",
+    message: "column (or col alias) is required",
   })
   .refine((data) => data.charset !== "", {
-    message: "Validation error: charset (or targetCharset alias) is required",
+    message: "charset (or targetCharset alias) is required",
   })
   .refine(
     (data) =>
       data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "Validation error: limit must be a positive number" },
+    { message: "limit must be a positive number" },
   );
