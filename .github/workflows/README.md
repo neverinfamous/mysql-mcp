@@ -150,5 +150,5 @@ For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and p
 ## Follow Editing Guidelines
 
 - **YAML workflows** — edit directly, commit to `main` or via PR
-- **Agentic .md prompts** — edit the .md file. Run gh copilot workflow compile to regenerate .lock.yml.
-- **`.lock.yml` files** — **never edit manually**; always regenerate via `gh copilot workflow compile`
+- **Agentic .md prompts** — edit the .md file. Use the provided agent script to regenerate `.lock.yml` files.
+- **`.lock.yml` files** — **never edit manually**; always regenerate via the provided agent script

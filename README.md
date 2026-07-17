@@ -39,7 +39,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 ### Meet Prerequisites
 
 - Recent Node.js (LTS recommended)
-- MySQL 5.7+ server
+- MySQL server
 - pnpm
 
 ### Install the Server
@@ -354,7 +354,7 @@ Create a network and run MySQL:
 
 ```bash
 docker network create mynet
-docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:8
+docker run -d --name mysql-db --network mynet -e MYSQL_ROOT_PASSWORD=pass mysql:latest
 ```
 
 Run MCP server on the same network:
@@ -630,10 +630,10 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 | Resource                | Description                                 |
 | ----------------------- | ------------------------------------------- |
-| `mysql://schema`        | Full database schema                        |
-| `mysql://tables`        | Table listing with metadata                 |
-| `mysql://table/{name}`  | Specific Table Schema                       |
-| `mysql://sysschema`         | Sys Schema Diagnostics |
+| `mysql://schema`        | Full database schema                                   |
+| `mysql://tables`        | Table listing with metadata                            |
+| `mysql://table/{name}`  | Specific Table Schema                                  |
+| `mysql://sysschema`     | Sys Schema Diagnostics                                 |
 | `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
 
 > **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
@@ -671,6 +671,8 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 ### Configure CLI Options
 
+> **Note:** Items marked with `—` in the CLI flag column are configured exclusively via environment variables.
+
 | Option                    | Environment Variable    | Description                                         |
 | ------------------------- | ----------------------- | --------------------------------------------------- |
 | `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
@@ -678,7 +680,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--version`, `-v`         | —                       | Show version number                                 |
 | `--help`, `-h`            | —                       | Show help                                           |
 | `--json`                  | —                       | Output in JSON format                               |
-| `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
+| `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (backward-compatibility alias for http) (default: stdio) |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
 | `--mysql`, `-m`           | —                       | MySQL connection string                             |

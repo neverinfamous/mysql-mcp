@@ -80,12 +80,13 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 ### Protect the Runtime
 
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — Configurable limit to prevent resource exhaustion.
+- ✅ **Execution timeout** — Configurable limit to prevent resource exhaustion. Configurable via schema timeout.
 - ✅ **Egress boundary enforcement** — streaming JSON.stringify serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — Rate limited per client (Configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
+- ✅ **Full API access** — Exposes all tool groups via the mysql.* namespace.
 
 ## 🌐 **Fortify Remote HTTP Transports**
 
@@ -137,7 +138,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 - ✅ **Bearer Token Auth**: Use `MCP_AUTH_TOKEN` for straightforward token authentication to avoid OAuth overhead.
 
-> **⚠️ HTTP without Authentication:** Exposing the HTTP transport without OAuth or an Auth Token grants full unrestricted access to any client.
+> **⚠️ HTTP without Authentication:** Exposing HTTP transport without authentication grants unrestricted access to all clients.
 
 ## 🐳 **Deploy Secure Docker Containers**
 

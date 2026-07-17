@@ -29,8 +29,10 @@ services:
     volumes:
       - ./data:/app/data
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
 
   mysql:
     image: mysql:lts
@@ -41,12 +43,17 @@ services:
     env_file:
       - .env
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-secure_root_password}
       MYSQL_USER: ${MYSQL_USER:-mcp_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secure_password}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-testdb}
     volumes:
       - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:alpine

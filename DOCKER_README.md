@@ -103,7 +103,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### Validate Code Statically
 
-- ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — normalizes text and strips comments to prevent evasion.
 - ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
@@ -114,7 +114,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — Per-client limits (`CODEMODE_RATE_LIMIT_MAX`). Uses Redis with in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
-- ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
+- ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 - ✅ **Full API access** — Exposes all tool groups via the mysql.* namespace.
 
@@ -286,7 +286,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 ```
 
 > **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
-> **Note:** `mysqlsh` must be mounted or installed via a custom image if this option is utilized, as it is not packaged in the `Dockerfile`.
+> **Note:** The Dockerfile does not package `mysqlsh`. Mount it or install via a custom image.
 
 ## 🌐 Enable Remote Access via HTTP & SSE
 
@@ -362,7 +362,7 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
-| `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
+| `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
 | `--audit-log`             | —                       | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
