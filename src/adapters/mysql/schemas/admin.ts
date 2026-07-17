@@ -368,7 +368,7 @@ export const ReplicationStatusSchemaBase = z.object({
     ),
   format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-});
+}).strict();
 
 export const ReplicationStatusSchema = z.preprocess(
   (obj: unknown) => {
@@ -392,7 +392,7 @@ export const PoolStatsSchemaBase = z.object({
   summary: z.boolean().optional().describe("Return key metrics only"),
   format: z.string().optional().describe("Alias for summary"),
   raw: z.boolean().optional().describe("Alias for summary"),
-});
+}).strict();
 
 export const PoolStatsSchema = z.preprocess(
   (obj: unknown) => {
