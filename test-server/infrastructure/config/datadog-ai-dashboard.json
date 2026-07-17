@@ -5,7 +5,7 @@
   "description": "AI Efficiency metrics for mysql-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
   "id": "q48-mq9-3i7",
   "layout_type": "ordered",
-  "modified_at": "2026-07-17T00:43:40.439433Z",
+  "modified_at": "2026-07-17T16:00:16.013098Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -20,6 +20,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -38,14 +39,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Cost (Gemini 3.1) ($)",
         "title_align": "left",
         "title_size": "16",
@@ -66,6 +65,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -84,14 +84,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Cost (Claude 4.8) ($)",
         "title_align": "left",
         "title_size": "16",
@@ -112,6 +110,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -130,14 +129,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Cost (GPT-5.5) ($)",
         "title_align": "left",
         "title_size": "16",
@@ -158,6 +155,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -176,14 +174,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Cost (Claude Sonnet 5) ($)",
         "title_align": "left",
         "title_size": "16",
@@ -204,6 +200,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -222,14 +219,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Cost (Claude Fable 5) ($)",
         "title_align": "left",
         "title_size": "16",
@@ -249,6 +244,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -259,7 +255,7 @@
             ],
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
@@ -267,14 +263,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Tokens Used",
         "title_align": "left",
         "title_size": "16",
@@ -302,7 +296,7 @@
               {
                 "data_source": "metrics",
                 "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*} by {tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*} by {tool}.rollup(max)"
               },
               {
                 "data_source": "metrics",
@@ -342,14 +336,14 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "query1"
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}.rollup(max)"
               }
             ],
             "response_format": "scalar",
@@ -379,79 +373,43 @@
     },
     {
       "definition": {
-        "legend_layout": "auto",
+        "has_search_bar": "auto",
         "requests": [
           {
-            "display_type": "line",
             "formulas": [
               {
-                "alias": "Active",
-                "formula": "query1"
+                "cell_display_mode": "bar",
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
               {
+                "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}.fill(last)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*} by {tool}.rollup(max)"
               }
             ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "palette": "blue"
-            }
-          },
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Idle",
-                "formula": "query2"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_idle{*}.fill(last)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "palette": "green"
-            }
-          },
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Total",
-                "formula": "query3"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query3",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.fill(last)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "dashed",
-              "palette": "gray"
+            "response_format": "scalar",
+            "sort": {
+              "count": 500,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
             }
           }
         ],
-        "show_legend": true,
-        "title": "Connection Pool",
+        "time": {},
+        "title": "Tool Call Volume",
         "title_align": "left",
         "title_size": "16",
-        "type": "timeseries"
+        "type": "query_table"
       },
-      "id": 84756192038475,
+      "id": 5704902594105579,
       "layout": {
         "height": 4,
         "width": 4,
@@ -475,25 +433,24 @@
             ],
             "formulas": [
               {
-                "formula": "default_zero(a) / (default_zero(b) + 0.0000001)"
+                "formula": "default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(max)"
               },
               {
                 "data_source": "metrics",
                 "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*}.rollup(max)"
               }
             ],
             "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Avg Tokens / Call",
         "title_align": "left",
         "title_size": "16",
@@ -534,7 +491,7 @@
             ],
             "formulas": [
               {
-                "formula": "(default_zero(a) / (default_zero(b) + 0.0000001)) * 100"
+                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -546,13 +503,12 @@
               {
                 "data_source": "metrics",
                 "name": "b",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.rollup(max)"
               }
             ],
             "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Pool Utilization (%)",
         "title_align": "left",
         "title_size": "16",
@@ -572,6 +528,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -583,7 +540,7 @@
             ],
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
@@ -591,14 +548,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_pool_queries_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_pool_queries_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Pool Queries",
         "title_align": "left",
         "title_size": "16",
@@ -632,14 +587,14 @@
               },
               {
                 "comparator": "<",
-                "custom_bg_color": "#6d0808",
+                "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 49.9
               }
             ],
             "formulas": [
               {
-                "formula": "(default_zero(a) / (default_zero(a) + default_zero(b) + 0.0000001)) * 100"
+                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(a)) + default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -647,13 +602,13 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits_total{*}.rollup(max)"
               },
               {
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_misses_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_misses_total{*}.rollup(max)"
               }
             ],
             "response_format": "scalar"
@@ -679,6 +634,7 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": ">=",
@@ -689,7 +645,7 @@
             ],
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
@@ -697,14 +653,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits_total{*}.rollup(max)"
               }
             ],
-            "response_format": "scalar",
-            "aggregator": "sum"
+            "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Cache Hits",
         "title_align": "left",
         "title_size": "16",
@@ -727,7 +681,8 @@
             "conditional_formats": [
               {
                 "comparator": ">=",
-                "palette": "white_on_red",
+                "custom_bg_color": "#841010",
+                "palette": "custom_bg",
                 "value": 5
               },
               {
@@ -737,26 +692,26 @@
               },
               {
                 "comparator": "<",
-                "custom_bg_color": "#0b3206",
+                "custom_bg_color": "#104409",
                 "palette": "custom_bg",
                 "value": 2
               }
             ],
             "formulas": [
               {
-                "formula": "(default_zero(a) / (default_zero(b) + 0.0000001)) * 100"
+                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{!error_type:historical}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{!error_type:historical}.rollup(max)"
               },
               {
                 "data_source": "metrics",
                 "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*}.rollup(max)"
               }
             ],
             "response_format": "scalar"
@@ -778,25 +733,57 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
         "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
             "formulas": [
               {
-                "alias": "Cache Hits",
-                "formula": "default_zero(query1)"
+                "alias": "Active",
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits_total{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}.fill(last)"
               }
             ],
             "response_format": "timeseries",
             "style": {
+              "line_type": "solid",
+              "palette": "blue"
+            }
+          },
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Idle",
+                "formula": "default_zero(monotonic_diff(query2))"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_idle{*}.fill(last)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
               "palette": "green"
             }
           },
@@ -804,30 +791,32 @@
             "display_type": "line",
             "formulas": [
               {
-                "alias": "Cache Misses",
-                "formula": "default_zero(query2)"
+                "alias": "Total",
+                "formula": "default_zero(monotonic_diff(query3))"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
-                "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_misses_total{*}"
+                "name": "query3",
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.fill(last).rollup(max)"
               }
             ],
             "response_format": "timeseries",
             "style": {
-              "palette": "red"
+              "line_type": "dashed",
+              "palette": "gray"
             }
           }
         ],
         "show_legend": true,
-        "title": "Cache Performance",
+        "time": {},
+        "title": "Connection Pool",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries"
       },
-      "id": 61728394058271,
+      "id": 84756192038475,
       "layout": {
         "height": 4,
         "width": 4,
@@ -850,29 +839,54 @@
         "legend_layout": "auto",
         "requests": [
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
-                "formula": "query1"
+                "alias": "Cache Hits",
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*} by {tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits_total{*}.rollup(max)"
               }
             ],
-            "response_format": "timeseries"
+            "response_format": "timeseries",
+            "style": {
+              "palette": "green"
+            }
+          },
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Cache Misses",
+                "formula": "default_zero(monotonic_diff(query2))"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:mysql_mcp.mysql_mcp_cache_misses_total{*}.rollup(max)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "red"
+            }
           }
         ],
-        "show_legend": false,
-        "title": "Tool Call Volume",
+        "show_legend": true,
+        "time": {},
+        "title": "Cache Performance",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries"
       },
-      "id": 5704902594105579,
+      "id": 61728394058271,
       "layout": {
         "height": 4,
         "width": 4,
@@ -898,14 +912,14 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{!error_type:historical} by {error_type}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{!error_type:historical} by {error_type}.rollup(max)"
               }
             ],
             "response_format": "timeseries"
