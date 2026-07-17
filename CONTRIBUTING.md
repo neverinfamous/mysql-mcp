@@ -194,7 +194,7 @@ Error logic should leverage the `MySQLMcpError` hierarchy. Our Auto-refinement s
 
 - **Dual-Schema Pattern** — Tools use a plain `z.object()` Base schema for visibility. A `z.preprocess()` wrapper supports aliases without breaking JSON Schema generation.
 - **Zod schemas** validate parameters with explicit coercion controls. Do not use aggressive `z.coerce.number()`.
-- Output schemas are strictly defined. This guarantees agents receive deterministic P154-compliant structures.
+- Output schemas are strictly defined. This guarantees agents receive deterministic MCP-compliant structures.
 - Invalid inputs must return structured errors. The `formatHandlerErrorResponse()` helper handles this without raw validation messages.
 - SQL injection is prevented via **parameter binding**. Never interpolate user input into SQL strings.
 

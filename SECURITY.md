@@ -63,7 +63,7 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 
 ## 🧪 **Isolate Threats in Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#⚡-reduce-token-usage-with-code-mode).**
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#reduce-token-usage-with-code-mode).**
 
 ### Enforce Engine-Level Restrictions
 
@@ -127,7 +127,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 ## 🔑 **Control Access via OAuth 2.1**
 
-Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#🔐-protect-your-data-with-authentication).**
+Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#protect-your-data-with-authentication).**
 
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
@@ -136,7 +136,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 - ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 
-> **⚠️ HTTP without OAuth:** When OAuth is not configured, all scope checks are bypassed. If you expose the HTTP transport without enabling OAuth, any client has full unrestricted access. Always enable OAuth for production HTTP deployments.
+> **⚠️ HTTP without OAuth:** Exposing the HTTP transport without OAuth grants full unrestricted access to any client.
 
 ## 🐳 **Deploy Secure Docker Containers**
 

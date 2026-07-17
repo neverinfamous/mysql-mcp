@@ -71,7 +71,7 @@ docker compose up -d
 
 ## ⚡ Reduce Token Usage with Code Mode
 
-Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations within a secure JavaScript sandbox. It is included by default.
+Code Mode (`mysql_execute_code`) reduces token usage by consolidating operations in a secure sandbox.
 
 Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limits and synchronous termination. Native wrappers map all API calls across the boundary. This guarantees defense-in-depth and fleet-standard restrictions:
 
@@ -79,18 +79,18 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
 - ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
-- ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
+- ✅ **API Bindings via Reference** — injects MySQL methods securely using `ivm.Reference` wrappers.
 
 ### Validate Code Statically
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
-- ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
+- ✅ **Unicode & Comment Sanitization** — normalizes text and strips comments to prevent evasion.
 - ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — Enforces an execution timeout to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
+- ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
@@ -118,8 +118,6 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 ### Use Environment Variables (Recommended)
 
 See **Option 1: Code Mode** below for the recommended IDE configuration.
-
-> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
 
@@ -271,6 +269,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
+> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
+
 ## 🌐 Enable Remote Access via HTTP & SSE
 
 > **When to use HTTP mode:** Deploy `mysql-mcp` as a standalone server. Multiple clients can connect remotely. Use `stdio` mode for local development.
@@ -289,7 +289,7 @@ docker run --rm -p 3000:3000 \
 ```
 
 > [!WARNING]
-> **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
+> **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
 
 ### Access Security Features and Utility Endpoints
 

@@ -102,7 +102,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ## ⚡ Reduce Token Usage with Code Mode
 
-Code Mode (`mysql_execute_code`) reduces LLM token consumption by consolidating operations in a secure JavaScript sandbox. It is included by default.
+Code Mode (`mysql_execute_code`) reduces token usage by consolidating operations in a secure sandbox.
 
 Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limits and synchronous termination. Native wrappers map all API calls across the boundary. This guarantees defense-in-depth and fleet-standard restrictions:
 
@@ -110,18 +110,18 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
 - ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
-- ✅ **API Bindings via Reference** — all MySQL API methods are securely injected into the isolate using `ivm.Reference` wrappers.
+- ✅ **API Bindings via Reference** — injects MySQL methods securely using `ivm.Reference` wrappers.
 
 ### Validate Code Statically
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
-- ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
+- ✅ **Unicode & Comment Sanitization** — normalizes text and strips comments to prevent evasion.
 - ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
-- ✅ **Execution timeout** — Enforces an execution timeout to prevent resource exhaustion. Execution timeouts are dynamically configurable via the `timeout` parameter in the `callTool` JSON schema.
+- ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
 - ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
@@ -168,7 +168,7 @@ The server supports **two MCP transport protocols simultaneously**. Both modern 
 
 ### Use Streamable HTTP (Recommended)
 
-Modern protocol (MCP 2024-11-05) — single endpoint, session-based:
+Modern MCP protocol — single endpoint, session-based:
 
 | Method   | Endpoint | Purpose                                          |
 | -------- | -------- | ------------------------------------------------ |
@@ -337,7 +337,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 
 ### Connect to MySQL on Host Machine
 
-If MySQL is installed directly on your computer (via installer, Homebrew, etc.) and you are running the MCP server natively via Node/`npx`, use `localhost` or `127.0.0.1`. If you are running the MCP server inside a Docker container, use `host.docker.internal`:
+For native local installations, use `localhost`. If running the server in Docker, use `host.docker.internal`:
 
 ```json
 [
@@ -566,7 +566,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 - Replace `/path/to/mysql-mcp/` with your actual installation path
 - Update credentials with your actual values
 - For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
-- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell 8.x\\bin\\mysqlsh.exe"`
+- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell\\bin\\mysqlsh.exe"`
 - **Router Authentication:** Router REST API authenticates against the InnoDB Cluster metadata. The cluster must be running for authentication to work.
 - **Cluster Resource:** The `mysql://cluster` resource is only available when connected to an InnoDB Cluster node
 

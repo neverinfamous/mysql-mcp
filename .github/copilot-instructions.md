@@ -49,7 +49,7 @@ Log review issues using `create_entry` with the `copilot-finding` tag. Agents re
 - **Strict TypeScript** — `tsconfig.json` enforces strict mode
 - **Never use `eslint-disable`** to evade standards
 - **Never use `any`** — use `unknown` and narrow with type guards
-- **Never use `as` type assertions** — use `satisfies` operator or strict type guards
+- Type assertions (e.g., as) — always forbidden (use satisfies or strict type guards instead)
 - **Never use `@ts-ignore` or `@ts-expect-error`** — fix the underlying type issue
 - **Zod schemas** for all tool input validation at system boundaries
 - **Union types over enums** — use `type Status = "active" | "inactive"` instead of `enum`

@@ -1,5 +1,9 @@
 # Automate CI/CD Workflows
 
+> [!IMPORTANT]
+> **Value Proposition**
+> This CI/CD pipeline ensures enterprise-grade reliability and security for users through automated continuous integration, comprehensive vulnerability scanning, and robust release orchestration.
+
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
 ## Visualize the Workflow Map
