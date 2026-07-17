@@ -80,12 +80,13 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!identical && sharedKeys.length > 0) {
           for (const key of sharedKeys) {
-            const diffSql = `SELECT JSON_EXTRACT(?, CONCAT('$.', ?)) as v1, JSON_EXTRACT(?, CONCAT('$.', ?)) as v2`;
+            const escapedKey = key.replace(/"/g, '\\"');
+            const diffSql = `SELECT JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v1, JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v2`;
             const diffResult = await adapter.executeReadQuery(diffSql, [
               json1,
-              key,
+              escapedKey,
               json2,
-              key,
+              escapedKey,
             ]);
             const diffRow = diffResult.rows?.[0];
 
