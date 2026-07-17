@@ -209,7 +209,7 @@ export const ShowProcesslistSchema = z.preprocess(
       full: z.boolean().optional().default(false),
     limit: z.unknown().optional(),
     summary: z.boolean().optional(),
-  })
+  }).strict()
   .transform((data) => ({
     full: data.full,
     limit: data.limit !== undefined ? Number(data.limit) : 10,
@@ -259,7 +259,7 @@ export const ShowStatusSchema = z.preprocess(
       global: z.boolean().optional().default(true),
       limit: z.unknown().optional(),
       summary: z.boolean().optional(),
-    })
+    }).strict()
     .transform((data) => ({
       like: data.like,
       global: data.global,

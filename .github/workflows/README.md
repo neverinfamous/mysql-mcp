@@ -1,8 +1,8 @@
-# CI/CD Workflows
+# Automate CI/CD Workflows
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
-## Value Proposition
+## Deliver the Value Proposition
 The **mysql-mcp** CI/CD pipeline delivers uncompromising security, high-performance testing, and automated, multi-architecture deployments. It is engineered with intelligent agentic workflows and rigorous safety gates. It ensures consistently reliable releases with minimal manual overhead.
 
 ## Visualize the Workflow Map
@@ -149,5 +149,5 @@ For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and p
 ## Follow Editing Guidelines
 
 - **YAML workflows** — edit directly, commit to `main` or via PR
-- **Agentic `.md` prompts** — edit the `.md` file, then run `gh aw compile` to regenerate the `.lock.yml`
-- **`.lock.yml` files** — **never edit manually**; always regenerate via `gh aw compile`
+- **Agentic `.md` prompts** — edit the `.md` file, then run `gh copilot workflow compile` to regenerate the `.lock.yml`
+- **`.lock.yml` files** — **never edit manually**; always regenerate via `gh copilot workflow compile`

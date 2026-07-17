@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-89.22%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-393%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Passing-green.svg) ![E2E Tests](https://img.shields.io/badge/E2E-Passing-brightgreen.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-89.22%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-393%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Passing-green.svg) ![E2E Tests](https://img.shields.io/badge/E2E-Passing-brightgreen.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -39,7 +39,6 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 ### Meet Prerequisites
 
 - Recent Node.js (LTS recommended)
-- Bun
 - MySQL 5.7+ server
 - pnpm
 
@@ -563,7 +562,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 - Replace `/path/to/mysql-mcp/` with your actual installation path
 - Update credentials with your actual values
 - For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
-- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell 8.4\\bin\\mysqlsh.exe"`
+- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell 8.x\\bin\\mysqlsh.exe"`
 - **Router Authentication:** Router REST API authenticates against the InnoDB Cluster metadata. The cluster must be running for authentication to work.
 - **Cluster Resource:** The `mysql://cluster` resource is only available when connected to an InnoDB Cluster node
 
