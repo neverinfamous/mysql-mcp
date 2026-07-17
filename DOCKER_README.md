@@ -34,9 +34,11 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 
 | Prompt | Description |
 |---|---|
-| `mysql_tool_index` | Complete tool index |
+| `mysql_tool_index` | Complete tool index with categories |
 | `mysql_quick_query` | Quick query execution |
 | `mysql_quick_schema` | Quick schema exploration |
+
+> **Note**: This is a subset of available workflows/resources. The server exposes many more.
 
 ### 📊 Observability (Resources)
 
@@ -45,6 +47,8 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | `mysql://schema` | Full database schema |
 | `mysql://tables` | Table listing with metadata |
 | `mysql://sys/*` | System insights |
+
+> **Note**: This is a subset of available workflows/resources. The server exposes many more.
 
 ---
 

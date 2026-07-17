@@ -23,24 +23,13 @@
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "AUDIT_LOG_PATH": "/tmp/mcp-sandbox/audit.jsonl",
-        "_comment_advanced": "Ecosystem variables (REDIS_URL, PROXYSQL_HOST, MYSQL_ROUTER_URL) pointing to localhost should only be used if those services are actively running locally to prevent standard MCP clients from crashing.",
-        "REDIS_URL": "redis://localhost:6379",
+        "_comment_advanced": "Ecosystem variables should only be added manually if the corresponding local services are active.",
         "MCP_RATE_LIMIT_MAX": "10000",
         "CODEMODE_RATE_LIMIT_MAX": "60",
         "MYSQL_XPORT": "33060",
         "MYSQLSH_PATH": "mysqlsh",
         "CODEMODE_ISOLATION": "sandbox",
-        "LOG_LEVEL": "info",
-        "MYSQL_ROUTER_URL": "https://localhost:8443",
-        "MYSQL_ROUTER_USER": "rest_api",
-        "MYSQL_ROUTER_PASSWORD": "password",
-        "MYSQL_ROUTER_INSECURE": "true",
-        "PROXYSQL_HOST": "localhost",
-        "PROXYSQL_PORT": "6032",
-        "PROXYSQL_USER": "radmin",
-        "PROXYSQL_PASSWORD": "radmin",
-        "MCP_REQUEST_TIMEOUT": "600000",
-        "MCP_HEADERS_TIMEOUT": "5000"
+        "LOG_LEVEL": "info"
       }
     }
   }

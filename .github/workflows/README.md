@@ -2,7 +2,7 @@
 
 > [!IMPORTANT]
 > **Value Proposition**
-> This CI/CD pipeline ensures enterprise-grade reliability and security for users through automated continuous integration, comprehensive vulnerability scanning, and robust release orchestration.
+> This pipeline ensures enterprise-grade reliability and security. It automates continuous integration, security scanning, and release orchestration.
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
@@ -150,5 +150,5 @@ For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and p
 ## Follow Editing Guidelines
 
 - **YAML workflows** — edit directly, commit to `main` or via PR
-- **Agentic `.md` prompts** — edit the `.md` file, then run `gh copilot workflow compile` to regenerate the `.lock.yml`
+- **Agentic .md prompts** — edit the .md file. Run gh copilot workflow compile to regenerate .lock.yml.
 - **`.lock.yml` files** — **never edit manually**; always regenerate via `gh copilot workflow compile`

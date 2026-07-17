@@ -140,7 +140,7 @@ jobs:
               **Scan Details:**
               - Workflow run: ${process.env.SERVER_URL}/${process.env.REPOSITORY}/actions/runs/${process.env.RUN_ID}
               - Triggered by: Weekly security scan
-              - Scan Date: ${process.env.SCHEDULE}
+              - Scan Schedule / Trigger: ${process.env.SCHEDULE}
 
               **Next Steps:**
               - [ ] Review vulnerability details

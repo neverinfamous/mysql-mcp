@@ -66,7 +66,7 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://mcp_user:secure_
 
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The GitHub repo uses `neverinfamous`.
 
-> **Linux Users:** If using `host.docker.internal` on Linux, you may need to run your container with `--add-host host.docker.internal:host-gateway`.
+> **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
 
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
@@ -138,7 +138,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
 >
-> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step database operations to minimize token usage."_
+> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step operations. This minimizes token usage."_
 >
 > For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
 
@@ -383,7 +383,7 @@ Use the remote hostname directly:
 | PlanetScale      | `aws.connect.psdb.cloud` (SSL required)          |
 | DigitalOcean     | `your-cluster-do-user-xxx.db.ondigitalocean.com` |
 
-> **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
+> **Tip:** Ensure remote MySQL servers allow connections from Docker's IP range. Verify firewalls/security groups permit port 3306.
 
 ---
 

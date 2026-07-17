@@ -215,7 +215,7 @@ mysql-mcp organizes tools into various functional groups.
 
 When adding a new tool:
 
-1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/mysql/schemas/`
+1. **Define tool input and output schemas** using Zod in the appropriate src/adapters/mysql/schemas/ group.
 2. **Implement the handler** in the corresponding adapter directory under `src/adapters/mysql/tools/`
 3. **Add structured error handling** by letting the handler return `formatHandlerErrorResponse()` when exceptions are caught
 4. **Write meaningful Vitest tests** and update E2E spec files if making systemic changes

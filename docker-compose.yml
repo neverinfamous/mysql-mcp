@@ -39,7 +39,7 @@ services:
     env_file:
       - .env
     environment:
-      MYSQL_ROOT_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-password}
       MYSQL_USER: ${MYSQL_USER:-mcp_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secure_password}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-testdb}
