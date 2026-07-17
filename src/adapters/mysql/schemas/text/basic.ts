@@ -257,6 +257,8 @@ export const ConcatSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   columns: z.array(z.string()).optional().describe("Columns to concatenate (Note: Pass column names, not raw strings)"),
+  cols: z.array(z.string()).optional().describe("Alias for columns"),
+  column: z.array(z.string()).optional().describe("Alias for columns"),
   separator: z
     .string()
     .optional()
@@ -290,6 +292,8 @@ export const ConcatSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       columns: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? v : [v]).optional(),
+      cols: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? v : [v]).optional(),
+      column: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? v : [v]).optional(),
       separator: z.string().optional().default(" "),
       alias: z.string().optional().default("concatenated"),
       where: z.string().optional(),
@@ -300,7 +304,7 @@ export const ConcatSchema = z
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    columns: data.columns,
+    columns: data.columns ?? data.cols ?? data.column,
     separator: data.separator,
     alias: data.alias,
     where: data.where ?? data.filter,
