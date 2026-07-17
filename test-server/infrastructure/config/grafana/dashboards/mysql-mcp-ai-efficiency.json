@@ -5,6 +5,7 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 1,
+  "id": 2,
   "links": [],
   "liveNow": false,
   "panels": [
@@ -24,6 +25,20 @@
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "currencyUSD"
+        }
       },
       "gridPos": {
         "h": 4,
@@ -52,10 +67,15 @@
         }
       ],
       "title": "Total Cost (Gemini 3.1) ($)",
-      "type": "stat",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyUSD",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -64,14 +84,9 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "currencyUSD"
         }
-      }
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
       },
       "gridPos": {
         "h": 4,
@@ -100,10 +115,15 @@
         }
       ],
       "title": "Total Cost (Claude 4.8) ($)",
-      "type": "stat",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyUSD",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -112,14 +132,9 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "currencyUSD"
         }
-      }
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
       },
       "gridPos": {
         "h": 4,
@@ -148,10 +163,15 @@
         }
       ],
       "title": "Total Cost (GPT-5.5) ($)",
-      "type": "stat",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyUSD",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -160,14 +180,9 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "currencyUSD"
         }
-      }
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
       },
       "gridPos": {
         "h": 4,
@@ -196,10 +211,15 @@
         }
       ],
       "title": "Total Cost (Claude Sonnet 5) ($)",
-      "type": "stat",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "currencyUSD",
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -208,14 +228,9 @@
                 "value": null
               }
             ]
-          }
+          },
+          "unit": "currencyUSD"
         }
-      }
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
       },
       "gridPos": {
         "h": 4,
@@ -244,26 +259,26 @@
         }
       ],
       "title": "Total Cost (Claude Fable 5) ($)",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "currencyUSD",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        }
-      }
+      "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        }
       },
       "gridPos": {
         "h": 4,
@@ -292,21 +307,7 @@
         }
       ],
       "title": "Total Tokens Used",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "blue",
-                "value": null
-              }
-            ]
-          }
-        }
-      }
+      "type": "stat"
     },
     {
       "collapsed": false,
@@ -324,6 +325,16 @@
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        }
       },
       "gridPos": {
         "h": 8,
@@ -350,22 +361,22 @@
         }
       ],
       "title": "Top Tools by Tokens",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "bars",
-            "fillOpacity": 80,
-            "lineInterpolation": "smooth"
-          }
-        }
-      }
+      "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        }
       },
       "gridPos": {
         "h": 8,
@@ -392,22 +403,26 @@
         }
       ],
       "title": "Tool Call Volume",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "bars",
-            "fillOpacity": 80,
-            "lineInterpolation": "smooth"
-          }
-        }
-      }
+      "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "short"
+        }
       },
       "gridPos": {
         "h": 4,
@@ -436,26 +451,26 @@
         }
       ],
       "title": "Avg Tokens / Call",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        }
-      }
+      "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "unit": "ms"
+        }
       },
       "gridPos": {
         "h": 4,
@@ -484,26 +499,30 @@
         }
       ],
       "title": "Optimization Target (Total Gross Latency)",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "ms",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              }
-            ]
-          }
-        }
-      }
+      "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          },
+          "unit": "percent"
+        }
       },
       "gridPos": {
         "h": 4,
@@ -532,30 +551,22 @@
         }
       ],
       "title": "Global Error Rate (%)",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "red",
-                "value": 5
-              }
-            ]
-          }
-        }
-      }
+      "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        }
       },
       "gridPos": {
         "h": 4,
@@ -582,17 +593,7 @@
         }
       ],
       "title": "Agent Quality (Error Classification)",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "bars",
-            "fillOpacity": 80,
-            "lineInterpolation": "smooth"
-          }
-        }
-      }
+      "type": "timeseries"
     },
     {
       "collapsed": false,
@@ -610,6 +611,16 @@
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        }
       },
       "gridPos": {
         "h": 6,
@@ -646,22 +657,30 @@
         }
       ],
       "title": "Connection Pool",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 10,
-            "lineInterpolation": "smooth"
-          }
-        }
-      }
+      "type": "timeseries"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        }
       },
       "gridPos": {
         "h": 6,
@@ -690,30 +709,26 @@
         }
       ],
       "title": "Pool Utilization (%)",
-      "type": "stat",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "unit": "percent",
           "thresholds": {
             "mode": "absolute",
             "steps": [
               {
                 "color": "green",
                 "value": null
-              },
-              {
-                "color": "red",
-                "value": 80
               }
             ]
-          }
+          },
+          "unit": "short"
         }
-      }
-    },
-    {
-      "datasource": {
-        "type": "prometheus",
-        "uid": "Prometheus"
       },
       "gridPos": {
         "h": 6,
@@ -742,26 +757,34 @@
         }
       ],
       "title": "Pool Queries",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "green",
-                "value": null
-              }
-            ]
-          }
-        }
-      }
+      "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 50
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "percent"
+        }
       },
       "gridPos": {
         "h": 6,
@@ -790,34 +813,22 @@
         }
       ],
       "title": "Schema Cache Hit Rate (%)",
-      "type": "stat",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percent",
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "red",
-                "value": null
-              },
-              {
-                "color": "yellow",
-                "value": 50
-              },
-              {
-                "color": "green",
-                "value": 80
-              }
-            ]
-          }
-        }
-      }
+      "type": "stat"
     },
     {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineInterpolation": "smooth"
+          },
+          "unit": "short"
+        }
       },
       "gridPos": {
         "h": 6,
@@ -849,17 +860,7 @@
         }
       ],
       "title": "Cache Performance",
-      "type": "timeseries",
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "drawStyle": "bars",
-            "fillOpacity": 80,
-            "lineInterpolation": "smooth"
-          }
-        }
-      }
+      "type": "timeseries"
     }
   ],
   "refresh": "10s",
@@ -875,5 +876,5 @@
   },
   "title": "MySQL-MCP AI Efficiency",
   "uid": "mysql-mcp-ai-efficiency",
-  "version": 2
+  "version": 3
 }
