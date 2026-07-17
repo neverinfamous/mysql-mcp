@@ -396,7 +396,7 @@ describe("JSON Enhanced Tools", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result.data.suggestions).toHaveLength(2);
       expect(result.data.suggestions[0].path).toBe('$."id"'); // higher cardinality first
-      expect(result.data.suggestions[0].indexDdl).toContain("BIGINT");
+      expect(result.data.suggestions[0].indexDdl).toContain("SIGNED");
     });
 
     it("should use DOUBLE for double value types", async () => {
@@ -438,7 +438,7 @@ describe("JSON Enhanced Tools", () => {
         mockContext,
       )) as { data: { suggestions: any[] } };
 
-      expect(result.data.suggestions[0].indexDdl).toContain("TINYINT(1)");
+      expect(result.data.suggestions[0].indexDdl).toContain("SIGNED");
     });
 
     it("should skip keys with cardinality <= 1", async () => {
@@ -481,7 +481,7 @@ describe("JSON Enhanced Tools", () => {
       )) as { data: { suggestions: any[] } };
 
       expect(result.data.suggestions[0].type).toBe("UNKNOWN");
-      expect(result.data.suggestions[0].indexDdl).toContain("VARCHAR(255)");
+      expect(result.data.suggestions[0].indexDdl).toContain("CHAR(255)");
     });
 
     it("should limit suggestions to top 5", async () => {

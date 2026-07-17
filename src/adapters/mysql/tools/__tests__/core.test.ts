@@ -399,7 +399,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           name: "test_table",
-          columns: [{ name: "id", type: "INT" }],
+          columns: [{ name: "id", type: "INT", primaryKey: true }],
           engine: "InnoDB",
           charset: "utf8mb4",
           collate: "utf8mb4_unicode_ci",
@@ -441,7 +441,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "db.table",
-          columns: [{ name: "id", type: "INT" }],
+          columns: [{ name: "id", type: "INT", primaryKey: true }],
         },
         mockContext,
       );
@@ -464,7 +464,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "test_table",
-          columns: [{ name: "id", type: "INT" }],
+          columns: [{ name: "id", type: "INT", primaryKey: true }],
         },
         mockContext,
       );
@@ -483,7 +483,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "test_table",
-          columns: [{ name: "id", type: "INT" }],
+          columns: [{ name: "id", type: "INT", primaryKey: true }],
         },
         mockContext,
       );
@@ -503,7 +503,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "existing_table",
-          columns: [{ name: "id", type: "INT" }],
+          columns: [{ name: "id", type: "INT", primaryKey: true }],
           ifNotExists: true,
         },
         mockContext,
@@ -899,7 +899,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           name: "bool_table",
-          columns: [{ name: "is_active", type: "BOOLEAN", default: true }],
+          columns: [{ name: "is_active", type: "BOOLEAN", default: true, primaryKey: true }],
         },
         mockContext,
       );
@@ -913,7 +913,7 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("catch me"));
       const tool = tools.find((t) => t.name === "mysql_create_table")!;
       const result = await tool.handler(
-        { name: "err_table", columns: [{ name: "id", type: "INT" }] },
+        { name: "err_table", columns: [{ name: "id", type: "INT", primaryKey: true }] },
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(false);
