@@ -21,9 +21,9 @@ services:
       - MYSQL_POOL_SIZE=${MYSQL_POOL_SIZE:-10}
       # Distributed Redis-backed rate limiting
       - REDIS_URL=redis://redis:6379
-      - MCP_RATE_LIMIT_MAX=10000
-      - CODEMODE_RATE_LIMIT_MAX=60
-      - MCP_METRICS_EXPORT=prometheus
+      - MCP_RATE_LIMIT_MAX=${MCP_RATE_LIMIT_MAX:-10000}
+      - CODEMODE_RATE_LIMIT_MAX=${CODEMODE_RATE_LIMIT_MAX:-60}
+      - MCP_METRICS_EXPORT=${MCP_METRICS_EXPORT:-prometheus}
       - ALLOWED_IO_ROOTS=/app/data
       - AUDIT_LOG_PATH=/app/data/audit.jsonl
     volumes:

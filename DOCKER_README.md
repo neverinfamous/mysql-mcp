@@ -30,7 +30,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
-### 🤖 Guided Workflows (Prompts)
+### 🤖 Automate Tasks with Guided Workflows
 
 | Prompt | Description |
 |---|---|
@@ -40,13 +40,13 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 
 > **Note**: This is a subset of available workflows/resources. The server exposes many more.
 
-### 📊 Observability (Resources)
+### 📊 Improve Observability with Resources
 
 | Resource | Description |
 |---|---|
 | `mysql://schema` | Full database schema |
 | `mysql://tables` | Table listing with metadata |
-| `mysql://sys/*` | System insights |
+| `mysql://sys/*` | System insights (e.g. mysql_sys_memory_summary, mysql_server_health) |
 
 > **Note**: This is a subset of available workflows/resources. The server exposes many more.
 
@@ -120,7 +120,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### ⚡ Run Only Code Mode
 
-Run with **only Code Mode enabled**. A single tool provides full capability access. See **[Option 1: Code Mode](#option-1-code-mode)** below for the recommended IDE configuration.
+Run with **only Code Mode enabled**. A single tool provides full capability access. See **[Option 1: Code Mode](#option-1-code-mode-maximum-token-savings--recommended)** below for the recommended IDE configuration.
 
 This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors standard serverless edge execution patterns. It ensures fixed token costs.
 
@@ -308,7 +308,7 @@ docker run --rm -p 3000:3000 \
 > [!WARNING]
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
 
-### Access Security Features and Utility Endpoints
+### 🔐 Protect Your Data with Authentication
 
 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth 2.1 setup (with Keycloak).
 

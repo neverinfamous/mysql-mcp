@@ -122,7 +122,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
+- ✅ **Egress boundary enforcement** — `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — Per-client limits (`CODEMODE_RATE_LIMIT_MAX`). Uses Redis with in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
@@ -136,11 +136,11 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
 This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors standard serverless edge execution patterns. It ensures fixed token costs.
 
 > [!TIP]
-> **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
+> **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode.
 >
 > _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step operations. This minimizes token usage."_
 >
-> For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
+> For maximum savings, run Code Mode as your only tool using `--tool-filter codemode`. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
 
 ---
 
@@ -176,7 +176,7 @@ Modern MCP protocol — single endpoint, session-based:
 | `GET`    | `/mcp`   | SSE stream for server notifications              |
 | `DELETE` | `/mcp`   | Session termination                              |
 
-> **Rate Limit:** HTTP transport is rate limited per IP (default 10000/min, configurable via `MCP_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+> **Rate Limit:** HTTP transport is rate limited per IP (default 100/min, configurable via `MCP_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 
 The server manages sessions via the `Mcp-Session-Id` header.
 
@@ -405,7 +405,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Use Predefined Shortcuts
 
-> Note: `codemode` is listed in the shortcuts table for demonstrative completeness, as it is automatically injected.
+> Note: `codemode` is listed in the shortcuts table for demonstrative completeness. It is automatically injected.
 
 | Shortcut        | Use Case           | What's Included                                                    |
 | --------------- | ------------------ | ------------------------------------------------------------------ |
@@ -633,7 +633,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 | `mysql://schema`        | Full database schema                        |
 | `mysql://tables`        | Table listing with metadata                 |
 | `mysql://table/{name}`  | Specific Table Schema                       |
-| `mysql://sys/*`         | System insights (e.g. `mysql_sys_memory_summary`, `mysql_server_health`) |
+| `mysql://sysschema`         | Sys Schema Diagnostics |
 | `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
 
 > **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
@@ -642,7 +642,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** Configure the server using native JSON or YAML files via the `--config <path>` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `mcp-config-example.json` template at the root of the project for setup details.
+> **Tip:** Configure the server using native JSON or YAML files with the `--config` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `mcp-config-example.json` template at the root of the project for setup details.
 
 For specialized setups, see these Wiki pages:
 
@@ -726,10 +726,9 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
-| —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
+| —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 100) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
-| —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
+
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 

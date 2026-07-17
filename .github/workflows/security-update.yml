@@ -45,8 +45,9 @@ jobs:
           file: Dockerfile
           tags: security-test:latest
           load: true
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          platforms: linux/amd64
+          cache-from: type=gha,scope=security-test
+          cache-to: type=gha,scope=security-test,mode=max
 
       # Run SARIF scan first (non-blocking) to always generate the file
       - name: Run Trivy scanner for SARIF output
@@ -59,12 +60,15 @@ jobs:
           ignore-unfixed: true
           severity: "CRITICAL,HIGH,MEDIUM"
           trivyignores: ".trivyignore"
+          skip-dirs: /usr/local/lib/node_modules/npm
+          timeout: 10m
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
         if: always() && hashFiles('trivy-results.sarif') != ''
         with:
           sarif_file: "trivy-results.sarif"
+          category: trivy-docker-scan
 
       # Run table scan (blocking) after SARIF is uploaded
       - name: Run Trivy vulnerability scanner
@@ -77,6 +81,8 @@ jobs:
           ignore-unfixed: true
           severity: "CRITICAL,HIGH,MEDIUM"
           trivyignores: ".trivyignore"
+          skip-dirs: /usr/local/lib/node_modules/npm
+          timeout: 10m
 
       - name: Check scan result
         id: check-scan

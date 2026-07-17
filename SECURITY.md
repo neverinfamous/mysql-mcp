@@ -56,10 +56,10 @@ Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categorie
 A dedicated security sandbox strictly confines all file I/O operations exposed by the server. This includes MySQL Shell operations and Audit Subsystem snapshots.
 
 - ✅ **`ALLOWED_IO_ROOTS` Enforcement** — operations must target absolute paths within administrator-configured directories. HTTP transports hard-fail on startup if omitted.
-- ✅ **Path Traversal Prevention** — blocks directory traversal sequences (`..`), null bytes, and query parameters in path inputs.
+- ✅ **Path Traversal Prevention** — blocks traversal sequences (`..`), null bytes, and query parameters.
 - ✅ **Symlink Awareness** — resolves and asserts `realpath` to prevent escaping the sandbox via symlink targets.
-- ✅ **Hidden Files Protection** — rejects dotfiles and hidden directories (unless explicitly authorized by the root config).
-- ✅ **Drive Letter Validation** — fully cross-platform compatible with strict Windows drive letter (`C:\`) and UNC path checking.
+- ✅ **Hidden Files Protection** — rejects dotfiles and hidden directories unless explicitly authorized.
+- ✅ **Drive Letter Validation** — cross-platform compatible with strict Windows drive letter and UNC path checking.
 
 ## 🧪 **Isolate Threats in Code Mode Sandbox**
 
@@ -73,7 +73,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 ### Validate Code Statically
 
-- ✅ **Comprehensive blocked patterns** — static analysis (regex) rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — Strips comments and performs NFKC normalization to prevent regex evasion.
 - ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
@@ -135,7 +135,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 - ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
 - ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
-- ✅ **Bearer Token Auth**: Simple token authentication is supported via `MCP_AUTH_TOKEN` for straightforward secure deployments without OAuth overhead.
+- ✅ **Bearer Token Auth**: Use `MCP_AUTH_TOKEN` for straightforward token authentication to avoid OAuth overhead.
 
 > **⚠️ HTTP without Authentication:** Exposing the HTTP transport without OAuth or an Auth Token grants full unrestricted access to any client.
 

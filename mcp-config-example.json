@@ -22,14 +22,14 @@
         "ALLOWED_IO_ROOTS": "C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
-        "AUDIT_LOG_PATH": "C:/temp/mcp-sandbox/audit.jsonl",
-        "_comment_advanced": "Ecosystem variables should only be added manually if the corresponding local services are active.",
+        "AUDIT_LOG_PATH": "/tmp/mcp-sandbox/audit.jsonl",
         "MCP_RATE_LIMIT_MAX": "10000",
         "CODEMODE_RATE_LIMIT_MAX": "60",
         "MYSQL_XPORT": "33060",
         "MYSQLSH_PATH": "mysqlsh",
         "CODEMODE_ISOLATION": "sandbox",
-        "LOG_LEVEL": "info"
+        "LOG_LEVEL": "info",
+        "_comment_advanced": "Ecosystem variables should only be added manually if the corresponding local services are active."
       }
     }
   }

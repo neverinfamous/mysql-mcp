@@ -16,7 +16,7 @@ Thank you for your interest in contributing to mysql-mcp! Join us in building a 
 ### Meet Prerequisites
 
 - Recent Node.js (LTS recommended)
-- Bun >= 1.0 (for executing repository automation scripts)
+- Bun (for executing repository automation scripts)
 - Current pnpm version
 - **Git** (for version control)
 - **MySQL** (local instance or Docker)
@@ -52,7 +52,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 node dist/cli.js --transport http --port 3000 --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
-> **Connection string required.** The server requires a valid MySQL connection string. For local testing, you can use a `.env` file, pass the URI string directly via `--mysql`, or use individual environment variables (`MYSQL_HOST`, `MYSQL_USER`, etc.) as demonstrated in `mcp-config-example.json`. Never commit credentials to version control.
+> **Connection string required.** The server requires a valid MySQL connection string. For local testing, use a `.env` file or pass the URI string via `--mysql`. You can also use individual environment variables. The `mcp-config-example.json` file demonstrates this. Never commit credentials to version control.
 
 ### Develop with Docker
 
@@ -312,7 +312,7 @@ Available trailers:
 - **Test with a real MySQL instance** — behavior varies across versions and configuration
 - **Check tool responses** — Ensure JSON responses are well-formed
 - **Output schemas** — All tools have Zod output schemas; error responses must pass validation
-- **Dual-schema pattern** — Relaxed schemas for SDK validation, strict schemas inside handlers
+- **Dual-schema pattern** — Base schemas for visibility, `z.preprocess()` wrappers for internal handling.
 
 ### Understand the Architecture
 
