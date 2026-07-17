@@ -69,7 +69,7 @@ export function createJsonIndexSuggestTool(
         for (const key of keys.slice(0, 10)) {
           // Analyze top 10 keys
           // Construct proper JSON path with quotes to handle spaces and special characters
-          const jsonPath = `$."${key.replace(/"/g, '\\"')}"`;
+          const jsonPath = `$."${key.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
           
           // Use standard SQL structure for strict FULL_GROUP_BY compliance
           const cardQuery = `
@@ -107,11 +107,16 @@ export function createJsonIndexSuggestTool(
             else if (valueType === "DOUBLE") dataType = "DOUBLE";
             else if (valueType === "BOOLEAN") dataType = "SIGNED";
 
+            let cleanKey = key.replace(/[^a-zA-Z0-9_]/g, '');
+            if (!cleanKey) {
+              cleanKey = key.split('').map(c => c.charCodeAt(0).toString(16)).join('').substring(0, 8);
+            }
+
             suggestions.push({
               path: jsonPath,
               type: valueType ?? "UNKNOWN",
               cardinality,
-              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${key.replace(/[^a-zA-Z0-9_]/g, '')} ((CAST(JSON_EXTRACT(\`${column}\`, '${jsonPath.replace(/\\/g, "\\\\").replace(/'/g, "''")}') AS ${dataType})));`,
+              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${cleanKey} ((CAST(JSON_EXTRACT(\`${column}\`, '${jsonPath.replace(/\\/g, "\\\\").replace(/'/g, "''")}') AS ${dataType})));`,
             });
           }
         }

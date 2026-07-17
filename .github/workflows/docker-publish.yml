@@ -221,7 +221,7 @@ jobs:
             VERSION=$(head -1 VERSION | tr -d '[:space:]')
           fi
           if [ -z "$VERSION" ]; then
-            VERSION=$(node -p "require('./package.json').version")
+            VERSION=$(jq -r '.version' package.json)
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
@@ -313,7 +313,7 @@ jobs:
             VERSION=$(head -1 VERSION | tr -d '[:space:]')
           fi
           if [ -z "$VERSION" ]; then
-            VERSION=$(node -p "require('./package.json').version")
+            VERSION=$(jq -r '.version' package.json)
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
