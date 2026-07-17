@@ -125,7 +125,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 - ✅ **Memory Exhaustion Protection** — Strict request bounds prevent memory exhaustion DoS
 
-## 🔑 **Control Access via OAuth 2.1**
+## 🔑 **Control Access via OAuth 2.1 & Bearer Tokens**
 
 Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#protect-your-data-with-authentication).**
 
@@ -135,8 +135,9 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 - ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
 - ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
+- ✅ **Bearer Token Auth**: Simple token authentication is supported via `MCP_AUTH_TOKEN` for straightforward secure deployments without OAuth overhead.
 
-> **⚠️ HTTP without OAuth:** Exposing the HTTP transport without OAuth grants full unrestricted access to any client.
+> **⚠️ HTTP without Authentication:** Exposing the HTTP transport without OAuth or an Auth Token grants full unrestricted access to any client.
 
 ## 🐳 **Deploy Secure Docker Containers**
 

@@ -3,14 +3,14 @@ import { defaultToEmpty } from "../preprocess-utils.js";
 
 // --- CollationConvert ---
 export const CollationConvertSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string)"),
+  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string)"),
+  column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string) (Required)"),
   cols: z.string().optional().describe("Alias for column"),
   columns: z.string().optional().describe("Alias for column"),
   col: z.string().optional().describe("Alias for column"),
-  charset: z.string().optional().describe("Target character set (e.g., utf8mb4)"),
+  charset: z.string().optional().describe("Target character set (e.g., utf8mb4) (Required)"),
   targetCharset: z.string().optional().describe("Alias for charset"),
   collation: z.string().optional().describe("Target collation"),
   where: z

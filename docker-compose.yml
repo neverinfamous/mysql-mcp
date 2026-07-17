@@ -13,6 +13,8 @@ services:
       - MYSQLMCP_PORT=${MYSQLMCP_PORT:-3000}
       - MCP_HOST=0.0.0.0
       - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_XPORT=33060
       - MYSQL_USER=${MYSQL_USER:-mcp_user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-secure_password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-testdb}

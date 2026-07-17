@@ -135,14 +135,13 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ## ⚡ Simplify AI Integration with Client Configs
 
-
-
-
 ### Configure IDE Settings
 
 Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
 
-#### Option 1: Code Mode
+#### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
+
+**Best for:** General MySQL AI agent tasks. Exposes `mysql_execute_code` for full sandboxed toolset access.
 
 ```json
 {
@@ -169,7 +168,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb"
+        "MYSQL_DATABASE": "testdb",
+        "REDIS_URL": "redis://localhost:6379"
       },
       "timeout": 600
     }

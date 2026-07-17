@@ -3,12 +3,12 @@ import { defaultToEmpty } from "../preprocess-utils.js";
 
 // --- RegexpMatch ---
 export const RegexpMatchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name"),
+  column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().optional().describe("Regular expression pattern"),
+  pattern: z.string().optional().describe("Regular expression pattern (Required)"),
   query: z.string().optional().describe("Alias for pattern"),
   sql: z.string().optional().describe("Alias for pattern"),
   where: z
@@ -60,12 +60,12 @@ export const RegexpMatchSchema = z
 
 // --- LikeSearch ---
 export const LikeSearchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name"),
+  column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().optional().describe("LIKE pattern with % and _ wildcards"),
+  pattern: z.string().optional().describe("LIKE pattern with % and _ wildcards (Required)"),
   query: z.string().optional().describe("Alias for pattern"),
   sql: z.string().optional().describe("Alias for pattern"),
   where: z
@@ -117,12 +117,12 @@ export const LikeSearchSchema = z
 
 // --- Soundex ---
 export const SoundexSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name"),
+  column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  value: z.string().optional().describe("Value to match phonetically"),
+  value: z.string().optional().describe("Value to match phonetically (Required)"),
   query: z.string().optional().describe("Alias for value"),
   search: z.string().optional().describe("Alias for value"),
   where: z
@@ -183,12 +183,12 @@ export const SoundexSchema = z
 
 // --- Substring ---
 export const SubstringSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string)"),
+  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string)"),
+  column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string) (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  start: z.unknown().optional().describe("Starting position (1-indexed)"),
+  start: z.unknown().optional().describe("Starting position (1-indexed) (Required)"),
   length: z.unknown().optional().describe("Number of characters"),
   where: z
     .string()
@@ -253,10 +253,10 @@ export const SubstringSchema = z
 
 // --- Concat ---
 export const ConcatSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string)"),
+  table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to concatenate (Note: Pass column names, not raw strings)"),
+  columns: z.array(z.string()).optional().describe("Columns to concatenate (Note: Pass column names, not raw strings) (Required)"),
   cols: z.array(z.string()).optional().describe("Alias for columns"),
   column: z.array(z.string()).optional().describe("Alias for columns"),
   separator: z

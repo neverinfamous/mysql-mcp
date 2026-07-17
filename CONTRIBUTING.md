@@ -52,7 +52,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 node dist/cli.js --transport http --port 3000 --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
-> **Connection string required.** The server requires a valid MySQL connection string. For local testing, you can use a `.env` file or pass the string directly. Never commit credentials to version control.
+> **Connection string required.** The server requires a valid MySQL connection string. For local testing, you can use a `.env` file, pass the URI string directly via `--mysql`, or use individual environment variables (`MYSQL_HOST`, `MYSQL_USER`, etc.) as demonstrated in `mcp-config-example.json`. Never commit credentials to version control.
 
 ### Develop with Docker
 
