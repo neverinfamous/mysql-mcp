@@ -99,10 +99,10 @@ export function createJsonIndexSuggestTool(
           const cardinality = Number(cardRow?.["cardinality"] ?? 0);
 
           if (cardinality > 1) {
-            let dataType = "VARCHAR(255)";
-            if (valueType === "INTEGER") dataType = "BIGINT";
+            let dataType = "CHAR(255)";
+            if (valueType === "INTEGER") dataType = "SIGNED";
             else if (valueType === "DOUBLE") dataType = "DOUBLE";
-            else if (valueType === "BOOLEAN") dataType = "TINYINT(1)";
+            else if (valueType === "BOOLEAN") dataType = "SIGNED";
 
             suggestions.push({
               path: jsonPath,
