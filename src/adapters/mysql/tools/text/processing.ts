@@ -37,6 +37,42 @@ import {
 } from "../core/error-helpers.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
+
+async function getSelectColumns(
+  adapter: MySQLAdapter,
+  table: string,
+  targetColumns: string[],
+  expressions?: string[]
+): Promise<string> {
+  const selectCols: string[] = [];
+  try {
+    const tableInfo = await adapter.describeTable(table);
+    if (tableInfo?.columns) {
+      const pkCols = tableInfo.columns
+        .filter((c) => c.primaryKey)
+        .map((c) => `\`${c.name}\``);
+      selectCols.push(...pkCols);
+    } else {
+      selectCols.push("`id`");
+    }
+  } catch {
+    selectCols.push("`id`");
+  }
+
+  for (const col of targetColumns) {
+    const quoted = `\`${col}\``;
+    if (!selectCols.includes(quoted)) {
+      selectCols.push(quoted);
+    }
+  }
+
+  if (expressions) {
+    selectCols.push(...expressions);
+  }
+
+  return selectCols.join(", ");
+}
+
 export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
     name: "mysql_regexp_match",
@@ -57,8 +93,9 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Return only id and matched column for minimal payload
-        let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
+        // Return PKs and matched column for minimal payload
+        const selectCols = await getSelectColumns(adapter, table, [column]);
+        let sql = `SELECT ${selectCols} FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
         const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
           sql += ` AND (${where})`;
@@ -103,8 +140,9 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Return only id and matched column for minimal payload
-        let sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
+        // Return PKs and matched column for minimal payload
+        const selectCols = await getSelectColumns(adapter, table, [column]);
+        let sql = `SELECT ${selectCols} FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
         const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
           sql += ` AND (${where})`;
@@ -148,10 +186,10 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Return only id and soundex value for minimal payload (unless includeSourceColumn is true)
-        const selectColumns = includeSourceColumn
-          ? `id, \`${column}\`, SOUNDEX(\`${column}\`) as soundex_value`
-          : `id, SOUNDEX(\`${column}\`) as soundex_value`;
+        // Return only PKs and soundex value for minimal payload (unless includeSourceColumn is true)
+        const targetCols = includeSourceColumn ? [column] : [];
+        const exprs = [`SOUNDEX(\`${column}\`) as soundex_value`];
+        const selectColumns = await getSelectColumns(adapter, table, targetCols, exprs);
         let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)} WHERE SOUNDEX(\`${column}\`) = SOUNDEX(?)`;
         const queryParams: unknown[] = [value];
         if (where !== undefined) {
@@ -201,10 +239,10 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
             ? `SUBSTRING(\`${column}\`, ?, ?)`
             : `SUBSTRING(\`${column}\`, ?)`;
 
-        // Return only id and substring result for minimal payload (unless includeSourceColumn is true)
-        const selectColumns = includeSourceColumn
-          ? `id, \`${column}\`, ${substringExpr} as substring_value`
-          : `id, ${substringExpr} as substring_value`;
+        // Return only PKs and substring result for minimal payload (unless includeSourceColumn is true)
+        const targetCols = includeSourceColumn ? [column] : [];
+        const exprs = [`${substringExpr} as substring_value`];
+        const selectColumns = await getSelectColumns(adapter, table, targetCols, exprs);
         let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] =
           length !== undefined ? [start, length] : [start];
@@ -265,9 +303,9 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
         const concatExpr = `CONCAT_WS(?, ${columnList})`;
 
         // Optionally include source columns for full context or minimal payload
-        const selectColumns = includeSourceColumns
-          ? `id, ${columnList}, ${concatExpr} as \`${alias}\``
-          : `id, ${concatExpr} as \`${alias}\``;
+        const targetCols = includeSourceColumns ? columns : [];
+        const exprs = [`${concatExpr} as \`${alias}\``];
+        const selectColumns = await getSelectColumns(adapter, table, targetCols, exprs);
         let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] = [separator];
 
@@ -328,10 +366,10 @@ export function createCollationConvertTool(
           convertExpr = `${convertExpr} COLLATE ${collation}`;
         }
 
-        // Return only id and converted result for minimal payload (unless includeSourceColumn is true)
-        const selectColumns = includeSourceColumn
-          ? `id, \`${column}\`, ${convertExpr} as converted_value`
-          : `id, ${convertExpr} as converted_value`;
+        // Return only PKs and converted result for minimal payload (unless includeSourceColumn is true)
+        const targetCols = includeSourceColumn ? [column] : [];
+        const exprs = [`${convertExpr} as converted_value`];
+        const selectColumns = await getSelectColumns(adapter, table, targetCols, exprs);
         let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] = [];
 
