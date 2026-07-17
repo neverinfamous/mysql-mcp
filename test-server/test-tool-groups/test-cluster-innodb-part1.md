@@ -95,10 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_cluster_status - Pass
-- [x] Ensure full coverage for mysql_cluster_instances - Pass
-
-
+- [ ] Ensure full coverage for mysql_cluster_status
+- [ ] Ensure full coverage for mysql_cluster_instances
 ---
 
 ## Execute Post-Test Procedures

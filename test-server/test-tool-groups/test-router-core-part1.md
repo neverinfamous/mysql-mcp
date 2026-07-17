@@ -95,10 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_router_status Pass
-- [x] Ensure full coverage for mysql_router_routes Pass
-
-
+- [ ] Ensure full coverage for mysql_router_status
+- [ ] Ensure full coverage for mysql_router_routes
 ---
 
 ## Execute Post-Test Procedures

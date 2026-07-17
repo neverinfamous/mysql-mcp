@@ -95,10 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_gr_transactions - Pass
-- [x] Ensure full coverage for mysql_gr_flow_control - Pass
-
-
+- [ ] Ensure full coverage for mysql_gr_transactions
+- [ ] Ensure full coverage for mysql_gr_flow_control
 ---
 
 ## Execute Post-Test Procedures

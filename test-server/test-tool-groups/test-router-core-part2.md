@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_router_metadata_status` | [x] Pass | [x] Pass | [x] Pass | [x] Pass |
-| `mysql_router_pool_status` | [x] Pass | [x] Pass | [x] Pass | [x] Pass |
+| `mysql_router_metadata_status` | [ ] | [ ] | [ ] | [ ] |
+| `mysql_router_pool_status` | [ ] | [ ] | [ ] | [ ] |
 
 ---
 
@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_router_metadata_status
-- [x] Ensure full coverage for mysql_router_pool_status
+- [ ] Ensure full coverage for mysql_router_metadata_status
+- [ ] Ensure full coverage for mysql_router_pool_status
 
 
 ---

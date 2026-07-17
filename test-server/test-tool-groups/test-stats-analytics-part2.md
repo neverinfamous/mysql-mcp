@@ -93,7 +93,7 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_stats_regression
+- [ ] Ensure full coverage for mysql_stats_regression
 
 
 ---

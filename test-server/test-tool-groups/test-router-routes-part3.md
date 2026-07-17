@@ -93,7 +93,7 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_router_route_connections
+- [ ] Ensure full coverage for mysql_router_route_connections
 
 
 ---

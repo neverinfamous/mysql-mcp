@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysqlsh_import_json
-- [x] Ensure full coverage for mysqlsh_dump_instance
+- [ ] Ensure full coverage for mysqlsh_import_json
+- [ ] Ensure full coverage for mysqlsh_dump_instance
 
 
 ---

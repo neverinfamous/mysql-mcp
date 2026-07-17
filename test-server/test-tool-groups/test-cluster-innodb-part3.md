@@ -93,9 +93,7 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_cluster_topology ✅
-
-
+- [ ] Ensure full coverage for mysql_cluster_topology
 ---
 
 ## Execute Post-Test Procedures

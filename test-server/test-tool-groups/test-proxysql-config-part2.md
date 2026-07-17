@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for proxysql_global_variables
-- [x] Ensure full coverage for proxysql_commands
+- [ ] Ensure full coverage for proxysql_global_variables
+- [ ] Ensure full coverage for proxysql_commands
 
 
 ---

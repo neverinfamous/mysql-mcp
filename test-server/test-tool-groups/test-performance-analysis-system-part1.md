@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_index_usage
-- [x] Ensure full coverage for mysql_table_stats
+- [ ] Ensure full coverage for mysql_index_usage
+- [ ] Ensure full coverage for mysql_table_stats
 
 
 ---

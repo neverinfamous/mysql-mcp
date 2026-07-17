@@ -95,10 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysqlsh_version ✅
-- [x] Ensure full coverage for mysqlsh_check_upgrade ✅
-
-
+- [ ] Ensure full coverage for mysqlsh_version
+- [ ] Ensure full coverage for mysqlsh_check_upgrade
 ---
 
 ## Execute Post-Test Procedures

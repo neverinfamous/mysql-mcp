@@ -95,10 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for proxysql_query_rules - Pass
-- [x] Ensure full coverage for proxysql_users - Pass
-
-
+- [ ] Ensure full coverage for proxysql_query_rules
+- [ ] Ensure full coverage for proxysql_users
 ---
 
 ## Execute Post-Test Procedures

@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for proxysql_status
-- [x] Ensure full coverage for proxysql_servers
+- [ ] Ensure full coverage for proxysql_status
+- [ ] Ensure full coverage for proxysql_servers
 
 
 ---

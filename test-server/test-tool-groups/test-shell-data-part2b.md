@@ -95,10 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysqlsh_dump_schemas Pass
-- [x] Ensure full coverage for mysqlsh_dump_tables Pass
-
-
+- [ ] Ensure full coverage for mysqlsh_dump_schemas
+- [ ] Ensure full coverage for mysqlsh_dump_tables
 ---
 
 ## Execute Post-Test Procedures

@@ -95,10 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_gr_status (Pass)
-- [x] Ensure full coverage for mysql_gr_members (Pass)
-
-
+- [ ] Ensure full coverage for mysql_gr_status
+- [ ] Ensure full coverage for mysql_gr_members
 ---
 
 ## Execute Post-Test Procedures

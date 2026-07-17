@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for proxysql_memory_stats
-- [x] Ensure full coverage for proxysql_process_list
+- [ ] Ensure full coverage for proxysql_memory_stats
+- [ ] Ensure full coverage for proxysql_process_list
 
 
 ---

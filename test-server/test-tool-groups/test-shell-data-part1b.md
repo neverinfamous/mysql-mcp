@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysqlsh_export_table
-- [x] Ensure full coverage for mysqlsh_import_table
+- [ ] Ensure full coverage for mysqlsh_export_table
+- [ ] Ensure full coverage for mysqlsh_import_table
 
 
 ---

@@ -95,8 +95,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysqlsh_load_dump
-- [x] Ensure full coverage for mysqlsh_run_script
+- [ ] Ensure full coverage for mysqlsh_load_dump
+- [ ] Ensure full coverage for mysqlsh_run_script
 
 
 ---

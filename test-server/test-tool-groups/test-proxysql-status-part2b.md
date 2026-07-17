@@ -93,7 +93,7 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for proxysql_query_digest
+- [ ] Ensure full coverage for proxysql_query_digest
 
 
 ---

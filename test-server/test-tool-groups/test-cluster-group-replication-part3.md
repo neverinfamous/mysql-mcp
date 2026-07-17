@@ -93,9 +93,7 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_gr_primary - Pass
-
-
+- [ ] Ensure full coverage for mysql_gr_primary
 ---
 
 ## Execute Post-Test Procedures
