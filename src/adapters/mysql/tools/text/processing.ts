@@ -358,8 +358,8 @@ export function createCollationConvertTool(
         // A safer approach for charset/collation would be to validate against known MySQL charsets/collations,
         // but for now we assume they are safe or the user has rights.
         // However, to be strictly safe, let's validate them as identifiers as they usually follow identifier rules.
-        validateIdentifier(charset, "column"); // charset names follow identifier rules
-        if (collation !== undefined) validateIdentifier(collation, "column"); // collation names follow identifier rules
+        validateIdentifier(charset, "charset"); // charset names follow identifier rules
+        if (collation !== undefined) validateIdentifier(collation, "collation"); // collation names follow identifier rules
 
         let convertExpr = `CONVERT(\`${column}\` USING ${charset})`;
         if (collation !== undefined) {

@@ -75,7 +75,9 @@ export function validateIdentifier(
     | "event"
     | "procedure"
     | "function"
-    | "role" = "table",
+    | "role"
+    | "charset"
+    | "collation" = "table",
 ): void {
   if (!name || typeof name !== "string") {
     throw new ValidationError(`${type} name must be a non-empty string`, type);
