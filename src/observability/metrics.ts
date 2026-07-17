@@ -336,13 +336,13 @@ export class MetricsRegistry {
     const lines: string[] = [];
 
     lines.push("# HELP mysql_mcp_tool_calls_total Total tool calls");
-    lines.push("# TYPE mysql_mcp_tool_calls_total gauge");
+    lines.push("# TYPE mysql_mcp_tool_calls_total counter");
     for (const [name, metric] of this.tools.entries()) {
       lines.push(`mysql_mcp_tool_calls_total{tool="${name}"} ${metric.getSummary().calls}`);
     }
 
     lines.push("# HELP mysql_mcp_tool_errors_total Total tool errors");
-    lines.push("# TYPE mysql_mcp_tool_errors_total gauge");
+    lines.push("# TYPE mysql_mcp_tool_errors_total counter");
     for (const [name, metric] of this.tools.entries()) {
       const summary = metric.getSummary();
       for (const [errorType, count] of Object.entries(summary.errors)) {
@@ -351,7 +351,7 @@ export class MetricsRegistry {
     }
 
     lines.push("# HELP mysql_mcp_tool_tokens_total Total tokens estimated");
-    lines.push("# TYPE mysql_mcp_tool_tokens_total gauge");
+    lines.push("# TYPE mysql_mcp_tool_tokens_total counter");
     for (const [name, metric] of this.tools.entries()) {
       lines.push(`mysql_mcp_tool_tokens_total{tool="${name}"} ${metric.getSummary().tokens}`);
     }
@@ -387,7 +387,7 @@ export class MetricsRegistry {
 
     // Resources
     lines.push("# HELP mysql_mcp_resource_reads_total Total resource reads");
-    lines.push("# TYPE mysql_mcp_resource_reads_total gauge");
+    lines.push("# TYPE mysql_mcp_resource_reads_total counter");
 
     for (const [uri, metric] of this.resources.entries()) {
       const summary = metric.getSummary();
@@ -398,11 +398,11 @@ export class MetricsRegistry {
     // Cache
     const cacheSummary = this.cache.getSummary();
     lines.push("# HELP mysql_mcp_cache_hits_total Total schema cache hits");
-    lines.push("# TYPE mysql_mcp_cache_hits_total gauge");
+    lines.push("# TYPE mysql_mcp_cache_hits_total counter");
     lines.push(`mysql_mcp_cache_hits_total ${cacheSummary.hits}`);
     
     lines.push("# HELP mysql_mcp_cache_misses_total Total schema cache misses");
-    lines.push("# TYPE mysql_mcp_cache_misses_total gauge");
+    lines.push("# TYPE mysql_mcp_cache_misses_total counter");
     lines.push(`mysql_mcp_cache_misses_total ${cacheSummary.misses}`);
 
     // Pool metrics
@@ -422,7 +422,7 @@ export class MetricsRegistry {
       lines.push(`mysql_mcp_pool_connections_idle ${poolStats.idle}`);
       
       lines.push("# HELP mysql_mcp_pool_queries_total Cumulative queries through pool");
-      lines.push("# TYPE mysql_mcp_pool_queries_total gauge");
+      lines.push("# TYPE mysql_mcp_pool_queries_total counter");
       lines.push(`mysql_mcp_pool_queries_total ${poolStats.totalQueries}`);
     }
 
