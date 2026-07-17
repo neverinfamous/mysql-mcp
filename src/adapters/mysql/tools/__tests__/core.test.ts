@@ -446,11 +446,8 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      // First call should be USE statement
-      const useCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
-      expect(useCall).toBe("USE `db`");
-      // Second call should be CREATE TABLE
-      const sqlCall = mockAdapter.executeQuery.mock.calls[1]?.[0];
+      // First call should be CREATE TABLE
+      const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
       expect(sqlCall).toContain("`db`.`table`");
       expect(result).toHaveProperty("success", true);
     });
