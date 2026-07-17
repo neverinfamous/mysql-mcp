@@ -475,7 +475,7 @@
             ],
             "formulas": [
               {
-                "formula": "a / (b + 0.0000001)"
+                "formula": "default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)"
               }
             ],
             "queries": [
@@ -534,7 +534,7 @@
             ],
             "formulas": [
               {
-                "formula": "(a / (b + 0.0000001)) * 100"
+                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -639,7 +639,7 @@
             ],
             "formulas": [
               {
-                "formula": "(a / (a + b + 0.0000001)) * 100"
+                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(a)) + default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -744,7 +744,7 @@
             ],
             "formulas": [
               {
-                "formula": "(a / (b + 0.0000001)) * 100"
+                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
               }
             ],
             "queries": [
