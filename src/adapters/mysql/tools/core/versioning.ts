@@ -293,6 +293,15 @@ export function createConditionalUpdateTool(
           );
         }
 
+        const hasVersionColumn = describeInfo.columns.some(
+          (col) => col.name === "_version"
+        );
+        if (!hasVersionColumn) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not appear to have versioning enabled (missing _version column)`, "INVALID_STATE", ErrorCategory.RESOURCE)
+          );
+        }
+
         const queryParams: unknown[] = [];
         const setClauses = columns
           .map((c) => `\`${c.replace(/`/g, "")}\` = ?`)
