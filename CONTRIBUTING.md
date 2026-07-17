@@ -49,7 +49,7 @@ pnpm run check   # Runs ESLint, TypeScript strict-mode, Vitest unit tests, and P
 node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 
 # HTTP transport (for testing with an MCP client)
-node dist/cli.js --transport http --port 3000 --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
+node dist/cli.js --transport http --port 3000 --allowed-io-roots /path/to/data --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
 > **Connection string required.** The server requires a valid MySQL connection string. For local testing, use a `.env` file or pass the URI string via `--mysql`. You can also use individual environment variables. The `server-config-example.json` and `server-config-example.yaml` files demonstrate this. Never commit credentials to version control.

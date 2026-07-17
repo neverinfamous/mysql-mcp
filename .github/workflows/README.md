@@ -1,6 +1,10 @@
 # Automate CI/CD Workflows
 
-This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
+## Value Proposition
+
+This pipeline ensures robust code quality, unbreakable security, and fast deployments. It automates critical checks and accelerates multi-architecture builds. This frees developers to focus entirely on innovation.
+
+This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features multiple high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
 ## Visualize the Workflow Map
 
@@ -28,7 +32,7 @@ flowchart LR
         SU["security-update (trivy)"]
     end
 
-    subgraph Release_["Release"]
+    subgraph ReleaseGroup["Release"]
         DP["docker-publish"]
         NPM["publish-npm"]
     end

@@ -235,7 +235,7 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 
 ---
 
-## Configuration & CLI Options
+## 🎛️ Master Server Configuration
 
 ### Configure CLI Options
 

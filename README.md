@@ -153,6 +153,7 @@ npx -y @neverinfamous/mysql-mcp \
   --transport http \
   --server-host 0.0.0.0 \
   --port 3000 \
+  --allowed-io-roots /path/to/data \
   --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb"
 ```
 
@@ -160,8 +161,9 @@ npx -y @neverinfamous/mysql-mcp \
 
 ```bash
 docker run --rm -p 3000:3000 \
+  -v ./data:/app/data \
   writenotenow/mysql-mcp:latest \
-  --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+  --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 The server supports **two MCP transport protocols simultaneously**. Both modern and legacy clients can connect:
@@ -185,7 +187,7 @@ The server manages sessions via the `Mcp-Session-Id` header.
 Use stateless deployments where sessions are not needed:
 
 ```bash
-node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --stateless --mysql "mysql://mcp_user:secure_password@..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /path/to/data --stateless --mysql "mysql://mcp_user:secure_password@..."
 ```
 
 In stateless mode: `GET /mcp` returns 405. `DELETE /mcp` returns 204. `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
@@ -215,11 +217,11 @@ mysql-mcp supports two authentication mechanisms for HTTP transport:
 Use lightweight authentication for development:
 
 ```bash
-node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --auth-token my-secret --mysql "mysql://mcp_user:secure_password@..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /path/to/data --auth-token my-secret --mysql "mysql://mcp_user:secure_password@..."
 
 # Or via environment variable
 export MCP_AUTH_TOKEN=my-secret
-node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@..."
+node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /path/to/data --mysql "mysql://mcp_user:secure_password@..."
 ```
 
 Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401`. Responses include `WWW-Authenticate: Bearer` headers per RFC 6750.
@@ -233,6 +235,7 @@ node dist/cli.js \
   --transport http \
   --server-host 0.0.0.0 \
   --port 3000 \
+  --allowed-io-roots /path/to/data \
   --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb" \
   --oauth-enabled \
   --oauth-issuer http://localhost:8080/realms/mysql-mcp \
@@ -468,7 +471,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
         "MCP_REQUEST_TIMEOUT": "600000",
-        "// REDIS_URL": "redis://localhost:6379"
+        "REDIS_URL": "redis://localhost:6379"
       },
       "timeout": 600
     }
@@ -670,7 +673,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 ---
 
-## Configuration & CLI Options
+## 🎛️ Master Server Configuration
 
 ### Configure CLI Options
 
