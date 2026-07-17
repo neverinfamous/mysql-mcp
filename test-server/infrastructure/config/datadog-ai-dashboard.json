@@ -616,13 +616,13 @@
               {
                 "comparator": "\u003e=",
                 "palette": "white_on_yellow",
-                "value": 50.0
+                "value": 49.9
               },
               {
                 "comparator": "\u003c",
                 "custom_bg_color": "#6d0808",
                 "palette": "custom_bg",
-                "value": 50.0
+                "value": 49.9
               }
             ],
             "formulas": [
