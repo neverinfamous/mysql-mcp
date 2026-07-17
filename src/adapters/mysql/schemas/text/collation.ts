@@ -67,7 +67,7 @@ export const CollationConvertSchema = z
     column: data.column ?? data.cols ?? data.columns ?? data.col ?? "",
     charset: data.charset ?? "",
     collation: data.collation,
-    where: data.where ?? data.filter,
+    where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))

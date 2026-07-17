@@ -40,7 +40,7 @@ export const RegexpMatchSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
     pattern: data.pattern ?? data.query ?? data.sql ?? "",
-    where: data.where ?? data.filter,
+    where: data.where || data.filter || undefined,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -97,7 +97,7 @@ export const LikeSearchSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
     pattern: data.pattern ?? data.query ?? data.sql ?? "",
-    where: data.where ?? data.filter,
+    where: data.where || data.filter || undefined,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -162,7 +162,7 @@ export const SoundexSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
     value: data.value ?? data.query ?? data.search ?? "",
-    where: data.where ?? data.filter,
+    where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
@@ -227,7 +227,7 @@ export const SubstringSchema = z
     column: data.column ?? data.col ?? "",
     start: data.start,
     length: data.length,
-    where: data.where ?? data.filter,
+    where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
@@ -307,7 +307,7 @@ export const ConcatSchema = z
     columns: data.columns ?? data.cols ?? data.column,
     separator: data.separator,
     alias: data.alias,
-    where: data.where ?? data.filter,
+    where: data.where || data.filter || undefined,
     includeSourceColumns: data.includeSourceColumns,
     limit: data.limit,
   }))
