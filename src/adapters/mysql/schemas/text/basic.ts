@@ -16,7 +16,7 @@ export const RegexpMatchSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const RegexpMatchSchema = z
@@ -73,7 +73,7 @@ export const LikeSearchSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const LikeSearchSchema = z
@@ -137,7 +137,7 @@ export const SoundexSchemaBase = z.object({
     .describe(
       "Include source column in output (default: false). Set to true for full context.",
     ),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const SoundexSchema = z
@@ -202,7 +202,7 @@ export const SubstringSchemaBase = z.object({
     .describe(
       "Include source column in output (default: false). Set to true for full context.",
     ),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const SubstringSchema = z
@@ -281,7 +281,7 @@ export const ConcatSchemaBase = z.object({
     .describe(
       "Include individual source columns in output (default: false). Set to true for full context.",
     ),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.unknown().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const ConcatSchema = z

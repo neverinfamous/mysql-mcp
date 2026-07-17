@@ -100,9 +100,8 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        if (limit !== undefined) {
-          sql += ` LIMIT ${limit}`;
-        }
+        const queryLimit = limit ?? 50;
+        sql += ` LIMIT ${queryLimit}`;
         const result = await adapter.executeReadQuery(sql, queryParams);
 
         return withTokenEstimate({
@@ -147,9 +146,8 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        if (limit !== undefined) {
-          sql += ` LIMIT ${limit}`;
-        }
+        const queryLimit = limit ?? 50;
+        sql += ` LIMIT ${queryLimit}`;
         const result = await adapter.executeReadQuery(sql, queryParams);
 
         return withTokenEstimate({
@@ -195,9 +193,8 @@ export function createSoundexTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        if (limit !== undefined) {
-          sql += ` LIMIT ${limit}`;
-        }
+        const queryLimit = limit ?? 50;
+        sql += ` LIMIT ${queryLimit}`;
         const result = await adapter.executeReadQuery(sql, queryParams);
 
         return withTokenEstimate({
@@ -250,9 +247,8 @@ export function createSubstringTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
-        if (limit !== undefined) {
-          sql += ` LIMIT ${limit}`;
-        }
+        const queryLimit = limit ?? 50;
+        sql += ` LIMIT ${queryLimit}`;
 
         const result = await adapter.executeReadQuery(sql, queryParams);
         return withTokenEstimate({
@@ -312,9 +308,8 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
-        if (limit !== undefined) {
-          sql += ` LIMIT ${limit}`;
-        }
+        const queryLimit = limit ?? 50;
+        sql += ` LIMIT ${queryLimit}`;
 
         const result = await adapter.executeReadQuery(sql, queryParams);
         return withTokenEstimate({
@@ -376,9 +371,8 @@ export function createCollationConvertTool(
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
-        if (limit !== undefined) {
-          sql += ` LIMIT ${limit}`;
-        }
+        const queryLimit = limit ?? 50;
+        sql += ` LIMIT ${queryLimit}`;
 
         const result = await adapter.executeReadQuery(sql, queryParams);
         return withTokenEstimate({
