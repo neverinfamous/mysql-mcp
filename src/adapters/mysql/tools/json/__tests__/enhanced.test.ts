@@ -201,6 +201,8 @@ describe("JSON Enhanced Tools", () => {
               json2_length: 2,
               json1_keys: '["name", "age"]',
               json2_keys: '["name", "age"]',
+              json1_type: 'OBJECT',
+              json2_type: 'OBJECT',
             },
           ]),
         )

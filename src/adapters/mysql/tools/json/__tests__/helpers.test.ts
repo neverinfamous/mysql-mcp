@@ -123,6 +123,7 @@ describe("JSON Helper Tools", () => {
         rowsAffected: 0,
         insertId: 0,
       });
+      mockAdapter.executeReadQuery.mockResolvedValue({ rows: [] });
 
       const tool = createJsonUpdateTool(mockAdapter);
       const result = (await tool.handler(
@@ -241,10 +242,8 @@ describe("JSON Helper Tools", () => {
         }
         const tool = toolFn(mockAdapter);
         const result = await tool.handler(args as any, mockContext);
-        expect(result).toMatchObject({
-          success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
-        });
+        expect(result.success).toBe(false);
+        expect((result as any).error).toContain("Table 'testdb.nonexistent' does not exist");
       });
     });
 
@@ -257,9 +256,8 @@ describe("JSON Helper Tools", () => {
         { table: "data", column: "doc", path: "$.x", where: "`id` = 1" },
         mockContext,
       );
-      expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Connection lost" }),
-      );
+      expect(result.success).toBe(false);
+      expect((result as any).error).toContain("Connection lost");
     });
   });
 });

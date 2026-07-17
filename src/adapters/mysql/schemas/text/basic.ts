@@ -44,13 +44,13 @@ export const RegexpMatchSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
+    message: "Validation error: column (or col alias) is required",
   })
   .refine((data) => data.pattern !== "", {
-    message: "pattern (or query/sql alias) is required",
+    message: "Validation error: pattern (or query/sql alias) is required",
   })
   .refine(
     (data) =>
@@ -101,13 +101,13 @@ export const LikeSearchSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
+    message: "Validation error: column (or col alias) is required",
   })
   .refine((data) => data.pattern !== "", {
-    message: "pattern (or query/sql alias) is required",
+    message: "Validation error: pattern (or query/sql alias) is required",
   })
   .refine(
     (data) =>
@@ -167,13 +167,13 @@ export const SoundexSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
+    message: "Validation error: column (or col alias) is required",
   })
   .refine((data) => data.value !== "", {
-    message: "value (or query/search alias) is required",
+    message: "Validation error: value (or query/search alias) is required",
   })
   .refine(
     (data) =>
@@ -232,10 +232,10 @@ export const SubstringSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
+    message: "Validation error: column (or col alias) is required",
   })
   .refine(
     (data) => data.start !== undefined && !Number.isNaN(Number(data.start)),
@@ -312,7 +312,7 @@ export const ConcatSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
   .refine(
     (data) => Array.isArray(data.columns) && data.columns.length > 0,

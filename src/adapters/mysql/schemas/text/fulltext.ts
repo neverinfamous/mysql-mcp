@@ -84,10 +84,10 @@ export const FulltextCreateSchema = z
     indexName: data.indexName ?? data.index_name ?? data.index ?? data.name,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName alias) is required",
+    message: "Validation error: table (or tableName alias) is required",
   })
   .refine((data) => data.columns.length > 0, {
-    message: "columns is required",
+    message: "Validation error: columns is required",
   });
 
 // --- FulltextSearch ---
@@ -160,9 +160,9 @@ export const FulltextSearchSchema = z
     cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
-  .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.columns.length > 0, { message: "Validation error: columns is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
@@ -205,10 +205,10 @@ export const FulltextDropSchema = z
     indexName: data.indexName ?? data.index_name ?? data.index ?? data.name ?? "",
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName alias) is required",
+    message: "Validation error: table (or tableName alias) is required",
   })
   .refine((data) => data.indexName !== "", {
-    message: "indexName is required",
+    message: "Validation error: indexName is required",
   });
 
 // --- FulltextBoolean ---
@@ -274,9 +274,9 @@ export const FulltextBooleanSchema = z
     cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
-  .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.columns.length > 0, { message: "Validation error: columns is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||
@@ -349,9 +349,9 @@ export const FulltextExpandSchema = z
     cursor: data.cursor,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
-  .refine((data) => data.columns.length > 0, { message: "columns is required" })
+  .refine((data) => data.columns.length > 0, { message: "Validation error: columns is required" })
   .refine(
     (data) =>
       data.maxLength === undefined ||

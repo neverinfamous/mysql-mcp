@@ -227,7 +227,7 @@ describe("Versioning Tools", () => {
 
     it("should execute update successfully", async () => {
       const tool = createConditionalUpdateTool(adapter);
-      adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }] });
+      adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }, { name: "_version" }] });
       adapter.executeWriteQuery.mockResolvedValueOnce({ rowsAffected: 1 });
 
       const result = await tool.handler({ table: "my_table", data: { name: "test" }, conditions: [{ column: "id", value: 1 }], expectedVersion: 1 }, context) as Record<string, unknown>;
@@ -245,7 +245,7 @@ describe("Versioning Tools", () => {
 
     it("should handle version mismatch (ConflictError)", async () => {
       const tool = createConditionalUpdateTool(adapter);
-      adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }] });
+      adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }, { name: "_version" }] });
       adapter.executeWriteQuery.mockResolvedValueOnce({ rowsAffected: 0 }); // update failed
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ _version: 2 }] }); // check row version
 
@@ -256,7 +256,7 @@ describe("Versioning Tools", () => {
 
     it("should handle ROW_NOT_FOUND on update failure", async () => {
       const tool = createConditionalUpdateTool(adapter);
-      adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }] });
+      adapter.describeTable.mockResolvedValueOnce({ columns: [{ name: "id" }, { name: "_version" }] });
       adapter.executeWriteQuery.mockResolvedValueOnce({ rowsAffected: 0 }); // update failed
       adapter.executeReadQuery.mockResolvedValueOnce({ rows: [] }); // check row version
 

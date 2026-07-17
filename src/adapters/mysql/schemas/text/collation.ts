@@ -72,10 +72,10 @@ export const CollationConvertSchema = z
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
+    message: "Validation error: table (or tableName/name alias) is required",
   })
   .refine((data) => data.column !== "", {
-    message: "column (or col alias) is required",
+    message: "Validation error: column (or col alias) is required",
   })
   .refine((data) => data.charset !== "", {
     message: "Validation error: charset (or targetCharset alias) is required",
