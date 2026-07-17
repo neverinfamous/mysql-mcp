@@ -68,6 +68,8 @@ export function createEnableVersioningTool(
         // though trigger names must be unique within the schema.
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
         const triggerName = `_mcp_version_${baseName.replace(/[^a-zA-Z0-9_]/g, "")}`;
+        const schemaName = table.includes(".") ? table.split(".")[0] : null;
+        const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
         // Check if _version already exists
         const describeInfo = await adapter.describeTable(table);
@@ -92,13 +94,13 @@ export function createEnableVersioningTool(
         // CREATE TRIGGER <name> BEFORE UPDATE ON <table> FOR EACH ROW SET NEW._version = OLD._version + 1;
         // First drop it if it exists to be safe
         try {
-          await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS \`${triggerName}\``, []);
+          await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS ${safeTrigger}`, []);
         } catch {
           // ignore
         }
 
         const triggerSql = `
-CREATE TRIGGER \`${triggerName}\`
+CREATE TRIGGER ${safeTrigger}
 BEFORE UPDATE ON ${safeTable}
 FOR EACH ROW
 BEGIN
@@ -147,6 +149,8 @@ export function createDisableVersioningTool(
         const safeTable = escapeId(table);
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
         const triggerName = `_mcp_version_${baseName.replace(/[^a-zA-Z0-9_]/g, "")}`;
+        const schemaName = table.includes(".") ? table.split(".")[0] : null;
+        const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
         const describeInfo = await adapter.describeTable(table);
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
@@ -167,7 +171,7 @@ export function createDisableVersioningTool(
           (col) => col.name === "_version",
         );
 
-        await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS \`${triggerName}\``, []);
+        await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS ${safeTrigger}`, []);
 
         if (hasVersionColumn) {
           await adapter.executeWriteQuery(
