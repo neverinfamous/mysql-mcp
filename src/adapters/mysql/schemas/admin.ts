@@ -197,9 +197,10 @@ export const ShowProcesslistSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
+      const { all, verbose, complete, full, ...rest } = data;
       return {
-        ...data,
-        full: data["full"] ?? data["all"] ?? data["verbose"] ?? data["complete"],
+        ...rest,
+        full: full ?? all ?? verbose ?? complete,
       };
     }
     return obj;
@@ -246,9 +247,10 @@ export const ShowStatusSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
+      const { pattern, search, filter, name, query, sql, variable, variableName, like, ...rest } = data;
       return {
-        ...data,
-        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"] ?? data["name"] ?? data["query"] ?? data["sql"] ?? data["variable"] ?? data["variableName"],
+        ...rest,
+        like: like ?? pattern ?? search ?? filter ?? name ?? query ?? sql ?? variable ?? variableName,
       };
     }
     return obj;
