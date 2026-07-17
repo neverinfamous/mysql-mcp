@@ -131,7 +131,7 @@ export function createSysUserSummaryTool(
           queryParams.push(user);
         }
 
-        query += ` ORDER BY statement_latency DESC LIMIT ${String(actualLimit)}`;
+        query += ` LIMIT ${String(actualLimit)}`;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
@@ -212,7 +212,7 @@ export function createSysHostSummaryTool(
           queryParams.push(host);
         }
 
-        query += ` ORDER BY statement_latency DESC LIMIT ${String(actualLimit)}`;
+        query += ` LIMIT ${String(actualLimit)}`;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};

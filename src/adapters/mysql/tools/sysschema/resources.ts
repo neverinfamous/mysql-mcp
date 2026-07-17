@@ -335,7 +335,6 @@ export function createSysMemorySummaryTool(
                     high_alloc,
                     high_avg_alloc
                 FROM sys.memory_global_by_current_bytes
-                ORDER BY current_alloc DESC
                 LIMIT ${String(limit)}
             `;
 
@@ -349,7 +348,6 @@ export function createSysMemorySummaryTool(
                     current_max_alloc,
                     total_allocated
                 FROM sys.memory_by_user_by_current_bytes
-                ORDER BY current_allocated DESC
                 LIMIT ${String(limit)}
             `;
 
