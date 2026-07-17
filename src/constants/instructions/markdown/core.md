@@ -8,6 +8,7 @@
   { "query": "SELECT * FROM users WHERE id = ?", "params": [123] }
   ```
 - **Streaming & Pagination**: `mysql_read_query` applies default `LIMIT 50` for SELECT/WITH unless `limit` is provided. Use `cursor` for pagination. Use `stream: true` + `chunkSize` for incremental MCP progress notifications.
+- **Strict Separation**: `mysql_read_query` strictly blocks write operations. `mysql_write_query` strictly blocks read-only operations (SELECT, SHOW, DESCRIBE, EXPLAIN) to prevent hallucinations where agents expect returned rows.
 - **DDL & Errors**: DDL (e.g., `CREATE TABLE`) automatically falls back to text protocol in `mysql_write_query`. Returns `{ success: false, error }` instead of throwing raw errors on query failures.
 
 ### Schema Management (`mysql_create_table`, `mysql_drop_table`, `mysql_describe_table`, `mysql_list_tables`)

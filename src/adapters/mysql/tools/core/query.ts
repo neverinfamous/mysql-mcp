@@ -157,6 +157,21 @@ export function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           params: queryParams,
           transactionId,
         } = WriteQuerySchema.parse(params);
+
+        const upperQueryValidation = query.trim().toUpperCase();
+        if (
+          upperQueryValidation.startsWith("SELECT ") ||
+          upperQueryValidation.startsWith("WITH ") ||
+          upperQueryValidation.startsWith("SHOW ") ||
+          upperQueryValidation.startsWith("DESCRIBE ") ||
+          upperQueryValidation.startsWith("EXPLAIN ")
+        ) {
+          throw new ValidationError(
+            "Read-only queries must be executed using mysql_read_query.",
+            { suggestion: "Use mysql_read_query for SELECT, SHOW, DESCRIBE, EXPLAIN, or WITH." }
+          );
+        }
+
         const result = await adapter.executeWriteQuery(
           query,
           queryParams,
