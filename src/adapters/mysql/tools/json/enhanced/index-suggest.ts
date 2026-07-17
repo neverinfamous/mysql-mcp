@@ -108,7 +108,7 @@ export function createJsonIndexSuggestTool(
               path: jsonPath,
               type: valueType ?? "UNKNOWN",
               cardinality,
-              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${key.replace(/[^a-zA-Z0-9_]/g, '')} ((CAST(JSON_EXTRACT(\`${column}\`, '${jsonPath.replace(/'/g, "''")}') AS ${dataType})));`,
+              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${key.replace(/[^a-zA-Z0-9_]/g, '')} ((CAST(JSON_EXTRACT(\`${column}\`, '${jsonPath.replace(/\\/g, "\\\\").replace(/'/g, "''")}') AS ${dataType})));`,
             });
           }
         }
