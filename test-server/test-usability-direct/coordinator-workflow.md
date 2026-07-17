@@ -68,7 +68,7 @@ Execute usability tests in `test-server/test-usability-direct/`. Fuzz tools to t
 
 When all subagents have completed their testing, the main coordinator agent MUST execute the following steps:
 
-1. Run `pnpm run lint`, `pnpm run typecheck`, `pnpm run build`, `pnpm run test:vitest`, and `pnpm run test:e2e` and fix any problems. Do NOT leave the test suite in a broken state.
+1. Run `pnpm run lint`, `pnpm run typecheck`, `pnpm run build`, `pnpm run test`, and `pnpm run test:e2e` and fix any problems. Do NOT leave the test suite in a broken state.
 2. Confirm any scratch files created against instructions are removed and cleaned from git history if needed.
 3. Confirm that all non-scratch files are properly committed.
 4. Message the user: "The test suite is complete. Fixes were applied during the run. Please manually restart the server ONCE so we can perform a final live validation sweep."
