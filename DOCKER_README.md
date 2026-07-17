@@ -215,6 +215,114 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
 
+#### Option 2: Cluster (Tools for InnoDB Cluster Monitoring)
+
+**Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
+
+> **⚠️ Prerequisites:**
+>
+> - **InnoDB Cluster** must be configured and running with Group Replication enabled
+> - Connect to a cluster node directly (e.g., `host.docker.internal:3307`) — NOT a standalone MySQL instance
+> - Use `cluster_admin` or `root` user with appropriate privileges
+> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for cluster setup instructions
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp-cluster": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "cluster"
+      ],
+      "env": {
+        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
+        "MYSQL_DATABASE": "mysql"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
+
+#### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
+
+**Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
+
+> **⚠️ Prerequisites:**
+>
+> - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
+> - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
+> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`) for `mysqlsh_import_json` and `docstore` tools
+> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp-ecosystem": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_XPORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "-e", "MYSQL_ROUTER_URL",
+        "-e", "MYSQL_ROUTER_USER",
+        "-e", "MYSQL_ROUTER_PASSWORD",
+        "-e", "MYSQL_ROUTER_INSECURE",
+        "-e", "PROXYSQL_HOST",
+        "-e", "PROXYSQL_PORT",
+        "-e", "PROXYSQL_USER",
+        "-e", "PROXYSQL_PASSWORD",
+        "-e", "MYSQLSH_PATH",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "ecosystem"
+      ],
+      "env": {
+        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_PORT": "3307",
+        "MYSQL_XPORT": "6448",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
+        "MYSQL_DATABASE": "testdb",
+        "MYSQL_ROUTER_URL": "https://host.docker.internal:8443",
+        "MYSQL_ROUTER_USER": "rest_api",
+        "MYSQL_ROUTER_PASSWORD": "router_password",
+        "MYSQL_ROUTER_INSECURE": "true",
+        "PROXYSQL_HOST": "host.docker.internal",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin",
+        "MYSQLSH_PATH": "/usr/local/bin/mysqlsh"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
+
 ### Connect via HTTP/SSE Server
 
 > **When to use HTTP mode:** Deploy `mysql-mcp` as a standalone server. Multiple clients can connect remotely. Use `stdio` mode for local development.
@@ -252,10 +360,6 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 
 ## 🛠️ Prevent Token Limits with Tool Filtering
 
-> **Architectural Rule:** Tool filtering allows skipping the `--mysql` connection. Do this if only ecosystem tools (e.g., ProxySQL, MySQL Router, MySQL Shell) are used.
-
-> [!IMPORTANT]
-> **AI IDEs like Cursor have strict tool limits. You MUST use tool filtering to stay within your IDE's limits.** 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available groups and predefined bundles.
 
 ---

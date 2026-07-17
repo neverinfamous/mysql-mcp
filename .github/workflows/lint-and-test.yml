@@ -19,13 +19,13 @@ jobs:
 
     services:
       mysql:
-        image: mysql:9.1
+        image: mysql:lts
         env:
           MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: testdb
         ports:
           - 3307:3306
-        options: --health-cmd="mysqladmin ping -h localhost -uroot -proot" --health-interval=10s --health-timeout=5s --health-retries=3
+        options: --health-cmd="mysqladmin ping -h localhost -uroot -proot" --health-interval=10s --health-timeout=5s --health-retries=3 --innodb-use-native-aio=0 --innodb-flush-method=fsync
       redis:
         image: redis:alpine
         ports:

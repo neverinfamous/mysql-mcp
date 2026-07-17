@@ -16,7 +16,7 @@ Thank you for your interest in contributing to mysql-mcp! Join us in building a 
 ### Meet Prerequisites
 
 - Recent Node.js (LTS recommended)
-- Bun >= 1.0 (for script execution)
+- Bun >= 1.0 (for executing repository automation scripts)
 - Current pnpm version
 - **Git** (for version control)
 - **MySQL** (local instance or Docker)

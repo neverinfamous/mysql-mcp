@@ -557,6 +557,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
+> **Note:** Port `6448` is the standard MySQL Router X Protocol port.
+
 **Customization Notes:**
 
 - Replace `/path/to/mysql-mcp/` with your actual installation path

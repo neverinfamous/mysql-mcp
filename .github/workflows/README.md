@@ -2,8 +2,8 @@
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
-## Deliver the Value Proposition
-The **mysql-mcp** CI/CD pipeline delivers uncompromising security, high-performance testing, and automated, multi-architecture deployments. It is engineered with intelligent agentic workflows and rigorous safety gates. It ensures consistently reliable releases with minimal manual overhead.
+## Value Proposition
+The **mysql-mcp** CI/CD pipeline delivers robust security, high-performance testing, and automated, multi-architecture deployments. It is engineered with intelligent agentic workflows and rigorous safety gates. It ensures consistently reliable releases with minimal manual overhead.
 
 ## Visualize the Workflow Map
 
