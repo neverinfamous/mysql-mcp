@@ -549,7 +549,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "/usr/local/bin/mysqlsh"
+        "MYSQLSH_PATH": "mysqlsh"
       },
       "timeout": 600
     }

@@ -26,7 +26,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics to Grafana. Trace with Datadog eBPF / APM. Monitor logs with Dozzle. |
+| **Observability**                     | Persist local metrics via SystemDb. Export Prometheus metrics to Grafana. Monitor Token & AI Efficiency with Datadog eBPF / APM. Monitor logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
@@ -63,6 +63,7 @@ docker compose up -d
 ```
 
 - **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
+- **Datadog:** Pre-configured with custom AI Efficiency, Token, and Database dashboards (requires API key).
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
@@ -149,7 +150,11 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ## ⚡ Simplify AI Integration with Client Configs
 
-### Configure Cursor or Claude Desktop
+### Configure IDE Settings
+
+Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
+
+#### Option 1: Code Mode
 
 ```json
 {
@@ -315,7 +320,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "/usr/local/bin/mysqlsh"
+        "MYSQLSH_PATH": "mysqlsh"
       },
       "timeout": 600
     }
@@ -339,6 +344,9 @@ docker run --rm -p 3000:3000 \
   writenotenow/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
+
+> [!WARNING]
+> **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
 
 ### Access Security Features and Utility Endpoints
 

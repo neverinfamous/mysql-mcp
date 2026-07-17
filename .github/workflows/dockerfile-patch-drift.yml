@@ -1,13 +1,15 @@
 name: Dockerfile Patch Drift Check
 
-# Detects when manually patched transitive dependencies in the Dockerfile
-# have been updated in the Node.js base image's bundled npm, making the
-# patches redundant. Runs daily and on Dockerfile changes.
+# Detects when manually patched transitive dependencies in the Dockerfile,
+# package.json overrides, or pnpm-lock.yaml have been updated in the
+# upstream registry or Node.js base image's bundled npm, making the
+# patches redundant. Runs daily and on Dockerfile/package/lock changes.
 
 on:
   schedule:
     - cron: "0 12 * * *" # Daily at noon UTC
   pull_request:
+    branches: [main]
     paths:
       - "Dockerfile"
       - "package.json"
@@ -35,13 +37,13 @@ jobs:
           # These are the versions we manually patch in the Dockerfile.
           # If npm's bundled version is already >= patched version, the patch is stale.
           declare -A PATCHES
-          for pkg_str in $(grep -Eo 'npm install -g [a-zA-Z0-9_-]+@[0-9.]+' Dockerfile | awk '{print $4}'); do
-            pkg_name=$(echo "$pkg_str" | awk -F'@' '{print $1}')
-            pkg_ver=$(echo "$pkg_str" | awk -F'@' '{print $2}')
+          for pkg_str in $(grep -Eo 'npm install -g [a-zA-Z0-9_/@-]+@[0-9.]+' Dockerfile | awk '{print $4}'); do
+            pkg_name="${pkg_str%@*}"
+            pkg_ver="${pkg_str##*@}"
             PATCHES["$pkg_name"]="$pkg_ver"
           done
 
-          NPM_DIR="/usr/local/lib/node_modules/npm"
+          NPM_DIR="$(npm root -g)/npm"
           STALE=0
 
           for pkg in "${!PATCHES[@]}"; do
@@ -91,7 +93,8 @@ jobs:
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+      - name: Setup pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
@@ -116,8 +119,8 @@ jobs:
           while IFS='=' read -r pkg version; do
             [ -z "$pkg" ] && continue
 
-            # Check if the lockfile still needs this override
-            # by looking for the package in node_modules after pnpm install --frozen-lockfile
+            # Check if the override is still needed
+            # by looking up the latest version in the npm registry
             LATEST=$(pnpm view "$pkg" version 2>/dev/null || echo "unknown")
 
             if [ "$LATEST" = "$version" ]; then
