@@ -34,7 +34,7 @@ export const JsonExtractSchema = z
       filter: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-      limit: z.coerce.number().optional(),
+      limit: z.coerce.number().int().positive().optional(),
     }),
   )
   .transform((data) => ({
@@ -140,7 +140,7 @@ export const JsonKeysSchema = z
       filter: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-      limit: z.coerce.number().optional(),
+      limit: z.coerce.number().int().positive().optional(),
     }),
   )
   .transform((data) => ({
