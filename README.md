@@ -123,7 +123,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
-- ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+- ✅ **Rate limiting** — Per-client limits (`CODEMODE_RATE_LIMIT_MAX`). Uses Redis with in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
@@ -188,7 +188,7 @@ Use stateless deployments where sessions are not needed:
 node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --stateless --mysql "mysql://mcp_user:secure_password@..."
 ```
 
-In stateless mode: `GET /mcp` returns 405, `DELETE /mcp` returns 204, `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
+In stateless mode: `GET /mcp` returns 405. `DELETE /mcp` returns 204. `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
 
 ### Connect via Legacy SSE (Backward Compatibility)
 
@@ -222,7 +222,7 @@ export MCP_AUTH_TOKEN=my-secret
 node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --mysql "mysql://mcp_user:secure_password@..."
 ```
 
-Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401` with `WWW-Authenticate: Bearer` headers per RFC 6750.
+Clients must include `Authorization: Bearer my-secret` on all requests. `/health` and `/` are exempt. Unauthenticated requests receive `401`. Responses include `WWW-Authenticate: Bearer` headers per RFC 6750.
 
 ### Authenticate with OAuth 2.1
 
@@ -520,7 +520,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 >
 > - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
 > - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
-> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`) for `mysqlsh_import_json` and `docstore` tools
+> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`). This enables `mysqlsh_import_json` and `docstore` tools
 > - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
 
 ```json
@@ -568,7 +568,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 - For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
 - For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell\\bin\\mysqlsh.exe"`
 - **Router Authentication:** Router REST API authenticates against the InnoDB Cluster metadata. The cluster must be running for authentication to work.
-- **Cluster Resource:** The `mysql://cluster` resource is only available when connected to an InnoDB Cluster node
+- **Cluster Resource:** Connect to an InnoDB Cluster node. This unlocks the `mysql://cluster` resource
 
 ---
 
@@ -663,7 +663,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `METADATA_CACHE_TTL_MS`     | `30000`  | Cache TTL for schema metadata (milliseconds)                        |
 | `LOG_LEVEL`                 | `info`   | Log verbosity: `debug`, `info`, `warn`, `error`                     |
 
-> **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`), or increase it for production with stable schemas (e.g., `300000` = 5 min).
+> **Tip:** Lower `METADATA_CACHE_TTL_MS` for development (e.g., `5000`). Increase it for production with stable schemas (e.g., `300000` = 5 min).
 
 > **Payload optimization:** Tools support `summary: true` and `limit` parameters. These condense large payloads.
 
@@ -817,7 +817,7 @@ pnpm run test:coverage
 
 ### Execute Benchmarks
 
-The project includes a performance benchmarking suite to track the efficiency of critical paths like Code Mode sandbox initialization, tool filtering, and URI routing.
+The project includes a performance benchmarking suite. It tracks efficiency of critical paths. These include Code Mode sandbox initialization, tool filtering, and URI routing.
 
 ```bash
 pnpm run bench

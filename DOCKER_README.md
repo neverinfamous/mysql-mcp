@@ -30,6 +30,22 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
+### 🤖 Guided Workflows (Prompts)
+
+| Prompt | Description |
+|---|---|
+| `mysql_tool_index` | Complete tool index |
+| `mysql_quick_query` | Quick query execution |
+| `mysql_quick_schema` | Quick schema exploration |
+
+### 📊 Observability (Resources)
+
+| Resource | Description |
+|---|---|
+| `mysql://schema` | Full database schema |
+| `mysql://tables` | Table listing with metadata |
+| `mysql://sys/*` | System insights |
+
 ---
 
 ## 🚀 Deploy Your AI Database in Minutes
@@ -39,7 +55,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 - Docker or Docker Desktop
 - MySQL 5.7+ server
 
-> **Linux Users:** If using `host.docker.internal` on Linux, you may need to run your container with `--add-host host.docker.internal:host-gateway`.
+> **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
 
 ### Install the Server
 
@@ -55,7 +71,7 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
 
 #### Observability via Docker Compose
 
-Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server along with a pre-configured Prometheus and Grafana observability stack out-of-the-box:
+Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server. It includes a pre-configured Prometheus and Grafana observability stack.
 
 ```bash
 cp .env.example .env
@@ -91,8 +107,8 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
-- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps (default 100KB).
-- ✅ **Rate limiting** — Rate limited per client (configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+- ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
+- ✅ **Rate limiting** — Per-client limits (`CODEMODE_RATE_LIMIT_MAX`). Uses Redis with in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
@@ -107,7 +123,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 > [!TIP]
 > **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
 >
-> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step database operations to minimize token usage."_
+> _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step operations. This minimizes token usage."_
 >
 > For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
 
@@ -115,11 +131,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ## ⚡ Simplify AI Integration with Client Configs
 
-### Use Environment Variables (Recommended)
 
-See **Option 1: Code Mode** below for the recommended IDE configuration.
-
-> **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
 
 
 ### Configure IDE Settings
@@ -213,7 +225,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 >
 > - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
 > - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
-> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`) for `mysqlsh_import_json` and `docstore` tools
+> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`). This enables `mysqlsh_import_json` and `docstore` tools
 > - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
 
 ```json
@@ -270,6 +282,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 ```
 
 > **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
+> **Note:** `mysqlsh` must be mounted or installed via a custom image if this option is utilized, as it is not packaged in the `Dockerfile`.
 
 ## 🌐 Enable Remote Access via HTTP & SSE
 
@@ -293,7 +306,7 @@ docker run --rm -p 3000:3000 \
 
 ### Access Security Features and Utility Endpoints
 
-For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setup (with Keycloak), see the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth).
+See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth 2.1 setup (with Keycloak).
 
 ---
 
@@ -305,7 +318,7 @@ For detailed configuration on HTTP mode, CORS, Rate Limiting, and OAuth 2.1 setu
 | **MySQL in Docker**       | Container name or network | `mysql://mcp_user:secure_password@mysql-container:3306/testdb`      |
 | **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://mcp_user:secure_password@db.example.com:3306/testdb`       |
 
-> **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range and that firewalls/security groups permit port 3306.
+> **Tip:** For remote connections, ensure your MySQL server allows connections from Docker's IP range. Also, verify firewalls/security groups permit port 3306.
 
 ---
 

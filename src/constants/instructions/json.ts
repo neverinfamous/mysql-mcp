@@ -9,7 +9,7 @@ export const JSON_HELP = `# JSON Tools (\`mysql_json_extract\`, \`mysql_json_set
 - **Pagination**: \`mysql_json_extract\`, \`mysql_json_contains\`, \`mysql_json_keys\`, and \`mysql_json_search\` inject a default \`LIMIT 50\` on queries without explicit \`LIMIT\` clause.
 
 ### Write Operations (\`mysql_json_set\`, \`mysql_json_insert\`, \`mysql_json_replace\`, \`mysql_json_remove\`, \`mysql_json_array_append\`, \`mysql_json_update\`, \`mysql_json_merge\`)
-- **WHERE Clause Requirement**: All write tools require a mandatory \`where\` parameter (or \`filter\` alias) to identify target rows.
+- **WHERE Clause Requirement**: All write tools require a mandatory \`where\` parameter (or \`filter\`, \`condition\`, \`idColumn\`/\`rowId\` aliases) to identify target rows.
 - **Automatic String Handling**: Bare strings are auto-converted to JSON strings:
   \`\`\`json
   { "value": "green" } // stored as JSON string "green"

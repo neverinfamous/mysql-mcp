@@ -49,7 +49,7 @@ Log review issues using `create_entry` with the `copilot-finding` tag. Agents re
 - **Strict TypeScript** — `tsconfig.json` enforces strict mode
 - **Never use `eslint-disable`** to evade standards
 - **Never use `any`** — use `unknown` and narrow with type guards
-- Type assertions (e.g., as) — always forbidden (use satisfies or strict type guards instead)
+- Type assertions (e.g., `as`) — always forbidden (use `satisfies` or strict type guards instead)
 - **Never use `@ts-ignore` or `@ts-expect-error`** — fix the underlying type issue
 - **Zod schemas** for all tool input validation at system boundaries
 - **Union types over enums** — use `type Status = "active" | "inactive"` instead of `enum`
@@ -117,7 +117,7 @@ When reviewing PRs, check for:
 
 - [ ] Missing barrel exports in `src/types/index.ts` when new types are added
 - [ ] `eslint-disable` usage — always forbidden
-- [ ] `@ts-ignore`, `@ts-expect-error` or `as any` — always forbidden
+- [ ] I have not used `@ts-ignore`, `@ts-expect-error`, or type assertions like `as` (use `satisfies` or strict type guards instead).
 - [ ] Raw exceptions from tool handlers — must use structured error responses
 - [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
 - [ ] Files approaching 500 lines — flag for splitting

@@ -134,16 +134,22 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
         if (result.rowsAffected === 0) {
-          const response = {
-            success: false as const,
-            error: `No row found matching WHERE ${where}`,
-            code: "NOT_FOUND",
-            category: "resource" as const,
-            recoverable: false,
-            suggestion: undefined,
-            details: undefined
-          };
-          return withTokenEstimate(response);
+          // Verify if row actually exists but value was identical
+          const checkSql = `SELECT 1 FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
+          const checkResult = await adapter.executeReadQuery(checkSql, []);
+          
+          if (!checkResult.rows || checkResult.rows.length === 0) {
+            const response = {
+              success: false as const,
+              error: `No row found matching WHERE ${where}`,
+              code: "NOT_FOUND",
+              category: "resource" as const,
+              recoverable: false,
+              suggestion: undefined,
+              details: undefined
+            };
+            return withTokenEstimate(response);
+          }
         }
         const response = {
           success: true as const,

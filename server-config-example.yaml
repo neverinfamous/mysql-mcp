@@ -11,7 +11,7 @@
 # Docker mapping requirements: set host to 0.0.0.0 and adjust allowedIoRoots to match mounted volumes.
 host: "127.0.0.1"
 port: 3000
-_comment_transport: "Defaults to stdio. Use http or sse for docker-compose configurations."
+_comment_transport: "Defaults to stdio. Use http for docker-compose configurations."
 transport: "stdio" # or "http", "sse"
 enableHSTS: false
 trustProxy: false

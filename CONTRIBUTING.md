@@ -273,11 +273,13 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 
 ### Pass CI Checks
 
-| Workflow        | What It Does                                 |
-| --------------- | -------------------------------------------- |
-| **Lint & Test** | ESLint, TypeScript strict-mode, Vitest suite |
-| **CodeQL**      | Static analysis for security vulnerabilities |
-| **E2E**         | Playwright end-to-end transport parity tests |
+| Workflow             | What It Does                                 |
+| -------------------- | -------------------------------------------- |
+| **Lint & Test**      | ESLint, TypeScript strict-mode, Vitest suite |
+| **CodeQL**           | Static analysis for security vulnerabilities |
+| **E2E**              | Playwright end-to-end transport parity tests |
+| **pnpm audit**       | Checks dependencies for known vulnerabilities|
+| **Secrets scanning** | Scans for exposed credentials and API keys   |
 
 All checks must pass before merge. Security steps **hard-fail on fixable issues** — this is intentional.
 
