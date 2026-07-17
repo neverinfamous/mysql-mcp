@@ -2,7 +2,7 @@
 
 > [!IMPORTANT]
 > **Value Proposition**
-> This pipeline ensures enterprise-grade reliability and security. It automates continuous integration, security scanning, and release orchestration.
+> This pipeline delivers enterprise-grade reliability and security at scale. By automating continuous integration, comprehensive vulnerability scanning, and robust release orchestration, it accelerates time-to-market while ensuring zero-compromise deployments.
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
@@ -140,7 +140,10 @@ For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and p
 
 | Secret            | Used By                    | Purpose                     |
 | ----------------- | -------------------------- | --------------------------- |
-| `GITHUB_TOKEN`    | codeql, secrets-scanning   | Git operations               |
+| `GITHUB_TOKEN`    | codeql, secrets-scanning, ci-health-monitor | Git operations and agent authorization |
+| `COPILOT_GITHUB_TOKEN`| ci-health-monitor      | Agent authorization            |
+| `GH_AW_GITHUB_MCP_SERVER_TOKEN`| ci-health-monitor | Agent authorization            |
+| `GH_AW_GITHUB_TOKEN` | ci-health-monitor         | Agent authorization            |
 | `NPM_TOKEN`       | publish-npm                | npm registry authentication  |
 | `DOCKER_USERNAME` | docker-publish             | Docker Hub login             |
 | `DOCKER_PASSWORD` | docker-publish             | Docker Hub login             |

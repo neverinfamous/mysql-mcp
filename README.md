@@ -176,7 +176,7 @@ Modern MCP protocol — single endpoint, session-based:
 | `GET`    | `/mcp`   | SSE stream for server notifications              |
 | `DELETE` | `/mcp`   | Session termination                              |
 
-> **Rate Limit:** HTTP transport is rate limited per IP (default 100/min, configurable via `MCP_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+> **Rate Limit:** HTTP transport is rate limited per IP (default 10000/min, configurable via `MCP_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
 
 The server manages sessions via the `Mcp-Session-Id` header.
 
@@ -730,6 +730,8 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 100) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
+| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
+| —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.

@@ -6,7 +6,7 @@ services:
       - "${MYSQLMCP_PORT:-3000}:${MYSQLMCP_PORT:-3000}"
     command:
       - --transport
-      - sse
+      - http
     env_file:
       - .env # Copy .env.example to .env to configure
     environment:

@@ -169,7 +169,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
-        "REDIS_URL": "redis://localhost:6379"
+        "REDIS_URL": "redis://host.docker.internal:6379"
       },
       "timeout": 600
     }
