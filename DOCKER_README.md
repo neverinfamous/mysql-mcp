@@ -117,44 +117,12 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ### Use Environment Variables (Recommended)
 
-```json
-{
-  "mcpServers": {
-    "mysql-mcp": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e", "MYSQL_HOST",
-        "-e", "MYSQL_PORT",
-        "-e", "MYSQL_USER",
-        "-e", "MYSQL_PASSWORD",
-        "-e", "MYSQL_DATABASE",
-        "-e", "MYSQL_XPORT",
-        "writenotenow/mysql-mcp:latest",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "starter"
-      ],
-      "env": {
-        "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "mcp_user",
-        "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb",
-        "MYSQL_XPORT": "33060"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
+See **Option 1: Code Mode** below for the recommended IDE configuration.
 
 > **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
+
 
 ### Configure IDE Settings
 
