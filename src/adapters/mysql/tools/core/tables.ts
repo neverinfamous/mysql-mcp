@@ -192,10 +192,7 @@ export function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (ifNotExists) {
-          const checkName = name.includes(".")
-            ? (name.split(".")[1] ?? name)
-            : name;
-          const tableInfo = await adapter.describeTable(checkName);
+          const tableInfo = await adapter.describeTable(name);
           if (tableInfo.columns && tableInfo.columns.length > 0) {
             return withTokenEstimate({
               success: true,
@@ -267,11 +264,6 @@ export function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (comment) {
           sql += ` COMMENT='${comment.replace(/'/g, "''")}'`;
-        }
-
-        if (name.includes(".")) {
-          const [schemaName] = name.split(".");
-          await adapter.executeQuery(`USE \`${schemaName}\``);
         }
 
         try {
