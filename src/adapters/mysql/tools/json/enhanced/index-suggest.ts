@@ -42,18 +42,21 @@ export function createJsonIndexSuggestTool(
         // Get top-level keys and their types
         const keysQuery = `
                 SELECT DISTINCT jt.key_name
-                FROM ${escapeQualifiedTable(table)},
+                FROM (
+                    SELECT \`${column}\`
+                    FROM ${escapeQualifiedTable(table)}
+                    LIMIT ${String(sampleSize)}
+                ) as sub,
                 JSON_TABLE(
-                    JSON_KEYS(\`${column}\`),
+                    JSON_KEYS(sub.\`${column}\`),
                     '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')
                 ) as jt
-                LIMIT ${String(sampleSize)}
             `;
 
         const keysResult = await adapter.executeQuery(keysQuery);
-        const keys = (keysResult.rows ?? []).map(
-          (r) => typeof r["key_name"] === "string" ? r["key_name"] : "",
-        );
+        const keys = (keysResult.rows ?? [])
+          .map((r) => r["key_name"])
+          .filter((k): k is string => typeof k === "string" && k.length > 0);
 
         // Check cardinality and suggest indexes
         const suggestions: {
