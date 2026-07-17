@@ -393,7 +393,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}.fill(last)"
               }
             ],
             "response_format": "timeseries",
@@ -414,7 +414,7 @@
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_idle{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_idle{*}.fill(last)"
               }
             ],
             "response_format": "timeseries",
@@ -435,7 +435,7 @@
               {
                 "data_source": "metrics",
                 "name": "query3",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.fill(last)"
               }
             ],
             "response_format": "timeseries",
@@ -781,7 +781,7 @@
         "legend_layout": "auto",
         "requests": [
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
                 "alias": "Cache Hits",
@@ -801,7 +801,7 @@
             }
           },
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
                 "alias": "Cache Misses",
