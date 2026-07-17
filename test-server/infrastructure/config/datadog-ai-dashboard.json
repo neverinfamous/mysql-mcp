@@ -785,7 +785,7 @@
             "formulas": [
               {
                 "alias": "Cache Hits",
-                "formula": "query1"
+                "formula": "default_zero(monotonic_diff(query1))"
               }
             ],
             "queries": [
@@ -805,7 +805,7 @@
             "formulas": [
               {
                 "alias": "Cache Misses",
-                "formula": "query2"
+                "formula": "default_zero(monotonic_diff(query2))"
               }
             ],
             "queries": [
