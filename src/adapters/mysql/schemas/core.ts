@@ -254,7 +254,15 @@ export const CreateTableSchema = z
   })
   .refine((data) => data.columns !== undefined && data.columns.length > 0, {
     message: "columns array is required and must not be empty",
-  });
+  })
+  .refine(
+    (data) =>
+      data.columns === undefined ||
+      data.columns.some((c) => c.primaryKey),
+    {
+      message: "Every table must have an explicit PRIMARY KEY. Set primaryKey: true on at least one column.",
+    },
+  );
 
 export const CreateTableOutputSchema = BaseOutputSchema.extend({
   data: z.object({
