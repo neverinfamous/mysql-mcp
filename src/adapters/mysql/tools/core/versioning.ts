@@ -28,8 +28,25 @@ function buildWhereClause(conditions: { column: string; operator?: string; value
   for (const cond of conditions) {
     const col = `\`${cond.column.replace(/`/g, "")}\``;
     const op = cond.operator || "=";
-    clauses.push(`${col} ${op} ?`);
-    params.push(cond.value);
+    const upperOp = op.toUpperCase();
+
+    if (upperOp === "IS NULL" || upperOp === "IS NOT NULL") {
+      clauses.push(`${col} ${upperOp}`);
+    } else if (upperOp === "IN" || upperOp === "NOT IN") {
+      clauses.push(`${col} ${upperOp} (?)`);
+      params.push(Array.isArray(cond.value) ? cond.value : [cond.value]);
+    } else if (upperOp === "BETWEEN") {
+      clauses.push(`${col} BETWEEN ? AND ?`);
+      if (Array.isArray(cond.value) && cond.value.length === 2) {
+        params.push(cond.value[0], cond.value[1]);
+      } else {
+        // Fallback if not an array of 2 elements, just push twice to prevent crash, let DB error naturally
+        params.push(cond.value, cond.value);
+      }
+    } else {
+      clauses.push(`${col} ${op} ?`);
+      params.push(cond.value);
+    }
   }
   return { sql: clauses.join(" AND "), params };
 }
