@@ -179,6 +179,13 @@ const ERROR_SUGGESTIONS: {
   // Query errors — syntax, constraints, transactions
   // =========================================================================
   {
+    pattern: /Incorrect arguments to COM_STMT_EXECUTE/i,
+    suggestion:
+      "The number of parameters provided does not match the number of placeholders (?) in the SQL query.",
+    category: ErrorCategory.QUERY,
+    code: "PARAMETER_MISMATCH",
+  },
+  {
     pattern: /You have an error in your SQL syntax/i,
     suggestion:
       "Check SQL syntax. Common issues: missing quotes, commas, parentheses, or reserved word conflicts.",
