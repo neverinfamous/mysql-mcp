@@ -1,6 +1,6 @@
 # MySQL MCP Advanced Code Mode Testing Suite
 
-**🤖 AGENT INSTRUCTIONS**
+**AGENT INSTRUCTIONS**
 
 This directory contains advanced stress tests for the tool groups. These tests simulate complex edge cases using exclusively Code Mode.
 
@@ -28,7 +28,7 @@ When testing the contents of this directory, you MUST adhere to the following ru
 4. **Payload Optimization (Token Monitoring):**
    - These tests deliberately trigger large responses and deep architectural nesting.
    - You MUST closely monitor the `metrics.tokenEstimate` value returned from the `mysql_execute_code` payloads.
-   - If extremely large unbounded responses are produced, this is flagged as a 📦 **Payload Issue**. You must halt and patch the source handler boundary constraints (e.g., restricting integer `limit` inputs or dynamically dropping table dimensions).
+   - If extremely large unbounded responses are produced, this is flagged as a **Payload Issue**. You must halt and patch the source handler boundary constraints (e.g., restricting integer `limit` inputs or dynamically dropping table dimensions).
 5. **Structured Error Adherence (P154):** When intentionally attempting boundary failure parameters (missing columns, invalid dimension types), assert that the adapter outputs a proper structured error (`{success: false, error: "..."}`) rather than leaking raw MySQL native errors.
 6. **Security Sandbox Boundaries:** Ensure the server uses `ALLOWED_IO_ROOTS`. For filesystem-interacting tools, actively test directory traversal edge cases (e.g., `../../etc/passwd`). Test paths explicitly outside the allowed boundary. Confirm `SECURITY_ERROR` is correctly thrown and caught.
 7. **No Persistent Pollution:** After finishing execution within a document, verify that all `stress_*` schema tables and functions generated within Code Mode have been safely `DROP`ped. No test state should bleed over into the next run.

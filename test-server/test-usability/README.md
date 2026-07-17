@@ -1,8 +1,8 @@
 # MySQL MCP Usability Testing Suite
 
-**🤖 AGENT INSTRUCTIONS**
+**AGENT INSTRUCTIONS**
 
-This directory contains organic prompts to fuzz tools and trigger hallucinations. The goal is to verify tools are intuitive and bulletproof for AI agents.
+This directory contains organic prompts to fuzz tools and trigger hallucinations. The goal is to verify tools are intuitive and robust for AI agents.
 
 ## Understand Testing Philosophy
 These prompts instruct agents to act intuitively and purposefully omit syntax.
