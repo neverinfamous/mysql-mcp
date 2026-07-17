@@ -243,15 +243,37 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
+        // Check if path exists before replace
+        const checkSql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as existing_value FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql, [path]);
+        const pathExists =
+          checkResult.rows?.[0]?.["existing_value"] !== null &&
+          checkResult.rows?.[0]?.["existing_value"] !== undefined;
+
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return withTokenEstimate({
-          success: true,
-          data: { rowsAffected: result.rowsAffected },
-        });
+
+        const response = !pathExists
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion:
+                  "Path does not exist; value was not modified (JSON_REPLACE only updates existing paths)",
+              },
+            }
+          : {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              },
+            };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_replace" });

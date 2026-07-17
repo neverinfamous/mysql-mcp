@@ -29,6 +29,8 @@ export const JsonInsertOutputSchema = BaseOutputSchema.extend({
 export const JsonReplaceOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     rowsAffected: z.number(),
+    changed: z.boolean().optional(),
+    suggestion: z.string().optional(),
   }).optional(),
 });
 
