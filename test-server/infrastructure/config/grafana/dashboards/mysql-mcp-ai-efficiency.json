@@ -344,7 +344,7 @@
       },
       "targets": [
         {
-          "expr": "sum(increase(mysql_mcp_tool_tokens_total[$__range])) by (tool)",
+          "expr": "sum(increase(mysql_mcp_tool_tokens_total[$__rate_interval])) by (tool)",
           "legendFormat": "{{tool}}",
           "refId": "A"
         }
@@ -386,7 +386,7 @@
       },
       "targets": [
         {
-          "expr": "sum(increase(mysql_mcp_tool_calls_total[$__range])) by (tool)",
+          "expr": "sum(increase(mysql_mcp_tool_calls_total[$__rate_interval])) by (tool)",
           "legendFormat": "{{tool}}",
           "refId": "A"
         }
@@ -576,7 +576,7 @@
       },
       "targets": [
         {
-          "expr": "sum(increase(mysql_mcp_tool_errors_total[$__range])) by (tool)",
+          "expr": "sum(increase(mysql_mcp_tool_errors_total[$__rate_interval])) by (tool)",
           "legendFormat": "{{tool}}",
           "refId": "A"
         }
@@ -838,12 +838,12 @@
       },
       "targets": [
         {
-          "expr": "sum(increase(mysql_mcp_cache_hits_total[$__range]))",
+          "expr": "sum(increase(mysql_mcp_cache_hits_total[$__rate_interval]))",
           "legendFormat": "Hits",
           "refId": "A"
         },
         {
-          "expr": "sum(increase(mysql_mcp_cache_misses_total[$__range]))",
+          "expr": "sum(increase(mysql_mcp_cache_misses_total[$__rate_interval]))",
           "legendFormat": "Misses",
           "refId": "B"
         }
