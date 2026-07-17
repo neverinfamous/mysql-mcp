@@ -12,7 +12,7 @@ export const JsonContainsSchemaBase = z.object({
   contains: z.unknown().optional().describe("Alias for value"),
   candidate: z.unknown().optional().describe("Alias for value"),
   target: z.unknown().optional().describe("Alias for value"),
-  path: z.string().optional().describe("Optional JSON path to search within"),
+  path: z.unknown().optional().describe("Optional JSON path to search within"),
   where: z.string().optional().describe("Optional WHERE clause (Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
