@@ -17,7 +17,7 @@ import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 import { isValidId, escapeId } from "./tables.js";
 
-const VALID_INDEX_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+const VALID_INDEX_NAME_PATTERN = /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/;
 
 export function createGetIndexesTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -81,6 +81,12 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
         if (columns?.some(c => !isValidId(c))) {
           return formatHandlerErrorResponse(
             new MySQLMcpError("Invalid column name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
+        }
+
+        if (columns && columns.length > 16) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("MySQL limits indexes to a maximum of 16 columns", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
           );
         }
 
