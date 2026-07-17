@@ -30,7 +30,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((monotonic_diff(query1)) / 1000000) * 2)"
+                "formula": "(((query1) / 1000000) * 2)"
               }
             ],
             "queries": [
@@ -76,7 +76,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((monotonic_diff(query1)) / 1000000) * 5)"
+                "formula": "(((query1) / 1000000) * 5)"
               }
             ],
             "queries": [
@@ -122,7 +122,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((monotonic_diff(query1)) / 1000000) * 5)"
+                "formula": "(((query1) / 1000000) * 5)"
               }
             ],
             "queries": [
@@ -168,7 +168,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((monotonic_diff(query1)) / 1000000) * 6)"
+                "formula": "(((query1) / 1000000) * 6)"
               }
             ],
             "queries": [
@@ -214,7 +214,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((monotonic_diff(query1)) / 1000000) * 30)"
+                "formula": "(((query1) / 1000000) * 30)"
               }
             ],
             "queries": [
@@ -259,7 +259,7 @@
             ],
             "formulas": [
               {
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -342,7 +342,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -475,7 +475,7 @@
             ],
             "formulas": [
               {
-                "formula": "default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)"
+                "formula": "default_zero(a) / (default_zero(b) + 0.0000001)"
               }
             ],
             "queries": [
@@ -534,7 +534,7 @@
             ],
             "formulas": [
               {
-                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
+                "formula": "(default_zero(a) / (default_zero(b) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -583,7 +583,7 @@
             ],
             "formulas": [
               {
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -639,7 +639,7 @@
             ],
             "formulas": [
               {
-                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(a)) + default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
+                "formula": "(default_zero(a) / (default_zero(a) + default_zero(b) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -689,7 +689,7 @@
             ],
             "formulas": [
               {
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -744,7 +744,7 @@
             ],
             "formulas": [
               {
-                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
+                "formula": "(default_zero(a) / (default_zero(b) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -785,7 +785,7 @@
             "formulas": [
               {
                 "alias": "Cache Hits",
-                "formula": "default_zero(monotonic_diff(query1))"
+                "formula": "default_zero(query1)"
               }
             ],
             "queries": [
@@ -805,7 +805,7 @@
             "formulas": [
               {
                 "alias": "Cache Misses",
-                "formula": "default_zero(monotonic_diff(query2))"
+                "formula": "default_zero(query2)"
               }
             ],
             "queries": [
@@ -853,7 +853,7 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
