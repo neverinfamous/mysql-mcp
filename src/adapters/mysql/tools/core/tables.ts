@@ -185,6 +185,12 @@ export function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
           ifNotExists,
         } = CreateTableSchema.parse(params);
 
+        if (!isValidId(name)) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Invalid table name", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+          );
+        }
+
         if (ifNotExists) {
           const checkName = name.includes(".")
             ? (name.split(".")[1] ?? name)
