@@ -60,7 +60,7 @@ export const JsonSetSchema = z
   .refine((data) => data.path !== undefined && data.path !== "", {
     message: "path is required",
   })
-  .refine((data) => data.value !== undefined && data.value !== "", {
+  .refine((data) => data.value !== undefined, {
     message: "value is required",
   });
 
@@ -123,7 +123,7 @@ export const JsonInsertSchema = z
   .refine((data) => data.path !== undefined && data.path !== "", {
     message: "path is required",
   })
-  .refine((data) => data.value !== undefined && data.value !== "", {
+  .refine((data) => data.value !== undefined, {
     message: "value is required",
   });
 
@@ -186,7 +186,7 @@ export const JsonReplaceSchema = z
   .refine((data) => data.path !== undefined && data.path !== "", {
     message: "path is required",
   })
-  .refine((data) => data.value !== undefined && data.value !== "", {
+  .refine((data) => data.value !== undefined, {
     message: "value is required",
   });
 
@@ -311,7 +311,7 @@ export const JsonArrayAppendSchema = z
   .refine((data) => data.path !== undefined && data.path !== "", {
     message: "path is required",
   })
-  .refine((data) => data.value !== undefined && data.value !== "", {
+  .refine((data) => data.value !== undefined, {
     message: "value is required",
   });
 
@@ -371,7 +371,7 @@ export const JsonUpdateSchema = z
   .refine((data) => data.path !== undefined && data.path !== "", {
     message: "path is required",
   })
-  .refine((data) => data.value !== undefined && data.value !== "", {
+  .refine((data) => data.value !== undefined, {
     message: "value is required",
   })
   .refine((data) => data.where !== "", {
