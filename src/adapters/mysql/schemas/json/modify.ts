@@ -220,9 +220,9 @@ export const JsonRemoveSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      paths: z.array(z.string()).optional(),
+      paths: z.union([z.array(z.string()), z.string()]).optional(),
       path: z.string().optional(),
-      keys: z.array(z.string()).optional(),
+      keys: z.union([z.array(z.string()), z.string()]).optional(),
       key: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
@@ -235,7 +235,9 @@ export const JsonRemoveSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    paths: data.paths ?? data.keys ?? (data.path ? [data.path] : data.key ? [data.key] : []),
+    paths: (Array.isArray(data.paths) ? data.paths : data.paths ? [data.paths] : null)
+      ?? (Array.isArray(data.keys) ? data.keys : data.keys ? [data.keys] : null)
+      ?? (data.path ? [data.path] : data.key ? [data.key] : []),
     where: data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "",
   }))
   .refine((data) => data.table !== "", {
