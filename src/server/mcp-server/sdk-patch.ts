@@ -69,8 +69,19 @@ export function applySdkPatch(): void {
             error: cleanError,
             code: "VALIDATION_ERROR",
             category: ErrorCategory.VALIDATION,
+            recoverable: false,
+            metrics: { tokenEstimate: 0 },
           };
-          result.content[0].text = JSON.stringify(structured, null, 2);
+          
+          const enriched = JSON.stringify({
+            ...structured,
+            _meta: { tokenEstimate: 0 }
+          });
+          const tokenEstimate = Math.ceil(Buffer.byteLength(enriched, "utf8") / 4);
+          
+          structured.metrics.tokenEstimate = tokenEstimate;
+          const finalObj = { ...structured, _meta: { tokenEstimate } };
+          result.content[0].text = JSON.stringify(finalObj, null, 2);
           result.isError = true;
         }
       }
