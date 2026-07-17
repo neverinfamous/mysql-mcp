@@ -382,7 +382,7 @@
         "legend_layout": "auto",
         "requests": [
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
                 "alias": "Active",
@@ -403,7 +403,7 @@
             }
           },
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
                 "alias": "Idle",
@@ -424,7 +424,7 @@
             }
           },
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
                 "alias": "Total",
