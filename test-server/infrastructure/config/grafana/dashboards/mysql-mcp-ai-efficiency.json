@@ -17,7 +17,7 @@
         "y": 0
       },
       "id": 1,
-      "title": "AI Efficiency & Costs (Claude 3.5 Sonnet pricing)",
+      "title": "AI Cost Modeling",
       "type": "row"
     },
     {
@@ -26,15 +26,15 @@
         "uid": "Prometheus"
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
+        "h": 4,
+        "w": 4,
         "x": 0,
         "y": 1
       },
       "id": 2,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
@@ -46,12 +46,12 @@
       },
       "targets": [
         {
-          "expr": "(sum(increase(mysql_mcp_tool_tokens_total[1h])) / 1000000) * 3",
-          "legendFormat": "Estimated Cost ($)",
+          "expr": "(((sum(increase(mysql_mcp_tool_tokens_total[$__range]))) / 1000000) * 2)",
+          "legendFormat": "{{tool}}",
           "refId": "A"
         }
       ],
-      "title": "Estimated Output Cost ($/hr) @ $3/1M",
+      "title": "Total Cost (Gemini 3.1) ($)",
       "type": "stat",
       "fieldConfig": {
         "defaults": {
@@ -74,15 +74,15 @@
         "uid": "Prometheus"
       },
       "gridPos": {
-        "h": 6,
-        "w": 6,
-        "x": 6,
+        "h": 4,
+        "w": 4,
+        "x": 4,
         "y": 1
       },
       "id": 3,
       "options": {
         "colorMode": "value",
-        "graphMode": "area",
+        "graphMode": "none",
         "justifyMode": "auto",
         "orientation": "auto",
         "reduceOptions": {
@@ -94,12 +94,204 @@
       },
       "targets": [
         {
-          "expr": "sum(increase(mysql_mcp_tool_tokens_total[1h]))",
+          "expr": "(((sum(increase(mysql_mcp_tool_tokens_total[$__range]))) / 1000000) * 5)",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Cost (Claude 4.8) ($)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 8,
+        "y": 1
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(((sum(increase(mysql_mcp_tool_tokens_total[$__range]))) / 1000000) * 5)",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Cost (GPT-5.5) ($)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 12,
+        "y": 1
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(((sum(increase(mysql_mcp_tool_tokens_total[$__range]))) / 1000000) * 6)",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Cost (Claude Sonnet 5) ($)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 1
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(((sum(increase(mysql_mcp_tool_tokens_total[$__range]))) / 1000000) * 30)",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Total Cost (Claude Fable 5) ($)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 1
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mysql_mcp_tool_tokens_total[$__range]))",
           "legendFormat": "Tokens",
           "refId": "A"
         }
       ],
-      "title": "Token Usage Rate (per hr)",
+      "title": "Total Tokens Used",
       "type": "stat",
       "fieldConfig": {
         "defaults": {
@@ -117,21 +309,33 @@
       }
     },
     {
+      "collapsed": false,
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 8,
+      "title": "Token & Call Performance",
+      "type": "row"
+    },
+    {
       "datasource": {
         "type": "prometheus",
         "uid": "Prometheus"
       },
       "gridPos": {
-        "h": 6,
-        "w": 12,
-        "x": 12,
-        "y": 1
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 6
       },
-      "id": 4,
+      "id": 9,
       "options": {
         "legend": {
           "displayMode": "table",
-          "placement": "right"
+          "placement": "bottom"
         },
         "tooltip": {
           "mode": "multi",
@@ -140,22 +344,252 @@
       },
       "targets": [
         {
-          "expr": "increase(mysql_mcp_tool_tokens_total[5m])",
+          "expr": "sum(increase(mysql_mcp_tool_tokens_total[$__range])) by (tool)",
           "legendFormat": "{{tool}}",
           "refId": "A"
         }
       ],
-      "title": "Token Expenditure by Tool (5m increase)",
+      "title": "Top Tools by Tokens",
       "type": "timeseries",
       "fieldConfig": {
         "defaults": {
+          "unit": "short",
           "custom": {
             "drawStyle": "bars",
             "fillOpacity": 80,
-            "stacking": {
-              "mode": "normal",
-              "group": "A"
-            }
+            "lineInterpolation": "smooth"
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 6
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mysql_mcp_tool_calls_total[$__range])) by (tool)",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Tool Call Volume",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineInterpolation": "smooth"
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 6
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mysql_mcp_tool_tokens_total[$__range])) / sum(increase(mysql_mcp_tool_calls_total[$__range]))",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Avg Tokens / Call",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 6
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mysql_mcp_tool_calls_total[$__range])) * max(mysql_mcp_tool_latency_ms_p95)",
+          "legendFormat": "Latency",
+          "refId": "A"
+        }
+      ],
+      "title": "Optimization Target (Total Gross Latency)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 16,
+        "y": 10
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(sum(increase(mysql_mcp_tool_errors_total[$__range])) / sum(increase(mysql_mcp_tool_calls_total[$__range]))) * 100",
+          "legendFormat": "Error Rate",
+          "refId": "A"
+        }
+      ],
+      "title": "Global Error Rate (%)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 4,
+        "x": 20,
+        "y": 10
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mysql_mcp_tool_errors_total[$__range])) by (tool)",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Agent Quality (Error Classification)",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "lineInterpolation": "smooth"
           }
         }
       }
@@ -166,10 +600,10 @@
         "h": 1,
         "w": 24,
         "x": 0,
-        "y": 7
+        "y": 14
       },
-      "id": 5,
-      "title": "Efficiency Metrics",
+      "id": 15,
+      "title": "Database Telemetry",
       "type": "row"
     },
     {
@@ -181,17 +615,177 @@
         "h": 6,
         "w": 8,
         "x": 0,
-        "y": 8
+        "y": 15
       },
-      "id": 6,
+      "id": 16,
       "options": {
-        "colorMode": "value",
-        "graphMode": "area"
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "desc"
+        }
       },
       "targets": [
         {
-          "expr": "sum(increase(mysql_mcp_cache_hits_total[5m])) / (sum(increase(mysql_mcp_cache_hits_total[5m])) + sum(increase(mysql_mcp_cache_misses_total[5m]))) * 100",
-          "legendFormat": "Hit Rate %",
+          "expr": "mysql_mcp_pool_connections_active",
+          "legendFormat": "Active",
+          "refId": "A"
+        },
+        {
+          "expr": "mysql_mcp_pool_connections_idle",
+          "legendFormat": "Idle",
+          "refId": "B"
+        },
+        {
+          "expr": "mysql_mcp_pool_connections_total",
+          "legendFormat": "Total",
+          "refId": "C"
+        }
+      ],
+      "title": "Connection Pool",
+      "type": "timeseries",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "custom": {
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "lineInterpolation": "smooth"
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 8,
+        "y": 15
+      },
+      "id": 17,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(sum(mysql_mcp_pool_connections_active) / sum(mysql_mcp_pool_connections_total)) * 100",
+          "legendFormat": "Util%",
+          "refId": "A"
+        }
+      ],
+      "title": "Pool Utilization (%)",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 80
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 12,
+        "y": 15
+      },
+      "id": 18,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mysql_mcp_pool_queries_total[$__range]))",
+          "legendFormat": "{{tool}}",
+          "refId": "A"
+        }
+      ],
+      "title": "Pool Queries",
+      "type": "stat",
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "Prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 4,
+        "x": 16,
+        "y": 15
+      },
+      "id": 19,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "textMode": "auto"
+      },
+      "targets": [
+        {
+          "expr": "(sum(increase(mysql_mcp_cache_hits_total[$__range])) / (sum(increase(mysql_mcp_cache_hits_total[$__range])) + sum(increase(mysql_mcp_cache_misses_total[$__range])))) * 100",
+          "legendFormat": "Hit Rate",
           "refId": "A"
         }
       ],
@@ -227,11 +821,11 @@
       },
       "gridPos": {
         "h": 6,
-        "w": 16,
-        "x": 8,
-        "y": 8
+        "w": 4,
+        "x": 20,
+        "y": 15
       },
-      "id": 7,
+      "id": 20,
       "options": {
         "legend": {
           "displayMode": "table",
@@ -244,18 +838,24 @@
       },
       "targets": [
         {
-          "expr": "sum(increase(mysql_mcp_tool_tokens_total[5m])) by (tool) / sum(increase(mysql_mcp_tool_calls_total[5m])) by (tool)",
-          "legendFormat": "{{tool}}",
+          "expr": "sum(increase(mysql_mcp_cache_hits_total[$__range]))",
+          "legendFormat": "Hits",
           "refId": "A"
+        },
+        {
+          "expr": "sum(increase(mysql_mcp_cache_misses_total[$__range]))",
+          "legendFormat": "Misses",
+          "refId": "B"
         }
       ],
-      "title": "Tokens per Call Efficiency (5m rolling)",
+      "title": "Cache Performance",
       "type": "timeseries",
       "fieldConfig": {
         "defaults": {
+          "unit": "short",
           "custom": {
-            "drawStyle": "line",
-            "fillOpacity": 10,
+            "drawStyle": "bars",
+            "fillOpacity": 80,
             "lineInterpolation": "smooth"
           }
         }
@@ -275,5 +875,5 @@
   },
   "title": "MySQL-MCP AI Efficiency",
   "uid": "mysql-mcp-ai-efficiency",
-  "version": 1
+  "version": 2
 }

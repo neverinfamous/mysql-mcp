@@ -1160,12 +1160,12 @@
       "id": 503,
       "targets": [
         {
-          "expr": "rate(mysql_mcp_cache_hits_total[5m])",
+          "expr": "rate(mysql_mcp_cache_hits_total[$__rate_interval])",
           "legendFormat": "Hits",
           "refId": "A"
         },
         {
-          "expr": "rate(mysql_mcp_cache_misses_total[5m])",
+          "expr": "rate(mysql_mcp_cache_misses_total[$__rate_interval])",
           "legendFormat": "Misses",
           "refId": "B"
         }
