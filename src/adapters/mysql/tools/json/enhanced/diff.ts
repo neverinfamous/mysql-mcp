@@ -35,7 +35,9 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
                     JSON_LENGTH(?) as json1_length,
                     JSON_LENGTH(?) as json2_length,
                     JSON_KEYS(?) as json1_keys,
-                    JSON_KEYS(?) as json2_keys
+                    JSON_KEYS(?) as json2_keys,
+                    JSON_TYPE(?) as json1_type,
+                    JSON_TYPE(?) as json2_type
             `;
         const result = await adapter.executeReadQuery(sql, [
           json1,
@@ -48,10 +50,14 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           json2,
           json1,
           json2,
+          json1,
+          json2,
         ]);
 
         const row = result.rows?.[0];
         const identical = row?.["identical"] === 1;
+        const type1 = row?.["json1_type"];
+        const type2 = row?.["json2_type"];
 
         const parseKeys = (raw: unknown): string[] => {
           if (typeof raw === "string") {
@@ -78,44 +84,52 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           value2: unknown;
         }[] = [];
 
-        if (!identical && sharedKeys.length > 0) {
-          for (const key of sharedKeys) {
-            const escapedKey = key.replace(/"/g, '\\"');
-            const diffSql = `SELECT JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v1, JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v2`;
-            const diffResult = await adapter.executeReadQuery(diffSql, [
-              json1,
-              escapedKey,
-              json2,
-              escapedKey,
-            ]);
-            const diffRow = diffResult.rows?.[0];
+        const parseValue = (raw: unknown): unknown => {
+          if (typeof raw === "string") {
+            try {
+              return JSON.parse(raw);
+            } catch {
+              return raw;
+            }
+          }
+          return raw;
+        };
 
-            const v1Raw = diffRow?.["v1"];
-            const v2Raw = diffRow?.["v2"];
+        if (!identical) {
+          if (type1 !== "OBJECT" || type2 !== "OBJECT") {
+             differences.push({
+               path: "$",
+               value1: parseValue(json1),
+               value2: parseValue(json2),
+             });
+          } else if (sharedKeys.length > 0) {
+            for (const key of sharedKeys) {
+              const escapedKey = key.replace(/"/g, '\\"');
+              const diffSql = `SELECT JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v1, JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v2`;
+              const diffResult = await adapter.executeReadQuery(diffSql, [
+                json1,
+                escapedKey,
+                json2,
+                escapedKey,
+              ]);
+              const diffRow = diffResult.rows?.[0];
 
-            // Compare as strings (JSON canonical form)
-            const v1Str =
-              typeof v1Raw === "string" ? v1Raw : JSON.stringify(v1Raw);
-            const v2Str =
-              typeof v2Raw === "string" ? v2Raw : JSON.stringify(v2Raw);
+              const v1Raw = diffRow?.["v1"];
+              const v2Raw = diffRow?.["v2"];
 
-            if (v1Str !== v2Str) {
-              // Parse for cleaner output
-              const parseValue = (raw: unknown): unknown => {
-                if (typeof raw === "string") {
-                  try {
-                    return JSON.parse(raw);
-                  } catch {
-                    return raw;
-                  }
-                }
-                return raw;
-              };
-              differences.push({
-                path: `$.${key}`,
-                value1: parseValue(v1Raw),
-                value2: parseValue(v2Raw),
-              });
+              // Compare as strings (JSON canonical form)
+              const v1Str =
+                typeof v1Raw === "string" ? v1Raw : JSON.stringify(v1Raw);
+              const v2Str =
+                typeof v2Raw === "string" ? v2Raw : JSON.stringify(v2Raw);
+
+              if (v1Str !== v2Str) {
+                differences.push({
+                  path: `$.${key}`,
+                  value1: parseValue(v1Raw),
+                  value2: parseValue(v2Raw),
+                });
+              }
             }
           }
         }
