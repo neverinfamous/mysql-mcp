@@ -14,6 +14,7 @@ import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
   validateIdentifier,
+  validateWhereClause,
 } from "../../../../../utils/validators.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -36,6 +37,9 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        if (where) {
+          validateWhereClause(where);
+        }
 
         const whereClause = where ? `WHERE ${where}` : "";
 
