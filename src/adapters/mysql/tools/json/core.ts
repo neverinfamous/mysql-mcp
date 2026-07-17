@@ -194,7 +194,16 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
 
-        const response = pathExists
+        const response = result.rowsAffected === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : pathExists
           ? {
               success: true as const,
               data: {
@@ -256,7 +265,16 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
 
-        const response = !pathExists
+        const response = result.rowsAffected === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : !pathExists
           ? {
               success: true as const,
               data: {
