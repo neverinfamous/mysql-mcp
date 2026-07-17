@@ -61,13 +61,14 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        const upperForLimit = finalQuery.toUpperCase();
+        const cleanQueryForPrefix = finalQuery.replace(/^(\s*(?:--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*\s*/i, "").toUpperCase();
         const isLimitable =
-          upperForLimit.startsWith("SELECT") ||
-          upperForLimit.startsWith("WITH");
+          cleanQueryForPrefix.startsWith("SELECT") ||
+          cleanQueryForPrefix.startsWith("WITH");
 
         const limit = 50;
-        const hasLimit = /\bLIMIT\b/i.test(finalQuery);
+        const strippedForLimitCheck = finalQuery.replace(/'[^']*'/g, "").replace(/"[^"]*"/g, "").replace(/`[^`]*`/g, "");
+        const hasLimit = /\bLIMIT\b/i.test(strippedForLimitCheck);
         
         if (isLimitable && !hasLimit && !stream) {
           finalQuery = `${finalQuery} LIMIT ${limit}`;
@@ -75,7 +76,7 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
             finalQuery = `${finalQuery} OFFSET ${offset}`;
           }
         } else if (isLimitable && hasLimit && offset > 0) {
-          if (!/\bOFFSET\b/i.test(finalQuery)) {
+          if (!/\bOFFSET\b/i.test(strippedForLimitCheck)) {
             finalQuery = `${finalQuery} OFFSET ${offset}`;
           }
         }
@@ -158,13 +159,13 @@ export function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           transactionId,
         } = WriteQuerySchema.parse(params);
 
-        const upperQueryValidation = query.trim().toUpperCase();
+        const cleanQueryValidation = query.replace(/^(\s*(?:--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*\s*/i, "").toUpperCase();
         if (
-          upperQueryValidation.startsWith("SELECT ") ||
-          upperQueryValidation.startsWith("WITH ") ||
-          upperQueryValidation.startsWith("SHOW ") ||
-          upperQueryValidation.startsWith("DESCRIBE ") ||
-          upperQueryValidation.startsWith("EXPLAIN ")
+          cleanQueryValidation.startsWith("SELECT") ||
+          cleanQueryValidation.startsWith("WITH") ||
+          cleanQueryValidation.startsWith("SHOW") ||
+          cleanQueryValidation.startsWith("DESCRIBE") ||
+          cleanQueryValidation.startsWith("EXPLAIN")
         ) {
           throw new ValidationError(
             "Read-only queries must be executed using mysql_read_query.",
@@ -178,13 +179,13 @@ export function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           transactionId,
         );
 
-        const upperQuery = query.trim().toUpperCase();
+        const cleanQueryCache = query.replace(/^(\s*(?:--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*\s*/i, "").toUpperCase();
         if (
-          upperQuery.startsWith("CREATE ") ||
-          upperQuery.startsWith("DROP ") ||
-          upperQuery.startsWith("ALTER ") ||
-          upperQuery.startsWith("RENAME ") ||
-          upperQuery.startsWith("TRUNCATE ")
+          cleanQueryCache.startsWith("CREATE") ||
+          cleanQueryCache.startsWith("DROP") ||
+          cleanQueryCache.startsWith("ALTER") ||
+          cleanQueryCache.startsWith("RENAME") ||
+          cleanQueryCache.startsWith("TRUNCATE")
         ) {
           adapter.clearSchemaCache();
         }

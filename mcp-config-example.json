@@ -38,7 +38,8 @@
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
-        "MCP_REQUEST_TIMEOUT": "600000"
+        "MCP_REQUEST_TIMEOUT": "600000",
+        "MCP_HEADERS_TIMEOUT": "5000"
       }
     }
   }

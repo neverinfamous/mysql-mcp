@@ -2,9 +2,6 @@
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**. The pipeline features three high-performance layers. These are continuous integration, security scanning, and automated publishing.
 
-## Value Proposition
-The **mysql-mcp** CI/CD pipeline delivers robust security, high-performance testing, and automated, multi-architecture deployments. It is engineered with intelligent agentic workflows and rigorous safety gates. It ensures consistently reliable releases with minimal manual overhead.
-
 ## Visualize the Workflow Map
 
 ```mermaid
@@ -78,13 +75,13 @@ flowchart LR
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
 | [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests, pnpm audit, Docker smoke test (build + HTTP start) |
-| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects when manually patched transitive dependencies in the Dockerfile and package.json overrides have drifted from npm bundles |
+| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects drift in manually patched transitive dependencies across Dockerfile and package.json overrides. |
 
 ### Secure the Pipeline
 
 | File                                       | Trigger                                   | Purpose                                                               |
 | ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------- |
-| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` (security-extended and security-and-quality) |
+| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` with security-extended queries. |
 | [secrets-scanning.yml](secrets-scanning.yml) | `workflow_call` from gatekeeper / PR                      | TruffleHog (verified secrets) + Gitleaks scanning                     |
 | [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule / PR / manual | Trivy vulnerability scanning |
 
@@ -92,8 +89,8 @@ flowchart LR
 
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scan (Docker Scout + Trivy), smoke test, multi-arch build, manifest merge, Docker Hub description update                 |
-| [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Version verification, build, publish to npm with `--provenance` (SLSA Build L3)                                                                   |
+| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scans, smoke testing, multi-arch builds, manifest merging, and Docker Hub profile updates. |
+| [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Version verification, build, and publish to npm with SLSA Build L3 provenance. |
 
 ### Automate with Agentic Workflows
 

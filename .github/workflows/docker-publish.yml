@@ -122,7 +122,7 @@ jobs:
   # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/mysql-mcp#149)
   smoke-test:
     needs: [security-scan]
-    if: ${{ needs.security-scan.result == 'success' }}
+    if: needs.security-scan.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:

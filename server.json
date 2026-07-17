@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
-  "name": "io.github.neverinfamous/mysql-mcp",
+  "name": "@neverinfamous/mysql-mcp",
   "title": "MySQL MCP Server",
   "description": "Connect AI agents to enterprise MySQL. Minimize tokens with Code Mode. Secure access via OAuth 2.1.",
   "version": "0.0.0-development",

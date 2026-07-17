@@ -66,6 +66,8 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://mcp_user:secure_
 
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The GitHub repo uses `neverinfamous`.
 
+> **Linux Users:** If using `host.docker.internal` on Linux, you may need to run your container with `--add-host host.docker.internal:host-gateway`.
+
 ```bash
 docker run -i --rm writenotenow/mysql-mcp:latest \
   --transport stdio \
@@ -823,21 +825,5 @@ pnpm run bench
 
 ---
 
-## Contribute to the Project
-
-Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting a pull request.
-
-## Review Security Policy
-
-For security concerns, please see our [Security Policy](SECURITY.md).
-
-> **⚠️ Never commit credentials** - Store secrets in `.env` (gitignored)
-
-## View License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Follow Code of Conduct
-
-Please read our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
+[Contributing Guidelines](CONTRIBUTING.md) • [Security Policy](SECURITY.md) • [MIT License](LICENSE) • [Code of Conduct](CODE_OF_CONDUCT.md)
 

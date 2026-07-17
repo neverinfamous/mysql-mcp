@@ -16,6 +16,7 @@ services:
       - MYSQL_USER=${MYSQL_USER:-mcp_user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-secure_password}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-testdb}
+      - MYSQL_POOL_SIZE=${MYSQL_POOL_SIZE:-10}
       # Distributed Redis-backed rate limiting
       - REDIS_URL=redis://redis:6379
       - MCP_RATE_LIMIT_MAX=10000
