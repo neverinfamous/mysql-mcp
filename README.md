@@ -673,6 +673,9 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | ------------------------- | ----------------------- | --------------------------------------------------- |
 | `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
 | `--dump-config`           | —                       | Dump current configuration to stdout and exit       |
+| `--version`, `-v`         | —                       | Show version number                                 |
+| `--help`, `-h`            | —                       | Show help                                           |
+| `--json`                  | —                       | Output in JSON format                               |
 | `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (default: stdio)   |
 | `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
@@ -683,7 +686,6 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
 | `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
 | `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
-| `--pool-min`              | `MYSQL_POOL_MIN`        | Minimum connections in pool (default: 0)            |
 | `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 30000)   |
 | `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
 | `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
@@ -695,7 +697,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for HTTP/SSE and shell tools |
-| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
+| `--audit-log`             | —                       | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |

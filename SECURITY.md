@@ -41,7 +41,7 @@ Every tool returns structured error responses — never raw exceptions or intern
 }
 ```
 
-Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categories). It returns enriched payloads via `formatHandlerError()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
+Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categories). It returns enriched payloads via `formatHandlerErrorResponse()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
 
 ## 🔐 **Ensure Integrity with Input Validation**
 
@@ -73,7 +73,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 ### Validate Code Statically
 
-- ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
+- ✅ **Comprehensive blocked patterns** — static analysis (regex) rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — performs NFKC normalization and strips all comments before pattern validation to prevent regex evasion.
 - ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
@@ -230,7 +230,6 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Input validation via Zod schemas
 - [x] Filesystem boundary sandbox (`ALLOWED_IO_ROOTS`) for all file I/O operations
 - [x] Code Mode sandbox isolation (true separate V8 isolate via isolated-vm)
-- [x] Code Mode V8 codeGeneration restrictions (eval/Function disabled at engine level)
 - [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
 - [x] Code Mode blocked patterns (comprehensive static regex rules + Unicode/NFKC validation)
 - [x] Code Mode RPC quotas (configurable)

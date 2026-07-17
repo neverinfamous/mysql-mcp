@@ -22,7 +22,7 @@
         "ALLOWED_IO_ROOTS": "/app/data,C:/temp/mcp-sandbox,/tmp/mcp-sandbox",
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
-        "AUDIT_LOG_PATH": "C:/temp/mcp-sandbox/audit.jsonl",
+        "AUDIT_LOG_PATH": "/tmp/mcp-sandbox/audit.jsonl",
         "REDIS_URL": "redis://localhost:6379",
         "MCP_RATE_LIMIT_MAX": "10000",
         "CODEMODE_RATE_LIMIT_MAX": "60",

@@ -17,7 +17,7 @@ Ensure PRs adhere to these SSoT architectural rules:
 - **Code Mode** (`mysql_execute_code`) significantly reduces token usage (70–90%).
 - **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
 - **Transports**: Supports `stdio`, streamable `http`, and standard `sse` transports.
-- **Validation**: Ensure mask data alias validation at the MCP boundary.
+- **Validation**: Ensure parameter alias validation at the MCP boundary (via the Dual-Schema Pattern).
 - **Audit Tool**: Requires at least one filter to prevent payload bloat.
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
 - **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
@@ -65,11 +65,13 @@ All tool handlers return structured error responses — never raw exceptions:
 ```typescript
 {
   success: false,
-  error: string,        // Human-readable message
-  code: string,         // Module-prefixed code (e.g., "QUERY_ERROR")
-  category: string,     // Error category (validation, connection, query, etc.)
-  suggestion: string,   // Actionable fix for the agent
-  recoverable: boolean  // true = user can fix, false = server error
+  error: string,          // Human-readable message
+  code: string,           // Module-prefixed code (e.g., "QUERY_ERROR")
+  category: ErrorCategory,// Error category (validation, connection, query, etc.)
+  suggestion?: string,    // Optional actionable fix for the agent
+  recoverable: boolean,   // true = user can fix, false = server error
+  details?: unknown,      // Optional error details
+  metrics?: unknown       // Optional error metrics
 }
 ```
 
@@ -108,7 +110,7 @@ src/
 | `AGENT_README.md`               | AI agent specific instructions      |
 | `test-server/code-map.md`       | File → tool/handler mapping         |
 | `test-server/tool-reference.md` | Categorized tool inventory          |
-| `test-server/test-tools.md`     | Test validation reference           |
+| `test-server/test-preflight.md` | Test validation reference           |
 | `CONTRIBUTING.md`               | Development setup and PR guidelines |
 | `DOCKER_README.md`              | Docker Hub documentation            |
 

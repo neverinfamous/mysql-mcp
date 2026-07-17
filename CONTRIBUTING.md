@@ -188,14 +188,14 @@ Every tool must return structured error responses — never raw exceptions:
 }
 ```
 
-Error logic should leverage the `MySQLMcpError` hierarchy. Our Auto-refinement system automatically maps generic codes to specific ones. It also populates suggestions. Catch at the handler boundary and return `formatHandlerError(error)` for JSON compliance. Always propagate stack traces — don't swallow errors.
+Error logic should leverage the `MySQLMcpError` hierarchy. Our Auto-refinement system automatically maps generic codes to specific ones. It also populates suggestions. Catch at the handler boundary and return `formatHandlerErrorResponse(error)` for JSON compliance. Always propagate stack traces — don't swallow errors.
 
 ### Validate Your Inputs
 
 - **Dual-Schema Pattern** — Tools use a plain `z.object()` Base schema for visibility. A `z.preprocess()` wrapper supports aliases without breaking JSON Schema generation.
 - **Zod schemas** validate parameters with explicit coercion controls. Do not use aggressive `z.coerce.number()`.
 - Output schemas are strictly defined. This guarantees agents receive deterministic P154-compliant structures.
-- Invalid inputs must return structured errors. The `formatHandlerError()` helper handles this without raw validation messages.
+- Invalid inputs must return structured errors. The `formatHandlerErrorResponse()` helper handles this without raw validation messages.
 - SQL injection is prevented via **parameter binding**. Never interpolate user input into SQL strings.
 
 ### Log Structurally
@@ -217,7 +217,7 @@ When adding a new tool:
 
 1. **Define the tool input and output schemas** using Zod in the appropriate group under `src/adapters/mysql/schemas/`
 2. **Implement the handler** in the corresponding adapter directory under `src/adapters/mysql/tools/`
-3. **Add structured error handling** by letting the handler return `formatHandlerError()` when exceptions are caught
+3. **Add structured error handling** by letting the handler return `formatHandlerErrorResponse()` when exceptions are caught
 4. **Write meaningful Vitest tests** and update E2E spec files if making systemic changes
 5. **Add the tool to the group's help resource** (the markdown file under `src/constants/instructions/markdown/`)
 6. **Verify OAuth Scope**. Ensure the new tool aligns with its group's base scope.

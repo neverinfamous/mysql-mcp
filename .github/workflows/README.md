@@ -10,7 +10,7 @@ The **mysql-mcp** CI/CD pipeline delivers robust security, high-performance test
 ```mermaid
 flowchart LR
     subgraph Triggers["Triggers"]
-        Tag["push to tag"]
+        Tag["push to main and tags"]
         PR["pull_request"]
         Sched["schedule (cron)"]
         Manual["workflow_dispatch"]
@@ -77,8 +77,8 @@ flowchart LR
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests (supported Node.js versions matrix), pnpm audit, Docker smoke test (build + HTTP start) |
-| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects when manually patched transitive dependencies in the Dockerfile have drifted from npm bundles |
+| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests, pnpm audit, Docker smoke test (build + HTTP start) |
+| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects when manually patched transitive dependencies in the Dockerfile and package.json overrides have drifted from npm bundles |
 
 ### Secure the Pipeline
 
@@ -107,13 +107,13 @@ These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.
 
 ## Understand the Release Pipeline
 
-The `gatekeeper.yml` workflow orchestrates the entire release flow. It triggers upon tag pushes:
+The `gatekeeper.yml` workflow orchestrates the entire release flow. It triggers upon push to `main` and tags:
 
 ```text
-push to tag (v*)
+push to main, tags (v*)
   → gatekeeper
       ├── lint-and-test
-      │     ├── lint (supported Node.js versions matrix)
+      │     ├── lint
       │     ├── security-scan (pnpm audit)
       │     └── docker-smoke-test (build + HTTP start)
       ├── codeql
@@ -121,7 +121,7 @@ push to tag (v*)
       └── trivy (invokes security-update.yml)
             ↓ all safety and security gates pass (blocking requirement)
           ├── docker-publish
-          │     ├── security-scan (Docker Scout)
+          │     ├── security-scan (Docker Scout + Trivy)
           │     ├── smoke-test (binary load + HTTP start)
           │     ├── build-platform
           │     │     ↓ all platforms built
