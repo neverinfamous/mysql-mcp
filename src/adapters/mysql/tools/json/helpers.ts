@@ -197,9 +197,6 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const sqlParams = [];
         
         const hasEscape = escapeChar !== undefined && escapeChar !== null;
-        if (hasEscape && typeof escapeChar === 'string' && escapeChar.length > 1) {
-          throw new Error("escapeChar must be empty or one character");
-        }
         // MySQL requires escape_char in JSON_SEARCH to be a literal, not a parameter
         const escapeSql = hasEscape ? (escapeChar === '' ? "''" : `'${escapeChar.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`) : 'NULL';
         

@@ -139,4 +139,7 @@ export const JsonSearchSchema = z
   })
   .refine((data) => data.searchValue !== undefined && data.searchValue !== "", {
     message: "searchValue is required",
+  })
+  .refine((data) => data.escapeChar === undefined || data.escapeChar.length <= 1, {
+    message: "escapeChar must be empty or one character",
   });
