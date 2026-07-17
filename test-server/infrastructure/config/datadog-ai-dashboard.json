@@ -523,7 +523,7 @@
             ],
             "formulas": [
               {
-                "formula": "(a / b) * 100"
+                "formula": "default_zero((a / b) * 100)"
               }
             ],
             "queries": [
@@ -627,7 +627,7 @@
             ],
             "formulas": [
               {
-                "formula": "(a / (a + b)) * 100"
+                "formula": "default_zero((a / (a + b)) * 100)"
               }
             ],
             "queries": [
@@ -731,7 +731,7 @@
             ],
             "formulas": [
               {
-                "formula": "(a / b) * 100"
+                "formula": "default_zero((a / b) * 100)"
               }
             ],
             "queries": [
