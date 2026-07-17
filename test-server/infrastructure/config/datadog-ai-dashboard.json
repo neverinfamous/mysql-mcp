@@ -469,14 +469,19 @@
             ],
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "a / (b + 0.0000001)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}"
+                "name": "a",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+              },
+              {
+                "data_source": "metrics",
+                "name": "b",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*}"
               }
             ],
             "response_format": "scalar"
