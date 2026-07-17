@@ -5,7 +5,7 @@
   "description": "AI Efficiency metrics for mysql-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
   "id": "q48-mq9-3i7",
   "layout_type": "ordered",
-  "modified_at": "2026-07-17T16:00:16.013098Z",
+  "modified_at": "2026-07-17T16:07:17.419154Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -491,7 +491,7 @@
             ],
             "formulas": [
               {
-                "formula": "(default_zero(monotonic_diff(a)) / (default_zero(monotonic_diff(b)) + 0.0000001)) * 100"
+                "formula": "(default_zero(a) / (default_zero(b) + 0.0000001)) * 100"
               }
             ],
             "queries": [
@@ -503,7 +503,7 @@
               {
                 "data_source": "metrics",
                 "name": "b",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.rollup(max)"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -750,7 +750,7 @@
             "formulas": [
               {
                 "alias": "Active",
-                "formula": "default_zero(monotonic_diff(query1))"
+                "formula": "default_zero(query1)"
               }
             ],
             "queries": [
@@ -771,7 +771,7 @@
             "formulas": [
               {
                 "alias": "Idle",
-                "formula": "default_zero(monotonic_diff(query2))"
+                "formula": "default_zero(query2)"
               }
             ],
             "queries": [
@@ -792,14 +792,14 @@
             "formulas": [
               {
                 "alias": "Total",
-                "formula": "default_zero(monotonic_diff(query3))"
+                "formula": "default_zero(query3)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query3",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.fill(last).rollup(max)"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.fill(last)"
               }
             ],
             "response_format": "timeseries",
