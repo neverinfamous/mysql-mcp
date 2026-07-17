@@ -87,10 +87,10 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_get" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_get" });
       }
     },
   };
@@ -158,10 +158,10 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_update" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_update" });
       }
     },
   };
@@ -226,10 +226,10 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_search" });
         }
 
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_search" });
       }
     },
   };
@@ -261,13 +261,13 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({ success: true, data: { valid: isValid } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error);
+          return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_validate" });
         }
         const msg = error instanceof Error ? error.message : String(error);
         if (msg.includes("Invalid JSON text")) {
           return withTokenEstimate({ success: true, data: { valid: false } });
         }
-        return formatHandlerErrorResponse(error);
+        return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_validate" });
       }
     },
   };
