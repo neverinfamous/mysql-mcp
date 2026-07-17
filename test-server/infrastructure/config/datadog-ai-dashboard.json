@@ -627,7 +627,7 @@
             ],
             "formulas": [
               {
-                "formula": "(monotonic_diff(a) / (monotonic_diff(a) + monotonic_diff(b))) * 100"
+                "formula": "(a / (a + b)) * 100"
               }
             ],
             "queries": [
@@ -772,7 +772,7 @@
             "formulas": [
               {
                 "alias": "Cache Hits",
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -792,7 +792,7 @@
             "formulas": [
               {
                 "alias": "Cache Misses",
-                "formula": "monotonic_diff(query2)"
+                "formula": "query2"
               }
             ],
             "queries": [
@@ -885,7 +885,7 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "default_zero(monotonic_diff(query1))"
+                "formula": "query1"
               }
             ],
             "queries": [
