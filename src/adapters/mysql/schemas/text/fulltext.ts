@@ -166,13 +166,14 @@ export const FulltextSearchSchema = z
   .refine(
     (data) =>
       data.maxLength === undefined ||
-      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "maxLength must be a positive number" },
+      (!Number.isNaN(data.maxLength) && Number.isInteger(data.maxLength) && data.maxLength > 0),
+    { message: "maxLength must be a positive integer" },
   )
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- FulltextDrop ---
@@ -280,13 +281,14 @@ export const FulltextBooleanSchema = z
   .refine(
     (data) =>
       data.maxLength === undefined ||
-      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "maxLength must be a positive number" },
+      (!Number.isNaN(data.maxLength) && Number.isInteger(data.maxLength) && data.maxLength > 0),
+    { message: "maxLength must be a positive integer" },
   )
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- FulltextExpand ---
@@ -355,11 +357,12 @@ export const FulltextExpandSchema = z
   .refine(
     (data) =>
       data.maxLength === undefined ||
-      (!Number.isNaN(data.maxLength) && data.maxLength > 0),
-    { message: "maxLength must be a positive number" },
+      (!Number.isNaN(data.maxLength) && Number.isInteger(data.maxLength) && data.maxLength > 0),
+    { message: "maxLength must be a positive integer" },
   )
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );

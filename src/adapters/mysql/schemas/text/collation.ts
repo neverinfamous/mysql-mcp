@@ -82,6 +82,7 @@ export const CollationConvertSchema = z
   })
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );

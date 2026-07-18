@@ -54,8 +54,9 @@ export const RegexpMatchSchema = z
   })
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- LikeSearch ---
@@ -111,8 +112,9 @@ export const LikeSearchSchema = z
   })
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- Soundex ---
@@ -177,8 +179,9 @@ export const SoundexSchema = z
   })
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- Substring ---
@@ -247,8 +250,9 @@ export const SubstringSchema = z
   }))
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
 
 // --- Concat ---
@@ -324,6 +328,7 @@ export const ConcatSchema = z
   }))
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
-    { message: "limit must be a positive number" },
+      data.limit === undefined ||
+      (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
+    { message: "limit must be a positive integer" },
   );
