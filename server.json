@@ -1,6 +1,6 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
-  "name": "io.github.neverinfamous/mysql-mcp",
+  "name": "io.github.neverinfamous.mysql-mcp",
   "title": "MySQL MCP Server",
   "description": "Enterprise-grade MySQL context provider for AI agents. Increase token efficiency with Code Mode. Enforce advanced tool filtering. Secure enterprise data via OAuth 2.1.",
   "version": "4.0.0",
@@ -8,6 +8,10 @@
     {
       "registryType": "oci",
       "identifier": "docker.io/writenotenow/mysql-mcp:latest",
+      "args": [
+        "--transport",
+        "stdio"
+      ],
       "transport": {
         "type": "stdio"
       }

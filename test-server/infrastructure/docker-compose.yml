@@ -360,7 +360,7 @@ services:
     depends_on:
       - loki
     healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:9080/ready | grep -q ready" ]
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:9080/ready | grep -iq ready" ]
       interval: 10s
       timeout: 5s
       retries: 5

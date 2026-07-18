@@ -63,7 +63,7 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 
 ## 🧪 **Isolate Threats in Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#-optimize-token-usage-with-code-mode).**
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#optimize-token-usage-with-code-mode).**
 
 ### Enforce Engine-Level Restrictions
 
@@ -75,13 +75,13 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — Strips comments and performs NFKC normalization to prevent regex evasion.
-- ✅ **Code input limit** — prevents payload-based resource exhaustion.
+- ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
 - ✅ **Execution timeout** — Enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
-- ✅ **Rate limiting** — Enforce per-client rate limits. Configure via CODEMODE_RATE_LIMIT_MAX. Uses Redis with in-memory fallbacks.
+- ✅ **Rate limiting** — Enforces per-client rate limits. Configure via CODEMODE_RATE_LIMIT_MAX. Uses Redis with in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.

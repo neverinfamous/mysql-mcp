@@ -39,7 +39,7 @@ pnpm run build
 pnpm test
 
 # Run the full quality check
-pnpm run check   # Executes pnpm run build, runs ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
+pnpm run check   # Executes pnpm run build, ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
 ```
 
 ### Run the Server Locally
