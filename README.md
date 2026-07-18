@@ -349,8 +349,9 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
   "mcpServers": {
     "mysql-mcp": {
       "command": "npx",
-      "args": ["-y", "@neverinfamous/mysql-mcp", "--transport", "stdio", "--tool-filter", "starter"],
+      "args": ["-y", "@neverinfamous/mysql-mcp", "--transport", "stdio"],
       "env": {
+        "TOOL_FILTER": "starter",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
@@ -510,8 +511,7 @@ Add a configuration to your IDE's MCP settings file:
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
-        "MCP_REQUEST_TIMEOUT": "600000",
-        "REDIS_URL": "redis://localhost:6379"
+        "MCP_REQUEST_TIMEOUT": "600000"
       },
       "timeout": 600
     }
@@ -548,7 +548,8 @@ Add a configuration to your IDE's MCP settings file:
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql"
+        "MYSQL_DATABASE": "mysql",
+        "MCP_REQUEST_TIMEOUT": "600000"
       },
       "timeout": 600
     }
@@ -595,7 +596,8 @@ Add a configuration to your IDE's MCP settings file:
         "PROXYSQL_PORT": "6032",
         "PROXYSQL_USER": "radmin",
         "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "mysqlsh"
+        "MYSQLSH_PATH": "mysqlsh",
+        "MCP_REQUEST_TIMEOUT": "600000"
       },
       "timeout": 600
     }

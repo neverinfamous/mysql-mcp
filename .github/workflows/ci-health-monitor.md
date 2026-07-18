@@ -66,7 +66,7 @@ Check recent workflow runs (last 7 days):
 
 ## Reporting Output
 
-Before creating a new issue, check for existing open issues with the `[ci-health]` prefix. Add comments to existing issues instead of creating duplicates. Create a new issue only if none exists.
+Before creating a new issue, check for existing open issues with the `[ci-health]` prefix. Use the `noop` tool if an issue is already being tracked. Create a new issue only if none exists.
 
 ### If issues are found:
 

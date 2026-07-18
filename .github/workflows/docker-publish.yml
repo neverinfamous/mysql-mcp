@@ -112,7 +112,7 @@ jobs:
           timeout: 10m
 
       - name: Upload Trivy results to GitHub Security
-        if: always()
+        if: always() && hashFiles('trivy-results.sarif') != ''
         uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
         with:
           sarif_file: trivy-results.sarif
@@ -222,7 +222,7 @@ jobs:
             VERSION=$(head -1 VERSION | tr -d '[:space:]')
           fi
           if [ -z "$VERSION" ]; then
-            VERSION=$(jq -r '.version' package.json)
+            VERSION=$(node -p "require('./package.json').version")
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
@@ -325,7 +325,7 @@ jobs:
             VERSION=$(head -1 VERSION | tr -d '[:space:]')
           fi
           if [ -z "$VERSION" ]; then
-            VERSION=$(jq -r '.version' package.json)
+            VERSION=$(node -p "require('./package.json').version")
           fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 

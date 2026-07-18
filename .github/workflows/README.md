@@ -12,7 +12,8 @@ This directory contains all GitHub Actions workflows for **mysql-mcp**.
 ```mermaid
 flowchart LR
     subgraph Triggers["Triggers"]
-        Tag["push to main and tags"]
+        PushMain["Push (main)"]
+        PushTags["Push (tags)"]
         PR["pull_request"]
         Sched["schedule (cron)"]
         Manual["workflow_dispatch"]
@@ -48,7 +49,8 @@ flowchart LR
     PR --> SU
     PR --> DPD
 
-    Tag --> Gate
+    PushMain --> Gate
+    PushTags --> Gate
 
     Gate --> LT
     Gate --> CQL
