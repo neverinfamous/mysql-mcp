@@ -5,7 +5,7 @@
   "description": "Real-time observability for mysql-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
   "id": "qwe-2un-us8",
   "layout_type": "ordered",
-  "modified_at": "2026-07-16T23:31:52.719660Z",
+  "modified_at": "2026-07-18T02:59:48.773090Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -50,7 +50,6 @@
             "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Tokens",
         "title_align": "left",
         "title_size": "16",
@@ -613,7 +612,7 @@
       },
       "id": 2516024086793335,
       "layout": {
-        "height": 8,
+        "height": 4,
         "width": 4,
         "x": 8,
         "y": 8
@@ -693,6 +692,59 @@
         "width": 4,
         "x": 4,
         "y": 11
+      }
+    },
+    {
+      "definition": {
+        "description": "Note: This captures all audited tools executed by the AI agent.",
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "@tool",
+                "width": "auto"
+              },
+              {
+                "field": "@category",
+                "width": "auto"
+              },
+              {
+                "field": "@success",
+                "width": "compact"
+              },
+              {
+                "field": "@durationMs",
+                "width": "compact"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "indexes": [],
+              "query_string": "source:mysql_mcp @log_type:mcp_audit",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL-MCP Audit Log",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "list_stream"
+      },
+      "id": 8706701828007376,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 8,
+        "y": 12
       }
     },
     {
