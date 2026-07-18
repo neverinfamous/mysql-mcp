@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Slash tokens with Code Mode and OAuth 2.1.
+Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode and secure connections with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -29,7 +29,7 @@ Production-ready MySQL integration for AI agents. Slash tokens with Code Mode an
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
-| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites with zero skipped tests. |
+| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -64,7 +64,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ---
 
-## 🚀 Deploy Your AI Database in Minutes
+## 🚀 Deploy Your AI Database
 
 ### Meet Prerequisites
 
@@ -130,7 +130,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ---
 
-## ⚡ Reduce Token Usage with Code Mode
+## ⚡ Optimize Token Usage with Code Mode
 
 Code Mode (`mysql_execute_code`) reduces token usage by consolidating operations in a secure sandbox.
 
@@ -139,14 +139,14 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 ### Enforce Engine-Level Restrictions
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
-- ✅ **Memory & CPU Constraints** — Enforces constraints at the C++ level. This includes synchronous timeouts and strict heap limits.
-- ✅ **API Bindings via Reference** — injects MySQL methods securely using `ivm.Reference` wrappers.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **API Bindings via Reference** — Injects MySQL methods securely using `ivm.Reference` wrappers.
 
 ### Validate Code Statically
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
-- ✅ **Unicode & Comment Sanitization** — normalizes text and strips comments to prevent evasion.
-- ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
+- ✅ **Unicode & Comment Sanitization** — Strips comments and performs NFKC normalization to prevent regex evasion.
+- ✅ **Code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
@@ -537,7 +537,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `essential`       | Minimal footprint   | core, transactions, codemode                                     |
 | `dev-power`       | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
 
-> **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of 15+ available shortcuts.
+> **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available shortcuts.
 
 ### Leverage Available Tool Groups
 
