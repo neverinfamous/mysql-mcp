@@ -85,9 +85,9 @@ try {
     console.log('  Giving Docker daemon time to flush networks...');
     await setTimeout(5000);
 
-    // ── Phase 2: Start containers ─────────────────────────────────────
-    console.log('\n[3/6] Starting fresh containers...');
-    run('docker compose up -d');
+    // ── Phase 2: Start databases ─────────────────────────────────────
+    console.log('\n[3/6] Starting MySQL nodes...');
+    run('docker compose up -d mysql-node1 mysql-node2 mysql-node3');
 
     // ── Phase 3: Bootstrap InnoDB Cluster ──────────────────────────────
     console.log('\n[4/6] Bootstrapping InnoDB Cluster...');
@@ -115,6 +115,10 @@ try {
     await waitForMySQL('mysql-node3');
     console.log('  Allowing Group Replication to stabilize...');
     await setTimeout(5000);
+
+    // ── Phase 3.5: Start remaining ecosystem ──────────────────────────
+    console.log('\n[4.5/6] Starting remaining ecosystem containers...');
+    run('docker compose up -d');
 
     // ── Phase 4: Verify cluster ───────────────────────────────────────
     console.log('\n[5/6] Verifying cluster status...');
