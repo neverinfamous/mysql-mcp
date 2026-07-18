@@ -28,7 +28,7 @@ Production-ready MySQL integration for AI agents. Slash tokens with Code Mode an
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics, monitor AI efficiency via Datadog, and track logs with Dozzle. |
+| **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
@@ -115,7 +115,6 @@ docker compose up -d
 ```
 
 - **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
-- **Datadog:** Pre-configured with custom AI Efficiency, Token, and Database dashboards (requires API key).
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
@@ -537,19 +536,8 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 | `starter`         | Standard Package    | core, json, transactions, text, codemode                         |
 | `essential`       | Minimal footprint   | core, transactions, codemode                                     |
 | `dev-power`       | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
-| `dev-analytics`   | Developer Analytics | core, stats, performance, codemode                               |
-| `ai-data-nosql`   | AI Data NoSQL       | core, json, docstore, codemode                                   |
-| `ai-search`       | AI Search           | core, text, fulltext, vector, codemode                           |
-| `ai-spatial`      | AI Spatial Analyst  | core, spatial, transactions, codemode                            |
-| `ai-vector`       | AI Vector Analyst   | core, vector, fulltext, codemode                                 |
-| `dba-monitor`     | DBA Monitoring      | core, monitoring, performance, sysschema, optimization, codemode |
-| `dba-manage`      | DBA Management      | core, admin, backup, replication, partitioning, events, codemode |
-| `dba-secure`      | DBA Security        | core, security, roles, transactions, codemode                    |
-| `dba-schema`      | DBA Schema          | core, schema, introspection, migration, codemode                 |
-| `base-relational` | Base Relational     | core, transactions, text, schema, codemode                       |
-| `base-analytics`  | Base Analytics      | stats, events, codemode                                          |
-| `base-nosql`      | Base NoSQL          | docstore, spatial, vector, codemode                              |
-| `ecosystem`       | External Tools      | cluster, proxysql, router, shell, codemode                       |
+
+> **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of 15+ available shortcuts.
 
 ### Leverage Available Tool Groups
 
@@ -669,7 +657,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | —                       | Path to the audit log file                          |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
@@ -711,7 +699,7 @@ See [Enforce OAuth Scopes](#enforce-oauth-scopes).
 
 ## 💻 Accelerate Development by Contributing
 
-See **[From Source](#from-source)** above for setup. After cloning:
+See **[Build From Source](#build-from-source)** above for setup. After cloning:
 
 ```bash
 pnpm run check  # Run lint, typecheck, unit tests, and E2E tests

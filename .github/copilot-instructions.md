@@ -3,9 +3,9 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 
-## Project Overview
+## Value Proposition
 
-mysql-mcp is a production-grade TypeScript MCP server. Connect AI agents to enterprise MySQL. Minimize token consumption with Code Mode. Ensure secure access via OAuth.
+Connect AI agents directly to enterprise MySQL. Minimize your token consumption using Code Mode. Ensure complete security with OAuth. Deploy our production-grade TypeScript MCP server today.
 
 ## Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
@@ -28,14 +28,14 @@ Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journa
 
 For detailed session handoff context, search for entries tagged `session-summary`. These contain end-of-session notes from the development agent.
 
-Log review issues using `create_entry` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
+Log review issues using `mj_execute_code` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
 
 ## Coding Standards
 
 ### File Naming
 
 - **Files and folders**: Always kebab-case (`schema-manager.ts`, `tool-filter.ts`)
-  - **Exception**: `.github` repository templates and workflows may use `snake_case`.
+  - **Exception**: `.github` repository templates may use `snake_case`.
 - **Never** PascalCase or camelCase for filenames
 
 ### Modularity

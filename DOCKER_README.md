@@ -26,7 +26,7 @@ Production-ready MySQL integration for AI agents. Slash tokens with Code Mode an
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics, monitor AI efficiency via Datadog, and track logs with Dozzle. |
+| **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
@@ -86,7 +86,6 @@ docker compose up -d
 ```
 
 - **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
-- **Datadog:** Pre-configured with custom AI Efficiency, Token, and Database dashboards (requires API key).
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
@@ -362,7 +361,7 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
-| `--audit-log`             | —                       | Path to the audit log file                          |
+| `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
 | `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
