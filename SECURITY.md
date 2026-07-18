@@ -75,7 +75,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — Strips comments and performs NFKC normalization to prevent regex evasion.
-- ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
+- ✅ **Code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 
@@ -133,7 +133,7 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
 - ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
-- ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
+- ✅ **JWT validation** with JWKS support (TTL: 1 hour)
 - ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 - ✅ **Bearer Token Auth**: Use `MCP_AUTH_TOKEN` for straightforward token authentication to avoid OAuth overhead.
@@ -166,7 +166,7 @@ The Dockerfile patches npm-bundled transitive dependencies for Docker Scout comp
 
 ```bash
 # Secure volume mounting
-docker run -v ./data:/app/data:rw,noexec,nosuid,nodev writenotenow/mysql-mcp:latest
+docker run -v ./data:/app/data:rw writenotenow/mysql-mcp:latest
 ```
 
 ### Apply Resource Limits
@@ -186,7 +186,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 ### Redact Credentials
 
-- ✅ **Redact Sensitive Fields** — The server automatically redacts sensitive fields in logs: `password`, `secret`, `token`, `apikey`, `issuer`, `audience`, `jwksUri`, `credentials`, etc.
+- ✅ **Redact Sensitive Fields** — When enabled via the `--audit-redact` flag, the server redacts sensitive fields in logs.
 - ✅ **Recursive sanitization** for nested objects
 
 ### Prevent Log Injection

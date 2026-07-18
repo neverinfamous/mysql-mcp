@@ -116,7 +116,7 @@ jobs:
         uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
         with:
           sarif_file: trivy-results.sarif
-          category: trivy-docker-scan
+          category: trivy-docker-publish-scan
 
   # Smoke test: verify the Docker image actually starts before pushing
   # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/mysql-mcp#149)

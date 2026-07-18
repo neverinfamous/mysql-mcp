@@ -79,23 +79,23 @@ flowchart LR
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lint, typecheck, build, unit tests, pnpm audit, Docker smoke test (build + HTTP start) |
-| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects drift in manually patched transitive dependencies across Dockerfile and package.json overrides. |
+| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lints, typechecks, builds, unit tests, and smoke tests the Docker container. |
+| [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects dependency drift across Dockerfile and package.json overrides. |
 
 ### Secure the Pipeline
 
 | File                                       | Trigger                                   | Purpose                                                               |
 | ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------- |
-| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | CodeQL static analysis for `javascript-typescript` with security-extended queries. |
-| [secrets-scanning.yml](secrets-scanning.yml) | `workflow_call` from gatekeeper / PR                      | TruffleHog (verified secrets) + Gitleaks scanning                     |
-| [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule / PR / manual | Trivy vulnerability scanning |
+| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | Runs security-and-quality CodeQL static analysis on JavaScript and TypeScript code. |
+| [secrets-scanning.yml](secrets-scanning.yml) | `workflow_call` from gatekeeper / PR                      | Scans for verified secrets using TruffleHog and Gitleaks. |
+| [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule / PR / manual | Scans for vulnerabilities using Trivy. |
 
 ### Publish Reliable Releases
 
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scans, smoke testing, multi-arch builds, manifest merging, and Docker Hub profile updates. Manual execution requires an explicit emergency bypass. |
-| [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Version verification, build, and publish to npm with SLSA Build L3 provenance. |
+| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Builds multi-arch images, scans, and pushes to Docker Hub. Manual runs require emergency bypass. |
+| [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Publishes to npm with SLSA L3 provenance. Manual runs require an explicit emergency bypass. |
 
 ### Automate with Agentic Workflows
 
@@ -103,7 +103,7 @@ These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.
 
 | Prompt                                           | Lock File                                                    | Schedule               | Purpose                                                                                 |
 | ------------------------------------------------ | ------------------------------------------------------------ | ---------------------- | --------------------------------------------------------------------------------------- |
-| [ci-health-monitor.md](ci-health-monitor.md)     | [ci-health-monitor.lock.yml](ci-health-monitor.lock.yml)     | Wed 14:00 UTC / manual | Audits workflows for deprecated actions, Node.js runtime issues, stale Dependabot config |
+| [ci-health-monitor.md](ci-health-monitor.md)     | [ci-health-monitor.lock.yml](ci-health-monitor.lock.yml)     | Wed 14:00 UTC / manual | Audits workflows for deprecated actions, Node.js issues, and stale Dependabot configurations. |
 
 ---
 

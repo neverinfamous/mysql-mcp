@@ -104,7 +104,7 @@ docker run -i --rm writenotenow/mysql-mcp:latest \
   --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
-#### Observability via Docker Compose
+#### Enable Observability via Docker Compose
 
 Launch the observability stack with MCP, Prometheus, and a pre-configured Grafana dashboard:
 
@@ -118,7 +118,7 @@ docker compose up -d
 - **Prometheus:** Available at `http://localhost:9090`.
 - **MCP Server:** Available at `http://localhost:3000`.
 
-#### From Source
+#### Build From Source
 
 ```bash
 git clone https://github.com/neverinfamous/mysql-mcp.git
@@ -753,15 +753,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 ### Enforce Scopes
 
-| Scope                    | Access Level                        |
-| ------------------------ | ----------------------------------- |
-| `read`                   | Read-only queries (SELECT, EXPLAIN) |
-| `write`                  | Read + write operations             |
-| `admin`                  | Full administrative access          |
-| `full`                   | Grants all access                   |
-| `db:{name}`              | Access to specific database         |
-| `schema:{name}`          | Access to specific schema           |
-| `table:{schema}:{table}` | Access to specific table            |
+See [Enforce OAuth Scopes](#enforce-oauth-scopes).
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 
@@ -832,6 +824,7 @@ pnpm run test:coverage
 - Centralized mock factories in `src/__tests__/mocks/`
 - All test files use shared mocks for consistency
 - Tests run without database connection (fully mocked)
+- While unit tests are mocked, the E2E and advanced stress test suites require a live database connection.
 
 ### Execute Benchmarks
 

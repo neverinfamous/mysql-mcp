@@ -48,9 +48,9 @@
         "_comment_PROXYSQL_PORT": "6032",
         "_comment_PROXYSQL_USER": "radmin",
         "_comment_PROXYSQL_PASSWORD": "radmin",
-        "_comment_TRUST_PROXY": "true",
-        "_comment_MCP_ENABLE_HSTS": "true",
-        "_comment_MCP_AUTH_TOKEN": "secret"
+        "_comment_TRUST_PROXY": "false",
+        "_comment_MCP_ENABLE_HSTS": "false",
+        "_comment_MCP_AUTH_TOKEN": "your-secure-auth-token"
       }
     }
   }

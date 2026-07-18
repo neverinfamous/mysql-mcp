@@ -116,7 +116,7 @@ When reviewing PRs, check for:
 
 - [ ] Missing barrel exports in `src/types/index.ts` when new types are added
 - [ ] `eslint-disable` usage — always forbidden
-- [ ] No `@ts-ignore`, `@ts-expect-error`, or `as` assertions (use satisfies or type guards).
+- [ ] No `@ts-ignore`, `@ts-expect-error`, or `as` assertions (use `satisfies` or type guards).
 - [ ] Raw exceptions from tool handlers — must use structured error responses
 - [ ] Must reference `gh copilot` not the deprecated `github-copilot-cli`
 - [ ] Files approaching 500 lines — flag for splitting
@@ -124,7 +124,7 @@ When reviewing PRs, check for:
 - [ ] Missing Zod schemas on new tools
 - [ ] Kebab-case violations in new filenames
 - [ ] No `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
-- [ ] Verify the author has run tests locally (e.g., via pnpm run check)
+- [ ] Verify the author has run tests locally (e.g., via `pnpm run check`)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
 - [ ] Add prominent Value Proposition to standard README.md and Wikis.
