@@ -9,16 +9,16 @@
 
 ## 💎 Value Proposition
 
-MySQL MCP delivers production-ready integration for AI agents. Slash token consumption and consolidate complex operations using Code Mode's isolated sandbox. Scale reliably with built-in connection pooling. Secure database access using strict OAuth 2.1 validation.
+Production-ready MySQL integration for AI agents. Slash tokens with Code Mode and OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
 | Feature                               | Description                                                                                                                                                                                                                                                                            |
 | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Specialized Tools**                 | Access an extensive suite of specialized tools. Manage core CRUD, JSON, spatial data, document stores, and clusters. |
+| **Specialized Tools**                 | Access specialized tools for core CRUD, JSON, spatial data, document stores, and clusters. |
 | **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
-| **Code Mode**                         | Execute operations locally inside a V8 isolate. Reduces LLM token consumption by consolidating operations via sandboxed Code Mode. |
+| **Code Mode**                         | Reduce LLM token consumption by consolidating operations inside a secure, sandboxed V8 isolate. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **Smart Tool Filtering**              | Use tool groups and shortcuts to stay within IDE tool limits. |
@@ -28,8 +28,8 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Persist local metrics via SystemDb. Export Prometheus metrics to Grafana. Monitor Token & AI Efficiency with Datadog eBPF / APM. Monitor logs with Dozzle. |
-| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
+| **Observability**                     | Export Prometheus metrics, monitor AI efficiency via Datadog, and track logs with Dozzle. |
+| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
 ---
@@ -740,10 +740,10 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
 | —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
-| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
+| —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
-| —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 100) |
+| —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
 | —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |

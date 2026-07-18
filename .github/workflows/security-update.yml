@@ -22,7 +22,7 @@ permissions:
 
 jobs:
   security-scan:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       security-events: write
@@ -99,7 +99,7 @@ jobs:
   create-issue:
     needs: [security-scan]
     if: ${{ always() && needs.security-scan.outputs.scan-failed == 'true' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
       issues: write

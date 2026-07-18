@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   lint:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
 
@@ -63,7 +63,7 @@ jobs:
           REDIS_URL: redis://127.0.0.1:6379
 
   security-scan:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     permissions:
       contents: read
     steps:
@@ -90,7 +90,7 @@ jobs:
   # Smoke test: verify the Docker image builds and starts successfully
   # Catches dependency resolution failures that only surface after pnpm prune (neverinfamous/mysql-mcp#149)
   docker-smoke-test:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read

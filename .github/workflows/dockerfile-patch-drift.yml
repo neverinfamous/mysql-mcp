@@ -45,7 +45,7 @@ jobs:
             PATCHES["$pkg_name"]="$pkg_ver"
           done
 
-          NPM_DIR="$(npm root -g)/npm"
+          NPM_DIR="$(docker run --rm --entrypoint sh ghcr.io/neverinfamous/mysql-mcp:test -c "npm root -g")/npm"
           STALE=0
 
           for pkg in "${!PATCHES[@]}"; do
