@@ -62,7 +62,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
         const keyStats: Record<string, unknown>[] = [];
         for (const key of uniqueKeys.slice(0, 20)) {
           // Limit to 20 keys
-          const jsonPath = '$."' + key.replace(/"/g, '\\"') + '"';
+          const jsonPath = '$."' + key.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
           const typeQuery = `
                     SELECT 
                         JSON_TYPE(JSON_EXTRACT(sample.\`${column}\`, ?)) as value_type,
