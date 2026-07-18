@@ -61,7 +61,7 @@ node dist/cli.js --transport http --port 3000 --allowed-io-roots /path/to/data -
 docker build -f Dockerfile -t writenotenow/mysql-mcp-dev .
 
 # Run with a connection string
-docker run --rm -i writenotenow/mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run --rm -i -v ./data:/app/data writenotenow/mysql-mcp-dev --transport stdio --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 📋 Focus on High-Impact Contribution Goals
@@ -153,7 +153,7 @@ Add your local build to `~/.cursor/mcp.json`:
 ```bash
 # Build and run locally
 docker build -f Dockerfile -t writenotenow/mysql-mcp-dev .
-docker run --rm -i writenotenow/mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run --rm -i -v ./data:/app/data writenotenow/mysql-mcp-dev --transport stdio --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 📝 Maintain Quality with Coding Standards

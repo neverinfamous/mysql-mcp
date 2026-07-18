@@ -1,7 +1,7 @@
 # MySQL MCP Server (mysql-mcp)
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-89.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-393%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Passing-green.svg) ![E2E Tests](https://img.shields.io/badge/E2E-Passing-brightgreen.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-89.06%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-393%20passing%20%C2%B7%200%20skipped-blue.svg)
 
 > **Note:** Docker Hub limits descriptions to 25k characters. Some documentation may be truncated. View the **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** or the [GitHub README](https://github.com/neverinfamous/mysql-mcp) for complete details.
 
@@ -159,12 +159,12 @@ docker run --rm -p 3000:3000 \
 
 ### HTTP Endpoints
 
-| Endpoint | Method | Description |
+| Method | Endpoint | Purpose |
 | --- | --- | --- |
-| `/mcp` | POST/GET | JSON-RPC requests / SSE stream |
-| `/mcp` | DELETE | Session termination |
-| `/health` | GET | Health check |
-| `/metrics` | GET | Prometheus metrics |
+| POST/GET | `/mcp` | JSON-RPC requests / SSE stream |
+| DELETE | `/mcp` | Session termination |
+| GET | `/health` | Health check |
+| GET | `/metrics` | Prometheus metrics |
 
 ## 🔐 Protect Your Data with Authentication
 
@@ -185,7 +185,7 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 | `schema:{name}` | Access to specific schema |
 | `table:{schema}:{table}` | Access to specific table |
 
-> [!NOTE]
+> **Note:**
 > **Per-tool scope enforcement:** The server enforces scopes at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. The server skips scope checks entirely when OAuth is not configured.
 
 ---

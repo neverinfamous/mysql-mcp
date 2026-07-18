@@ -120,11 +120,12 @@ When reviewing PRs, check for:
 - [ ] No `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
 - [ ] Verify the author has run tests locally (e.g., via `pnpm run check`)
 - [ ] Dual-Schema Pattern enforcement
-- [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
+- [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md` and use exact account names (`writenotenow` and `neverinfamous`)
+- [ ] Avoid using 'any' (use 'unknown' instead) and prefer union types over enums.
 - [ ] Add prominent Value Proposition at the top to standard README.md and Wikis. Use active voice, benefit-driven headers, and concise sentences (<15 words).
 - [ ] CRITICAL: Never add marketing tone to AGENT_README.md.
 - [ ] Docker readme <= 25,000 chars and dynamically updated test badges are preserved.
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
 - [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags
-- [ ] I have avoided using 'any' (used 'unknown' instead) and preferred union types over enums.
+- [ ] Ensure version-agnostic text (no exact tool/resource counts)

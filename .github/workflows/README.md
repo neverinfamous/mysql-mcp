@@ -57,8 +57,9 @@ flowchart LR
     Gate --> SS
     Gate --> SU
 
-    LT & CQL & SS & SU --> DP
-    LT & CQL & SS & SU --> NPM
+    LT & CQL & SS & SU --> Gate
+    Gate --> DP
+    Gate --> NPM
 
     Manual --> NPM
     Manual --> DP

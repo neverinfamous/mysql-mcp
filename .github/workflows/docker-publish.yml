@@ -146,7 +146,7 @@ jobs:
           load: true
           tags: smoke-test:latest
           cache-from: type=gha,scope=linux/amd64
-          cache-to: type=gha,scope=linux/amd64,mode=max
+          cache-to: type=gha,scope=linux/amd64-smoke,mode=max
 
       - name: Smoke test — binary loads without crash
         run: |
