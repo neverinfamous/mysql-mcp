@@ -201,7 +201,7 @@ export const CreateTableSchemaBase = z.object({
         name: z.string().describe("Column name"),
         type: z
           .string()
-          .regex(/^[A-Z]+(\([0-9, ]+\))?(\s+UNSIGNED)?$/i, "Invalid column type format")
+          .regex(/^[A-Z]+(\([^)]+\))?(\s+UNSIGNED)?$/i, "Invalid column type format")
           .describe("MySQL data type (e.g., INT, VARCHAR(255), JSON)"),
         nullable: z
           .boolean()
