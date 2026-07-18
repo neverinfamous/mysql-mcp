@@ -52,9 +52,9 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err: unknown) {
         if (err instanceof ZodError) {
-          return formatHandlerErrorResponse(err);
+          return formatHandlerErrorResponse(err, { module: "json", tool: "mysql_json_merge" });
         }
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "json", tool: "mysql_json_merge" });
       }
     },
   };

@@ -151,9 +151,9 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
         });
       } catch (err: unknown) {
         if (err instanceof ZodError) {
-          return formatHandlerErrorResponse(err);
+          return formatHandlerErrorResponse(err, { module: "json", tool: "mysql_json_diff" });
         }
-        return formatHandlerErrorResponse(err);
+        return formatHandlerErrorResponse(err, { module: "json", tool: "mysql_json_diff" });
       }
     },
   };
