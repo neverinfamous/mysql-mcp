@@ -278,9 +278,8 @@ Use our [Feature Request template](.github/ISSUE_TEMPLATE/feature_request.md).
 | -------------------- | -------------------------------------------- |
 | **Lint & Test**      | ESLint, TypeScript strict-mode, Vitest suite |
 | **CodeQL**           | Static analysis for security vulnerabilities |
-| **E2E**              | Playwright end-to-end transport parity tests |
-| **pnpm audit**       | Checks dependencies for known vulnerabilities|
 | **Secrets scanning** | Scans for exposed credentials and API keys   |
+| **Trivy**            | Scans Docker images for vulnerabilities      |
 
 All checks must pass before merge. Security steps **hard-fail on fixable issues** — this is intentional.
 

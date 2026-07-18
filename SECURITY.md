@@ -63,7 +63,7 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 
 ## 🧪 **Isolate Threats in Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#%E2%9A%A1-optimize-token-usage-with-code-mode).**
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#-optimize-token-usage-with-code-mode).**
 
 ### Enforce Engine-Level Restrictions
 
@@ -165,14 +165,14 @@ The Dockerfile patches npm-bundled transitive dependencies for Docker Scout comp
 
 ```bash
 # Secure volume mounting
-docker run -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run -i -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ### Apply Resource Limits
 
 ```bash
 # Apply resource limits
-docker run --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 🔐 **Maintain Compliance with Secure Logs**

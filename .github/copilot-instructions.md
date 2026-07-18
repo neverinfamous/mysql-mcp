@@ -121,9 +121,10 @@ When reviewing PRs, check for:
 - [ ] Verify the author has run tests locally (e.g., via `pnpm run check`)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Add prominent Value Proposition to standard README.md and Wikis. Use active voice, benefit-driven headers, and concise sentences (<15 words).
+- [ ] Add prominent Value Proposition at the top to standard README.md and Wikis. Use active voice, benefit-driven headers, and concise sentences (<15 words).
 - [ ] CRITICAL: Never add marketing tone to AGENT_README.md.
 - [ ] Docker readme <= 25,000 chars and dynamically updated test badges are preserved.
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
 - [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags
+- [ ] I have avoided using 'any' (used 'unknown' instead) and preferred union types over enums.
