@@ -104,7 +104,7 @@ describe("JSON Core Tools", () => {
     it("should insert JSON value", async () => {
       // Mock path existence check (path does not exist)
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ path_exists: 0 }]),
+        createMockQueryResult([{ existing_paths: 0, total_rows: 1 }]),
       );
       mockAdapter.executeWriteQuery.mockResolvedValue({
         rowsAffected: 1,
@@ -128,9 +128,9 @@ describe("JSON Core Tools", () => {
     });
 
     it("should return changed: true when path is new", async () => {
-      // Path does not exist (path_exists is 0)
+      // Path does not exist (existing_paths is 0)
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ path_exists: 0 }]),
+        createMockQueryResult([{ existing_paths: 0, total_rows: 1 }]),
       );
       mockAdapter.executeWriteQuery.mockResolvedValue({
         rowsAffected: 1,
@@ -154,9 +154,9 @@ describe("JSON Core Tools", () => {
     });
 
     it("should return changed: false when path already exists", async () => {
-      // Path already exists (path_exists is 1)
+      // Path already exists (existing_paths is 1)
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ path_exists: 1 }]),
+        createMockQueryResult([{ existing_paths: 1, total_rows: 1 }]),
       );
       mockAdapter.executeWriteQuery.mockResolvedValue({
         rowsAffected: 1,
@@ -187,7 +187,7 @@ describe("JSON Core Tools", () => {
     it("should replace JSON value", async () => {
       // Mock path existence check (path exists)
       mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ path_exists: 1 }]),
+        createMockQueryResult([{ existing_paths: 1, total_rows: 1 }]),
       );
       mockAdapter.executeWriteQuery.mockResolvedValue({
         rowsAffected: 1,

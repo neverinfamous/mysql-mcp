@@ -8,6 +8,7 @@ import type {
   PromptDefinition,
 } from "../../types/index.js";
 import type { DatabaseAdapter } from "./database-adapter.js";
+import { metrics } from "../../observability/metrics.js";
 
 interface StandardSchema {
   '~standard': {
@@ -254,6 +255,7 @@ export function registerResource(
     resource.uri,
     resourceMeta,
     async (uri: string | URL, _extra?: unknown) => {
+      metrics.recordResourceRead(uri.toString());
       const context = adapter.createContext();
       const result = await resource.handler(uri.toString(), context);
       return {
