@@ -191,7 +191,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 ```json
 {
   "mcpServers": {
-    "mysql-mcp": {
+    "mysql-mcp-cluster": {
       "command": "docker",
       "args": [
         "run",
@@ -212,10 +212,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
       ],
       "env": {
         "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "mcp_user",
-        "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
+        "MYSQL_DATABASE": "mysql",
         "REDIS_URL": "redis://host.docker.internal:6379",
         "MCP_REQUEST_TIMEOUT": "600000"
       },
@@ -234,7 +234,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 ```json
 {
   "mcpServers": {
-    "mysql-mcp": {
+    "mysql-mcp-ecosystem": {
       "command": "docker",
       "args": [
         "run",
@@ -245,6 +245,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "-e", "MYSQL_USER",
         "-e", "MYSQL_PASSWORD",
         "-e", "MYSQL_DATABASE",
+        "-e", "MYSQL_XPORT",
         "-e", "MYSQL_ROUTER_URL",
         "-e", "MYSQL_ROUTER_USER",
         "-e", "MYSQL_ROUTER_PASSWORD",
@@ -263,17 +264,18 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
       ],
       "env": {
         "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "mcp_user",
-        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
         "MYSQL_DATABASE": "testdb",
+        "MYSQL_XPORT": "6448",
         "MYSQL_ROUTER_URL": "https://host.docker.internal:8443",
-        "MYSQL_ROUTER_USER": "router_admin",
+        "MYSQL_ROUTER_USER": "rest_api",
         "MYSQL_ROUTER_PASSWORD": "router_password",
         "PROXYSQL_HOST": "host.docker.internal",
         "PROXYSQL_PORT": "6032",
-        "PROXYSQL_USER": "admin",
-        "PROXYSQL_PASSWORD": "admin",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin",
         "MYSQLSH_PATH": "mysqlsh",
         "REDIS_URL": "redis://host.docker.internal:6379",
         "MCP_REQUEST_TIMEOUT": "600000"

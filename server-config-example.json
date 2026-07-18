@@ -1,5 +1,6 @@
 {
   "_comment_usage": "Load this configuration by running: mysql-mcp --config path/to/server-config-example.json. Config Priority: CLI Flags > Environment Variables > Config File > Defaults",
+  "_comment_priority": "For database connections and OAuth settings, the entire array/object must come from a single source to prevent mixing environments (e.g. CLI databases will fully override FILE databases).",
   "_comment_docker": "Docker mapping requirements: set host to 0.0.0.0 and adjust allowedIoRoots to match mounted volumes.",
   "host": "127.0.0.1",
   "port": 3000,

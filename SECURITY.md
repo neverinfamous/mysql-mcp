@@ -79,7 +79,6 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 ### Protect the Runtime
 
-- ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — Enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — Enforce per-client rate limits. Configure via CODEMODE_RATE_LIMIT_MAX.
@@ -152,7 +151,7 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 
 - ✅ **Minimal base image**: `node:lts-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
-- ✅ **Production pruning**: `npm prune --omit=dev` after build
+- ✅ **Production pruning**: Uses pnpm install --prod and pnpm store prune in the runtime stage
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
 - ✅ **Process isolation** from host system
 
@@ -222,7 +221,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 2. **Zod validation** — all tool inputs validated via schemas at tool boundaries
 3. **No secrets in code** — use environment variables (`.env` files are gitignored)
 4. **Typed error classes** — descriptive messages with context; don't expose internals
-5. **Regular updates** — keep Node.js and npm dependencies updated
+5. **Regular updates** — keep Node.js and pnpm dependencies updated
 6. **Security scanning** — regularly scan Docker images for vulnerabilities
 
 ## 📋 **Verify with the Security Checklist**
@@ -234,7 +233,6 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 - [x] Code Mode sandbox isolation (true separate V8 isolate via isolated-vm)
 - [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
 - [x] Code Mode blocked patterns (comprehensive static regex rules + Unicode/NFKC validation)
-- [x] Code Mode RPC quotas (configurable)
 - [x] Code Mode egress streaming boundary (abort serialization on oversized results)
 - [x] Code Mode execution timeout (dynamically configurable)
 - [x] Code Mode rate limiting (configurable via `CODEMODE_RATE_LIMIT_MAX`, Redis-backed with in-memory fallback)
