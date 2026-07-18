@@ -177,6 +177,9 @@ services:
     image: proxysql/proxysql:2.6.3
     container_name: proxysql
     restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
     ports:
       - "6032:6032"
       - "6033:6033"
@@ -212,7 +215,7 @@ services:
         ]
       interval: 10s
       timeout: 5s
-      retries: 3
+      retries: 10
 
   redis-server:
     image: redis:7.4.0
