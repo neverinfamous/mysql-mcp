@@ -2,6 +2,11 @@ services:
   mysql-mcp:
     build: .
     image: writenotenow/mysql-mcp:latest
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1.0'
+    #       memory: 512M
     ports:
       - "${MYSQLMCP_PORT:-3000}:3000"
     command:
@@ -91,7 +96,7 @@ services:
     ports:
       - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./test-server/infrastructure/config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
       - mysql-mcp
 
@@ -100,8 +105,8 @@ services:
     ports:
       - "${GRAFANA_PORT:-3001}:3000"
     volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./test-server/infrastructure/config/grafana/provisioning:/etc/grafana/provisioning
+      - ./test-server/infrastructure/config/grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - prometheus
 

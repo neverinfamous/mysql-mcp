@@ -7,12 +7,12 @@
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode and OAuth.
+Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode and secure connections with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
-| Feature                               | Description                                                                                                                                                                                                                                                                            |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Feature | Description |
+| --- | --- |
 | **Specialized Tools**                 | Access specialized tools for core CRUD, JSON, spatial data, document stores, and clusters. |
 | **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
@@ -33,7 +33,7 @@ Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode
 ## 🤖 Automate Tasks with Guided Workflows
 
 | Prompt | Description |
-|---|---|
+| --- | --- |
 | `mysql_tool_index` | Complete tool index with categories |
 | `mysql_quick_query` | Quick query execution shortcut |
 | `mysql_quick_schema` | Quick schema exploration |
@@ -43,7 +43,7 @@ Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode
 ## 📊 Improve Observability with Resources
 
 | Resource | Description |
-|---|---|
+| --- | --- |
 | `mysql://schema` | Full database schema |
 | `mysql://tables` | Table listing with metadata |
 | `mysql://table/{name}` | Specific Table Schema |
@@ -148,9 +148,18 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 ```bash
 docker run --rm -p 3000:3000 \
   -v ./data:/app/data \
+  -e MCP_AUTH_TOKEN=my-secret-token \
   writenotenow/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
+
+### HTTP Endpoints
+
+| Endpoint | Method | Description |
+| --- | --- | --- |
+| `/mcp` | POST/GET | JSON-RPC requests / SSE stream |
+| `/health` | GET | Health check |
+| `/metrics` | GET | Prometheus metrics |
 
 ## 🔐 Protect Your Data with Authentication
 
@@ -158,6 +167,21 @@ docker run --rm -p 3000:3000 \
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
 
 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth setup (with Keycloak).
+
+### Enforce Scopes
+
+| Scope | Access Level |
+| --- | --- |
+| `read` | Read-only queries (SELECT, EXPLAIN) |
+| `write` | Read + write operations |
+| `admin` | Full administrative access |
+| `full` | Grants all access |
+| `db:{name}` | Access to specific database |
+| `schema:{name}` | Access to specific schema |
+| `table:{schema}:{table}` | Access to specific table |
+
+> [!NOTE]
+> **Per-tool scope enforcement:** The server enforces scopes at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. The server skips scope checks entirely when OAuth is not configured.
 
 ---
 
@@ -307,8 +331,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 ## 🔗 Integrate Any MySQL Environment
 
-| Scenario                  | Host to Use               | Example Connection String                        |
-| ------------------------- | ------------------------- | ------------------------------------------------ |
+| Scenario | Host to Use | Example Connection String |
+| --- | --- | --- |
 | **MySQL on host machine** | `host.docker.internal`    | `mysql://mcp_user:secure_password@host.docker.internal:3306/testdb` |
 | **MySQL in Docker**       | Container name or network | `mysql://mcp_user:secure_password@mysql-container:3306/testdb`      |
 | **Remote/Cloud MySQL**    | Hostname or IP            | `mysql://mcp_user:secure_password@db.example.com:3306/testdb`       |
@@ -321,6 +345,18 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter starter` or `--tool-filter core,json,-codemode`).
 
+### Review Syntax Reference
+
+| Prefix | Target | Example | Effect |
+| --- | --- | --- | --- |
+| _(none)_ | Shortcut | `starter` | **Whitelist Mode:** Enable ONLY this shortcut |
+| _(none)_ | Group | `core` | **Whitelist Mode:** Enable ONLY this group |
+| _(none)_ | Tool | `mysql_read_query` | **Whitelist Mode:** Enable ONLY this tool |
+| `+` | Group | `+spatial` | Add tools from this group to current set |
+| `-` | Group | `-admin` | Remove tools in this group from current set |
+| `+` | Tool | `+mysql_explain` | Add one specific tool |
+| `-` | Tool | `-mysql_drop_table` | Remove one specific tool |
+
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available groups and predefined bundles.
 
 ---
@@ -329,8 +365,8 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 
 ### Configure CLI Options
 
-| Option                    | Environment Variable    | Description                                         |
-| ------------------------- | ----------------------- | --------------------------------------------------- |
+| Option | Environment Variable | Description |
+| --- | --- | --- |
 | `--config`, `-c`          | —                       | Configuration file path (.yaml or .json)            |
 | `--dump-config`           | —                       | Dump current configuration to stdout and exit       |
 | `--version`, `-v`         | —                       | Show version number                                 |
@@ -390,21 +426,6 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
-
-### Enforce Scopes
-
-| Scope                    | Access Level                        |
-| ------------------------ | ----------------------------------- |
-| `read`                   | Read-only queries (SELECT, EXPLAIN) |
-| `write`                  | Read + write operations             |
-| `admin`                  | Full administrative access          |
-| `full`                   | Grants all access                   |
-| `db:{name}`              | Access to specific database         |
-| `schema:{name}`          | Access to specific schema           |
-| `table:{schema}:{table}` | Access to specific table            |
-
-> [!NOTE]
-> **Per-tool scope enforcement:** The server enforces scopes at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. The server skips scope checks entirely when OAuth is not configured.
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 

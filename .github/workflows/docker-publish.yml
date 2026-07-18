@@ -160,7 +160,7 @@ jobs:
           docker run --rm -d --name smoke-http -p 3000:3000 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
             -e TOOL_FILTER=router smoke-test:latest \
-            --transport http
+            --transport http --tool-filter router
           sleep 5
           if ! docker ps --filter name=smoke-http --format '{{.Status}}' | grep -q "Up"; then
             echo "❌ HTTP smoke test failed — container crashed"
@@ -214,7 +214,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
         with:
           node-version-file: ".node-version"
 
@@ -321,7 +321,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
         with:
           node-version-file: ".node-version"
 

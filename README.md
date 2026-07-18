@@ -107,7 +107,7 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 #### Enable Observability via Docker Compose
 
-Launch the observability stack with MCP, Prometheus, and a pre-configured Grafana dashboard:
+Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, a local MySQL test database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`:
 
 ```bash
 cp .env.example .env

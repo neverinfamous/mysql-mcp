@@ -15,6 +15,7 @@ _comment_transport: "Defaults to stdio. Use http for docker-compose configuratio
 transport: "stdio" # or "http", "sse"
 enableHSTS: false
 trustProxy: false
+corsAllowedOrigins: "*"
 
 # Tooling and Sandbox
 toolFilter: "starter"
@@ -43,6 +44,7 @@ databases:
     username: "mcp_user"
     password: "secure_password"
     database: "testdb"
+    ssl: true
     pool:
       connectionLimit: 10
       acquireTimeout: 10000 # recommended lower value for tight integration

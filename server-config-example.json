@@ -8,6 +8,7 @@
   "transport": "stdio",
   "enableHSTS": false,
   "trustProxy": false,
+  "corsAllowedOrigins": "*",
   "toolFilter": "starter",
   "allowedIoRoots": [
     "C:/temp/mcp-sandbox",
@@ -34,6 +35,7 @@
       "username": "mcp_user",
       "password": "secure_password",
       "database": "testdb",
+      "ssl": true,
       "pool": {
         "connectionLimit": 10,
         "_comment_acquireTimeout": "recommended lower value for tight integration",

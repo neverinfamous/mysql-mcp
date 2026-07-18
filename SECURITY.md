@@ -181,7 +181,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 - ✅ **Full JSONL Audit Trails** — comprehensive logging array capturing mutations, Code Mode executions, and system events
 - ✅ **Session Token Estimates** — robust burn-rate tracking appended to log entries
-- ✅ **Pre-Mutation Snapshots** — interceptor captures table states before destructive administration operations
+- ✅ **Pre-Mutation Snapshots (Backup)** — interceptor captures table states before destructive administration operations
 
 ### Redact Credentials
 

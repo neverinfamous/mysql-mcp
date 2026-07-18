@@ -97,7 +97,7 @@ flowchart LR
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
 | [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Builds multi-arch images, scans, and pushes to Docker Hub. Manual runs require emergency bypass. |
-| [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Publishes to npm with SLSA L3 provenance. Manual runs require an explicit emergency bypass. |
+| [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper (on tag) / manual            | Publishes to npm with SLSA L3 provenance. Manual runs require an explicit emergency bypass. |
 
 ### Automate with Agentic Workflows
 
