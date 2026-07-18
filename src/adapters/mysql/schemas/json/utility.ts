@@ -158,10 +158,7 @@ export const JsonMergeSchemaBase = z.object({
   doc2: z.unknown().optional().describe("Alias for json2"),
   source: z.unknown().optional().describe("Alias for json2"),
   patch: z.unknown().optional().describe("Alias for json2"),
-  mode: z
-    .enum(["patch", "preserve"])
-    .optional()
-    .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
+  mode: z.string().optional().describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
 });
 
 // --- JsonDiff ---
