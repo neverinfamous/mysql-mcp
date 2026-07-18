@@ -71,12 +71,7 @@ jobs:
       - name: Read version
         id: version
         run: |
-          if [ -f "VERSION" ]; then
-            VERSION=$(head -1 VERSION | tr -d '[:space:]')
-          fi
-          if [ -z "$VERSION" ]; then
-            VERSION=$(node -p "require('./package.json').version")
-          fi
+          VERSION=$(node -p "require('./package.json').version")
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "Detected version: $VERSION"
 

@@ -39,7 +39,7 @@ jobs:
           # These are the versions we manually patch in the Dockerfile.
           # If npm's bundled version is already >= patched version, the patch is stale.
           declare -A PATCHES
-          for pkg_str in $(grep -Eo 'npm install -g [a-zA-Z0-9_/@-]+@[0-9.]+' Dockerfile | awk '{print $4}'); do
+          for pkg_str in $(grep -oP 'npm install -g \K.*' Dockerfile | grep -Eo '[a-zA-Z0-9_/@-]+@[0-9.]+'); do
             pkg_name="${pkg_str%@*}"
             pkg_ver="${pkg_str##*@}"
             PATCHES["$pkg_name"]="$pkg_ver"

@@ -30,7 +30,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. Execute pipelines with zero skipped tests. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
-### 🤖 Automate Tasks with Guided Workflows
+## 🤖 Automate Tasks with Guided Workflows
 
 | Prompt | Description |
 |---|---|
@@ -40,13 +40,15 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 
 > **Note**: This is a subset of available prompts. Use `mysql_tool_index` to discover the full list of guided workflows.
 
-### 📊 Improve Observability with Resources
+## 📊 Improve Observability with Resources
 
 | Resource | Description |
 |---|---|
 | `mysql://schema` | Full database schema |
 | `mysql://tables` | Table listing with metadata |
+| `mysql://table/{name}` | Specific Table Schema |
 | `mysql://sysschema` | Sys Schema Diagnostics |
+| `mysql://help` | Critical gotchas, parameter aliases, and API reference |
 
 > **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
 
@@ -70,6 +72,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 ```bash
 docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
   --transport stdio \
+  --allowed-io-roots /app/data \
   --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
@@ -208,10 +211,10 @@ docker run --rm -p 3000:3000 \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
+### 🔐 Protect Your Data with Authentication
+
 > **Warning:**
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
-
-### 🔐 Protect Your Data with Authentication
 
 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth 2.1 setup (with Keycloak).
 
@@ -230,6 +233,8 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 ---
 
 ## 🛠️ Prevent Token Limits with Tool Filtering
+
+Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter starter` or `--tool-filter core,json,-codemode`).
 
 > **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available groups and predefined bundles.
 
@@ -290,7 +295,7 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 | —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
 | —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
-| —                         | `CODEMODE_ISOLATION`    | Code mode isolation level                           |
+| —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
 | —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |

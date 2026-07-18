@@ -192,6 +192,7 @@ jobs:
             runner: ubuntu-24.04-arm
 
     runs-on: ${{ matrix.runner }}
+    environment: dummy
     permissions:
       contents: read
       packages: write

@@ -34,19 +34,19 @@
         "_comment_advanced": "Ecosystem variables should only be added manually if the corresponding local services are active.",
         "_comment_REDIS_URL": "redis://localhost:6379",
         "_comment_MCP_METRICS_EXPORT": "prometheus",
-        "_comment_OAUTH_ENABLED": "true",
-        "_comment_OAUTH_ISSUER": "",
-        "_comment_OAUTH_AUDIENCE": "",
-        "_comment_OAUTH_JWKS_URI": "",
-        "_comment_OAUTH_CLOCK_TOLERANCE": "",
-        "_comment_MYSQL_ROUTER_URL": "",
-        "_comment_MYSQL_ROUTER_USER": "",
-        "_comment_MYSQL_ROUTER_PASSWORD": "",
-        "_comment_MYSQL_ROUTER_INSECURE": "",
-        "_comment_PROXYSQL_HOST": "",
-        "_comment_PROXYSQL_PORT": "",
-        "_comment_PROXYSQL_USER": "",
-        "_comment_PROXYSQL_PASSWORD": ""
+        "_comment_OAUTH_ENABLED": "false",
+        "_comment_OAUTH_ISSUER": "https://auth.example.com",
+        "_comment_OAUTH_AUDIENCE": "mysql-mcp-client",
+        "_comment_OAUTH_JWKS_URI": "https://auth.example.com/.well-known/jwks.json",
+        "_comment_OAUTH_CLOCK_TOLERANCE": "60",
+        "_comment_MYSQL_ROUTER_URL": "https://localhost:8443",
+        "_comment_MYSQL_ROUTER_USER": "rest_api",
+        "_comment_MYSQL_ROUTER_PASSWORD": "password",
+        "_comment_MYSQL_ROUTER_INSECURE": "true",
+        "_comment_PROXYSQL_HOST": "localhost",
+        "_comment_PROXYSQL_PORT": "6032",
+        "_comment_PROXYSQL_USER": "radmin",
+        "_comment_PROXYSQL_PASSWORD": "radmin"
       }
     }
   }

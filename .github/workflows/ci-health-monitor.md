@@ -20,6 +20,10 @@ network:
 
 permissions: read-all
 
+env:
+  GH_AW_GITHUB_MCP_SERVER_TOKEN: ${{ secrets.GH_AW_GITHUB_MCP_SERVER_TOKEN }}
+  GH_AW_GITHUB_TOKEN: ${{ secrets.GH_AW_GITHUB_TOKEN }}
+
 safe-outputs:
   report-failure-as-issue: false
   create-issue:
@@ -50,7 +54,7 @@ List all `.yml` files in `.github/workflows/`. For each workflow file:
 1. **Check action versions** — for each `uses:` line, note the action name and version/tag. Check if a newer major or minor version exists by reading the action's releases.
 2. **Check Node.js runtime** — look for `FORCE_JAVASCRIPT_ACTIONS_TO_NODE*` workarounds. Look for actions using deprecated Node.js versions. Flag any blocking target runtime compatibility.
 3. **Check for deprecated features** — such as set-output, save-state, or ::set-output:: commands.
-4. **Check Dependabot config**. Verify dependabot.yml covers used ecosystems (npm, GitHub Actions, Docker).
+4. **Check Dependabot config**. Verify .github/dependabot.yml covers used ecosystems (npm, GitHub Actions, Docker).
 
 ## Analyze Pipeline Execution Trends
 
