@@ -171,7 +171,7 @@ services:
         ]
       interval: 15s
       timeout: 10s
-      retries: 10
+      retries: 30
 
   proxysql:
     image: proxysql/proxysql:2.6.3
@@ -285,6 +285,7 @@ services:
       - "9090:9090"
     volumes:
       - ./config/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
     extra_hosts:
       - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
     stop_grace_period: 15s
@@ -435,4 +436,5 @@ volumes:
   mysql-node1-data-v4:
   mysql-node2-data-v4:
   mysql-node3-data-v4:
+  prometheus_data:
 networks: {}
