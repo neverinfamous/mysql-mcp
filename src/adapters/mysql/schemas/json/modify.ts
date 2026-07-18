@@ -304,7 +304,7 @@ export const JsonArrayAppendSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    value: data.value !== undefined ? data.value : data.val,
+    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
