@@ -54,9 +54,24 @@ mysql_users =
         max_connections = 1000
         default_schema = "testdb"
         active = 1
+    },
+    {
+        username = "cluster_admin"
+        password = "cluster_admin"
+        default_hostgroup = 1
+        max_connections = 1000
+        default_schema = "testdb"
+        active = 1
     }
 )
 
 mysql_query_rules =
 (
+    {
+        rule_id = 1
+        active = 1
+        match_digest = "^SELECT .*"
+        cache_ttl = 5000
+        apply = 1
+    }
 )
