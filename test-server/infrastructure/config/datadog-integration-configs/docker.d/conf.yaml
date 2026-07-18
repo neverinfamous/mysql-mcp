@@ -17,80 +17,25 @@ instances:
   ## @param container_tags - list of strings - optional
   ## List of tags to collect for each container. See available tags in the documentation.
   ## http://docs.datadoghq.com/integrations/docker/#tagging
-  #
   - container_tags:
-    - image_name
-    - image_tag
-    - docker_image
-    - container_name
-    - container_id
-
-  ## @param performance_tags - list of strings - optional
-  ## List of tags that are used to collect performance metrics. See available tags in the documentation.
-  ## http://docs.datadoghq.com/integrations/docker/#tagging
-  #
-  - performance_tags:
-    - image_name
-    - container_name
-
-  ## @param container_size - boolean - optional - default: false
-  ## Collect container size metrics. Note: This might take time, depending on the number of containers.
-  #
-  - container_size: true
-
-  ## @param collect_container_size_frequency - integer - optional - default: 5
-  ## Frequency for collecting the container size in agent ticks (default 15s).
-  ## When `container_size` is true, the Agent collects the container size every 5 ticks, so by default every 75s.
-  #
-  - collect_container_size_frequency: 5
-
-  ## @param collect_images_stats - boolean - optional - default: false
-  ## Collect disk usage per image
-  #
-  - collect_images_stats: true
-
-  ## @param collect_image_size - boolean - optional - default: false
-  ## Collect image size metrics
-  #
-  - collect_image_size: true
-
-  ## @param collect_disk_stats - boolean - optional - default: false
-  ## Collect disk metrics (total, used, free) per device for all the containers.
-  ## Warning: This might be slow for containers with a lot of files.
-  ## Note: This feature is temporarily disabled.
-  #
-  - collect_disk_stats: false
-
-  ## @param collect_volume_count - boolean - optional - default: false
-  ## Collect volume count metrics
-  #
-  - collect_volume_count: true
-
-  ## @param collect_exit_codes - boolean - optional - default: false
-  ## Collect containers exit codes and send service checks critical for non-zero exit codes.
-  ## Note: This feature is temporarily disabled.
-  #
-  - collect_exit_codes: true
-
-  ## @param tags - list of strings - optional
-  ## A list of tags to attach to every metric and service check emitted by this instance.
-  ##
-  ## Learn more about tagging at https://docs.datadoghq.com/tagging
-  #
-  - tags:
-    - env:development
-    - source:docker-desktop
-
-  ## @param service - string - optional
-  ## Attach the tag `service:<SERVICE>` to every metric, event, and service check emitted by this integration.
-  ##
-  ## Defaults to the integration name
-  #
-  - service: docker
-
-  ## @param min_collection_interval - number - optional - default: 15
-  ## This changes the collection interval of the check. For more information, see:
-  ## https://docs.datadoghq.com/developers/write_agent_check/#collection-interval
-  #
-  - min_collection_interval: 15
+      - image_name
+      - image_tag
+      - docker_image
+      - container_name
+      - container_id
+    performance_tags:
+      - image_name
+      - container_name
+    container_size: true
+    collect_container_size_frequency: 5
+    collect_images_stats: true
+    collect_image_size: true
+    collect_disk_stats: false
+    collect_volume_count: true
+    collect_exit_codes: true
+    tags:
+      - env:development
+      - source:wsl2
+    service: docker
+    min_collection_interval: 15
 

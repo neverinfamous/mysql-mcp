@@ -1,4 +1,35 @@
 {
+  "__inputs": [
+    {
+      "name": "DS_LOKI",
+      "label": "Loki",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "loki",
+      "pluginName": "Loki"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.2.0"
+    },
+    {
+      "type": "panel",
+      "id": "logs",
+      "name": "Logs",
+      "version": ""
+    },
+    {
+      "type": "datasource",
+      "id": "loki",
+      "name": "Loki",
+      "version": "1.0.0"
+    }
+  ],
   "annotations": {
     "list": [
       {
@@ -24,17 +55,17 @@
   "editable": true,
   "fiscalYearStartMonth": 0,
   "graphTooltip": 0,
-  "id": 2,
+  "id": null,
   "links": [],
   "liveNow": false,
   "panels": [
     {
       "datasource": {
         "type": "loki",
-        "uid": "loki_datasource"
+        "uid": "${DS_LOKI}"
       },
       "gridPos": {
-        "h": 12,
+        "h": 46,
         "w": 12,
         "x": 0,
         "y": 0
@@ -43,6 +74,7 @@
       "options": {
         "dedupStrategy": "none",
         "enableLogDetails": true,
+        "prettifyLogMessage": false,
         "showCommonLabels": false,
         "showLabels": false,
         "showTime": true,
@@ -53,7 +85,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "loki_datasource"
+            "uid": "${DS_LOKI}"
           },
           "editorMode": "builder",
           "expr": "{job=\"mysql_mcp_logs\"} | json | status=`error`",
@@ -67,10 +99,10 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "loki_datasource"
+        "uid": "${DS_LOKI}"
       },
       "gridPos": {
-        "h": 12,
+        "h": 46,
         "w": 12,
         "x": 12,
         "y": 0
@@ -79,6 +111,7 @@
       "options": {
         "dedupStrategy": "none",
         "enableLogDetails": true,
+        "prettifyLogMessage": false,
         "showCommonLabels": false,
         "showLabels": false,
         "showTime": true,
@@ -89,7 +122,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "loki_datasource"
+            "uid": "${DS_LOKI}"
           },
           "editorMode": "builder",
           "expr": "{job=\"mysql_mcp_logs\"} | json",
@@ -115,5 +148,6 @@
   "timezone": "",
   "title": "MySQL-MCP Logs (Loki)",
   "uid": "bde3gq184s",
-  "version": 1
+  "version": 1,
+  "weekStart": ""
 }
