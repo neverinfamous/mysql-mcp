@@ -11,6 +11,7 @@ import { test, expect } from "@playwright/test";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { createClient, callToolAndParse, expectSuccess, startServer, stopServer, TIMEOUTS } from "./helpers.js";
 import { setTimeout as delay } from "node:timers/promises";
+import * as mysql from "mysql2/promise";
 
 test.describe.configure({ mode: "serial" });
 
@@ -42,13 +43,23 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
 
   test("generates and verifies query cache metrics", async () => {
     // Fire the identical SELECT query multiple times to trigger the ProxySQL caching rule
+    // We must use a raw mysql2 connection with .query() (COM_QUERY) because ProxySQL 
+    // does not cache prepared statements (COM_STMT_EXECUTE) by default.
+    // mysql_read_query always uses prepared statements.
+    const conn = await mysql.createConnection({
+      host: '127.0.0.1',
+      port: 6033,
+      user: 'cluster_admin',
+      password: 'cluster_admin',
+      database: 'testdb'
+    });
+
     const query = "SELECT COUNT(*) FROM test_users;";
-    
     for (let i = 0; i < 5; i++) {
-      const res = await callToolAndParse(client, "mysql_read_query", { query });
-      expectSuccess(res);
+      await conn.query(query);
       await delay(100);
     }
+    await conn.end();
 
     // ProxySQL updates stats periodically, give it a tiny buffer
     await delay(500);
