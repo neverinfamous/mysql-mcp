@@ -31,7 +31,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
                 SELECT 
                     JSON_CONTAINS(?, ?) as json1_contains_json2,
                     JSON_CONTAINS(?, ?) as json2_contains_json1,
-                    CASE WHEN ? = ? THEN 1 ELSE 0 END as identical,
+                    CASE WHEN CAST(? AS JSON) = CAST(? AS JSON) THEN 1 ELSE 0 END as identical,
                     JSON_LENGTH(?) as json1_length,
                     JSON_LENGTH(?) as json2_length,
                     JSON_KEYS(?) as json1_keys,
