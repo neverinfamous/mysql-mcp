@@ -25,6 +25,8 @@ if (!cluster) {
 }
 
 const containerName = cluster ? 'mysql-node1' : 'mysql-final';
+const targetHost = cluster ? 'mysql-router' : '127.0.0.1';
+const targetPort = cluster ? '6446' : '3306';
 const mysqlHost = 'localhost';
 const mysqlPort = cluster ? '3307' : '3306';
 const mysqlUser = 'root';
@@ -45,8 +47,8 @@ if (!existsSync(seedFile)) {
 function invokeMySql(query, noDatabase = false) {
     const db = noDatabase ? '' : mysqlDatabase;
     const args = db 
-        ? [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', '127.0.0.1', '-uroot', db, '-e', query]
-        : [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', '127.0.0.1', '-uroot', '-e', query];
+        ? [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', db, '-e', query]
+        : [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', '-e', query];
         
     try {
         const result = execFileSync(dockerExe, args, { encoding: 'utf-8', stdio: 'pipe' });
@@ -61,7 +63,7 @@ function invokeMySqlFile(filePath) {
     try {
         invokeMySql(`CREATE DATABASE IF NOT EXISTS ${mysqlDatabase};`, true);
         const fileContent = readFileSync(filePath);
-        execFileSync(dockerExe, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', '127.0.0.1', '-uroot', mysqlDatabase], { input: fileContent, encoding: 'utf-8', stdio: 'pipe' });
+        execFileSync(dockerExe, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, encoding: 'utf-8', stdio: 'pipe' });
     } catch (e) {
         throw new Error(`Failed to execute seed file: ${e.message}`);
     }
@@ -110,7 +112,7 @@ if (!skipVerify) {
     let allPassed = true;
     for (const [table, expected] of Object.entries(expectedTables)) {
         try {
-            const result = execFileSync(dockerExe, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', '127.0.0.1', '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
+            const result = execFileSync(dockerExe, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
             const countStr = result.match(/\d+/);
             const count = countStr ? parseInt(countStr[0], 10) : 0;
             
