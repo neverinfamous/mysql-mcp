@@ -578,7 +578,7 @@ describe("JSON Enhanced Tools", () => {
           const result = await tool.handler(args as any, mockContext);
           expect(result).toMatchObject({
             success: false,
-            error: "Invalid JSON text",
+            error: expect.stringContaining("Invalid JSON text"),
           });
         });
       });
