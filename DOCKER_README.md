@@ -101,7 +101,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 ### Enforce Engine-Level Restrictions
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
-- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **Memory & CPU Constraints** — Enforces constraints at the C++ level. This includes synchronous timeouts and strict heap limits.
 - ✅ **API Bindings via Reference** — injects MySQL methods securely using `ivm.Reference` wrappers.
 
 ### Validate Code Statically
@@ -112,11 +112,11 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### Protect the Runtime
 
-- ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
+- ✅ **RPC Quotas** — Caps RPC API calls per execution. This prevents unbounded loops.
 - ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
-- ✅ **Rate limiting** — Enforce per-client limits (CODEMODE_RATE_LIMIT_MAX). Use Redis with in-memory fallbacks.
-- ✅ **Readonly enforcement** — Return structured errors instead of executing write methods when readonly: true.
+- ✅ **Rate limiting** — Enforces per-client limits (CODEMODE_RATE_LIMIT_MAX). Uses Redis with in-memory fallbacks.
+- ✅ **Readonly enforcement** — Returns structured errors instead of executing write methods when readonly: true.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 - ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.
@@ -211,7 +211,7 @@ docker run --rm -p 3000:3000 \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
-### 🔐 Protect Your Data with Authentication
+## 🔐 Protect Your Data with Authentication
 
 > **Warning:**
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.

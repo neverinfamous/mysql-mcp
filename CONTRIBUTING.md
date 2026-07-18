@@ -1,7 +1,7 @@
 # Contributing to mysql-mcp
 
 
-Thank you for your interest in contributing to mysql-mcp. Join us in building a robust AI-database integration. We welcome your contributions to make mysql-mcp faster, more secure, and more powerful.
+Thank you for contributing to mysql-mcp. Help us build a robust AI-database integration. Your contributions make mysql-mcp faster, secure, and more powerful.
 
 ## 🚀 Accelerate Your First Contribution
 
@@ -26,7 +26,7 @@ Thank you for your interest in contributing to mysql-mcp. Join us in building a 
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/mysql-mcp.git
+git clone https://github.com/<your-github-username>/mysql-mcp.git
 cd mysql-mcp
 
 # Install dependencies
@@ -58,10 +58,10 @@ node dist/cli.js --transport http --port 3000 --allowed-io-roots /path/to/data -
 
 ```bash
 # Build the Docker image locally
-docker build -f Dockerfile -t mysql-mcp-dev .
+docker build -f Dockerfile -t writenotenow/mysql-mcp-dev .
 
 # Run with a connection string
-docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run --rm -i writenotenow/mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 📋 Focus on High-Impact Contribution Goals
@@ -150,8 +150,8 @@ Add your local build to `~/.cursor/mcp.json`:
 
 ```bash
 # Build and run locally
-docker build -f Dockerfile -t mysql-mcp-dev .
-docker run --rm -i mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker build -f Dockerfile -t writenotenow/mysql-mcp-dev .
+docker run --rm -i writenotenow/mysql-mcp-dev --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 📝 Maintain Quality with Coding Standards

@@ -47,7 +47,10 @@
         "_comment_PROXYSQL_HOST": "localhost",
         "_comment_PROXYSQL_PORT": "6032",
         "_comment_PROXYSQL_USER": "radmin",
-        "_comment_PROXYSQL_PASSWORD": "radmin"
+        "_comment_PROXYSQL_PASSWORD": "radmin",
+        "_comment_TRUST_PROXY": "true",
+        "_comment_MCP_ENABLE_HSTS": "true",
+        "_comment_MCP_AUTH_TOKEN": "secret"
       }
     }
   }

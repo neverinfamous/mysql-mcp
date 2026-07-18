@@ -69,7 +69,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
 - ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
-- ✅ **API Bindings via Reference** — MySQL API methods are securely injected using ivm.Reference wrappers.
+- ✅ **API Bindings via Reference** — Injects MySQL methods securely using ivm.Reference wrappers.
 
 ### Validate Code Statically
 
@@ -128,7 +128,7 @@ When running in HTTP mode (`--transport http`), the following security measures 
 
 ## 🔑 **Control Access via OAuth 2.1 & Bearer Tokens**
 
-Full OAuth 2.1 for production multi-tenant deployments is supported. **These enterprise security features are detailed prominently in the [README.md](README.md#protect-your-data-with-authentication).**
+The server supports full OAuth 2.1 for production multi-tenant deployments. **These enterprise security features are detailed prominently in the [README.md](README.md#protect-your-data-with-authentication).**
 
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
@@ -150,7 +150,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 ### Harden the Container
 
-- ✅ **Minimal base image**: `node:<lts>-alpine`
+- ✅ **Minimal base image**: `node:lts-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: `npm prune --omit=dev` after build
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
@@ -160,7 +160,7 @@ Full OAuth 2.1 for production multi-tenant deployments is supported. **These ent
 
 The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
 
-- ✅ Transitive dependencies are explicitly patched during container build. This maintains Docker Scout compliance.
+- ✅ The build process explicitly patches transitive dependencies. This maintains Docker Scout compliance.
 
 ### Mount Volumes Securely
 
@@ -186,7 +186,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 ### Redact Credentials
 
-- ✅ **Sensitive fields automatically redacted** in logs: `password`, `secret`, `token`, `apikey`, `issuer`, `audience`, `jwksUri`, `credentials`, etc.
+- ✅ **Redact Sensitive Fields** — The server automatically redacts sensitive fields in logs: `password`, `secret`, `token`, `apikey`, `issuer`, `audience`, `jwksUri`, `credentials`, etc.
 - ✅ **Recursive sanitization** for nested objects
 
 ### Prevent Log Injection
@@ -287,6 +287,6 @@ We appreciate responsible disclosure. We will acknowledge your contribution in o
 - **Database maintenance**: Run `OPTIMIZE TABLE` and `ANALYZE TABLE` regularly for optimal performance
 - **Security patches**: Apply host system security updates
 
-The mysql-mcp server is designed with **security-first principles**. It protects your databases. It maintains excellent performance and full MySQL capability.
+Security-first principles drive the mysql-mcp server design. It protects your databases. It maintains excellent performance and full MySQL capability.
 
 

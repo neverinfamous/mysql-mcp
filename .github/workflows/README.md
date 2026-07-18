@@ -94,7 +94,7 @@ flowchart LR
 
 | File                                       | Trigger                                            | Purpose                                                                                                                                           |
 | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scans, smoke testing, multi-arch builds, manifest merging, and Docker Hub profile updates. |
+| [docker-publish.yml](docker-publish.yml)   | `workflow_call` from gatekeeper (on tag) / manual   | Security scans, smoke testing, multi-arch builds, manifest merging, and Docker Hub profile updates. Manual execution requires an explicit emergency bypass. |
 | [publish-npm.yml](publish-npm.yml)         | `workflow_call` from gatekeeper / manual            | Version verification, build, and publish to npm with SLSA Build L3 provenance. |
 
 ### Automate with Agentic Workflows
@@ -109,7 +109,7 @@ These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.
 
 ## Understand the Release Pipeline
 
-The `gatekeeper.yml` workflow orchestrates the entire release flow. It triggers upon push to `main` and tags:
+The `gatekeeper.yml` workflow orchestrates all CI, security, and publishing steps. It triggers upon push to `main` and tags:
 
 ```text
 push to main, tags (v*)
@@ -133,7 +133,7 @@ push to main, tags (v*)
                 └── Publish to npm with SLSA provenance
 ```
 
-For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and publishing steps. The `lint-and-test`, `codeql`, `secrets-scanning`, and `trivy` jobs are blocking requirements. They must pass before `docker-publish` and `publish-npm` are triggered.
+The `lint-and-test`, `codeql`, `secrets-scanning`, and `trivy` jobs are blocking requirements. They must pass before `docker-publish` and `publish-npm` are triggered.
 
 ---
 

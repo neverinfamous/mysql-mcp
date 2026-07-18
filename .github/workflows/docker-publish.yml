@@ -178,7 +178,7 @@ jobs:
           docker stop smoke-http
           echo "✅ HTTP transport smoke test passed"
 
-  # Build each platform on native architecture (only runs if security scan passes)
+  # Build each platform on native architecture (only runs if security scan and smoke tests pass)
   build-platform:
     needs: [security-scan, smoke-test]
     if: needs.smoke-test.result == 'success'

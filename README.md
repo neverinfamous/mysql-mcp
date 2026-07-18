@@ -139,7 +139,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 ### Enforce Engine-Level Restrictions
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
-- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **Memory & CPU Constraints** — Enforces constraints at the C++ level. This includes synchronous timeouts and strict heap limits.
 - ✅ **API Bindings via Reference** — injects MySQL methods securely using `ivm.Reference` wrappers.
 
 ### Validate Code Statically
@@ -150,11 +150,11 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### Protect the Runtime
 
-- ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
+- ✅ **RPC Quotas** — Caps RPC API calls per execution. This prevents unbounded loops.
 - ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
-- ✅ **Rate limiting** — Per-client limits (`CODEMODE_RATE_LIMIT_MAX`). Uses Redis with in-memory fallbacks.
-- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
+- ✅ **Rate limiting** — Enforces per-client limits (CODEMODE_RATE_LIMIT_MAX). Uses Redis with in-memory fallbacks.
+- ✅ **Readonly enforcement** — Returns structured errors instead of executing write methods when readonly: true.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 - ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.
@@ -285,7 +285,7 @@ node dist/cli.js \
 
 ### Enforce OAuth Scopes
 
-Access control is managed through OAuth scopes:
+Enforce access control using OAuth scopes:
 
 | Scope                    | Access Level                        |
 | ------------------------ | ----------------------------------- |
@@ -311,7 +311,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 > **Note for Keycloak users:** Add an **Audience mapper** to your client. This includes the correct `aud` claim. (Client → Client scopes → dedicated scope → Add mapper → Audience)
 
 > [!NOTE]
-> **Per-tool scope enforcement:** Scopes are enforced at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. When OAuth is not configured, scope checks are skipped entirely.
+> **Per-tool scope enforcement:** The server enforces scopes at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. The server skips scope checks entirely when OAuth is not configured.
 
 > [!WARNING]
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](SECURITY.md) for details.
@@ -788,7 +788,7 @@ Launch Inspector with mysql-mcp:
 ```bash
 npx @modelcontextprotocol/inspector node dist/cli.js \
   --transport stdio \
-  --mysql mysql://user:password@localhost:3306/database
+  --mysql mysql://mcp_user:secure_password@localhost:3306/testdb
 ```
 
 Open **http://localhost:5173** to browse all tools, resources, and prompts interactively.
