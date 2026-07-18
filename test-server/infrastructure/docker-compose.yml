@@ -118,6 +118,24 @@ services:
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node3"}]'
 
+  cluster-healer:
+    image: mysql:9.1.0
+    container_name: cluster-healer
+    restart: unless-stopped
+    depends_on:
+      mysql-node1:
+        condition: service_healthy
+    volumes:
+      - ./config/mysql/cluster-healer.sh:/cluster-healer.sh:ro
+    command: ["/bin/bash", "/cluster-healer.sh"]
+    stop_grace_period: 5s
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
   # ==========================================
   # ROUTING & PROXIES
   # ==========================================
