@@ -53,12 +53,11 @@ jobs:
 
             # Find the package.json for the bundled dependency
             pkg_path="$NPM_DIR/node_modules/$pkg/package.json"
-            if [ ! -f "$pkg_path" ]; then
+            bundled_version=$(docker run --rm --entrypoint sh ghcr.io/neverinfamous/mysql-mcp:test -c "node -p \"require('$pkg_path').version\"" 2>/dev/null || true)
+            if [ -z "$bundled_version" ]; then
               echo "⚠️  $pkg: not found in npm bundle (may have been removed upstream)"
               continue
             fi
-
-            bundled_version=$(node -p "require('$pkg_path').version")
 
             # Compare versions using node's semver-aware comparison
             is_stale=$(BUNDLED_VERSION="$bundled_version" PATCHED_VERSION="$patched_version" node -e "
@@ -104,6 +103,7 @@ jobs:
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
         with:
           node-version-file: ".node-version"
+          cache: 'pnpm'
 
       - name: Check package.json override drift
         run: |
