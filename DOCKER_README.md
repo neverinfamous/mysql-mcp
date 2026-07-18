@@ -78,7 +78,7 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 #### Observability via Docker Compose
 
-Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server. It includes a pre-configured Prometheus and Grafana observability stack.
+Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, a local MySQL test database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`.
 
 ```bash
 cp .env.example .env
@@ -188,11 +188,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "-e", "MCP_REQUEST_TIMEOUT",
         "writenotenow/mysql-mcp:latest",
         "--transport",
-        "stdio",
-        "--tool-filter",
-        "codemode"
+        "stdio"
       ],
       "env": {
+        "TOOL_FILTER": "codemode",
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
@@ -229,11 +228,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "-e", "MCP_REQUEST_TIMEOUT",
         "writenotenow/mysql-mcp:latest",
         "--transport",
-        "stdio",
-        "--tool-filter",
-        "cluster"
+        "stdio"
       ],
       "env": {
+        "TOOL_FILTER": "cluster",
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",
@@ -280,11 +278,10 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "-e", "MCP_REQUEST_TIMEOUT",
         "writenotenow/mysql-mcp:latest",
         "--transport",
-        "stdio",
-        "--tool-filter",
-        "ecosystem"
+        "stdio"
       ],
       "env": {
+        "TOOL_FILTER": "ecosystem",
         "MYSQL_HOST": "host.docker.internal",
         "MYSQL_PORT": "3307",
         "MYSQL_USER": "cluster_admin",
@@ -405,6 +402,9 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `db:{name}`              | Access to specific database         |
 | `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |
+
+> [!NOTE]
+> **Per-tool scope enforcement:** The server enforces scopes at the tool level. Each tool group requires a specific scope. When OAuth is enabled, every tool invocation checks the calling token's scopes before execution. The server skips scope checks entirely when OAuth is not configured.
 
 > **📖 See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth)** for Keycloak setup and detailed configuration.
 

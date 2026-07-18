@@ -50,14 +50,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Rebuild native dependencies
-        run: pnpm rebuild
-
-      - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
-
       - name: Seed Database
-        run: mysql -h 127.0.0.1 -P 3307 -uroot -proot testdb < test-server/test-seed.sql
+        run: docker exec -i ${{ job.services.mysql.id }} mysql -uroot -proot testdb < test-server/test-seed.sql
 
       - name: Run validation check
         run: pnpm run check

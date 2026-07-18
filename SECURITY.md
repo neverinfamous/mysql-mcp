@@ -63,7 +63,7 @@ A dedicated security sandbox strictly confines all file I/O operations exposed b
 
 ## 🧪 **Isolate Threats in Code Mode Sandbox**
 
-Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#reduce-token-usage-with-code-mode).**
+Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox. This includes multiple layers of defense-in-depth and fleet-standard restrictions. **These features are detailed prominently in the [README.md](README.md#%E2%9A%A1-optimize-token-usage-with-code-mode).**
 
 ### Enforce Engine-Level Restrictions
 
@@ -149,7 +149,7 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 
 ### Harden the Container
 
-- ✅ **Minimal base image**: `node:26-alpine`
+- ✅ **Minimal base image**: Node.js Alpine image
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: Uses pnpm install --prod and pnpm store prune in the runtime stage
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)

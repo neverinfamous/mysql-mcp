@@ -160,7 +160,7 @@ jobs:
           docker run --rm -d --name smoke-http -p 3000:3000 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 -e ALLOWED_IO_ROOTS=/tmp \
             -e TOOL_FILTER=router smoke-test:latest \
-            --transport http --tool-filter router
+            --transport http
           sleep 5
           if ! docker ps --filter name=smoke-http --format '{{.Status}}' | grep -q "Up"; then
             echo "❌ HTTP smoke test failed — container crashed"
@@ -212,6 +212,11 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".node-version"
 
       - name: Read version
         id: version
@@ -289,7 +294,7 @@ jobs:
 
     environment:
       # Evaluates to 'production' if tag push OR emergency bypass, otherwise 'dummy' (no environment gate)
-      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass) && 'production' || 'dummy' }}
+      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true) && 'production' || 'dummy' }}
       url: https://hub.docker.com/r/writenotenow/mysql-mcp
 
     steps:
@@ -314,6 +319,11 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".node-version"
 
       - name: Read version
         id: version
@@ -345,8 +355,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == 'true' }}
-            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == 'true' }}
+            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true }}
             type=sha,prefix=sha-,format=short
 
       - name: Create and push manifest
