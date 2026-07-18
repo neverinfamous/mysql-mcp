@@ -26,6 +26,7 @@
     "generate:instructions": "tsx scripts/generate-server-instructions.ts",
     "generate:code-map": "tsx scripts/update-code-map.ts",
     "generate:tests": "bun test-server/scripts/generate-tests.ts",
+    "heal:cluster": "bun test-server/infrastructure/scripts/heal-cluster.ts",
     "bench": "vitest bench --run",
     "prepublishOnly": "pnpm run build"
   },
