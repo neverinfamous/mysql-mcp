@@ -4,6 +4,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
+import { ValidationError } from "../../../../../types/index.js";
 import {
   JsonIndexSuggestSchema,
   JsonIndexSuggestSchemaBase,
@@ -137,6 +138,13 @@ export function createJsonIndexSuggestTool(
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
+        }
+
+        if (error instanceof Error) {
+          const msg = error.message;
+          if (msg.includes("Invalid data type for JSON data") || msg.includes("Invalid JSON text")) {
+            return formatHandlerErrorResponse(new ValidationError(`The target column contains invalid JSON or is not a JSON type.`));
+          }
         }
 
         return formatHandlerErrorResponse(error);
