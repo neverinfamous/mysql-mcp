@@ -456,13 +456,26 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
     where = `\`${idCol}\` = ${formattedRowId}`;
   }
   
+  const coerceString = (val: unknown): string | undefined => {
+    if (val === undefined || val === null) return undefined;
+    if (typeof val === 'string') return val;
+    if (typeof val === 'object') return JSON.stringify(val);
+    if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return val.toString();
+    return undefined;
+  };
+
+  const rawTable = v["table"] ?? v["tableName"] ?? v["name"] ?? v["tbl"] ?? v["table_name"];
+  const rawColumn = v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"] ?? v["c"];
+  const rawPath = v["path"] ?? v["json_path"] ?? v["jsonPath"];
+  const rawSearchValue = v["searchValue"] ?? v["searchString"];
+
   return {
     ...v,
-    table: v["table"] ?? v["tableName"] ?? v["name"] ?? v["tbl"] ?? v["table_name"],
-    column: v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"] ?? v["c"],
-    path: v["path"] ?? v["json_path"] ?? v["jsonPath"],
-    where,
-    searchValue: v["searchValue"] ?? v["searchString"],
+    table: coerceString(rawTable),
+    column: coerceString(rawColumn),
+    path: coerceString(rawPath),
+    where: coerceString(where),
+    searchValue: coerceString(rawSearchValue),
   };
 }
 
