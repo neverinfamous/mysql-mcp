@@ -313,7 +313,7 @@ export const CreateIndexSchemaBase = z.object({
   indexName: z.string().optional().describe("Alias for name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to index. Anti-Hallucination Hint: Must be an array of strings (e.g. ['id', 'status']), not a single string or an array of objects."),
+  columns: z.union([z.array(z.string()), z.string()]).optional().describe("Columns to index. Anti-Hallucination Hint: Must be an array of strings (e.g. ['id', 'status']), not a single string or an array of objects."),
   unique: z.boolean().optional().default(false).describe("Create unique index"),
   type: z
     .enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
@@ -332,7 +332,7 @@ export const CreateIndexSchema = z
   .transform((data) => ({
     name: data.name ?? data.indexName,
     table: data.table ?? data.tableName ?? "",
-    columns: data.columns,
+    columns: Array.isArray(data.columns) ? data.columns : (data.columns ? [data.columns] : undefined),
     unique: data.unique,
     type: data.type,
     ifNotExists: data.ifNotExists,
