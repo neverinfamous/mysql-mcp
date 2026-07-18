@@ -70,6 +70,8 @@ All scripts are located in the `scripts/` directory and can be executed natively
 
 All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`, `postgres-data-v2`, `mongo-data-v2`).
 
+**Auto-Healing Host Crashes**: The InnoDB cluster will not naturally reboot after a hard host crash (e.g. power loss or Windows/Docker crash) to prevent split-brain. However, a lightweight `cluster-healer` sidecar container runs continuously to detect total cluster outages and automatically injects the necessary `mysqlsh` commands to rebuild the cluster quorum. You do not need to intervene.
+
 To perform a complete factory wipe of the entire data tier and automatically bootstrap the cluster:
 
 ```powershell
