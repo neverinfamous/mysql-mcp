@@ -69,6 +69,7 @@ export const JsonGetSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
+  id: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonGetSchema = z
@@ -86,6 +87,7 @@ export const JsonGetSchema = z
       filter: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
+      id: z.unknown().optional(),
     }),
   )
   .transform((data) => ({

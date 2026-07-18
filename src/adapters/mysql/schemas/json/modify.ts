@@ -335,6 +335,7 @@ export const JsonUpdateSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
+  id: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonUpdateSchema = z
@@ -355,6 +356,7 @@ export const JsonUpdateSchema = z
       sql: z.string().optional(),
       query: z.string().optional(),
       columnName: z.string().optional(),
+      id: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
