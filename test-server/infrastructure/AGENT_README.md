@@ -64,6 +64,11 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │            │   Port: 9090     │           │  Port: 3001  │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
+│            ┌──────────────────┐           ┌──────────────┐                   │
+│            │       Loki       │           │   Promtail   │                   │
+│            │   Port: 3100     │           │  (Internal)  │                   │
+│            └──────────────────┘           └──────────────┘                   │
+│                                                                              │
 │       ┌──────────────┐   ┌────────────────┐   ┌──────────────┐               │
 │       │ Redis Server │   │ Postgres Server│   │ Mongo Server │               │
 │       │  Port: 6379  │   │   Port: 5432   │   │  Port: 27017 │               │
@@ -113,6 +118,8 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Property | URL |
 |---|---|
 | Prometheus | `http://localhost:9090` |
+| Loki | `http://localhost:3100` |
+| Promtail | `(network-internal only)` |
 | Grafana | `http://localhost:3001` (admin/admin) |
 | Dozzle (Logs) | `http://localhost:8080` |
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |

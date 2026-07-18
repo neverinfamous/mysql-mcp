@@ -319,6 +319,44 @@ services:
       timeout: 5s
       retries: 3
 
+  loki:
+    image: grafana/loki:3.1.0
+    container_name: loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yaml
+    stop_grace_period: 15s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:3100/ready | grep -q ready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  promtail:
+    image: grafana/promtail:3.1.0
+    container_name: promtail
+    restart: unless-stopped
+    volumes:
+      - ./config/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - ../../../mysql-mcp/logs:/var/log/mysql-mcp:ro
+    command: -config.file=/etc/promtail/promtail-config.yml
+    stop_grace_period: 15s
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    depends_on:
+      - loki
+
   datadog-unified:
     image: gcr.io/datadoghq/agent:7.81.0
     container_name: datadog-unified

@@ -34,11 +34,14 @@ docker compose up -d
 | **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.9` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4.8.1` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2.54.1` |
+| **Loki** | `loki` | `3100` | `grafana/loki:3.1.0` |
+| **Promtail** | `promtail` | `(network-internal only)` | `grafana/promtail:3.1.0` |
 | **Grafana** | `grafana` | `3001` | `grafana/grafana:11.2.0` |
 | **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.0` |
 
 - **Datadog Dashboards**: [AI Efficiency](https://app.datadoghq.com/dashboard/q48-mq9-3i7) | [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
   *(Note: Backups of custom Datadog dashboards like AI Efficiency (tracking `mysql-mcp` cache, connection pools, and error rates) and Token & Tool Metrics (tracking `MySQL-MCP Audit Log`) are stored as JSON files in the `config/` directory. When syncing with `pup`, some fields like `anomaly_detection` and `legend` are stripped from list streams).*
+- **Grafana Dashboards**: Access the **MySQL-MCP Logs (Loki)** dashboard via Grafana at `http://localhost:3001` to view `mcp-audit.jsonl` and `agent-issues.jsonl` logs aggregated by Promtail.
 
 ## 3. Datadog Agent
 
