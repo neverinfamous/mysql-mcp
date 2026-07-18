@@ -13,6 +13,7 @@
       "timeout": 600,
       "env": {
         "MCP_REQUEST_TIMEOUT": "600000",
+        "MCP_HEADERS_TIMEOUT": "5000",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
@@ -32,6 +33,10 @@
         "CODEMODE_ISOLATION": "sandbox",
         "LOG_LEVEL": "info",
         "_comment_advanced": "Ecosystem variables should only be added manually if the corresponding local services are active.",
+        "_comment_MCP_AUTH_TOKEN": "your-secure-auth-token",
+        "_comment_MCP_HOST": "127.0.0.1",
+        "_comment_MCP_ENABLE_HSTS": "false",
+        "_comment_TRUST_PROXY": "false",
         "_comment_REDIS_URL": "redis://localhost:6379",
         "_comment_OAUTH_ENABLED": "false",
         "_comment_OAUTH_ISSUER": "https://auth.example.com",
