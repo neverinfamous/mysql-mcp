@@ -307,7 +307,7 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
 - ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
-- ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
+- ✅ **JWT validation** with JWKS support (TTL: 1 hour)
 - ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 

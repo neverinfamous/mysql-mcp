@@ -2,7 +2,7 @@
   "mcpServers": {
     "mysql-mcp": {
       "_comment_paths": "Paths assume local client execution without Docker.",
-      "_comment_timeout": "Client-side timeout is specified in seconds.",
+      "_comment_timeout": "Client-side timeout is specified in seconds (unofficial client-specific extension, remove if validation fails).",
       "command": "npx",
       "args": [
         "-y",
@@ -45,12 +45,7 @@
         "_comment_PROXYSQL_HOST": "localhost",
         "_comment_PROXYSQL_PORT": "6032",
         "_comment_PROXYSQL_USER": "radmin",
-        "_comment_PROXYSQL_PASSWORD": "radmin",
-        "_comment_HTTP_VARS": "The following variables are only applicable for HTTP/SSE transports",
-        "_comment_MCP_HEADERS_TIMEOUT": "5000",
-        "_comment_TRUST_PROXY": "false",
-        "_comment_MCP_ENABLE_HSTS": "false",
-        "_comment_MCP_AUTH_TOKEN": "your-secure-auth-token"
+        "_comment_PROXYSQL_PASSWORD": "radmin"
       }
     }
   }

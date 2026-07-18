@@ -81,7 +81,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 - ✅ **Execution timeout** — Enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
-- ✅ **Rate limiting** — Enforce per-client rate limits. Configure via CODEMODE_RATE_LIMIT_MAX.
+- ✅ **Rate limiting** — Enforce per-client rate limits. Configure via CODEMODE_RATE_LIMIT_MAX. Uses Redis with in-memory fallbacks.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
@@ -163,14 +163,14 @@ The Dockerfile explicitly patches npm-bundled transitive dependencies for Docker
 
 ```bash
 # Secure volume mounting
-docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest --transport stdio --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ### Apply Resource Limits
 
 ```bash
 # Apply resource limits
-docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --transport stdio --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 🔐 **Maintain Compliance with Secure Logs**
