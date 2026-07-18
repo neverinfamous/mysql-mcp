@@ -24,6 +24,11 @@ jobs:
         ports:
           - 3307:3306
         options: --health-cmd="mysqladmin ping -h localhost -uroot -proot" --health-interval=10s --health-timeout=5s --health-retries=3 --innodb-use-native-aio=0 --innodb-flush-method=fsync
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: --health-cmd="redis-cli ping" --health-interval=10s --health-timeout=5s --health-retries=3
 
     steps:
       - name: Checkout code
@@ -52,6 +57,7 @@ jobs:
         run: pnpm run check
         env:
           MYSQL_TEST_URL: mysql://root:root@127.0.0.1:3307/testdb
+          REDIS_URL: redis://127.0.0.1:6379
 
   security-scan:
     runs-on: ubuntu-24.04
@@ -119,8 +125,9 @@ jobs:
         run: |
           docker run --rm -d --name pr-smoke -p 3000:3000 \
             -e MCP_TRANSPORT=http -e PORT=3000 -e MCP_HOST=0.0.0.0 \
-            pr-smoke-test:latest \
-            --transport http
+            -e ALLOWED_IO_ROOTS=/tmp \
+            -e TOOL_FILTER=router pr-smoke-test:latest \
+            --transport http --tool-filter router
           sleep 5
           if ! docker ps --filter name=pr-smoke --format '{{.Status}}' | grep -q "Up"; then
             echo "❌ Docker smoke test failed — container crashed on startup"

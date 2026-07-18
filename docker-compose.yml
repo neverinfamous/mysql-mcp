@@ -31,12 +31,7 @@ services:
       - TRUST_PROXY=${TRUST_PROXY:-false}
       - MCP_ENABLE_HSTS=${MCP_ENABLE_HSTS:-false}
       - METADATA_CACHE_TTL_MS=${METADATA_CACHE_TTL_MS:-30000}
-      - MCP_AUTH_TOKEN=${MCP_AUTH_TOKEN:-}
       - OAUTH_ENABLED=${OAUTH_ENABLED:-false}
-      - OAUTH_ISSUER=${OAUTH_ISSUER:-}
-      - OAUTH_AUDIENCE=${OAUTH_AUDIENCE:-}
-      - OAUTH_JWKS_URI=${OAUTH_JWKS_URI:-}
-      - OAUTH_CLOCK_TOLERANCE=${OAUTH_CLOCK_TOLERANCE:-}
       # Distributed Redis-backed rate limiting
       - REDIS_URL=redis://redis:6379
       - MCP_RATE_LIMIT_MAX=${MCP_RATE_LIMIT_MAX:-10000}
