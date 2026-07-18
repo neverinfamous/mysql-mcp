@@ -139,9 +139,13 @@ export const JsonValidateSchema = z
     jsonString: z.unknown().optional(),
   })
   .transform((data) => ({
-    value: data.value ?? data.json ?? data.data ?? data.document ?? data.jsonString,
+    value: data.value !== undefined ? data.value : 
+           data.json !== undefined ? data.json : 
+           data.data !== undefined ? data.data : 
+           data.document !== undefined ? data.document : 
+           data.jsonString,
   }))
-  .refine((data) => data.value !== undefined && data.value !== null, {
+  .refine((data) => data.value !== undefined, {
     message: "value is required",
   });
 
@@ -185,8 +189,8 @@ export const JsonMergeSchema = z
       .describe("Merge mode: patch (RFC 7396) or preserve (array merge)"),
   })
   .transform((data) => {
-    const val1 = data.json1 ?? data.doc1 ?? data.target;
-    const val2 = data.json2 ?? data.doc2 ?? data.source ?? data.patch;
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1 !== undefined ? data.doc1 : data.target;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2 !== undefined ? data.doc2 : data.source !== undefined ? data.source : data.patch;
     return {
       json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
       json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
@@ -212,8 +216,8 @@ export const JsonDiffSchema = z
     source: z.unknown().optional().describe("Alias for json2"),
   })
   .transform((data) => {
-    const val1 = data.json1 ?? data.doc1 ?? data.target;
-    const val2 = data.json2 ?? data.doc2 ?? data.source;
+    const val1 = data.json1 !== undefined ? data.json1 : data.doc1 !== undefined ? data.doc1 : data.target;
+    const val2 = data.json2 !== undefined ? data.json2 : data.doc2 !== undefined ? data.doc2 : data.source;
     return {
       json1: typeof val1 === "string" ? val1 : JSON.stringify(val1),
       json2: typeof val2 === "string" ? val2 : JSON.stringify(val2),
