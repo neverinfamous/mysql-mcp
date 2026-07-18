@@ -19,7 +19,7 @@ instances:
       - mysql_mcp_uptime_seconds
       - mysql_mcp_cache_hits
       - mysql_mcp_cache_misses
-      - mysql_mcp_pool_connections
+      - mysql_mcp_pool_connections_total
       - mysql_mcp_pool_connections_active
       - mysql_mcp_pool_connections_idle
       - mysql_mcp_pool_queries
