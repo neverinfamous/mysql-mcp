@@ -1,10 +1,12 @@
-# MySQL Test Infrastructure Setup Guide
+# MySQL Ecosystem Setup Guide (Test Environment)
 
-**AGENT OPTIMIZED README**
+**🤖 AGENT OPTIMIZED README**
 
 _Updated: July 2026_
 
-This guide explains how to spin up, manage, and troubleshoot the MySQL-focused test infrastructure (InnoDB Cluster, MySQL Router, ProxySQL, Redis) for the mysql-mcp integration testing environment.
+This guide explains how to spin up, manage, and troubleshoot the global unified database ecosystem (InnoDB Cluster, PostgreSQL, MongoDB, Redis, MySQL Router, ProxySQL) designed for the Adamic architecture.
+
+> **Note on Datadog:** This environment includes full Datadog Agent monitoring with host-level system metrics (CPU, memory, disk, I/O, load, network), Docker container monitoring, process collection, eBPF system-probe (network performance monitoring), APM tracing, and database integrations (MySQL, PostgreSQL, MongoDB, Redis, ProxySQL). Native Prometheus and Grafana are also available as secondary observability.
 
 ---
 
@@ -13,16 +15,15 @@ This guide explains how to spin up, manage, and troubleshoot the MySQL-focused t
 The entire process of tearing down, spinning up the containers, and bootstrapping Group Replication is automated and idempotent.
 
 ```powershell
-cd test-server/infrastructure
-node scripts/recreate-test-ecosystem.mjs
+cd docs/unified-database-ecosystem
+node scripts/recreate-ecosystem.mjs
 ```
 
 This single self-contained script handles the entire lifecycle:
-- Fetch the Windows Host IP for Prometheus scraping.
 - Dynamically discover all services from `docker-compose.yml` (no hardcoded container lists).
 - Forcefully clean up orphaned containers to prevent naming collisions.
 - Tear down the existing cluster and volumes (`docker compose down -v`).
-- Start the fresh containers (`docker compose up -d`).
+- Start the fresh containers (`docker compose up -d --build`).
 - Wait for all MySQL nodes to be healthy (up to 60 retries).
 - Bootstrap the InnoDB Cluster: create on primary, add secondaries with clone recovery.
 - Auto-heal with `rebootClusterFromCompleteOutage()` if the cluster appears unstable.
@@ -38,11 +39,11 @@ node scripts/check-status.mjs
 
 ## 2. Architecture Overview
 
-This ecosystem includes the MySQL-focused components needed for mysql-mcp integration testing:
+This ecosystem includes all necessary components to validate the entire Adamic unified architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    Docker Network: infrastructure_default                    │
+│                    Docker Network: unified-database-ecosystem-default         │
 │                                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                       │
 │  │ mysql-node1  │  │ mysql-node2  │  │ mysql-node3  │                       │
@@ -63,10 +64,10 @@ This ecosystem includes the MySQL-focused components needed for mysql-mcp integr
 │            │   Port: 9090     │           │  Port: 3001  │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
-│       ┌──────────────┐                                                       │
-│       │ Redis Server │                                                       │
-│       │  Port: 6379  │                                                       │
-│       └──────────────┘                                                       │
+│       ┌──────────────┐   ┌────────────────┐   ┌──────────────┐               │
+│       │ Redis Server │   │ Postgres Server│   │ Mongo Server │               │
+│       │  Port: 6379  │   │   Port: 5432   │   │  Port: 27017 │               │
+│       └──────────────┘   └────────────────┘   └──────────────┘               │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -117,9 +118,12 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
 | Redis | `localhost:6379` |
-| Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` |
+| PostgreSQL | `localhost:5432` |
+| MongoDB | `localhost:27017` |
+| Datadog AI Efficiency | `https://app.datadoghq.com/dashboard/q48-mq9-3i7` (Tracks `mysql-mcp` cache, pool metrics, and error rates) |
+| Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` (Includes the **MySQL-MCP Audit Log** widget `source:mysql_mcp log_type:mcp_audit`) |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
-| Datadog Local Backups | `config/datadog-*.json` (e.g. Redis Laptop, MySQL Laptop) |
+| Datadog Local Backups | `config/datadog-*.json` (e.g. AI Efficiency, Redis, MySQL) |
 | Datadog Host Map | `https://app.datadoghq.com/infrastructure/map` (look for `adamic-wsl2`) |
 | Datadog Containers | `https://app.datadoghq.com/containers` |
 | Datadog Live Processes | `https://app.datadoghq.com/process` |
@@ -131,7 +135,7 @@ This script executes `dba.rebootClusterFromCompleteOutage()`.
 This environment runs on **native `docker-ce` inside WSL2 Ubuntu** (no Docker Desktop). WSL2 has a known failure mode where the distro instance is terminated when no Windows-side WSL client sessions are holding it open, which kills Docker and all containers.
 
 ### Keepalive Mechanism
-A Windows Scheduled Task (`WSL-KeepAlive`) runs at user logon. It executes `scripts/wsl-keepalive.vbs`, which launches `wsl.exe -d Ubuntu LTS --exec sleep infinity` with a hidden window. This holds the distro alive indefinitely.
+A Windows Scheduled Task (`WSL-KeepAlive`) runs at user logon. It executes `scripts/wsl-keepalive.vbs`, which launches `wsl.exe -d Ubuntu-24.04 --exec sleep infinity` with a hidden window. This holds the distro alive indefinitely.
 
 ### Diagnosing Crashes
 If containers are cycling (green → red → green repeatedly) or `mysql-router` is stuck in an initialization loop failing to join the cluster:
@@ -181,3 +185,4 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 - **`validate_password` Component**: The `init.sql` script dynamically installs the `validate_password` component at startup to support MCP security tool testing (`mysql.security.passwordValidate`).
 - **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.
 - **MySQL Router**: Connection sharing for the read-only bootstrap pool is explicitly enabled (`bootstrap_ro.connection_sharing=1`) to prevent connection exhaustion during concurrent MCP testing.
+- **Audit Logging**: The Datadog `MySQL-MCP Audit Log` widget queries `source:mysql_mcp log_type:mcp_audit` (no `@` symbol, as Datadog integration tags are infrastructure tags, not JSON attributes). To log read-scoped tools (like `mysql_read_query`), you must explicitly add `--audit-reads` to the `mysql-mcp` startup arguments.

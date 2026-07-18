@@ -1,18 +1,16 @@
-# MySQL Test Infrastructure
+# Unified Database Ecosystem
 
 _Updated: July 2026_
 
-
-
-This directory contains the `docker-compose.yml` for the MySQL-focused test infrastructure used by mysql-mcp integration tests. It is a lightweight subset of the full Adamic unified database ecosystem, automatically synchronized via the `sync-test-infra` workflow.
+This directory contains the unified `docker-compose.yml` for the entire database, routing, and monitoring stack used in this project. It fully replaces all previously fragmented setups.
 
 ## 1. Quick Start
 
-To spin up the test infrastructure from scratch (teardown + start + cluster bootstrap + seed):
+To spin up the entire ecosystem from scratch (teardown + start + cluster bootstrap + seed):
 
 ```powershell
-cd test-server/infrastructure
-node scripts/recreate-test-ecosystem.mjs
+cd C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem
+node scripts/recreate-ecosystem.mjs
 ```
 
 If the cluster already exists and you just need to restart containers:
@@ -25,20 +23,22 @@ docker compose up -d
 
 | Component | Container Name | Exposes / Ports | Image |
 |---|---|---|---|
-| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9` |
-| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9` |
-| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9` |
-| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448`, `8443` | `container-registry.oracle.com/mysql/community-router:9` |
-| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2` |
-| **Redis** | `redis-server` | `6379` | `redis:7` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10` |
-| **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4` |
-| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2` |
-| **Grafana** | `grafana` | `3001` | `grafana/grafana:11` |
-| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7` |
+| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.1.0` |
+| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.1.0` |
+| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.1.0` |
+| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1.0` |
+| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2.6.3` |
+| **PostgreSQL** | `postgres-server` | `5432` | `postgres-hypopg:18` (Custom Build) |
+| **MongoDB** | `mongo-server` | `27017` | `mongo:8.0.0` |
+| **Redis** | `redis-server` | `6379` | `redis:7.4.0` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.9` |
+| **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4.8.1` |
+| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2.54.1` |
+| **Grafana** | `grafana` | `3001` | `grafana/grafana:11.2.0` |
+| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.0` |
 
-- **Datadog Dashboards**: [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
-  *(Note: Backups of custom Datadog dashboards like Redis Laptop and MySQL Laptop are stored as JSON files in the `config/` directory).*
+- **Datadog Dashboards**: [AI Efficiency](https://app.datadoghq.com/dashboard/q48-mq9-3i7) | [Custom Dashboard](https://app.datadoghq.com/dashboard/iae-57y-br7) | [MySQL Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
+  *(Note: Backups of custom Datadog dashboards like AI Efficiency (tracking `mysql-mcp` cache, connection pools, and error rates) and Token & Tool Metrics (tracking `MySQL-MCP Audit Log`) are stored as JSON files in the `config/` directory. When syncing with `pup`, some fields like `anomaly_detection` and `legend` are stripped from list streams).*
 
 ## 3. Datadog Agent
 
@@ -46,7 +46,7 @@ The `datadog-unified` container runs with `pid: host` and eBPF system-probe to p
 
 - **Host system metrics**: CPU, memory, disk, I/O, load, network, NTP, file handles, uptime
 - **Container monitoring**: All Docker container metrics via socket + Autodiscovery
-- **Database integrations**: MySQL (InnoDB Cluster), Redis, ProxySQL
+- **Database integrations**: MySQL (InnoDB Cluster), PostgreSQL, MongoDB, Redis, ProxySQL
 - **Process collection**: Live Processes with host PID namespace
 - **Network Performance Monitoring**: eBPF-based TCP/UDP connection tracking
 - **APM tracing**: Enabled for application containers (set `DD_AGENT_HOST=datadog-unified`)
@@ -57,21 +57,20 @@ Hostname: `adamic-wsl2`
 
 All scripts are located in the `scripts/` directory and can be executed natively with `node`.
 
-- `recreate-test-ecosystem.mjs`: Single self-contained script that automates the entire lifecycle: Windows Host IP discovery, dynamic container discovery, orphaned container cleanup, teardown, startup, InnoDB Cluster bootstrap (with retry/healing), and database seeding.
-- `recreate-ecosystem.mjs`: Same as above but without the Windows Host IP fetch (for direct WSL execution).
-- `create-cluster.mjs`: Standalone cluster initializer. Not needed if using `recreate-test-ecosystem.mjs`.
+- `recreate-ecosystem.mjs`: Single self-contained script that automates the entire lifecycle: dynamic container discovery, orphaned container cleanup, teardown, startup, InnoDB Cluster bootstrap (with retry/healing), and database seeding.
+- `create-cluster.mjs`: Standalone cluster initializer. Fully idempotent with deep retry logic (up to 60 retries), connection-drop handling during the `clone` process, stabilization sleeps, and autonomous reboot healing. Not needed if using `recreate-ecosystem.mjs`.
 - `check-status.mjs`: Dynamically discovers containers from `docker-compose.yml` and validates their health, plus checks the InnoDB Cluster quorum.
 - `reboot-cluster.mjs`: Use this if all containers go offline at once and auto-bootstrap fails.
 - `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
 
 ## 5. Disaster Recovery & Volumes
 
-MySQL uses persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`).
+All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`, `postgres-data-v2`, `mongo-data-v2`).
 
-To perform a complete factory wipe and automatically bootstrap the cluster:
+To perform a complete factory wipe of the entire data tier and automatically bootstrap the cluster:
 
 ```powershell
-node scripts/recreate-test-ecosystem.mjs
+node scripts/recreate-ecosystem.mjs
 ```
 
 ## 6. Configurations
@@ -88,5 +87,5 @@ All config files are mounted directly from the `config/` directory:
 If you notice that `mysql-router` is stuck in a crash loop or containers keep restarting:
 1. **The Cause**: Windows Subsystem for Linux (WSL) will automatically suspend and terminate background distributions if there is no active Windows session holding it open. This kills the Docker daemon mid-flight and corrupts the InnoDB cluster state.
 2. **The Fix**: Open PowerShell and run the keepalive registration script:
-   `pwsh.exe -File scripts\register-wsl-keepalive.ps1`
-3. **Recovery**: After ensuring the `WSL-KeepAlive` task is "Running" in Task Scheduler, you MUST fully rebuild the corrupted cluster by running `node scripts/recreate-test-ecosystem.mjs` again.
+   `pwsh.exe -File C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem\scripts\register-wsl-keepalive.ps1`
+3. **Recovery**: After ensuring the `WSL-KeepAlive` task is "Running" in Task Scheduler, you MUST fully rebuild the corrupted cluster by running `node scripts/recreate-ecosystem.mjs` again.
