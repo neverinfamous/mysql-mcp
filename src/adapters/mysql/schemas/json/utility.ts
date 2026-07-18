@@ -3,12 +3,12 @@ import { preprocessJsonColumnParams } from "../preprocess-utils.js";
 
 // --- JsonNormalize ---
 export const JsonNormalizeSchemaBase = z.object({
-  table: z.string().optional().describe("Table name. Note: This tool normalizes an existing JSON column in a table, it does not normalize raw JSON strings."),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName'). Note: This tool normalizes an existing JSON column in a table, it does not normalize raw JSON strings."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
-  where: z.string().optional().describe("WHERE clause"),
+  where: z.string().optional().describe("WHERE clause (Anti-Hallucination: Pass 'where', not 'filter')"),
   filter: z.string().optional().describe("Alias for where"),
   limit: z.unknown().optional().describe("Maximum rows to process"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
@@ -44,12 +44,12 @@ export const JsonNormalizeSchema = z
 
 // --- JsonStats ---
 export const JsonStatsSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
-  where: z.string().optional().describe("Optional WHERE clause"),
+  where: z.string().optional().describe("Optional WHERE clause (Anti-Hallucination: Pass 'where', not 'filter' or 'query')"),
   filter: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -89,10 +89,10 @@ export const JsonStatsSchema = z
 
 // --- JsonIndexSuggest ---
 export const JsonIndexSuggestSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
   sampleSize: z.unknown().optional().describe("Sample size to analyze"),
 });
@@ -123,7 +123,7 @@ export const JsonIndexSuggestSchema = z
 
 // --- JsonValidate (no table/column — no aliases needed) ---
 export const JsonValidateSchemaBase = z.object({
-  value: z.unknown().optional().describe("JSON string to validate"),
+  value: z.unknown().optional().describe("JSON string to validate (Anti-Hallucination: Pass 'value', not 'json' or 'data')"),
   json: z.unknown().optional().describe("Alias for value"),
   data: z.unknown().optional().describe("Alias for value"),
   document: z.unknown().optional().describe("Alias for value"),
@@ -151,10 +151,10 @@ export const JsonValidateSchema = z
 
 // --- JsonMerge ---
 export const JsonMergeSchemaBase = z.object({
-  json1: z.unknown().optional().describe("First JSON document. Note: This tool merges two raw JSON documents in-memory. It does NOT update database tables. Use mysql_json_update or mysql_json_set to update a table."),
+  json1: z.unknown().optional().describe("First JSON document (Anti-Hallucination: Pass 'json1', not 'doc1' or 'target'). Note: This tool merges two raw JSON documents in-memory. It does NOT update database tables. Use mysql_json_update or mysql_json_set to update a table."),
   doc1: z.unknown().optional().describe("Alias for json1"),
   target: z.unknown().optional().describe("Alias for json1"),
-  json2: z.unknown().optional().describe("Second JSON document"),
+  json2: z.unknown().optional().describe("Second JSON document (Anti-Hallucination: Pass 'json2', not 'doc2' or 'source')"),
   doc2: z.unknown().optional().describe("Alias for json2"),
   source: z.unknown().optional().describe("Alias for json2"),
   patch: z.unknown().optional().describe("Alias for json2"),
@@ -166,10 +166,10 @@ export const JsonMergeSchemaBase = z.object({
 
 // --- JsonDiff ---
 export const JsonDiffSchemaBase = z.object({
-  json1: z.unknown().optional().describe("First JSON document. Note: This tool compares two raw JSON documents, it does NOT compare database rows."),
+  json1: z.unknown().optional().describe("First JSON document (Anti-Hallucination: Pass 'json1', not 'doc1' or 'target'). Note: This tool compares two raw JSON documents, it does NOT compare database rows."),
   doc1: z.unknown().optional().describe("Alias for json1"),
   target: z.unknown().optional().describe("Alias for json1"),
-  json2: z.unknown().optional().describe("Second JSON document"),
+  json2: z.unknown().optional().describe("Second JSON document (Anti-Hallucination: Pass 'json2', not 'doc2' or 'source')"),
   doc2: z.unknown().optional().describe("Alias for json2"),
   source: z.unknown().optional().describe("Alias for json2"),
 });
