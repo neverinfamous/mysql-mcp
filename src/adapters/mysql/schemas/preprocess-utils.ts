@@ -81,6 +81,14 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
 export function preprocessTableParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
+
+  if (typeof result["table"] === "object" && result["table"] !== null) {
+    const nested = result["table"] as Record<string, unknown>;
+    if (typeof nested["name"] === "string") result["table"] = nested["name"];
+    else if (typeof nested["tableName"] === "string") result["table"] = nested["tableName"];
+    else if (typeof nested["table"] === "string") result["table"] = nested["table"];
+  }
+
   if (result["table"] === undefined) {
     if (result["tableName"] !== undefined) result["table"] = result["tableName"];
     else if (result["name"] !== undefined) result["table"] = result["name"];

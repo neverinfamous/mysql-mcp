@@ -29,7 +29,7 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have split files approaching 500 lines
 - [ ] I have added new tools to the tool filtering configuration
 - [ ] I have added Zod schemas to all new tools
-- [ ] I have used kebab-case for new filenames
+- [ ] I have used kebab-case for new filenames (except for .github templates)
 - [ ] I have avoided `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
 - [ ] I have run tests locally (e.g., via `pnpm run check`)
 - [ ] I have enforced the Dual-Schema Pattern
@@ -39,6 +39,6 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have not added any marketing tone to AGENT_README.md
 - [ ] I have ensured the Docker readme is <= 25,000 chars and dynamically updated test badges are preserved.
 - [ ] I have ensured table-querying tools return `{exists: false, table}` for nonexistent tables
-- [ ] I have correctly configured the file system sandbox to enforce `ALLOWED_IO_ROOTS`
+- [ ] I have correctly configured the file system sandbox to enforce `ALLOWED_IO_ROOTS` (if applicable)
 - [ ] I have ensured schema examples reflect the comprehensive toolset and current configuration flags.
 - [ ] I have ensured version-agnostic text (no exact tool/resource counts)

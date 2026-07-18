@@ -56,7 +56,6 @@ This server exposes **a comprehensive set of resources** for database observabil
 | ----------------------- | ------------------------------------------- |
 | `mysql://schema`        | Full database schema                                   |
 | `mysql://tables`        | Table listing with metadata                            |
-| `mysql://table/{name}`  | Specific Table Schema                                  |
 | `mysql://sysschema`     | Sys Schema Diagnostics                                 |
 | `mysql://help`          | Critical gotchas, parameter aliases, and API reference |
 
@@ -297,7 +296,6 @@ Enforce access control using OAuth scopes:
 | `admin`                  | Full administrative access          |
 | `full`                   | Grants all access                   |
 | `db:{name}`              | Access to specific database         |
-| `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |
 
 ### Ensure RFC Compliance
@@ -646,7 +644,6 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
 | `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
 | `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
-| `--pool-min`              | `MYSQL_POOL_MIN`        | Minimum connections in pool (default: 0)            |
 | `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 30000)   |
 | `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
 | `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
@@ -686,8 +683,6 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 100) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
-| —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.

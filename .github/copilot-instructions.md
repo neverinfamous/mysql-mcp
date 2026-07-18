@@ -21,7 +21,7 @@ Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journa
 
 For detailed session handoff context, search for entries tagged `session-summary`. These contain end-of-session notes from the development agent.
 
-Log review issues using `mj_execute_code` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
+Log review issues using `mj_execute_code`. Agents review these findings during their next session briefings.
 
 ## Uphold Coding Standards
 
@@ -74,6 +74,7 @@ src/
 ├── cli.ts                      # CLI entry point (Commander)
 ├── index.ts                    # Library entry point
 ├── version.ts                  # Version export
+├── __tests__/                  # Unit and E2E tests
 ├── adapters/                   # MySQL database adapters
 ├── audit/                      # Audit and token logging
 ├── auth/                       # OAuth authentication
@@ -126,6 +127,6 @@ When reviewing PRs, check for:
 - [ ] CRITICAL: Never add marketing tone to AGENT_README.md.
 - [ ] Docker readme <= 25,000 chars and dynamically updated test badges are preserved.
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables
-- [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS`
+- [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS` (if applicable)
 - [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags
 - [ ] Ensure version-agnostic text (no exact tool/resource counts)

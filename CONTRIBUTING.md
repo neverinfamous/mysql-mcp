@@ -15,7 +15,7 @@ Thank you for contributing to mysql-mcp. Help us build a robust, enterprise-grad
 
 ### Meet Prerequisites
 
-- Recent Node.js (LTS recommended)
+- Node.js >= 24.0.0
 - Bun (for executing repository automation scripts)
 - Current pnpm version
 - **Git** (for version control)
@@ -39,7 +39,7 @@ pnpm run build
 pnpm test
 
 # Run the full quality check
-pnpm run check   # Executes pnpm run build, ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
+pnpm run check   # Executes format, lint, test:zod, typecheck, build
 ```
 
 ### Run the Server Locally
@@ -112,7 +112,7 @@ pnpm run bench
 
 ```bash
 # Lint + type check (required before submitting)
-pnpm run check   # Executes pnpm run build, ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
+pnpm run check   # Executes format, lint, test:zod, typecheck, build
 
 # Or individually
 pnpm run lint        # ESLint only
@@ -330,7 +330,7 @@ The `mysql-mcp` project is organized into modular directories under `src/`:
 - `src/pool/` — MySQL connection pool management
 - `src/progress/` — Real-time progress notifications for long-running tasks
 - `src/server/` — Core MCP server initialization and request handling
-- `src/transports/` — Stdio, HTTP, and SSE transport layers
+- `src/transports/` — HTTP/SSE transport layer (Stdio is initialized via core server config)
 - `src/types/` — Shared TypeScript interfaces and Zod schemas
 - `src/utils/` — Helper functions and common utilities
 
@@ -340,9 +340,11 @@ The `mysql-mcp` project is organized into modular directories under `src/`:
 | ----------------------- | ---------------------------------------------------- |
 | `pnpm run build`         | Production build via tsup                            |
 | `pnpm run dev`           | Watch mode (fast unbundled hot reloads via tsx)      |
-| `pnpm run check`         | **Quality gate** — build + lint + typecheck + unit/e2e tests (run before PRs) |
+| `pnpm run check`         | **Quality gate** — format, lint, test:zod, typecheck, build (run before PRs) |
 | `pnpm run lint`          | ESLint only                                          |
 | `pnpm run typecheck`     | TypeScript strict-mode type checking                 |
+| `pnpm run test:zod`      | Validate Zod schemas                                 |
+| `pnpm run generate:instructions` | Generate tool instructions                   |
 | `pnpm test`              | Run all unit tests (Vitest)                          |
 | `pnpm run test:coverage` | Tests with V8 coverage report                        |
 | `pnpm run test:e2e`      | Playwright end-to-end tests (HTTP/SSE transport)     |

@@ -22,8 +22,8 @@
     "test:e2e": "pnpm exec tsx test-server/infrastructure/scripts/cleanup-ports.ts && playwright test && pnpm exec tsx test-server/infrastructure/scripts/update-badges.ts",
     "test:zod": "node scripts/test-zod-errors.mjs",
     "check": "pnpm run lint && pnpm run typecheck && pnpm run build && pnpm run test && pnpm run test:e2e",
-    "clean": "rimraf dist",
-    "generate:instructions": "node scripts/generate-server-instructions.ts",
+    "clean": "node -e \"fs.rmSync('dist', { recursive: true, force: true })\"",
+    "generate:instructions": "tsx scripts/generate-server-instructions.ts",
     "generate:code-map": "tsx scripts/update-code-map.ts",
     "generate:tests": "bun test-server/scripts/generate-tests.ts",
     "bench": "vitest bench --run",
@@ -84,7 +84,7 @@
     "typescript-eslint": "^8.64.0",
     "vitest": "^4.1.10"
   },
-  "resolutions": {
+  "pnpm.overrides": {
     "@modelcontextprotocol/sdk>ajv": "8.18.0",
     "hono": "^4.12.25",
     "tsup>esbuild": "^0.28.1",

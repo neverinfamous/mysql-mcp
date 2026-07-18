@@ -79,6 +79,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 ### Protect the Runtime
 
+- ✅ **RPC Quotas** — Caps RPC API calls per execution. This prevents unbounded loops.
 - ✅ **Execution timeout** — Enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
 - ✅ **Rate limiting** — Enforces per-client rate limits. Configure via CODEMODE_RATE_LIMIT_MAX. Uses Redis with in-memory fallbacks.
@@ -145,14 +146,14 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 
 - ✅ **Dedicated user**: `app` (UID 1001) with minimal privileges
 - ✅ **Restricted group**: `app` (GID 1001)
-- ✅ **Restricted data directory**: `700` permissions
+
+> **Note:** Administrators must restrict `/app/data` directory permissions on the host system.
 
 ### Harden the Container
 
 - ✅ **Minimal base image**: Node.js Alpine image
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: Uses pnpm install --prod and pnpm store prune in the runtime stage
-- ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
 - ✅ **Process isolation** from host system
 
 ### Patch Dependencies
@@ -232,6 +233,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - [x] Code Mode native prototype isolation (objects cannot cross isolate boundary)
 - [x] Code Mode blocked patterns (comprehensive static regex rules + Unicode/NFKC validation)
 - [x] Code Mode egress streaming boundary (abort serialization on oversized results)
+- [x] Code Mode RPC Quotas
 - [x] Code Mode execution timeout (dynamically configurable)
 - [x] Code Mode rate limiting (configurable via `CODEMODE_RATE_LIMIT_MAX`, Redis-backed with in-memory fallback)
 - [x] Code Mode audit logging

@@ -28,7 +28,7 @@ Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
+| **Observability**                     | Export Prometheus metrics. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
@@ -291,6 +291,8 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "run",
         "-i",
         "--rm",
+        "-v", "./data:/app/data",
+        "-e", "ALLOWED_IO_ROOTS=/app/data",
         "-e", "TOOL_FILTER",
         "-e", "MYSQL_HOST",
         "-e", "MYSQL_PORT",
