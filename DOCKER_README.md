@@ -7,7 +7,7 @@
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Slash tokens with Code Mode and OAuth.
+Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode and OAuth.
 
 ## 🎯 Leverage Core Benefits
 
@@ -27,7 +27,7 @@ Production-ready MySQL integration for AI agents. Slash tokens with Code Mode an
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
-| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites with zero skipped tests. |
+| **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
 | **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
 
 ## 🤖 Automate Tasks with Guided Workflows
@@ -54,7 +54,7 @@ Production-ready MySQL integration for AI agents. Slash tokens with Code Mode an
 
 ---
 
-## 🚀 Deploy Your AI Database in Minutes
+## 🚀 Deploy Your AI Database
 
 ### Meet Prerequisites
 
@@ -91,7 +91,7 @@ docker compose up -d
 
 ---
 
-## ⚡ Reduce Token Usage with Code Mode
+## ⚡ Optimize Token Usage with Code Mode
 
 Code Mode (`mysql_execute_code`) reduces token usage by consolidating operations in a secure sandbox.
 
@@ -131,6 +131,33 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 > _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step operations. This minimizes token usage."_
 >
 > For maximum savings, use `--tool-filter codemode` to run with Code Mode as your only tool. See the [Code Mode wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Code-Mode) for full API documentation.
+
+---
+
+## 🌐 Enable Remote Access via HTTP & SSE
+
+> **When to use HTTP mode:** Deploy `mysql-mcp` as a standalone server. Multiple clients can connect remotely. Use `stdio` mode for local development.
+
+**Use cases for HTTP mode:**
+
+- Run the server in a network-accessible Docker container
+- Deploy to cloud platforms (AWS, GCP, Azure)
+- Enable OAuth 2.1 authentication for enterprise security
+- Share one database connection across multiple AI clients
+
+```bash
+docker run --rm -p 3000:3000 \
+  -v ./data:/app/data \
+  writenotenow/mysql-mcp:latest \
+  --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+```
+
+## 🔐 Protect Your Data with Authentication
+
+> **Warning:**
+> **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
+
+See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth setup (with Keycloak).
 
 ---
 
@@ -280,33 +307,6 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
   }
 }
 ```
-
-## 🌐 Enable Remote Access via HTTP
-
-> **When to use HTTP mode:** Deploy `mysql-mcp` as a standalone server. Multiple clients can connect remotely. Use `stdio` mode for local development.
-
-**Use cases for HTTP mode:**
-
-- Run the server in a network-accessible Docker container
-- Deploy to cloud platforms (AWS, GCP, Azure)
-- Enable OAuth 2.1 authentication for enterprise security
-- Share one database connection across multiple AI clients
-
-```bash
-docker run --rm -p 3000:3000 \
-  -v ./data:/app/data \
-  writenotenow/mysql-mcp:latest \
-  --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
-```
-
-## 🔐 Protect Your Data with Authentication
-
-> **Warning:**
-> **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
-
-See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth setup (with Keycloak).
-
----
 
 ## 🔗 Integrate Any MySQL Environment
 

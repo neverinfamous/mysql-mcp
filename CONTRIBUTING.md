@@ -39,7 +39,7 @@ pnpm run build
 pnpm test
 
 # Run the full quality check
-pnpm run check   # Runs ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
+pnpm run check   # Executes pnpm run build, runs ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
 ```
 
 ### Run the Server Locally
@@ -112,7 +112,7 @@ pnpm run bench
 
 ```bash
 # Lint + type check (required before submitting)
-pnpm run check   # ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
+pnpm run check   # Executes pnpm run build, ESLint, TypeScript strict-mode, Vitest unit tests, and Playwright E2E tests
 
 # Or individually
 pnpm run lint        # ESLint only
@@ -341,7 +341,7 @@ The `mysql-mcp` project is organized into modular directories under `src/`:
 | ----------------------- | ---------------------------------------------------- |
 | `pnpm run build`         | Production build via tsup                            |
 | `pnpm run dev`           | Watch mode (fast unbundled hot reloads via tsx)      |
-| `pnpm run check`         | **Quality gate** — lint + typecheck + unit/e2e tests (run before PRs) |
+| `pnpm run check`         | **Quality gate** — build + lint + typecheck + unit/e2e tests (run before PRs) |
 | `pnpm run lint`          | ESLint only                                          |
 | `pnpm run typecheck`     | TypeScript strict-mode type checking                 |
 | `pnpm test`              | Run all unit tests (Vitest)                          |

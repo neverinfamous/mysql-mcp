@@ -71,7 +71,7 @@ jobs:
           load: true
           tags: local-scan:latest
           cache-from: type=gha,scope=linux/amd64
-          cache-to: type=gha,scope=linux/amd64,mode=max
+          cache-to: type=gha,scope=linux/amd64-scan,mode=max
 
       - name: Docker Scout security scan
         uses: docker/scout-action@bacf462e8d090c09660de30a6ccc718035f961e3 # v1
@@ -122,7 +122,6 @@ jobs:
   # Prevents shipping images that pass CVE scans but crash at runtime (neverinfamous/mysql-mcp#149)
   smoke-test:
     needs: [security-scan]
-    if: needs.security-scan.result == 'success'
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -181,7 +180,6 @@ jobs:
   # Build each platform on native architecture (only runs if security scan and smoke tests pass)
   build-platform:
     needs: [security-scan, smoke-test]
-    if: needs.smoke-test.result == 'success'
     strategy:
       fail-fast: false
       matrix:
@@ -282,7 +280,6 @@ jobs:
   merge-and-push:
     runs-on: ubuntu-24.04
     needs: [build-platform]
-    if: needs.build-platform.result == 'success'
     permissions:
       contents: read
       packages: write
@@ -348,8 +345,8 @@ jobs:
           flavor: |
             latest=false
           tags: |
-            type=raw,value=v${{ steps.version.outputs.version }},enable=true
-            type=raw,value=latest,enable=true
+            type=raw,value=v${{ steps.version.outputs.version }},enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == 'true' }}
+            type=raw,value=latest,enable=${{ startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == 'true' }}
             type=sha,prefix=sha-,format=short
 
       - name: Create and push manifest

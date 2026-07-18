@@ -1,6 +1,6 @@
 # mysql-mcp — Copilot Code Review Context
 
-## Architecture Rules
+## Enforce Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
 - **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
 - **Code Mode** (`mysql_execute_code`) significantly reduces token usage.
@@ -10,7 +10,7 @@ Ensure PRs adhere to these SSoT architectural rules:
 - **Authentication**: Secure connections with Bearer Tokens or OAuth.
 - **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
 
-## Session Context
+## Review Session Context
 
 Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. It provides real-time context:
 
@@ -23,21 +23,21 @@ For detailed session handoff context, search for entries tagged `session-summary
 
 Log review issues using `mj_execute_code` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
 
-## Coding Standards
+## Uphold Coding Standards
 
-### File Naming
+### Standardize File Naming
 
 - **Files and folders**: Always kebab-case (`schema-manager.ts`, `tool-filter.ts`)
   - **Exception**: `.github` repository templates may use `snake_case`.
 - **Never** PascalCase or camelCase for filenames
 
-### Modularity
+### Maintain Modularity
 
 - **File size limit**: Source files stay under ~500 lines
 - **Split pattern**: `foo.ts` → `foo/` directory with sub-modules + `foo/index.ts` barrel re-export
 - **Logical grouping**: Split by functional cohesion, not arbitrary line counts
 
-### Type Safety
+### Enforce Type Safety
 
 - **Strict TypeScript** — `tsconfig.json` enforces strict mode
 - **Never use `eslint-disable`** to evade standards
@@ -47,7 +47,7 @@ Log review issues using `mj_execute_code` with the `copilot-finding` tag. Agents
 - **Zod schemas** for all tool input validation at system boundaries
 - **Union types over enums** — use `type Status = "active" | "inactive"` instead of `enum`
 
-### Error Handling
+### Implement Error Handling
 
 All tool handlers return structured error responses — never raw exceptions:
 
@@ -67,7 +67,7 @@ All tool handlers return structured error responses — never raw exceptions:
 > **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the comprehensive toolset and current config flags.
 > **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts. They must be explicitly listed in the tool-reference or registered in `server/`.
 
-## Architecture
+## Understand Architecture
 
 ```
 src/
@@ -91,7 +91,7 @@ src/
 └── utils/                      # Logger, error helpers, utilities
 ```
 
-## Reference Files
+## Consult Reference Files
 
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
@@ -104,7 +104,7 @@ src/
 | `DOCKER_README.md`              | Docker Hub documentation            |
 
 
-## Review Checklist
+## Complete Review Checklist
 
 When reviewing PRs, check for:
 
@@ -121,7 +121,7 @@ When reviewing PRs, check for:
 - [ ] Verify the author has run tests locally (e.g., via `pnpm run check`)
 - [ ] Dual-Schema Pattern enforcement
 - [ ] Ensure Docker instructions use `:latest` tag in `DOCKER_README.md`
-- [ ] Add prominent Value Proposition to standard README.md and Wikis, using active voice, benefit-driven headers, and concise sentences (<15 words).
+- [ ] Add prominent Value Proposition to standard README.md and Wikis. Use active voice, benefit-driven headers, and concise sentences (<15 words).
 - [ ] CRITICAL: Never add marketing tone to AGENT_README.md.
 - [ ] Docker readme <= 25,000 chars and dynamically updated test badges are preserved.
 - [ ] Table-querying tools return `{exists: false, table}` for nonexistent tables

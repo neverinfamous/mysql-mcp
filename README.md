@@ -146,7 +146,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
 - ✅ **Unicode & Comment Sanitization** — Strips comments and performs NFKC normalization to prevent regex evasion.
-- ✅ **Code input limit** — prevents payload-based resource exhaustion.
+- ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
 

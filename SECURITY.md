@@ -132,7 +132,7 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 - ✅ **RFC 9728** Protected Resource Metadata (`/.well-known/oauth-protected-resource`)
 - ✅ **RFC 8414** Authorization Server Discovery with caching
 - ✅ **RFC 7591** OAuth 2.1 Dynamic Client Registration
-- ✅ **JWT validation** with JWKS support (TTL: 1 hour, configurable)
+- ✅ **JWT validation** with JWKS support (TTL: 1 hour)
 - ✅ **MySQL-specific scopes**: `read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`
 - ✅ **Per-tool scope enforcement** via `AsyncLocalStorage` context threading
 - ✅ **Bearer Token Auth**: Use `MCP_AUTH_TOKEN` for straightforward token authentication to avoid OAuth overhead.
@@ -149,7 +149,7 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 
 ### Harden the Container
 
-- ✅ **Minimal base image**: `node:lts-alpine`
+- ✅ **Minimal base image**: `node:26-alpine`
 - ✅ **Multi-stage build**: Build dependencies not in production image
 - ✅ **Production pruning**: Uses pnpm install --prod and pnpm store prune in the runtime stage
 - ✅ **Health check**: Built-in `HEALTHCHECK` instruction (transport-aware for HTTP/SSE/stdio)
