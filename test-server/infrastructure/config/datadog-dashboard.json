@@ -17,7 +17,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Token \u0026 Tool Metrics",
+  "title": "MySQL-MCP Token & Tool Metrics",
   "url": "/dashboard/qwe-2un-us8/mysql-mcp-token--tool-metrics",
   "widgets": [
     {
@@ -28,15 +28,15 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#133a09",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
               {
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -44,7 +44,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{$tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{$tool}.as_count()"
               }
             ],
             "response_format": "scalar"
@@ -111,7 +111,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -119,7 +119,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*} by {tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count()"
               }
             ],
             "response_format": "scalar",
@@ -332,14 +332,14 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_resource_reads_total{*} by {resource}"
+                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*} by {resource}.as_count()"
               }
             ],
             "response_format": "timeseries",
@@ -386,14 +386,14 @@
             "display_type": "line",
             "formulas": [
               {
-                "formula": "default_zero(monotonic_diff(query1)) + default_zero(query2)"
+                "formula": "default_zero(query1) + default_zero(query2)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count()"
               },
               {
                 "data_source": "metrics",
@@ -526,14 +526,14 @@
             "display_type": "line",
             "formulas": [
               {
-                "formula": "default_zero(monotonic_diff(query1)) + default_zero(query2)"
+                "formula": "default_zero(query1) + default_zero(query2)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count()"
               },
               {
                 "data_source": "metrics",
@@ -644,23 +644,23 @@
             "formulas": [
               {
                 "alias": "Total Calls",
-                "formula": "default_zero(monotonic_diff(calls)) + default_zero(old_calls)"
+                "formula": "default_zero(calls) + default_zero(old_calls)"
               },
               {
                 "alias": "Total Errors",
-                "formula": "default_zero(monotonic_diff(errors)) + default_zero(old_errors)"
+                "formula": "default_zero(errors) + default_zero(old_errors)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls_total{$tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count()"
               },
               {
                 "data_source": "metrics",
                 "name": "errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{$tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count()"
               },
               {
                 "data_source": "metrics",
@@ -765,14 +765,14 @@
             "display_type": "line",
             "formulas": [
               {
-                "formula": "monotonic_diff(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_resource_reads_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*}.as_count()"
               }
             ],
             "response_format": "timeseries",

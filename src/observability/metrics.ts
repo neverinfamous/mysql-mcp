@@ -428,7 +428,7 @@ export class MetricsRegistry {
 
     // Server uptime
     lines.push("# HELP mysql_mcp_uptime_seconds Server uptime in seconds");
-    lines.push("# TYPE mysql_mcp_uptime_seconds counter");
+    lines.push("# TYPE mysql_mcp_uptime_seconds gauge");
     lines.push(`mysql_mcp_uptime_seconds ${Math.floor((Date.now() - this.startedAt) / 1000)}`);
 
     return lines.join("\n") + "\n";
