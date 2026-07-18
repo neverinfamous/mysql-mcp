@@ -109,6 +109,9 @@ export function preprocessCheckVersionParams(input: unknown): unknown {
  * Preprocess index parameters:
  * - Alias: column -> columns
  * - Coerce string to array
+ * - Handle comma-separated columns string
+ * - Alias: index_name -> indexName/name
+ * - Alias: indexType -> type
  */
 export function preprocessIndexParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
@@ -121,12 +124,25 @@ export function preprocessIndexParams(input: unknown): unknown {
     // We explicitly omit 'name' -> 'table' aliasing because 'name' is the indexName
   }
 
+  if (result["name"] === undefined) {
+    if (result["indexName"] !== undefined) result["name"] = result["indexName"];
+    else if (result["index_name"] !== undefined) result["name"] = result["index_name"];
+  }
+
+  if (result["type"] === undefined && result["indexType"] !== undefined) {
+    result["type"] = result["indexType"];
+  }
+
   if (result["columns"] === undefined && result["column"] !== undefined) {
     result["columns"] = result["column"];
   }
 
   if (typeof result["columns"] === "string") {
-    result["columns"] = [result["columns"]];
+    if (result["columns"].includes(",")) {
+      result["columns"] = result["columns"].split(",").map((c) => c.trim());
+    } else {
+      result["columns"] = [result["columns"]];
+    }
   }
 
   return result;
