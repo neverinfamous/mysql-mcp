@@ -1,4 +1,4 @@
-# mysql-mcp
+# MySQL MCP Server (mysql-mcp)
 
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
@@ -109,6 +109,8 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, a local MySQL test database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`:
 
+> **Linux Users:** For `host.docker.internal` on Linux, add `extra_hosts: - "host.docker.internal:host-gateway"` to your `docker-compose.yml` services.
+
 ```bash
 cp .env.example .env
 docker compose up -d
@@ -201,6 +203,7 @@ npx -y @neverinfamous/mysql-mcp \
 ```bash
 docker run --rm -p 3000:3000 \
   -v ./data:/app/data \
+  -e MCP_AUTH_TOKEN=my-secret-token \
   writenotenow/mysql-mcp:latest \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
@@ -553,12 +556,10 @@ To optimize AI context windows, tool groups are categorized into high-level doma
 
 ---
 
-
+### Review Syntax Reference
 
 **Legacy Syntax (still supported):**
 If you start with a negative filter (e.g., `-ecosystem`), it enables all tools first. It then subtracts the specified tools.
-
-### Review Syntax Reference
 
 | Prefix   | Target   | Example             | Effect                                        |
 | -------- | -------- | ------------------- | --------------------------------------------- |

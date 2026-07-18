@@ -33,8 +33,17 @@ function buildWhereClause(conditions: { column: string; operator?: string; value
     if (upperOp === "IS NULL" || upperOp === "IS NOT NULL") {
       clauses.push(`${col} ${upperOp}`);
     } else if (upperOp === "IN" || upperOp === "NOT IN") {
-      clauses.push(`${col} ${upperOp} (?)`);
-      params.push(Array.isArray(cond.value) ? cond.value : [cond.value]);
+      const vals = Array.isArray(cond.value) ? (cond.value as unknown[]) : [cond.value];
+      if (vals.length === 0) {
+         // IN () is invalid SQL, we could use FALSE (1=0) or just push NULL
+         clauses.push(`1=0`); 
+      } else {
+         const placeholders = vals.map(() => "?").join(", ");
+         clauses.push(`${col} ${upperOp} (${placeholders})`);
+         for (const v of vals) {
+           params.push(v);
+         }
+      }
     } else if (upperOp === "BETWEEN") {
       clauses.push(`${col} BETWEEN ? AND ?`);
       if (Array.isArray(cond.value) && cond.value.length === 2) {

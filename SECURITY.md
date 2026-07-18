@@ -165,14 +165,14 @@ The Dockerfile patches npm-bundled transitive dependencies for Docker Scout comp
 
 ```bash
 # Secure volume mounting
-docker run -v ./data:/app/data:rw writenotenow/mysql-mcp:latest
+docker run -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ### Apply Resource Limits
 
 ```bash
 # Apply resource limits
-docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
+docker run --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ## 🔐 **Maintain Compliance with Secure Logs**

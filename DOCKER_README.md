@@ -1,7 +1,9 @@
-# MySQL MCP Server
+# MySQL MCP Server (mysql-mcp)
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 [![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-89.18%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-393%20passing%20%C2%B7%200%20skipped-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Passing-green.svg) ![E2E Tests](https://img.shields.io/badge/E2E-Passing-brightgreen.svg)
+
+> **Note:** Docker Hub limits descriptions to 25k characters. Some documentation may be truncated. View the **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** or the [GitHub README](https://github.com/neverinfamous/mysql-mcp) for complete details.
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](https://github.com/neverinfamous/mysql-mcp/blob/main/CHANGELOG.md)** • **[Security](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -80,6 +82,8 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, a local MySQL test database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`.
 
+> **Linux Users:** For `host.docker.internal` on Linux, add `extra_hosts: - "host.docker.internal:host-gateway"` to your `docker-compose.yml` services.
+
 ```bash
 cp .env.example .env
 docker compose up -d
@@ -100,13 +104,13 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 ### Enforce Engine-Level Restrictions
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
-- ✅ **Memory & CPU Constraints** — Enforces constraints at the C++ level. This includes synchronous timeouts and strict heap limits.
-- ✅ **API Bindings via Reference** — injects MySQL methods securely using `ivm.Reference` wrappers.
+- ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
+- ✅ **API Bindings via Reference** — Injects MySQL methods securely using `ivm.Reference` wrappers.
 
 ### Validate Code Statically
 
 - ✅ **Comprehensive blocked patterns** — regex rules block `require()`, `import()`, `eval()`, `Function`, `process`, and `__proto__`. They also block filesystem/network access and system commands.
-- ✅ **Unicode & Comment Sanitization** — normalizes text and strips comments to prevent evasion.
+- ✅ **Unicode & Comment Sanitization** — Strips comments and performs NFKC normalization to prevent regex evasion.
 - ✅ **Configurable code input limit** — prevents payload-based resource exhaustion.
 
 ### Protect the Runtime
@@ -158,6 +162,7 @@ docker run --rm -p 3000:3000 \
 | Endpoint | Method | Description |
 | --- | --- | --- |
 | `/mcp` | POST/GET | JSON-RPC requests / SSE stream |
+| `/mcp` | DELETE | Session termination |
 | `/health` | GET | Health check |
 | `/metrics` | GET | Prometheus metrics |
 
@@ -204,6 +209,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "run",
         "-i",
         "--rm",
+        "-e", "TOOL_FILTER",
         "-e", "MYSQL_HOST",
         "-e", "MYSQL_PORT",
         "-e", "MYSQL_USER",
@@ -244,6 +250,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "run",
         "-i",
         "--rm",
+        "-e", "TOOL_FILTER",
         "-e", "MYSQL_HOST",
         "-e", "MYSQL_PORT",
         "-e", "MYSQL_USER",
@@ -284,6 +291,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
         "run",
         "-i",
         "--rm",
+        "-e", "TOOL_FILTER",
         "-e", "MYSQL_HOST",
         "-e", "MYSQL_PORT",
         "-e", "MYSQL_USER",
@@ -364,6 +372,8 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 ## 🎛️ Master Server Configuration
 
 ### Configure CLI Options
+
+> **Note:** Items marked with `—` in the CLI flag column are configured exclusively via environment variables.
 
 | Option | Environment Variable | Description |
 | --- | --- | --- |

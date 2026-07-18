@@ -121,7 +121,7 @@ pnpm run typecheck   # TypeScript strict-mode type checking
 
 ### Run End-to-End Tests
 
-The Playwright E2E suite validates the HTTP transport, including both standard Streamable HTTP endpoints and backward compatibility with legacy SSE clients:
+The Playwright E2E suite validates the HTTP transport, including both standard Streamable HTTP endpoints and backward compatibility with SSE clients:
 
 ```bash
 pnpm run test:e2e
