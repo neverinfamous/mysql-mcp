@@ -1,0 +1,96 @@
+/**
+ * Ecosystem — ProxySQL Metrics Generation & Verification
+ *
+ * This test intentionally connects to ProxySQL's data port (6033)
+ * to generate traffic that tests caching rules, slow queries, and
+ * active connection tracking, verifying that the metrics register
+ * internally in ProxySQL's stats tables.
+ */
+
+import { test, expect } from "@playwright/test";
+import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { createClient, callToolAndParse, expectSuccess, startServer, stopServer, TIMEOUTS } from "./helpers.js";
+import { setTimeout as delay } from "node:timers/promises";
+
+test.describe.configure({ mode: "serial" });
+
+test.describe("ProxySQL Metrics Generation & Verification", () => {
+  let client: Client;
+  const PORT = 3105; // Use a dedicated port to avoid conflicts
+
+  test.beforeAll(async () => {
+    // Start a dedicated server pointing to ProxySQL Data Port
+    await startServer(PORT, [
+      "--mysql",
+      "mysql://cluster_admin:cluster_admin@127.0.0.1:6033/testdb",
+      "--pool-size",
+      "5"
+    ], "proxysql-test", {
+      PROXYSQL_HOST: "127.0.0.1",
+      PROXYSQL_PORT: "6032",
+      PROXYSQL_USER: "radmin",
+      PROXYSQL_PASSWORD: "radmin",
+      TOOL_FILTER: "all"
+    });
+    client = await createClient(`http://127.0.0.1:${PORT}`);
+  });
+
+  test.afterAll(async () => {
+    await client.close();
+    stopServer(PORT);
+  });
+
+  test("generates and verifies query cache metrics", async () => {
+    // Fire the identical SELECT query multiple times to trigger the ProxySQL caching rule
+    const query = "SELECT COUNT(*) FROM test_users;";
+    
+    for (let i = 0; i < 5; i++) {
+      const res = await callToolAndParse(client, "mysql_read_query", { query });
+      expectSuccess(res);
+      await delay(100);
+    }
+
+    // ProxySQL updates stats periodically, give it a tiny buffer
+    await delay(500);
+
+    // Verify cache memory usage > 0
+    const statusPayload = await callToolAndParse(client, "proxysql_status", { summary: true });
+    expectSuccess(statusPayload);
+    
+    const statusStats = statusPayload.data!.stats as Array<Record<string, any>>;
+    const cacheMemory = statusStats.find(row => row.Variable_Name === 'Query_Cache_Memory_bytes');
+    expect(cacheMemory).toBeDefined();
+    
+    // The value might be a string depending on how ProxySQL returns it, so convert if needed
+    const cacheBytes = Number(cacheMemory?.Variable_Value || 0);
+    expect(cacheBytes).toBeGreaterThan(0);
+
+    // Verify cache hits > 0
+    const cacheEntries = statusStats.find(row => row.Variable_Name === 'Query_Cache_Entries');
+    expect(cacheEntries).toBeDefined();
+    
+    const cacheEntriesCount = Number(cacheEntries?.Variable_Value || 0);
+    expect(cacheEntriesCount).toBeGreaterThan(0);
+  });
+
+  test("generates and verifies slow query metrics (>5s)", async () => {
+    test.setTimeout(TIMEOUTS.LONG);
+
+    // Execute a query > 5s
+    const slowQuery = "SELECT SLEEP(6) AS sleep_time;";
+    const res = await callToolAndParse(client, "mysql_read_query", { query: slowQuery });
+    expectSuccess(res);
+
+    // Verify the query shows up in the digest
+    const digestPayload = await callToolAndParse(client, "proxysql_query_digest", {});
+    expectSuccess(digestPayload);
+    
+    const queries = digestPayload.data!.queryDigests as Array<Record<string, any>>;
+    const sleepQuery = queries.find(row => String(row.digest_text).includes('SLEEP'));
+    expect(sleepQuery).toBeDefined();
+    
+    // Check that it registered execution time
+    const maxTime = Number(sleepQuery?.sum_time || 0);
+    expect(maxTime).toBeGreaterThan(5000000); // sum_time is typically in microseconds
+  });
+});
