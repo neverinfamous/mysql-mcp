@@ -45,7 +45,8 @@ jobs:
             PATCHES["$pkg_name"]="$pkg_ver"
           done
 
-          NPM_DIR="$(docker run --rm --entrypoint sh ghcr.io/neverinfamous/mysql-mcp:test -c "npm root -g")/npm"
+          BASE_IMAGE=$(grep -i '^FROM' Dockerfile | head -1 | awk '{print $2}')
+          NPM_DIR="$(docker run --rm --entrypoint sh $BASE_IMAGE -c "npm root -g")/npm"
           STALE=0
 
           for pkg in "${!PATCHES[@]}"; do
@@ -53,7 +54,7 @@ jobs:
 
             # Find the package.json for the bundled dependency
             pkg_path="$NPM_DIR/node_modules/$pkg/package.json"
-            bundled_version=$(docker run --rm --entrypoint sh ghcr.io/neverinfamous/mysql-mcp:test -c "node -p \"require('$pkg_path').version\"" 2>/dev/null || true)
+            bundled_version=$(docker run --rm --entrypoint sh $BASE_IMAGE -c "node -p \"require('$pkg_path').version\"" 2>/dev/null || true)
             if [ -z "$bundled_version" ]; then
               echo "⚠️  $pkg: not found in npm bundle (may have been removed upstream)"
               continue

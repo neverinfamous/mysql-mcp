@@ -186,13 +186,103 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 **Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
 
-> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites and the JSON configuration block.
+> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites.
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "-e", "REDIS_URL",
+        "-e", "MCP_REQUEST_TIMEOUT",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "cluster"
+      ],
+      "env": {
+        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "testdb",
+        "REDIS_URL": "redis://host.docker.internal:6379",
+        "MCP_REQUEST_TIMEOUT": "600000"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
 
 #### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
 
 **Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
 
-> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites and the JSON configuration block.
+> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites.
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp": {
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e", "MYSQL_HOST",
+        "-e", "MYSQL_PORT",
+        "-e", "MYSQL_USER",
+        "-e", "MYSQL_PASSWORD",
+        "-e", "MYSQL_DATABASE",
+        "-e", "MYSQL_ROUTER_URL",
+        "-e", "MYSQL_ROUTER_USER",
+        "-e", "MYSQL_ROUTER_PASSWORD",
+        "-e", "PROXYSQL_HOST",
+        "-e", "PROXYSQL_PORT",
+        "-e", "PROXYSQL_USER",
+        "-e", "PROXYSQL_PASSWORD",
+        "-e", "MYSQLSH_PATH",
+        "-e", "REDIS_URL",
+        "-e", "MCP_REQUEST_TIMEOUT",
+        "writenotenow/mysql-mcp:latest",
+        "--transport",
+        "stdio",
+        "--tool-filter",
+        "ecosystem"
+      ],
+      "env": {
+        "MYSQL_HOST": "host.docker.internal",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "mcp_user",
+        "MYSQL_PASSWORD": "secure_password",
+        "MYSQL_DATABASE": "testdb",
+        "MYSQL_ROUTER_URL": "https://host.docker.internal:8443",
+        "MYSQL_ROUTER_USER": "router_admin",
+        "MYSQL_ROUTER_PASSWORD": "router_password",
+        "PROXYSQL_HOST": "host.docker.internal",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "admin",
+        "PROXYSQL_PASSWORD": "admin",
+        "MYSQLSH_PATH": "mysqlsh",
+        "REDIS_URL": "redis://host.docker.internal:6379",
+        "MCP_REQUEST_TIMEOUT": "600000"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
 
 ## 🌐 Enable Remote Access via HTTP & SSE
 

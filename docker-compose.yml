@@ -25,6 +25,7 @@ services:
       - MCP_ENABLE_HSTS=${MCP_ENABLE_HSTS:-false}
       - MCP_AUTH_TOKEN=${MCP_AUTH_TOKEN:-}
       - METADATA_CACHE_TTL_MS=${METADATA_CACHE_TTL_MS:-30000}
+      - OAUTH_ENABLED=${OAUTH_ENABLED:-false}
       - OAUTH_ISSUER=${OAUTH_ISSUER:-}
       - OAUTH_AUDIENCE=${OAUTH_AUDIENCE:-}
       - OAUTH_JWKS_URI=${OAUTH_JWKS_URI:-}
@@ -49,7 +50,6 @@ services:
       - MYSQLSH_PATH=${MYSQLSH_PATH:-mysqlsh}
       - TOOL_FILTER=${TOOL_FILTER:-starter}
       - LOG_LEVEL=${LOG_LEVEL:-info}
-      - OAUTH_ENABLED=${OAUTH_ENABLED:-false}
     volumes:
       - ./data:/app/data
     depends_on:

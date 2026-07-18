@@ -49,7 +49,7 @@ You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your jo
 
 ## Workflow Inspection
 
-List all `.yml` files in `.github/workflows/`. For each workflow file:
+List all `.yml` files in `.github/workflows/`, explicitly excluding auto-generated lockfiles (`*.lock.yml`). For each workflow file:
 
 1. **Check action versions** — for each `uses:` line, note the action name and version/tag. Check if a newer major or minor version exists by reading the action's releases.
 2. **Check Node.js runtime** — look for `FORCE_JAVASCRIPT_ACTIONS_TO_NODE*` workarounds. Look for actions using deprecated Node.js versions. Flag any blocking target runtime compatibility.

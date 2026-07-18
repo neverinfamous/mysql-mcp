@@ -90,6 +90,8 @@ We especially welcome contributions in these areas:
 
 ## 🧪 Guarantee Reliability Through Testing
 
+> **⚠️ IMPORTANT:** The file `test-server/scripts/test-manifest.ts` is the single source of truth for generating markdown tests. Manual edits to generated spec files are strictly forbidden.
+
 ### Run Automated Tests
 
 ```bash
