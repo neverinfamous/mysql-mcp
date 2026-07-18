@@ -97,7 +97,7 @@ describe("metrics", () => {
       // Derived: tokens per call
       expect(prom).toContain('mysql_mcp_tool_tokens_per_call{tool="test_tool"} 100');
       // Uptime
-      expect(prom).toContain("# TYPE mysql_mcp_uptime_seconds gauge");
+      expect(prom).toContain("# TYPE mysql_mcp_uptime_seconds counter");
       expect(prom).toMatch(/mysql_mcp_uptime_seconds \d+/);
     });
 
