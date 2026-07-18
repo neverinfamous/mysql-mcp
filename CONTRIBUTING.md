@@ -365,7 +365,7 @@ When contributing code, follow these security practices:
 - **Input validation** via Zod schemas at tool boundaries
 - **No secrets in code** — use environment variables (`.env` files are gitignored)
 - **Typed error classes** with descriptive messages — don't expose internal details to end users
-- **Transport Security** — preserve DNS rebinding protection and Slowloris DoS timeouts in HTTP layers
+- **Transport Security** — Preserve DNS rebinding protection and Slowloris DoS timeouts in HTTP layers
 
 ## 🤝 Collaborate with the Community
 

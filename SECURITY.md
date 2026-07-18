@@ -41,15 +41,15 @@ Every tool returns structured error responses — never raw exceptions or intern
 }
 ```
 
-Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categories). It returns enriched payloads via `formatHandlerErrorResponse()`. Error codes are module-prefixed. Internal stack traces are logged server-side but never exposed to clients.
+Error logic leverages the `MySQLMcpError` hierarchy (multiple distinct categories). It returns enriched payloads via `formatHandlerErrorResponse()`. Error codes are module-prefixed. The server logs internal stack traces but never exposes them to clients.
 
 ## 🔐 **Ensure Integrity with Input Validation**
 
-- ✅ **Zod schemas** — all tool inputs validated at tool boundaries before database operations
-- ✅ **Parameterized queries** used throughout — never string interpolation
-- ✅ **Audit filters required** — audit log queries must provide at least one filter to prevent mass data extraction
-- ✅ **Data masking aliases** — validated strictly at the MCP boundary to prevent evasion
-- ✅ **Identifier sanitization** — table, column, schema, and index names validated against injection
+- ✅ **Zod schemas** — Validate all tool inputs at tool boundaries before database operations
+- ✅ **Parameterized queries** — Use parameterized queries throughout — never string interpolation
+- ✅ **Audit filters required** — Audit log queries must provide at least one filter to prevent mass data extraction
+- ✅ **Data masking aliases** — Validate aliases strictly at the MCP boundary to prevent evasion
+- ✅ **Identifier sanitization** — Validate table, column, schema, and index names against injection
 
 ## 📁 **Sandbox Operations with Filesystem Boundaries**
 
@@ -82,7 +82,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — Enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
-- ✅ **Rate limiting** — Rate limited per client (Configurable via `CODEMODE_RATE_LIMIT_MAX`). Distribute limits across deployments via Redis using graceful in-memory fallbacks.
+- ✅ **Rate limiting** — Enforce per-client rate limits. Configure via CODEMODE_RATE_LIMIT_MAX.
 - ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.

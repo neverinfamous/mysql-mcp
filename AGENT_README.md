@@ -6,14 +6,14 @@
 
 ---
 
-## 🗺️ Master Navigation (The Map of Maps)
+## 🗺️ Master Navigation
 
 Do NOT randomly `grep` or guess the repository structure. Use the following references:
 
 | File / Location | Purpose |
 |-----------------|---------|
-| [test-server/code-map.md](test-server/code-map.md) | **[CRITICAL]** The definitive architectural map. Details directory layout, tool-to-handler mappings, and the typed error class hierarchy. Read this before modifying tools. |
-| [test-server/tool-reference.md](test-server/tool-reference.md) | Categorized tool inventory with extensive capabilities spanning multiple functional groups. |
+| [test-server/code-map.md](test-server/code-map.md) | **[CRITICAL]** Architectural map. Details directory layout, tool-to-handler mappings, and the typed error class hierarchy. Read this before modifying tools. |
+| [test-server/tool-reference.md](test-server/tool-reference.md) | Categorized tool inventory mapping functional groups. |
 | [src/constants/instructions/markdown/](src/constants/instructions/markdown/) | The source markdown files for the compiled instructions sent to connecting clients. Handled dynamically via `mysql://help` resources. |
 | [SECURITY.md](SECURITY.md) | Security policy, vulnerability management, and authentication rules. |
 
@@ -41,7 +41,7 @@ When committing changes to `mysql-mcp`, you **MUST** adhere to the following rul
 
 ## 🧪 Testing Matrices
 
-The repository contains a comprehensive suite of testing environments:
+The repository contains these testing environments:
 
 - **E2E & Unit**: `src/__tests__/`, `src/audit/*.test.ts`, and `tests/e2e/`. Run via `pnpm check`.
 - **Advanced Agent Testing**:

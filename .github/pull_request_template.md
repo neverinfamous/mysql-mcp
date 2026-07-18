@@ -23,14 +23,14 @@ Detail the specific tests you ran. Ensure thorough validation.
 
 - [ ] I have exported any new types in `src/types/index.ts`
 - [ ] I have not used `eslint-disable` (always forbidden)
-- [ ] I have not used @ts-ignore, @ts-expect-error, or as assertions (use satisfies or type guards).
+- [ ] I have not used `@ts-ignore`, `@ts-expect-error`, or `as` assertions (use satisfies or type guards).
 - [ ] I have ensured tool handlers return structured error responses, not raw exceptions
 - [ ] I have referenced `gh copilot` instead of the deprecated `github-copilot-cli`
 - [ ] I have split files approaching 500 lines
 - [ ] I have added new tools to the tool filtering configuration
 - [ ] I have added Zod schemas to all new tools
 - [ ] I have used kebab-case for new filenames
-- [ ] I avoided continue-on-error: true in workflow files (except Agentic .lock.yml files).
+- [ ] I avoided `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
 - [ ] I have run tests locally (e.g., via `pnpm run check`)
 - [ ] I have enforced the Dual-Schema Pattern
 - [ ] I have ensured Docker instructions use `:latest` tag in `DOCKER_README.md`

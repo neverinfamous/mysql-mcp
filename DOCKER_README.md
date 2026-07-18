@@ -67,7 +67,7 @@ MySQL MCP delivers production-ready integration for AI agents. Slash token consu
 
 > **Note on Namespaces:** The Docker image uses the `writenotenow` namespace. The repository and package use `neverinfamous`.
 
-> **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
+> **Linux Users:** Add `--add-host host.docker.internal:host-gateway`. This enables `host.docker.internal` resolution.
 
 ```bash
 docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
@@ -115,8 +115,8 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 - ✅ **RPC Quotas** — Configurable RPC API call cap per execution to prevent unbounded loops.
 - ✅ **Execution timeout** — enforces timeouts to prevent resource exhaustion. Configurable via schema `timeout`.
 - ✅ **Egress boundary enforcement** — streaming `JSON.stringify` serialization aborts mid-flight when exceeding size caps.
-- ✅ **Rate limiting** — Per-client limits (`CODEMODE_RATE_LIMIT_MAX`). Uses Redis with in-memory fallbacks.
-- ✅ **Readonly enforcement** — when `readonly: true`, write methods return structured errors instead of executing.
+- ✅ **Rate limiting** — Enforce per-client limits (CODEMODE_RATE_LIMIT_MAX). Use Redis with in-memory fallbacks.
+- ✅ **Readonly enforcement** — Return structured errors instead of executing write methods when readonly: true.
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 - ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.

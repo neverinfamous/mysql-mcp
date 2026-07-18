@@ -484,7 +484,7 @@ To optimize AI context windows, tool groups are categorized into high-level doma
 
 ### Configure IDE Settings
 
-Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
+Add a configuration to your IDE's MCP settings file:
 
 #### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 
@@ -655,7 +655,7 @@ Use this for automated clients requiring a minimal capability set.
 
 ## 🔧 Customize with Advanced Configuration
 
-> **Tip:** Configure the server using native JSON or YAML files with the `--config` flag. Precedence follows: CLI Flags > Environment Variables > Config File > Defaults. See the `server-config-example.json` or `server-config-example.yaml` template at the root of the project for setup details.
+See the configuration templates in the project root for setup details.
 
 For specialized setups, see these Wiki pages:
 

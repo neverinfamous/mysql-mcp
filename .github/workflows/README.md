@@ -1,5 +1,10 @@
 # Automate CI/CD Workflows
 
+## Value Proposition
+- **Automate Workflows:** Eliminate manual tasks to accelerate development.
+- **Ensure Reliability:** Catch bugs early with comprehensive testing.
+- **Enhance Security:** Protect code with continuous vulnerability scanning.
+
 This directory contains all GitHub Actions workflows for **mysql-mcp**.
 
 ## Visualize the Workflow Map
@@ -136,8 +141,7 @@ For releases, the `gatekeeper.yml` workflow orchestrates all CI, security, and p
 
 | Secret            | Used By                    | Purpose                     |
 | ----------------- | -------------------------- | --------------------------- |
-| `GITHUB_TOKEN`    | codeql, secrets-scanning, ci-health-monitor, security-update | Git operations and agent authorization |
-| `COPILOT_GITHUB_TOKEN`| ci-health-monitor      | Agent authorization            |
+| `GITHUB_TOKEN`    | codeql, secrets-scanning, security-update | Git operations and agent authorization |
 | `GH_AW_GITHUB_MCP_SERVER_TOKEN`| ci-health-monitor | Agent authorization            |
 | `GH_AW_GITHUB_TOKEN` | ci-health-monitor         | Agent authorization            |
 | `NPM_TOKEN`       | publish-npm                | npm registry authentication  |

@@ -35,8 +35,7 @@
   "homepage": "https://github.com/neverinfamous/mysql-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/neverinfamous/mysql-mcp.git",
-    "source": "github"
+    "url": "https://github.com/neverinfamous/mysql-mcp.git"
   },
   "license": "MIT"
 }
