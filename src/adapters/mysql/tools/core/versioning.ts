@@ -105,6 +105,12 @@ export function createEnableVersioningTool(
           );
         }
 
+        if (describeInfo.type === "view") {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Cannot enable versioning on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
+          );
+        }
+
         const hasVersionColumn = describeInfo.columns.some(
           (col) => col.name === "_version",
         );
@@ -190,6 +196,12 @@ export function createDisableVersioningTool(
           }
           return formatHandlerErrorResponse(
             new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
+        }
+
+        if (describeInfo.type === "view") {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Cannot disable versioning on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
           );
         }
 
