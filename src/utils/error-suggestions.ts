@@ -68,6 +68,13 @@ const ERROR_SUGGESTIONS: {
     code: "OBJECT_NOT_FOUND",
   },
   {
+    pattern: /No row found matching WHERE/i,
+    suggestion:
+      "No rows matched the provided WHERE clause. Verify the condition and ensure the row exists.",
+    category: ErrorCategory.RESOURCE,
+    code: "NOT_FOUND",
+  },
+  {
     pattern: /index ['"].*['"] (?:does not exist|not found)/i,
     suggestion:
       "Index not found. Use mysql_get_indexes to see available indexes.",

@@ -139,16 +139,7 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           const checkResult = await adapter.executeReadQuery(checkSql, []);
           
           if (!checkResult.rows || checkResult.rows.length === 0) {
-            const response = {
-              success: false as const,
-              error: `No row found matching WHERE ${where}`,
-              code: "NOT_FOUND",
-              category: "resource" as const,
-              recoverable: false,
-              suggestion: undefined,
-              details: undefined
-            };
-            return withTokenEstimate(response);
+            throw new Error(`No row found matching WHERE ${where}`);
           }
         }
         const response = {
