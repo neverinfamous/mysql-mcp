@@ -444,6 +444,22 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   const v = val as Record<string, unknown>;
   
   let where = v["where"] ?? v["filter"] ?? v["condition"] ?? v["query"] ?? v["sql"];
+  if (where !== undefined && typeof where === 'object' && where !== null && !Array.isArray(where)) {
+    const obj = where as Record<string, unknown>;
+    const keys = Object.keys(obj);
+    if (keys.length === 1 && keys[0] !== undefined) {
+      const k = keys[0];
+      const val = obj[k];
+      let formattedVal = "''";
+      if (typeof val === 'string') {
+        formattedVal = `'${val}'`;
+      } else if (typeof val === 'number' || typeof val === 'boolean') {
+        formattedVal = String(val);
+      }
+      where = `\`${k}\` = ${formattedVal}`;
+    }
+  }
+  
   if (where === undefined && (v["rowId"] !== undefined || v["id"] !== undefined)) {
     const idCol = (v["idColumn"] as string | undefined) ?? "id";
     const rowId = v["rowId"] ?? v["id"];
