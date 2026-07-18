@@ -99,8 +99,9 @@ npx @neverinfamous/mysql-mcp --transport stdio --mysql "mysql://mcp_user:secure_
 > **Linux Users:** For `host.docker.internal` on Linux, run the container with `--add-host host.docker.internal:host-gateway`.
 
 ```bash
-docker run -i --rm writenotenow/mysql-mcp:latest \
+docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
   --transport stdio \
+  --allowed-io-roots /app/data \
   --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
@@ -740,7 +741,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
 | —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
-| —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
+| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |

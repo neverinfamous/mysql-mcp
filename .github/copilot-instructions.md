@@ -3,11 +3,11 @@
 [![npm version](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![License](https://img.shields.io/npm/l/@neverinfamous/mysql-mcp.svg)](https://github.com/neverinfamous/mysql-mcp/blob/main/LICENSE) [![TypeScript](https://img.shields.io/badge/TypeScript-Ready-blue.svg)](https://www.typescriptlang.org/)
 [![Model Context Protocol](https://img.shields.io/badge/MCP-Protocol-purple.svg)](https://modelcontextprotocol.io/) [![Docker Support](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://hub.docker.com/r/writenotenow/mysql-mcp)
 
-## Understand the Project Overview
+## Project Overview
 
 mysql-mcp is a production-grade TypeScript MCP server. Connect AI agents to enterprise MySQL. Minimize token consumption with Code Mode. Ensure secure access via OAuth 2.1.
 
-## Build Securely with Architecture Rules
+## Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
 - **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
 - **Code Mode** (`mysql_execute_code`) significantly reduces token usage.
@@ -17,7 +17,7 @@ Ensure PRs adhere to these SSoT architectural rules:
 - **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
 - **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
 
-## Utilize Session Context
+## Session Context
 
 Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. It provides real-time context:
 
@@ -30,20 +30,21 @@ For detailed session handoff context, search for entries tagged `session-summary
 
 Log review issues using `create_entry` with the `copilot-finding` tag. Agents review these findings during their next session briefings.
 
-## Ensure Excellence with Coding Standards
+## Coding Standards
 
-### Format Names Correctly
+### File Naming
 
 - **Files and folders**: Always kebab-case (`schema-manager.ts`, `tool-filter.ts`)
+  - **Exception**: `.github` repository templates and workflows may use `snake_case`.
 - **Never** PascalCase or camelCase for filenames
 
-### Maintain Modularity
+### Modularity
 
 - **File size limit**: Source files stay under ~500 lines
 - **Split pattern**: `foo.ts` → `foo/` directory with sub-modules + `foo/index.ts` barrel re-export
 - **Logical grouping**: Split by functional cohesion, not arbitrary line counts
 
-### Ensure Type Safety
+### Type Safety
 
 - **Strict TypeScript** — `tsconfig.json` enforces strict mode
 - **Never use `eslint-disable`** to evade standards
@@ -53,7 +54,7 @@ Log review issues using `create_entry` with the `copilot-finding` tag. Agents re
 - **Zod schemas** for all tool input validation at system boundaries
 - **Union types over enums** — use `type Status = "active" | "inactive"` instead of `enum`
 
-### Implement Error Handling
+### Error Handling
 
 All tool handlers return structured error responses — never raw exceptions:
 
@@ -73,7 +74,7 @@ All tool handlers return structured error responses — never raw exceptions:
 > **Note**: Table-querying tools must return `{exists: false, table}` for nonexistent tables. All schema examples must reflect the comprehensive toolset and current config flags.
 > **Anti-Hallucination**: Do not assume existence of tools, resources, or prompts. They must be explicitly listed in the tool-reference or registered in `server/`.
 
-## Navigate the Architecture
+## Architecture
 
 ```
 src/
@@ -97,7 +98,7 @@ src/
 └── utils/                      # Logger, error helpers, utilities
 ```
 
-## Consult Key Reference Files
+## Reference Files
 
 | File                            | Purpose                             |
 | ------------------------------- | ----------------------------------- |
@@ -110,7 +111,7 @@ src/
 | `DOCKER_README.md`              | Docker Hub documentation            |
 
 
-## Complete the Review Checklist
+## Review Checklist
 
 When reviewing PRs, check for:
 

@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
   "name": "@neverinfamous/mysql-mcp",
   "title": "MySQL MCP Server",
-  "description": "Connect AI agents to enterprise MySQL. Minimize tokens with Code Mode. Secure access via OAuth 2.1.",
+  "description": "Enterprise-grade MySQL context provider for AI agents. Increase token efficiency with Code Mode, enforce advanced tool filtering, and secure enterprise data via OAuth 2.1.",
   "version": "0.0.0-development",
   "packages": [
     {

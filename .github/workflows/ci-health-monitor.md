@@ -37,17 +37,17 @@ timeout-minutes: 15
 concurrency: ci-health-monitor
 ---
 
-# Maintain Peak CI Performance
+# CI Health Monitor Instructions
 
 You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your job is to check workflows. Look for deprecations, outdated actions, and health issues.
 
-## Ensure High-Quality Audits
+## Audit Instructions
 
 - **Only report actionable findings.** Don't flag things that are working correctly.
 - **If everything is healthy, report "all clear" via noop.** Do not create empty issues.
 - **Be specific with fix suggestions.** Include the exact file, line, and replacement value.
 
-## Inspect Workflows for Reliability
+## Workflow Inspection
 
 List all `.yml` files in `.github/workflows/`. For each workflow file:
 
@@ -56,7 +56,7 @@ List all `.yml` files in `.github/workflows/`. For each workflow file:
 3. **Check for deprecated features** — such as set-output, save-state, or ::set-output:: commands.
 4. **Check Dependabot config**. Verify .github/dependabot.yml covers used ecosystems (npm, GitHub Actions, Docker).
 
-## Analyze Pipeline Execution Trends
+## Pipeline Execution Trends
 
 Check recent workflow runs (last 7 days):
 
@@ -64,7 +64,7 @@ Check recent workflow runs (last 7 days):
 2. Any runs with annotations or warnings?
 3. Any runs that are abnormally slow?
 
-## Deliver Actionable Insights
+## Reporting Output
 
 Before creating a new issue, check for existing open issues with the `[ci-health]` prefix. Add comments to existing issues instead of creating duplicates. Create a new issue only if none exists.
 

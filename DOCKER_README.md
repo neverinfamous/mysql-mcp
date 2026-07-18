@@ -127,8 +127,7 @@ Run with **only Code Mode enabled**. A single tool provides full capability acce
 
 This exposes just `mysql_execute_code`. Agents write JavaScript against the typed SDK. They compose queries and chain operations across tool groups. They return exactly the needed data in one execution. This mirrors standard serverless edge execution patterns. It ensures fixed token costs.
 
-> **Tip:**
-> **Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
+> **Tip: Maximize Token Savings:** Instruct your AI agent to prefer Code Mode over individual tool calls:
 >
 > _"When using mysql-mcp, prefer `mysql_execute_code` (Code Mode) for multi-step operations. This minimizes token usage."_
 >
@@ -298,7 +297,7 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
 | —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
-| —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
+| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 10000) |
