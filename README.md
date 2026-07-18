@@ -319,7 +319,13 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 
 ## ⚡ Simplify AI Integration with Client Configs
 
-### Configure Cursor or Claude Desktop
+### Configure IDE Settings
+
+Add a configuration to your IDE's MCP settings file:
+
+#### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
+
+**Best for:** General MySQL AI agent tasks. Exposes `mysql_execute_code` for full sandboxed toolset access.
 
 ```json
 {
@@ -330,34 +336,16 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
         "-y",
         "@neverinfamous/mysql-mcp",
         "--transport",
-        "stdio",
-        "--tool-filter",
-        "starter",
-        "--mysql",
-        "mysql://mcp_user:secure_password@localhost:3306/testdb"
+        "stdio"
       ],
-      "timeout": 600
-    }
-  }
-}
-```
-
-### Use Environment Variables (Recommended)
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp": {
-      "command": "npx",
-      "args": ["-y", "@neverinfamous/mysql-mcp", "--transport", "stdio"],
       "env": {
-        "TOOL_FILTER": "starter",
+        "TOOL_FILTER": "codemode",
         "MYSQL_HOST": "localhost",
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "secure_password",
         "MYSQL_DATABASE": "testdb",
-        "MYSQL_XPORT": "33060"
+        "MCP_REQUEST_TIMEOUT": "600000"
       },
       "timeout": 600
     }
@@ -365,7 +353,100 @@ This implementation follows full OAuth 2.1 for production multi-tenant deploymen
 }
 ```
 
-> **Note:** `MYSQL_XPORT` (X Protocol port) defaults to `33060` if omitted. Set MYSQL_XPORT to the Router port for docstore tools.
+#### Option 2: Cluster (Tools for InnoDB Cluster Monitoring)
+
+**Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
+
+> **⚠️ Prerequisites:**
+>
+> - **InnoDB Cluster** must be configured and running with Group Replication enabled
+> - Connect to a cluster node directly (e.g., `localhost:3307`) — NOT a standalone MySQL instance
+> - Use `cluster_admin` or `root` user with appropriate privileges
+> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for cluster setup instructions
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp-cluster": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@neverinfamous/mysql-mcp",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "TOOL_FILTER": "cluster",
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3307",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
+        "MYSQL_DATABASE": "mysql",
+        "MCP_REQUEST_TIMEOUT": "600000"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
+
+#### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
+
+**Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
+
+> **⚠️ Prerequisites:**
+>
+> - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
+> - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
+> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`). This enables `mysqlsh_import_json` and `docstore` tools
+> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
+
+```json
+{
+  "mcpServers": {
+    "mysql-mcp-ecosystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@neverinfamous/mysql-mcp",
+        "--transport",
+        "stdio"
+      ],
+      "env": {
+        "TOOL_FILTER": "ecosystem",
+        "MYSQL_HOST": "localhost",
+        "MYSQL_PORT": "3307",
+        "MYSQL_XPORT": "6448",
+        "MYSQL_USER": "cluster_admin",
+        "MYSQL_PASSWORD": "cluster_password",
+        "MYSQL_DATABASE": "testdb",
+        "MYSQL_ROUTER_URL": "https://localhost:8443",
+        "MYSQL_ROUTER_USER": "rest_api",
+        "MYSQL_ROUTER_PASSWORD": "router_password",
+        "MYSQL_ROUTER_INSECURE": "true",
+        "PROXYSQL_HOST": "localhost",
+        "PROXYSQL_PORT": "6032",
+        "PROXYSQL_USER": "radmin",
+        "PROXYSQL_PASSWORD": "radmin",
+        "MYSQLSH_PATH": "mysqlsh",
+        "MCP_REQUEST_TIMEOUT": "600000"
+      },
+      "timeout": 600
+    }
+  }
+}
+```
+
+> **Note:** Port `6448` is the standard MySQL Router X Protocol port.
+
+**Customization Notes:**
+
+- Replace `/path/to/mysql-mcp/` with your actual installation path
+- Update credentials with your actual values
+- For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
+- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell\\bin\\mysqlsh.exe"`
+- **Router Authentication:** Router REST API authenticates against the InnoDB Cluster metadata. The cluster must be running for authentication to work.
+- **Cluster Resource:** Connect to an InnoDB Cluster node. This unlocks the `mysql://cluster` resource
 
 > **📖 See the [Configuration Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Configuration)** for more configuration options.
 
@@ -484,139 +565,7 @@ To optimize AI context windows, tool groups are categorized into high-level doma
 
 ---
 
-### Configure IDE Settings
 
-Add a configuration to your IDE's MCP settings file:
-
-#### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
-
-**Best for:** General MySQL AI agent tasks. Exposes `mysql_execute_code` for full sandboxed toolset access.
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@neverinfamous/mysql-mcp",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "codemode"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3306",
-        "MYSQL_USER": "mcp_user",
-        "MYSQL_PASSWORD": "secure_password",
-        "MYSQL_DATABASE": "testdb",
-        "MCP_REQUEST_TIMEOUT": "600000"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
-
-#### Option 2: Cluster (Tools for InnoDB Cluster Monitoring)
-
-**Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
-
-> **⚠️ Prerequisites:**
->
-> - **InnoDB Cluster** must be configured and running with Group Replication enabled
-> - Connect to a cluster node directly (e.g., `localhost:3307`) — NOT a standalone MySQL instance
-> - Use `cluster_admin` or `root` user with appropriate privileges
-> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for cluster setup instructions
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-cluster": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@neverinfamous/mysql-mcp",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "cluster"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3307",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql",
-        "MCP_REQUEST_TIMEOUT": "600000"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
-
-#### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
-
-**Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
-
-> **⚠️ Prerequisites:**
->
-> - **InnoDB Cluster** requires a running cluster. This enables Router REST API authentication.
-> - Router REST API uses self-signed HTTPS certificates. Set `MYSQL_ROUTER_INSECURE=true` to bypass verification.
-> - **X Protocol:** InnoDB Cluster includes the MySQL X Plugin by default. Set `MYSQL_XPORT` to the Router's X Protocol port (e.g., `6448`). This enables `mysqlsh_import_json` and `docstore` tools
-> - See [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup) for detailed instructions
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-ecosystem": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@neverinfamous/mysql-mcp",
-        "--transport",
-        "stdio",
-        "--tool-filter",
-        "ecosystem"
-      ],
-      "env": {
-        "MYSQL_HOST": "localhost",
-        "MYSQL_PORT": "3307",
-        "MYSQL_XPORT": "6448",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "testdb",
-        "MYSQL_ROUTER_URL": "https://localhost:8443",
-        "MYSQL_ROUTER_USER": "rest_api",
-        "MYSQL_ROUTER_PASSWORD": "router_password",
-        "MYSQL_ROUTER_INSECURE": "true",
-        "PROXYSQL_HOST": "localhost",
-        "PROXYSQL_PORT": "6032",
-        "PROXYSQL_USER": "radmin",
-        "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "mysqlsh",
-        "MCP_REQUEST_TIMEOUT": "600000"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
-
-> **Note:** Port `6448` is the standard MySQL Router X Protocol port.
-
-**Customization Notes:**
-
-- Replace `/path/to/mysql-mcp/` with your actual installation path
-- Update credentials with your actual values
-- For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
-- For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell\\bin\\mysqlsh.exe"`
-- **Router Authentication:** Router REST API authenticates against the InnoDB Cluster metadata. The cluster must be running for authentication to work.
-- **Cluster Resource:** Connect to an InnoDB Cluster node. This unlocks the `mysql://cluster` resource
-
----
 
 **Legacy Syntax (still supported):**
 If you start with a negative filter (e.g., `-ecosystem`), it enables all tools first. It then subtracts the specified tools.

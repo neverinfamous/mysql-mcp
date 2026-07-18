@@ -185,7 +185,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 
 ### Redact Credentials
 
-- ✅ **Redact Sensitive Fields** — When enabled via the `--audit-redact` flag, the server redacts sensitive fields in logs.
+- ✅ **Redact Sensitive Fields** — The --audit-redact flag redacts sensitive data in logs.
 - ✅ **Recursive sanitization** for nested objects
 
 ### Prevent Log Injection
@@ -206,7 +206,7 @@ docker run --memory=1g --cpus=1 writenotenow/mysql-mcp:latest
 ### Follow Best Practices for Users
 
 1. **Never commit database credentials** to version control — use environment variables
-2. **Use OAuth 2.1 authentication** for HTTP transport in production — never expose HTTP transport without OAuth
+2. **Require OAuth 2.1 authentication for HTTP transport in production.**
 3. **Restrict database user permissions** to minimum required
 4. **Enable SSL** for database connections in production (`ssl=true` in connection string)
 5. **Enable HSTS** when running over HTTPS (`--enable-hsts`)
