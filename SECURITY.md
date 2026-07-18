@@ -157,15 +157,13 @@ The server supports full OAuth 2.1 for production multi-tenant deployments. **Th
 
 ### Patch Dependencies
 
-The Dockerfile patches npm-bundled transitive dependencies for Docker Scout compliance:
-
-- ✅ The build process explicitly patches transitive dependencies. This maintains Docker Scout compliance.
+The Dockerfile explicitly patches npm-bundled transitive dependencies for Docker Scout compliance.
 
 ### Mount Volumes Securely
 
 ```bash
 # Secure volume mounting
-docker run -i -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/app/data writenotenow/mysql-mcp:latest --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
+docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
 ### Apply Resource Limits

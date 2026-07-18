@@ -107,7 +107,7 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 #### Enable Observability via Docker Compose
 
-Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, a local MySQL test database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`:
+Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, MySQL database, and Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`:
 
 > **Linux Users:** For `host.docker.internal` on Linux, add `extra_hosts: - "host.docker.internal:host-gateway"` to your `docker-compose.yml` services.
 
@@ -765,7 +765,7 @@ pnpm run test:coverage
 - Centralized mock factories in `src/__tests__/mocks/`
 - All test files use shared mocks for consistency
 - Tests run without database connection (fully mocked)
-- While unit tests are mocked, the E2E and advanced stress test suites require a live database connection.
+- Unit tests are mocked. The E2E and stress suites require a live database connection.
 
 ### Execute Benchmarks
 

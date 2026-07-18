@@ -15,6 +15,7 @@ services:
     env_file:
       - .env # Copy .env.example to .env to configure
     environment:
+      - MCP_HOST=0.0.0.0
       - MYSQLMCP_PORT=3000
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306

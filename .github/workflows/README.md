@@ -81,7 +81,7 @@ flowchart LR
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
-| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lints, typechecks, builds, unit tests, and smoke tests the Docker container. |
+| [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lints, typechecks, builds, unit tests, runs a `pnpm audit` security scan, and smoke tests the Docker container. |
 | [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects dependency drift across Dockerfile and package.json overrides. |
 
 ### Secure the Pipeline
