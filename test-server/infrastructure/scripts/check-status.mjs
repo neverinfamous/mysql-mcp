@@ -112,13 +112,18 @@ console.log('----------------------------------------');
 const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
 const primaryNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
 const clusterOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'] : ['exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], false);
+const primaryOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"] : ['exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"], false);
+
 if (clusterOut !== null) {
     // Check how many are ONLINE
     const onlineCount = (clusterOut.match(/ONLINE/g) || []).length;
+    const currentPrimary = primaryOut ? primaryOut.trim() : 'Unknown';
     if (onlineCount >= 3) {
         console.log(`✅ Cluster Quorum is ONLINE (${onlineCount} nodes)`);
+        console.log(`   👑 Current Primary: ${currentPrimary}`);
     } else {
         console.log(`⚠️ Cluster Quorum is DEGRADED. Only ${onlineCount} nodes ONLINE.\nDetails:\n${clusterOut.replace(/mysql: \[Warning\].*\n/g, '').trim()}`);
+        console.log(`   👑 Current Primary: ${currentPrimary}`);
         allUp = false;
     }
 } else {
