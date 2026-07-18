@@ -45,7 +45,7 @@ export const JsonSetSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    value: data.value ?? data.val,
+    value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -108,7 +108,7 @@ export const JsonInsertSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    value: data.value ?? data.val,
+    value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -171,7 +171,7 @@ export const JsonReplaceSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    value: data.value ?? data.val,
+    value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -298,7 +298,7 @@ export const JsonArrayAppendSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    value: data.value ?? data.val,
+    value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -361,7 +361,7 @@ export const JsonUpdateSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: data.path,
-    value: data.value ?? data.val,
+    value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
