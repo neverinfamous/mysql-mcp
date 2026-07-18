@@ -182,9 +182,10 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Check if path already exists before insert
-        const checkSql = `SELECT JSON_CONTAINS_PATH(\`${column}\`, 'one', ?) as path_exists FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ?)) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
         const checkResult = await adapter.executeReadQuery(checkSql, [path]);
-        const pathExists = checkResult.rows?.[0]?.["path_exists"] === 1;
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
@@ -192,7 +193,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
 
-        const response = result.rowsAffected === 0
+        const response = totalRows === 0
           ? {
               success: true as const,
               data: {
@@ -201,14 +202,14 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
                 suggestion: "No rows matched the WHERE clause",
               },
             }
-          : pathExists
+          : existingPaths === totalRows
           ? {
               success: true as const,
               data: {
                 rowsAffected: result.rowsAffected,
                 changed: false,
                 suggestion:
-                  "Path already exists; value was not modified (JSON_INSERT only inserts new paths)",
+                  "Path already exists in all matched rows; value was not modified (JSON_INSERT only inserts new paths)",
               },
             }
           : {
@@ -251,9 +252,10 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Check if path exists before replace
-        const checkSql = `SELECT JSON_CONTAINS_PATH(\`${column}\`, 'one', ?) as path_exists FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ?)) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
         const checkResult = await adapter.executeReadQuery(checkSql, [path]);
-        const pathExists = checkResult.rows?.[0]?.["path_exists"] === 1;
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
@@ -261,7 +263,7 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
 
-        const response = result.rowsAffected === 0
+        const response = totalRows === 0
           ? {
               success: true as const,
               data: {
@@ -270,14 +272,14 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
                 suggestion: "No rows matched the WHERE clause",
               },
             }
-          : !pathExists
+          : existingPaths === 0
           ? {
               success: true as const,
               data: {
                 rowsAffected: result.rowsAffected,
                 changed: false,
                 suggestion:
-                  "Path does not exist; value was not modified (JSON_REPLACE only updates existing paths)",
+                  "Path does not exist in any matched rows; value was not modified (JSON_REPLACE only updates existing paths)",
               },
             }
           : {
