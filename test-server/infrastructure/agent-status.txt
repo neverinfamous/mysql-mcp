@@ -1,0 +1,1152 @@
+Getting the status from the agent.
+
+===============
+Agent (v7.81.0)
+===============
+  Status date: 2026-07-18 21:10:06.663 UTC (1784409006663)
+  Agent start: 2026-07-18 20:36:30.288 UTC (1784406990288)
+  Pid: 3337
+  Go Version: go1.26.4
+  Python Version: 3.13.14
+  Build arch: amd64
+  Agent flavor: agent
+  FIPS Mode: not available
+  Log Level: info
+  Configuration lib used: nodetreemodel
+
+  Paths
+  =====
+    Config File: /etc/datadog-agent/datadog.yaml
+    conf.d: /etc/datadog-agent/conf.d
+    checks.d: /etc/datadog-agent/checks.d
+
+========
+Hostname
+========
+
+  hostname: adamic-wsl2
+  hostname-resolution-version: 1
+  socket-fqdn: 05c9e93dc63c
+  socket-hostname: 05c9e93dc63c
+  host tags:
+    env:development
+    source:wsl2
+  hostname provider: configuration
+
+
+Host Info
+=========
+  bootTime: 2026-07-18 20:35:07 UTC (1784406907000)
+  hostId: 18c01328-16fa-46d5-8791-ee768abfa702
+  kernelArch: x86_64
+  kernelVersion: 6.18.35.2-microsoft-standard-WSL2
+  os: linux
+  platform: ubuntu
+  platformFamily: debian
+  platformVersion: 24.04
+  procs: 120
+  uptime: 1m24s
+  virtualizationRole: guest
+  virtualizationSystem: docker
+
+
+======
+Clocks
+======
+
+NTP offset: 711.736ms
+Intake offset: 490.358ms
+
+========
+Metadata
+========
+
+  agent_startup_time_ms: 1784406990620
+  agent_version: 7.81.0
+  application_monitoring_config: []
+  application_monitoring_config_fleet: []
+  auto_instrumentation_modes: []
+  config_apm_dd_url: 
+  config_dd_url: https://app.datadoghq.com
+  config_eks_fargate: false
+  config_id: 
+  config_logs_dd_url: 
+  config_logs_socks5_proxy_address: 
+  config_no_proxy: [169.254.169.254 100.100.100.200]
+  config_process_dd_url: 
+  config_proxy_http: 
+  config_proxy_https: 
+  config_site: datadoghq.com
+  diagnostics: map[connectivity:[{success Agent package apt  map[endpoint:https://apt.datadoghq.com]} {success Agent installation  map[endpoint:https://install.datadoghq.com]} {success Agent package yum  map[endpoint:https://yum.datadoghq.com]} {success Agent keys  map[endpoint:https://keys.datadoghq.com]} {success LLM obs  map[endpoint:https://llmobs-intake.datadoghq.com./api/v2/llmobs]} {failure APM traces invalid status code map[endpoint:https://trace.agent.datadoghq.com./_health raw_error:invalid status code: 404]} {success Remote configuration  map[endpoint:https://config.datadoghq.com./_health]} {success Connectivity to https://dbm-metrics-intake.datadoghq.com./api/v2/databasequery  map[]} {success Connectivity to https://dbm-metrics-intake.datadoghq.com./api/v2/dbmmetrics  map[]} {success Connectivity to https://dbm-metrics-intake.datadoghq.com./api/v2/dbmmetadata  map[]} {success Connectivity to https://dbm-metrics-intake.datadoghq.com./api/v2/dbmactivity  map[]} {success Connectivity to https://dbm-metrics-intake.datadoghq.com./api/v2/dbmhealth  map[]} {success Connectivity to https://dbm-metrics-intake.datadoghq.com./api/v2/dbmcolumnstatistics  map[]} {success Connectivity to https://ndm-intake.datadoghq.com./api/v2/ndm  map[]} {success Connectivity to https://snmp-traps-intake.datadoghq.com./api/v2/ndmtraps  map[]} {success Connectivity to https://ndmflow-intake.datadoghq.com./api/v2/ndmflow  map[]} {success Connectivity to https://netpath-intake.datadoghq.com./api/v2/netpath  map[]} {success Connectivity to https://ndm-intake.datadoghq.com./api/v2/ndmconfig  map[]} {success Connectivity to https://contlcycle-intake.datadoghq.com./api/v2/contlcycle  map[]} {success Connectivity to https://contimage-intake.datadoghq.com./api/v2/contimage  map[]} {success Connectivity to https://sbom-intake.datadoghq.com./api/v2/sbom  map[]} {success Connectivity to https://resources-intake.datadoghq.com./api/v2/genresources  map[]} {success Connectivity to https://http-synthetics.datadoghq.com./api/v2/synthetics  map[]} {success Connectivity to https://trace.agent.datadoghq.com./api/v2/data_streams_messages  map[]} {success HTTPS connectivity to https://agent-http-intake.logs.datadoghq.com./api/v2/logs  map[]} {success Connectivity to https://app.datadoghq.com./api/v1/series  map[]} {success Connectivity to https://app.datadoghq.com./api/v1/check_run  map[]} {success Connectivity to https://app.datadoghq.com./intake/  map[]} {success Connectivity to https://app.datadoghq.com./api/v1/validate  map[]} {success Connectivity to https://app.datadoghq.com./api/v1/metadata  map[]} {success Connectivity to https://app.datadoghq.com./api/v2/series  map[]} {success Connectivity to https://app.datadoghq.com./api/beta/sketches  map[]} {success Connectivity to https://7-81-0-flare.agent.datadoghq.com./support/flare  map[]}]]
+  feature_apm_enabled: true
+  feature_auto_instrumentation_enabled: false
+  feature_container_images_enabled: true
+  feature_csm_vm_containers_enabled: false
+  feature_csm_vm_hosts_enabled: false
+  feature_cspm_enabled: false
+  feature_cspm_host_benchmarks_enabled: false
+  feature_cws_enabled: false
+  feature_cws_network_enabled: true
+  feature_cws_remote_config_enabled: true
+  feature_cws_security_profiles_enabled: false
+  feature_discovery_enabled: true
+  feature_discovery_service_map_enabled: false
+  feature_dynamic_instrumentation_enabled: false
+  feature_gpu_monitoring_enabled: false
+  feature_imdsv2_enabled: false
+  feature_logs_enabled: true
+  feature_networks_enabled: true
+  feature_networks_http_enabled: true
+  feature_networks_https_enabled: true
+  feature_oom_kill_enabled: false
+  feature_otlp_enabled: false
+  feature_process_enabled: true
+  feature_process_language_detection_enabled: false
+  feature_processes_container_enabled: true
+  feature_remote_configuration_enabled: true
+  feature_remote_updates_enabled: true
+  feature_synthetics_collector_enabled: false
+  feature_tcp_queue_length_enabled: false
+  feature_traceroute_enabled: false
+  feature_usm_enabled: false
+  feature_usm_go_tls_enabled: true
+  feature_usm_http2_enabled: false
+  feature_usm_istio_enabled: true
+  feature_usm_kafka_enabled: false
+  feature_usm_postgres_enabled: false
+  feature_usm_redis_enabled: false
+  feature_windows_crash_detection_enabled: false
+  fips_mode: false
+  flavor: agent
+  fleet_policies_applied: []
+  hostname_source: configuration
+  infrastructure_mode: full
+  install_method_installer_version: docker
+  install_method_tool: docker
+  install_method_tool_version: docker
+  logs_transport: HTTP
+  package_version: 7.81.0
+  system_probe_core_enabled: true
+  system_probe_gateway_lookup_enabled: true
+  system_probe_kernel_headers_download_enabled: false
+  system_probe_max_connections_per_message: 600
+  system_probe_prebuilt_fallback_enabled: false
+  system_probe_protocol_classification_enabled: true
+  system_probe_root_namespace_enabled: true
+  system_probe_runtime_compilation_enabled: false
+  system_probe_telemetry_enabled: false
+  system_probe_track_tcp_4_connections: true
+  system_probe_track_tcp_6_connections: true
+  system_probe_track_udp_4_connections: true
+  system_probe_track_udp_6_connections: true
+
+=================
+HA Agent Metadata
+=================
+
+
+=========
+Collector
+=========
+
+
+  Running Checks
+  ==============
+
+    container
+    ---------
+      Instance ID: container [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/container.d/conf.yaml[0]
+      Total Runs: 132
+      Metric Samples: Last Run: 417, Total: 52,629
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 21ms
+      Last Execution Date : 2026-07-18 21:10:06.049 UTC (1784409006049)
+      Last Successful Execution Date : 2026-07-18 21:10:06 UTC (1784409006000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/container.d/conf.yaml[0]
+
+
+    cpu
+    ---
+      Instance ID: cpu [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/cpu.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 19, Total: 2,444
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 0s
+      Last Execution Date : 2026-07-18 21:09:55.018 UTC (1784408995018)
+      Last Successful Execution Date : 2026-07-18 21:09:55 UTC (1784408995000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/cpu.d/conf.yaml.default[0]
+
+
+    disk
+    ----
+      Instance ID: disk:e2c8107ae05fae7b [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/disk.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 246, Total: 31,734
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 21ms
+      Last Execution Date : 2026-07-18 21:10:02.034 UTC (1784409002034)
+      Last Successful Execution Date : 2026-07-18 21:10:02 UTC (1784409002000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/disk.d/conf.yaml.default[0]
+
+
+    docker
+    ------
+      Instance ID: docker [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/docker.d/conf.yaml[0]
+      Total Runs: 131
+      Metric Samples: Last Run: 107, Total: 13,878
+      Events: Last Run: 1, Total: 21
+      Service Checks: Last Run: 1, Total: 138
+      Average Execution Time : 38ms
+      Last Execution Date : 2026-07-18 21:09:58.059 UTC (1784408998059)
+      Last Successful Execution Date : 2026-07-18 21:09:58 UTC (1784408998000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/docker.d/conf.yaml[0]
+
+
+    file_handle
+    -----------
+      Instance ID: file_handle [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/file_handle.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 5, Total: 645
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 0s
+      Last Execution Date : 2026-07-18 21:09:54.019 UTC (1784408994019)
+      Last Successful Execution Date : 2026-07-18 21:09:54 UTC (1784408994000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/file_handle.d/conf.yaml.default[0]
+
+
+    io
+    --
+      Instance ID: io [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/io.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 54, Total: 6,930
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 0s
+      Last Execution Date : 2026-07-18 21:10:01.018 UTC (1784409001018)
+      Last Successful Execution Date : 2026-07-18 21:10:01 UTC (1784409001000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/io.d/conf.yaml.default[0]
+
+
+    load
+    ----
+      Instance ID: load [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/load.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 6, Total: 774
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 0s
+      Last Execution Date : 2026-07-18 21:09:53.017 UTC (1784408993017)
+      Last Successful Execution Date : 2026-07-18 21:09:53 UTC (1784408993000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/load.d/conf.yaml.default[0]
+
+
+    memory
+    ------
+      Instance ID: memory [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/memory.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 20, Total: 2,580
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 0s
+      Last Execution Date : 2026-07-18 21:10:00.017 UTC (1784409000017)
+      Last Successful Execution Date : 2026-07-18 21:10:00 UTC (1784409000000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/memory.d/conf.yaml.default[0]
+
+
+    mysql (15.17.2)
+    ---------------
+      Instance ID: mysql:2f186a1f359d564e [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+      Total Runs: 130
+      Metric Samples: Last Run: 165, Total: 21,871
+      Events: Last Run: 0, Total: 0
+      Database Monitoring Metadata Samples: Last Run: 1, Total: 7
+      Service Checks: Last Run: 1, Total: 130
+      Average Execution Time : 24ms
+      Last Execution Date : 2026-07-18 21:10:04.064 UTC (1784409004064)
+      Last Successful Execution Date : 2026-07-18 21:10:04 UTC (1784409004000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+        flavor: MySQL
+        resolved_hostname: adamic-wsl2
+        version.build: unspecified
+        version.major: 9
+        version.minor: 1
+        version.patch: 0
+        version.raw: 9.1.0+unspecified
+        version.scheme: semver
+
+      Instance ID: mysql:7f31c60d67758a6d [ERROR]
+      Configuration Source: file:/etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+      Total Runs: 61
+      Metric Samples: Last Run: 0, Total: 0
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 1, Total: 61
+      Average Execution Time : 6ms
+      Last Execution Date : 2026-07-18 21:10:01.022 UTC (1784409001022)
+      Last Successful Execution Date : Never
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+      Error: (2003, "Can't connect to MySQL server on '172.19.0.15' ([Errno 111] Connection refused)")
+      Traceback (most recent call last):
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/pymysql/connections.py", line 661, in connect
+          sock = socket.create_connection(
+              (self.host, self.port), self.connect_timeout, **kwargs
+          )
+        File "/opt/datadog-agent/embedded/lib/python3.13/socket.py", line 868, in create_connection
+          raise exceptions[0]
+        File "/opt/datadog-agent/embedded/lib/python3.13/socket.py", line 853, in create_connection
+          sock.connect(sa)
+          ~~~~~~~~~~~~^^^^
+      ConnectionRefusedError: [Errno 111] Connection refused
+
+      During handling of the above exception, another exception occurred:
+
+      Traceback (most recent call last):
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/datadog_checks/base/checks/base.py", line 1575, in run
+          self.check(instance)
+          ~~~~~~~~~~^^^^^^^^^^
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/datadog_checks/mysql/mysql.py", line 438, in check
+          raise e
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/datadog_checks/mysql/mysql.py", line 393, in check
+          with self._connect() as db:
+               ~~~~~~~~~~~~~^^
+        File "/opt/datadog-agent/embedded/lib/python3.13/contextlib.py", line 141, in __enter__
+          return next(self.gen)
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/datadog_checks/mysql/mysql.py", line 562, in _connect
+          db = connect_with_session_variables(**connect_args)
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/datadog_checks/mysql/util.py", line 53, in connect_with_session_variables
+          db = pymysql.connect(**connect_args)
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/pymysql/connections.py", line 365, in __init__
+          self.connect()
+          ~~~~~~~~~~~~^^
+        File "/opt/datadog-agent/embedded/lib/python3.13/site-packages/pymysql/connections.py", line 723, in connect
+          raise exc
+      pymysql.err.OperationalError: (2003, "Can't connect to MySQL server on '172.19.0.15' ([Errno 111] Connection refused)")
+      Instance ID: mysql:df2b54db6cab70bf [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+      Total Runs: 62
+      Metric Samples: Last Run: 161, Total: 10,295
+      Events: Last Run: 0, Total: 0
+      Database Monitoring Metadata Samples: Last Run: 1, Total: 4
+      Service Checks: Last Run: 1, Total: 62
+      Average Execution Time : 21ms
+      Last Execution Date : 2026-07-18 21:09:54.056 UTC (1784408994056)
+      Last Successful Execution Date : 2026-07-18 21:09:54 UTC (1784408994000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+        flavor: MySQL
+        resolved_hostname: adamic-wsl2
+        version.build: unspecified
+        version.major: 9
+        version.minor: 1
+        version.patch: 0
+        version.raw: 9.1.0+unspecified
+        version.scheme: semver
+
+      Instance ID: mysql:e4aa3dca1dbd9dc0 [OK]
+      Configuration Source: container:docker://0b4927d8d9882a5380e7d162ee2ebe84f805a715715db1dca6db3ab790df4e0f[0]
+      Total Runs: 90
+      Metric Samples: Last Run: 99, Total: 9,437
+      Events: Last Run: 0, Total: 0
+      Database Monitoring Metadata Samples: Last Run: 1, Total: 5
+      Service Checks: Last Run: 1, Total: 90
+      Average Execution Time : 40ms
+      Last Execution Date : 2026-07-18 21:10:02.048 UTC (1784409002048)
+      Last Successful Execution Date : 2026-07-18 21:10:02 UTC (1784409002000)
+      metadata:
+        config.source: docker://0b4927d8d9882a5380e7d162ee2ebe84f805a715715db1dca6db3ab790df4e0f[0]
+        flavor: MySQL
+        resolved_hostname: 172.19.0.6
+        version.build: unspecified
+        version.major: 9
+        version.minor: 1
+        version.patch: 0
+        version.raw: 9.1.0+unspecified
+        version.scheme: semver
+
+      Instance ID: mysql:fd15fc61b0b63f53 [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+      Total Runs: 130
+      Metric Samples: Last Run: 165, Total: 21,786
+      Events: Last Run: 0, Total: 0
+      Database Monitoring Metadata Samples: Last Run: 1, Total: 7
+      Service Checks: Last Run: 1, Total: 130
+      Average Execution Time : 21ms
+      Last Execution Date : 2026-07-18 21:09:57.03 UTC (1784408997030)
+      Last Successful Execution Date : 2026-07-18 21:09:57 UTC (1784408997000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/mysql.d/conf.yaml[0]
+        flavor: MySQL
+        resolved_hostname: adamic-wsl2
+        version.build: unspecified
+        version.major: 9
+        version.minor: 1
+        version.patch: 0
+        version.raw: 9.1.0+unspecified
+        version.scheme: semver
+
+
+    network
+    -------
+      Instance ID: network [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/network.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 232, Total: 29,384
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 1ms
+      Last Execution Date : 2026-07-18 21:09:52.02 UTC (1784408992020)
+      Last Successful Execution Date : 2026-07-18 21:09:52 UTC (1784408992000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/network.d/conf.yaml.default[0]
+
+
+    ntp
+    ---
+      Instance ID: ntp:3c427a42a70bbf8 [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/ntp.d/conf.yaml.default[0]
+      Total Runs: 3
+      Metric Samples: Last Run: 2, Total: 6
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 1, Total: 3
+      Average Execution Time : 780ms
+      Last Execution Date : 2026-07-18 21:07:51.854 UTC (1784408871854)
+      Last Successful Execution Date : 2026-07-18 21:07:51 UTC (1784408871000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/ntp.d/conf.yaml.default[0]
+
+
+    openmetrics (7.4.1)
+    -------------------
+      Instance ID: openmetrics:mysql_mcp:466911637b334c34 [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/openmetrics.d/conf.yaml[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 285, Total: 31,616
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 1, Total: 129
+      Average Execution Time : 14ms
+      Last Execution Date : 2026-07-18 21:09:56.039 UTC (1784408996039)
+      Last Successful Execution Date : 2026-07-18 21:09:56 UTC (1784408996000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/openmetrics.d/conf.yaml[0]
+
+
+    proxysql (7.7.0)
+    ----------------
+      Instance ID: proxysql:9ca4b07275f687df [OK]
+      Configuration Source: container:docker://5f777910ac29439bde4fbb7ffbf7fc519105ece46aa517811ecce02f51feead2[0]
+      Total Runs: 128
+      Metric Samples: Last Run: 815, Total: 104,320
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 2, Total: 256
+      Average Execution Time : 52ms
+      Last Execution Date : 2026-07-18 21:09:58.058 UTC (1784408998058)
+      Last Successful Execution Date : 2026-07-18 21:09:58 UTC (1784408998000)
+      metadata:
+        config.source: docker://5f777910ac29439bde4fbb7ffbf7fc519105ece46aa517811ecce02f51feead2[0]
+        version.build: gcdfcfdc
+        version.major: 2
+        version.minor: 6
+        version.patch: 3
+        version.raw: 2.6.3-107+gcdfcfdc
+        version.release: 107
+        version.scheme: semver
+
+
+    redisdb (8.8.0)
+    ---------------
+      Instance ID: redisdb:90820480451f41f4 [OK]
+      Configuration Source: container:docker://ab043fd2f1e9f1579b1d1dad896ccd8615bb6dd1f42afc645e48b8f4853b4cd6[0]
+      Total Runs: 128
+      Metric Samples: Last Run: 148, Total: 18,944
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 1, Total: 128
+      Average Execution Time : 4ms
+      Last Execution Date : 2026-07-18 21:10:05.022 UTC (1784409005022)
+      Last Successful Execution Date : 2026-07-18 21:10:05 UTC (1784409005000)
+      metadata:
+        config.source: docker://ab043fd2f1e9f1579b1d1dad896ccd8615bb6dd1f42afc645e48b8f4853b4cd6[0]
+        version.major: 7
+        version.minor: 4
+        version.patch: 0
+        version.raw: 7.4.0
+        version.scheme: semver
+
+      Instance ID: redisdb:9ac9ed9d95d23edc [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/redisdb.d/conf.yaml[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 148, Total: 19,092
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 1, Total: 129
+      Average Execution Time : 4ms
+      Last Execution Date : 2026-07-18 21:10:03.022 UTC (1784409003022)
+      Last Successful Execution Date : 2026-07-18 21:10:03 UTC (1784409003000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/redisdb.d/conf.yaml[0]
+        version.major: 7
+        version.minor: 4
+        version.patch: 0
+        version.raw: 7.4.0
+        version.scheme: semver
+
+
+    uptime
+    ------
+      Instance ID: uptime [OK]
+      Configuration Source: file:/etc/datadog-agent/conf.d/uptime.d/conf.yaml.default[0]
+      Total Runs: 129
+      Metric Samples: Last Run: 1, Total: 129
+      Events: Last Run: 0, Total: 0
+      Service Checks: Last Run: 0, Total: 0
+      Average Execution Time : 0s
+      Last Execution Date : 2026-07-18 21:09:59.017 UTC (1784408999017)
+      Last Successful Execution Date : 2026-07-18 21:09:59 UTC (1784408999000)
+      metadata:
+        config.source: /etc/datadog-agent/conf.d/uptime.d/conf.yaml.default[0]
+
+  Check Worker Utilization
+  ========================
+    Total Workers: 4
+    Average Utilization: 0.5%
+
+    Top Workers (by utilization):
+      worker_2: 1.0%
+      worker_4: 1.0%
+      worker_1: 0.0%
+      worker_3: 0.0%
+
+==========
+Aggregator
+==========
+
+  Checks Metric Sample: 434,700
+  Dogstatsd Metric Sample: 18,478
+  Event: 22
+  Events Flushed: 22
+  Number Of Flushes: 131
+  Series Flushed: 430,632
+  Service Check: 1,353
+  Service Checks Flushed: 1,476
+  Database Monitoring Health Events: 12
+  Database Monitoring Metadata Samples: 27
+
+=========
+APM Agent
+=========
+
+
+  Status: Not running or unreachable on localhost:5012.
+  Error: Get "https://localhost:5012/debug/vars": dial tcp [::1]:5012: connect: connection refused
+
+=============
+Autodiscovery
+=============
+
+  Enabled Features
+  ================
+    docker
+    process
+
+=============
+Delegatedauth
+=============
+
+Delegated Authentication is not enabled
+
+=========
+DogStatsD
+=========
+
+  Event Packets: 0
+  Event Parse Errors: 0
+  Metric Packets: 18,083
+  Metric Parse Errors: 0
+  Service Check Packets: 0
+  Service Check Parse Errors: 0
+  Udp Bytes: 3,034,005
+  Udp Packet Reading Errors: 0
+  Udp Packets: 4,097
+  Uds Bytes: 0
+  Uds Origin Detection Errors: 0
+  Uds Packet Reading Errors: 0
+  Uds Packets: 1
+  Unterminated Metric Errors: 0
+
+Tip: For troubleshooting, enable 'dogstatsd_metrics_stats_enable' in the main datadog.yaml file to generate Dogstatsd logs. Once 'dogstatsd_metrics_stats_enable' is enabled, users can also use 'dogstatsd-stats' command to get visibility of the latest collected metrics.
+
+=========
+Endpoints
+=========
+
+  https://app.datadoghq.com. - API Key ending with:
+      - 7e31
+
+================
+Fleet Automation
+================
+
+
+  Fleet Management is disabled
+
+  Remote Management Status:    Enabled
+  Datadog Installer Status:    Not running
+
+
+=========
+Forwarder
+=========
+
+  Transactions
+  ============
+    Cluster: 0
+    ClusterRole: 0
+    ClusterRoleBinding: 0
+    CronJob: 0
+    CustomResource: 0
+    CustomResourceDefinition: 0
+    DaemonSet: 0
+    Deployment: 0
+    Dropped: 0
+    ECSTask: 0
+    EndpointSlice: 0
+    HighPriorityQueueFull: 0
+    HorizontalPodAutoscaler: 0
+    Ingress: 0
+    Job: 0
+    KubeletConfiguration: 0
+    LimitRange: 0
+    Namespace: 0
+    NetworkPolicy: 0
+    Node: 0
+    OrchestratorManifest: 0
+    PersistentVolume: 0
+    PersistentVolumeClaim: 0
+    Pod: 0
+    PodDisruptionBudget: 0
+    ReplicaSet: 0
+    Requeued: 0
+    Retried: 0
+    RetryQueueSize: 0
+    Role: 0
+    RoleBinding: 0
+    Service: 0
+    ServiceAccount: 0
+    StatefulSet: 0
+    StorageClass: 0
+    VerticalPodAutoscaler: 0
+
+  Transaction Successes
+  =====================
+    Total number: 608
+    Successes By Endpoint:
+      check_run_v1: 131
+      intake: 27
+      metadata_v1: 29
+      process: 290
+      series_v3: 131
+
+  On-disk storage
+  ===============
+    On-disk storage is disabled. Configure `forwarder_storage_max_size_in_bytes` to enable it.
+
+  API Keys status
+  ===============
+    API key ending with 7e31: API Key valid
+
+=========
+JMX Fetch
+=========
+
+  Information
+  ==================
+  Initialized checks
+  ==================
+    no checks
+
+  Failed checks
+  =============
+    no checks
+
+
+==========
+Logs Agent
+==========
+
+    Reliable: Sending compressed logs in HTTPS to agent-http-intake.logs.datadoghq.com. on port 443 (API Key: ****************************7e31)
+    BytesSent: 1293882
+    EncodedBytesSent: 147538
+    LogsProcessed: 1550
+    LogsSent: 1589
+    LogsTruncated: 0
+    RetryCount: 0
+    RetryTimeSpent: 0s
+    CoreAgentProcessOpenFiles: 54
+    OSFileLimit: 65536
+  ============
+  Integrations
+  ============
+
+  docker
+  ------
+    - Type: file
+      Identifier: 7bc4081c2dfaf4cf15417691608f23eac98b0f7a76535ddab6543394c66dc862
+      Path: /var/lib/docker/containers/7bc4081c2dfaf4cf15417691608f23eac98b0f7a76535ddab6543394c66dc862/7bc4081c2dfaf4cf15417691608f23eac98b0f7a76535ddab6543394c66dc862-json.log
+      Service: mysql-node3
+      Source: mysql
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/7bc4081c2dfaf4cf15417691608f23eac98b0f7a76535ddab6543394c66dc862/7bc4081c2dfaf4cf15417691608f23eac98b0f7a76535ddab6543394c66dc862-json.log  
+      Bytes Read: 54062   
+      Pipeline Latency:
+        Average Latency: 53.573975ms
+        24h Average Latency: 53.573975ms
+        Peak Latency: 1.463766333s
+        24h Peak Latency: 1.463766333s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: eb34a79771f49cf74514f87d66a77f90ea754f10ff20dc8fc89bf1385eb523fb
+      Path: /var/lib/docker/containers/eb34a79771f49cf74514f87d66a77f90ea754f10ff20dc8fc89bf1385eb523fb/eb34a79771f49cf74514f87d66a77f90ea754f10ff20dc8fc89bf1385eb523fb-json.log
+      Service: mysql-node2
+      Source: mysql
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/eb34a79771f49cf74514f87d66a77f90ea754f10ff20dc8fc89bf1385eb523fb/eb34a79771f49cf74514f87d66a77f90ea754f10ff20dc8fc89bf1385eb523fb-json.log  
+      Bytes Read: 49330   
+      Pipeline Latency:
+        Average Latency: 73.291521ms
+        24h Average Latency: 73.291521ms
+        Peak Latency: 1.02629775s
+        24h Peak Latency: 1.02629775s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 9b660a1f91b0ce822e9c6ca1587d55b22c3ff7639c5b449742ce1f189a5f5fe7
+      Path: /var/lib/docker/containers/9b660a1f91b0ce822e9c6ca1587d55b22c3ff7639c5b449742ce1f189a5f5fe7/9b660a1f91b0ce822e9c6ca1587d55b22c3ff7639c5b449742ce1f189a5f5fe7-json.log
+      Service: mysql-node1
+      Source: mysql
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/9b660a1f91b0ce822e9c6ca1587d55b22c3ff7639c5b449742ce1f189a5f5fe7/9b660a1f91b0ce822e9c6ca1587d55b22c3ff7639c5b449742ce1f189a5f5fe7-json.log  
+      Bytes Read: 6688   
+      Pipeline Latency:
+        Average Latency: 74.605059ms
+        24h Average Latency: 74.605059ms
+        Peak Latency: 1.001117329s
+        24h Peak Latency: 1.001117329s  
+      Processing Rules: No rules applied 
+
+  proxysql
+  --------
+    - Type: file
+      Identifier: 5f777910ac29439bde4fbb7ffbf7fc519105ece46aa517811ecce02f51feead2
+      Path: /var/lib/docker/containers/5f777910ac29439bde4fbb7ffbf7fc519105ece46aa517811ecce02f51feead2/5f777910ac29439bde4fbb7ffbf7fc519105ece46aa517811ecce02f51feead2-json.log
+      Service: proxysql
+      Source: proxysql
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/5f777910ac29439bde4fbb7ffbf7fc519105ece46aa517811ecce02f51feead2/5f777910ac29439bde4fbb7ffbf7fc519105ece46aa517811ecce02f51feead2-json.log  
+      Bytes Read: 11838   
+      Pipeline Latency:
+        Average Latency: 34.313545ms
+        24h Average Latency: 34.313545ms
+        Peak Latency: 1.002217908s
+        24h Peak Latency: 1.002217908s  
+      Processing Rules: No rules applied 
+
+  redisdb
+  -------
+    - Type: file
+      Identifier: ab043fd2f1e9f1579b1d1dad896ccd8615bb6dd1f42afc645e48b8f4853b4cd6
+      Path: /var/lib/docker/containers/ab043fd2f1e9f1579b1d1dad896ccd8615bb6dd1f42afc645e48b8f4853b4cd6/ab043fd2f1e9f1579b1d1dad896ccd8615bb6dd1f42afc645e48b8f4853b4cd6-json.log
+      Service: redis-server
+      Source: redis
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/ab043fd2f1e9f1579b1d1dad896ccd8615bb6dd1f42afc645e48b8f4853b4cd6/ab043fd2f1e9f1579b1d1dad896ccd8615bb6dd1f42afc645e48b8f4853b4cd6-json.log  
+      Bytes Read: 0   
+      Pipeline Latency:
+        Average Latency: 0s
+        24h Average Latency: 0s
+        Peak Latency: 0s
+        24h Peak Latency: 0s  
+      Processing Rules: No rules applied 
+
+  mysql_mcp_logs
+  --------------
+    - Type: file
+      Path: /var/log/mysql-mcp/agent-issues.jsonl
+      Service: mysql_mcp
+      Source: mysql_mcp
+      Status: OK
+      Inputs:
+        /var/log/mysql-mcp/agent-issues.jsonl  
+      Bytes Read: 0   
+      Pipeline Latency:
+        Average Latency: 0s
+        24h Average Latency: 0s
+        Peak Latency: 0s
+        24h Peak Latency: 0s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Path: /var/log/mysql-mcp/mcp-audit.jsonl
+      Service: mysql_mcp
+      Source: mysql_mcp
+      Status: OK
+      Inputs:
+        /var/log/mysql-mcp/mcp-audit.jsonl  
+      Bytes Read: 3716   
+      Pipeline Latency:
+        Average Latency: 243.271┬╡s
+        24h Average Latency: 243.271┬╡s
+        Peak Latency: 371.539┬╡s
+        24h Peak Latency: 371.539┬╡s  
+      Processing Rules: No rules applied 
+
+  container_collect_all
+  ---------------------
+    - Type: file
+      Identifier: 13c0aaaccec4df72edd2fde03a3cc78986883cf42d5e63b64454111099265c0a
+      Path: /var/lib/docker/containers/13c0aaaccec4df72edd2fde03a3cc78986883cf42d5e63b64454111099265c0a/13c0aaaccec4df72edd2fde03a3cc78986883cf42d5e63b64454111099265c0a-json.log
+      Service: grafana
+      Source: grafana
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/13c0aaaccec4df72edd2fde03a3cc78986883cf42d5e63b64454111099265c0a/13c0aaaccec4df72edd2fde03a3cc78986883cf42d5e63b64454111099265c0a-json.log  
+      Bytes Read: 45555   
+      Pipeline Latency:
+        Average Latency: 101.52479ms
+        24h Average Latency: 101.52479ms
+        Peak Latency: 1.81737865s
+        24h Peak Latency: 1.81737865s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 2052f49f3459ec392ad89f2c8637b2878681d5a1f33c29021047916a46b59895
+      Path: /var/lib/docker/containers/2052f49f3459ec392ad89f2c8637b2878681d5a1f33c29021047916a46b59895/2052f49f3459ec392ad89f2c8637b2878681d5a1f33c29021047916a46b59895-json.log
+      Service: loki
+      Source: loki
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/2052f49f3459ec392ad89f2c8637b2878681d5a1f33c29021047916a46b59895/2052f49f3459ec392ad89f2c8637b2878681d5a1f33c29021047916a46b59895-json.log  
+      Bytes Read: 74515   
+      Pipeline Latency:
+        Average Latency: 194.077837ms
+        24h Average Latency: 194.077837ms
+        Peak Latency: 1.818382034s
+        24h Peak Latency: 1.818382034s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 2650ef7ee6764421ed0d773cffbce11f94f73b9de89096242c1f4fe4df1870e2
+      Path: /var/lib/docker/containers/2650ef7ee6764421ed0d773cffbce11f94f73b9de89096242c1f4fe4df1870e2/2650ef7ee6764421ed0d773cffbce11f94f73b9de89096242c1f4fe4df1870e2-json.log
+      Service: prometheus
+      Source: prometheus
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/2650ef7ee6764421ed0d773cffbce11f94f73b9de89096242c1f4fe4df1870e2/2650ef7ee6764421ed0d773cffbce11f94f73b9de89096242c1f4fe4df1870e2-json.log  
+      Bytes Read: 7220   
+      Pipeline Latency:
+        Average Latency: 62.049183ms
+        24h Average Latency: 62.049183ms
+        Peak Latency: 1.00320823s
+        24h Peak Latency: 1.00320823s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 292cdecea6fbd54a295254ec519c46ac4579ddcd3fab9398ae15a6d013cf7fcd
+      Path: /var/lib/docker/containers/292cdecea6fbd54a295254ec519c46ac4579ddcd3fab9398ae15a6d013cf7fcd/292cdecea6fbd54a295254ec519c46ac4579ddcd3fab9398ae15a6d013cf7fcd-json.log
+      Service: adminer
+      Source: adminer
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/292cdecea6fbd54a295254ec519c46ac4579ddcd3fab9398ae15a6d013cf7fcd/292cdecea6fbd54a295254ec519c46ac4579ddcd3fab9398ae15a6d013cf7fcd-json.log  
+      Bytes Read: 154   
+      Pipeline Latency:
+        Average Latency: 1.001751419s
+        24h Average Latency: 1.001751419s
+        Peak Latency: 1.001751419s
+        24h Peak Latency: 1.001751419s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 31702556dd3951e9af87308277d7d43080182ad8d2b46beac8622201e0a9859f
+      Path: /var/lib/docker/containers/31702556dd3951e9af87308277d7d43080182ad8d2b46beac8622201e0a9859f/31702556dd3951e9af87308277d7d43080182ad8d2b46beac8622201e0a9859f-json.log
+      Service: dozzle
+      Source: dozzle
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/31702556dd3951e9af87308277d7d43080182ad8d2b46beac8622201e0a9859f/31702556dd3951e9af87308277d7d43080182ad8d2b46beac8622201e0a9859f-json.log  
+      Bytes Read: 586   
+      Pipeline Latency:
+        Average Latency: 1.00334ms
+        24h Average Latency: 1.00334ms
+        Peak Latency: 1.131912ms
+        24h Peak Latency: 1.131912ms  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 8be1a52cfd2ab060f2cd7f2398708755be782eb442cad46ea557c91f19f49e15
+      Path: /var/lib/docker/containers/8be1a52cfd2ab060f2cd7f2398708755be782eb442cad46ea557c91f19f49e15/8be1a52cfd2ab060f2cd7f2398708755be782eb442cad46ea557c91f19f49e15-json.log
+      Service: promtail
+      Source: promtail
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/8be1a52cfd2ab060f2cd7f2398708755be782eb442cad46ea557c91f19f49e15/8be1a52cfd2ab060f2cd7f2398708755be782eb442cad46ea557c91f19f49e15-json.log  
+      Bytes Read: 2560   
+      Pipeline Latency:
+        Average Latency: 84.321408ms
+        24h Average Latency: 84.321408ms
+        Peak Latency: 1.001431328s
+        24h Peak Latency: 1.001431328s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 0b4927d8d9882a5380e7d162ee2ebe84f805a715715db1dca6db3ab790df4e0f
+      Path: /var/lib/docker/containers/0b4927d8d9882a5380e7d162ee2ebe84f805a715715db1dca6db3ab790df4e0f/0b4927d8d9882a5380e7d162ee2ebe84f805a715715db1dca6db3ab790df4e0f-json.log
+      Service: community-router
+      Source: community-router
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/0b4927d8d9882a5380e7d162ee2ebe84f805a715715db1dca6db3ab790df4e0f/0b4927d8d9882a5380e7d162ee2ebe84f805a715715db1dca6db3ab790df4e0f-json.log  
+      Bytes Read: 19953   
+      Pipeline Latency:
+        Average Latency: 84.19015ms
+        24h Average Latency: 84.19015ms
+        Peak Latency: 1.002745959s
+        24h Peak Latency: 1.002745959s  
+      Processing Rules: No rules applied 
+    - Type: file
+      Identifier: 5d91797f0717137ebf9864ce316193bf366f2693f6f162fa587d85e9aa946e50
+      Path: /var/lib/docker/containers/5d91797f0717137ebf9864ce316193bf366f2693f6f162fa587d85e9aa946e50/5d91797f0717137ebf9864ce316193bf366f2693f6f162fa587d85e9aa946e50-json.log
+      Service: mysql
+      Source: mysql
+      TailingMode: beginning
+      Status: OK
+      Inputs:
+        /var/lib/docker/containers/5d91797f0717137ebf9864ce316193bf366f2693f6f162fa587d85e9aa946e50/5d91797f0717137ebf9864ce316193bf366f2693f6f162fa587d85e9aa946e50-json.log  
+      Bytes Read: 111   
+      Pipeline Latency:
+        Average Latency: 217.036┬╡s
+        24h Average Latency: 217.036┬╡s
+        Peak Latency: 217.036┬╡s
+        24h Peak Latency: 217.036┬╡s  
+      Processing Rules: No rules applied 
+
+==========
+OTel Agent
+==========
+
+
+  Status: Not running or unreachable on https://localhost:7777.
+  Error: OTel Agent is not enabled.
+
+====
+OTLP
+====
+
+  Status: Not enabled
+  Collector status: Not running
+
+
+
+=====================
+Private Action Runner
+=====================
+Status: Disabled
+
+=============
+Process Agent
+=============
+
+  Version: 7.81.0
+  Status date: 2026-07-18 21:10:06.758 UTC (1784409006758)
+  Process Agent Start: 2026-07-18 20:36:30.008 UTC (1784406990008)
+  Pid: 3336
+  Go Version: go1.26.4
+  Build arch: amd64
+  Log Level: info
+  Enabled Checks: [connections]
+  Allocated Memory: 0 bytes
+  Hostname: adamic-wsl2
+  System Probe Process Module Status: Not running
+  Process Language Detection Enabled: False
+
+  =================
+  Process Endpoints
+  =================
+    https://process.datadoghq.com. - API Key ending with:
+        - 7e31
+
+  =========
+  Collector
+  =========
+    Last collection time: 2026-07-18 21:09:55
+    Docker socket: /var/run/docker.sock
+    Number of processes: 0
+    Number of containers: 0
+    Process Queue length: 0
+    RTProcess Queue length: 0
+    Connections Queue length: 0
+    Event Queue length: 0
+    Process Bytes enqueued: 0
+    RTProcess Bytes enqueued: 0
+    Connections Bytes enqueued: 0
+    Event Bytes enqueued: 0
+    Drop Check Payloads: []
+    Number of submission errors: 0
+
+  ==========
+  Extractors
+  ==========
+
+    Workloadmeta
+    ============
+      Cache size: 0
+      Stale diffs discarded: 0
+      Diffs dropped: 0
+
+=================
+Process Component
+=================
+
+
+  Enabled Checks: [process rtprocess]
+  System Probe Process Module Status: Not running
+  Process Language Detection Enabled: False
+
+  =================
+  Process Endpoints
+  =================
+    https://process.datadoghq.com. - API Key ending with:
+        - 7e31
+
+  =========
+  Collector
+  =========
+    Last collection time: 2026-07-18 21:10:01
+    Docker socket: /var/run/docker.sock
+    Number of processes: 102
+    Number of containers: 13
+    Process Queue length: 0
+    RTProcess Queue length: 0
+    Connections Queue length: 0
+    Event Queue length: 0
+    Process Bytes enqueued: 0
+    RTProcess Bytes enqueued: 0
+    Connections Bytes enqueued: 0
+    Event Bytes enqueued: 0
+    Drop Check Payloads: []
+    Number of submission errors: 0
+
+  ==========
+  Extractors
+  ==========
+
+    Workloadmeta
+    ============
+      Cache size: 0
+      Stale diffs discarded: 0
+      Diffs dropped: 0
+
+=============
+Remote Agents
+=============
+
+2 remote agent(s) registered:
+
+  Name: System Probe
+  Flavor: system_probe
+  Session ID: 8ee8b418-0566-4714-b36e-97880e896cb0
+  ------------
+  Last seen: 5.42175154s ago
+
+  Name: Process Agent
+  Flavor: process_agent
+  Session ID: d2589c4e-4d4a-4dc9-9765-856e218f69ad
+  -------------
+  Last seen: 1.165330097s ago
+
+============
+System Probe
+============
+
+====================
+Remote Configuration
+====================
+
+
+Organization enabled: True
+API Key: Authorized
+Last error: None
+
+
+
+=======
+Secrets
+=======
+
+No secret_backend_command set: secrets feature is not enabled
+===
+SSI
+===
+
+    SSI is not enabled.
+
+
+============
+System Probe
+============
+
+  Status: Running
+  Uptime: 32m30.000670992s
+  Last Updated: 2026-07-18 21:10:03 UTC (1784409003000)
+
+  USM
+  ===
+    Status: Disabled
+
+  Discovery Service Map
+  =====================
+    Status: Not running
+
+  NPM
+  ===
+    Status: Running
+    Last Check: 2026-07-18 21:09:55 UTC (1784408995000)
+
+  Event Monitor
+  ================
+    Status: Running
+
+========================
+Transport Proxy Warnings
+========================
+
+  No Transport Proxy Warnings
+
