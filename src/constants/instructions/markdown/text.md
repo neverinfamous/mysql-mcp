@@ -13,8 +13,8 @@
 
 ### Manipulation (`mysql_substring`, `mysql_concat`, `mysql_collation_convert`)
 - **Substring/Collation**: Standard string manipulations and character set conversions.
-- **Concat columns**: `mysql_concat` includes source columns by default. Set `includeSourceColumns: false` for minimal payload (returns only `id` and the concatenated result).
+- **Concat columns**: `mysql_concat` omits source columns by default to minimize payload size. Set `includeSourceColumns: true` to include them.
 
 ### General Rules
 - **Minimal Output**: These tools return only `id`, target column(s), and computed result with `count`.
-- **Error Handling**: Nonexistent tables return `{ exists: false, table: "..." }`. Query errors (unknown column, invalid regex/charset) return `{ success: false, error: "..." }`. Raw MySQL errors are caught and transformed.
+- **Error Handling**: All errors return a structured `ErrorResponse` (e.g. `TABLE_NOT_FOUND`, `COLUMN_NOT_FOUND`, `SYNTAX_ERROR`) with `{ success: false, code: "...", category: "..." }`. Raw MySQL errors are caught and securely transformed.
