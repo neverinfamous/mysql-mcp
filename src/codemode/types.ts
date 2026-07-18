@@ -116,7 +116,7 @@ export interface SecurityConfig {
 export const DEFAULT_SECURITY_CONFIG: SecurityConfig = {
   maxCodeLength: 50 * 1024, // 50KB
   maxExecutionsPerMinute: process.env["CODEMODE_RATE_LIMIT_MAX"] ? parseInt(process.env["CODEMODE_RATE_LIMIT_MAX"], 10) : 60,
-  maxResultSize: process.env["CODE_MODE_MAX_RESULT_SIZE"] ? parseInt(process.env["CODE_MODE_MAX_RESULT_SIZE"], 10) : 100 * 1024, // 100KB
+  maxResultSize: process.env["CODEMODE_MAX_RESULT_SIZE"] ? parseInt(process.env["CODEMODE_MAX_RESULT_SIZE"], 10) : 100 * 1024, // 100KB
   blockedPatterns: [
     /\brequire\s*\(/,
     /\bimport\s*\(/,

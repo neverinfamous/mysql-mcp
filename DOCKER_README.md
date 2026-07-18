@@ -384,7 +384,7 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
 | —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
 | —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
-| —                         | `CODE_MODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
+| —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 100) |

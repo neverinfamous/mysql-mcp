@@ -44,7 +44,7 @@ const EXTRA_ENV_VARS: readonly (readonly [string, string])[] = [
   ["MYSQLSH_PATH", "Path to MySQL Shell executable"],
   ["MYSQL_XPORT", "MySQL X Protocol port (default 33060)"],
   ["CODEMODE_ISOLATION", "Code mode isolation level"],
-  ["CODE_MODE_MAX_RESULT_SIZE", "Max Code Mode result payload in bytes"],
+  ["CODEMODE_MAX_RESULT_SIZE", "Max Code Mode result payload in bytes"],
   ["METADATA_CACHE_TTL_MS", "Cache TTL for schema metadata"],
   ["MYSQLMCP_PORT", "Port for mysql-mcp"],
 ];
