@@ -67,31 +67,27 @@ export const JsonContainsSchema = z
 
 // --- JsonSearch ---
 export const JsonSearchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
-  col: z.string().optional().describe("Alias for column"),
-  searchValue: z.string().optional().describe("String value to search for"),
-  searchString: z.string().optional().describe("Alias for searchValue"),
-  searchStr: z.string().optional().describe("Alias for searchValue"),
-  value: z.string().optional().describe("Alias for searchValue"),
-  val: z.string().optional().describe("Alias for searchValue"),
-  mode: z
-    .enum(["one", "all"])
-    .optional()
-    .default("one")
-    .describe("Search mode"),
+  table: z.unknown().optional().describe("Table name"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
+  column: z.unknown().optional().describe("JSON column name"),
+  col: z.unknown().optional().describe("Alias for column"),
+  searchValue: z.unknown().optional().describe("String value to search for"),
+  searchString: z.unknown().optional().describe("Alias for searchValue"),
+  searchStr: z.unknown().optional().describe("Alias for searchValue"),
+  value: z.unknown().optional().describe("Alias for searchValue"),
+  val: z.unknown().optional().describe("Alias for searchValue"),
+  mode: z.unknown().optional().describe("Search mode: one or all"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
-  path: z.string().optional().describe("Optional JSON path to search within"),
-  escapeChar: z.string().optional().describe("Optional escape character"),
-  where: z.string().optional().describe("Optional WHERE clause to filter rows"),
-  filter: z.string().optional().describe("Alias for where"),
-  sql: z.string().optional().describe("Alias for where"),
-  query: z.string().optional().describe("Alias for where"),
-  condition: z.string().optional().describe("Alias for where"),
-  columnName: z.string().optional().describe("Alias for column"),
-  idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
+  path: z.unknown().optional().describe("Optional JSON path to search within"),
+  escapeChar: z.unknown().optional().describe("Optional escape character"),
+  where: z.unknown().optional().describe("Optional WHERE clause to filter rows"),
+  filter: z.unknown().optional().describe("Alias for where"),
+  sql: z.unknown().optional().describe("Alias for where"),
+  query: z.unknown().optional().describe("Alias for where"),
+  condition: z.unknown().optional().describe("Alias for where"),
+  columnName: z.unknown().optional().describe("Alias for column"),
+  idColumn: z.unknown().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
