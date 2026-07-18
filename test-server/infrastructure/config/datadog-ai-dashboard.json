@@ -5,7 +5,7 @@
   "description": "AI Efficiency metrics for mysql-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
   "id": "q48-mq9-3i7",
   "layout_type": "ordered",
-  "modified_at": "2026-07-18T04:33:41.912785Z",
+  "modified_at": "2026-07-18T21:43:38.304964Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -23,10 +23,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -68,10 +68,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063c11",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -113,10 +113,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f0f",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -158,10 +158,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f09",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -203,10 +203,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c4008",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -247,10 +247,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0b4107",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -432,7 +432,18 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "custom_links": [],
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -453,11 +464,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Latency per hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -480,7 +492,18 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "custom_links": [],
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -501,11 +524,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Number of connections currently used per hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -528,7 +552,18 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "custom_links": [],
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -549,7 +584,7 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           },
           {
@@ -571,11 +606,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "red"
             }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Bytes received and sent per hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -599,7 +635,7 @@
     {
       "definition": {
         "check": "proxysql.can_connect",
-        "group": "application:test,proxysql_port:6032,proxysql_server:localhost,host:docker-desktop",
+        "group": "proxysql_port:6032,proxysql_server:localhost,host:adamic-wsl2",
         "group_by": [
           "proxysql_server",
           "proxysql_port"
@@ -621,8 +657,18 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "custom_links": [],
-        "legend_size": "0",
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "bars",
@@ -652,11 +698,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Number of statements that took more than 5 seconds to complete",
         "title_align": "left",
         "title_size": "16",
@@ -679,8 +726,18 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "custom_links": [],
-        "legend_size": "0",
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -701,11 +758,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Memory usage of the query cache",
         "title_align": "left",
         "title_size": "16",
@@ -728,8 +786,18 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "custom_links": [],
-        "legend_size": "0",
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -750,11 +818,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Cache read throughput",
         "title_align": "left",
         "title_size": "16",
@@ -778,6 +847,7 @@
     {
       "definition": {
         "check": "proxysql.backend.status",
+        "group": "*",
         "group_by": [],
         "grouping": "cluster",
         "tags": [],
@@ -802,10 +872,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#173b07",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -850,25 +920,25 @@
           {
             "conditional_formats": [
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#0a3b07",
                 "palette": "custom_bg",
-                "value": 70
+                "value": 70.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "palette": "white_on_yellow",
-                "value": 90
+                "value": 90.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_red",
-                "value": 90
+                "value": 90.0
               }
             ],
             "formulas": [
               {
-                "formula": "(default_zero(a) / (default_zero(b) + 0.0000001)) * 100"
+                "formula": "(a / b) * 100"
               }
             ],
             "queries": [
@@ -908,11 +978,11 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#144007",
                 "custom_fg_color": "#ffffff",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -952,18 +1022,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c3706",
                 "palette": "custom_bg",
-                "value": 80
+                "value": 80.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
                 "value": 49.9
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 49.9
@@ -1013,10 +1083,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#084a0c",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -1056,21 +1126,21 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 5
+                "value": 5.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
-                "value": 2
+                "value": 2.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#104409",
                 "palette": "custom_bg",
-                "value": 2
+                "value": 2.0
               }
             ],
             "formulas": [
