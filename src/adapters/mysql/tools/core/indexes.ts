@@ -137,6 +137,24 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
               new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
+          if (message.includes("without a key length")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `BLOB/TEXT column used in key specification without a key length. The mysql_create_index tool does not support prefix lengths for BTREE indexes on text columns. Suggestion: Use type: "FULLTEXT", or use mysql_execute_code to run a raw CREATE INDEX statement.`,
+                "PREFIX_LENGTH_REQUIRED",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          if (message.includes("is not BASE TABLE")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Cannot create index on view '${table}'. Indexes can only be created on base tables.`,
+                "NOT_BASE_TABLE",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
           return formatHandlerErrorResponse(err);
         }
 
