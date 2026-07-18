@@ -62,7 +62,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "${DS_LOKI}"
+        "uid": "loki_datasource"
       },
       "gridPos": {
         "h": 46,
@@ -85,7 +85,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "${DS_LOKI}"
+            "uid": "loki_datasource"
           },
           "editorMode": "builder",
           "expr": "{job=\"mysql_mcp_logs\"} | json | status=`error`",
@@ -99,7 +99,7 @@
     {
       "datasource": {
         "type": "loki",
-        "uid": "${DS_LOKI}"
+        "uid": "loki_datasource"
       },
       "gridPos": {
         "h": 46,
@@ -122,7 +122,7 @@
         {
           "datasource": {
             "type": "loki",
-            "uid": "${DS_LOKI}"
+            "uid": "loki_datasource"
           },
           "editorMode": "builder",
           "expr": "{job=\"mysql_mcp_logs\"} | json",

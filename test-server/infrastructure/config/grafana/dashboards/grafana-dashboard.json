@@ -80,7 +80,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -160,7 +160,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(rate(mysql_mcp_tool_calls_total{tool=~\"$tool\"}[1m])) by (tool)",
           "legendFormat": "{{tool}}",
@@ -173,7 +173,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -261,7 +261,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "mysql_mcp_tool_latency_ms_p95{tool=~\"$tool\"}",
           "legendFormat": "{{tool}}",
@@ -274,7 +274,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -354,7 +354,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(rate(mysql_mcp_tool_errors_total{tool=~\"$tool\"}[1m])) by (tool)",
           "legendFormat": "{{tool}}",
@@ -367,7 +367,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -443,7 +443,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(mysql_mcp_resource_reads_total) by (resource)",
           "legendFormat": "{{resource}}",
@@ -468,7 +468,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -530,7 +530,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(mysql_mcp_tool_tokens_total{tool=~\"$tool\"})",
           "legendFormat": "Total Tokens",
@@ -543,7 +543,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -601,7 +601,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "mysql_mcp_tool_tokens_per_call{tool=~\"$tool\"}",
           "legendFormat": "{{tool}}",
@@ -614,7 +614,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -693,7 +693,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(rate(mysql_mcp_tool_tokens_total{tool=~\"$tool\"}[5m])) by (tool)",
           "legendFormat": "{{tool}}",
@@ -706,7 +706,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -784,7 +784,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(mysql_mcp_tool_tokens_total{tool=~\"$tool\"}) by (tool)",
           "legendFormat": "{{tool}}",
@@ -797,7 +797,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -859,7 +859,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "(sum(mysql_mcp_tool_errors_total{tool=~\"$tool\"}) by (tool) / sum(mysql_mcp_tool_calls_total{tool=~\"$tool\"}) by (tool)) * 100",
           "legendFormat": "{{tool}}",
@@ -884,7 +884,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -934,7 +934,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "mysql_mcp_uptime_seconds",
           "legendFormat": "Uptime",
@@ -947,7 +947,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -997,7 +997,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(mysql_mcp_tool_calls_total)",
           "legendFormat": "Total Calls",
@@ -1010,7 +1010,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -1064,7 +1064,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(mysql_mcp_tool_errors_total)",
           "legendFormat": "Total Errors",
@@ -1077,7 +1077,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -1127,7 +1127,7 @@
         {
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           },
           "expr": "sum(mysql_mcp_resource_reads_total)",
           "legendFormat": "Total Reads",
@@ -1152,7 +1152,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -1235,7 +1235,7 @@
           "refId": "A",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           }
         },
         {
@@ -1244,7 +1244,7 @@
           "refId": "B",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           }
         },
         {
@@ -1253,7 +1253,7 @@
           "refId": "C",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           }
         }
       ],
@@ -1263,7 +1263,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -1346,7 +1346,7 @@
           "refId": "A",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           }
         }
       ],
@@ -1356,7 +1356,7 @@
     {
       "datasource": {
         "type": "prometheus",
-        "uid": "${DS_PROMETHEUS}"
+        "uid": "prometheus_datasource"
       },
       "fieldConfig": {
         "defaults": {
@@ -1439,7 +1439,7 @@
           "refId": "A",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           }
         },
         {
@@ -1448,7 +1448,7 @@
           "refId": "B",
           "datasource": {
             "type": "prometheus",
-            "uid": "${DS_PROMETHEUS}"
+            "uid": "prometheus_datasource"
           }
         }
       ],
@@ -1469,7 +1469,7 @@
         "current": {},
         "datasource": {
           "type": "prometheus",
-          "uid": "${DS_PROMETHEUS}"
+          "uid": "prometheus_datasource"
         },
         "definition": "label_values(mysql_mcp_tool_calls_total, tool)",
         "hide": 0,
