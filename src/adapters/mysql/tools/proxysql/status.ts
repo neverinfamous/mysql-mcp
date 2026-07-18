@@ -62,6 +62,11 @@ export function createProxySQLStatusTool(): ToolDefinition {
             "Server_Connections_created",
             "Query_Cache_Entries",
             "Query_Cache_Memory_bytes",
+            "Query_Cache_count_GET",
+            "Query_Cache_count_GET_OK",
+            "Query_Cache_count_SET",
+            "Query_Cache_bytes_IN",
+            "Query_Cache_bytes_OUT",
             "mysql_backend_buffers_bytes",
             "mysql_frontend_buffers_bytes",
           ];

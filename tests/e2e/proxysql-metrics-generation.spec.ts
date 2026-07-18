@@ -68,9 +68,30 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
     // Verify cache hits > 0
     const cacheEntries = statusStats.find(row => row.Variable_Name === 'Query_Cache_Entries');
     expect(cacheEntries).toBeDefined();
-    
     const cacheEntriesCount = Number(cacheEntries?.Variable_Value || 0);
     expect(cacheEntriesCount).toBeGreaterThan(0);
+
+    // Verify cache read throughput (GET and GET_OK)
+    const cacheGet = statusStats.find(row => row.Variable_Name === 'Query_Cache_count_GET');
+    expect(cacheGet).toBeDefined();
+    expect(Number(cacheGet?.Variable_Value || 0)).toBeGreaterThan(0);
+
+    const cacheGetOk = statusStats.find(row => row.Variable_Name === 'Query_Cache_count_GET_OK');
+    expect(cacheGetOk).toBeDefined();
+    expect(Number(cacheGetOk?.Variable_Value || 0)).toBeGreaterThan(0);
+
+    // Verify cache write throughput (SET, bytes IN/OUT)
+    const cacheSet = statusStats.find(row => row.Variable_Name === 'Query_Cache_count_SET');
+    expect(cacheSet).toBeDefined();
+    expect(Number(cacheSet?.Variable_Value || 0)).toBeGreaterThan(0);
+
+    const cacheBytesIn = statusStats.find(row => row.Variable_Name === 'Query_Cache_bytes_IN');
+    expect(cacheBytesIn).toBeDefined();
+    expect(Number(cacheBytesIn?.Variable_Value || 0)).toBeGreaterThan(0);
+
+    const cacheBytesOut = statusStats.find(row => row.Variable_Name === 'Query_Cache_bytes_OUT');
+    expect(cacheBytesOut).toBeDefined();
+    expect(Number(cacheBytesOut?.Variable_Value || 0)).toBeGreaterThan(0);
   });
 
   test("generates and verifies slow query metrics (>5s)", async () => {
