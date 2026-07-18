@@ -3,14 +3,14 @@ services:
     build: .
     image: writenotenow/mysql-mcp:latest
     ports:
-      - "${MCP_PORT:-3000}:${MCP_PORT:-3000}"
+      - "${MYSQLMCP_PORT:-3000}:3000"
     command:
       - --transport
       - http
     env_file:
       - .env # Copy .env.example to .env to configure
     environment:
-      - MCP_PORT=${MCP_PORT:-3000}
+      - MYSQLMCP_PORT=${MYSQLMCP_PORT:-3000}
       - MCP_HOST=0.0.0.0
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
@@ -62,8 +62,8 @@ services:
     image: mysql:lts
     command: --innodb-use-native-aio=0 --innodb-flush-method=fsync
     ports:
-      - "3306:3306"
-      - "33060:33060"
+      - "${MYSQL_PORT:-3306}:3306"
+      - "${MYSQL_XPORT:-33060}:33060"
     env_file:
       - .env
     environment:
@@ -82,14 +82,14 @@ services:
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - "${REDIS_PORT:-6379}:6379"
     volumes:
       - redis-data:/data
 
   prometheus:
     image: prom/prometheus:latest
     ports:
-      - "9090:9090"
+      - "${PROMETHEUS_PORT:-9090}:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     depends_on:
@@ -98,7 +98,7 @@ services:
   grafana:
     image: grafana/grafana:latest
     ports:
-      - "3001:3000"
+      - "${GRAFANA_PORT:-3001}:3000"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
       - ./grafana/dashboards:/var/lib/grafana/dashboards

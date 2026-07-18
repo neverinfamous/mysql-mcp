@@ -65,7 +65,7 @@ jobs:
 
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@99df26d4f13ea111d4ec1a7dddef6063f76b97e9 # v4.37.0
-        if: always() && hashFiles('trivy-results.sarif') != ''
+        if: always() && hashFiles('trivy-results.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         with:
           sarif_file: "trivy-results.sarif"
           category: trivy-docker-scan
@@ -145,7 +145,6 @@ jobs:
 
               **Scan Details:**
               - Workflow run: ${process.env.SERVER_URL}/${process.env.REPOSITORY}/actions/runs/${process.env.RUN_ID}
-              - Triggered by: Weekly security scan
               - Scan Schedule / Trigger: ${process.env.SCHEDULE}
 
               **Next Steps:**

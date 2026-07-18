@@ -1,9 +1,9 @@
 # Automate CI/CD Workflows
 
 ## Value Proposition
-- **Automate Workflows:** Eliminate manual tasks to accelerate development.
-- **Ensure Reliability:** Catch bugs early with comprehensive testing.
-- **Enhance Security:** Protect code with continuous vulnerability scanning.
+- **Enterprise Automation:** Streamline CI/CD pipelines to accelerate enterprise delivery.
+- **Mission-Critical Reliability:** Enforce rigorous validation for zero-downtime deployments.
+- **Zero-Trust Security:** Integrate continuous vulnerability scanning and advanced static analysis.
 
 This directory contains all GitHub Actions workflows for **mysql-mcp**.
 
@@ -88,7 +88,7 @@ flowchart LR
 
 | File                                       | Trigger                                   | Purpose                                                               |
 | ------------------------------------------ | ----------------------------------------- | --------------------------------------------------------------------- |
-| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR / weekly / manual       | Runs security-and-quality CodeQL static analysis on JavaScript and TypeScript code. |
+| [codeql.yml](codeql.yml)                   | `workflow_call` from gatekeeper / PR (main) / weekly / manual       | Runs security-and-quality CodeQL static analysis on JavaScript and TypeScript code. |
 | [secrets-scanning.yml](secrets-scanning.yml) | `workflow_call` from gatekeeper / PR                      | Scans for verified secrets using TruffleHog and Gitleaks. |
 | [security-update.yml](security-update.yml) | `workflow_call` from gatekeeper / schedule / PR / manual | Scans for vulnerabilities using Trivy. |
 
@@ -114,7 +114,7 @@ These are AI-powered workflows using [GitHub Copilot Coding Agent](https://docs.
 The `gatekeeper.yml` workflow orchestrates all CI, security, and publishing steps. It triggers upon push to `main` and tags:
 
 ```text
-push to main, tags (v*)
+push to main, release tags
   → gatekeeper
       ├── lint-and-test
       │     ├── lint
@@ -135,7 +135,7 @@ push to main, tags (v*)
                 └── Publish to npm with SLSA provenance
 ```
 
-The `lint-and-test`, `codeql`, `secrets-scanning`, and `trivy` jobs are blocking requirements. They must pass before `docker-publish` and `publish-npm` are triggered.
+The `lint-and-test`, `codeql`, `secrets-scanning`, and `security-update (Trivy)` jobs are blocking requirements. They must pass before `docker-publish` and `publish-npm` are triggered.
 
 ---
 

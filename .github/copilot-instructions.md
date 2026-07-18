@@ -5,7 +5,7 @@
 
 ## Project Overview
 
-mysql-mcp is a production-grade TypeScript MCP server. Connect AI agents to enterprise MySQL. Minimize token consumption with Code Mode. Ensure secure access via OAuth 2.1.
+mysql-mcp is a production-grade TypeScript MCP server. Connect AI agents to enterprise MySQL. Minimize token consumption with Code Mode. Ensure secure access via OAuth.
 
 ## Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
@@ -14,7 +14,7 @@ Ensure PRs adhere to these SSoT architectural rules:
 - **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
 - **Transports**: Supports `stdio`, streamable `http`, and standard `sse` transports.
 - **Validation**: Ensure parameter alias validation at the MCP boundary (via the Dual-Schema Pattern).
-- **Authentication**: Secure connections with Bearer Tokens or OAuth 2.1.
+- **Authentication**: Secure connections with Bearer Tokens or OAuth.
 - **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
 
 ## Session Context
@@ -83,7 +83,7 @@ src/
 ├── version.ts                  # Version export
 ├── adapters/                   # MySQL database adapters
 ├── audit/                      # Audit and token logging
-├── auth/                       # OAuth 2.1 authentication
+├── auth/                       # OAuth authentication
 ├── cli/                        # CLI argument parsing modules
 ├── codemode/                   # Sandboxed JS execution engine
 ├── constants/                  # Server instructions, config

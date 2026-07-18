@@ -5,6 +5,8 @@ title: "[BUG] "
 labels: bug
 ---
 
+Thank you for reporting an issue with MySQL MCP—the production-ready integration engineered for AI agents!
+
 ## 🐛 Description
 
 What happened?

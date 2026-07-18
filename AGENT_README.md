@@ -2,7 +2,7 @@
 
 > **[System Instruction]** You are reading the `AGENT_README.md` for the `mysql-mcp` repository. This file serves as the master index for autonomous AI agents navigating, auditing, or developing this codebase. 
 
-`mysql-mcp` is a Model Context Protocol (MCP) server providing AI agents with token-optimized access to MySQL. The server implements a dual-transport engine model (stdio + HTTP/SSE), full OAuth 2.1 authentication, and a C++ V8 isolate engine for sandboxed JavaScript execution (Code Mode).
+`mysql-mcp` is a Model Context Protocol (MCP) server providing AI agents with access to MySQL. The server implements stdio/HTTP transports, full OAuth authentication, and a C++ V8 isolate engine for sandboxed JavaScript execution (Code Mode).
 
 ---
 

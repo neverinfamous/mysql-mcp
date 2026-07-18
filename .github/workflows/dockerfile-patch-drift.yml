@@ -1,7 +1,7 @@
 name: Dockerfile Patch Drift Check
 
 # Detects when manually patched transitive dependencies in the Dockerfile,
-# package.json overrides, or pnpm-lock.yaml have been updated in the
+# package.json overrides have been updated in the
 # upstream registry or Node.js base image's bundled npm, making the
 # patches redundant. Runs daily and on Dockerfile/package/lock changes.
 
@@ -21,7 +21,7 @@ permissions:
 
 jobs:
   check-patches:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read
@@ -30,6 +30,11 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4.x
         with:
           persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v4.x
+        with:
+          node-version-file: ".node-version"
 
       - name: Check patch drift
         run: |
@@ -45,7 +50,7 @@ jobs:
             PATCHES["$pkg_name"]="$pkg_ver"
           done
 
-          BASE_IMAGE=$(grep -i '^FROM' Dockerfile | head -1 | awk '{print $2}')
+          BASE_IMAGE=$(grep -i '^FROM' Dockerfile | head -1 | sed 's/--platform=[^ ]* //' | awk '{print $2}')
           NPM_DIR="$(docker run --rm --entrypoint sh $BASE_IMAGE -c "npm root -g")/npm"
           STALE=0
 
@@ -87,7 +92,7 @@ jobs:
           fi
 
   check-overrides:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:
       contents: read

@@ -5,6 +5,8 @@ title: "[FEATURE] "
 labels: enhancement
 ---
 
+Thank you for suggesting a feature for MySQL MCP—the production-ready integration engineered for AI agents!
+
 ## ✨ Feature Description
 
 What you'd like to see.

@@ -24,7 +24,7 @@
         "METADATA_CACHE_TTL_MS": "30000",
         "CODE_MODE_MAX_RESULT_SIZE": "102400",
         "AUDIT_LOG_PATH": "/tmp/mcp-sandbox/audit.jsonl",
-        "_comment_rate_limiting": "If Redis is omitted, rate limiting safely falls back to in-memory mode.",
+        "_comment_rate_limiting": "If Redis is omitted, rate limiting safely falls back to in-memory mode. Note: MCP_RATE_LIMIT_MAX is intentionally elevated for example purposes (default is 100).",
         "MCP_RATE_LIMIT_MAX": "10000",
         "CODEMODE_RATE_LIMIT_MAX": "60",
         "MYSQL_XPORT": "33060",

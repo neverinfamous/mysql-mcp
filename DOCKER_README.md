@@ -7,7 +7,7 @@
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Slash tokens with Code Mode and OAuth 2.1.
+Production-ready MySQL integration for AI agents. Slash tokens with Code Mode and OAuth.
 
 ## 🎯 Leverage Core Benefits
 
@@ -18,7 +18,7 @@ Production-ready MySQL integration for AI agents. Slash tokens with Code Mode an
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
 | **Code Mode**                         | Reduce LLM token consumption by consolidating operations inside a secure, sandboxed V8 isolate. |
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
-| **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
+| **OAuth Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **Smart Tool Filtering**              | Use tool groups and shortcuts to stay within IDE tool limits. |
 | **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
 | **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
@@ -290,7 +290,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 - Run the server in a network-accessible Docker container
 - Deploy to cloud platforms (AWS, GCP, Azure)
-- Enable OAuth 2.1 authentication for enterprise security
+- Enable OAuth authentication for enterprise security
 - Share one database connection across multiple AI clients
 
 ```bash
@@ -305,7 +305,7 @@ docker run --rm -p 3000:3000 \
 > **Warning:**
 > **HTTP without authentication:** Exposing `--transport http` without authentication grants unrestricted access. Always enable authentication for production HTTP deployments. See [SECURITY.md](https://github.com/neverinfamous/mysql-mcp/blob/main/SECURITY.md) for details.
 
-See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth 2.1 setup (with Keycloak).
+See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for detailed configuration on HTTP mode, CORS, and Rate Limiting. This also covers OAuth setup (with Keycloak).
 
 ---
 
@@ -369,7 +369,7 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
 | `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
 | `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
-| `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
+| `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth authentication                     |
 | `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
 | `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
@@ -393,7 +393,7 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
 | —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
-> **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
+> **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth takes precedence. If neither is configured, the server warns and runs without authentication.
 
 ### Enforce Scopes
 
