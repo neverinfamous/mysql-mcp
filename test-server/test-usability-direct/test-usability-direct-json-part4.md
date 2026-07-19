@@ -70,8 +70,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_json_keys` |   |   |   |
-| `mysql_json_array_append` |   |   |   |
+| `mysql_json_keys` | Invalid path, bad table/column | None (Proper domain errors returned) | None |
+| `mysql_json_array_append` | Invalid path, object value, missing where clause | None (Proper domain errors/validation returned) | None |
 
 ---
 
@@ -92,8 +92,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_json_keys
-- [ ] Ensure full coverage for mysql_json_array_append
+- [x] Ensure full coverage for mysql_json_keys
+- [x] Ensure full coverage for mysql_json_array_append
 
 
 ---

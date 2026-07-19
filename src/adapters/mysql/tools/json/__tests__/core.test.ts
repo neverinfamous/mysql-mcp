@@ -52,7 +52,7 @@ describe("JSON Core Tools", () => {
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      expect(call).toContain("JSON_EXTRACT(`json_col`, '$.key')");
+      expect(call).toContain("JSON_EXTRACT(CAST(`json_col` AS CHAR), '$.key')");
       expect(result.data.rows).toHaveLength(1);
     });
   });
