@@ -16,12 +16,25 @@ export function defaultToEmpty(input: unknown): unknown {
 
 /**
  * Ensures a JSON path starts with '$' (e.g. converting 'brand' to '$.brand').
+ * Also validates basic MySQL JSON path syntax to prevent connection crashes.
  */
 export function ensureJsonPath(p: string | undefined): string | undefined;
 export function ensureJsonPath(p: string): string;
 export function ensureJsonPath(p: string | undefined): string | undefined {
-  if (!p || p.startsWith("$")) return p;
-  return p.startsWith("[") ? "$" + p : "$." + p;
+  if (!p) return p;
+  
+  let formatted = p;
+  if (!formatted.startsWith("$")) {
+    formatted = formatted.startsWith("[") ? "$" + formatted : "$." + formatted;
+  }
+  
+  // Basic validation to prevent DB connection crashes on invalid paths
+  // If the path contains an unquoted string inside brackets (like `$.[invalid]`), MySQL crashes.
+  if (/\[[^\d*"']+\]/.test(formatted)) {
+    throw new Error(`Invalid JSON path syntax: ${p}`);
+  }
+  
+  return formatted;
 }
 
 /**
