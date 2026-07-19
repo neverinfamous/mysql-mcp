@@ -36,16 +36,16 @@ export function createJsonMergeTool(adapter: MySQLAdapter): ToolDefinition {
         let truncated = false;
         
         let finalResult: unknown = merged;
-        if (typeof merged === "string") {
-          if (merged.length > 5000) {
-            finalResult = merged.substring(0, 5000) + "... (truncated)";
-            truncated = true;
-          } else {
-            try {
-              finalResult = JSON.parse(merged);
-            } catch {
-              finalResult = merged;
-            }
+        const mergedStr = typeof merged === "string" ? merged : JSON.stringify(merged);
+
+        if (mergedStr && mergedStr.length > 5000) {
+          finalResult = mergedStr.substring(0, 5000) + "... (truncated)";
+          truncated = true;
+        } else if (typeof merged === "string") {
+          try {
+            finalResult = JSON.parse(merged);
+          } catch {
+            finalResult = merged;
           }
         }
         
