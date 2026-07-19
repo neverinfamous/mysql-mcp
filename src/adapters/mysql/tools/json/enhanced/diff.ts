@@ -103,33 +103,45 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
                value2: parseValue(json2),
              });
           } else if (sharedKeys.length > 0) {
-            for (const key of sharedKeys) {
-              const escapedKey = key.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-              const diffSql = `SELECT JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v1, JSON_EXTRACT(?, CONCAT('$."', ?, '"')) as v2`;
-              const diffResult = await adapter.executeReadQuery(diffSql, [
-                json1,
-                escapedKey,
-                json2,
-                escapedKey,
-              ]);
+            // Batch process keys to avoid N+1 queries and placeholder limits
+            const BATCH_SIZE = 500;
+            for (let i = 0; i < sharedKeys.length; i += BATCH_SIZE) {
+              const batchKeys = sharedKeys.slice(i, i + BATCH_SIZE);
+              
+              const selectParts: string[] = [];
+              const params: unknown[] = [];
+
+              batchKeys.forEach((key, index) => {
+                selectParts.push(
+                  `JSON_EXTRACT(j1, CONCAT('$."', ?, '"')) as v1_${index}`,
+                  `JSON_EXTRACT(j2, CONCAT('$."', ?, '"')) as v2_${index}`
+                );
+                const escapedKey = key.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+                params.push(escapedKey, escapedKey);
+              });
+
+              const diffSql = `SELECT ${selectParts.join(', ')} FROM (SELECT CAST(? AS JSON) as j1, CAST(? AS JSON) as j2) as t`;
+              params.push(json1, json2);
+
+              const diffResult = await adapter.executeReadQuery(diffSql, params);
               const diffRow = diffResult.rows?.[0];
 
-              const v1Raw = diffRow?.["v1"];
-              const v2Raw = diffRow?.["v2"];
+              batchKeys.forEach((key, index) => {
+                const v1Raw = diffRow?.[`v1_${index}`];
+                const v2Raw = diffRow?.[`v2_${index}`];
 
-              // Compare as strings (JSON canonical form)
-              const v1Str =
-                typeof v1Raw === "string" ? v1Raw : JSON.stringify(v1Raw);
-              const v2Str =
-                typeof v2Raw === "string" ? v2Raw : JSON.stringify(v2Raw);
+                // Compare as strings (JSON canonical form)
+                const v1Str = typeof v1Raw === "string" ? v1Raw : JSON.stringify(v1Raw);
+                const v2Str = typeof v2Raw === "string" ? v2Raw : JSON.stringify(v2Raw);
 
-              if (v1Str !== v2Str) {
-                differences.push({
-                  path: `$.${key}`,
-                  value1: parseValue(v1Raw),
-                  value2: parseValue(v2Raw),
-                });
-              }
+                if (v1Str !== v2Str) {
+                  differences.push({
+                    path: `$.${key}`,
+                    value1: parseValue(v1Raw),
+                    value2: parseValue(v2Raw),
+                  });
+                }
+              });
             }
           }
         }
