@@ -171,8 +171,8 @@ export const SchemaSnapshotSchemaBase = z.object({
     .describe("Schema to snapshot (REQUIRED. Note: Pass schema, not tableName)"),
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
-  table: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use describeTable instead."),
-  tableName: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use describeTable instead."),
+  table: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use mysql_describe_table instead."),
+  tableName: z.string().optional().describe("Note: schemaSnapshot does not filter by table. Use mysql_describe_table instead."),
   includeSystem: z
     .boolean()
     .optional()

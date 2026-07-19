@@ -125,7 +125,7 @@ export const ListTablesSchemaBase = z.object({
   limit: z
     .number()
     .optional()
-    .describe("Maximum number of tables to return (default: 50). Anti-Hallucination Hint: To get details for a specific table, use describeTable instead."),
+    .describe("Maximum number of tables to return (default: 50). Anti-Hallucination Hint: To get details for a specific table, use mysql_describe_table instead."),
   table: z.unknown().optional().describe("Anti-Hallucination Hint: Do NOT use this tool for a specific table. Use mysql_describe_table instead."),
   tableName: z.unknown().optional(),
 }).strict();
