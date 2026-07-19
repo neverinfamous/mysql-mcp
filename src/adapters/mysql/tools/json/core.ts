@@ -408,7 +408,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, path, where, limit } =
+        const { table, column, path, where } =
           JsonKeysSchema.parse(params);
 
         // Validate inputs
@@ -420,9 +420,10 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
         const jsonPath = path ?? "$";
         const whereClause = where ? `WHERE ${where}` : "";
-        const limitClause = ` LIMIT ${limit ?? 50}`;
 
-        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL${limitClause}`;
+        // This tool only returns keys for a single document, so we strictly limit to 1
+        // to avoid transferring unused rows over the network (context exhaustion prevention).
+        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL LIMIT 1`;
 
         const result = await adapter.executeReadQuery(sql, [jsonPath]);
         
@@ -476,15 +477,45 @@ export function createJsonArrayAppendTool(
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
+        // Check if path exists before append
+        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ?)) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql, [path]);
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
+
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
 
         const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
-        return withTokenEstimate({
-          success: true,
-          data: { rowsAffected: result.rowsAffected },
-        });
+
+        const response = totalRows === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : existingPaths === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion:
+                  "Path does not exist in any matched rows; value was not appended (JSON_ARRAY_APPEND requires the target path to exist)",
+              },
+            }
+          : {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              },
+            };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_array_append" });

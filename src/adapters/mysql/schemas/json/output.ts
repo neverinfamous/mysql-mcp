@@ -63,6 +63,8 @@ export const JsonSearchOutputSchema = BaseOutputSchema.extend({
 export const JsonArrayAppendOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     rowsAffected: z.number(),
+    changed: z.boolean().optional(),
+    suggestion: z.string().optional(),
   }).optional(),
 });
 
