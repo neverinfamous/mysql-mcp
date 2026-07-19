@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessJsonColumnParams } from "../preprocess-utils.js";
+import { preprocessJsonColumnParams, ensureJsonPath } from "../preprocess-utils.js";
 
 // --- JsonExtract ---
 export const JsonExtractSchemaBase = z.object({
@@ -42,7 +42,7 @@ export const JsonExtractSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path,
+    path: ensureJsonPath(data.path),
     where: (data.where ?? data.filter ?? data.query ?? data.sql)?.trim(),
     limit: data.limit,
   }))
@@ -97,7 +97,7 @@ export const JsonGetSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path,
+    path: ensureJsonPath(data.path),
     where: (data.where ?? data.filter ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -156,7 +156,7 @@ export const JsonKeysSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path ?? data.key ?? data.keys,
+    path: ensureJsonPath(data.path ?? data.key ?? data.keys),
     where: (data.where ?? data.filter ?? data.query ?? data.sql)?.trim(),
     limit: data.limit,
   }))

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessJsonColumnParams } from "../preprocess-utils.js";
+import { preprocessJsonColumnParams, ensureJsonPath } from "../preprocess-utils.js";
 
 // --- JsonSet ---
 export const JsonSetSchemaBase = z.object({
@@ -46,7 +46,7 @@ export const JsonSetSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path,
+    path: ensureJsonPath(data.path),
     value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
@@ -111,7 +111,7 @@ export const JsonInsertSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path,
+    path: ensureJsonPath(data.path),
     value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
@@ -176,7 +176,7 @@ export const JsonReplaceSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path,
+    path: ensureJsonPath(data.path),
     value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
@@ -241,9 +241,9 @@ export const JsonRemoveSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    paths: (Array.isArray(data.paths) ? data.paths : data.paths ? [data.paths] : null)
+    paths: ((Array.isArray(data.paths) ? data.paths : data.paths ? [data.paths] : null)
       ?? (Array.isArray(data.keys) ? data.keys : data.keys ? [data.keys] : null)
-      ?? (data.path ? [data.path] : data.key ? [data.key] : []),
+      ?? (data.path ? [data.path] : data.key ? [data.key] : [])).map(p => ensureJsonPath(p ?? "") ?? ""),
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -309,7 +309,7 @@ export const JsonArrayAppendSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path,
+    path: ensureJsonPath(data.path),
     value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
@@ -376,7 +376,7 @@ export const JsonUpdateSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: data.path,
+    path: ensureJsonPath(data.path),
     value: data.value !== undefined ? data.value : data.val,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))

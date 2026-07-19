@@ -15,6 +15,16 @@ export function defaultToEmpty(input: unknown): unknown {
 }
 
 /**
+ * Ensures a JSON path starts with '$' (e.g. converting 'brand' to '$.brand').
+ */
+export function ensureJsonPath(p: string | undefined): string | undefined;
+export function ensureJsonPath(p: string): string;
+export function ensureJsonPath(p: string | undefined): string | undefined {
+  if (!p || p.startsWith("$")) return p;
+  return p.startsWith("[") ? "$" + p : "$." + p;
+}
+
+/**
  * Preprocess database parameters:
  * - Alias: db/schema → database
  */

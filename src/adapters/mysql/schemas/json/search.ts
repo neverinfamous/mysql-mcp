@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { preprocessJsonColumnParams } from "../preprocess-utils.js";
+import { preprocessJsonColumnParams, ensureJsonPath } from "../preprocess-utils.js";
 
 // --- JsonContains ---
 export const JsonContainsSchemaBase = z.object({
@@ -51,7 +51,7 @@ export const JsonContainsSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     value: data.value ?? data.contains ?? data.candidate ?? data.target,
-    path: data.path,
+    path: ensureJsonPath(data.path),
     where: (data.where ?? data.filter ?? data.query ?? data.sql ?? data.condition ?? "").trim(),
     limit: data.limit,
   }))
@@ -123,7 +123,7 @@ export const JsonSearchSchema = z
     searchValue: data.searchValue ?? data.searchString ?? data.searchStr ?? data.value ?? data.val,
     mode: data.mode,
     limit: data.limit,
-    path: data.path,
+    path: ensureJsonPath(data.path),
     escapeChar: data.escapeChar,
     where: (data.where ?? data.filter ?? data.query ?? data.sql ?? data.condition)?.trim(),
   }))
