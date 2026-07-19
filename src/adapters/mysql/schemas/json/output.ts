@@ -153,6 +153,7 @@ export const JsonMergeOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     result: z.unknown(),
     mode: z.string(),
+    truncated: z.boolean().optional(),
   }).optional(),
 });
 
@@ -172,5 +173,6 @@ export const JsonDiffOutputSchema = BaseOutputSchema.extend({
       value1: z.unknown().optional(),
       value2: z.unknown().optional(),
     })).optional(),
+    truncated: z.boolean().optional(),
   }).optional(),
 });

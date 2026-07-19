@@ -77,6 +77,15 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
         const removedKeys = json1Keys.filter((k) => !json2KeySet.has(k));
         const sharedKeys = json1Keys.filter((k) => json2KeySet.has(k));
 
+        let truncated = false;
+        const MAX_KEYS = 50;
+        
+        if (json1Keys.length > MAX_KEYS) { json1Keys.length = MAX_KEYS; truncated = true; }
+        if (json2Keys.length > MAX_KEYS) { json2Keys.length = MAX_KEYS; truncated = true; }
+        if (addedKeys.length > MAX_KEYS) { addedKeys.length = MAX_KEYS; truncated = true; }
+        if (removedKeys.length > MAX_KEYS) { removedKeys.length = MAX_KEYS; truncated = true; }
+        if (sharedKeys.length > MAX_KEYS) { sharedKeys.length = MAX_KEYS; truncated = true; }
+
         // Compute value-level differences for shared keys
         const differences: {
           path: string;
@@ -84,15 +93,22 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
           value2: unknown;
         }[] = [];
 
+        const MAX_STRING_LEN = 1000;
         const parseValue = (raw: unknown): unknown => {
+          let parsed: unknown = raw;
           if (typeof raw === "string") {
             try {
-              return JSON.parse(raw);
+              parsed = JSON.parse(raw);
             } catch {
-              return raw;
+              parsed = raw;
             }
           }
-          return raw;
+          
+          const str = typeof parsed === "string" ? parsed : JSON.stringify(parsed);
+          if (str && str.length > MAX_STRING_LEN) {
+            return str.substring(0, MAX_STRING_LEN) + "... (truncated)";
+          }
+          return parsed;
         };
 
         if (!identical) {
@@ -142,6 +158,12 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
                   });
                 }
               });
+              
+              if (differences.length >= MAX_KEYS) {
+                differences.length = MAX_KEYS;
+                truncated = true;
+                break;
+              }
             }
           }
         }
@@ -159,6 +181,7 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
             addedKeys,
             removedKeys,
             differences,
+            ...(truncated ? { truncated: true } : {}),
           },
         });
       } catch (err: unknown) {
