@@ -230,8 +230,8 @@ describe("preprocess-utils", () => {
       expect(preprocessJsonColumnParams({ idColumn: "id", rowId: "abc" })).toMatchObject({ where: "`id` = 'abc'" });
     });
     it("should resolve table, column, path aliases", () => {
-      expect(preprocessJsonColumnParams({ tableName: "t", col: "c", json_path: "p", searchString: "s" })).toMatchObject({ table: "t", column: "c", path: "p", searchValue: "s" });
-      expect(preprocessJsonColumnParams({ name: "t", columnName: "c", jsonPath: "p" })).toMatchObject({ table: "t", column: "c", path: "p" });
+      expect(preprocessJsonColumnParams({ tableName: "t", col: "c", json_path: "p", searchString: "s" })).toMatchObject({ table: "t", column: "c", path: "$.p", searchValue: "s" });
+      expect(preprocessJsonColumnParams({ name: "t", columnName: "c", jsonPath: "p" })).toMatchObject({ table: "t", column: "c", path: "$.p" });
       expect(preprocessJsonColumnParams({ tbl: "t", valueColumn: "c" })).toMatchObject({ table: "t", column: "c" });
       expect(preprocessJsonColumnParams({ table_name: "t", fieldName: "c" })).toMatchObject({ table: "t", column: "c" });
       expect(preprocessJsonColumnParams({ c: "c" })).toMatchObject({ column: "c" });
