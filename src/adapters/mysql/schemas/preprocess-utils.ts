@@ -179,7 +179,7 @@ export function preprocessIndexParams(input: unknown): unknown {
     result["columns"] = result["columns"].map((c: unknown) => {
       if (typeof c === "object" && c !== null) {
         const obj = c as Record<string, unknown>;
-        return obj["name"] ?? obj["column"] ?? obj["columnName"] ?? obj["field"] ?? String(c);
+        return obj["name"] ?? obj["column"] ?? obj["columnName"] ?? obj["field"] ?? JSON.stringify(c);
       }
       return c;
     });

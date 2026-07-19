@@ -96,7 +96,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
           validateWhereClause(where);
         }
 
-        let sql = `SELECT JSON_EXTRACT(\`${column}\`, ${escape(path)}) as extracted_value FROM ${escapeQualifiedTable(table)}`;
+        let sql = `SELECT CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_EXTRACT(\`${column}\`, ${escape(path)}) ELSE NULL END as extracted_value FROM ${escapeQualifiedTable(table)}`;
 
         if (where) {
           sql += ` WHERE ${where}`;
@@ -182,7 +182,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Check if path already exists before insert
-        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)})) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
         const checkResult = await adapter.executeReadQuery(checkSql);
         const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
         const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
@@ -252,7 +252,7 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Check if path exists before replace
-        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)})) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
         const checkResult = await adapter.executeReadQuery(checkSql);
         const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
         const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
@@ -370,9 +370,9 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         const limitClause = ` LIMIT ${limit ?? 50}`;
 
         if (path) {
-          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ${escape(jsonValue)}, ${escape(path)})${whereClause}${limitClause}`;
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_CONTAINS(\`${column}\`, ${escape(jsonValue)}, ${escape(path)})${whereClause}${limitClause}`;
         } else {
-          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ${escape(jsonValue)})${whereClause}${limitClause}`;
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_CONTAINS(\`${column}\`, ${escape(jsonValue)})${whereClause}${limitClause}`;
         }
 
         const result = await adapter.executeReadQuery(sql);
@@ -421,7 +421,7 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
         // This tool only returns keys for a single document, so we strictly limit to 1
         // to avoid transferring unused rows over the network (context exhaustion prevention).
-        const sql = `SELECT JSON_KEYS(\`${column}\`, ${escape(jsonPath)}) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL LIMIT 1`;
+        const sql = `SELECT CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_KEYS(\`${column}\`, ${escape(jsonPath)}) ELSE NULL END as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL LIMIT 1`;
 
         const result = await adapter.executeReadQuery(sql);
         
@@ -476,7 +476,7 @@ export function createJsonArrayAppendTool(
         validateWhereClause(where);
 
         // Check if path exists before append
-        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)})) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
         const checkResult = await adapter.executeReadQuery(checkSql);
         const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
         const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);

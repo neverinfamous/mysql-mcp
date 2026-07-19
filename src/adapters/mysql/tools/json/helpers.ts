@@ -200,15 +200,15 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const selectCols = select ? select.split(",").map(c => c.trim() === "*" ? "*" : `\`${c.trim()}\``).join(", ") : "*";
 
         if (path) {
-          sql = `SELECT ${selectCols}, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) ELSE NULL END as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
           
           const paramsList = [mode, searchValue, path];
           sqlParams.push(...paramsList, ...paramsList);
         } else if (hasEscape) {
-          sql = `SELECT ${selectCols}, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) ELSE NULL END as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         } else {
-          sql = `SELECT ${selectCols}, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_SEARCH(\`${column}\`, ?, ?) ELSE NULL END as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         }
 
