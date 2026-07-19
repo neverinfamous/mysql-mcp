@@ -16,6 +16,13 @@ export const RegexpMatchSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  includeSourceColumn: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Include source column in output (default: false). Set to true for full context.",
+    ),
   limit: z.unknown().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
@@ -33,6 +40,7 @@ export const RegexpMatchSchema = z
       sql: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      includeSourceColumn: z.boolean().optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -41,6 +49,7 @@ export const RegexpMatchSchema = z
     column: data.column ?? data.col ?? "",
     pattern: data.pattern ?? data.query ?? data.sql ?? "",
     where: data.where || data.filter || undefined,
+    includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
@@ -85,6 +94,13 @@ export const LikeSearchSchemaBase = z.object({
     .optional()
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
+  includeSourceColumn: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe(
+      "Include source column in output (default: false). Set to true for full context.",
+    ),
   limit: z.unknown().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
@@ -102,6 +118,7 @@ export const LikeSearchSchema = z
       sql: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
+      includeSourceColumn: z.boolean().optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -110,6 +127,7 @@ export const LikeSearchSchema = z
     column: data.column ?? data.col ?? "",
     pattern: data.pattern ?? data.query ?? data.sql ?? "",
     where: data.where || data.filter || undefined,
+    includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
   }))
   .refine((data) => data.table !== "", {

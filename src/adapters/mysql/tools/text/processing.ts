@@ -85,7 +85,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, pattern, where, limit } =
+        const { table, column, pattern, where, includeSourceColumn, limit } =
           RegexpMatchSchema.parse(params);
 
         // Validate inputs
@@ -93,8 +93,9 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Return PKs and matched column for minimal payload
-        const selectCols = await getSelectColumns(adapter, table, [column]);
+        // Return PKs and matched column for minimal payload (unless includeSourceColumn is true)
+        const targetCols = includeSourceColumn ? [column] : [];
+        const selectCols = await getSelectColumns(adapter, table, targetCols);
         let sql = `SELECT ${selectCols} FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` REGEXP ?`;
         const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
@@ -131,7 +132,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, pattern, where, limit } =
+        const { table, column, pattern, where, includeSourceColumn, limit } =
           LikeSearchSchema.parse(params);
 
         // Validate inputs
@@ -139,8 +140,9 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Return PKs and matched column for minimal payload
-        const selectCols = await getSelectColumns(adapter, table, [column]);
+        // Return PKs and matched column for minimal payload (unless includeSourceColumn is true)
+        const targetCols = includeSourceColumn ? [column] : [];
+        const selectCols = await getSelectColumns(adapter, table, targetCols);
         let sql = `SELECT ${selectCols} FROM ${escapeQualifiedTable(table)} WHERE \`${column}\` LIKE ?`;
         const queryParams: unknown[] = [pattern];
         if (where !== undefined) {
