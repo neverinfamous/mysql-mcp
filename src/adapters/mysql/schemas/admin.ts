@@ -24,7 +24,7 @@ export const OptimizeTableSchema = z
     }),
   )
   .transform((data) => ({
-    tables: data.tables ?? [],
+    tables: (data.tables ?? []).filter(t => t.trim().length > 0),
   }))
   .refine((data) => data.tables.length > 0, {
     message: "tables (or table/tableName/name alias) is required",
@@ -49,7 +49,7 @@ export const AnalyzeTableSchema = z
     }),
   )
   .transform((data) => ({
-    tables: data.tables ?? [],
+    tables: (data.tables ?? []).filter(t => t.trim().length > 0),
   }))
   .refine((data) => data.tables.length > 0, {
     message: "tables (or table/tableName/name alias) is required",
@@ -78,7 +78,7 @@ export const CheckTableSchema = z
     }),
   )
   .transform((data) => ({
-    tables: data.tables ?? [],
+    tables: (data.tables ?? []).filter(t => t.trim().length > 0),
     option: data.option,
   }))
   .refine((data) => data.tables.length > 0, {
@@ -110,7 +110,7 @@ export const RepairTableSchema = z
     }),
   )
   .transform((data) => ({
-    tables: data.tables ?? [],
+    tables: (data.tables ?? []).filter(t => t.trim().length > 0),
     quick: data.quick,
   }))
   .refine((data) => data.tables.length > 0, {
@@ -139,7 +139,7 @@ export const FlushTablesSchema = z
     }),
   )
   .transform((data) => ({
-    tables: data.tables,
+    tables: data.tables ? data.tables.filter(t => t.trim().length > 0) : undefined,
   }));
 
 export const KillQuerySchemaBase = z.object({
