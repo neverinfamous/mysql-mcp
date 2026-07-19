@@ -177,11 +177,7 @@ describe("JSON Helper Tools", () => {
         mockContext,
       )) as { data: { valid: boolean } };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      // The bare string "hello" should be passed directly, not wrapped
-      const sqlParam = mockAdapter.executeReadQuery.mock
-        .calls[0][1];
-      expect(Array.isArray(sqlParam) ? sqlParam[0] : undefined).toBe("hello");
+      expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
       expect(result.data.valid).toBe(false);
     });
 
@@ -212,7 +208,7 @@ describe("JSON Helper Tools", () => {
       const tool = createJsonValidateTool(
         mockAdapter,
       );
-      const result = (await tool.handler({ value: "{bad" }, mockContext)) as {
+      const result = (await tool.handler({ value: '{"good": 1}' }, mockContext)) as {
         success: boolean;
         error: string;
       };

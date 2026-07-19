@@ -52,7 +52,7 @@ describe("JSON Core Tools", () => {
 
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      expect(call).toContain("JSON_EXTRACT(`json_col`, ?)");
+      expect(call).toContain("JSON_EXTRACT(`json_col`, '$.key')");
       expect(result.data.rows).toHaveLength(1);
     });
   });
@@ -95,8 +95,8 @@ describe("JSON Core Tools", () => {
         mockContext,
       );
 
-      const args = mockAdapter.executeWriteQuery.mock.calls[0][1];
-      expect(args[1]).toBe('{"foo":"bar"}');
+      const call = mockAdapter.executeWriteQuery.mock.calls[0][0];
+      expect(call).toContain('{\\"foo\\":\\"bar\\"}');
     });
   });
 
@@ -281,9 +281,8 @@ describe("JSON Core Tools", () => {
 
       // Expect JSON_CONTAINS(col, val, path)
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      const args = mockAdapter.executeReadQuery.mock.calls[0][1];
       expect(call).toContain("JSON_CONTAINS");
-      expect(args).toHaveLength(2); // jsonValue, path
+      expect(call).toContain("'$.key'");
     });
   });
 

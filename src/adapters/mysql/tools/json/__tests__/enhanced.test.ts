@@ -206,12 +206,13 @@ describe("JSON Enhanced Tools", () => {
             },
           ]),
         )
-        // name: same value
+        // Second call: batch comparison for both name and age
         .mockResolvedValueOnce(
-          createMockQueryResult([{ v1: '"Alice"', v2: '"Alice"' }]),
-        )
-        // age: different values
-        .mockResolvedValueOnce(createMockQueryResult([{ v1: "30", v2: "31" }]));
+          createMockQueryResult([{
+            v1_0: '"Alice"', v2_0: '"Alice"',
+            v1_1: 30, v2_1: 31
+          }]),
+        );
 
       const tool = createJsonDiffTool(mockAdapter);
       const result = (await tool.handler(
