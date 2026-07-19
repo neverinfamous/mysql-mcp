@@ -2,9 +2,19 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 import { spawn } from "child_process";
 import path from "path";
+import fs from "fs";
+import { config } from "dotenv";
+
+// Auto-load Datadog secrets for E2E validation
+if (fs.existsSync('C:/Users/chris/Desktop/adamic/secrets.env')) {
+  config({ path: 'C:/Users/chris/Desktop/adamic/secrets.env' });
+} else {
+  config();
+}
 
 async function main() {
   console.log("🚀 Starting metrics generation load test...");
+  const startTime = Math.floor(Date.now() / 1000);
 
   // 1. Hammer ProxySQL via native client to bypass multiplexing limits
   console.log("🔨 Spiking ProxySQL cache memory and read throughput...");
@@ -101,7 +111,62 @@ async function main() {
     generateTraffic()
   ]);
 
-  console.log("👋 Shutting down metrics generation script.");
+  console.log("👋 Load generation complete.");
+  const endTime = Math.floor(Date.now() / 1000);
+
+  // 4. E2E Datadog Cloud Validation
+  const ddApiKey = process.env.DD_API_KEY;
+  const ddAppKey = process.env.DD_APP_KEY;
+
+  if (!ddApiKey || !ddAppKey) {
+    console.warn("⚠️ DD_API_KEY or DD_APP_KEY is missing. Skipping E2E Cloud Validation.");
+    process.exit(0);
+  }
+
+  console.log("⏳ Waiting 90 seconds for Datadog Cloud to index the metrics...");
+  // Countdown timer for better UX during the long wait
+  for (let i = 90; i > 0; i -= 10) {
+    process.stdout.write(`   ... ${i}s remaining\r`);
+    await new Promise(resolve => setTimeout(resolve, 10000));
+  }
+  console.log("   ... done!                 ");
+
+  console.log("📊 Querying Datadog API to validate End-to-End ingestion...");
+  try {
+    const query = 'sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}';
+    const url = `https://api.datadoghq.com/api/v1/query?from=${startTime}&to=${endTime + 90}&query=${encodeURIComponent(query)}`;
+    
+    const response = await fetch(url, {
+      headers: {
+        'DD-API-KEY': ddApiKey,
+        'DD-APPLICATION-KEY': ddAppKey
+      }
+    });
+    
+    const data = await response.json();
+    
+    if (data.series && data.series.length > 0) {
+      // Sum all the points returned
+      let totalTokens = 0;
+      for (const series of data.series) {
+        for (const point of series.pointlist) {
+          totalTokens += point[1];
+        }
+      }
+      if (totalTokens > 0) {
+        console.log("✅ SUCCESS: Datadog Cloud API returned metric data!");
+        console.log(`   Tokens tracked in this time window: ${totalTokens}`);
+      } else {
+        console.error("❌ FAILURE: Datadog Cloud API returned data, but the sum was 0.");
+      }
+    } else {
+      console.error("❌ FAILURE: Datadog Cloud API returned no data series for this timeframe. (Dashboard will be empty)");
+      console.error("API Response:", JSON.stringify(data, null, 2));
+    }
+  } catch (err) {
+    console.error("❌ Error fetching from Datadog API:", err);
+  }
+
   process.exit(0);
 }
 
