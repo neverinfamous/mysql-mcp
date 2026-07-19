@@ -5,7 +5,7 @@
   "description": "Real-time observability for mysql-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
   "id": "qwe-2un-us8",
   "layout_type": "ordered",
-  "modified_at": "2026-07-19T06:14:57.493769Z",
+  "modified_at": "2026-07-19T14:19:50.018894Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -17,7 +17,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Token & Tool Metrics",
+  "title": "MySQL-MCP Token \u0026 Tool Metrics",
   "url": "/dashboard/qwe-2un-us8/mysql-mcp-token--tool-metrics",
   "widgets": [
     {
@@ -28,10 +28,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#133a09",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -190,6 +190,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -217,6 +220,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Tool Latency P50",
         "type": "timeseries"
       },
@@ -249,7 +253,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:system.cpu.user{*} by {service}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{$tool} by {tool}.as_count()"
               }
             ],
             "response_format": "timeseries",
@@ -277,6 +281,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -304,6 +311,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Tool Latency P95",
         "type": "timeseries"
       },
@@ -423,6 +431,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -450,6 +461,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Tool Latency P99",
         "type": "timeseries"
       },
@@ -682,7 +694,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Calls vs Errors",
         "title_align": "left",
         "title_size": "16",
