@@ -108,7 +108,9 @@ export function createJsonIndexSuggestTool(
             else if (valueType === "DOUBLE") dataType = "DOUBLE";
             else if (valueType === "BOOLEAN") dataType = "SIGNED";
 
-            let cleanKey = key.replace(/[^a-zA-Z0-9_]/g, '');
+            const tableName = table.split(".").pop() || "tbl";
+            const shortTableName = tableName.substring(0, 20);
+            let cleanKey = key.replace(/[^a-zA-Z0-9_]/g, '').substring(0, 30);
             if (!cleanKey) {
               cleanKey = key.split('').map(c => c.charCodeAt(0).toString(16)).join('').substring(0, 8);
             }
@@ -117,7 +119,7 @@ export function createJsonIndexSuggestTool(
               path: jsonPath,
               type: valueType ?? "UNKNOWN",
               cardinality,
-              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${table.split(".").pop()}_${cleanKey} ((CAST(JSON_EXTRACT(\`${column}\`, '${jsonPath.replace(/\\/g, "\\\\").replace(/'/g, "''")}') AS ${dataType})));`,
+              indexDdl: `ALTER TABLE ${escapeQualifiedTable(table)} ADD INDEX idx_${shortTableName}_${cleanKey} ((CAST(JSON_UNQUOTE(JSON_EXTRACT(\`${column}\`, '${jsonPath.replace(/\\/g, "\\\\").replace(/'/g, "''")}')) AS ${dataType})));`,
             });
           }
         }
