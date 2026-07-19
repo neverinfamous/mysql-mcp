@@ -30,9 +30,9 @@ describe("JSON Helper Tools", () => {
 
   describe("createJsonGetTool", () => {
     it("should get JSON value by ID", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ value: '{"a":1}' }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ is_valid: 1 }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ value: '{"a":1}' }]));
 
       const tool = createJsonGetTool(mockAdapter);
       const result = (await tool.handler(
@@ -45,10 +45,13 @@ describe("JSON Helper Tools", () => {
         mockContext,
       )) as { data: { value: any } };
 
-      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      expect(call).toContain("JSON_EXTRACT");
-      expect(call).toContain("WHERE `id` = 1");
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledTimes(2);
+      const call1 = mockAdapter.executeReadQuery.mock.calls[0][0];
+      expect(call1).toContain("JSON_VALID");
+      
+      const call2 = mockAdapter.executeReadQuery.mock.calls[1][0];
+      expect(call2).toContain("JSON_EXTRACT");
+      expect(call2).toContain("WHERE `id` = 1");
       // Value is parsed from JSON string
       expect(result.data.value).toEqual({ a: 1 });
     });

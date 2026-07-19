@@ -174,6 +174,15 @@ export function preprocessIndexParams(input: unknown): unknown {
     } else {
       result["columns"] = [result["columns"]];
     }
+  } else if (Array.isArray(result["columns"])) {
+    // Harden against AI hallucinating an array of objects instead of strings
+    result["columns"] = result["columns"].map((c: unknown) => {
+      if (typeof c === "object" && c !== null) {
+        const obj = c as Record<string, unknown>;
+        return obj["name"] ?? obj["column"] ?? obj["columnName"] ?? obj["field"] ?? String(c);
+      }
+      return c;
+    });
   }
 
   return result;
