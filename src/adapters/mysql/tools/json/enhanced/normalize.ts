@@ -50,7 +50,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
                 SELECT DISTINCT jt.key_name
                 FROM ${sampleSubquery} as sample,
                 JSON_TABLE(
-                    JSON_KEYS(sample.\`${column}\`),
+                    JSON_KEYS(CASE WHEN JSON_VALID(sample.\`${column}\`) THEN sample.\`${column}\` ELSE '{}' END),
                     '$[*]' COLUMNS (key_name VARCHAR(255) PATH '$')
                 ) as jt
             `;
@@ -65,7 +65,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
           const jsonPath = '$."' + key.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"';
           const typeQuery = `
                     SELECT 
-                        JSON_TYPE(JSON_EXTRACT(sample.\`${column}\`, ?)) as value_type,
+                        JSON_TYPE(JSON_EXTRACT(CASE WHEN JSON_VALID(sample.\`${column}\`) THEN sample.\`${column}\` ELSE '{}' END, ?)) as value_type,
                         COUNT(*) as count
                     FROM ${sampleSubquery} as sample
                     GROUP BY value_type

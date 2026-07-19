@@ -100,6 +100,7 @@ export const JsonStatsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     totalSampled: z.number().optional(),
     nullCount: z.number().optional(),
+    invalidCount: z.number().optional(),
     length: z.object({
       avg: z.number().optional(),
       max: z.number().optional(),
