@@ -117,8 +117,11 @@ export function createJsonIndexSuggestTool(
             const tableName = table.split(".").pop() || "tbl";
             const shortTableName = tableName.substring(0, 20);
             let cleanKey = key.replace(/[^a-zA-Z0-9_]/g, '').substring(0, 30);
-            if (!cleanKey) {
+            if (!cleanKey && key.length > 0) {
               cleanKey = key.split('').map(c => c.charCodeAt(0).toString(16)).join('').substring(0, 8);
+            }
+            if (!cleanKey) {
+              cleanKey = "empty";
             }
 
             suggestions.push({
