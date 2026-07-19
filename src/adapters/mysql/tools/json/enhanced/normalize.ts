@@ -80,7 +80,7 @@ export function createJsonNormalizeTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: true,
           data: {
-            uniqueKeys,
+            uniqueKeys: uniqueKeys.slice(0, 100),
             keyCount: uniqueKeys.length,
             keyStats,
             truncated: uniqueKeys.length > 20,
