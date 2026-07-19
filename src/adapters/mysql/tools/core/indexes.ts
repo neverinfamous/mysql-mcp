@@ -155,6 +155,35 @@ export function createCreateIndexTool(adapter: MySQLAdapter): ToolDefinition {
               )
             );
           }
+          if (message.includes("A SPATIAL index may only contain a geometrical type column")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `A SPATIAL index may only contain a geometrical type column.`,
+                "INVALID_INDEX_TYPE",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          if (message.includes("cannot be part of FULLTEXT index")) {
+            const colMatch = /Column '([^']+)' cannot be part of FULLTEXT index/.exec(message);
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                colMatch ? `Column '${colMatch[1]}' cannot be part of FULLTEXT index` : `Column cannot be part of FULLTEXT index`,
+                "INVALID_INDEX_TYPE",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          if (message.includes("Duplicate column name")) {
+            const colMatch = /Duplicate column name '([^']+)'/.exec(message);
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                colMatch ? `Duplicate column name '${colMatch[1]}'` : `Duplicate column name`,
+                "DUPLICATE_COLUMN",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
           return formatHandlerErrorResponse(err);
         }
 
