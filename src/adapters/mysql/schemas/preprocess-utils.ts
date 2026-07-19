@@ -513,14 +513,25 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
 
   const rawTable = v["table"] ?? v["tableName"] ?? v["name"] ?? v["tbl"] ?? v["table_name"];
   const rawColumn = v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"] ?? v["c"];
-  const rawPath = v["path"] ?? v["json_path"] ?? v["jsonPath"] ?? v["key"] ?? v["keys"];
+  const rawPath = v["path"] ?? v["json_path"] ?? v["jsonPath"] ?? v["key"] ?? (Array.isArray(v["keys"]) ? undefined : v["keys"]);
   const rawSearchValue = v["searchValue"] ?? v["searchString"] ?? v["searchStr"] ?? v["value"] ?? v["val"];
+
+  const rawPaths = v["paths"] ?? v["keys"];
+  let finalPaths: unknown = rawPaths;
+  if (rawPaths !== undefined) {
+    if (Array.isArray(rawPaths)) {
+      finalPaths = rawPaths.map(p => ensureJsonPath(coerceString(p) ?? ""));
+    } else {
+      finalPaths = ensureJsonPath(coerceString(rawPaths) ?? "");
+    }
+  }
 
   return {
     ...v,
     table: coerceString(rawTable),
     column: coerceString(rawColumn),
-    path: coerceString(rawPath),
+    path: ensureJsonPath(coerceString(rawPath)),
+    paths: finalPaths,
     where: coerceString(where),
     searchValue: coerceString(rawSearchValue),
   };
