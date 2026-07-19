@@ -242,6 +242,12 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
           stringValue = JSON.stringify(value);
         }
 
+        try {
+          JSON.parse(stringValue);
+        } catch {
+          return withTokenEstimate({ success: true, data: { valid: false } });
+        }
+
         const sql = `SELECT JSON_VALID(?) as is_valid`;
         const result = await adapter.executeReadQuery(sql, [stringValue]);
 
