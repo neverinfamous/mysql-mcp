@@ -6,6 +6,7 @@
  */
 
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
+import { escape } from "mysql2";
 import type {
   ToolDefinition,
   RequestContext,
@@ -95,8 +96,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
           validateWhereClause(where);
         }
 
-        let sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as extracted_value FROM ${escapeQualifiedTable(table)}`;
-        const queryParams: unknown[] = [path];
+        let sql = `SELECT JSON_EXTRACT(\`${column}\`, ${escape(path)}) as extracted_value FROM ${escapeQualifiedTable(table)}`;
 
         if (where) {
           sql += ` WHERE ${where}`;
@@ -105,7 +105,7 @@ export function createJsonExtractTool(adapter: MySQLAdapter): ToolDefinition {
         const appliedLimit = limit ?? 50;
         sql += ` LIMIT ${appliedLimit}`;
 
-        const result = await adapter.executeReadQuery(sql, queryParams);
+        const result = await adapter.executeReadQuery(sql);
         return withTokenEstimate({
           success: true,
           data: { rows: result.rows, count: result.rows?.length ?? 0 },
@@ -141,10 +141,10 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
+        const result = await adapter.executeWriteQuery(sql);
         return withTokenEstimate({
           success: true,
           data: { rowsAffected: result.rowsAffected },
@@ -182,16 +182,16 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Check if path already exists before insert
-        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ?)) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
-        const checkResult = await adapter.executeReadQuery(checkSql, [path]);
+        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)})) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
         const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
         const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
+        const result = await adapter.executeWriteQuery(sql);
 
         const response = totalRows === 0
           ? {
@@ -252,16 +252,16 @@ export function createJsonReplaceTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         // Check if path exists before replace
-        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ?)) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
-        const checkResult = await adapter.executeReadQuery(checkSql, [path]);
+        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)})) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
         const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
         const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REPLACE(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
+        const result = await adapter.executeWriteQuery(sql);
 
         const response = totalRows === 0
           ? {
@@ -320,10 +320,10 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        const pathPlaceholders = paths.map(() => "?").join(", ");
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathPlaceholders}) WHERE ${where}`;
+        const pathArgs = paths.map(p => escape(p)).join(", ");
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathArgs}) WHERE ${where}`;
 
-        const result = await adapter.executeWriteQuery(sql, paths);
+        const result = await adapter.executeWriteQuery(sql);
         return withTokenEstimate({
           success: true,
           data: { rowsAffected: result.rowsAffected },
@@ -365,19 +365,17 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         // We ensure strict validation so that strings must be quoted (e.g. '"green"')
         const jsonValue = validateJsonString(value);
         let sql: string;
-        const queryParams: unknown[] = [jsonValue];
 
         const whereClause = where ? ` AND ${where}` : "";
         const limitClause = ` LIMIT ${limit ?? 50}`;
 
         if (path) {
-          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
-          queryParams.push(path);
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ${escape(jsonValue)}, ${escape(path)})${whereClause}${limitClause}`;
         } else {
-          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)${whereClause}${limitClause}`;
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ${escape(jsonValue)})${whereClause}${limitClause}`;
         }
 
-        const result = await adapter.executeReadQuery(sql, queryParams);
+        const result = await adapter.executeReadQuery(sql);
         return withTokenEstimate({
           success: true,
           data: {
@@ -423,9 +421,9 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
         // This tool only returns keys for a single document, so we strictly limit to 1
         // to avoid transferring unused rows over the network (context exhaustion prevention).
-        const sql = `SELECT JSON_KEYS(\`${column}\`, ?) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL LIMIT 1`;
+        const sql = `SELECT JSON_KEYS(\`${column}\`, ${escape(jsonPath)}) as json_keys FROM ${escapeQualifiedTable(table)} ${whereClause} HAVING json_keys IS NOT NULL LIMIT 1`;
 
-        const result = await adapter.executeReadQuery(sql, [jsonPath]);
+        const result = await adapter.executeReadQuery(sql);
         
         let keys: string[] = [];
         const rawKeys = result.rows?.[0]?.["json_keys"];
@@ -478,16 +476,16 @@ export function createJsonArrayAppendTool(
         validateWhereClause(where);
 
         // Check if path exists before append
-        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ?)) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
-        const checkResult = await adapter.executeReadQuery(checkSql, [path]);
+        const checkSql = `SELECT SUM(JSON_CONTAINS_PATH(\`${column}\`, 'one', ${escape(path)})) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
         const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
         const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ?, CAST(CONVERT(? USING utf8mb4) AS JSON)) WHERE ${where}`;
         const jsonValue = validateJsonString(value);
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_ARRAY_APPEND(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
-        const result = await adapter.executeWriteQuery(sql, [path, jsonValue]);
+        const result = await adapter.executeWriteQuery(sql);
 
         const response = totalRows === 0
           ? {
