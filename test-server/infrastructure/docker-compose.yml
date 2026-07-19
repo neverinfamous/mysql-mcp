@@ -172,10 +172,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["mysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446,
-        "username":"root", "password":"root", "options": {"replication": false,
-        "extra_status_metrics": true, "extra_innodb_metrics": false,
-        "extra_performance_metrics": false}}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446, "username":"root", "password":"root", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": false, "extra_performance_metrics": false}}]'
     healthcheck:
       test:
         [
@@ -215,10 +212,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032,
-        "username":"radmin", "password":"radmin", "additional_metrics":
-        ["connection_pool_metrics", "backends_metrics", "users_metrics",
-        "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"radmin", "password":"radmin", "additional_metrics": ["connection_pool_metrics", "backends_metrics", "users_metrics", "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
     healthcheck:
       test:

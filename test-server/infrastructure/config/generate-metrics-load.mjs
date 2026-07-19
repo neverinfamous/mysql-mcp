@@ -1,10 +1,7 @@
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
-import { exec } from "child_process";
-import { promisify } from "util";
+import { spawn } from "child_process";
 import path from "path";
-
-const execAsync = promisify(exec);
 
 async function main() {
   console.log("🚀 Starting metrics generation load test...");
@@ -12,8 +9,18 @@ async function main() {
   // 1. Hammer ProxySQL via native client to bypass multiplexing limits
   console.log("🔨 Spiking ProxySQL cache memory and read throughput...");
   try {
-    const proxySqlCmd = `docker exec proxysql bash -c "mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1 && for i in \\{1..2000\\}; do mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1; done"`;
-    execAsync(proxySqlCmd).catch(err => console.error("ProxySQL loop error:", err));
+    // We explicitly route through wsl.exe to cross the OS boundary since Docker Desktop is not installed
+    const child = spawn("wsl.exe", ["-e", "docker", "exec", "-i", "proxysql", "bash"], { stdio: ["pipe", "ignore", "ignore"] });
+    child.on('error', err => console.error("ProxySQL loop error:", err));
+    
+    // Pass the script directly via stdin to completely avoid Windows cmd.exe quoting issues
+    child.stdin.write(`
+      mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1
+      for i in {1..2000}; do
+        mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1
+      done
+    `);
+    child.stdin.end();
   } catch (err) {
     console.error("Failed to trigger ProxySQL spike:", err);
   }
