@@ -65,7 +65,9 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
             data: { value: null, rowFound: false },
           };
         } else {
-          if (checkResult.rows?.[0]?.["is_valid"] === 0) {
+          const isValid = checkResult.rows[0]?.["is_valid"];
+          // Handle cases where driver returns 0, false, "0", etc.
+          if (isValid === undefined || isValid === null || isValid === 0 || isValid === "0" || isValid === false) {
             throw new Error(`Invalid JSON text in column \`${column}\`.`);
           }
           const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
@@ -132,6 +134,17 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           }
         } else {
           jsonValue = JSON.stringify(value);
+        }
+
+        // Pre-flight check: ensure the column contains valid JSON or is null
+        const checkSql = `SELECT JSON_VALID(\`${column}\`) as is_valid FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
+        if (checkResult.rows && checkResult.rows.length > 0) {
+          const isValid = checkResult.rows[0]?.["is_valid"];
+          // 0, false, "0" mean invalid JSON. null means the column is null (which is valid to update if it can hold JSON, but if it's an INT it would fail. Actually, JSON_SET on a NULL JSON column might not work, but we only protect against the crash which happens on non-JSON scalar types like INT).
+          if (isValid === 0 || isValid === "0" || isValid === false) {
+            throw new Error(`Invalid JSON text in column \`${column}\`.`);
+          }
         }
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
