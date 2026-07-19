@@ -5,7 +5,7 @@
   "description": "Real-time observability for mysql-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
   "id": "qwe-2un-us8",
   "layout_type": "ordered",
-  "modified_at": "2026-07-18T22:10:39.411441Z",
+  "modified_at": "2026-07-19T06:14:57.493769Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -17,7 +17,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Token \u0026 Tool Metrics",
+  "title": "MySQL-MCP Token & Tool Metrics",
   "url": "/dashboard/qwe-2un-us8/mysql-mcp-token--tool-metrics",
   "widgets": [
     {
@@ -28,10 +28,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#133a09",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
