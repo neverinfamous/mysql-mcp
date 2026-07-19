@@ -1,7 +1,7 @@
 import { createClient, type RedisClientType } from "redis";
 import { randomUUID } from "node:crypto";
 
-export const REDIS_TEST_URL = process.env["REDIS_URL"] || "redis://localhost:6379";
+export const REDIS_TEST_URL = process.env["REDIS_URL"] || "redis://192.168.55.39:6379";
 
 /**
  * Returns a unique prefix for a test file/suite to avoid collisions during parallel test execution.

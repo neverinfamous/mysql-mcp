@@ -45,7 +45,7 @@ async function isRedisAvailable(): Promise<boolean> {
     });
     
     // Parse host/port from REDIS_URL if set, else localhost:6379
-    const url = process.env.REDIS_URL || "redis://localhost:6379";
+    const url = process.env.REDIS_URL || "redis://192.168.55.39:6379";
     try {
       const parsed = new URL(url);
       socket.connect(parseInt(parsed.port || "6379", 10), parsed.hostname);
@@ -73,7 +73,7 @@ test.describe.serial("Redis Rate Limiting", () => {
       "redis-rate-limit-429",
       { 
         MCP_RATE_LIMIT_MAX: "5",
-        REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
+        REDIS_URL: process.env.REDIS_URL || "redis://192.168.55.39:6379",
         TRUST_PROXY: "true"
       },
     );
@@ -116,7 +116,7 @@ test.describe.serial("Redis Rate Limiting", () => {
       "redis-rate-limit-retry-after",
       { 
         MCP_RATE_LIMIT_MAX: "3",
-        REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
+        REDIS_URL: process.env.REDIS_URL || "redis://192.168.55.39:6379",
         TRUST_PROXY: "true"
       },
     );
@@ -164,7 +164,7 @@ test.describe.serial("Redis Rate Limiting", () => {
       "redis-shared-1",
       { 
         MCP_RATE_LIMIT_MAX: "4",
-        REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
+        REDIS_URL: process.env.REDIS_URL || "redis://192.168.55.39:6379",
         TRUST_PROXY: "true"
       },
     );
@@ -176,7 +176,7 @@ test.describe.serial("Redis Rate Limiting", () => {
       "redis-shared-2",
       { 
         MCP_RATE_LIMIT_MAX: "4",
-        REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
+        REDIS_URL: process.env.REDIS_URL || "redis://192.168.55.39:6379",
         TRUST_PROXY: "true"
       },
     );
@@ -239,7 +239,7 @@ test.describe.serial("Redis Rate Limiting", () => {
       "redis-rate-limit-health",
       { 
         MCP_RATE_LIMIT_MAX: "2",
-        REDIS_URL: process.env.REDIS_URL || "redis://localhost:6379",
+        REDIS_URL: process.env.REDIS_URL || "redis://192.168.55.39:6379",
         TRUST_PROXY: "true"
       },
     );

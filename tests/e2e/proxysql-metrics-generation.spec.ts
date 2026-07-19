@@ -23,11 +23,11 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
     // Start a dedicated server pointing to ProxySQL Data Port
     await startServer(PORT, [
       "--mysql",
-      "mysql://cluster_admin:cluster_admin@127.0.0.1:6033/testdb",
+      "mysql://cluster_admin:cluster_admin@192.168.55.39:6033/testdb",
       "--pool-size",
       "5"
     ], "proxysql-test", {
-      PROXYSQL_HOST: "127.0.0.1",
+      PROXYSQL_HOST: "192.168.55.39",
       PROXYSQL_PORT: "6032",
       PROXYSQL_USER: "radmin",
       PROXYSQL_PASSWORD: "radmin",
@@ -47,7 +47,7 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
     // does not cache prepared statements (COM_STMT_EXECUTE) by default.
     // mysql_read_query always uses prepared statements.
     const conn = await mysql.createConnection({
-      host: '127.0.0.1',
+      host: '192.168.55.39',
       port: 6033,
       user: 'cluster_admin',
       password: 'cluster_admin',

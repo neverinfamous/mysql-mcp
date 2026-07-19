@@ -1,7 +1,7 @@
 import net from "node:net";
 
 export async function setup() {
-  const url = process.env.REDIS_URL || "redis://localhost:6379";
+  const url = process.env.REDIS_URL || "redis://192.168.55.39:6379";
   let host = "localhost";
   let port = 6379;
   
