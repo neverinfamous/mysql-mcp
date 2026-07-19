@@ -121,6 +121,8 @@ services:
   cluster-healer:
     image: mysql:9.1.0
     container_name: cluster-healer
+    labels:
+      com.datadoghq.ad.check_names: "[]"
     restart: unless-stopped
     depends_on:
       mysql-node1:
