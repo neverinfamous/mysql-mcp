@@ -243,7 +243,7 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         try {
-          JSON.parse(stringValue);
+          JSON.parse(stringValue as string);
         } catch {
           return withTokenEstimate({ success: true, data: { valid: false } });
         }
