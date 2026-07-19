@@ -176,7 +176,7 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, searchValue, mode, limit, path, escapeChar, where } =
+        const { table, column, searchValue, mode, limit, path, escapeChar, where, select } =
           JsonSearchSchema.parse(params);
 
         validateQualifiedIdentifier(table, "table");
@@ -196,16 +196,19 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         // MySQL requires escape_char in JSON_SEARCH to be a literal, not a parameter
         const escapeSql = hasEscape ? (escapeChar === '' ? "''" : `'${escapeChar.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`) : 'NULL';
         
+        // Use select columns or default to *
+        const selectCols = select ? select.split(",").map(c => c.trim() === "*" ? "*" : `\`${c.trim()}\``).join(", ") : "*";
+
         if (path) {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
           
           const paramsList = [mode, searchValue, path];
           sqlParams.push(...paramsList, ...paramsList);
         } else if (hasEscape) {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         } else {
-          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT ${selectCols}, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         }
 
@@ -242,13 +245,20 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { value } = JsonValidateSchema.parse(params);
 
-        let stringValue = value;
         if (typeof value !== "string") {
-          stringValue = JSON.stringify(value);
+          throw new ZodError([
+            {
+              code: "custom",
+              path: ["value"],
+              message: "value must be a string",
+            },
+          ]);
         }
 
+        const stringValue = value;
+
         try {
-          JSON.parse(stringValue as string);
+          JSON.parse(stringValue);
         } catch {
           return withTokenEstimate({ success: true, data: { valid: false } });
         }

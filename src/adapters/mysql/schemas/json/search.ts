@@ -81,6 +81,7 @@ export const JsonSearchSchemaBase = z.object({
   limit: z.unknown().optional().describe("Maximum rows to return"),
   path: z.string().optional().describe("Optional JSON path to search within"),
   escapeChar: z.string().optional().describe("Optional escape character"),
+  select: z.string().optional().describe("Comma-separated columns to select (defaults to '*')"),
   where: z.unknown().optional().describe("Optional WHERE clause to filter rows (Anti-Hallucination: Pass 'where', not 'filter' or 'query')"),
   filter: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -109,6 +110,7 @@ export const JsonSearchSchema = z
       limit: z.coerce.number().int().positive().optional(),
       path: z.string().regex(/^\$((?:\.[a-zA-Z0-9_$]+)|(?:\."[^"]+")|(?:\[\s*\d+\s*\])|(?:\.\*)|(?:\[\s*\*\s*\])|(?:\*\*))*$/, "Invalid JSON path expression (must start with $ and use valid path legs)").optional(),
       escapeChar: z.string().optional(),
+      select: z.string().optional(),
       where: z.string().optional(),
       filter: z.coerce.string().optional(),
       sql: z.coerce.string().optional(),
@@ -125,6 +127,7 @@ export const JsonSearchSchema = z
     limit: data.limit,
     path: ensureJsonPath(data.path),
     escapeChar: data.escapeChar,
+    select: data.select,
     where: (data.where ?? data.filter ?? data.query ?? data.sql ?? data.condition)?.trim(),
   }))
   .refine((data) => data.table !== "", {
