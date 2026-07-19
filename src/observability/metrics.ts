@@ -221,6 +221,55 @@ export class MetricsRegistry {
         metric.loaded_p99 = row.p99;
       }
       logger.info(`Loaded historical metrics for ${rows.length} tools`);
+
+      // Load historical cache metrics
+      const cacheRows = db
+        .prepare(
+          `
+        SELECT hits as max_hits, misses as max_misses
+        FROM cache_metrics_snapshots
+        WHERE id = (SELECT MAX(id) FROM cache_metrics_snapshots)
+      `,
+        )
+        .all();
+      
+      const parsedCacheRows = z.array(z.object({
+        max_hits: z.number(),
+        max_misses: z.number(),
+      })).parse(cacheRows);
+
+      const firstRow = parsedCacheRows[0];
+      if (firstRow) {
+        this.cache.hits = Math.max(this.cache.hits, firstRow.max_hits);
+        this.cache.misses = Math.max(this.cache.misses, firstRow.max_misses);
+      }
+
+      // Load historical resource metrics
+      const resourceRows = db
+        .prepare(
+          `
+        SELECT uri, reads as max_reads
+        FROM resource_metrics_snapshots
+        WHERE id IN (SELECT MAX(id) FROM resource_metrics_snapshots GROUP BY uri)
+      `,
+        )
+        .all();
+      
+      const ResourceSnapshotRowSchema = z.object({
+        uri: z.string(),
+        max_reads: z.number(),
+      });
+      
+      const parsedResourceRows = z.array(ResourceSnapshotRowSchema).parse(resourceRows);
+      
+      for (const row of parsedResourceRows) {
+        let metric = this.resources.get(row.uri);
+        if (!metric) {
+          metric = new ResourceMetric();
+          this.resources.set(row.uri, metric);
+        }
+        metric.reads = Math.max(metric.reads, row.max_reads);
+      }
     } catch (err) {
       logger.warn("Failed to load historical metrics", {
         error: err instanceof Error ? err.message : String(err),
@@ -263,6 +312,22 @@ export class MetricsRegistry {
             summary.p99,
             summary.tokens,
           );
+        }
+        
+        const cacheSummary = this.cache.getSummary();
+        const cacheStmt = db.prepare(`
+          INSERT INTO cache_metrics_snapshots (timestamp, hits, misses)
+          VALUES (?, ?, ?)
+        `);
+        cacheStmt.run(timestamp, cacheSummary.hits, cacheSummary.misses);
+
+        const resourceStmt = db.prepare(`
+          INSERT INTO resource_metrics_snapshots (timestamp, uri, reads)
+          VALUES (?, ?, ?)
+        `);
+        for (const [uri, metric] of this.resources.entries()) {
+          const summary = metric.getSummary();
+          resourceStmt.run(timestamp, uri, summary.reads);
         }
       });
       transaction();

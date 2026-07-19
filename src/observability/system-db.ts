@@ -70,6 +70,23 @@ export class SystemDb {
 
         CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_timestamp ON metrics_snapshots(timestamp);
         CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_tool ON metrics_snapshots(tool);
+
+        CREATE TABLE IF NOT EXISTS cache_metrics_snapshots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          timestamp TEXT NOT NULL,
+          hits INTEGER NOT NULL,
+          misses INTEGER NOT NULL
+        );
+
+        CREATE TABLE IF NOT EXISTS resource_metrics_snapshots (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          timestamp TEXT NOT NULL,
+          uri TEXT NOT NULL,
+          reads INTEGER NOT NULL
+        );
+
+        CREATE INDEX IF NOT EXISTS idx_resource_metrics_snapshots_timestamp ON resource_metrics_snapshots(timestamp);
+        CREATE INDEX IF NOT EXISTS idx_resource_metrics_snapshots_uri ON resource_metrics_snapshots(uri);
       `);
 
       logger.info(`System database initialized at ${this.config.dbPath}`);
@@ -121,6 +138,8 @@ export class SystemDb {
       this.db.exec(`
         DELETE FROM audit_logs WHERE id NOT IN (SELECT id FROM audit_logs ORDER BY timestamp DESC LIMIT 100000);
         DELETE FROM metrics_snapshots WHERE id NOT IN (SELECT id FROM metrics_snapshots ORDER BY timestamp DESC LIMIT 10000);
+        DELETE FROM cache_metrics_snapshots WHERE id NOT IN (SELECT id FROM cache_metrics_snapshots ORDER BY timestamp DESC LIMIT 10000);
+        DELETE FROM resource_metrics_snapshots WHERE id NOT IN (SELECT id FROM resource_metrics_snapshots ORDER BY timestamp DESC LIMIT 10000);
       `);
     } catch (err) {
       logger.error("Failed to prune SystemDb", {
