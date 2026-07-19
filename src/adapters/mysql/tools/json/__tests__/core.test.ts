@@ -259,8 +259,8 @@ describe("JSON Core Tools", () => {
       // Should use executeReadQuery twice: once for the actual query
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("JSON_CONTAINS");
-      expect(call).toContain("SELECT id, `json_col`");
-      expect(call).not.toContain("SELECT *");
+      expect(call).toContain("SELECT * FROM");
+      expect(call).not.toContain("SELECT id, `json_col`");
     });
 
     it("should include path if provided", async () => {

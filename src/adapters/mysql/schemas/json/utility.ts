@@ -201,7 +201,19 @@ export const JsonMergeSchema = z
   })
   .refine((data) => data._raw2 !== undefined, {
     message: "json2 (or doc2 alias) is required",
-  });
+  })
+  .refine((data) => {
+    if (typeof data._raw1 === "string") {
+      try { JSON.parse(data._raw1); } catch { return false; }
+    }
+    return true;
+  }, { message: "json1 must be a valid JSON string or object" })
+  .refine((data) => {
+    if (typeof data._raw2 === "string") {
+      try { JSON.parse(data._raw2); } catch { return false; }
+    }
+    return true;
+  }, { message: "json2 must be a valid JSON string or object" });
 
 export const JsonDiffSchema = z
   .object({
@@ -227,5 +239,17 @@ export const JsonDiffSchema = z
   })
   .refine((data) => data._raw2 !== undefined, {
     message: "json2 (or doc2 alias) is required",
-  });
+  })
+  .refine((data) => {
+    if (typeof data._raw1 === "string") {
+      try { JSON.parse(data._raw1); } catch { return false; }
+    }
+    return true;
+  }, { message: "json1 must be a valid JSON string or object" })
+  .refine((data) => {
+    if (typeof data._raw2 === "string") {
+      try { JSON.parse(data._raw2); } catch { return false; }
+    }
+    return true;
+  }, { message: "json2 must be a valid JSON string or object" });
 
