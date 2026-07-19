@@ -138,6 +138,7 @@ export const SoundexSchemaBase = z.object({
   value: z.string().optional().describe("Value to match phonetically (Required)"),
   query: z.string().optional().describe("Alias for value"),
   search: z.string().optional().describe("Alias for value"),
+  pattern: z.string().optional().describe("Alias for value"),
   where: z
     .string()
     .optional()
@@ -165,6 +166,7 @@ export const SoundexSchema = z
       value: z.coerce.string().optional(),
       query: z.coerce.string().optional(),
       search: z.coerce.string().optional(),
+      pattern: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumn: z.boolean().optional().default(false),
@@ -174,7 +176,7 @@ export const SoundexSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    value: data.value ?? data.query ?? data.search ?? "",
+    value: data.value ?? data.query ?? data.search ?? data.pattern ?? "",
     where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
@@ -202,8 +204,11 @@ export const SubstringSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string) (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  start: z.union([z.string(), z.number()]).describe("Starting position (1-indexed) (Required)"),
+  start: z.union([z.string(), z.number()]).optional().describe("Starting position (1-indexed) (Required)"),
+  pos: z.union([z.string(), z.number()]).optional().describe("Alias for start"),
+  position: z.union([z.string(), z.number()]).optional().describe("Alias for start"),
   length: z.unknown().optional().describe("Number of characters"),
+  len: z.unknown().optional().describe("Alias for length"),
   where: z
     .string()
     .optional()
@@ -229,7 +234,10 @@ export const SubstringSchema = z
       column: z.string().optional(),
       col: z.string().optional(),
       start: z.union([z.string(), z.number()]).optional(),
+      pos: z.union([z.string(), z.number()]).optional(),
+      position: z.union([z.string(), z.number()]).optional(),
       length: z.coerce.number().optional(),
+      len: z.coerce.number().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumn: z.boolean().optional().default(false),
@@ -239,8 +247,8 @@ export const SubstringSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    start: data.start,
-    length: data.length,
+    start: data.start ?? data.pos ?? data.position,
+    length: data.length ?? data.len,
     where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,

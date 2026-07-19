@@ -23,6 +23,7 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 - **Vector Parameters**: `vector` is an alias for `queryVector` in vector search tools (`mysql_vector_search`, `mysql_vector_range_search`, `mysql_vector_hybrid_search`). `distance` is an alias for `maxDistance` in `mysql_vector_range_search`.
 - **WHERE clause**: `where` or `filter` — accepted by `mysql_export_table` and Text tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_concat`, `mysql_collation_convert`).
 - **Column name**: `column` or `col` — accepted by Text tools (`mysql_like_search`, `mysql_regexp_match`, `mysql_soundex`, `mysql_substring`, `mysql_collation_convert`). Spatial tools also accept `spatialColumn` or `geometryColumn` as aliases for `column`.
+- **Substring constraints**: `start` accepts `pos` or `position`. `length` accepts `len` — accepted by `mysql_substring`.
 - **Process ID**: `processId` or `id` — accepted by `mysql_kill_query`.
 - **Script Path**: `path` or `scriptPath` — accepted by `mysqlsh_run_script`.
 - **Input/Output Path**: `path`, `url`, `file`, `filepath` — accepted by Backup and Shell tools.
