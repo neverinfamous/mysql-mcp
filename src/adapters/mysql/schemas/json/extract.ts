@@ -128,7 +128,6 @@ export const JsonKeysSchemaBase = z.object({
   filter: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
-  limit: z.unknown().optional().describe("Maximum rows to return"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
@@ -150,7 +149,6 @@ export const JsonKeysSchema = z
       filter: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-      limit: z.coerce.number().int().positive().optional(),
     }),
   )
   .transform((data) => ({
@@ -158,7 +156,6 @@ export const JsonKeysSchema = z
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: ensureJsonPath(data.path ?? data.key ?? data.keys),
     where: (data.where ?? data.filter ?? data.query ?? data.sql)?.trim(),
-    limit: data.limit,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
