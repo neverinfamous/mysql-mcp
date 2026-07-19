@@ -3,13 +3,13 @@ import { preprocessJsonColumnParams, ensureJsonPath } from "../preprocess-utils.
 
 // --- JsonExtract ---
 export const JsonExtractSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
-  path: z.string().optional().describe("JSON path (e.g., $.name or $[0]. Anti-Hallucination: Pass 'path', not 'key')"),
+  path: z.string().describe("JSON path (e.g., $.name or $[0]. Anti-Hallucination: Pass 'path', not 'key')"),
   key: z.string().optional().describe("Alias for path"),
   keys: z.string().optional().describe("Alias for path"),
   where: z.string().optional().describe("WHERE clause for filtering rows"),
@@ -58,16 +58,16 @@ export const JsonExtractSchema = z
 
 // --- JsonGet ---
 export const JsonGetSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name"),
+  column: z.string().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
-  path: z.string().optional().describe("JSON path to extract (Anti-Hallucination: Pass 'path', not 'key')"),
+  path: z.string().describe("JSON path to extract (Anti-Hallucination: Pass 'path', not 'key')"),
   key: z.string().optional().describe("Alias for path"),
   keys: z.string().optional().describe("Alias for path"),
-  where: z.string().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
+  where: z.string().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
@@ -115,10 +115,10 @@ export const JsonGetSchema = z
 
 // --- JsonKeys ---
 export const JsonKeysSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col' or 'columnName')"),
+  column: z.string().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col' or 'columnName')"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.string().optional().describe("Optional JSON path (defaults to root. Anti-Hallucination: Pass 'path', not 'key' or 'keys')"),

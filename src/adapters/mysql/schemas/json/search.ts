@@ -3,12 +3,12 @@ import { preprocessJsonColumnParams, ensureJsonPath } from "../preprocess-utils.
 
 // --- JsonContains ---
 export const JsonContainsSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
+  column: z.string().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
-  value: z.unknown().optional().describe("Value to search for (Anti-Hallucination: Pass 'value', not 'candidate')"),
+  value: z.unknown().describe("Value to search for (Anti-Hallucination: Pass 'value', not 'candidate')"),
   contains: z.unknown().optional().describe("Alias for value"),
   candidate: z.unknown().optional().describe("Alias for value"),
   target: z.unknown().optional().describe("Alias for value"),
@@ -67,12 +67,12 @@ export const JsonContainsSchema = z
 
 // --- JsonSearch ---
 export const JsonSearchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
+  column: z.string().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
   col: z.string().optional().describe("Alias for column"),
-  searchValue: z.unknown().optional().describe("String value to search for (Anti-Hallucination: Pass 'searchValue', not 'searchString' or 'value')"),
+  searchValue: z.unknown().describe("String value to search for (Anti-Hallucination: Pass 'searchValue', not 'searchString' or 'value')"),
   searchString: z.unknown().optional().describe("Alias for searchValue"),
   searchStr: z.unknown().optional().describe("Alias for searchValue"),
   value: z.unknown().optional().describe("Alias for searchValue"),
