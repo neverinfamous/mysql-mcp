@@ -192,15 +192,15 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const escapeSql = hasEscape ? (escapeChar === '' ? "''" : `'${escapeChar.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`) : 'NULL';
         
         if (path) {
-          sql = `SELECT id, \`${column}\`, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
           
           const paramsList = [mode, searchValue, path];
           sqlParams.push(...paramsList, ...paramsList);
         } else if (hasEscape) {
-          sql = `SELECT id, \`${column}\`, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         } else {
-          sql = `SELECT id, \`${column}\`, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
+          sql = `SELECT *, JSON_SEARCH(\`${column}\`, ?, ?) as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_SEARCH(\`${column}\`, ?, ?) IS NOT NULL${userWhere}${limitClause}`;
           sqlParams.push(mode, searchValue, mode, searchValue);
         }
 

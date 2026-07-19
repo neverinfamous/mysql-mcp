@@ -371,10 +371,10 @@ export function createJsonContainsTool(adapter: MySQLAdapter): ToolDefinition {
         const limitClause = ` LIMIT ${limit ?? 50}`;
 
         if (path) {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?, ?)${whereClause}${limitClause}`;
           queryParams.push(path);
         } else {
-          sql = `SELECT id, \`${column}\` FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)${whereClause}${limitClause}`;
+          sql = `SELECT * FROM ${escapeQualifiedTable(table)} WHERE JSON_CONTAINS(\`${column}\`, ?)${whereClause}${limitClause}`;
         }
 
         const result = await adapter.executeReadQuery(sql, queryParams);
