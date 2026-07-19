@@ -191,7 +191,7 @@ export const SubstringSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string) (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  start: z.unknown().optional().describe("Starting position (1-indexed) (Required)"),
+  start: z.union([z.string(), z.number()]).describe("Starting position (1-indexed) (Required)"),
   length: z.unknown().optional().describe("Number of characters"),
   where: z
     .string()
