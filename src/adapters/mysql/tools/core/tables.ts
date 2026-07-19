@@ -229,8 +229,8 @@ export function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
               "NULL",
             ];
             const isSqlFunction =
-              sqlFunctions.some((fn) => defaultValue.startsWith(fn)) ||
-              /^[A-Z_]+\(.*\)$/.test(defaultValue);
+              sqlFunctions.includes(defaultValue) ||
+              /^[A-Z_]+\([0-9]*\)$/.test(defaultValue);
 
             if (isSqlFunction || typeof defaultVal === "number") {
               def += ` DEFAULT ${String(defaultVal)}`;
