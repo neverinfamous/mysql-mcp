@@ -64,10 +64,16 @@ export function createReadQueryTool(adapter: MySQLAdapter): ToolDefinition {
         const cleanQueryForPrefix = finalQuery.replace(/^(\s*(?:--[^\n]*(?:\n|$)|\/\*[\s\S]*?\*\/))*\s*/i, "").toUpperCase();
         const isLimitable =
           cleanQueryForPrefix.startsWith("SELECT") ||
-          cleanQueryForPrefix.startsWith("WITH");
+          cleanQueryForPrefix.startsWith("WITH") ||
+          cleanQueryForPrefix.startsWith("(");
 
         const limit = 50;
-        const strippedForLimitCheck = finalQuery.replace(/'[^']*'/g, "").replace(/"[^"]*"/g, "").replace(/`[^`]*`/g, "");
+        const strippedForLimitCheck = finalQuery
+          .replace(/'[^']*'/g, "")
+          .replace(/"[^"]*"/g, "")
+          .replace(/`[^`]*`/g, "")
+          .replace(/\/\*[\s\S]*?\*\//g, "")
+          .replace(/--[^\n]*/g, "");
         const hasLimit = /\bLIMIT\b/i.test(strippedForLimitCheck);
         
         if (isLimitable && !hasLimit && !stream) {
@@ -165,7 +171,8 @@ export function createWriteQueryTool(adapter: MySQLAdapter): ToolDefinition {
           cleanQueryValidation.startsWith("WITH") ||
           cleanQueryValidation.startsWith("SHOW") ||
           cleanQueryValidation.startsWith("DESCRIBE") ||
-          cleanQueryValidation.startsWith("EXPLAIN")
+          cleanQueryValidation.startsWith("EXPLAIN") ||
+          cleanQueryValidation.startsWith("(")
         ) {
           throw new ValidationError(
             "Read-only queries must be executed using mysql_read_query.",

@@ -63,6 +63,30 @@ async function main() {
   await client.connect(transport);
   console.log("✅ Connected to MCP Server via stdio!");
 
+  // Helper to fetch the exact tokens generated from the MCP server's local Prometheus endpoint
+  const getLocalTokens = async () => {
+    try {
+      const res = await fetch('http://localhost:9464/metrics');
+      const text = await res.text();
+      let tokens = 0;
+      for (const line of text.split('\n')) {
+        if (line.startsWith('#')) continue;
+        if (line.startsWith('mysql_mcp_tool_tokens')) {
+          const parts = line.split(' ');
+          if (parts.length > 1) {
+            tokens += parseFloat(parts[1]);
+          }
+        }
+      }
+      return tokens;
+    } catch (e) {
+      console.warn("⚠️ Failed to fetch local metrics:", e.message);
+      return 0;
+    }
+  };
+
+  const tokensBefore = await getLocalTokens();
+
   // 3. Generate initial Cache Misses
   console.log("📚 Generating initial Schema Cache Misses...");
   await client.callTool({ name: "mysql_list_tables", arguments: {} });
@@ -112,7 +136,10 @@ async function main() {
   ]);
 
   console.log("👋 Load generation complete.");
+  const tokensAfter = await getLocalTokens();
+  const exactTokensGenerated = Math.round(tokensAfter - tokensBefore);
   const endTime = Math.floor(Date.now() / 1000);
+  console.log(`\n✅ Local MCP Server reports generating exactly ${exactTokensGenerated} tokens during this run.`);
 
   // 4. E2E Datadog Cloud Validation
   console.log("⏳ Waiting 90 seconds for Datadog Cloud to index the metrics...");
@@ -125,22 +152,34 @@ async function main() {
 
   console.log("📊 Querying Datadog API via pup CLI to validate End-to-End ingestion...");
   try {
-    const query = 'sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}';
+    // We append .as_count() so Datadog returns the exact absolute integers instead of fractional rates
+    const query = 'sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()';
     // Use pup CLI instead of direct API fetch to avoid requiring DD_APP_KEY
     const output = execSync(`pup metrics query --query "${query}" --from ${startTime} --to ${endTime + 90}`, { encoding: 'utf-8' });
     const data = JSON.parse(output);
     
     if (data.series && data.series.length > 0) {
       // Sum all the points returned
-      let totalTokens = 0;
+      let datadogTokens = 0;
       for (const series of data.series) {
         for (const point of series.pointlist) {
-          totalTokens += point[1];
+          datadogTokens += point[1];
         }
       }
-      if (totalTokens > 0) {
+      
+      datadogTokens = Math.round(datadogTokens);
+      
+      if (datadogTokens > 0) {
         console.log("✅ SUCCESS: Datadog Cloud API returned metric data!");
-        console.log(`   Tokens tracked in this time window: ${totalTokens}`);
+        console.log(`   Tokens tracked in Datadog: ${datadogTokens}`);
+        
+        // Mathematical Verification
+        if (datadogTokens === exactTokensGenerated) {
+          console.log(`\n🎯 PERFECT MATCH: Datadog accurately ingested 100% of the ${exactTokensGenerated} tokens generated!`);
+        } else {
+          const diff = Math.abs(datadogTokens - exactTokensGenerated);
+          console.log(`\n⚠️ MATCH FAILED: Datadog reported ${datadogTokens}, but the local server generated ${exactTokensGenerated}. Difference: ${diff}`);
+        }
       } else {
         console.error("❌ FAILURE: Datadog Cloud API returned data, but the sum was 0.");
       }
