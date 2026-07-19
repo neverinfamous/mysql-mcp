@@ -13,6 +13,7 @@ export const CollationConvertSchemaBase = z.object({
   charset: z.string().optional().describe("Target character set (e.g., utf8mb4) (Required)"),
   targetCharset: z.string().optional().describe("Alias for charset"),
   collation: z.string().optional().describe("Target collation"),
+  targetCollation: z.string().optional().describe("Alias for collation"),
   where: z
     .string()
     .optional()
@@ -43,6 +44,17 @@ export const CollationConvertSchema = z
           v1 as Record<string, unknown>
         )["targetCharset"];
       }
+      // Alias targetCollation to collation
+      if (
+        v1 !== null &&
+        typeof v1 === "object" &&
+        "targetCollation" in v1 &&
+        !("collation" in v1)
+      ) {
+        (v1 as Record<string, unknown>)["collation"] = (
+          v1 as Record<string, unknown>
+        )["targetCollation"];
+      }
       return v1;
     },
     z.object({
@@ -56,6 +68,7 @@ export const CollationConvertSchema = z
       charset: z.string().optional(),
       targetCharset: z.string().optional(),
       collation: z.string().optional(),
+      targetCollation: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumn: z.boolean().optional().default(false),
@@ -66,7 +79,7 @@ export const CollationConvertSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.cols ?? data.columns ?? data.col ?? "",
     charset: data.charset ?? "",
-    collation: data.collation,
+    collation: data.collation ?? data.targetCollation,
     where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
