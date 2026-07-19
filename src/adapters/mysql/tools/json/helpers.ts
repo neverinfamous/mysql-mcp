@@ -55,7 +55,10 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
+        const sql = `SELECT 
+          CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_EXTRACT(\`${column}\`, ?) ELSE NULL END as value,
+          JSON_VALID(\`${column}\`) as is_valid 
+        FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
         const result = await adapter.executeReadQuery(sql, [path]);
 
         let response;
@@ -65,6 +68,9 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
             data: { value: null, rowFound: false },
           };
         } else {
+          if (result.rows?.[0]?.["is_valid"] === 0) {
+            throw new Error(`Invalid JSON text in column \`${column}\`.`);
+          }
           const rawValue = result.rows?.[0]?.["value"];
           if (rawValue === null || rawValue === undefined) {
             response = { success: true as const, data: { value: null } };
