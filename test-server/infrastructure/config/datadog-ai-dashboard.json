@@ -31,7 +31,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((default_zero(query1)) / 1000000) * 2)"
+                "formula": "(((default_zero(query1)) * 2) / 1000000)"
               }
             ],
             "queries": [
@@ -76,7 +76,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((default_zero(query1)) / 1000000) * 5)"
+                "formula": "(((default_zero(query1)) * 5) / 1000000)"
               }
             ],
             "queries": [
@@ -121,7 +121,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((default_zero(query1)) / 1000000) * 5)"
+                "formula": "(((default_zero(query1)) * 5) / 1000000)"
               }
             ],
             "queries": [
@@ -166,7 +166,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((default_zero(query1)) / 1000000) * 6)"
+                "formula": "(((default_zero(query1)) * 6) / 1000000)"
               }
             ],
             "queries": [
@@ -211,7 +211,7 @@
             ],
             "formulas": [
               {
-                "formula": "(((default_zero(query1)) / 1000000) * 30)"
+                "formula": "(((default_zero(query1)) * 30) / 1000000)"
               }
             ],
             "queries": [
