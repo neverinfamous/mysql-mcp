@@ -46,6 +46,7 @@ export function createJsonIndexSuggestTool(
                 FROM (
                     SELECT \`${column}\`
                     FROM ${escapeQualifiedTable(table)}
+                    WHERE JSON_VALID(\`${column}\`) = 1
                     LIMIT ${String(sampleSize)}
                 ) as sub,
                 JSON_TABLE(
@@ -58,6 +59,10 @@ export function createJsonIndexSuggestTool(
         const keys = (keysResult.rows ?? [])
           .map((r) => r["key_name"])
           .filter((k): k is string => typeof k === "string" && k.length > 0);
+
+        if (keys.length === 0) {
+          throw new ValidationError(`The target column contains no valid JSON objects to analyze.`);
+        }
 
         // Check cardinality and suggest indexes
         const suggestions: {
@@ -84,6 +89,7 @@ export function createJsonIndexSuggestTool(
                         FROM (
                             SELECT \`${column}\` 
                             FROM ${escapeQualifiedTable(table)} 
+                            WHERE JSON_VALID(\`${column}\`) = 1
                             LIMIT ${String(sampleSize)}
                         ) as sub
                         WHERE JSON_EXTRACT(\`sub\`.\`${column}\`, ?) IS NOT NULL
