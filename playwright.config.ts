@@ -24,7 +24,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node dist/cli.js --transport http --port 3101 --server-host 127.0.0.1 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"}`,
+    command: `node dist/cli.js --transport http --port 3101 --server-host 127.0.0.1 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@192.168.55.39:3307/testdb"}`,
     port: 3101,
     reuseExistingServer: false,
     timeout: 30000,
@@ -32,8 +32,8 @@ export default defineConfig({
     stderr: "pipe",
     env: {
       ...process.env,
-      // Enable Redis during E2E tests to verify rate limiting
-      REDIS_URL: "redis://localhost:6379",
+      REDIS_URL: 'redis://192.168.55.39:6379',
+      MCP_CONFIG_PATH: './test-server/config/mcp-config.json',
       // Load all tools (override starter default)
       TOOL_FILTER: "+all",
       // Provide sandbox boundaries for E2E tests
@@ -41,12 +41,12 @@ export default defineConfig({
       // Prevent 429s during E2E runs with many client connections
       MCP_RATE_LIMIT_MAX: "10000",
       // ProxySQL admin connection
-      PROXYSQL_HOST: "localhost",
+      PROXYSQL_HOST: "192.168.55.39",
       PROXYSQL_PORT: "6032",
       PROXYSQL_USER: "radmin",
       PROXYSQL_PASSWORD: "radmin",
       // MySQL Router REST API
-      MYSQL_ROUTER_URL: "https://localhost:8443",
+      MYSQL_ROUTER_URL: "https://192.168.55.39:8443",
       MYSQL_ROUTER_USER: "rest_api",
       MYSQL_ROUTER_PASSWORD: "router_api",
       MYSQL_ROUTER_INSECURE: "true",

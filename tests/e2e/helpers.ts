@@ -48,9 +48,8 @@ export const MCP_JSON_HEADERS = {
 } as const;
 
 export function getDefaultMysqlUrl(): string {
-  return (
-    process.env.MYSQL_TEST_URL ?? "mysql://root:root@localhost:3307/testdb"
-  );
+  // Use the WSL IP directly to avoid Windows localhost binding issues
+  return process.env.MYSQL_URL || 'mysql://root:root@192.168.55.39:3307/testdb';
 }
 
 /**

@@ -29,6 +29,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
 
   test("should execute a read tool successfully (mysql_list_tables)", async () => {
     const parsed = await callToolAndParse(client, "mysql_list_tables", {});
+    console.log("PARSED_DATA_LOG:", JSON.stringify(parsed, null, 2));
     expect(parsed.data).toHaveProperty("tables");
     expect(Array.isArray(parsed.data?.tables)).toBe(true);
     expect(parsed.data).toHaveProperty("count");
