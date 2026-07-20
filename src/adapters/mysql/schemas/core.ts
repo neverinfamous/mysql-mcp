@@ -392,14 +392,22 @@ export const DropTableOutputSchema = BaseOutputSchema.extend({
 export const CreateIndexSchemaBase = z.object({
   name: z.string().optional().describe("Index name"),
   indexName: z.string().optional().describe("Alias for name"),
+  index_name: z.string().optional().describe("Alias for name"),
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   columns: z.union([z.array(z.string()), z.string()]).optional().describe("Columns to index. Anti-Hallucination Hint: Must be an array of strings (e.g. ['id', 'status']), not a single string or an array of objects."),
+  column: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for columns"),
   unique: z.boolean().optional().default(false).describe("Create unique index"),
   type: z
     .enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
     .optional()
     .describe("Index type"),
+  indexType: z
+    .enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
+    .optional()
+    .describe("Alias for type"),
   ifNotExists: z
     .boolean()
     .optional()
@@ -411,11 +419,11 @@ export const CreateIndexSchemaBase = z.object({
 export const CreateIndexSchema = z
   .preprocess(preprocessIndexParams, CreateIndexSchemaBase)
   .transform((data) => ({
-    name: data.name ?? data.indexName,
-    table: data.table ?? data.tableName ?? "",
+    name: data.name ?? data.indexName ?? data.index_name,
+    table: data.table ?? data.tableName ?? data.tbl ?? data.table_name ?? "",
     columns: Array.isArray(data.columns) ? data.columns : (data.columns ? [data.columns] : undefined),
     unique: data.unique,
-    type: data.type,
+    type: data.type ?? data.indexType,
     ifNotExists: data.ifNotExists,
   }))
   .refine((data) => data.name !== undefined && data.name !== "", {
@@ -444,6 +452,8 @@ export const GetIndexesSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
 });
 
 // Transformed schema for handler parsing
