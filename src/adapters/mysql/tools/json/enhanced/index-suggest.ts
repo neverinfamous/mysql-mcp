@@ -7,6 +7,7 @@ import type {
 import { ValidationError } from "../../../../../types/index.js";
 import {
   JsonIndexSuggestSchema,
+  JsonIndexSuggestSchemaBase,
   JsonIndexSuggestOutputSchema,
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../../core/error-helpers.js";
@@ -26,7 +27,7 @@ export function createJsonIndexSuggestTool(
     description:
       "Suggest functional indexes for frequently accessed JSON paths.",
     group: "json",
-    inputSchema: JsonIndexSuggestSchema,
+    inputSchema: JsonIndexSuggestSchemaBase,
     outputSchema: JsonIndexSuggestOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
