@@ -535,16 +535,22 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   if (where !== undefined && typeof where === 'object' && where !== null && !Array.isArray(where)) {
     const obj = where as Record<string, unknown>;
     const keys = Object.keys(obj);
-    if (keys.length === 1 && keys[0] !== undefined) {
-      const k = keys[0];
-      const val = obj[k];
-      let formattedVal = "''";
-      if (typeof val === 'string') {
-        formattedVal = `'${val}'`;
-      } else if (typeof val === 'number' || typeof val === 'boolean') {
-        formattedVal = String(val);
+    if (keys.length > 0) {
+      const conditions: string[] = [];
+      for (const k of keys) {
+        if (k === undefined) continue;
+        const val = obj[k];
+        let formattedVal = "''";
+        if (typeof val === 'string') {
+          formattedVal = `'${val}'`;
+        } else if (typeof val === 'number' || typeof val === 'boolean') {
+          formattedVal = String(val);
+        }
+        conditions.push(`\`${k}\` = ${formattedVal}`);
       }
-      where = `\`${k}\` = ${formattedVal}`;
+      if (conditions.length > 0) {
+        where = conditions.join(" AND ");
+      }
     }
   }
   
