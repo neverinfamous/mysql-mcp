@@ -101,7 +101,7 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const queryLimit = limit ?? 50;
+        const queryLimit = Math.min(limit ?? 50, 500);
         sql += ` LIMIT ${queryLimit}`;
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -148,7 +148,7 @@ export function createLikeSearchTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` AND (${where})`;
         }
-        const queryLimit = limit ?? 50;
+        const queryLimit = Math.min(limit ?? 50, 500);
         sql += ` LIMIT ${queryLimit}`;
         const result = await adapter.executeReadQuery(sql, queryParams);
 
@@ -310,7 +310,7 @@ export function createConcatTool(adapter: MySQLAdapter): ToolDefinition {
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
-        const queryLimit = limit ?? 50;
+        const queryLimit = Math.min(limit ?? 50, 500);
         sql += ` LIMIT ${queryLimit}`;
 
         const result = await adapter.executeReadQuery(sql, queryParams);
@@ -373,7 +373,7 @@ export function createCollationConvertTool(
         if (where !== undefined) {
           sql += ` WHERE ${where}`;
         }
-        const queryLimit = limit ?? 50;
+        const queryLimit = Math.min(limit ?? 50, 500);
         sql += ` LIMIT ${queryLimit}`;
 
         const result = await adapter.executeReadQuery(sql, queryParams);
