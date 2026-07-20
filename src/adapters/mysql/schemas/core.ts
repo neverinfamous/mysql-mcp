@@ -205,11 +205,51 @@ export const DescribeTableOutputSchema = BaseOutputSchema.extend({
 
 // Base schema for MCP visibility
 export const CreateTableSchemaBase = z.object({
-  name: z.string().optional().describe("Table name"),
-  table: z.string().optional().describe("Alias for name"),
-  tableName: z.string().optional().describe("Alias for name"),
-  columns: z
-    .array(
+  name: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Table name"),
+  table: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for name"),
+  tableName: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for name"),
+  columns: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "string") {
+        try {
+          const parsed = JSON.parse(val) as unknown;
+          return Array.isArray(parsed) ? (parsed as unknown[]) : [{ name: val, type: "VARCHAR(255)" }];
+        } catch {
+          return [{ name: val, type: "VARCHAR(255)" }];
+        }
+      } else if (typeof val === "object" && val !== null && !Array.isArray(val)) {
+        return [val];
+      }
+      return val;
+    },
+    z.array(
       z.object({
         name: z.string().describe("Column name"),
         type: z
@@ -228,6 +268,7 @@ export const CreateTableSchemaBase = z.object({
         comment: z.string().optional().describe("Column comment"),
       }),
     )
+  )
     .optional()
     .describe("Column definitions. Anti-Hallucination Hint: Must be an array of objects (e.g. [{name: 'id', type: 'INT'}]), not a key-value object."),
   engine: z
@@ -289,9 +330,36 @@ export const CreateTableOutputSchema = BaseOutputSchema.extend({
 
 // Base schema for MCP visibility
 export const DropTableSchemaBase = z.object({
-  table: z.string().optional().describe("Table name to drop"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
+  table: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Table name to drop"),
+  tableName: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for table"),
+  name: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for table"),
   ifExists: z
     .boolean()
     .optional()
