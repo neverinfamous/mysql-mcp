@@ -47,11 +47,15 @@ async function getSelectColumns(
   const selectCols: string[] = [];
   try {
     const tableInfo = await adapter.describeTable(table);
-    if (tableInfo?.columns) {
+    if (tableInfo?.columns && tableInfo.columns.length > 0) {
       const pkCols = tableInfo.columns
         .filter((c) => c.primaryKey)
         .map((c) => `\`${c.name}\``);
-      selectCols.push(...pkCols);
+      if (pkCols.length > 0) {
+        selectCols.push(...pkCols);
+      } else {
+        selectCols.push("`id`");
+      }
     } else {
       selectCols.push("`id`");
     }
