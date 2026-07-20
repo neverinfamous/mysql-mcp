@@ -78,6 +78,7 @@ export const JsonSearchSchemaBase = z.object({
   value: z.unknown().optional().describe("Alias for searchValue"),
   val: z.unknown().optional().describe("Alias for searchValue"),
   mode: z.string().optional().describe("Search mode: one or all"),
+  searchMode: z.string().optional().describe("Alias for mode"),
   limit: z.unknown().optional().describe("Maximum rows to return"),
   path: z.string().optional().describe("Optional JSON path to search within"),
   escapeChar: z.string().optional().describe("Optional escape character"),
@@ -106,7 +107,8 @@ export const JsonSearchSchema = z
       searchStr: z.coerce.string().optional(),
       value: z.coerce.string().optional(),
       val: z.coerce.string().optional(),
-      mode: z.enum(["one", "all"]).optional().default("one"),
+      mode: z.coerce.string().optional(),
+      searchMode: z.coerce.string().optional(),
       limit: z.coerce.number().int().positive().optional(),
       path: z.string().regex(/^\$((?:\.[a-zA-Z0-9_$]+)|(?:\."[^"]+")|(?:\[\s*\d+\s*\])|(?:\.\*)|(?:\[\s*\*\s*\])|(?:\*\*))*$/, "Invalid JSON path expression (must start with $ and use valid path legs)").optional(),
       escapeChar: z.string().optional(),
@@ -123,7 +125,7 @@ export const JsonSearchSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     searchValue: data.searchValue ?? data.searchString ?? data.searchStr ?? data.value ?? data.val,
-    mode: data.mode,
+    mode: data.mode ?? data.searchMode ?? "one",
     limit: data.limit,
     path: ensureJsonPath(data.path),
     escapeChar: data.escapeChar,
@@ -138,6 +140,9 @@ export const JsonSearchSchema = z
   })
   .refine((data) => data.searchValue !== undefined && data.searchValue !== "", {
     message: "searchValue is required",
+  })
+  .refine((data) => data.mode === "one" || data.mode === "all", {
+    message: "mode (or searchMode) must be 'one' or 'all'",
   })
   .refine((data) => data.escapeChar === undefined || data.escapeChar.length <= 1, {
     message: "escapeChar must be empty or one character",
