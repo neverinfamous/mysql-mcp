@@ -95,6 +95,14 @@ export function createEnableVersioningTool(
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
         const triggerName = `_mcp_version_${baseName.replace(/[^a-zA-Z0-9_]/g, "")}`;
         const schemaName = table.includes(".") ? table.split(".")[0] : null;
+        const schemaNameLower = schemaName?.toLowerCase();
+        
+        if (schemaNameLower && ["mysql", "information_schema", "performance_schema", "sys"].includes(schemaNameLower)) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Cannot enable versioning on system schema '${schemaName}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
+          );
+        }
+
         const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
         // Check if _version already exists
@@ -115,11 +123,13 @@ export function createEnableVersioningTool(
           (col) => col.name === "_version",
         );
 
+        let columnAdded = false;
         if (!hasVersionColumn) {
           await adapter.executeWriteQuery(
             `ALTER TABLE ${safeTable} ADD COLUMN _version INT NOT NULL DEFAULT 1`,
             [],
           );
+          columnAdded = true;
         }
 
         // In MySQL, triggers for updates usually look like this:
@@ -139,7 +149,18 @@ BEGIN
   SET NEW._version = OLD._version + 1;
 END;`.trim();
 
-        await adapter.executeWriteQuery(triggerSql, []);
+        try {
+          await adapter.executeWriteQuery(triggerSql, []);
+        } catch (error) {
+          if (columnAdded) {
+            try {
+              await adapter.executeWriteQuery(`ALTER TABLE ${safeTable} DROP COLUMN _version`, []);
+            } catch {
+              // ignore
+            }
+          }
+          throw error;
+        }
         
         adapter.clearSchemaCache();
 
@@ -182,6 +203,14 @@ export function createDisableVersioningTool(
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
         const triggerName = `_mcp_version_${baseName.replace(/[^a-zA-Z0-9_]/g, "")}`;
         const schemaName = table.includes(".") ? table.split(".")[0] : null;
+        const schemaNameLower = schemaName?.toLowerCase();
+
+        if (schemaNameLower && ["mysql", "information_schema", "performance_schema", "sys"].includes(schemaNameLower)) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Cannot disable versioning on system schema '${schemaName}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
+          );
+        }
+
         const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
         const describeInfo = await adapter.describeTable(table);
