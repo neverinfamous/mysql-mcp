@@ -42,7 +42,7 @@ export const RegexpMatchSchema = z
       value: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumn: z.boolean().optional().default(false),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -122,7 +122,7 @@ export const LikeSearchSchema = z
       value: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumn: z.boolean().optional().default(false),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -191,7 +191,7 @@ export const SoundexSchema = z
       pattern: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumn: z.boolean().optional().default(false),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -262,7 +262,7 @@ export const SubstringSchema = z
       len: z.coerce.number().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumn: z.boolean().optional().default(false),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
@@ -343,7 +343,7 @@ export const ConcatSchema = z
       alias: z.string().optional().default("concatenated"),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumns: z.boolean().optional().default(false),
+      includeSourceColumns: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )

@@ -71,7 +71,7 @@ export const CollationConvertSchema = z
       targetCollation: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      includeSourceColumn: z.boolean().optional().default(false),
+      includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
       limit: z.coerce.number().optional(),
     }),
   )
