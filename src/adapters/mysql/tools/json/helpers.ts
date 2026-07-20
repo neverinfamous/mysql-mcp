@@ -214,7 +214,11 @@ export function createJsonSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const escapeSql = hasEscape ? (escapeChar === '' ? "''" : `'${escapeChar.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`) : 'NULL';
         
         // Use select columns or default to *
-        const selectCols = select ? select.split(",").map(c => c.trim() === "*" ? "*" : `\`${c.trim()}\``).join(", ") : "*";
+        const selectCols = select ? select.split(",").map(c => {
+          const trimmed = c.trim();
+          if (trimmed === "*") return "*";
+          return trimmed.split(".").map(part => `\`${part.replace(/`/g, "``")}\``).join(".");
+        }).join(", ") : "*";
 
         if (path) {
           sql = `SELECT ${selectCols}, CASE WHEN JSON_VALID(\`${column}\`) THEN JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) ELSE NULL END as match_path FROM ${escapeQualifiedTable(table)} WHERE JSON_VALID(\`${column}\`) = 1 AND JSON_SEARCH(\`${column}\`, ?, ?, ${escapeSql}, ?) IS NOT NULL${userWhere}${limitClause}`;
@@ -262,17 +266,16 @@ export function createJsonValidateTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { value } = JsonValidateSchema.parse(params);
 
+        let stringValue: string;
         if (typeof value !== "string") {
-          throw new ZodError([
-            {
-              code: "custom",
-              path: ["value"],
-              message: "value must be a string",
-            },
-          ]);
+          try {
+            stringValue = JSON.stringify(value);
+          } catch {
+            return withTokenEstimate({ success: true, data: { valid: false } });
+          }
+        } else {
+          stringValue = value;
         }
-
-        const stringValue = value;
 
         try {
           JSON.parse(stringValue);
