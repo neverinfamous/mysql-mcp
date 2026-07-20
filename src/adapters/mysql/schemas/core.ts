@@ -128,7 +128,7 @@ export const ListTablesSchemaBase = z.object({
     .describe("Maximum number of tables to return (default: 50). Anti-Hallucination Hint: To get details for a specific table, use mysql_describe_table instead."),
   table: z.unknown().optional().describe("Anti-Hallucination Hint: Do NOT use this tool for a specific table. Use mysql_describe_table instead."),
   tableName: z.unknown().optional(),
-}).strict();
+});
 
 // Transformed schema for handler parsing
 export const ListTablesSchema = z
@@ -172,7 +172,7 @@ export const DescribeTableSchemaBase = z.object({
   database: z.unknown().optional().describe("Anti-Hallucination Hint: Do NOT pass database here. Use 'database.table' format in the table parameter instead."),
   db: z.unknown().optional(),
   schema: z.unknown().optional(),
-}).strict();
+});
 
 // Transformed schema for handler parsing
 export const DescribeTableSchema = z
