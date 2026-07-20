@@ -129,6 +129,14 @@ export function preprocessTableParams(input: unknown): unknown {
     else if (result["tbl"] !== undefined) result["table"] = result["tbl"];
     else if (result["table_name"] !== undefined) result["table"] = result["table_name"];
   }
+
+  if (typeof result["ifExists"] === "string") {
+    result["ifExists"] = result["ifExists"].toLowerCase() === "true";
+  }
+  if (typeof result["ifNotExists"] === "string") {
+    result["ifNotExists"] = result["ifNotExists"].toLowerCase() === "true";
+  }
+
   return result;
 }
 
@@ -198,6 +206,13 @@ export function preprocessIndexParams(input: unknown): unknown {
         return c;
       });
     }
+  }
+
+  if (typeof result["unique"] === "string") {
+    result["unique"] = result["unique"].toLowerCase() === "true";
+  }
+  if (typeof result["ifNotExists"] === "string") {
+    result["ifNotExists"] = result["ifNotExists"].toLowerCase() === "true";
   }
 
   return result;
@@ -437,6 +452,10 @@ export function preprocessCreateTableParams(input: unknown): unknown {
       // Hardening: If it's a single object instead of an array, wrap it in an array
       result["columns"] = [result["columns"]];
     }
+  }
+
+  if (typeof result["ifNotExists"] === "string") {
+    result["ifNotExists"] = result["ifNotExists"].toLowerCase() === "true";
   }
 
   return result;
