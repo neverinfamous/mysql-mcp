@@ -186,14 +186,15 @@ services:
       test:
         [
           "CMD",
-          "mysqladmin",
-          "ping",
+          "mysql",
           "-h",
           "127.0.0.1",
           "-P",
           "6446",
           "-uroot",
-          "-proot"
+          "-proot",
+          "-e",
+          "SELECT 1"
         ]
       interval: 15s
       timeout: 10s
