@@ -105,6 +105,17 @@ export function preprocessTableParams(input: unknown): unknown {
   if (typeof input !== "object" || input === null) return input;
   const result = { ...(input as Record<string, unknown>) };
 
+  if (typeof result["table"] === "string" && result["table"].startsWith("{")) {
+    try {
+      const parsed = JSON.parse(result["table"]) as unknown;
+      if (typeof parsed === "object" && parsed !== null) {
+        result["table"] = parsed;
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
   if (typeof result["table"] === "object" && result["table"] !== null) {
     const nested = result["table"] as Record<string, unknown>;
     if (typeof nested["name"] === "string") result["table"] = nested["name"];
@@ -408,7 +419,19 @@ export function preprocessCreateTableParams(input: unknown): unknown {
 
   if (result["columns"] !== undefined && !Array.isArray(result["columns"])) {
     if (typeof result["columns"] === "string") {
-      result["columns"] = [{ name: result["columns"], type: "VARCHAR(255)" }];
+      try {
+        const parsed = JSON.parse(result["columns"]) as unknown;
+        if (Array.isArray(parsed)) {
+          result["columns"] = parsed;
+        } else {
+          result["columns"] = [{ name: result["columns"], type: "VARCHAR(255)" }];
+        }
+      } catch {
+        result["columns"] = [{ name: result["columns"], type: "VARCHAR(255)" }];
+      }
+    } else if (typeof result["columns"] === "object" && result["columns"] !== null) {
+      // Hardening: If it's a single object instead of an array, wrap it in an array
+      result["columns"] = [result["columns"]];
     }
   }
 
