@@ -11,6 +11,7 @@ export const RegexpMatchSchemaBase = z.object({
   pattern: z.string().optional().describe("Regular expression pattern (Required)"),
   query: z.string().optional().describe("Alias for pattern"),
   sql: z.string().optional().describe("Alias for pattern"),
+  value: z.string().optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
@@ -35,9 +36,10 @@ export const RegexpMatchSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      pattern: z.string().optional(),
-      query: z.string().optional(),
-      sql: z.string().optional(),
+      pattern: z.coerce.string().optional(),
+      query: z.coerce.string().optional(),
+      sql: z.coerce.string().optional(),
+      value: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumn: z.boolean().optional().default(false),
@@ -47,7 +49,7 @@ export const RegexpMatchSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    pattern: data.pattern ?? data.query ?? data.sql ?? "",
+    pattern: data.pattern ?? data.query ?? data.sql ?? data.value ?? "",
     where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
@@ -89,6 +91,7 @@ export const LikeSearchSchemaBase = z.object({
   pattern: z.string().optional().describe("LIKE pattern with % and _ wildcards (Required)"),
   query: z.string().optional().describe("Alias for pattern"),
   sql: z.string().optional().describe("Alias for pattern"),
+  value: z.string().optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
@@ -113,9 +116,10 @@ export const LikeSearchSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      pattern: z.string().optional(),
-      query: z.string().optional(),
-      sql: z.string().optional(),
+      pattern: z.coerce.string().optional(),
+      query: z.coerce.string().optional(),
+      sql: z.coerce.string().optional(),
+      value: z.coerce.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumn: z.boolean().optional().default(false),
@@ -125,7 +129,7 @@ export const LikeSearchSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? "",
-    pattern: data.pattern ?? data.query ?? data.sql ?? "",
+    pattern: data.pattern ?? data.query ?? data.sql ?? data.value ?? "",
     where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,
