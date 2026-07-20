@@ -81,9 +81,9 @@ async function main() {
     while (running) {
       try {
         // Cache Hits (3 requests per loop)
-        await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_measurements" } });
-        await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_events" } });
-        await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_users" } });
+        await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_measurements" } }).catch(() => {});
+        await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_events" } }).catch(() => {});
+        await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_users" } }).catch(() => {});
 
         // Intentional Error (for error rate % and error log)
         await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT * FROM non_existent_table_for_testing" } }).catch(() => {});
@@ -92,9 +92,19 @@ async function main() {
         await client.readResource({ uri: "mysql://pool" }).catch(() => {});
         await client.readResource({ uri: "mysql://cluster" }).catch(() => {});
 
-        // Pool Utilization (Simulate a query that holds the connection for a short time)
-        await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT SLEEP(0.5)" } }).catch(() => {});
+        // Slow Query (to trigger slow query metrics)
+        await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT SLEEP(2)" } }).catch(() => {});
         
+        // Locking Rate (per sec) - triggers MySQL locking metrics
+        await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT GET_LOCK('metrics_load_lock', 1)" } }).catch(() => {});
+        
+        // Insert Query
+        await client.callTool({ name: "mysql_write_query", arguments: { query: "CREATE TABLE IF NOT EXISTS testdb.metrics_dummy (id INT AUTO_INCREMENT PRIMARY KEY, v INT);" } }).catch(() => {});
+        await client.callTool({ name: "mysql_write_query", arguments: { query: "INSERT INTO testdb.metrics_dummy (v) VALUES (1);" } }).catch(() => {});
+        
+        // Delete Query
+        await client.callTool({ name: "mysql_write_query", arguments: { query: "DELETE FROM testdb.metrics_dummy WHERE v = 1;" } }).catch(() => {});
+
         // Wait 1 second between loops to space out the load
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (err) {
