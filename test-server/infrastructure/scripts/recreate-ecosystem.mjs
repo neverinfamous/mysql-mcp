@@ -2,26 +2,30 @@ import { execSync } from 'child_process';
 import { setTimeout } from 'timers/promises';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-import fs from 'fs';
-if (fs.existsSync('C:/Users/chris/Desktop/adamic/secrets.env')) {
-  const envConfig = fs.readFileSync('C:/Users/chris/Desktop/adamic/secrets.env', 'utf-8');
-  envConfig.split('\n').forEach(line => {
-    const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
-    if (match) {
-      process.env[match[1]] = (match[2] || '').trim().replace(/^['"](.*)['"]$/, '$1');
-    }
-  });
-  process.env.WSLENV = process.env.WSLENV ? `${process.env.WSLENV}:DD_API_KEY/u` : 'DD_API_KEY/u';
+// Load secrets.env for DD_API_KEY and other environment variables
+const adamicRoot = join(__dirname, '../../..');
+const secretsPath = join(adamicRoot, 'secrets.env');
+if (fs.existsSync(secretsPath)) {
+    const envConfig = fs.readFileSync(secretsPath, 'utf-8');
+    envConfig.split('\n').forEach(line => {
+        const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?$/);
+        if (match) {
+            process.env[match[1]] = (match[2] || '').trim().replace(/^['"](.*?)['"]$/, '$1');
+        }
+    });
+    process.env.WSLENV = process.env.WSLENV ? `${process.env.WSLENV}:DD_API_KEY/u` : 'DD_API_KEY/u';
 }
 
 const REPO_ROOT = join(__dirname, '..');
 const MAX_RETRIES = 60;
 const RETRY_DELAY_MS = 2000;
-const dockerCmd = 'docker';
+
+// ── Helpers ──────────────────────────────────────────────────────────
 
 function run(command) {
     console.log(`\n> ${command}`);
@@ -30,7 +34,7 @@ function run(command) {
 
 function runQuiet(command) {
     try {
-        return execSync(command, { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' });
+        return execSync(command, { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
     } catch {
         return '';
     }
@@ -50,10 +54,14 @@ function exec(cmd, ignoreError = false) {
     }
 }
 
+function mysqlExec(container, query) {
+    return exec(`docker exec -e MYSQL_PWD=root ${container} mysql -uroot -N -s -e "${query}"`, true) || '';
+}
+
 async function waitForMySQL(containerName) {
     console.log(`  Waiting for MySQL in ${containerName}...`);
     for (let i = 1; i <= MAX_RETRIES; i++) {
-        const out = exec(`${dockerCmd} exec -e MYSQL_PWD=root ${containerName} mysqladmin ping -h 127.0.0.1 -uroot`, true);
+        const out = exec(`docker exec -e MYSQL_PWD=root ${containerName} mysqladmin ping -h 127.0.0.1 -uroot`, true);
         if (out && out.includes('mysqld is alive')) {
             console.log(`  ✅ ${containerName} is ready`);
             return;
@@ -64,82 +72,152 @@ async function waitForMySQL(containerName) {
     throw new Error(`Timeout waiting for ${containerName} to become ready.`);
 }
 
+// ── Main ─────────────────────────────────────────────────────────────
+
 console.log('=== Recreating Unified Database Ecosystem ===');
 
+const MYSQL_NODES = ['mysql-node1', 'mysql-node2', 'mysql-node3'];
+const MYSQL_VOLUMES = MYSQL_NODES.map(n => `infrastructure_${n}-data-v4`);
+
 try {
-    // ── Phase 1: Cleanup ──────────────────────────────────────────────
-    console.log('\n[1/6] Discovering containers from docker-compose.yml...');
-    const services = runQuiet('docker compose config --services').trim().split('\n').filter(Boolean);
+    // ── Phase 0: Network setup ───────────────────────────────────────
+    console.log('\n[0/6] Configuring network...');
+    try {
+        const wslGateway = execSync(
+            'wsl bash -c "ip route show default | grep -oP \'(?<=default via )[0-9.]+\'"',
+            { encoding: 'utf-8' }
+        ).trim();
+        if (wslGateway) {
+            const envPath = join(REPO_ROOT, '.env');
+            let envContent = '';
+            try { envContent = fs.readFileSync(envPath, 'utf-8'); } catch {}
+            const filteredLines = envContent.split('\n').filter(l => !l.startsWith('WINDOWS_HOST_IP='));
+            filteredLines.push(`WINDOWS_HOST_IP=${wslGateway}`);
+            fs.writeFileSync(envPath, filteredLines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n');
+            console.log(`  Windows Host IP: ${wslGateway}`);
+        }
+    } catch {
+        console.log('  ⚠️ Could not detect WSL gateway IP (non-fatal)');
+    }
+
+    // ── Phase 1: Aggressive cleanup ──────────────────────────────────
+    console.log('\n[1/6] Discovering services...');
+    const services = runQuiet('docker compose config --services').split('\n').filter(Boolean);
     if (services.length === 0) {
         throw new Error('No services found in docker-compose.yml. Is the file valid?');
     }
     console.log(`  Found ${services.length} services: ${services.join(', ')}`);
 
-    console.log('\n[2/6] Cleaning up old containers and volumes...');
+    console.log('\n[2/6] Cleaning up containers, volumes, and networks...');
+    // Force-remove all known service containers
     for (const name of services) {
         runQuiet(`docker rm -f ${name}`);
     }
-    run('docker compose down -v --remove-orphans');
-    console.log('  Giving Docker daemon time to flush networks...');
-    await setTimeout(5000);
+    // Also remove any orphan containers referencing MySQL volumes (e.g., failed upgrade containers)
+    for (const vol of MYSQL_VOLUMES) {
+        const orphans = runQuiet(`docker ps -a --filter volume=${vol} -q`);
+        if (orphans) {
+            for (const id of orphans.split('\n').filter(Boolean)) {
+                console.log(`  Removing orphan container ${id} (holds volume ${vol})`);
+                runQuiet(`docker rm -f ${id}`);
+            }
+        }
+    }
+    await setTimeout(2000); // Let Docker release volume locks
 
-    // ── Phase 2: Start databases ─────────────────────────────────────
+    // Now take down compose (removes networks, orphans)
+    run('docker compose down -v --remove-orphans');
+    await setTimeout(3000);
+
+    // Explicitly verify MySQL volumes are gone (race condition fix)
+    for (const vol of MYSQL_VOLUMES) {
+        for (let attempt = 0; attempt < 5; attempt++) {
+            if (!runQuiet(`docker volume inspect ${vol}`)) break;
+            console.log(`  Volume ${vol} still exists, retrying removal...`);
+            runQuiet(`docker volume rm -f ${vol}`);
+            await setTimeout(2000);
+        }
+        if (runQuiet(`docker volume inspect ${vol}`)) {
+            console.error(`  ❌ FATAL: Could not remove volume ${vol}. Please run 'docker volume rm ${vol}' manually.`);
+            process.exit(1);
+        }
+    }
+    console.log('  ✅ All volumes confirmed removed');
+
+    // ── Phase 2: Start MySQL nodes ───────────────────────────────────
     console.log('\n[3/6] Starting MySQL nodes...');
     run('docker compose up -d mysql-node1 mysql-node2 mysql-node3');
 
-    // ── Phase 3: Bootstrap InnoDB Cluster ──────────────────────────────
+    // ── Phase 3: Bootstrap InnoDB Cluster ─────────────────────────────
     console.log('\n[4/6] Bootstrapping InnoDB Cluster...');
-    const mysqlNodes = services.filter(s => s.startsWith('mysql-node')).sort();
-    
-    for (const node of mysqlNodes) {
+    for (const node of MYSQL_NODES) {
         await waitForMySQL(node);
     }
 
-    console.log('\n  Creating cluster on primary node...');
-    const primaryNode = mysqlNodes[0];
-    const createCmd = `${dockerCmd} exec ${primaryNode} mysqlsh --uri root:root@${primaryNode}:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: '${primaryNode}:33061', communicationStack: 'XCOM', exitStateAction: 'READ_ONLY'}); console.log('Cluster created'); } catch(e) { console.log('Cluster may already exist or error: ' + e); }"`;
+    console.log('\n  Creating cluster on mysql-node1...');
+    const createCmd = `docker exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: 'mysql-node1:33061', communicationStack: 'XCOM', exitStateAction: 'READ_ONLY'}); print('Cluster created'); } catch(e) { print('Error: ' + e); }"`;
     const createOut = exec(createCmd);
     if (createOut) console.log(createOut.trim());
 
-    for (let i = 1; i < mysqlNodes.length; i++) {
-        const node = mysqlNodes[i];
+    for (const node of MYSQL_NODES.slice(1)) {
         console.log(`  Adding ${node} to cluster...`);
-        const addNode = `${dockerCmd} exec ${primaryNode} mysqlsh --uri root:root@${primaryNode}:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@${node}:3306', {recoveryMethod: 'clone', localAddress: '${node}:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { console.log('${node} add error (may already be in cluster): ' + e); }"`;
-        exec(addNode, true);
+        const addCmd = `docker exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@${node}:3306', {recoveryMethod: 'clone', localAddress: '${node}:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { print('${node}: ' + e); }"`;
+        exec(addCmd, true);
 
+        // After clone, node restarts — wait for it
         await waitForMySQL(node);
         console.log('  Allowing Group Replication to stabilize...');
         await setTimeout(5000);
     }
 
-    // ── Phase 3.5: Start remaining ecosystem ──────────────────────────
+    // Normalize group_seeds so all nodes know about all peers (critical for crash recovery)
+    console.log('\n  Normalizing group_seeds across all nodes...');
+    const fullSeeds = MYSQL_NODES.map(n => `${n}:33061`).join(',');
+    for (const node of MYSQL_NODES) {
+        mysqlExec(node, `SET PERSIST group_replication_group_seeds='${fullSeeds}';`);
+        mysqlExec(node, `SET PERSIST group_replication_ip_allowlist='AUTOMATIC';`);
+    }
+    console.log(`  ✅ All nodes have group_seeds: ${fullSeeds}`);
+
+    // ── Phase 4: Start remaining ecosystem ───────────────────────────
     console.log('\n[4.5/6] Starting remaining ecosystem containers...');
     run('docker compose up -d');
 
-    // ── Phase 4: Verify cluster ───────────────────────────────────────
+    // ── Phase 5: Verify cluster ──────────────────────────────────────
     console.log('\n[5/6] Verifying cluster status...');
-    let statusCmd = `${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "console.log(JSON.stringify(dba.getCluster('testCluster').status(), null, 2));"`;
-    let statusOut = exec(statusCmd, true);
-
-    if (!statusOut || statusOut.includes('MYSQLSH 51314') || statusOut.includes('Error')) {
-        console.log('  ⚠️ Cluster appears unstable. Attempting reboot from complete outage...');
-        exec(`${dockerCmd} exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "dba.rebootClusterFromCompleteOutage()"`, true);
-        await setTimeout(10000);
-        statusOut = exec(statusCmd, true);
-    }
-
-    if (statusOut) {
-        // Count ONLINE members
-        const onlineCount = (statusOut.match(/"status":\s*"ONLINE"/g) || []).length;
-        if (onlineCount >= 3) {
-            console.log(`  ✅ Cluster is ONLINE with ${onlineCount} nodes`);
-        } else {
-            console.log(`  ⚠️ Only ${onlineCount} nodes ONLINE (expected 3)`);
-            console.log(statusOut);
+    // Wait for cluster-healer to become healthy (confirms cluster is ONLINE)
+    for (let i = 1; i <= 30; i++) {
+        const health = runQuiet('docker inspect cluster-healer --format "{{.State.Health.Status}}"');
+        if (health === 'healthy') {
+            console.log('  ✅ Cluster healer reports healthy');
+            break;
         }
+        if (i === 30) console.log('  ⚠️ Cluster healer not yet healthy (cluster-healer will continue healing in background)');
+        await setTimeout(5000);
     }
 
-    // ── Phase 5: Seed database ────────────────────────────────────────
+    // Verify via raw SQL (avoids mysqlsh stderr stall issues)
+    const memberStatus = mysqlExec('mysql-node1',
+        "SELECT CONCAT(member_host, '=', member_state) FROM performance_schema.replication_group_members ORDER BY member_host;");
+    const onlineCount = (memberStatus.match(/ONLINE/g) || []).length;
+    console.log(`  Cluster: ${onlineCount}/3 nodes ONLINE`);
+    if (memberStatus) console.log(`  ${memberStatus.replace(/\n/g, ', ')}`);
+
+    // Verify router and proxysql
+    for (let i = 1; i <= 20; i++) {
+        const routerHealth = runQuiet('docker inspect mysql-router --format "{{.State.Health.Status}}"');
+        if (routerHealth === 'healthy') {
+            console.log('  ✅ MySQL Router is healthy');
+            break;
+        }
+        if (i === 20) console.log('  ⚠️ MySQL Router not yet healthy');
+        await setTimeout(3000);
+    }
+
+    const proxysqlHealth = runQuiet('docker inspect proxysql --format "{{.State.Health.Status}}"');
+    console.log(`  ProxySQL: ${proxysqlHealth}`);
+
+    // ── Phase 6: Seed database ───────────────────────────────────────
     console.log('\n[6/6] Seeding the test database...');
     run('node scripts/reset-database.mjs --skip-verify');
 

@@ -121,15 +121,17 @@ services:
   cluster-healer:
     image: mysql:9.1.0
     container_name: cluster-healer
-    labels:
-      com.datadoghq.ad.check_names: "[]"
     restart: unless-stopped
+    entrypoint: [ "/bin/bash", "/scripts/cluster-healer.sh" ]
     depends_on:
       mysql-node1:
         condition: service_healthy
+      mysql-node2:
+        condition: service_healthy
+      mysql-node3:
+        condition: service_healthy
     volumes:
-      - ./config/mysql/cluster-healer.sh:/cluster-healer.sh:ro
-    command: ["/bin/bash", "/cluster-healer.sh"]
+      - ./config/mysql/cluster-healer.sh:/scripts/cluster-healer.sh:ro
     stop_grace_period: 5s
     mem_limit: 128m
     logging:
@@ -137,6 +139,14 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: [ "CMD-SHELL", "cat /tmp/cluster-healthy 2>/dev/null || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 60
+      start_period: 120s
+    labels:
+      com.datadoghq.ad.check_names: '[]'
 
   # ==========================================
   # ROUTING & PROXIES
@@ -146,11 +156,7 @@ services:
     container_name: mysql-router
     restart: unless-stopped
     depends_on:
-      mysql-node1:
-        condition: service_healthy
-      mysql-node2:
-        condition: service_healthy
-      mysql-node3:
+      cluster-healer:
         condition: service_healthy
     entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
     volumes:
@@ -172,7 +178,10 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["mysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446, "username":"root", "password":"root", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": false, "extra_performance_metrics": false}}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446,
+        "username":"root", "password":"root", "options": {"replication": false,
+        "extra_status_metrics": true, "extra_innodb_metrics": false,
+        "extra_performance_metrics": false}}]'
     healthcheck:
       test:
         [
@@ -212,7 +221,10 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"radmin", "password":"radmin", "additional_metrics": ["connection_pool_metrics", "backends_metrics", "users_metrics", "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032,
+        "username":"radmin", "password":"radmin", "additional_metrics":
+        ["connection_pool_metrics", "backends_metrics", "users_metrics",
+        "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
     healthcheck:
       test:
