@@ -68,7 +68,9 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
           const isValid = checkResult.rows[0]?.["is_valid"];
           // Handle cases where driver returns 0, false, "0", etc.
           if (isValid === undefined || isValid === null || isValid === 0 || isValid === "0" || isValid === false) {
-            throw new Error(`Invalid JSON text in column \`${column}\`.`);
+            const err = new Error(`Invalid JSON text in column \`${column}\`.`);
+            err.name = "ValidationError";
+            throw err;
           }
           const sql = `SELECT JSON_EXTRACT(\`${column}\`, ?) as value FROM ${escapeQualifiedTable(table)} WHERE ${where} LIMIT 1`;
           const result = await adapter.executeReadQuery(sql, [path]);
@@ -143,7 +145,9 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
           const isValid = checkResult.rows[0]?.["is_valid"];
           // 0, false, "0" mean invalid JSON. null means the column is null (which is valid to update if it can hold JSON, but if it's an INT it would fail. Actually, JSON_SET on a NULL JSON column might not work, but we only protect against the crash which happens on non-JSON scalar types like INT).
           if (isValid === 0 || isValid === "0" || isValid === false) {
-            throw new Error(`Invalid JSON text in column \`${column}\`.`);
+            const err = new Error(`Invalid JSON text in column \`${column}\`.`);
+            err.name = "ValidationError";
+            throw err;
           }
         }
 
