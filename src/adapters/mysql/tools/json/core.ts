@@ -321,13 +321,44 @@ export function createJsonRemoveTool(adapter: MySQLAdapter): ToolDefinition {
         validateWhereClause(where);
 
         const pathArgs = paths.map(p => escape(p)).join(", ");
+
+        // Check if at least one path exists before remove
+        const checkSql = `SELECT SUM(CASE WHEN JSON_VALID(CAST(\`${column}\` AS CHAR)) THEN JSON_CONTAINS_PATH(CAST(\`${column}\` AS CHAR), 'one', ${pathArgs}) ELSE 0 END) as existing_paths, COUNT(*) as total_rows FROM ${escapeQualifiedTable(table)} WHERE ${where}`;
+        const checkResult = await adapter.executeReadQuery(checkSql);
+        const existingPaths = Number(checkResult.rows?.[0]?.["existing_paths"] ?? 0);
+        const totalRows = Number(checkResult.rows?.[0]?.["total_rows"] ?? 0);
+
         const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_REMOVE(\`${column}\`, ${pathArgs}) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql);
-        return withTokenEstimate({
-          success: true,
-          data: { rowsAffected: result.rowsAffected },
-        });
+
+        const response = totalRows === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: 0,
+                changed: false,
+                suggestion: "No rows matched the WHERE clause",
+              },
+            }
+          : existingPaths === 0
+          ? {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: false,
+                suggestion:
+                  "None of the specified paths exist in any matched rows; values were not removed",
+              },
+            }
+          : {
+              success: true as const,
+              data: {
+                rowsAffected: result.rowsAffected,
+                changed: true,
+              },
+            };
+        return withTokenEstimate(response);
       } catch (error: unknown) {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error, { module: "json", tool: "mysql_json_remove" });

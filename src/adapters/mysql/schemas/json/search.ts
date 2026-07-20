@@ -37,7 +37,7 @@ export const JsonContainsSchema = z
       contains: z.unknown().optional(),
       candidate: z.unknown().optional(),
       target: z.unknown().optional(),
-      path: z.string().regex(/^\$((?:\.[a-zA-Z0-9_$]+)|(?:\."[^"]+")|(?:\[\s*\d+\s*\])|(?:\.\*)|(?:\[\s*\*\s*\])|(?:\*\*))*$/, "Invalid JSON path expression (must start with $ and use valid path legs)").optional(),
+      path: z.string().regex(/^\$((?:\.[a-zA-Z0-9_$]+)|(?:\."[^"]+")|(?:\[\s*\d+\s*\]))*$/, "Invalid JSON path expression (must start with $ and use valid path legs. Wildcards are not supported for JSON_CONTAINS)").optional(),
       where: z.string().optional(),
       filter: z.coerce.string().optional(),
       limit: z.coerce.number().int().positive().optional(),
