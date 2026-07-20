@@ -70,6 +70,9 @@ async function main() {
 
   console.log("🌊 Starting continuous load generation for 60 seconds...");
   
+  // Fire off a slow query to exceed long_query_time of 10s without exhausting the connection pool
+  client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT SLEEP(11)" } }).catch(() => {});
+
   // Create a flag to control the loop
   let running = true;
   setTimeout(() => {
@@ -92,9 +95,6 @@ async function main() {
         await client.readResource({ uri: "mysql://pool" }).catch(() => {});
         await client.readResource({ uri: "mysql://cluster" }).catch(() => {});
 
-        // Slow Query (to trigger slow query metrics)
-        await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT SLEEP(2)" } }).catch(() => {});
-        
         // Locking Rate (per sec) - triggers MySQL locking metrics
         await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT GET_LOCK('metrics_load_lock', 1)" } }).catch(() => {});
         
