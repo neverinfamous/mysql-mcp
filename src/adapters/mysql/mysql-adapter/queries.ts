@@ -1,7 +1,7 @@
 import type { MySQLAdapter } from "./mysql-adapter.js";
 import type { PoolConnection, FieldPacket } from "mysql2/promise";
 import type { QueryResult } from "../../../types/index.js";
-import { ConnectionError, QueryError } from "../../../types/index.js";
+import { ConnectionError, QueryError, TransactionError } from "../../../types/index.js";
 
 export class QueryExecutor {
   constructor(private adapter: MySQLAdapter) {}
@@ -18,7 +18,7 @@ export class QueryExecutor {
     if (transactionId) {
       const conn = this.adapter.getTransactionConnection(transactionId);
       if (!conn) {
-        throw new Error(`Invalid transaction ID: ${transactionId}`);
+        throw new TransactionError(`Invalid transaction ID: ${transactionId}`);
       }
       return this.executeOnConnection(conn, sql, params);
     }
