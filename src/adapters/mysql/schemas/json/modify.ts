@@ -3,10 +3,10 @@ import { preprocessJsonColumnParams, ensureJsonPath } from "../preprocess-utils.
 
 // --- JsonSet ---
 export const JsonSetSchemaBase = z.object({
-  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.string().describe("JSON path to set (Anti-Hallucination: Pass 'path', not 'key')"),
@@ -68,10 +68,10 @@ export const JsonSetSchema = z
 
 // --- JsonInsert ---
 export const JsonInsertSchemaBase = z.object({
-  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.string().describe("JSON path to insert at (Anti-Hallucination: Pass 'path', not 'key')"),
@@ -143,10 +143,10 @@ export const JsonInsertSchema = z
 
 // --- JsonReplace ---
 export const JsonReplaceSchemaBase = z.object({
-  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.string().describe("JSON path to replace (Anti-Hallucination: Pass 'path', not 'key')"),
@@ -218,10 +218,10 @@ export const JsonReplaceSchema = z
 
 // --- JsonRemove ---
 export const JsonRemoveSchemaBase = z.object({
-  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   paths: z.unknown().describe("JSON paths to remove (Anti-Hallucination: Pass 'paths', not 'path' or 'keys')"),
@@ -295,10 +295,10 @@ export const JsonRemoveSchema = z
 
 // --- JsonArrayAppend ---
 export const JsonArrayAppendSchemaBase = z.object({
-  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col' or 'columnName')"),
+  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col' or 'columnName')"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.string().describe("JSON path to array (Anti-Hallucination: Pass 'path', not 'key')"),
@@ -364,10 +364,10 @@ export const JsonArrayAppendSchema = z
 
 // --- JsonUpdate ---
 export const JsonUpdateSchemaBase = z.object({
-  table: z.string().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  column: z.string().describe("JSON column name"),
+  column: z.string().optional().describe("JSON column name"),
   col: z.string().optional().describe("Alias for column"),
   columnName: z.string().optional().describe("Alias for column"),
   path: z.string().describe("JSON path to update (Anti-Hallucination: Pass 'path', not 'key')"),
