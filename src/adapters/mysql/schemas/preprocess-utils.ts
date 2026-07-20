@@ -31,7 +31,9 @@ export function ensureJsonPath(p: string | undefined): string | undefined {
   // Basic validation to prevent DB connection crashes on invalid paths
   // If the path contains an unquoted string inside brackets (like `$.[invalid]`), MySQL crashes.
   if (/\[[^\d*"']+\]/.test(formatted)) {
-    throw new Error(`Invalid JSON path syntax: ${p}`);
+    const err = new Error(`Invalid JSON path syntax: ${p}`);
+    err.name = "ValidationError";
+    throw err;
   }
   
   return formatted;
