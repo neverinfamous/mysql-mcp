@@ -1,0 +1,67 @@
+services:
+  mysql-server:
+    image: mysql:9.1
+    container_name: basic-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+      MYSQL_DATABASE: testdb
+    volumes:
+      - mysql-data:/var/lib/mysql
+    mem_limit: 1024m
+    command: >
+      --default-authentication-plugin=caching_sha2_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+      --performance_schema=ON
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": true, "extra_performance_metrics": true}}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql"}]'
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    container_name: datadog-agent
+    restart: unless-stopped
+    pid: host
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=${DD_SITE:-datadoghq.com}
+      - DD_HOSTNAME=mysql-mcp-basic
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_APM_ENABLED=true
+      - DD_PROCESS_AGENT_ENABLED=true
+      - DD_DOGSTATSD_NON_LOCAL_TRAFFIC=true
+      - DD_SYSTEM_PROBE_ENABLED=true
+      - DD_DOCKER_LABELS_AS_TAGS={"com.docker.compose.service":"service_name"}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /sys/kernel/debug:/sys/kernel/debug
+      - /etc/os-release:/host/etc/os-release:ro
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+      - NET_ADMIN
+      - NET_BROADCAST
+      - NET_RAW
+      - IPC_LOCK
+      - CHOWN
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"datadog-agent","service":"datadog-agent"}]'
+
+volumes:
+  mysql-data:

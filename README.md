@@ -131,6 +131,17 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ---
 
+## 🏗️ Infrastructure Templates
+
+If you need a MySQL environment to test or run the MCP server against, we provide production-ready Docker Compose templates in the [`examples/`](examples) directory. These templates include full Datadog observability out-of-the-box (Metrics, APM, and Logs).
+
+- **[Basic Template](examples/basic-mysql-datadog):** A lightweight, single-node MySQL setup. Perfect for quick starts.
+- **[Enterprise HA Template](examples/enterprise-ha-mysql):** A highly-available InnoDB Cluster with MySQL Router and ProxySQL. Perfect for staging or production replicas.
+
+See the README in each directory for quick start instructions.
+
+---
+
 ## ⚡ Optimize Token Usage with Code Mode
 
 Code Mode (`mysql_execute_code`) reduces token usage by consolidating operations in a secure sandbox.

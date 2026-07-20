@@ -1,0 +1,157 @@
+services:
+  mysql-node1:
+    image: mysql:9.1
+    container_name: mysql-node1
+    hostname: mysql-node1
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+    volumes:
+      - node1-data:/var/lib/mysql
+      - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: >
+      --default-authentication-plugin=caching_sha2_password
+      --server-id=1
+      --enforce-gtid-consistency=ON
+      --gtid-mode=ON
+      --binlog-checksum=NONE
+      --plugin-load-add=group_replication.so
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}"}]'
+
+  mysql-node2:
+    image: mysql:9.1
+    container_name: mysql-node2
+    hostname: mysql-node2
+    restart: unless-stopped
+    ports:
+      - "3308:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+    volumes:
+      - node2-data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=caching_sha2_password
+      --server-id=2
+      --enforce-gtid-consistency=ON
+      --gtid-mode=ON
+      --binlog-checksum=NONE
+      --plugin-load-add=group_replication.so
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mysql-node3:
+    image: mysql:9.1
+    container_name: mysql-node3
+    hostname: mysql-node3
+    restart: unless-stopped
+    ports:
+      - "3309:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
+    volumes:
+      - node3-data:/var/lib/mysql
+    command: >
+      --default-authentication-plugin=caching_sha2_password
+      --server-id=3
+      --enforce-gtid-consistency=ON
+      --gtid-mode=ON
+      --binlog-checksum=NONE
+      --plugin-load-add=group_replication.so
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  mysql-router:
+    image: container-registry.oracle.com/mysql/community-router:9.1.0
+    container_name: mysql-router
+    restart: unless-stopped
+    depends_on:
+      mysql-node1:
+        condition: service_healthy
+      mysql-node2:
+        condition: service_healthy
+      mysql-node3:
+        condition: service_healthy
+    entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
+    volumes:
+      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
+    tmpfs:
+      - /tmp/mysqlrouter:uid=999,gid=999
+    ports:
+      - "6446:6446"
+    healthcheck:
+      test: ["CMD", "mysql", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot", "-e", "SELECT 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  proxysql:
+    image: proxysql/proxysql:2.6.3
+    container_name: proxysql
+    restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
+    ports:
+      - "6032:6032"
+      - "6033:6033"
+    volumes:
+      - ./config/proxysql/proxysql.cnf:/etc/proxysql.cnf:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6033", "-uroot", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["proxysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin"}]'
+
+  datadog-agent:
+    image: gcr.io/datadoghq/agent:7
+    container_name: datadog-agent
+    restart: unless-stopped
+    pid: host
+    environment:
+      - DD_API_KEY=${DD_API_KEY}
+      - DD_SITE=${DD_SITE:-datadoghq.com}
+      - DD_HOSTNAME=mysql-mcp-ha
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_APM_ENABLED=true
+      - DD_PROCESS_AGENT_ENABLED=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    security_opt:
+      - apparmor:unconfined
+    cap_add:
+      - SYS_ADMIN
+      - SYS_RESOURCE
+      - SYS_PTRACE
+      - NET_ADMIN
+      - NET_BROADCAST
+      - NET_RAW
+      - IPC_LOCK
+      - CHOWN
+
+volumes:
+  node1-data:
+  node2-data:
+  node3-data:
