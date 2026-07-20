@@ -186,14 +186,18 @@ export function preprocessIndexParams(input: unknown): unknown {
       result["columns"] = [result["columns"]];
     }
   } else if (Array.isArray(result["columns"])) {
-    // Harden against AI hallucinating an array of objects instead of strings
-    result["columns"] = result["columns"].map((c: unknown) => {
-      if (typeof c === "object" && c !== null) {
-        const obj = c as Record<string, unknown>;
-        return obj["name"] ?? obj["column"] ?? obj["columnName"] ?? obj["field"] ?? JSON.stringify(c);
-      }
-      return c;
-    });
+    if (result["columns"].length === 1 && typeof result["columns"][0] === "string" && result["columns"][0].includes(",")) {
+      result["columns"] = result["columns"][0].split(",").map((c) => c.trim());
+    } else {
+      // Harden against AI hallucinating an array of objects instead of strings
+      result["columns"] = result["columns"].map((c: unknown) => {
+        if (typeof c === "object" && c !== null) {
+          const obj = c as Record<string, unknown>;
+          return obj["name"] ?? obj["column"] ?? obj["columnName"] ?? obj["field"] ?? JSON.stringify(c);
+        }
+        return c;
+      });
+    }
   }
 
   return result;
