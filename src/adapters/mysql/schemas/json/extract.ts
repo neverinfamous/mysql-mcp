@@ -142,7 +142,7 @@ export const JsonKeysSchema = z
       column: z.string().optional(),
       col: z.string().optional(),
       columnName: z.string().optional(),
-      path: z.string().regex(/^\$((?:\.[a-zA-Z0-9_$]+)|(?:\."[^"]+")|(?:\[\s*\d+\s*\])|(?:\.\*)|(?:\[\s*\*\s*\])|(?:\*\*))*$/, "Invalid JSON path expression (must start with $ and use valid path legs)").optional(),
+      path: z.string().regex(/^\$((?:\.[a-zA-Z0-9_$]+)|(?:\."[^"]+")|(?:\[\s*\d+\s*\]))*$/, "Invalid JSON path expression (must start with $ and use valid path legs. Wildcards are not supported)").optional(),
       key: z.string().optional(),
       keys: z.string().optional(),
       where: z.string().optional(),
