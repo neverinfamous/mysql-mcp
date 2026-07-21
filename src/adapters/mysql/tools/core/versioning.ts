@@ -93,7 +93,8 @@ export function createEnableVersioningTool(
         // We use just the table name without schema for the trigger name to keep it simple,
         // though trigger names must be unique within the schema.
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
-        const triggerName = `_mcp_version_${baseName.replace(/[^a-zA-Z0-9_]/g, "")}`;
+        const safeBaseName = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 51);
+        const triggerName = `_mcp_version_${safeBaseName}`;
         const schemaName = table.includes(".") ? table.split(".")[0] : null;
         const schemaNameLower = schemaName?.toLowerCase();
         
@@ -201,7 +202,8 @@ export function createDisableVersioningTool(
         const { table, ifExists } = DisableVersioningSchema.parse(params);
         const safeTable = escapeId(table);
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
-        const triggerName = `_mcp_version_${baseName.replace(/[^a-zA-Z0-9_]/g, "")}`;
+        const safeBaseName = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 51);
+        const triggerName = `_mcp_version_${safeBaseName}`;
         const schemaName = table.includes(".") ? table.split(".")[0] : null;
         const schemaNameLower = schemaName?.toLowerCase();
 
