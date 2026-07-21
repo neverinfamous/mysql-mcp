@@ -557,13 +557,20 @@ export const ConditionalUpdateSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   data: z.record(z.string(), z.unknown()).optional().describe("Column-value pairs to update"),
   updates: z.record(z.string(), z.unknown()).optional().describe("Alias for data"),
-  conditions: z.array(
+  conditions: z.union([
+    z.array(
+      z.object({
+        column: z.string(),
+        operator: z.enum(["=", "!=", "<", "<=", ">", ">=", "LIKE", "NOT LIKE", "IN", "NOT IN", "BETWEEN", "IS NULL", "IS NOT NULL"]).optional(),
+        value: z.unknown(),
+      })
+    ),
     z.object({
       column: z.string(),
       operator: z.enum(["=", "!=", "<", "<=", ">", ">=", "LIKE", "NOT LIKE", "IN", "NOT IN", "BETWEEN", "IS NULL", "IS NOT NULL"]).optional(),
       value: z.unknown(),
     })
-  ).optional().describe("Conditions identifying the row (e.g. primary key). Anti-Hallucination Hint: Must be an array of objects (e.g. [{column: 'id', value: 1}]), not a string."),
+  ]).optional().describe("Conditions identifying the row (e.g. primary key). Anti-Hallucination Hint: Must be an array of objects (e.g. [{column: 'id', value: 1}]), not a string."),
   condition: z.unknown().optional().describe("Alias for conditions (can be object, string, or number)"),
   idColumn: z.string().optional().describe("Primary key column name. Defaults to 'id' if not provided. Used with rowId alias."),
   rowId: z.union([z.string(), z.number()]).optional().describe("Alias for conditions. Shorthand for updating a single row by primary key."),
@@ -577,7 +584,7 @@ export const ConditionalUpdateSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     data: data.data ?? {},
-    conditions: data.conditions ?? [],
+    conditions: (Array.isArray(data.conditions) ? data.conditions : data.conditions ? [data.conditions] : []) as { column: string; operator?: string; value: unknown }[],
     expectedVersion: data.expectedVersion ?? data.version,
   }))
   .refine((data) => data.table !== "", {
