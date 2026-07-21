@@ -173,7 +173,7 @@ export const SoundexSchemaBase = z.object({
     .describe(
       "Include source column in output (default: false). Set to true for full context.",
     ),
-  limit: z.number().optional().describe("Maximum number of rows to return (default: 50)"),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const SoundexSchema = z
@@ -229,8 +229,8 @@ export const SubstringSchemaBase = z.object({
   start: z.union([z.string(), z.number()]).optional().describe("Starting position (1-indexed) (Required)"),
   pos: z.union([z.string(), z.number()]).optional().describe("Alias for start"),
   position: z.union([z.string(), z.number()]).optional().describe("Alias for start"),
-  length: z.number().optional().describe("Number of characters"),
-  len: z.number().optional().describe("Alias for length"),
+  length: z.union([z.string(), z.number()]).optional().describe("Number of characters"),
+  len: z.union([z.string(), z.number()]).optional().describe("Alias for length"),
   where: z
     .string()
     .optional()
@@ -243,7 +243,7 @@ export const SubstringSchemaBase = z.object({
     .describe(
       "Include source column in output (default: false). Set to true for full context.",
     ),
-  limit: z.number().optional().describe("Maximum number of rows to return (default: 50)"),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const SubstringSchema = z
