@@ -18,3 +18,4 @@ cp -r skills/mysql-mcp ~/.gemini/skills/
 
 - **`mysql`**: Enforces enterprise production rules for query safety, strict parameterization, connection pooling, and strict schema configurations (`STRICT_TRANS_TABLES`).
 - **`mysql-mcp`**: Provides core guidelines and instruction pointers for utilizing the `mysql-mcp` server, optimizing token usage with Code Mode, and tool filtering.
+- **`mysql-mcp-infrastructure`**: Master guide for orchestrating, recreating, and verifying the local database test ecosystems and examples (e.g. running the test-server cluster or basic/enterprise examples).
