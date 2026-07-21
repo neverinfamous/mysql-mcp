@@ -40,6 +40,8 @@ export const ReadQuerySchemaBase = z.object({
     .describe("Stream results via progress notifications instead of returning them all at once (requires client support)"),
   chunkSize: z
     .number()
+    .int("chunkSize must be an integer")
+    .positive("chunkSize must be greater than 0")
     .optional()
     .describe("Number of rows per chunk when streaming (default: 10)"),
 });

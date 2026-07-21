@@ -61,6 +61,8 @@ export function formatMysqlError(err: unknown): string {
       .replace(/Unknown column ('.*?') in 'field list'/i, "Column $1 not found")
       // Map SQL syntax errors to "SQL syntax error: near '...'"
       .replace(/You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near ('.*?').*/i, "SQL syntax error: near $1")
+      // Map vague prepared statement errors to helpful validation messages
+      .replace(/^Error in prepared statement execution$/i, "Prepared statement failed. Check that the number of '?' placeholders matches the length of the 'params' array and that all values are of a supported type.")
       .trim()
   );
 }
