@@ -61,8 +61,8 @@
     "acorn": "^8.17.0",
     "better-sqlite3": "npm:better-sqlite3-multiple-ciphers@^12.11.1",
     "isolated-vm": "7.0.0",
-    "jose": "^6.2.3",
-    "mysql2": "^3.23.0",
+    "jose": "^6.2.4",
+    "mysql2": "^3.23.1",
     "picocolors": "^1.1.1",
     "redis": "^6.1.0",
     "yaml": "^2.9.0",
@@ -82,14 +82,13 @@
     "tsup": "^8.5.1",
     "tsx": "^4.23.1",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.64.0",
+    "typescript-eslint": "^8.65.0",
     "vitest": "^4.1.10"
   },
-  "pnpm.overrides": {
+  "overrides": {
     "@modelcontextprotocol/sdk>ajv": "8.18.0",
+    "@hono/node-server": "^2.0.5",
     "hono": "^4.12.25",
-    "tsup>esbuild": "^0.28.1",
-    "bundle-require>esbuild": "^0.28.1",
     "esbuild": "^0.28.1"
   }
 }
