@@ -37,7 +37,7 @@ export const JsonExtractSchema = z
       filter: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-      limit: z.coerce.number().int().positive().optional(),
+      limit: z.coerce.number().int().positive().max(100).optional(),
       id: z.unknown().optional(),
     }),
   )

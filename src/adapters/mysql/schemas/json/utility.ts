@@ -26,7 +26,7 @@ export const JsonNormalizeSchema = z
       col: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
-      limit: z.coerce.number().int().positive().default(100),
+      limit: z.coerce.number().int().positive().max(100).default(100),
     }),
   )
   .transform((data) => ({
