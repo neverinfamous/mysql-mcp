@@ -14,6 +14,8 @@ export const CollationConvertSchemaBase = z.object({
   targetCharset: z.string().optional().describe("Alias for charset"),
   collation: z.string().optional().describe("Target collation"),
   targetCollation: z.string().optional().describe("Alias for collation"),
+  alias: z.string().optional().default("converted_value").describe("Result column name"),
+  as: z.string().optional().describe("Alias for alias"),
   where: z
     .string()
     .optional()
@@ -69,6 +71,8 @@ export const CollationConvertSchema = z
       targetCharset: z.string().optional(),
       collation: z.string().optional(),
       targetCollation: z.string().optional(),
+      alias: z.string().optional(),
+      as: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumn: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
@@ -80,6 +84,7 @@ export const CollationConvertSchema = z
     column: data.column ?? data.cols ?? data.columns ?? data.col ?? "",
     charset: data.charset ?? "",
     collation: data.collation ?? data.targetCollation,
+    alias: data.alias ?? data.as ?? "converted_value",
     where: data.where || data.filter || undefined,
     includeSourceColumn: data.includeSourceColumn,
     limit: data.limit,

@@ -314,6 +314,7 @@ export const ConcatSchemaBase = z.object({
     .optional()
     .default("concatenated")
     .describe("Result column name"),
+  as: z.string().optional().describe("Alias for alias"),
   where: z
     .string()
     .optional()
@@ -340,7 +341,8 @@ export const ConcatSchema = z
       cols: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
       column: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
       separator: z.string().optional().default(" "),
-      alias: z.string().optional().default("concatenated"),
+      alias: z.string().optional(),
+      as: z.string().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
       includeSourceColumns: z.union([z.boolean(), z.string()]).transform(v => v === "true" || v === true).optional().default(false),
@@ -351,7 +353,7 @@ export const ConcatSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     columns: data.columns ?? data.cols ?? data.column,
     separator: data.separator,
-    alias: data.alias,
+    alias: data.alias ?? data.as ?? "concatenated",
     where: data.where || data.filter || undefined,
     includeSourceColumns: data.includeSourceColumns,
     limit: data.limit,

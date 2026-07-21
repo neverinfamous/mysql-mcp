@@ -347,12 +347,13 @@ export function createCollationConvertTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { table, column, charset, collation, where, includeSourceColumn, limit } =
+        const { table, column, charset, collation, alias, where, includeSourceColumn, limit } =
           CollationConvertSchema.parse(params);
 
         // Validate inputs
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
+        validateIdentifier(alias, "column");
         validateWhereClause(where);
         // charset and collation are parameters for CONVERT, not identifiers in the query structure per se (but should be safe strings)
         // They are usually safe to interpolate if we trust them or validate against a list, but here we just put them in.
@@ -369,7 +370,7 @@ export function createCollationConvertTool(
 
         // Return only PKs and converted result for minimal payload (unless includeSourceColumn is true)
         const targetCols = includeSourceColumn ? [column] : [];
-        const exprs = [`${convertExpr} as converted_value`];
+        const exprs = [`${convertExpr} as \`${alias}\``];
         const selectColumns = await getSelectColumns(adapter, table, targetCols, exprs);
         let sql = `SELECT ${selectColumns} FROM ${escapeQualifiedTable(table)}`;
         const queryParams: unknown[] = [];
