@@ -543,7 +543,9 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
         const val = obj[k];
         let formattedVal = "''";
         if (typeof val === 'string') {
-          formattedVal = `'${val}'`;
+          // Escape backslashes and single quotes to prevent syntax errors
+          const escapedVal = val.replace(/\\/g, '\\\\').replace(/'/g, "''");
+          formattedVal = `'${escapedVal}'`;
         } else if (typeof val === 'number' || typeof val === 'boolean') {
           formattedVal = String(val);
         }
@@ -560,7 +562,8 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
     const rowId = v["rowId"] ?? v["id"];
     let formattedRowId = "''";
     if (typeof rowId === 'string') {
-      formattedRowId = `'${rowId}'`;
+      const escapedRowId = rowId.replace(/\\/g, '\\\\').replace(/'/g, "''");
+      formattedRowId = `'${escapedRowId}'`;
     } else if (typeof rowId === 'number' || typeof rowId === 'boolean') {
       formattedRowId = String(rowId);
     }
