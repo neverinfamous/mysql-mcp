@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_router_metadata_status` | [ ] | [ ] | [ ] | [ ] |
-| `mysql_router_pool_status` | [ ] | [ ] | [ ] | [ ] |
+| `mysql_router_metadata_status` |   |   |   |   |
+| `mysql_router_pool_status` |   |   |   |   |
 
 ---
 

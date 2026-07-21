@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_global_variables` | ✅ | ✅ | ✅ | ✅ |
-| `proxysql_commands` | ✅ | ✅ | ✅ | ✅ |
+| `proxysql_global_variables` |   |   |   |   |
+| `proxysql_commands` |   |   |   |   |
 
 ---
 

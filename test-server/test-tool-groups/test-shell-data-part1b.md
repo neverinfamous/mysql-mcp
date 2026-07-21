@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysqlsh_export_table` | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass |
-| `mysqlsh_import_table` | ✅ Pass | ✅ Pass | ✅ Pass | ✅ Pass |
+| `mysqlsh_export_table` |   |   |   |   |
+| `mysqlsh_import_table` |   |   |   |   |
 
 ---
 

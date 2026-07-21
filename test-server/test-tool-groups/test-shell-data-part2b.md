@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysqlsh_dump_schemas` | ✅ | ✅ | ✅ | ✅ |
-| `mysqlsh_dump_tables` | ✅ | ✅ | ✅ | ✅ |
+| `mysqlsh_dump_schemas` |   |   |   |   |
+| `mysqlsh_dump_tables` |   |   |   |   |
 
 ---
 
@@ -97,6 +97,8 @@
 
 - [ ] Ensure full coverage for mysqlsh_dump_schemas
 - [ ] Ensure full coverage for mysqlsh_dump_tables
+
+
 ---
 
 ## Execute Post-Test Procedures

@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_index_usage` | ✅ | ✅ | ✅ | ✅ |
-| `mysql_table_stats` | ✅ | ✅ | ✅ | ✅ |
+| `mysql_index_usage` |   |   |   |   |
+| `mysql_table_stats` |   |   |   |   |
 
 ---
 

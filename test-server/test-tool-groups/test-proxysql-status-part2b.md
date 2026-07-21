@@ -70,7 +70,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_query_digest` | Pass | Pass | Pass | Pass |
+| `proxysql_query_digest` |   |   |   |   |
 
 ---
 

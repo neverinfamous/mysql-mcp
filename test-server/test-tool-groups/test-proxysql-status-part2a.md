@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `proxysql_memory_stats` | Pass | Pass | Pass | N/A |
-| `proxysql_process_list` | Pass | Pass | Pass | N/A |
+| `proxysql_memory_stats` |   |   |   |   |
+| `proxysql_process_list` |   |   |   |   |
 
 ---
 

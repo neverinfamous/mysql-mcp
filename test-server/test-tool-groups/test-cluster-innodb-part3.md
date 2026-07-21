@@ -70,7 +70,7 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysql_cluster_topology` | ✅ | N/A | ✅ | N/A |
+| `mysql_cluster_topology` |   |   |   |   |
 
 ---
 
@@ -94,6 +94,8 @@
 ## Tasks
 
 - [ ] Ensure full coverage for mysql_cluster_topology
+
+
 ---
 
 ## Execute Post-Test Procedures

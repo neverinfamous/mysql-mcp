@@ -70,8 +70,8 @@
 
 | Tool | Direct Call (Happy Path) | Domain Error | Zod Empty Param | Alias Acceptance |
 |---|---|---|---|---|
-| `mysqlsh_version` | ✅ | ✅ | ✅ | ✅ |
-| `mysqlsh_check_upgrade` | ✅ | ✅ | ✅ | ✅ |
+| `mysqlsh_version` |   |   |   |   |
+| `mysqlsh_check_upgrade` |   |   |   |   |
 
 ---
 
@@ -97,6 +97,8 @@
 
 - [ ] Ensure full coverage for mysqlsh_version
 - [ ] Ensure full coverage for mysqlsh_check_upgrade
+
+
 ---
 
 ## Execute Post-Test Procedures
