@@ -67,7 +67,7 @@ export function createJsonGetTool(adapter: MySQLAdapter): ToolDefinition {
         } else {
           const isValid = checkResult.rows[0]?.["is_valid"];
           // Handle cases where driver returns 0, false, "0", etc.
-          if (isValid === undefined || isValid === null || isValid === 0 || isValid === "0" || isValid === false) {
+          if (isValid === 0 || isValid === "0" || isValid === false) {
             const err = new Error(`Invalid JSON text in column \`${column}\`.`);
             err.name = "ValidationError";
             throw err;
