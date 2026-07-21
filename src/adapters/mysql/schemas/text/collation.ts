@@ -28,7 +28,7 @@ export const CollationConvertSchemaBase = z.object({
     .describe(
       "Include source column in output (default: false). Set to true for full context.",
     ),
-  limit: z.unknown().optional().describe("Maximum number of rows to return"),
+  limit: z.number().optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const CollationConvertSchema = z
