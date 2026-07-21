@@ -327,7 +327,7 @@ export const ConcatSchemaBase = z.object({
     .describe(
       "Include individual source columns in output (default: false). Set to true for full context.",
     ),
-  limit: z.number().optional().describe("Maximum number of rows to return (default: 50)"),
+  limit: z.union([z.string(), z.number()]).optional().describe("Maximum number of rows to return (default: 50)"),
 });
 
 export const ConcatSchema = z
