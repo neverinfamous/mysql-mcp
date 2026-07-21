@@ -476,9 +476,36 @@ export const GetIndexesOutputSchema = BaseOutputSchema.extend({
 // --- Versioning (Optimistic Concurrency Control) ---
 
 export const EnableVersioningSchemaBase = z.object({
-  table: z.string().optional().describe("Table to enable OCC on"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
+  table: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Table to enable OCC on"),
+  tableName: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for table"),
+  name: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for table"),
 });
 
 export const EnableVersioningSchema = z
@@ -498,9 +525,36 @@ export const EnableVersioningOutputSchema = BaseOutputSchema.extend({
 });
 
 export const DisableVersioningSchemaBase = z.object({
-  table: z.string().optional().describe("Table to disable OCC on"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
+  table: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Table to disable OCC on"),
+  tableName: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for table"),
+  name: z.preprocess(
+    (val: unknown) => {
+      if (typeof val === "object" && val !== null) {
+        const obj = val as Record<string, unknown>;
+        return obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(val);
+      }
+      return val;
+    },
+    z.string()
+  ).optional().describe("Alias for table"),
   ifExists: z.boolean().optional().default(false).describe("If true, do not error if table does not exist"),
 });
 
