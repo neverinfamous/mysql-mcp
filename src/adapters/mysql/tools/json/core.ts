@@ -142,7 +142,7 @@ export function createJsonSetTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const jsonValue = validateJsonString(value);
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_SET(COALESCE(\`${column}\`, '{}'), ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql);
         return withTokenEstimate({
@@ -189,7 +189,7 @@ export function createJsonInsertTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Use CAST(CONVERT(? USING utf8mb4) AS JSON) to ensure the value is interpreted as JSON, not as a raw string
         const jsonValue = validateJsonString(value);
-        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(\`${column}\`, ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
+        const sql = `UPDATE ${escapeQualifiedTable(table)} SET \`${column}\` = JSON_INSERT(COALESCE(\`${column}\`, '{}'), ${escape(path)}, CAST(CONVERT(${escape(jsonValue)} USING utf8mb4) AS JSON)) WHERE ${where}`;
 
         const result = await adapter.executeWriteQuery(sql);
 
