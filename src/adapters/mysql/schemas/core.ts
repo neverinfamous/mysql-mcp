@@ -123,7 +123,7 @@ export const ListTablesSchemaBase = z.object({
   db: z.string().optional().describe("Alias for database"),
   schema: z.string().optional().describe("Alias for database"),
   limit: z
-    .number()
+    .union([z.number(), z.string().regex(/^-?\d+$/).transform(Number)])
     .optional()
     .describe("Maximum number of tables to return (default: 50). Anti-Hallucination Hint: To get details for a specific table, use mysql_describe_table instead."),
   table: z.unknown().optional().describe("Anti-Hallucination Hint: Do NOT use this tool for a specific table. Use mysql_describe_table instead."),
