@@ -9,7 +9,7 @@ description: |
 
 # MySQL MCP Server Guidelines
 
-The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL that offers 241 specialized tools, a C++ V8 sandboxed Code Mode, and extensive telemetry. When operating this server, you MUST rely on its internal documentation to understand its architecture and optimize token usage.
+The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL that offers a large suite of specialized tools, a C++ V8 sandboxed Code Mode, and extensive telemetry. When operating this server, you MUST rely on its internal documentation to understand its architecture and optimize token usage.
 
 ## 1. Context & Architecture Recovery
 
@@ -25,7 +25,8 @@ The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL th
 ## 2. Operational Directives
 
 - **Code Mode Priority**: **\[ALWAYS\]** prefer using `mysql_execute_code` (Code Mode) for multi-step database operations to dramatically reduce token overhead.
-- **Tool Filtering**: Due to IDE limits, you cannot load all 241 tools at once. **\[ALWAYS\]** use tool filtering (e.g., `--tool-filter starter` or `--tool-filter codemode`) when deploying or instructing the user on setup.
+- **Code Mode Safety**: Code Mode does **NOT** bypass destructive-operation safety gates. `DROP`, `TRUNCATE`, `DELETE` without `WHERE`, and `ALTER TABLE ... DROP COLUMN` executed inside Code Mode scripts MUST still require explicit user confirmation before the script is submitted.
+- **Tool Filtering**: Due to IDE limits, you cannot load all tools at once. **\[ALWAYS\]** use tool filtering (e.g., `--tool-filter starter` or `--tool-filter codemode`) when deploying or instructing the user on setup.
 - **Connection Safety**: **\[ALWAYS\]** respect strict schema configurations (like `STRICT_TRANS_TABLES`) and use parameterized queries, even when executing scripts within Code Mode.
 
 ## 3. Telemetry & Debugging

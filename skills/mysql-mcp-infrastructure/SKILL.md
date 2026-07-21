@@ -17,6 +17,9 @@ The core test ecosystem is derived from the master `adamic` unified database eco
 
 **To Recreate the Ecosystem:**
 If the test infrastructure breaks, has port conflicts, or needs to be completely wiped and re-created:
+
+> **⚠️ SAFETY GATE**: This script **permanently destroys all containers and data** in the test ecosystem. You MUST obtain explicit user confirmation (e.g., "yes, destroy everything") before running this command. Never infer intent.
+
 ```bash
 # Natively on Windows (via PowerShell or cmd)
 node test-server/infrastructure/scripts/recreate-test-ecosystem.mjs
