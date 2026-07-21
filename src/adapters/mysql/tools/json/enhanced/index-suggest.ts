@@ -116,13 +116,17 @@ export function createJsonIndexSuggestTool(
 
             const tableName = table.split(".").pop() || "tbl";
             const shortTableName = tableName.substring(0, 20);
-            let cleanKey = key.replace(/[^a-zA-Z0-9_]/g, '').substring(0, 30);
+            let cleanKey = key.replace(/[^a-zA-Z0-9_]/g, '').substring(0, 25);
             if (!cleanKey && key.length > 0) {
               cleanKey = key.split('').map(c => c.charCodeAt(0).toString(16)).join('').substring(0, 8);
             }
             if (!cleanKey) {
               cleanKey = "empty";
             }
+            // Append a short hash of the original key to prevent duplicate index names
+            // for keys that strip down to the same alphanumeric string (e.g. "foo bar" and "foo.bar").
+            const shortHash = Buffer.from(key).toString('base64').replace(/[^a-zA-Z0-9]/g, '').substring(0, 6);
+            cleanKey = `${cleanKey}_${shortHash}`;
 
             suggestions.push({
               path: jsonPath,
