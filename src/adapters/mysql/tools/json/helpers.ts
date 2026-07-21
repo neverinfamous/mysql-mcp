@@ -124,12 +124,17 @@ export function createJsonUpdateTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Normalize value to valid JSON (bare strings get wrapped automatically)
         let jsonValue: string;
         if (typeof value === "string") {
           try {
-            JSON.parse(value);
-            jsonValue = value;
+            const parsed: unknown = JSON.parse(value);
+            // Only treat as pre-stringified JSON if it parses to an object or array.
+            // This prevents strings like "123" or "true" from being incorrectly coerced to number/boolean.
+            if (parsed !== null && typeof parsed === "object") {
+              jsonValue = value;
+            } else {
+              jsonValue = JSON.stringify(value);
+            }
           } catch {
             // Bare string - wrap it as a JSON string
             jsonValue = JSON.stringify(value);
