@@ -20,7 +20,7 @@ export const CollationConvertSchemaBase = z.object({
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumn: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(

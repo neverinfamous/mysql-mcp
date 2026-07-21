@@ -18,7 +18,7 @@ export const RegexpMatchSchemaBase = z.object({
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumn: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
@@ -98,7 +98,7 @@ export const LikeSearchSchemaBase = z.object({
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumn: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
@@ -167,7 +167,7 @@ export const SoundexSchemaBase = z.object({
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumn: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
@@ -237,7 +237,7 @@ export const SubstringSchemaBase = z.object({
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumn: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
@@ -320,7 +320,7 @@ export const ConcatSchemaBase = z.object({
     .describe("Additional WHERE clause for filtering"),
   filter: z.string().optional().describe("Alias for where"),
   includeSourceColumns: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe(
