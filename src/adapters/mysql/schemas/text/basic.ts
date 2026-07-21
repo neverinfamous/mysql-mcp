@@ -8,10 +8,10 @@ export const RegexpMatchSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().optional().describe("Regular expression pattern (Required)"),
-  query: z.string().optional().describe("Alias for pattern"),
-  sql: z.string().optional().describe("Alias for pattern"),
-  value: z.string().optional().describe("Alias for pattern"),
+  pattern: z.union([z.string(), z.number()]).optional().describe("Regular expression pattern (Required)"),
+  query: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  sql: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  value: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
@@ -88,10 +88,10 @@ export const LikeSearchSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  pattern: z.string().optional().describe("LIKE pattern with % and _ wildcards (Required)"),
-  query: z.string().optional().describe("Alias for pattern"),
-  sql: z.string().optional().describe("Alias for pattern"),
-  value: z.string().optional().describe("Alias for pattern"),
+  pattern: z.union([z.string(), z.number()]).optional().describe("LIKE pattern with % and _ wildcards (Required)"),
+  query: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  sql: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
+  value: z.union([z.string(), z.number()]).optional().describe("Alias for pattern"),
   where: z
     .string()
     .optional()
@@ -157,10 +157,10 @@ export const SoundexSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
-  value: z.string().optional().describe("Value to match phonetically (Required)"),
-  query: z.string().optional().describe("Alias for value"),
-  search: z.string().optional().describe("Alias for value"),
-  pattern: z.string().optional().describe("Alias for value"),
+  value: z.union([z.string(), z.number()]).optional().describe("Value to match phonetically (Required)"),
+  query: z.union([z.string(), z.number()]).optional().describe("Alias for value"),
+  search: z.union([z.string(), z.number()]).optional().describe("Alias for value"),
+  pattern: z.union([z.string(), z.number()]).optional().describe("Alias for value"),
   where: z
     .string()
     .optional()
