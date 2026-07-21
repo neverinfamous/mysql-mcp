@@ -584,7 +584,7 @@ export const ConditionalUpdateSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     data: data.data ?? {},
-    conditions: (Array.isArray(data.conditions) ? data.conditions : data.conditions ? [data.conditions] : []) as { column: string; operator?: string; value: unknown }[],
+    conditions: (Array.isArray(data.conditions) ? data.conditions : data.conditions ? [data.conditions] : []),
     expectedVersion: data.expectedVersion ?? data.version,
   }))
   .refine((data) => data.table !== "", {
