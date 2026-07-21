@@ -21,6 +21,7 @@ export const JsonSetSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
+  id: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonSetSchema = z
@@ -41,6 +42,7 @@ export const JsonSetSchema = z
       sql: z.string().optional(),
       query: z.string().optional(),
       columnName: z.string().optional(),
+      id: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -91,6 +93,7 @@ export const JsonInsertSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
+  id: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonInsertSchema = z
@@ -116,6 +119,7 @@ export const JsonInsertSchema = z
       sql: z.string().optional(),
       query: z.string().optional(),
       columnName: z.string().optional(),
+      id: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -166,6 +170,7 @@ export const JsonReplaceSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
+  id: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonReplaceSchema = z
@@ -191,6 +196,7 @@ export const JsonReplaceSchema = z
       sql: z.string().optional(),
       query: z.string().optional(),
       columnName: z.string().optional(),
+      id: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -235,6 +241,7 @@ export const JsonRemoveSchemaBase = z.object({
   sql: z.unknown().optional().describe("Alias for where"),
   idColumn: z.unknown().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
+  id: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonRemoveSchema = z
@@ -269,6 +276,7 @@ export const JsonRemoveSchema = z
       sql: z.string().optional(),
       query: z.string().optional(),
       columnName: z.string().optional(),
+      id: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -316,6 +324,7 @@ export const JsonArrayAppendSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
+  id: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
 
 export const JsonArrayAppendSchema = z
@@ -341,6 +350,7 @@ export const JsonArrayAppendSchema = z
       sql: z.string().optional(),
       query: z.string().optional(),
       columnName: z.string().optional(),
+      id: z.unknown().optional(),
     }),
   )
   .transform((data) => ({
@@ -424,7 +434,7 @@ export const JsonUpdateSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: ensureJsonPath(data.path),
-    value: data.value ?? data.val ?? data.data ?? data.item ?? data.element ?? data.doc ?? data.content,
+    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.content,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
