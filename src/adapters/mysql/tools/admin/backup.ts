@@ -346,12 +346,12 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
             for (const row of chunk) {
               valueGroups.push(`(${columnNames.map(() => "?").join(", ")})`);
               for (const col of columnNames) {
-                let val = row[col];
+                let val: unknown = row[col] ?? null;
                 if (
                   typeof val === "string" &&
                   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)
                 ) {
-                  val = val.replace("T", " ").replace("Z", "").split(".")[0];
+                  val = val.replace("T", " ").replace("Z", "").split(".")[0] ?? val;
                 }
                 flatValues.push(val);
               }
