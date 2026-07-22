@@ -273,14 +273,14 @@ export const CreateTableSchemaBase = z.object({
           .regex(/^[A-Z]+(\([^)]+\))?(\s+UNSIGNED)?$/i, "Invalid column type format")
           .describe("MySQL data type (e.g., INT, VARCHAR(255), JSON)"),
         nullable: z
-          .boolean()
+          .union([z.boolean(), z.string()])
           .optional()
           .default(true)
           .describe("Allow NULL values"),
-        primaryKey: z.boolean().optional().describe("Is primary key"),
-        autoIncrement: z.boolean().optional().describe("Auto-increment column"),
+        primaryKey: z.union([z.boolean(), z.string()]).optional().describe("Is primary key"),
+        autoIncrement: z.union([z.boolean(), z.string()]).optional().describe("Auto-increment column"),
         default: z.unknown().optional().describe("Default value"),
-        unique: z.boolean().optional().describe("Unique constraint"),
+        unique: z.union([z.boolean(), z.string()]).optional().describe("Unique constraint"),
         comment: z.string().optional().describe("Column comment"),
       }),
     )
@@ -301,7 +301,7 @@ export const CreateTableSchemaBase = z.object({
     .describe("Collation"),
   comment: z.string().optional().describe("Table comment"),
   ifNotExists: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe("Add IF NOT EXISTS clause"),
@@ -312,12 +312,21 @@ export const CreateTableSchema = z
   .preprocess(preprocessCreateTableParams, CreateTableSchemaBase)
   .transform((data) => ({
     name: data.name ?? data.table ?? data.tableName ?? "",
-    columns: data.columns,
+    columns: data.columns?.map((c: { name: string; type: string; nullable?: boolean | string; primaryKey?: boolean | string; autoIncrement?: boolean | string; default?: unknown; unique?: boolean | string; comment?: string }) => ({
+      name: c.name,
+      type: c.type,
+      default: c.default,
+      comment: c.comment,
+      nullable: typeof c.nullable === "string" ? c.nullable.toLowerCase() === "true" : (c.nullable ?? true),
+      primaryKey: typeof c.primaryKey === "string" ? c.primaryKey.toLowerCase() === "true" : (c.primaryKey ?? false),
+      autoIncrement: typeof c.autoIncrement === "string" ? c.autoIncrement.toLowerCase() === "true" : (c.autoIncrement ?? false),
+      unique: typeof c.unique === "string" ? c.unique.toLowerCase() === "true" : (c.unique ?? false),
+    })),
     engine: data.engine,
     charset: data.charset,
     collate: data.collate,
     comment: data.comment,
-    ifNotExists: data.ifNotExists,
+    ifNotExists: typeof data.ifNotExists === "string" ? data.ifNotExists.toLowerCase() === "true" : data.ifNotExists,
   }))
   .refine((data) => data.name !== "", {
     message: "name (or table/tableName alias) is required",
@@ -377,7 +386,7 @@ export const DropTableSchemaBase = z.object({
     z.string()
   ).optional().describe("Alias for table"),
   ifExists: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe("Add IF EXISTS clause"),
@@ -388,7 +397,7 @@ export const DropTableSchema = z
   .preprocess(preprocessTableParams, DropTableSchemaBase)
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    ifExists: data.ifExists,
+    ifExists: typeof data.ifExists === "string" ? data.ifExists.toLowerCase() === "true" : data.ifExists,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
