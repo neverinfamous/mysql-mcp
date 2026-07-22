@@ -456,6 +456,9 @@ export const CreateIndexSchema = z
   })
   .refine((data) => data.columns !== undefined && data.columns.length > 0, {
     message: "columns array is required and must not be empty",
+  })
+  .refine((data) => !(data.unique && (data.type === "FULLTEXT" || data.type === "SPATIAL")), {
+    message: "FULLTEXT and SPATIAL indexes cannot be unique",
   });
 
 export const CreateIndexOutputSchema = BaseOutputSchema.extend({
