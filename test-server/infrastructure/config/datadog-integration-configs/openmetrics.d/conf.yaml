@@ -8,21 +8,21 @@ instances:
       - env:development
     min_collection_interval: 15
     metrics:
-      - mysql_mcp_tool_calls
-      - mysql_mcp_tool_errors
-      - mysql_mcp_tool_tokens
+      - mysql_mcp_tool_calls_total
+      - mysql_mcp_tool_errors_total
+      - mysql_mcp_tool_tokens_total
       - mysql_mcp_tool_tokens_per_call
       - mysql_mcp_tool_latency_ms_p50
       - mysql_mcp_tool_latency_ms_p95
       - mysql_mcp_tool_latency_ms_p99
-      - mysql_mcp_resource_reads
+      - mysql_mcp_resource_reads_total
       - mysql_mcp_uptime_seconds
-      - mysql_mcp_cache_hits
-      - mysql_mcp_cache_misses
+      - mysql_mcp_cache_hits_total
+      - mysql_mcp_cache_misses_total
       - mysql_mcp_pool_connections_total
       - mysql_mcp_pool_connections_active
       - mysql_mcp_pool_connections_idle
-      - mysql_mcp_pool_queries
+      - mysql_mcp_pool_queries_total
   - openmetrics_endpoint: http://host.docker.internal:9464/metrics
     namespace: mysql_mcp
     tags:
@@ -30,18 +30,18 @@ instances:
       - env:development
     min_collection_interval: 15
     metrics:
-      - mysql_mcp_tool_calls
-      - mysql_mcp_tool_errors
-      - mysql_mcp_tool_tokens
+      - mysql_mcp_tool_calls_total
+      - mysql_mcp_tool_errors_total
+      - mysql_mcp_tool_tokens_total
       - mysql_mcp_tool_tokens_per_call
       - mysql_mcp_tool_latency_ms_p50
       - mysql_mcp_tool_latency_ms_p95
       - mysql_mcp_tool_latency_ms_p99
-      - mysql_mcp_resource_reads
+      - mysql_mcp_resource_reads_total
       - mysql_mcp_uptime_seconds
-      - mysql_mcp_cache_hits
-      - mysql_mcp_cache_misses
+      - mysql_mcp_cache_hits_total
+      - mysql_mcp_cache_misses_total
       - mysql_mcp_pool_connections_total
       - mysql_mcp_pool_connections_active
       - mysql_mcp_pool_connections_idle
-      - mysql_mcp_pool_queries
+      - mysql_mcp_pool_queries_total
