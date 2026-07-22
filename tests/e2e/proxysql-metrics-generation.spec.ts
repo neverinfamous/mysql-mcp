@@ -113,6 +113,9 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
     const res = await callToolAndParse(client, "mysql_read_query", { query: slowQuery });
     expectSuccess(res);
 
+    // ProxySQL updates stats periodically, give it a buffer to flush
+    await delay(1000);
+
     // Verify the query shows up in the digest
     const digestPayload = await callToolAndParse(client, "proxysql_query_digest", {});
     expectSuccess(digestPayload);
