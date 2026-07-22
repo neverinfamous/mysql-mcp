@@ -415,7 +415,7 @@ export const CreateIndexSchemaBase = z.object({
   table_name: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
   columns: z.union([z.array(z.unknown()), z.string(), z.record(z.string(), z.unknown())]).optional().describe("Columns to index. Anti-Hallucination Hint: Must be an array of strings (e.g. ['id', 'status']), not a single string or an array of objects."),
   column: z.union([z.array(z.unknown()), z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for columns"),
-  unique: z.boolean().optional().default(false).describe("Create unique index"),
+  unique: z.union([z.boolean(), z.string()]).optional().default(false).describe("Create unique index"),
   type: z
     .preprocess(
       (val) => (typeof val === "string" ? val.toUpperCase() : val),
@@ -431,7 +431,7 @@ export const CreateIndexSchemaBase = z.object({
     .optional()
     .describe("Alias for type"),
   ifNotExists: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .default(false)
     .describe("Add IF NOT EXISTS clause"),
@@ -444,9 +444,9 @@ export const CreateIndexSchema = z
     name: (data.name as string | undefined) ?? (data.indexName as string | undefined) ?? (data.index_name as string | undefined),
     table: (data.table as string | undefined) ?? (data.tableName as string | undefined) ?? (data.tbl as string | undefined) ?? (data.table_name as string | undefined) ?? "",
     columns: Array.isArray(data.columns) ? (data.columns as string[]) : (typeof data.columns === "string" ? [data.columns] : undefined),
-    unique: data.unique,
+    unique: typeof data.unique === "string" ? data.unique.toLowerCase() === "true" : Boolean(data.unique),
     type: data.type ?? data.indexType,
-    ifNotExists: data.ifNotExists,
+    ifNotExists: typeof data.ifNotExists === "string" ? data.ifNotExists.toLowerCase() === "true" : Boolean(data.ifNotExists),
   }))
   .refine((data) => data.name !== undefined && data.name !== "", {
     message: "name (or indexName alias) is required",
