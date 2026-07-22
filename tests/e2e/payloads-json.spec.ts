@@ -14,6 +14,25 @@ import { createClient, callToolAndParse } from "./helpers.js";
 test.describe.configure({ mode: "serial" });
 
 test.describe("Payload Contracts: JSON", () => {
+  test("mysql_json_index_suggest returns suggestions", async () => {
+    const client = await createClient();
+    try {
+      const payload = await callToolAndParse(
+        client,
+        "mysql_json_index_suggest",
+        {
+          table: "test_json_docs",
+          column: "doc",
+        },
+      );
+
+      // Should return array of suggestions or analysis
+      expect(typeof payload.data).toBe("object");
+    } finally {
+      await client.close();
+    }
+  });
+
   test("mysql_json_extract returns { rows, rowCount }", async () => {
     const client = await createClient();
     try {
@@ -125,22 +144,4 @@ test.describe("Payload Contracts: JSON", () => {
     }
   });
 
-  test("mysql_json_index_suggest returns suggestions", async () => {
-    const client = await createClient();
-    try {
-      const payload = await callToolAndParse(
-        client,
-        "mysql_json_index_suggest",
-        {
-          table: "test_json_docs",
-          column: "doc",
-        },
-      );
-
-      // Should return array of suggestions or analysis
-      expect(typeof payload.data).toBe("object");
-    } finally {
-      await client.close();
-    }
-  });
 });
