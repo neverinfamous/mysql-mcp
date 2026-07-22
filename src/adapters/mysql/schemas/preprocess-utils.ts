@@ -600,12 +600,13 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
     where = `\`${idCol}\` = ${formattedRowId}`;
   }
   
-  const coerceString = (val: unknown): string | undefined => {
+  const coerceString = (val: unknown, isWhere = false): unknown => {
     if (val === undefined || val === null) return undefined;
     if (typeof val === 'string') return val;
     if (typeof val === 'object') return JSON.stringify(val);
+    if (isWhere && (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint')) return val;
     if (typeof val === 'number' || typeof val === 'boolean' || typeof val === 'bigint') return val.toString();
-    return undefined;
+    return val;
   };
 
   const rawTable = v["table"] ?? v["tableName"] ?? v["name"] ?? v["tbl"] ?? v["table_name"];
@@ -617,9 +618,9 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   let finalPaths: unknown = rawPaths;
   if (rawPaths !== undefined) {
     if (Array.isArray(rawPaths)) {
-      finalPaths = rawPaths.map(p => ensureJsonPath(coerceString(p) ?? ""));
+      finalPaths = rawPaths.map(p => ensureJsonPath(coerceString(p) as string | undefined ?? ""));
     } else {
-      finalPaths = ensureJsonPath(coerceString(rawPaths) ?? "");
+      finalPaths = ensureJsonPath(coerceString(rawPaths) as string | undefined ?? "");
     }
   }
 
@@ -627,19 +628,17 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
     ...v,
     table: coerceString(rawTable),
     column: coerceString(rawColumn),
-    path: ensureJsonPath(coerceString(rawPath)),
+    path: ensureJsonPath(coerceString(rawPath) as string | undefined),
     paths: finalPaths,
-    where: coerceString(where),
+    where: coerceString(where, true),
     searchValue: coerceString(rawSearchValue),
   };
 
-  // If alias fields (filter, condition, query, sql) were passed as objects or other non-string types,
-  // ensure they don't fail Zod's string validation since they were converted into `where`.
-  for (const aliasKey of ["filter", "condition", "query", "sql"]) {
-    if (result[aliasKey] !== undefined && typeof result[aliasKey] !== "string") {
-      result[aliasKey] = coerceString(where);
-    }
-  }
+  // We've consolidated where-like aliases into `where`. Delete them so they don't bypass validation via z.coerce.string()
+  result["filter"] = undefined;
+  result["condition"] = undefined;
+  result["query"] = undefined;
+  result["sql"] = undefined;
 
   return result;
 }
