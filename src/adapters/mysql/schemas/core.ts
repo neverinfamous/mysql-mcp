@@ -267,7 +267,7 @@ export const CreateTableSchemaBase = z.object({
     },
     z.array(
       z.object({
-        name: z.string().describe("Column name"),
+        name: z.string().min(1, "Column name cannot be empty").describe("Column name"),
         type: z
           .string()
           .regex(/^[A-Z]+(\([^)]+\))?(\s+UNSIGNED)?$/i, "Invalid column type format")
