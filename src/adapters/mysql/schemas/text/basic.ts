@@ -160,6 +160,8 @@ export const SoundexSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Required)"),
   col: z.string().optional().describe("Alias for column"),
   value: z.union([z.string(), z.number()]).optional().describe("Value to match phonetically (Required)"),
@@ -188,6 +190,8 @@ export const SoundexSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
       value: z.coerce.string().optional(),
@@ -201,7 +205,7 @@ export const SoundexSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     column: data.column ?? data.col ?? "",
     value: data.value ?? data.query ?? data.search ?? data.pattern ?? "",
     where: data.where || data.filter || undefined,
@@ -229,6 +233,8 @@ export const SubstringSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.string().optional().describe("Column name (Note: Pass a column name, not a raw string) (Required)"),
   col: z.string().optional().describe("Alias for column"),
   start: z.union([z.string(), z.number()]).optional().describe("Starting position (1-indexed) (Required)"),
@@ -258,6 +264,8 @@ export const SubstringSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
       start: z.union([z.string(), z.number()]).optional(),
@@ -272,7 +280,7 @@ export const SubstringSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     column: data.column ?? data.col ?? "",
     start: data.start ?? data.pos ?? data.position,
     length: data.length ?? data.len,
