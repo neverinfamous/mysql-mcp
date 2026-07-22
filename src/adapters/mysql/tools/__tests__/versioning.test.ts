@@ -50,7 +50,7 @@ describe("Versioning Tools", () => {
       );
       // Verify CREATE TRIGGER was called
       expect(adapter.executeWriteQuery).toHaveBeenCalledWith(
-        expect.stringContaining("CREATE TRIGGER `_mcp_version_my_table`"),
+        expect.stringContaining("CREATE TRIGGER `_mcp_ver_my_table_"),
         []
       );
     });
@@ -72,7 +72,7 @@ describe("Versioning Tools", () => {
       
       // Verify CREATE TRIGGER was still called
       expect(adapter.executeWriteQuery).toHaveBeenCalledWith(
-        expect.stringContaining("CREATE TRIGGER `_mcp_version_my_table`"),
+        expect.stringContaining("CREATE TRIGGER `_mcp_ver_my_table_"),
         []
       );
     });
