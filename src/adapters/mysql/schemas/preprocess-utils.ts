@@ -623,7 +623,7 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
     }
   }
 
-  return {
+  const result: Record<string, unknown> = {
     ...v,
     table: coerceString(rawTable),
     column: coerceString(rawColumn),
@@ -632,6 +632,16 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
     where: coerceString(where),
     searchValue: coerceString(rawSearchValue),
   };
+
+  // If alias fields (filter, condition, query, sql) were passed as objects or other non-string types,
+  // ensure they don't fail Zod's string validation since they were converted into `where`.
+  for (const aliasKey of ["filter", "condition", "query", "sql"]) {
+    if (result[aliasKey] !== undefined && typeof result[aliasKey] !== "string") {
+      result[aliasKey] = coerceString(where);
+    }
+  }
+
+  return result;
 }
 
 export function preprocessQueryOnlyParams(val: unknown): unknown {
