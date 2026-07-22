@@ -339,7 +339,18 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         for (let i = 0; i < statements.length; i++) {
           const stmt = statements[i];
           if (!stmt) continue;
-          const result = await adapter.executeOnConnection(connection, stmt);
+          
+          let sql: string;
+          let params: unknown[] | undefined;
+          
+          if (typeof stmt === "string") {
+            sql = stmt;
+          } else {
+            sql = stmt.sql;
+            params = stmt.params;
+          }
+          
+          const result = await adapter.executeOnConnection(connection, sql, params);
           if (result.rows) {
             results.push({
               statement: i + 1,

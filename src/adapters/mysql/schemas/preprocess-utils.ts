@@ -539,9 +539,15 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
     result["statements"] = result["statements"].map((s: unknown) => {
       if (typeof s === "object" && s !== null) {
         const obj = s as Record<string, unknown>;
-        if ("sql" in obj && typeof obj["sql"] === "string") return obj["sql"];
-        if ("query" in obj && typeof obj["query"] === "string")
-          return obj["query"];
+        const params = obj["params"] ?? obj["parameters"] ?? obj["values"];
+        const paramsArray = params !== undefined ? (Array.isArray(params) ? params : [params]) : undefined;
+        
+        if ("sql" in obj && typeof obj["sql"] === "string") {
+          return paramsArray !== undefined ? { sql: obj["sql"], params: paramsArray } : obj["sql"];
+        }
+        if ("query" in obj && typeof obj["query"] === "string") {
+          return paramsArray !== undefined ? { sql: obj["query"], params: paramsArray } : obj["query"];
+        }
       }
       return s;
     });

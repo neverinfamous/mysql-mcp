@@ -129,7 +129,7 @@ export const TransactionExecuteSchemaBase = z.object({
 export const TransactionExecuteSchema = z
   .preprocess(preprocessTransactionExecuteParams, TransactionExecuteSchemaBase)
   .transform((data) => ({
-    statements: (data.statements ?? data.queries ?? []) as string[],
+    statements: (data.statements ?? data.queries ?? []) as (string | { sql: string, params?: unknown[] })[],
     isolationLevel: data.isolationLevel,
   }))
   .refine((data) => data.statements.length > 0, {
