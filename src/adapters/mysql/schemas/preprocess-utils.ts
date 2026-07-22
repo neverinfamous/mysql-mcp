@@ -178,17 +178,42 @@ export function preprocessIndexParams(input: unknown): unknown {
     // We explicitly omit 'name' -> 'table' aliasing because 'name' is the indexName
   }
 
+  if (typeof result["table"] === "object" && result["table"] !== null) {
+    const nested = result["table"] as Record<string, unknown>;
+    if (typeof nested["name"] === "string") result["table"] = nested["name"];
+    else if (typeof nested["tableName"] === "string") result["table"] = nested["tableName"];
+    else if (typeof nested["table"] === "string") result["table"] = nested["table"];
+  }
+
   if (result["name"] === undefined) {
     if (result["indexName"] !== undefined) result["name"] = result["indexName"];
     else if (result["index_name"] !== undefined) result["name"] = result["index_name"];
+  }
+
+  if (typeof result["name"] === "object" && result["name"] !== null) {
+    const nested = result["name"] as Record<string, unknown>;
+    if (typeof nested["name"] === "string") result["name"] = nested["name"];
+    else if (typeof nested["indexName"] === "string") result["name"] = nested["indexName"];
   }
 
   if (result["type"] === undefined && result["indexType"] !== undefined) {
     result["type"] = result["indexType"];
   }
 
+  if (typeof result["type"] === "string") {
+    result["type"] = result["type"].toUpperCase();
+  }
+  if (typeof result["indexType"] === "string") {
+    result["indexType"] = result["indexType"].toUpperCase();
+  }
+
   if (result["columns"] === undefined && result["column"] !== undefined) {
     result["columns"] = result["column"];
+  }
+
+  if (typeof result["columns"] === "object" && result["columns"] !== null && !Array.isArray(result["columns"])) {
+    const obj = result["columns"] as Record<string, unknown>;
+    result["columns"] = [obj["name"] ?? obj["column"] ?? obj["columnName"] ?? obj["field"] ?? JSON.stringify(obj)];
   }
 
   if (typeof result["columns"] === "string") {

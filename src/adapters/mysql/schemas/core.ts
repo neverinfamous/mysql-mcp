@@ -396,22 +396,28 @@ export const DropTableOutputSchema = BaseOutputSchema.extend({
 
 // Base schema for MCP visibility
 export const CreateIndexSchemaBase = z.object({
-  name: z.string().optional().describe("Index name"),
-  indexName: z.string().optional().describe("Alias for name"),
-  index_name: z.string().optional().describe("Alias for name"),
-  table: z.string().optional().describe("Table name"),
-  tableName: z.string().optional().describe("Alias for table"),
-  tbl: z.string().optional().describe("Alias for table"),
-  table_name: z.string().optional().describe("Alias for table"),
-  columns: z.union([z.array(z.string()), z.string()]).optional().describe("Columns to index. Anti-Hallucination Hint: Must be an array of strings (e.g. ['id', 'status']), not a single string or an array of objects."),
-  column: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for columns"),
+  name: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Index name"),
+  indexName: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  index_name: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  table: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Table name"),
+  tableName: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
+  tbl: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
+  table_name: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
+  columns: z.union([z.array(z.unknown()), z.string(), z.record(z.string(), z.unknown())]).optional().describe("Columns to index. Anti-Hallucination Hint: Must be an array of strings (e.g. ['id', 'status']), not a single string or an array of objects."),
+  column: z.union([z.array(z.unknown()), z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for columns"),
   unique: z.boolean().optional().default(false).describe("Create unique index"),
   type: z
-    .enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
+    .preprocess(
+      (val) => (typeof val === "string" ? val.toUpperCase() : val),
+      z.enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
+    )
     .optional()
     .describe("Index type"),
   indexType: z
-    .enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
+    .preprocess(
+      (val) => (typeof val === "string" ? val.toUpperCase() : val),
+      z.enum(["BTREE", "HASH", "FULLTEXT", "SPATIAL"])
+    )
     .optional()
     .describe("Alias for type"),
   ifNotExists: z
@@ -425,9 +431,9 @@ export const CreateIndexSchemaBase = z.object({
 export const CreateIndexSchema = z
   .preprocess(preprocessIndexParams, CreateIndexSchemaBase)
   .transform((data) => ({
-    name: data.name ?? data.indexName ?? data.index_name,
-    table: data.table ?? data.tableName ?? data.tbl ?? data.table_name ?? "",
-    columns: Array.isArray(data.columns) ? data.columns : (data.columns ? [data.columns] : undefined),
+    name: (data.name as string | undefined) ?? (data.indexName as string | undefined) ?? (data.index_name as string | undefined),
+    table: (data.table as string | undefined) ?? (data.tableName as string | undefined) ?? (data.tbl as string | undefined) ?? (data.table_name as string | undefined) ?? "",
+    columns: Array.isArray(data.columns) ? (data.columns as string[]) : (data.columns ? [data.columns as string] : undefined),
     unique: data.unique,
     type: data.type ?? data.indexType,
     ifNotExists: data.ifNotExists,
@@ -455,18 +461,18 @@ export const CreateIndexOutputSchema = BaseOutputSchema.extend({
 
 // Base schema for MCP visibility
 export const GetIndexesSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  tbl: z.string().optional().describe("Alias for table"),
-  table_name: z.string().optional().describe("Alias for table"),
+  table: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Table name"),
+  tableName: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
+  name: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
+  tbl: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
+  table_name: z.union([z.string(), z.record(z.string(), z.unknown())]).optional().describe("Alias for table"),
 });
 
 // Transformed schema for handler parsing
 export const GetIndexesSchema = z
   .preprocess(preprocessTableParams, GetIndexesSchemaBase)
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: (data.table as string | undefined) ?? (data.tableName as string | undefined) ?? (data.name as string | undefined) ?? "",
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
