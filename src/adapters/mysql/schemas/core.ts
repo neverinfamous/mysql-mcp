@@ -640,7 +640,8 @@ export const CheckVersionSchema = z
     if (typeof rawTable === "string") {
       tableStr = rawTable;
     } else if (typeof rawTable === "object" && rawTable !== null) {
-      const nameVal = rawTable["name"] ?? rawTable["tableName"] ?? rawTable["table"];
+      const obj = rawTable as { name?: unknown; tableName?: unknown; table?: unknown };
+      const nameVal = obj.name ?? obj.tableName ?? obj.table;
       tableStr = typeof nameVal === "string" ? nameVal : "";
     }
     return {
