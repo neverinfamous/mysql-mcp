@@ -18,6 +18,7 @@ import {
   ConditionalUpdateSchemaBase,
   ConditionalUpdateOutputSchema,
 } from "../../schemas/index.js";
+import { createHash } from "crypto";
 
 /**
  * Builds a simple WHERE clause from a conditions array.
@@ -90,11 +91,12 @@ export function createEnableVersioningTool(
       try {
         const { table } = EnableVersioningSchema.parse(params);
         const safeTable = escapeId(table);
-        // We use just the table name without schema for the trigger name to keep it simple,
-        // though trigger names must be unique within the schema.
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
-        const safeBaseName = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 51);
-        const triggerName = `_mcp_version_${safeBaseName}`;
+        const hash = createHash("md5").update(table).digest("hex").substring(0, 8);
+        const safeBaseNameOld = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 51);
+        const safeBaseNameNew = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 46);
+        const oldTriggerName = `_mcp_version_${safeBaseNameOld}`;
+        const triggerName = `_mcp_ver_${safeBaseNameNew}_${hash}`;
         const schemaName = table.includes(".") ? table.split(".")[0] : null;
         const schemaNameLower = schemaName?.toLowerCase();
         
@@ -104,6 +106,7 @@ export function createEnableVersioningTool(
           );
         }
 
+        const safeOldTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${oldTriggerName}\`` : `\`${oldTriggerName}\``;
         const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
         // Check if _version already exists
@@ -135,7 +138,12 @@ export function createEnableVersioningTool(
 
         // In MySQL, triggers for updates usually look like this:
         // CREATE TRIGGER <name> BEFORE UPDATE ON <table> FOR EACH ROW SET NEW._version = OLD._version + 1;
-        // First drop it if it exists to be safe
+        // First drop old format and new format if they exist to be safe
+        try {
+          await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS ${safeOldTrigger}`, []);
+        } catch {
+          // ignore
+        }
         try {
           await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS ${safeTrigger}`, []);
         } catch {
@@ -202,8 +210,11 @@ export function createDisableVersioningTool(
         const { table, ifExists } = DisableVersioningSchema.parse(params);
         const safeTable = escapeId(table);
         const baseName = table.includes(".") ? (table.split(".")[1] ?? table) : table;
-        const safeBaseName = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 51);
-        const triggerName = `_mcp_version_${safeBaseName}`;
+        const hash = createHash("md5").update(table).digest("hex").substring(0, 8);
+        const safeBaseNameOld = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 51);
+        const safeBaseNameNew = baseName.replace(/[^a-zA-Z0-9_]/g, "").substring(0, 46);
+        const oldTriggerName = `_mcp_version_${safeBaseNameOld}`;
+        const triggerName = `_mcp_ver_${safeBaseNameNew}_${hash}`;
         const schemaName = table.includes(".") ? table.split(".")[0] : null;
         const schemaNameLower = schemaName?.toLowerCase();
 
@@ -213,6 +224,7 @@ export function createDisableVersioningTool(
           );
         }
 
+        const safeOldTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${oldTriggerName}\`` : `\`${oldTriggerName}\``;
         const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
         const describeInfo = await adapter.describeTable(table);
@@ -240,6 +252,7 @@ export function createDisableVersioningTool(
           (col) => col.name === "_version",
         );
 
+        await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS ${safeOldTrigger}`, []);
         await adapter.executeWriteQuery(`DROP TRIGGER IF EXISTS ${safeTrigger}`, []);
 
         if (hasVersionColumn) {
