@@ -7,7 +7,6 @@
 
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
-  ValidationError,
   type ToolDefinition,
   type RequestContext,
 } from "../../../../types/index.js";
@@ -103,14 +102,6 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(column, "column");
         validateWhereClause(where);
 
-        // Pre-validate regular expression pattern syntax
-        try {
-          new RegExp(pattern);
-        } catch (err) {
-          throw new ValidationError(
-            `Invalid regular expression pattern '${pattern}': ${err instanceof Error ? err.message : String(err)}`
-          );
-        }
 
         // Return PKs and matched column for minimal payload (unless includeSourceColumn is true)
         const targetCols = includeSourceColumn ? [column] : [];
