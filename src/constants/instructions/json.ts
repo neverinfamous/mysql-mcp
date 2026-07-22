@@ -6,7 +6,7 @@ export const JSON_HELP = `# JSON Tools (\`mysql_json_extract\`, \`mysql_json_set
 - **\`mysql_json_get\`**: Retrieves JSON values by ID.
   - Missing row: returns \`{ value: null, rowFound: false }\`.
   - Null JSON path: returns \`{ value: null }\` (no \`rowFound\` field).
-- **Pagination**: \`mysql_json_extract\`, \`mysql_json_contains\`, \`mysql_json_keys\`, and \`mysql_json_search\` inject a default \`LIMIT 50\` on queries without explicit \`LIMIT\` clause.
+- **Pagination**: \`mysql_json_extract\`, \`mysql_json_contains\`, and \`mysql_json_search\` inject a default \`LIMIT 50\` on queries without explicit \`LIMIT\` clause. \`mysql_json_get\` and \`mysql_json_keys\` strictly enforce \`LIMIT 1\`.
 
 ### Write Operations (\`mysql_json_set\`, \`mysql_json_insert\`, \`mysql_json_replace\`, \`mysql_json_remove\`, \`mysql_json_array_append\`, \`mysql_json_update\`)
 - **WHERE Clause Requirement**: All write tools require a mandatory \`where\` parameter (or \`filter\`, \`condition\`, \`idColumn\`/\`rowId\` aliases) to identify target rows. The \`where\` parameter can be a raw SQL string, or an object (e.g., \`{"id": 1, "status": "active"}\`) which will be joined with \`AND\`.

@@ -33,8 +33,8 @@ Many tools accept **alternative parameter names** (aliases) for commonly used fi
 
 ## Pagination & Limits
 
-- **Default LIMIT 50**: \`mysql_read_query\`, \`mysql_json_extract\`, \`mysql_json_contains\`, \`mysql_json_keys\`, \`mysql_json_search\`, and Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`) inject a default \`LIMIT 50\` on queries without an explicit \`LIMIT\` clause. Use \`cursor\`/\`nextCursor\` to page through results (only supported by \`mysql_read_query\`). Add your own \`LIMIT\` clause to override this default.
-- **Default LIMIT 1**: \`mysql_json_get\` strictly enforces a \`LIMIT 1\`.
+- **Default LIMIT 50**: \`mysql_read_query\`, \`mysql_json_extract\`, \`mysql_json_contains\`, \`mysql_json_search\`, and Text tools (\`mysql_like_search\`, \`mysql_regexp_match\`, \`mysql_soundex\`, \`mysql_substring\`, \`mysql_concat\`, \`mysql_collation_convert\`) inject a default \`LIMIT 50\` on queries without an explicit \`LIMIT\` clause. Use \`cursor\`/\`nextCursor\` to page through results (only supported by \`mysql_read_query\`). Add your own \`LIMIT\` clause to override this default.
+- **Default LIMIT 1**: \`mysql_json_get\` and \`mysql_json_keys\` strictly enforce a \`LIMIT 1\`.
 - **Administrative Defaults**: \`mysql_export_table\` defaults to a \`limit\` of 5 and \`batch\` size of 50. The \`mysql_sys_\` schema tools default to \`limit\` values between 5 and 10. \`mysql_audit_search\` defaults to \`limit: 5\`.
 - **Faceted Search**: Fulltext tools accept \`includeFacets: true\` to return per-column hit distributions alongside results.
 
