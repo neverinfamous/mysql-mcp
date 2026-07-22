@@ -67,11 +67,11 @@ export const JsonContainsSchema = z
 
 // --- JsonSearch ---
 export const JsonSearchSchemaBase = z.object({
-  table: z.string().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  column: z.string().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
-  col: z.string().optional().describe("Alias for column"),
+  table: z.unknown().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
+  column: z.unknown().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col')"),
+  col: z.unknown().optional().describe("Alias for column"),
   searchValue: z.unknown().optional().describe("String value to search for (Anti-Hallucination: Pass 'searchValue', not 'searchString' or 'value')"),
   searchString: z.unknown().optional().describe("Alias for searchValue"),
   searchStr: z.unknown().optional().describe("Alias for searchValue"),
@@ -84,11 +84,11 @@ export const JsonSearchSchemaBase = z.object({
   escapeChar: z.string().optional().describe("Optional escape character"),
   select: z.string().optional().describe("Comma-separated columns to select (defaults to '*')"),
   where: z.unknown().optional().describe("Optional WHERE clause to filter rows (Anti-Hallucination: Pass 'where', not 'filter' or 'query')"),
-  filter: z.string().optional().describe("Alias for where"),
-  sql: z.string().optional().describe("Alias for where"),
-  query: z.string().optional().describe("Alias for where"),
-  condition: z.string().optional().describe("Alias for where"),
-  columnName: z.string().optional().describe("Alias for column"),
+  filter: z.unknown().optional().describe("Alias for where"),
+  sql: z.unknown().optional().describe("Alias for where"),
+  query: z.unknown().optional().describe("Alias for where"),
+  condition: z.unknown().optional().describe("Alias for where"),
+  columnName: z.unknown().optional().describe("Alias for column"),
   idColumn: z.string().optional().describe("Alias for where (used with rowId)"),
   rowId: z.unknown().optional().describe("Alias for where (used with idColumn)"),
 });
