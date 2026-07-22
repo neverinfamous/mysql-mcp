@@ -24,6 +24,8 @@ export const ReadQuerySchemaBase = z.object({
     .array(z.unknown())
     .optional()
     .describe("Query parameters for prepared statement"),
+  parameters: z.array(z.unknown()).optional().describe("Alias for params"),
+  values: z.array(z.unknown()).optional().describe("Alias for params"),
   cursor: z
     .string()
     .optional()
@@ -86,6 +88,8 @@ export const WriteQuerySchemaBase = z.object({
     .array(z.unknown())
     .optional()
     .describe("Query parameters for prepared statement"),
+  parameters: z.array(z.unknown()).optional().describe("Alias for params"),
+  values: z.array(z.unknown()).optional().describe("Alias for params"),
   transactionId: z
     .string()
     .optional()

@@ -382,8 +382,9 @@ export function preprocessQueryParams(input: unknown): unknown {
     else if (result["tx"] !== undefined) result["transactionId"] = result["tx"];
     else if (result["transaction_id"] !== undefined) result["transactionId"] = result["transaction_id"];
   }
-  if (result["params"] === undefined && result["parameters"] !== undefined) {
-    result["params"] = result["parameters"];
+  if (result["params"] === undefined) {
+    if (result["parameters"] !== undefined) result["params"] = result["parameters"];
+    else if (result["values"] !== undefined) result["params"] = result["values"];
   }
   if (result["params"] !== undefined && !Array.isArray(result["params"])) {
     result["params"] = [result["params"]];
