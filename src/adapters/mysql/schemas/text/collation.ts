@@ -6,6 +6,8 @@ export const CollationConvertSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   column: z.union([z.array(z.string()), z.string()]).optional().describe("Column name (Note: Pass a column name, not a raw string) (Required)"),
   cols: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for column"),
   columns: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for column"),
@@ -14,7 +16,7 @@ export const CollationConvertSchemaBase = z.object({
   targetCharset: z.string().optional().describe("Alias for charset"),
   collation: z.string().optional().describe("Target collation"),
   targetCollation: z.string().optional().describe("Alias for collation"),
-  alias: z.string().optional().default("converted_value").describe("Result column name"),
+  alias: z.string().optional().describe("Result column name (default: converted_value)"),
   as: z.string().optional().describe("Alias for alias"),
   where: z
     .string()
@@ -63,6 +65,8 @@ export const CollationConvertSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       column: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (typeof v[0] === "string" && v[0].includes(",") ? (v[0].split(",")[0] || v[0]).trim() : v[0]) : (typeof v === "string" && v.includes(",") ? (v.split(",")[0] || v).trim() : v)).optional(),
       cols: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (typeof v[0] === "string" && v[0].includes(",") ? (v[0].split(",")[0] || v[0]).trim() : v[0]) : (typeof v === "string" && v.includes(",") ? (v.split(",")[0] || v).trim() : v)).optional(),
       columns: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (typeof v[0] === "string" && v[0].includes(",") ? (v[0].split(",")[0] || v[0]).trim() : v[0]) : (typeof v === "string" && v.includes(",") ? (v.split(",")[0] || v).trim() : v)).optional(),
@@ -80,7 +84,7 @@ export const CollationConvertSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     column: data.column ?? data.cols ?? data.columns ?? data.col ?? "",
     charset: data.charset ?? "",
     collation: data.collation ?? data.targetCollation,

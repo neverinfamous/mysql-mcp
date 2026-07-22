@@ -290,6 +290,8 @@ export const ConcatSchemaBase = z.object({
   table: z.string().optional().describe("Table name (Note: Pass a table name, not a raw string) (Required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   columns: z.union([z.array(z.string()), z.string()]).optional().describe("Columns to concatenate (Note: Pass column names, not raw strings) (Required)"),
   cols: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for columns"),
   column: z.union([z.array(z.string()), z.string()]).optional().describe("Alias for columns"),
@@ -301,8 +303,7 @@ export const ConcatSchemaBase = z.object({
   alias: z
     .string()
     .optional()
-    .default("concatenated")
-    .describe("Result column name"),
+    .describe("Result column name (default: concatenated)"),
   as: z.string().optional().describe("Alias for alias"),
   where: z
     .string()
@@ -326,6 +327,8 @@ export const ConcatSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       columns: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
       cols: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
       column: z.union([z.array(z.string()), z.string()]).transform(v => Array.isArray(v) ? (v.length === 1 && typeof v[0] === "string" && v[0].includes(",") ? v[0].split(",").map(s => s.trim()) : v) : (typeof v === "string" && v.includes(",") ? v.split(",").map(s => s.trim()) : [v])).optional(),
@@ -339,7 +342,7 @@ export const ConcatSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     columns: data.columns ?? data.cols ?? data.column,
     separator: data.separator,
     alias: data.alias ?? data.as ?? "concatenated",
