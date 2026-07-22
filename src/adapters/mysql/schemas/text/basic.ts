@@ -64,17 +64,6 @@ export const RegexpMatchSchema = z
     message: "pattern (or query/sql alias) is required",
   })
   .refine(
-    (data) => {
-      try {
-        new RegExp(data.pattern);
-        return true;
-      } catch {
-        return false;
-      }
-    },
-    { message: "Invalid regular expression pattern syntax" }
-  )
-  .refine(
     (data) =>
       data.limit === undefined ||
       (!Number.isNaN(data.limit) && Number.isInteger(data.limit) && data.limit > 0),
