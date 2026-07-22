@@ -500,8 +500,8 @@ export const AuditSearchSchemaBase = z.object({
   category: z.string().optional().describe("Filter by category (e.g. read, write, admin)"),
   success: z.boolean().optional().describe("Filter by success status"),
   requestId: z.string().optional().describe("Filter by exact request ID"),
-  fromTimestamp: z.string().optional().describe("Filter by start timestamp (ISO 8601)"),
-  toTimestamp: z.string().optional().describe("Filter by end timestamp (ISO 8601)"),
+  fromTimestamp: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date format. Must be a valid ISO 8601 string." }).optional().describe("Filter by start timestamp (ISO 8601)"),
+  toTimestamp: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date format. Must be a valid ISO 8601 string." }).optional().describe("Filter by end timestamp (ISO 8601)"),
   limit: z.number().int().min(1).max(100).default(5).describe("Max results to return"),
   offset: z.number().int().min(0).default(0).describe("Pagination offset"),
 }).refine(
