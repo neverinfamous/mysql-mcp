@@ -147,8 +147,8 @@ export function createJsonDiffTool(adapter: MySQLAdapter): ToolDefinition {
                 const v2Raw = diffRow?.[`v2_${index}`];
 
                 // Compare as strings (JSON canonical form)
-                const v1Str = typeof v1Raw === "string" ? v1Raw : JSON.stringify(v1Raw);
-                const v2Str = typeof v2Raw === "string" ? v2Raw : JSON.stringify(v2Raw);
+                const v1Str = JSON.stringify(v1Raw);
+                const v2Str = JSON.stringify(v2Raw);
 
                 if (v1Str !== v2Str) {
                   differences.push({
