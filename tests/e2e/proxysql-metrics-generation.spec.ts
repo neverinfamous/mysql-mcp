@@ -117,11 +117,11 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
     await delay(1000);
 
     // Verify the query shows up in the digest
-    const digestPayload = await callToolAndParse(client, "proxysql_query_digest", {});
+    const digestPayload = await callToolAndParse(client, "proxysql_query_digest", { limit: 100 });
     expectSuccess(digestPayload);
     
     const queries = digestPayload.data!.queryDigests as Array<Record<string, any>>;
-    const sleepQuery = queries.find(row => String(row.digest_text).includes('SLEEP'));
+    const sleepQuery = queries.find(row => String(row.digest_text).toUpperCase().includes('SLEEP'));
     expect(sleepQuery).toBeDefined();
     
     // Check that it registered execution time
