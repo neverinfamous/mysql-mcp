@@ -469,6 +469,9 @@ export const ServerConfigSchema = z.preprocess(
     const record = obj as Record<string, unknown>;
     const result = { ...record };
     
+    if (result["action"] === undefined) {
+      result["action"] = "get";
+    }
     if (result["setting"] === undefined && result["key"] !== undefined) {
       result["setting"] = result["key"];
     }
