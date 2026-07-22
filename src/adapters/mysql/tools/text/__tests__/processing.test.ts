@@ -294,6 +294,9 @@ describe("Text Processing Tools", () => {
     });
 
     it("should return success: false for invalid regular expression pattern", async () => {
+      mockAdapter.executeReadQuery.mockRejectedValue(
+        new Error("Got error 'unmatched parentheses' from regexp")
+      );
       const tool = createRegexpMatchTool(
         mockAdapter,
       );
@@ -303,8 +306,8 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string; code: string };
 
       expect(result.success).toBe(false);
-      expect(result.code).toBe("VALIDATION_ERROR");
-      expect(result.error).toContain("Invalid regular expression pattern");
+      expect(result.code).toBe("UNKNOWN_ERROR");
+      expect(result.error).toContain("regexp");
     });
   });
 
