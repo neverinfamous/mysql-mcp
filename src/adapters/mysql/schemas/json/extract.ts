@@ -117,10 +117,10 @@ export const JsonGetSchema = z
 
 // --- JsonKeys ---
 export const JsonKeysSchemaBase = z.object({
-  table: z.unknown().optional().describe("Table name (Anti-Hallucination: Pass 'table', not 'tableName')"),
+  table: z.unknown().optional().describe("Table name (REQUIRED. Anti-Hallucination: Pass 'table', not 'tableName')"),
   tableName: z.unknown().optional().describe("Alias for table"),
   name: z.unknown().optional().describe("Alias for table"),
-  column: z.unknown().optional().describe("JSON column name (Anti-Hallucination: Pass 'column', not 'col' or 'columnName')"),
+  column: z.unknown().optional().describe("JSON column name (REQUIRED. Anti-Hallucination: Pass 'column', not 'col' or 'columnName')"),
   col: z.unknown().optional().describe("Alias for column"),
   columnName: z.unknown().optional().describe("Alias for column"),
   path: z.unknown().optional().describe("Optional JSON path (defaults to root. Anti-Hallucination: Pass 'path', not 'key' or 'keys')"),
