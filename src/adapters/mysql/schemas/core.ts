@@ -444,9 +444,9 @@ export const CreateIndexSchema = z
     name: (data.name as string | undefined) ?? (data.indexName as string | undefined) ?? (data.index_name as string | undefined),
     table: (data.table as string | undefined) ?? (data.tableName as string | undefined) ?? (data.tbl as string | undefined) ?? (data.table_name as string | undefined) ?? "",
     columns: Array.isArray(data.columns) ? (data.columns as string[]) : (typeof data.columns === "string" ? [data.columns] : undefined),
-    unique: typeof data.unique === "string" ? data.unique.toLowerCase() === "true" : Boolean(data.unique),
+    unique: typeof data.unique === "string" ? data.unique.toLowerCase() === "true" : (data.unique ?? undefined),
     type: data.type ?? data.indexType,
-    ifNotExists: typeof data.ifNotExists === "string" ? data.ifNotExists.toLowerCase() === "true" : Boolean(data.ifNotExists),
+    ifNotExists: typeof data.ifNotExists === "string" ? data.ifNotExists.toLowerCase() === "true" : (data.ifNotExists ?? undefined),
   }))
   .refine((data) => data.name !== undefined && data.name !== "", {
     message: "name (or indexName alias) is required",
