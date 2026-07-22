@@ -18,6 +18,7 @@ export const JsonSetSchemaBase = z.object({
   item: z.unknown().optional().describe("Alias for value"),
   element: z.unknown().optional().describe("Alias for value"),
   doc: z.unknown().optional().describe("Alias for value"),
+  document: z.unknown().optional().describe("Alias for value"),
   content: z.unknown().optional().describe("Alias for value"),
   where: z.unknown().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.unknown().optional().describe("Alias for where"),
@@ -45,6 +46,7 @@ export const JsonSetSchema = z
       item: z.unknown().optional(),
       element: z.unknown().optional(),
       doc: z.unknown().optional(),
+      document: z.unknown().optional(),
       content: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
@@ -59,7 +61,7 @@ export const JsonSetSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: ensureJsonPath(data.path),
-    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.content,
+    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.document !== undefined ? data.document : data.content,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -95,6 +97,7 @@ export const JsonInsertSchemaBase = z.object({
   item: z.unknown().optional().describe("Alias for value"),
   element: z.unknown().optional().describe("Alias for value"),
   doc: z.unknown().optional().describe("Alias for value"),
+  document: z.unknown().optional().describe("Alias for value"),
   content: z.unknown().optional().describe("Alias for value"),
   where: z.unknown().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.unknown().optional().describe("Alias for where"),
@@ -122,6 +125,7 @@ export const JsonInsertSchema = z
       item: z.unknown().optional(),
       element: z.unknown().optional(),
       doc: z.unknown().optional(),
+      document: z.unknown().optional(),
       content: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
@@ -136,7 +140,7 @@ export const JsonInsertSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: ensureJsonPath(data.path),
-    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.content,
+    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.document !== undefined ? data.document : data.content,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -172,6 +176,7 @@ export const JsonReplaceSchemaBase = z.object({
   item: z.unknown().optional().describe("Alias for value"),
   element: z.unknown().optional().describe("Alias for value"),
   doc: z.unknown().optional().describe("Alias for value"),
+  document: z.unknown().optional().describe("Alias for value"),
   content: z.unknown().optional().describe("Alias for value"),
   where: z.unknown().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.unknown().optional().describe("Alias for where"),
@@ -199,6 +204,7 @@ export const JsonReplaceSchema = z
       item: z.unknown().optional(),
       element: z.unknown().optional(),
       doc: z.unknown().optional(),
+      document: z.unknown().optional(),
       content: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.string().optional(),
@@ -213,7 +219,7 @@ export const JsonReplaceSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: ensureJsonPath(data.path),
-    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.content,
+    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.document !== undefined ? data.document : data.content,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -327,6 +333,7 @@ export const JsonArrayAppendSchemaBase = z.object({
   data: z.unknown().optional().describe("Alias for value"),
   item: z.unknown().optional().describe("Alias for value"),
   element: z.unknown().optional().describe("Alias for value"),
+  document: z.unknown().optional().describe("Alias for value"),
   where: z.unknown().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.unknown().optional().describe("Alias for where"),
   condition: z.unknown().optional().describe("Alias for where"),
@@ -354,6 +361,7 @@ export const JsonArrayAppendSchema = z
       data: z.unknown().optional(),
       item: z.unknown().optional(),
       element: z.unknown().optional(),
+      document: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.coerce.string().optional(),
       condition: z.coerce.string().optional(),
@@ -367,7 +375,7 @@ export const JsonArrayAppendSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: ensureJsonPath(data.path ?? data.key ?? data.keys),
-    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element,
+    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.document,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
@@ -403,6 +411,7 @@ export const JsonUpdateSchemaBase = z.object({
   item: z.unknown().optional().describe("Alias for value"),
   element: z.unknown().optional().describe("Alias for value"),
   doc: z.unknown().optional().describe("Alias for value"),
+  document: z.unknown().optional().describe("Alias for value"),
   content: z.unknown().optional().describe("Alias for value"),
   where: z.unknown().optional().describe("WHERE clause to identify rows (REQUIRED. Anti-Hallucination: Pass 'where', not 'query' or 'sql')"),
   filter: z.unknown().optional().describe("Alias for where"),
@@ -430,6 +439,7 @@ export const JsonUpdateSchema = z
       item: z.unknown().optional(),
       element: z.unknown().optional(),
       doc: z.unknown().optional(),
+      document: z.unknown().optional(),
       content: z.unknown().optional(),
       where: z.string().optional(),
       filter: z.coerce.string().optional(),
@@ -444,7 +454,7 @@ export const JsonUpdateSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
     path: ensureJsonPath(data.path),
-    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.content,
+    value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element !== undefined ? data.element : data.doc !== undefined ? data.doc : data.document !== undefined ? data.document : data.content,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
   .refine((data) => data.table !== "", {
