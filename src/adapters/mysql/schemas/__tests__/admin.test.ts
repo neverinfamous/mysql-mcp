@@ -142,12 +142,12 @@ describe("Admin Schemas", () => {
   });
 
   describe("ServerConfigSchema", () => {
-    it("should require action", () => {
-      expect(() => ServerConfigSchema.parse({})).toThrow();
+    it("should default to get action", () => {
+      expect(ServerConfigSchema.parse({})).toMatchObject({ action: "get" });
     });
     it("should parse get action", () => {
       expect(ServerConfigSchema.parse({ action: "get", setting: "logLevel" })).toMatchObject({ action: "get", setting: "logLevel" });
-      expect(() => ServerConfigSchema.parse({ key: "logLevel" })).toThrow();
+      expect(ServerConfigSchema.parse({ key: "logLevel" })).toMatchObject({ action: "get", setting: "logLevel" });
     });
     it("should fail set action if setting or value missing", () => {
       expect(() => ServerConfigSchema.parse({ action: "set" })).toThrow();

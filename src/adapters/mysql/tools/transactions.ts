@@ -338,7 +338,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         for (let i = 0; i < statements.length; i++) {
           const stmt = statements[i];
-          if (!stmt) continue;
+          if (stmt === undefined || stmt === null || stmt === "") continue;
           
           let sql: string;
           let params: unknown[] | undefined;
