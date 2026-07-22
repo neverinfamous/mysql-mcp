@@ -21,7 +21,7 @@ export const JSON_HELP = `# JSON Tools (\`mysql_json_extract\`, \`mysql_json_set
 
 ### Utilities & Validation (\`mysql_json_validate\`, \`mysql_json_diff\`, \`mysql_json_merge\`, \`mysql_json_normalize\`, \`mysql_json_stats\`, \`mysql_json_index_suggest\`)
 - **Validation**: Creating/updating validates JSON payload. \`mysql_json_validate\` explicitly validates JSON against syntax rules.
-- **Comparison & Formatting**: Use \`mysql_json_diff\` to compare objects, \`mysql_json_merge\` to combine raw JSON documents, and \`mysql_json_normalize\` to format or strip nulls/empty structures.
+- **Comparison & Formatting**: Use \`mysql_json_diff\` to compare objects, \`mysql_json_merge\` to combine raw JSON documents, and \`mysql_json_normalize\` to extract unique keys and type stats from a JSON column.
 - **Analysis**: \`mysql_json_stats\` provides column storage stats; \`mysql_json_index_suggest\` recommends generated columns and indexes for frequently queried paths.
 
 ### Error Handling

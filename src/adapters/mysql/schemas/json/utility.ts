@@ -71,7 +71,7 @@ export const JsonStatsSchema = z
       filter: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-      sampleSize: z.coerce.number().int().positive().default(1000),
+      sampleSize: z.coerce.number().int().positive().max(10000).default(1000),
     }),
   )
   .transform((data) => ({
