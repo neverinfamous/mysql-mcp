@@ -1,0 +1,37 @@
+# HELP mysql_mcp_tool_calls_total Total tool calls
+# TYPE mysql_mcp_tool_calls_total counter
+mysql_mcp_tool_calls_total{tool="mysql_list_tables"} 1
+# HELP mysql_mcp_tool_errors_total Total tool errors
+# TYPE mysql_mcp_tool_errors_total counter
+# HELP mysql_mcp_tool_tokens_total Total tokens estimated
+# TYPE mysql_mcp_tool_tokens_total counter
+mysql_mcp_tool_tokens_total{tool="mysql_list_tables"} 42
+# HELP mysql_mcp_tool_latency_ms_p50 P50 Latency (ms)
+# TYPE mysql_mcp_tool_latency_ms_p50 gauge
+mysql_mcp_tool_latency_ms_p50{tool="mysql_list_tables"} 100
+# HELP mysql_mcp_tool_latency_ms_p95 P95 Latency (ms)
+# TYPE mysql_mcp_tool_latency_ms_p95 gauge
+mysql_mcp_tool_latency_ms_p95{tool="mysql_list_tables"} 100
+# HELP mysql_mcp_tool_latency_ms_p99 P99 Latency (ms)
+# TYPE mysql_mcp_tool_latency_ms_p99 gauge
+mysql_mcp_tool_latency_ms_p99{tool="mysql_list_tables"} 100
+# HELP mysql_mcp_tool_tokens_per_call Average tokens per tool call
+# TYPE mysql_mcp_tool_tokens_per_call gauge
+mysql_mcp_tool_tokens_per_call{tool="mysql_list_tables"} 42
+# HELP mysql_mcp_resource_reads_total Total resource reads
+# TYPE mysql_mcp_resource_reads_total counter
+mysql_mcp_resource_reads_total{resource="mysql://help"} 0
+mysql_mcp_resource_reads_total{resource="mysql://help/core"} 0
+mysql_mcp_resource_reads_total{resource="mysql://help/advanced"} 0
+mysql_mcp_resource_reads_total{resource="mysql://audit"} 0
+mysql_mcp_resource_reads_total{resource="mysql://metrics"} 0
+# HELP mysql_mcp_cache_hits_total Total schema cache hits
+# TYPE mysql_mcp_cache_hits_total counter
+mysql_mcp_cache_hits_total 0
+# HELP mysql_mcp_cache_misses_total Total schema cache misses
+# TYPE mysql_mcp_cache_misses_total counter
+mysql_mcp_cache_misses_total 0
+# HELP mysql_mcp_uptime_seconds Server uptime in seconds
+# TYPE mysql_mcp_uptime_seconds gauge
+mysql_mcp_uptime_seconds 0
+
