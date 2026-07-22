@@ -746,9 +746,17 @@ export const AuditRestoreBackupSchema = z
     (obj: unknown) => {
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
+        const rawIncludeData = data["includeData"];
+        const parsedIncludeData = rawIncludeData === "true" || rawIncludeData === true || rawIncludeData === 1 || rawIncludeData === "1";
+        
+        const rawDryRun = data["dryRun"];
+        const parsedDryRun = rawDryRun === "true" || rawDryRun === true || rawDryRun === 1 || rawDryRun === "1";
+
         return {
           ...data,
           filename: data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"],
+          ...(rawIncludeData !== undefined && { includeData: parsedIncludeData }),
+          ...(rawDryRun !== undefined && { dryRun: parsedDryRun }),
         };
       }
       return obj;
