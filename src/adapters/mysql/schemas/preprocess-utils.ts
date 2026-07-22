@@ -611,7 +611,7 @@ export function preprocessJsonColumnParams(val: unknown): unknown {
   const rawTable = v["table"] ?? v["tableName"] ?? v["name"] ?? v["tbl"] ?? v["table_name"];
   const rawColumn = v["column"] ?? v["col"] ?? v["columnName"] ?? v["valueColumn"] ?? v["fieldName"] ?? v["c"];
   const rawPath = v["path"] ?? v["json_path"] ?? v["jsonPath"] ?? v["key"] ?? (Array.isArray(v["keys"]) ? undefined : v["keys"]);
-  const rawSearchValue = v["searchValue"] ?? v["searchString"] ?? v["searchStr"] ?? v["value"] ?? v["val"];
+  const rawSearchValue = v["searchValue"] ?? v["searchString"] ?? v["searchStr"] ?? v["value"] ?? v["val"] ?? v["search"] ?? v["text"] ?? v["content"] ?? v["keyword"];
 
   const rawPaths = v["paths"] ?? v["keys"];
   let finalPaths: unknown = rawPaths;
