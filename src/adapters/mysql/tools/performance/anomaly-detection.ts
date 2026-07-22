@@ -189,7 +189,7 @@ export function createDetectBloatRiskTool(
 
         let schemaFilter = `TABLE_SCHEMA NOT IN ('information_schema', 'performance_schema', 'sys', 'mysql')`;
         if (schema) {
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(schema)) {
+          if (!/^[a-zA-Z0-9_$-]+$/.test(schema)) {
             throw new ValidationError("Invalid schema name");
           }
           
@@ -205,7 +205,7 @@ export function createDetectBloatRiskTool(
 
         let tableFilter = "1=1";
         if (table) {
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(table)) {
+          if (!/^[a-zA-Z0-9_$-]+$/.test(table)) {
             throw new ValidationError("Invalid table name");
           }
           const schemaCondition = schema ? `TABLE_SCHEMA = '${schema}'` : schemaFilter;
