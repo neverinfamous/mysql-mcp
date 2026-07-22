@@ -51,12 +51,12 @@ async function getSelectColumns(
       const pkCols = tableInfo.columns
         .filter((c) => c.primaryKey)
         .map((c) => `\`${c.name}\``);
+      const idCol = tableInfo.columns.find((c) => c.name.toLowerCase() === "id");
       if (pkCols.length > 0) {
         selectCols.push(...pkCols);
-      } else if (tableInfo.columns.some((c) => c.name.toLowerCase() === "id")) {
-        const idCol = tableInfo.columns.find((c) => c.name.toLowerCase() === "id")!.name;
-        selectCols.push(`\`${idCol}\``);
-      } else if (targetColumns.length === 0 && (!expressions || expressions.length === 0)) {
+      } else if (idCol) {
+        selectCols.push(`\`${idCol.name}\``);
+      } else if (targetColumns.length === 0 && (!expressions || expressions.length === 0) && tableInfo.columns[0]) {
         selectCols.push(`\`${tableInfo.columns[0].name}\``);
       }
     } else if (targetColumns.length === 0 && (!expressions || expressions.length === 0)) {
