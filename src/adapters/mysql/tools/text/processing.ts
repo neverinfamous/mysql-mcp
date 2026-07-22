@@ -53,14 +53,19 @@ async function getSelectColumns(
         .map((c) => `\`${c.name}\``);
       if (pkCols.length > 0) {
         selectCols.push(...pkCols);
-      } else {
-        selectCols.push("`id`");
+      } else if (tableInfo.columns.some((c) => c.name.toLowerCase() === "id")) {
+        const idCol = tableInfo.columns.find((c) => c.name.toLowerCase() === "id")!.name;
+        selectCols.push(`\`${idCol}\``);
+      } else if (targetColumns.length === 0 && (!expressions || expressions.length === 0)) {
+        selectCols.push(`\`${tableInfo.columns[0].name}\``);
       }
-    } else {
+    } else if (targetColumns.length === 0 && (!expressions || expressions.length === 0)) {
       selectCols.push("`id`");
     }
   } catch {
-    selectCols.push("`id`");
+    if (targetColumns.length === 0 && (!expressions || expressions.length === 0)) {
+      selectCols.push("`id`");
+    }
   }
 
   for (const col of targetColumns) {
