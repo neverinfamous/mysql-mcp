@@ -49,7 +49,8 @@ export const JsonContainsOutputSchema = BaseOutputSchema.extend({
 
 export const JsonKeysOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    keys: z.array(z.string()).optional(),
+    keys: z.array(z.string()).nullable().optional(),
+    suggestion: z.string().optional(),
   }).optional(),
 });
 

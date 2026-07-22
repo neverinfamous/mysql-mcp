@@ -456,7 +456,9 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
 
         const result = await adapter.executeReadQuery(sql);
         
-        let keys: string[] = [];
+        let keys: string[] | null = null;
+        let suggestion: string | undefined = undefined;
+
         const rawKeys = result.rows?.[0]?.["json_keys"];
         if (rawKeys !== undefined && rawKeys !== null) {
           if (typeof rawKeys === "string") {
@@ -467,11 +469,13 @@ export function createJsonKeysTool(adapter: MySQLAdapter): ToolDefinition {
           } else if (Array.isArray(rawKeys)) {
             keys = rawKeys.map(String);
           }
+        } else {
+          suggestion = "No rows matched the WHERE clause or no rows contained a valid JSON object at the specified path";
         }
         
         return withTokenEstimate({
           success: true,
-          data: { keys },
+          data: { keys, suggestion },
         });
       } catch (error: unknown) {
         if (error instanceof ZodError) {
