@@ -398,6 +398,9 @@ export class MetricsRegistry {
   }
 
   toPrometheus(): string {
+    // Reload from SQLite immediately before scraping to capture metrics from other stdio processes
+    this.loadHistorical();
+
     const lines: string[] = [];
 
     lines.push("# HELP mysql_mcp_tool_calls_total Total tool calls");
