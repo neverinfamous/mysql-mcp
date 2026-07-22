@@ -106,7 +106,7 @@ export const JsonIndexSuggestSchema = z
       name: z.string().optional(),
       column: z.string().optional(),
       col: z.string().optional(),
-      sampleSize: z.coerce.number().int().positive().default(100),
+      sampleSize: z.coerce.number().int().positive().max(1000).default(100),
     }),
   )
   .transform((data) => ({
