@@ -292,6 +292,20 @@ describe("Text Processing Tools", () => {
       expect(result.success).toBe(false);
       expect(result.error).toContain("not found");
     });
+
+    it("should return success: false for invalid regular expression pattern", async () => {
+      const tool = createRegexpMatchTool(
+        mockAdapter,
+      );
+      const result = (await tool.handler(
+        { table: "users", column: "email", pattern: "[" },
+        mockContext,
+      )) as { success: boolean; error: string; code: string };
+
+      expect(result.success).toBe(false);
+      expect(result.code).toBe("VALIDATION_ERROR");
+      expect(result.error).toContain("Invalid regular expression pattern");
+    });
   });
 
   describe("P154: createLikeSearchTool error handling", () => {

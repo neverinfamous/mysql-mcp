@@ -6,9 +6,10 @@
  */
 
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  ValidationError,
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../types/index.js";
 import {
   RegexpMatchSchema,
@@ -101,6 +102,15 @@ export function createRegexpMatchTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(column, "column");
         validateWhereClause(where);
+
+        // Pre-validate regular expression pattern syntax
+        try {
+          new RegExp(pattern);
+        } catch (err) {
+          throw new ValidationError(
+            `Invalid regular expression pattern '${pattern}': ${err instanceof Error ? err.message : String(err)}`
+          );
+        }
 
         // Return PKs and matched column for minimal payload (unless includeSourceColumn is true)
         const targetCols = includeSourceColumn ? [column] : [];
