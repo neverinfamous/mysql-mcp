@@ -580,14 +580,14 @@ export const DisableVersioningSchemaBase = z.object({
     },
     z.string()
   ).optional().describe("Alias for table"),
-  ifExists: z.boolean().optional().default(false).describe("If true, do not error if table does not exist"),
+  ifExists: z.union([z.boolean(), z.string()]).optional().default(false).describe("If true, do not error if table does not exist"),
 });
 
 export const DisableVersioningSchema = z
   .preprocess(preprocessTableParams, DisableVersioningSchemaBase)
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
-    ifExists: data.ifExists,
+    ifExists: typeof data.ifExists === "string" ? data.ifExists.toLowerCase() === "true" : data.ifExists,
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
