@@ -43,6 +43,7 @@ import {
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
 import { progressFactory } from "../../../../progress/index.js";
+import { escapeQualifiedTable } from "../../../../utils/validators.js";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -57,7 +58,7 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables } = OptimizeTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        const tableList = tables.map(escapeQualifiedTable).join(", ");
 
         const reporter = progressFactory.create(_context.progressToken);
         reporter?.start(1, `Optimizing tables: ${tables.join(", ")}...`);
@@ -113,7 +114,7 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
           const t = tables[i];
           if (!t) continue;
           reporter?.progress(i, tables.length, `Analyzing table: ${t}`);
-          const result = await adapter.rawQuery(`ANALYZE TABLE \`${t}\``);
+          const result = await adapter.rawQuery(`ANALYZE TABLE ${escapeQualifiedTable(t)}`);
           if (result.rows) {
             rows.push(...result.rows);
           }
@@ -168,7 +169,7 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
           if (!t) continue;
           reporter?.progress(i, tables.length, `Checking table: ${t}`);
           // Use rawQuery - CHECK TABLE not supported in prepared statement protocol
-          const result = await adapter.rawQuery(`CHECK TABLE \`${t}\`${optionClause}`);
+          const result = await adapter.rawQuery(`CHECK TABLE ${escapeQualifiedTable(t)}${optionClause}`);
           if (result.rows) {
             rows.push(...result.rows);
           }
@@ -217,7 +218,7 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, quick } = RepairTableSchema.parse(params);
-        const tableList = tables.map((t) => `\`${t}\``).join(", ");
+        const tableList = tables.map(escapeQualifiedTable).join(", ");
         const quickClause = quick ? " QUICK" : "";
 
         const reporter = progressFactory.create(_context.progressToken);
@@ -287,7 +288,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
             // Flush valid tables before reporting missing ones
             const validTables = tables.filter((t) => foundTables.has(t));
             if (validTables.length > 0) {
-              const validList = validTables.map((t) => `\`${t}\``).join(", ");
+              const validList = validTables.map(escapeQualifiedTable).join(", ");
               await adapter.executeQuery(`FLUSH TABLES ${validList}`);
             }
             return withTokenEstimate({
@@ -304,7 +305,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
             });
           }
 
-          const tableList = tables.map((t) => `\`${t}\``).join(", ");
+          const tableList = tables.map(escapeQualifiedTable).join(", ");
           await adapter.executeQuery(`FLUSH TABLES ${tableList}`);
         } else {
           await adapter.executeQuery("FLUSH TABLES");
