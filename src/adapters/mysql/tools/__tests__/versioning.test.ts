@@ -77,6 +77,15 @@ describe("Versioning Tools", () => {
       );
     });
 
+    it("should return INVALID_STATE if table is a view", async () => {
+      const tool = createEnableVersioningTool(adapter);
+      adapter.describeTable.mockResolvedValueOnce({ type: "view", columns: [] });
+
+      const result = await tool.handler({ table: "my_view" }, context) as Record<string, unknown>;
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Cannot enable versioning on view");
+    });
+
     it("should handle error gracefully", async () => {
       const tool = createEnableVersioningTool(adapter);
       adapter.describeTable.mockRejectedValueOnce(new Error("DB Error"));
@@ -139,6 +148,15 @@ describe("Versioning Tools", () => {
         expect.stringContaining("DROP COLUMN"),
         expect.any(Array)
       );
+    });
+
+    it("should return INVALID_STATE if table is a view", async () => {
+      const tool = createDisableVersioningTool(adapter);
+      adapter.describeTable.mockResolvedValueOnce({ type: "view", columns: [] });
+
+      const result = await tool.handler({ table: "my_view" }, context) as Record<string, unknown>;
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Cannot disable versioning on view");
     });
 
     it("should handle error gracefully", async () => {

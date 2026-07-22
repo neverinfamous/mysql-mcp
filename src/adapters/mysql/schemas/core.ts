@@ -433,7 +433,7 @@ export const CreateIndexSchema = z
   .transform((data) => ({
     name: (data.name as string | undefined) ?? (data.indexName as string | undefined) ?? (data.index_name as string | undefined),
     table: (data.table as string | undefined) ?? (data.tableName as string | undefined) ?? (data.tbl as string | undefined) ?? (data.table_name as string | undefined) ?? "",
-    columns: Array.isArray(data.columns) ? (data.columns as string[]) : (data.columns ? [data.columns as string] : undefined),
+    columns: Array.isArray(data.columns) ? (data.columns as string[]) : (typeof data.columns === "string" ? [data.columns] : undefined),
     unique: data.unique,
     type: data.type ?? data.indexType,
     ifNotExists: data.ifNotExists,

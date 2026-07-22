@@ -111,15 +111,15 @@ export function createEnableVersioningTool(
 
         // Check if _version already exists
         const describeInfo = await adapter.describeTable(table);
-        if (!describeInfo.columns || describeInfo.columns.length === 0) {
-          return formatHandlerErrorResponse(
-            new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
-          );
-        }
-
         if (describeInfo.type === "view") {
           return formatHandlerErrorResponse(
             new MySQLMcpError(`Cannot enable versioning on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
+          );
+        }
+
+        if (!describeInfo.columns || describeInfo.columns.length === 0) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
           );
         }
 
@@ -228,6 +228,12 @@ export function createDisableVersioningTool(
         const safeTrigger = schemaName ? `\`${schemaName?.replace(/`/g, "")}\`.\`${triggerName}\`` : `\`${triggerName}\``;
 
         const describeInfo = await adapter.describeTable(table);
+        if (describeInfo.type === "view") {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Cannot disable versioning on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
+          );
+        }
+
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
           if (ifExists) {
             return withTokenEstimate({
@@ -239,12 +245,6 @@ export function createDisableVersioningTool(
           }
           return formatHandlerErrorResponse(
             new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
-          );
-        }
-
-        if (describeInfo.type === "view") {
-          return formatHandlerErrorResponse(
-            new MySQLMcpError(`Cannot disable versioning on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
           );
         }
 
@@ -300,6 +300,12 @@ export function createCheckVersionTool(adapter: MySQLAdapter): ToolDefinition {
         const safeIdCol = `\`${idColumn.replace(/`/g, "")}\``;
 
         const describeInfo = await adapter.describeTable(table);
+        if (describeInfo.type === "view") {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Cannot check version on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
+          );
+        }
+
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
@@ -373,6 +379,12 @@ export function createConditionalUpdateTool(
         }
 
         const describeInfo = await adapter.describeTable(table);
+        if (describeInfo.type === "view") {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Cannot execute conditional update on view '${table}'`, "INVALID_STATE", ErrorCategory.VALIDATION)
+          );
+        }
+
         if (!describeInfo.columns || describeInfo.columns.length === 0) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(`Table '${table}' does not exist`, "TABLE_NOT_FOUND", ErrorCategory.RESOURCE)
