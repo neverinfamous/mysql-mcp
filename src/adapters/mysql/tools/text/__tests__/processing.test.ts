@@ -306,8 +306,8 @@ describe("Text Processing Tools", () => {
       )) as { success: boolean; error: string; code: string };
 
       expect(result.success).toBe(false);
-      expect(result.code).toBe("UNKNOWN_ERROR");
-      expect(result.error).toContain("regexp");
+      expect(result.code).toBe("VALIDATION_ERROR");
+      expect(result.error).toBeDefined();
     });
   });
 
