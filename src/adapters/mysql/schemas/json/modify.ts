@@ -366,7 +366,7 @@ export const JsonArrayAppendSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.column ?? data.col ?? data.columnName ?? "",
-    path: ensureJsonPath(data.path),
+    path: ensureJsonPath(data.path ?? data.key ?? data.keys),
     value: data.value !== undefined ? data.value : data.val !== undefined ? data.val : data.data !== undefined ? data.data : data.item !== undefined ? data.item : data.element,
     where: (data.where ?? data.filter ?? data.condition ?? data.query ?? data.sql ?? "").trim(),
   }))
