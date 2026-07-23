@@ -188,6 +188,9 @@ export const BufferPoolStatsSchemaBase = z.object({
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server buffer pool stats."),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server buffer pool stats."),
   tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server buffer pool stats."),
+  schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific schema name. This tool returns overall server buffer pool stats."),
+  database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server buffer pool stats."),
+  db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server buffer pool stats."),
 });
 
 export const BufferPoolStatsSchema = z
@@ -196,10 +199,13 @@ export const BufferPoolStatsSchema = z
     sql: z.string().optional(),
     table: z.string().optional(),
     tableName: z.string().optional(),
+    schema: z.string().optional(),
+    database: z.string().optional(),
+    db: z.string().optional(),
   })
   .strict()
-  .refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
-    message: "Anti-Hallucination Hint: mysql_buffer_pool_stats returns overall server stats. It does NOT accept a specific query, sql, table, or tableName string.",
+  .refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.schema && !data.database && !data.db, {
+    message: "Anti-Hallucination Hint: mysql_buffer_pool_stats returns overall server stats. It does NOT accept a specific query, sql, table, tableName, schema, database, or db string.",
   });
 
 // --- ThreadStats ---
@@ -211,6 +217,9 @@ export const ThreadStatsSchemaBase = z.object({
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server thread stats."),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server thread stats."),
   tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server thread stats."),
+  schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific schema name. This tool returns overall server thread stats."),
+  database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server thread stats."),
+  db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server thread stats."),
 });
 
 export const ThreadStatsSchema = z
@@ -231,10 +240,13 @@ export const ThreadStatsSchema = z
       sql: z.string().optional(),
       table: z.string().optional(),
       tableName: z.string().optional(),
+      schema: z.string().optional(),
+      database: z.string().optional(),
+      db: z.string().optional(),
     })
     .strict()
-    .refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
-      message: "Anti-Hallucination Hint: mysql_thread_stats returns overall server stats. It does NOT accept a specific query, sql, table, or tableName string.",
+    .refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.schema && !data.database && !data.db, {
+      message: "Anti-Hallucination Hint: mysql_thread_stats returns overall server stats. It does NOT accept a specific query, sql, table, tableName, schema, database, or db string.",
     }),
   )
   .transform((data) => ({
