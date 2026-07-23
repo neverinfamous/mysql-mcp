@@ -71,6 +71,10 @@ export const ExplainAnalyzeSchema = z
 export const SlowQuerySchemaBase = z.object({
   limit: z.number().optional().describe("Number of slow queries to return"),
   minTime: z.number().optional().describe("Minimum query time in seconds"),
+  query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server slow queries."),
+  sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server slow queries."),
+  table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server slow queries."),
+  tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server slow queries."),
 });
 
 export const SlowQuerySchema = z.object({
@@ -87,6 +91,12 @@ export const SlowQuerySchema = z.object({
     .max(86400) // 1 day max to prevent Infinity math issues
     .optional()
     .describe("Minimum query time in seconds"),
+  query: z.string().optional(),
+  sql: z.string().optional(),
+  table: z.string().optional(),
+  tableName: z.string().optional(),
+}).refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
+  message: "Anti-Hallucination Hint: mysql_slow_queries returns overall server slow queries. It does NOT accept a specific query, sql, table, or tableName string.",
 });
 
 // --- QueryStats (no table/query aliases — simple passthrough) ---
@@ -95,6 +105,8 @@ export const QueryStatsSchemaBase = z.object({
   limit: z.number().optional().describe("Maximum number of queries to return"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query stats. Use explain or explainAnalyze instead."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query stats. Use explain or explainAnalyze instead."),
+  table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server query stats."),
+  tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server query stats."),
 });
 
 export const QueryStatsSchema = z.object({
@@ -112,8 +124,10 @@ export const QueryStatsSchema = z.object({
     .describe("Maximum number of queries to return"),
   query: z.string().optional(),
   sql: z.string().optional(),
-}).refine((data) => !data.query && !data.sql, {
-  message: "Anti-Hallucination Hint: mysql_query_stats returns overall server stats. It does NOT accept a specific query or sql string. Use explain or explainAnalyze to analyze a specific query.",
+  table: z.string().optional(),
+  tableName: z.string().optional(),
+}).refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
+  message: "Anti-Hallucination Hint: mysql_query_stats returns overall server stats. It does NOT accept a specific query, sql, table, or tableName string. Use explain or explainAnalyze to analyze a specific query.",
 });
 
 // --- IndexUsage ---
