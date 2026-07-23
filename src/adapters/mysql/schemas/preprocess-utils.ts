@@ -432,8 +432,7 @@ export function preprocessTransactionIdParams(input: unknown): unknown {
       normalized["transactionId"] = normalized["transaction_id"];
   }
 
-  if (normalized["transactionId"] !== undefined && typeof normalized["transactionId"] !== "string" && typeof normalized["transactionId"] !== "object") {
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+  if (normalized["transactionId"] !== undefined && typeof normalized["transactionId"] === "number") {
     normalized["transactionId"] = String(normalized["transactionId"]);
   }
 
@@ -460,12 +459,10 @@ export function preprocessSavepointParams(input: unknown): unknown {
     else if (result["savepoint_name"] !== undefined) result["savepoint"] = result["savepoint_name"];
   }
 
-  if (result["transactionId"] !== undefined && typeof result["transactionId"] !== "string" && typeof result["transactionId"] !== "object") {
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+  if (result["transactionId"] !== undefined && typeof result["transactionId"] === "number") {
     result["transactionId"] = String(result["transactionId"]);
   }
-  if (result["savepoint"] !== undefined && typeof result["savepoint"] !== "string" && typeof result["savepoint"] !== "object") {
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+  if (result["savepoint"] !== undefined && typeof result["savepoint"] === "number") {
     result["savepoint"] = String(result["savepoint"]);
   }
 
