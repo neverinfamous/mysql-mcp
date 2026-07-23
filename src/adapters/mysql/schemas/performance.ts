@@ -419,6 +419,10 @@ export const DetectConnectionSpikeSchemaBase = z.object({
   duration: z.number().optional().describe("Alias for windowMinutes"),
   thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
   threshold: z.number().optional().describe("Alias for warningPercent"),
+  query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool analyzes global connections."),
+  sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool analyzes global connections."),
+  table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool analyzes global connections."),
+  tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool analyzes global connections."),
 });
 
 export const DetectConnectionSpikeSchema = z
@@ -440,6 +444,12 @@ export const DetectConnectionSpikeSchema = z
       duration: z.coerce.number().optional(),
       thresholdPercent: z.coerce.number().optional(),
       threshold: z.coerce.number().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+    }).refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
+      message: "Anti-Hallucination Hint: mysql_detect_connection_spike analyzes global connection pool patterns. It does NOT accept a specific query, sql, table, or tableName string.",
     }),
   )
   .transform((data) => ({
