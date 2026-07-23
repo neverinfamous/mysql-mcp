@@ -252,9 +252,10 @@ export const KillQuerySchema = z
       data.processId !== undefined &&
       data.processId !== null &&
       (typeof data.processId === "number" || (typeof data.processId === "string" && data.processId.trim() !== "")) &&
-      !Number.isNaN(Number(data.processId)),
+      !Number.isNaN(Number(data.processId)) &&
+      Number.isInteger(Number(data.processId)),
     {
-      message: "processId (or id alias) is required and must be a valid number",
+      message: "processId (or id alias) is required and must be a valid integer",
     },
   )
   .transform((data) => ({

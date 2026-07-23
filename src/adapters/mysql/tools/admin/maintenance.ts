@@ -361,9 +361,6 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error);
         }
-        if (error !== null && typeof error === "object" && "name" in error && error.name === "ConnectionError") {
-          return formatHandlerErrorResponse(error);
-        }
         const message = error instanceof Error ? error.message : String(error);
         if (message.includes("Unknown thread id")) {
           return withTokenEstimate({
@@ -376,15 +373,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
             details: undefined,
           });
         }
-        return withTokenEstimate({
-          success: false,
-          error: message,
-          code: "KILL_ERROR",
-          category: ErrorCategory.QUERY,
-          suggestion: undefined,
-          recoverable: false,
-          details: undefined,
-        });
+        return formatHandlerErrorResponse(error);
       }
     },
   };
