@@ -369,7 +369,7 @@ export const ShowVariablesSchema = z.preprocess(
       global: z.boolean().optional().default(true),
       limit: z.unknown().optional(),
       summary: z.boolean().optional(),
-    })
+    }).strict()
     .transform((data) => ({
       like: data.like,
       global: data.global,
@@ -393,7 +393,7 @@ export const InnodbStatusSchemaBase = z.object({
     ),
   format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-});
+}).strict();
 
 export const InnodbStatusSchema = z.preprocess(
   (obj: unknown) => {
