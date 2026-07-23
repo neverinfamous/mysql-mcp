@@ -166,9 +166,9 @@ export const BufferPoolStatsSchema = z.preprocess(
 
 // --- ThreadStats ---
 export const ThreadStatsSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of threads to return (default: 5)"),
-  maxThreads: z.number().optional().describe("Alias for limit"),
-  threads: z.number().optional().describe("Alias for limit"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of threads to return (default: 5)"),
+  maxThreads: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  threads: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
 });
 
 export const ThreadStatsSchema = z

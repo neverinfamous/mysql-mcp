@@ -45,7 +45,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
             `);
 
         // Strip null values to conserve tokens
-        const threads = result.rows?.map((row) => {
+        const threads = (result.rows ?? []).map((row) => {
           const clean: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
             if (value !== null && value !== undefined) {
