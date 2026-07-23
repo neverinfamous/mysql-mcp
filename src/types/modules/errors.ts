@@ -199,10 +199,11 @@ export class TransactionError extends MySQLMcpError {
   constructor(
     message: string,
     details?: Record<string, unknown>,
-    options?: { cause?: Error },
+    options?: { cause?: Error; suggestion?: string },
   ) {
     super(message, "TRANSACTION_ERROR", ErrorCategory.QUERY, {
       suggestion:
+        options?.suggestion ??
         "Use mysql_transaction_rollback to end the aborted transaction, or mysql_transaction_rollback_to to recover to a savepoint.",
       details,
       recoverable: true,

@@ -166,7 +166,9 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new TransactionError(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+              suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+            }),
           );
         }
 
@@ -211,7 +213,9 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new TransactionError(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+              suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+            }),
           );
         }
 
@@ -261,7 +265,9 @@ function createTransactionRollbackToTool(
         const connection = adapter.getTransactionConnection(transactionId);
         if (!connection) {
           return formatHandlerErrorResponse(
-            new TransactionError(`Transaction not found: ${transactionId}`),
+            new TransactionError(`Transaction not found: ${transactionId}`, undefined, {
+              suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+            }),
           );
         }
 
