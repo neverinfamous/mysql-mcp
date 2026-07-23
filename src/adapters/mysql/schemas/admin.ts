@@ -834,9 +834,15 @@ export const AuditDiffBackupSchema = z
     (obj: unknown) => {
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
+        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
+        
+        if (typeof filename === "number" || typeof filename === "boolean") {
+          filename = String(filename);
+        }
+
         return {
           ...data,
-          filename: data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"],
+          filename,
         };
       }
       return obj;
