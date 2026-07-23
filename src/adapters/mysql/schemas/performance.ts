@@ -214,7 +214,7 @@ export const ThreadStatsSchema = z
 
 // --- TableStats ---
 export const TableStatsSchemaBase = z.object({
-  table: z.string().describe("Table name (required)"),
+  table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
 });
