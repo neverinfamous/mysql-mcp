@@ -7,7 +7,7 @@ import { preprocessAdminTableParams } from "./preprocess-utils.js";
 
 // --- OptimizeTable ---
 export const OptimizeTableSchemaBase = z.object({
-  tables: z.array(z.string()).optional().describe("Table names to optimize"),
+  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to optimize"),
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -32,7 +32,7 @@ export const OptimizeTableSchema = z
 
 // --- AnalyzeTable ---
 export const AnalyzeTableSchemaBase = z.object({
-  tables: z.array(z.string()).optional().describe("Table names to analyze"),
+  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to analyze"),
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -57,7 +57,7 @@ export const AnalyzeTableSchema = z
 
 // --- CheckTable ---
 export const CheckTableSchemaBase = z.object({
-  tables: z.array(z.string()).optional().describe("Table names to check"),
+  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to check"),
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -96,7 +96,7 @@ export const CheckTableSchema = z
 
 // --- RepairTable ---
 export const RepairTableSchemaBase = z.object({
-  tables: z.array(z.string()).optional().describe("Table names to repair"),
+  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to repair"),
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
@@ -138,7 +138,7 @@ export const RepairTableSchema = z
 // --- FlushTables ---
 export const FlushTablesSchemaBase = z.object({
   tables: z
-    .array(z.string())
+    .union([z.array(z.string()), z.string()])
     .optional()
     .describe("Specific tables to flush (empty for all)"),
   table: z.string().optional().describe("Single table name (alias for tables)"),
