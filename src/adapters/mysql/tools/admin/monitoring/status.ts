@@ -30,7 +30,7 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
         // SHOW commands don't support parameter binding - build SQL directly
         if (typeof like === "string") {
           // Escape the like pattern for safety
-          const escapedLike = like.replace(/'/g, "''");
+          const escapedLike = like.replace(/\\/g, "\\\\").replace(/'/g, "''");
           sql += ` LIKE '${escapedLike}'`;
         }
 

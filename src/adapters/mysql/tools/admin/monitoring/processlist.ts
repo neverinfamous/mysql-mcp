@@ -36,8 +36,10 @@ export function createShowProcesslistTool(
           const stateCounts: Record<string, number> = {};
           const commandCounts: Record<string, number> = {};
           for (const row of allRows) {
-            const state = (row["State"] ?? row["STATE"] ?? row["state"] ?? "") as string;
-            const command = (row["Command"] ?? row["COMMAND"] ?? row["command"] ?? "Unknown") as string;
+            const rawState = row["State"] ?? row["STATE"] ?? row["state"] ?? "";
+            const rawCommand = row["Command"] ?? row["COMMAND"] ?? row["command"] ?? "Unknown";
+            const state = typeof rawState === "string" ? rawState : "";
+            const command = typeof rawCommand === "string" ? rawCommand : "Unknown";
             const stateKey = state.trim() || "None";
             stateCounts[stateKey] = (stateCounts[stateKey] ?? 0) + 1;
             commandCounts[command] = (commandCounts[command] ?? 0) + 1;
