@@ -192,12 +192,24 @@ export const KillQuerySchemaBase = z.object({
 });
 
 export const KillQuerySchema = z
-  .object({
-    processId: z.unknown().optional(),
-    id: z.unknown().optional(),
-    connectionId: z.unknown().optional(),
-    connection: z.boolean().optional().default(false),
-  })
+  .preprocess(
+    (obj: unknown) => {
+      if (typeof obj === "object" && obj !== null) {
+        const data = obj as Record<string, unknown>;
+        if (typeof data["connection"] === "string") {
+          data["connection"] = data["connection"] === "true" || data["connection"] === "1";
+        }
+        return data;
+      }
+      return obj;
+    },
+    z.object({
+      processId: z.unknown().optional(),
+      id: z.unknown().optional(),
+      connectionId: z.unknown().optional(),
+      connection: z.boolean().optional().default(false),
+    })
+  )
   .transform((data) => ({
     processId: data.processId ?? data.id ?? data.connectionId,
     connection: data.connection,
