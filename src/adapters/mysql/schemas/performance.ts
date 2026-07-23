@@ -83,6 +83,8 @@ export const SlowQuerySchema = z.object({
     .describe("Number of slow queries to return"),
   minTime: z.coerce
     .number()
+    .min(0)
+    .max(86400) // 1 day max to prevent Infinity math issues
     .optional()
     .describe("Minimum query time in seconds"),
 });
