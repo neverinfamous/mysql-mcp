@@ -716,9 +716,15 @@ export const AuditListBackupsSchema = z
     (obj: unknown) => {
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
+        const rawLimit = data["limit"];
+        let parsedLimit = rawLimit;
+        if (typeof rawLimit === "string" && !isNaN(Number(rawLimit))) {
+          parsedLimit = Number(rawLimit);
+        }
         return {
           ...data,
           target: data["target"] ?? data["name"] ?? data["tableName"] ?? data["table"],
+          ...(rawLimit !== undefined && { limit: parsedLimit }),
         };
       }
       return obj;
