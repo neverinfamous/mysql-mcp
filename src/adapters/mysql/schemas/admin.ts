@@ -17,7 +17,15 @@ export const OptimizeTableSchemaBase = z.object({
 
 export const OptimizeTableSchema = z
   .preprocess(
-    preprocessAdminTableParams,
+    (obj: unknown) => {
+      const data = preprocessAdminTableParams(obj);
+      if (typeof data === "object" && data !== null) {
+        const record = data as Record<string, unknown>;
+        if (typeof record["local"] === "string") record["local"] = record["local"] === "true" || record["local"] === "1";
+        if (typeof record["no_write_to_binlog"] === "string") record["no_write_to_binlog"] = record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1";
+      }
+      return data;
+    },
     z.object({
       tables: z.array(z.string()).optional(),
       table: z.string().optional(),
@@ -48,7 +56,16 @@ export const AnalyzeTableSchemaBase = z.object({
 
 export const AnalyzeTableSchema = z
   .preprocess(
-    preprocessAdminTableParams,
+    (obj: unknown) => {
+      const data = preprocessAdminTableParams(obj);
+      if (typeof data === "object" && data !== null) {
+        const record = data as Record<string, unknown>;
+        if (typeof record["local"] === "string") record["local"] = record["local"] === "true" || record["local"] === "1";
+        if (typeof record["no_write_to_binlog"] === "string") record["no_write_to_binlog"] = record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1";
+        if (typeof record["update_histograms"] === "string") record["update_histograms"] = record["update_histograms"] === "true" || record["update_histograms"] === "1";
+      }
+      return data;
+    },
     z.object({
       tables: z.array(z.string()).optional(),
       table: z.string().optional(),
