@@ -241,7 +241,7 @@ export const ShowProcesslistSchemaBase = z.object({
       "Maximum number of processes to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return only summarized counts"),
-});
+}).strict();
 
 export const ShowProcesslistSchema = z.preprocess(
   (obj: unknown) => {
@@ -260,12 +260,7 @@ export const ShowProcesslistSchema = z.preprocess(
     }
     return obj;
   },
-  z
-    .object({
-      full: z.boolean().optional().default(false),
-    limit: z.unknown().optional(),
-    summary: z.boolean().optional(),
-  }).strict()
+  ShowProcesslistSchemaBase
   .transform((data) => ({
     full: data.full,
     limit: data.limit !== undefined ? Number(data.limit) : 10,
