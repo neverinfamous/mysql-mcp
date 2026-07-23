@@ -557,7 +557,6 @@ export const ServerConfigSchema = z.preprocess(
         result["setting"] = firstKey;
         result["value"] = typeof configObj[firstKey] === "object" && configObj[firstKey] !== null
           ? JSON.stringify(configObj[firstKey])
-          // eslint-disable-next-line @typescript-eslint/no-base-to-string
           : String(configObj[firstKey]);
       }
     }

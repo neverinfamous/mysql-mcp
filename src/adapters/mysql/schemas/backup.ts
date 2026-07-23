@@ -20,13 +20,13 @@ export const ExportTableSchemaBase = z.object({
   filter: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
-  limit: z
+  limit: z.coerce
     .number()
     .optional()
     .describe(
       "Maximum number of rows to export (default: 5). Set higher to export more rows.",
     ),
-  batch: z
+  batch: z.coerce
     .number()
     .optional()
     .describe(
@@ -96,7 +96,21 @@ export const ImportDataSchemaBase = z.object({
 
 export const ImportDataSchema = z
   .preprocess(
-    preprocessTableParams,
+    (input) => {
+      const data = preprocessTableParams(input);
+      if (typeof data !== "object" || data === null) return data;
+      const rec = data as Record<string, unknown>;
+      for (const key of ["data", "rows", "values", "items"]) {
+        if (typeof rec[key] === "string") {
+          try {
+            rec[key] = JSON.parse(rec[key]);
+          } catch {
+            // Ignored
+          }
+        }
+      }
+      return rec;
+    },
     z.object({
       table: z.string().optional(),
       tableName: z.string().optional(),
