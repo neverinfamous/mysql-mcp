@@ -682,6 +682,45 @@ export function preprocessAdminTableParams(val: unknown): unknown {
   if (val == null || typeof val !== "object") return val ?? {};
   const v = { ...(val as Record<string, unknown>) };
   
+  // Hardening: Handle if 'tables' or aliases are passed as stringified objects
+  const checkStringified = (key: string): void => {
+    const kVal = v[key];
+    if (typeof kVal === "string" && kVal.startsWith("{")) {
+      try {
+        const parsed = JSON.parse(kVal) as unknown;
+        if (typeof parsed === "object" && parsed !== null) {
+          v[key] = parsed;
+        }
+      } catch {
+        // Ignore
+      }
+    }
+  };
+  checkStringified("tables");
+  checkStringified("table");
+  checkStringified("tableName");
+  checkStringified("name");
+
+  // Hardening: Handle if 'tables' or aliases are passed as objects instead of strings
+  const extractNested = (key: string): void => {
+    const kVal = v[key];
+    if (typeof kVal === "object" && kVal !== null && !Array.isArray(kVal)) {
+      const nested = kVal as Record<string, unknown>;
+      if (typeof nested["name"] === "string") v[key] = nested["name"];
+      else if (typeof nested["tableName"] === "string") v[key] = nested["tableName"];
+      else if (typeof nested["table"] === "string") v[key] = nested["table"];
+      else if (typeof nested["tables"] === "string") v[key] = nested["tables"];
+      else if (Array.isArray(nested["tables"])) v[key] = nested["tables"];
+      else if (Array.isArray(nested["name"])) v[key] = nested["name"];
+      else if (Array.isArray(nested["tableName"])) v[key] = nested["tableName"];
+      else if (Array.isArray(nested["table"])) v[key] = nested["table"];
+    }
+  };
+  extractNested("tables");
+  extractNested("table");
+  extractNested("tableName");
+  extractNested("name");
+
   // If 'tables' is passed as a string (e.g. via codemode positional arg), wrap it into an array
   if (typeof v["tables"] === "string") {
     v["tables"] = [v["tables"]];
@@ -694,6 +733,20 @@ export function preprocessAdminTableParams(val: unknown): unknown {
     else if (typeof v["tableName"] === "string") v["tables"] = [v["tableName"]];
     else if (Array.isArray(v["name"])) v["tables"] = v["name"];
     else if (typeof v["name"] === "string") v["tables"] = [v["name"]];
+  }
+
+  // Handle comma-separated strings inside arrays
+  if (Array.isArray(v["tables"])) {
+    if (v["tables"].length === 1 && typeof v["tables"][0] === "string" && v["tables"][0].includes(",")) {
+      v["tables"] = v["tables"][0].split(",").map((t: string) => t.trim());
+    } else {
+      v["tables"] = v["tables"].flatMap((t: unknown) => {
+        if (typeof t === "string" && t.includes(",")) {
+          return t.split(",").map((part) => part.trim());
+        }
+        return t;
+      });
+    }
   }
 
   // Remove alias fields so they don't fail their own Zod validation
