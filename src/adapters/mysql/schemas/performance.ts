@@ -157,18 +157,33 @@ export const IndexUsageSchema = z
   });
 
 // --- BufferPoolStats ---
-export const BufferPoolStatsSchemaBase = z.object({});
+export const BufferPoolStatsSchemaBase = z.object({
+  query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server buffer pool stats."),
+  sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server buffer pool stats."),
+  table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server buffer pool stats."),
+  tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server buffer pool stats."),
+});
 
-export const BufferPoolStatsSchema = z.preprocess(
-  () => ({}),
-  z.object({})
-);
+export const BufferPoolStatsSchema = z
+  .object({
+    query: z.string().optional(),
+    sql: z.string().optional(),
+    table: z.string().optional(),
+    tableName: z.string().optional(),
+  })
+  .refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
+    message: "Anti-Hallucination Hint: mysql_buffer_pool_stats returns overall server stats. It does NOT accept a specific query, sql, table, or tableName string.",
+  });
 
 // --- ThreadStats ---
 export const ThreadStatsSchemaBase = z.object({
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of threads to return (default: 5)"),
   maxThreads: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   threads: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server thread stats."),
+  sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server thread stats."),
+  table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server thread stats."),
+  tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server thread stats."),
 });
 
 export const ThreadStatsSchema = z
@@ -185,6 +200,12 @@ export const ThreadStatsSchema = z
       limit: z.coerce.number().int().positive().optional().default(5),
       maxThreads: z.coerce.number().optional(),
       threads: z.coerce.number().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+    }).refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
+      message: "Anti-Hallucination Hint: mysql_thread_stats returns overall server stats. It does NOT accept a specific query, sql, table, or tableName string.",
     }),
   )
   .transform((data) => ({
