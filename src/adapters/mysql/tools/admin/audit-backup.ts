@@ -231,8 +231,11 @@ export function createAuditDiffBackupTool(
               ? dbName
               : "mysql";
 
+          const escapedDb = dbRes.replace(/`/g, "``");
+          const escapedTable = tableName.replace(/`/g, "``");
+
           const result = await adapter.executeReadQuery(
-            `SHOW CREATE TABLE \`${dbRes}\`.\`${tableName}\``,
+            `SHOW CREATE TABLE \`${escapedDb}\`.\`${escapedTable}\``,
           );
           if (Array.isArray(result.rows)) {
             const row = result.rows[0];
