@@ -153,11 +153,29 @@ export const BufferPoolStatsSchema = z.preprocess(
 // --- ThreadStats ---
 export const ThreadStatsSchemaBase = z.object({
   limit: z.number().optional().describe("Maximum number of threads to return (default: 5)"),
+  maxThreads: z.number().optional().describe("Alias for limit"),
+  threads: z.number().optional().describe("Alias for limit"),
 });
 
-export const ThreadStatsSchema = z.object({
-  limit: z.coerce.number().int().positive().optional().default(5),
-});
+export const ThreadStatsSchema = z
+  .preprocess(
+    (data: unknown) => {
+      if (typeof data !== "object" || data === null) return data;
+      const record = data as Record<string, unknown>;
+      return {
+        ...record,
+        limit: record["limit"] ?? record["maxThreads"] ?? record["threads"],
+      };
+    },
+    z.object({
+      limit: z.coerce.number().int().positive().optional().default(5),
+      maxThreads: z.coerce.number().optional(),
+      threads: z.coerce.number().optional(),
+    }),
+  )
+  .transform((data) => ({
+    limit: data.limit,
+  }));
 
 // --- TableStats ---
 export const TableStatsSchemaBase = z.object({
