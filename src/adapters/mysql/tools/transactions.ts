@@ -180,7 +180,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
-        await connection.query(`SAVEPOINT ${savepoint}`);
+        await connection.query(`SAVEPOINT \`${savepoint}\``);
         return withTokenEstimate({
           success: true,
           data: { transactionId, savepoint },
@@ -226,7 +226,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
-        await connection.query(`RELEASE SAVEPOINT ${savepoint}`);
+        await connection.query(`RELEASE SAVEPOINT \`${savepoint}\``);
         return withTokenEstimate({
           success: true,
           data: {
@@ -278,7 +278,7 @@ function createTransactionRollbackToTool(
         }
 
         // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
-        await connection.query(`ROLLBACK TO SAVEPOINT ${savepoint}`);
+        await connection.query(`ROLLBACK TO SAVEPOINT \`${savepoint}\``);
         return withTokenEstimate({
           success: true,
           data: {
