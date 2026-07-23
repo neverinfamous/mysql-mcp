@@ -670,7 +670,11 @@ export const ServerConfigSchema = z.preprocess(
     const configVal: unknown = "config" in result ? (result as { config?: unknown }).config : undefined;
 
     if (actionVal === undefined) {
-      actionVal = "get";
+      if (settingVal !== undefined || valueVal !== undefined || configVal !== undefined) {
+        actionVal = "set";
+      } else {
+        actionVal = "get";
+      }
     }
     
     if (settingVal === undefined) {
