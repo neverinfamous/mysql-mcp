@@ -204,7 +204,19 @@ export function createAuditDiffBackupTool(
           });
         }
 
-        const { target, schema: schemaName } = snapshot.metadata;
+        const metadata = snapshot.metadata;
+        const target = metadata?.target;
+        const schemaName = metadata?.schema;
+
+        if (typeof target !== "string") {
+          return withTokenEstimate({
+            success: false,
+            error: `Invalid snapshot metadata: target is missing or invalid in ${filename}`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
 
         // Get current DDL
         let liveDdl = "";
