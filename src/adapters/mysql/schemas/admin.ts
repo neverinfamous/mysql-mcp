@@ -11,6 +11,8 @@ export const OptimizeTableSchemaBase = z.object({
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  local: z.boolean().optional().describe("Write to binlog using LOCAL"),
+  no_write_to_binlog: z.boolean().optional().describe("Alias for local"),
 });
 
 export const OptimizeTableSchema = z
@@ -21,10 +23,13 @@ export const OptimizeTableSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      local: z.boolean().optional(),
+      no_write_to_binlog: z.boolean().optional(),
     }),
   )
   .transform((data) => ({
     tables: (data.tables ?? []).filter(t => t.trim().length > 0),
+    local: data.local ?? data.no_write_to_binlog,
   }))
   .refine((data) => data.tables.length > 0, {
     message: "tables (or table/tableName/name alias) is required",
@@ -36,6 +41,9 @@ export const AnalyzeTableSchemaBase = z.object({
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  local: z.boolean().optional().describe("Write to binlog using LOCAL"),
+  no_write_to_binlog: z.boolean().optional().describe("Alias for local"),
+  update_histograms: z.boolean().optional().describe("Update histograms instead of index statistics"),
 });
 
 export const AnalyzeTableSchema = z
@@ -46,10 +54,15 @@ export const AnalyzeTableSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      local: z.boolean().optional(),
+      no_write_to_binlog: z.boolean().optional(),
+      update_histograms: z.boolean().optional(),
     }),
   )
   .transform((data) => ({
     tables: (data.tables ?? []).filter(t => t.trim().length > 0),
+    local: data.local ?? data.no_write_to_binlog,
+    update_histograms: data.update_histograms,
   }))
   .refine((data) => data.tables.length > 0, {
     message: "tables (or table/tableName/name alias) is required",

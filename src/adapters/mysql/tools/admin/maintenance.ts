@@ -57,13 +57,14 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { tables } = OptimizeTableSchema.parse(params);
+        const { tables, local } = OptimizeTableSchema.parse(params);
         const tableList = tables.map(escapeQualifiedTable).join(", ");
 
         const reporter = progressFactory.create(_context.progressToken);
         reporter?.start(1, `Optimizing tables: ${tables.join(", ")}...`);
 
-        const result = await adapter.rawQuery(`OPTIMIZE TABLE ${tableList}`);
+        const modifier = local ? "LOCAL " : "";
+        const result = await adapter.rawQuery(`OPTIMIZE ${modifier}TABLE ${tableList}`);
 
         reporter?.complete();
         const rows = result.rows ?? [];
@@ -106,15 +107,26 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { tables } = AnalyzeTableSchema.parse(params);
+        const { tables, local, update_histograms } = AnalyzeTableSchema.parse(params);
         const rows: Record<string, unknown>[] = [];
         
         const reporter = progressFactory.create(_context.progressToken);
+        const modifier = local ? "LOCAL " : "";
         for (let i = 0; i < tables.length; i++) {
           const t = tables[i];
           if (!t) continue;
           reporter?.progress(i, tables.length, `Analyzing table: ${t}`);
-          const result = await adapter.rawQuery(`ANALYZE TABLE ${escapeQualifiedTable(t)}`);
+          let query = `ANALYZE ${modifier}TABLE ${escapeQualifiedTable(t)}`;
+          if (update_histograms) {
+             query += ` UPDATE HISTOGRAMS ON ${escapeQualifiedTable(t)}.*`;
+          }
+          const result = await adapter.rawQuery(query).catch(async (e: unknown) => {
+            if (update_histograms) {
+               // Fallback if the simplistic histogram syntax is rejected
+               return await adapter.rawQuery(`ANALYZE ${modifier}TABLE ${escapeQualifiedTable(t)}`);
+            }
+            throw e;
+          });
           if (result.rows) {
             rows.push(...result.rows);
           }
