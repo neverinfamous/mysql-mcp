@@ -154,10 +154,7 @@ export const IndexUsageSchema = z
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     limit: data.limit,
-  }))
-  .refine((data) => data.table !== "", {
-    message: "table (or tableName/name alias) is required",
-  });
+  }));
 
 // --- BufferPoolStats ---
 export const BufferPoolStatsSchemaBase = z.object({
@@ -217,7 +214,7 @@ export const ThreadStatsSchema = z
 
 // --- TableStats ---
 export const TableStatsSchemaBase = z.object({
-  table: z.string().optional().describe("Table name"),
+  table: z.string().describe("Table name (required)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
 });
