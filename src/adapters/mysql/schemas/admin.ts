@@ -878,7 +878,7 @@ export const AuditRestoreBackupSchema = z
     message: "filename (or file/fileUrl alias) is required",
   })
   .refine((data) => data.filename === "" || data.filename.endsWith(".gz") || data.filename.endsWith(".json") || data.filename.endsWith(".sql") || data.filename.endsWith(".txt"), {
-    message: "Validation error: 'filename' must be a valid snapshot file (ending in .snapshot.json.gz). You provided a target or table name. Please use mysql_audit_list_backups to get the exact filename.",
+    message: "'filename' must be a valid snapshot file (ending in .snapshot.json.gz). You provided a target or table name. Please use mysql_audit_list_backups to get the exact filename.",
   });
 
 
@@ -936,7 +936,7 @@ export const AuditDiffBackupSchema = z
     message: "filename (or file/fileUrl alias) is required",
   })
   .refine((data) => data.filename === "" || data.filename.endsWith(".gz") || data.filename.endsWith(".json") || data.filename.endsWith(".sql") || data.filename.endsWith(".txt"), {
-    message: "Validation error: 'filename' must be a valid snapshot file (ending in .snapshot.json.gz). You provided a target or table name. Please use mysql_audit_list_backups to get the exact filename.",
+    message: "'filename' must be a valid snapshot file (ending in .snapshot.json.gz). You provided a target or table name. Please use mysql_audit_list_backups to get the exact filename.",
   });
 
 
