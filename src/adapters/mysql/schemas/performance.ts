@@ -197,6 +197,7 @@ export const BufferPoolStatsSchema = z
     table: z.string().optional(),
     tableName: z.string().optional(),
   })
+  .strict()
   .refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
     message: "Anti-Hallucination Hint: mysql_buffer_pool_stats returns overall server stats. It does NOT accept a specific query, sql, table, or tableName string.",
   });
@@ -230,7 +231,9 @@ export const ThreadStatsSchema = z
       sql: z.string().optional(),
       table: z.string().optional(),
       tableName: z.string().optional(),
-    }).refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
+    })
+    .strict()
+    .refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
       message: "Anti-Hallucination Hint: mysql_thread_stats returns overall server stats. It does NOT accept a specific query, sql, table, or tableName string.",
     }),
   )
