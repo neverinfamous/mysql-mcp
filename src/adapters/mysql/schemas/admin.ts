@@ -144,21 +144,41 @@ export const FlushTablesSchemaBase = z.object({
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  withReadLock: z.boolean().optional().describe("Acquire read lock (WITH READ LOCK)"),
+  forExport: z.boolean().optional().describe("Flush for export (FOR EXPORT)"),
 });
 
 export const FlushTablesSchema = z
   .preprocess(
-    preprocessAdminTableParams,
+    (obj: unknown) => {
+      const data = preprocessAdminTableParams(obj);
+      if (typeof data === "object" && data !== null) {
+        const record = data as Record<string, unknown>;
+        if (typeof record["withReadLock"] === "string") record["withReadLock"] = record["withReadLock"] === "true" || record["withReadLock"] === "1";
+        if (typeof record["forExport"] === "string") record["forExport"] = record["forExport"] === "true" || record["forExport"] === "1";
+      }
+      return data;
+    },
     z.object({
       tables: z.array(z.string()).optional(),
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      withReadLock: z.boolean().optional(),
+      forExport: z.boolean().optional(),
     }),
   )
   .transform((data) => ({
     tables: data.tables ? data.tables.filter(t => t.trim().length > 0) : undefined,
-  }));
+    withReadLock: data.withReadLock ?? false,
+    forExport: data.forExport ?? false,
+  }))
+  .refine((data) => !(data.withReadLock && data.forExport), {
+    message: "Cannot specify both withReadLock and forExport",
+  })
+  .refine((data) => !data.forExport || (data.tables && data.tables.length > 0), {
+    message: "FOR EXPORT requires at least one table to be specified",
+  });
 
 export const KillQuerySchemaBase = z.object({
   processId: z.unknown().optional().describe("Process ID to kill"),

@@ -268,7 +268,8 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: IDEMPOTENT,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { tables } = FlushTablesSchema.parse(params);
+        const { tables, withReadLock, forExport } = FlushTablesSchema.parse(params);
+        const lockSuffix = withReadLock ? " WITH READ LOCK" : forExport ? " FOR EXPORT" : "";
 
         if (tables && tables.length > 0) {
           // Pre-check table existence since FLUSH TABLES silently succeeds for nonexistent tables
@@ -296,7 +297,7 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
             const validTables = tables.filter((t) => foundTables.has(t));
             if (validTables.length > 0) {
               const validList = validTables.map(escapeQualifiedTable).join(", ");
-              await adapter.executeQuery(`FLUSH TABLES ${validList}`);
+              await adapter.executeQuery(`FLUSH TABLES ${validList}${lockSuffix}`);
             }
             return withTokenEstimate({
               success: false,
@@ -313,9 +314,9 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           }
 
           const tableList = tables.map(escapeQualifiedTable).join(", ");
-          await adapter.executeQuery(`FLUSH TABLES ${tableList}`);
+          await adapter.executeQuery(`FLUSH TABLES ${tableList}${lockSuffix}`);
         } else {
-          await adapter.executeQuery("FLUSH TABLES");
+          await adapter.executeQuery(`FLUSH TABLES${lockSuffix}`);
         }
 
         return withTokenEstimate({ success: true, data: {} });
