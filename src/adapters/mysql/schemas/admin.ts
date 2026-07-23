@@ -87,11 +87,11 @@ export const AnalyzeTableSchema = z
 
 // --- CheckTable ---
 export const CheckTableSchemaBase = z.object({
-  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to check"),
-  table: z.string().optional().describe("Single table name (alias for tables)"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  option: z.string().optional().describe("Check option (e.g. QUICK, FAST, MEDIUM, EXTENDED, CHANGED)"),
+  tables: z.unknown().optional().describe("Table names to check"),
+  table: z.unknown().optional().describe("Single table name (alias for tables)"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
+  option: z.unknown().optional().describe("Check option (e.g. QUICK, FAST, MEDIUM, EXTENDED, CHANGED)"),
 });
 
 export const CheckTableSchema = z
@@ -126,14 +126,13 @@ export const CheckTableSchema = z
 
 // --- RepairTable ---
 export const RepairTableSchemaBase = z.object({
-  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to repair"),
-  table: z.string().optional().describe("Single table name (alias for tables)"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
+  tables: z.unknown().optional().describe("Table names to repair"),
+  table: z.unknown().optional().describe("Single table name (alias for tables)"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
   quick: z
-    .boolean()
+    .unknown()
     .optional()
-    .default(false)
     .describe("Quick repair (MyISAM only)"),
 });
 
