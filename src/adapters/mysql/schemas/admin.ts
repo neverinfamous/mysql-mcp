@@ -385,7 +385,8 @@ export const InnodbStatusSchema = z.preprocess(
         data["summary"] = false;
       }
       
-      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
+      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true" || data["summary"] === "1";
+      if (typeof data["raw"] === "string") data["raw"] = data["raw"] === "true" || data["raw"] === "1";
       return data;
     }
     return obj ?? {};
@@ -415,7 +416,8 @@ export const ReplicationStatusSchema = z.preprocess(
         data["summary"] = false;
       }
       
-      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
+      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true" || data["summary"] === "1";
+      if (typeof data["raw"] === "string") data["raw"] = data["raw"] === "true" || data["raw"] === "1";
       return data;
     }
     return obj ?? {};
@@ -438,7 +440,8 @@ export const PoolStatsSchema = z.preprocess(
     if (typeof obj === "object" && obj !== null) {
       const data = { ...(obj as Record<string, unknown>) };
       if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") data["summary"] = false;
-      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true";
+      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true" || data["summary"] === "1";
+      if (typeof data["raw"] === "string") data["raw"] = data["raw"] === "true" || data["raw"] === "1";
       return data;
     }
     return obj ?? {};
@@ -465,7 +468,8 @@ export const ServerHealthSchema = z.preprocess(
       if ("raw" in dataObj) rawVal = (dataObj as { raw?: unknown }).raw;
       
       if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true") summaryVal = false;
-      if (typeof summaryVal === "string") summaryVal = summaryVal === "true";
+      if (typeof summaryVal === "string") summaryVal = summaryVal === "true" || summaryVal === "1";
+      if (typeof rawVal === "string") rawVal = rawVal === "true" || rawVal === "1";
       
       if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
