@@ -296,7 +296,7 @@ export const ShowStatusSchemaBase = z.object({
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return key metrics only"),
-});
+}).strict();
 
 export const ShowStatusSchema = z.preprocess(
   (obj: unknown) => {
@@ -315,13 +315,7 @@ export const ShowStatusSchema = z.preprocess(
     }
     return obj;
   },
-  z
-    .object({
-      like: z.string().optional(),
-      global: z.boolean().optional().default(true),
-      limit: z.unknown().optional(),
-      summary: z.boolean().optional(),
-    }).strict()
+  ShowStatusSchemaBase
     .transform((data) => ({
       like: data.like,
       global: data.global,
@@ -357,7 +351,7 @@ export const ShowVariablesSchemaBase = z.object({
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return key metrics only"),
-});
+}).strict();
 
 export const ShowVariablesSchema = z.preprocess(
   (obj: unknown) => {
@@ -376,13 +370,7 @@ export const ShowVariablesSchema = z.preprocess(
     }
     return obj;
   },
-  z
-    .object({
-      like: z.string().optional(),
-      global: z.boolean().optional().default(true),
-      limit: z.unknown().optional(),
-      summary: z.boolean().optional(),
-    }).strict()
+  ShowVariablesSchemaBase
     .transform((data) => ({
       like: data.like,
       global: data.global,
@@ -404,7 +392,7 @@ export const InnodbStatusSchemaBase = z.object({
     .describe(
       "Return parsed summary with key metrics instead of full raw output (recommended). Defaults to true. Use raw=true for full text.",
     ),
-  format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
+  format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
 }).strict();
 
@@ -435,7 +423,7 @@ export const ReplicationStatusSchemaBase = z.object({
     .describe(
       "Return key replication metrics only instead of full 50+ field output (recommended)",
     ),
-  format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
+  format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
 }).strict();
 
@@ -464,7 +452,7 @@ export const PoolStatsSchemaBase = z.object({
     .optional()
     .default(true)
     .describe("Return key metrics only"),
-  format: z.string().optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
+  format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
 }).strict();
 
@@ -484,7 +472,7 @@ export const PoolStatsSchema = z.preprocess(
 
 export const ServerHealthSchemaBase = z.object({
   summary: z.boolean().optional().describe("Return key metrics only"),
-  format: z.string().optional().describe("Alias for summary"),
+  format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary"),
   raw: z.boolean().optional().describe("Alias for summary"),
 }).strict();
 
