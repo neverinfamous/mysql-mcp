@@ -887,7 +887,8 @@ export const PoolStatsOutputSchema = BaseOutputSchema.extend({
 
 export const ServerHealthOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    serverHealth: z.record(z.string(), z.unknown())
+    serverHealth: z.record(z.string(), z.unknown()),
+    summary: z.boolean().optional()
   }).optional()
 });
 
