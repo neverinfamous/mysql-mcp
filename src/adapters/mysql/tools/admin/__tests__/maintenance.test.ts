@@ -97,7 +97,7 @@ describe("Admin Maintenance Tools", () => {
 
       const call = mockAdapter.rawQuery.mock.calls[0][0];
       expect(call).toContain("`table-name`");
-      expect(call).toContain("`table.name`");
+      expect(call).toContain("`table`.`name`");
     });
   });
 
@@ -756,9 +756,12 @@ describe("Admin Maintenance Tools", () => {
 
   describe("flush table existence check", () => {
     it("should flush valid tables and return notFound for nonexistent ones", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValue(
-        createMockQueryResult([{ TABLE_NAME: "users" }]),
-      );
+      mockAdapter.executeReadQuery.mockImplementation(async (_query, args) => {
+        if (args && args.includes("users")) {
+          return createMockQueryResult([{ TABLE_NAME: "users" }]);
+        }
+        return createMockQueryResult([]);
+      });
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
