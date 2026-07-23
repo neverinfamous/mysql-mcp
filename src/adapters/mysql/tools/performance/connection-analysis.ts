@@ -70,8 +70,9 @@ export function createDetectConnectionSpikeTool(
         const processes = processlistResult.rows ?? [];
 
         // Filter out the system daemon threads (e.g., event_scheduler)
+        const systemUsers = new Set(["system user", "event_scheduler", "unauthenticated user"]);
         const userProcesses = processes.filter(
-          (r) => toStr(r["USER"]) !== "system user",
+          (r) => !systemUsers.has(toStr(r["USER"])),
         );
 
         const totalConnections = userProcesses.length;
