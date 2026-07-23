@@ -517,6 +517,9 @@ export function preprocessTransactionBeginParams(input: unknown): unknown {
     if (result["isolation_level"] !== undefined) result["isolationLevel"] = result["isolation_level"];
     else if (result["level"] !== undefined) result["isolationLevel"] = result["level"];
   }
+  if (typeof result["isolationLevel"] === "string") {
+    result["isolationLevel"] = result["isolationLevel"].toUpperCase();
+  }
   return result;
 }
 
@@ -532,6 +535,10 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
   if (result["isolationLevel"] === undefined) {
     if (result["isolation_level"] !== undefined) result["isolationLevel"] = result["isolation_level"];
     else if (result["level"] !== undefined) result["isolationLevel"] = result["level"];
+  }
+
+  if (typeof result["isolationLevel"] === "string") {
+    result["isolationLevel"] = result["isolationLevel"].toUpperCase();
   }
 
   if (result["statements"] === undefined) {
