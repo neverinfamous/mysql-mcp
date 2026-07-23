@@ -376,12 +376,16 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
         return withTokenEstimate({
           success: true,
           data: {
-            statementsExecuted: statements.length,
+            statementsExecuted: results.length,
             results,
           },
         });
       } catch (error) {
-        await adapter.rollbackTransaction(transactionId);
+        try {
+          await adapter.rollbackTransaction(transactionId);
+        } catch (rollbackError) {
+          // Ignore rollback errors to ensure the original error is returned
+        }
         const cleanMsg = formatMysqlError(error);
         return withTokenEstimate({
           success: false,
