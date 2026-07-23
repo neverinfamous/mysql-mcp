@@ -58,7 +58,7 @@ describe("Audit Search Tool", () => {
       const tool = createAuditSearchTool(mockAdapter);
       const result = await tool.handler({ tool: "test_tool" }, mockContext);
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Audit Logger is not enabled or available");
+      expect(result).toHaveProperty("error", "Extension 'Audit Logger is not enabled or available (requires --audit-log flag)' is not installed or enabled");
     });
 
     it("should return validation error on invalid params", async () => {

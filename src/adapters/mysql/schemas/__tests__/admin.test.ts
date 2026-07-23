@@ -29,7 +29,7 @@ describe("Admin Schemas", () => {
       expect(OptimizeTableSchema.parse({ table: "t1" })).toMatchObject({ tables: ["t1"] });
       expect(OptimizeTableSchema.parse({ tableName: "t2" })).toMatchObject({ tables: ["t2"] });
       expect(OptimizeTableSchema.parse({ name: "t3" })).toMatchObject({ tables: ["t3"] });
-      expect(OptimizeTableSchema.parse({ table: "t1,t2" })).toMatchObject({ tables: ["t1,t2"] });
+      expect(OptimizeTableSchema.parse({ table: "t1,t2" })).toMatchObject({ tables: ["t1", "t2"] });
     });
     it("should fail if no tables provided", () => {
       expect(() => OptimizeTableSchema.parse({})).toThrow("tables");
