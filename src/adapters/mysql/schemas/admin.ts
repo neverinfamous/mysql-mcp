@@ -91,7 +91,7 @@ export const CheckTableSchemaBase = z.object({
   table: z.string().optional().describe("Single table name (alias for tables)"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  option: z.string().optional().describe("Check option"),
+  option: z.string().optional().describe("Check option (e.g. QUICK, FAST, MEDIUM, EXTENDED, CHANGED)"),
 });
 
 export const CheckTableSchema = z
