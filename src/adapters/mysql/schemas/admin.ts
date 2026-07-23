@@ -860,19 +860,16 @@ export const AuditSearchOutputSchema = BaseOutputSchema.extend({
 // --- audit-backup.ts ---
 export const AuditListBackupsSchemaBase = z.object({
   limit: z
-    .number()
-    .int()
-    .min(1)
-    .max(100)
-    .default(5)
+    .unknown()
+    .optional()
     .describe("Max backups to return"),
   target: z
     .string()
     .optional()
     .describe("Filter by exact target object name (e.g. users)"),
-  name: z.string().optional().describe("Alias for target"),
-  tableName: z.string().optional().describe("Alias for target"),
-  table: z.string().optional().describe("Alias for target"),
+  name: z.unknown().optional().describe("Alias for target"),
+  tableName: z.unknown().optional().describe("Alias for target"),
+  table: z.unknown().optional().describe("Alias for target"),
 });
 
 export const AuditListBackupsSchema = z
@@ -885,9 +882,15 @@ export const AuditListBackupsSchema = z
         if (typeof rawLimit === "string" && !isNaN(Number(rawLimit))) {
           parsedLimit = Number(rawLimit);
         }
+        
+        let target = data["target"] ?? data["name"] ?? data["tableName"] ?? data["table"];
+        if (typeof target === "number" || typeof target === "boolean") {
+          target = String(target);
+        }
+
         return {
           ...data,
-          target: data["target"] ?? data["name"] ?? data["tableName"] ?? data["table"],
+          target,
           ...(rawLimit !== undefined && { limit: parsedLimit }),
         };
       }
@@ -913,22 +916,22 @@ export const AuditListBackupsOutputSchema = BaseOutputSchema.extend({
 
 export const AuditRestoreBackupSchemaBase = z.object({
   filename: z.string().optional().describe("Snapshot filename to restore. Note: Pass filename, not table or target."),
-  file: z.string().optional().describe("Alias for filename"),
-  fileUrl: z.string().optional().describe("Alias for filename"),
-  id: z.string().optional().describe("Alias for filename"),
-  backupId: z.string().optional().describe("Alias for filename"),
-  table: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  tableName: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  target: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  sql: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  query: z.string().optional().describe("Alias for filename (anti-hallucination)"),
+  file: z.unknown().optional().describe("Alias for filename"),
+  fileUrl: z.unknown().optional().describe("Alias for filename"),
+  id: z.unknown().optional().describe("Alias for filename"),
+  backupId: z.unknown().optional().describe("Alias for filename"),
+  table: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  tableName: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  target: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  sql: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  query: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
   includeData: z
-    .boolean()
-    .default(false)
+    .unknown()
+    .optional()
     .describe("Execute INSERT data if present in snapshot"),
   dryRun: z
-    .boolean()
-    .default(false)
+    .unknown()
+    .optional()
     .describe("Return the DDL/DML without executing it"),
 });
 
@@ -943,9 +946,14 @@ export const AuditRestoreBackupSchema = z
         const rawDryRun = data["dryRun"];
         const parsedDryRun = rawDryRun === "true" || rawDryRun === true || rawDryRun === 1 || rawDryRun === "1";
 
+        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
+        if (typeof filename === "number" || typeof filename === "boolean") {
+          filename = String(filename);
+        }
+
         return {
           ...data,
-          filename: data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"],
+          filename,
           ...(rawIncludeData !== undefined && { includeData: parsedIncludeData }),
           ...(rawDryRun !== undefined && { dryRun: parsedDryRun }),
         };
