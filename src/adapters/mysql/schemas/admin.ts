@@ -686,6 +686,10 @@ export const ServerConfigSchema = z.preprocess(
       }
     }
     
+    if (typeof actionVal === "string") actionVal = actionVal.trim().toLowerCase();
+    if (typeof settingVal === "string") settingVal = settingVal.trim();
+    if (typeof valueVal === "string") valueVal = valueVal.trim();
+    
     if (valueVal !== undefined && typeof valueVal !== "string") {
       valueVal = typeof valueVal === "object" && valueVal !== null 
         ? JSON.stringify(valueVal) 
@@ -806,6 +810,9 @@ export const AppendInsightSchema = z
               ? JSON.stringify(insightVal) 
               // eslint-disable-next-line @typescript-eslint/no-base-to-string
               : String(insightVal);
+        }
+        if (typeof insightVal === "string") {
+            insightVal = insightVal.trim();
         }
         return {
           ...data,
