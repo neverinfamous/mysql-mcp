@@ -620,7 +620,11 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
     if (!Number.isNaN(num)) result["offset"] = num;
   }
   if (typeof result["success"] === "string") {
-    result["success"] = result["success"] === "true" || result["success"] === "1";
+    if (result["success"] === "true" || result["success"] === "1") result["success"] = true;
+    else if (result["success"] === "false" || result["success"] === "0") result["success"] = false;
+  }
+  if (typeof result["success"] === "number") {
+    result["success"] = result["success"] === 1;
   }
   return result;
 }, AuditSearchSchemaBase);
