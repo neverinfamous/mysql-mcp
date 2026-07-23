@@ -219,7 +219,7 @@ describe("Handler Execution", () => {
         "txn-123",
       );
       expect(mockAdapter.mockConnection.query).toHaveBeenCalledWith(
-        "SAVEPOINT sp1",
+        "SAVEPOINT `sp1`",
       );
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.savepoint", "sp1");
@@ -274,7 +274,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.mockConnection.query).toHaveBeenCalledWith(
-        "RELEASE SAVEPOINT sp1",
+        "RELEASE SAVEPOINT `sp1`",
       );
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty("data.message", "Savepoint released.");
@@ -331,7 +331,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.mockConnection.query).toHaveBeenCalledWith(
-        "ROLLBACK TO SAVEPOINT checkpoint",
+        "ROLLBACK TO SAVEPOINT `checkpoint`",
       );
       expect(result).toHaveProperty("success", true);
       expect(result).toHaveProperty(
