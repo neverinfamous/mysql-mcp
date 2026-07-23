@@ -216,10 +216,15 @@ export const ShowProcesslistSchema = z.preprocess(
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
       const { all, verbose, complete, full, ...rest } = data;
-      return {
+      const result: Record<string, unknown> = {
         ...rest,
         full: full ?? all ?? verbose ?? complete,
       };
+      
+      if (typeof result["full"] === "string") result["full"] = result["full"] === "true" || result["full"] === "1";
+      if (typeof result["summary"] === "string") result["summary"] = result["summary"] === "true" || result["summary"] === "1";
+      
+      return result;
     }
     return obj;
   },
@@ -266,10 +271,15 @@ export const ShowStatusSchema = z.preprocess(
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
       const { pattern, search, filter, name, query, sql, variable, variableName, like, ...rest } = data;
-      return {
+      const result: Record<string, unknown> = {
         ...rest,
         like: like ?? pattern ?? search ?? filter ?? name ?? query ?? sql ?? variable ?? variableName,
       };
+      
+      if (typeof result["global"] === "string") result["global"] = result["global"] === "true" || result["global"] === "1";
+      if (typeof result["summary"] === "string") result["summary"] = result["summary"] === "true" || result["summary"] === "1";
+      
+      return result;
     }
     return obj;
   },
@@ -321,10 +331,15 @@ export const ShowVariablesSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
-      return {
+      const result: Record<string, unknown> = {
         ...data,
         like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"] ?? data["name"] ?? data["query"] ?? data["sql"] ?? data["variable"] ?? data["variableName"],
       };
+      
+      if (typeof result["global"] === "string") result["global"] = result["global"] === "true" || result["global"] === "1";
+      if (typeof result["summary"] === "string") result["summary"] = result["summary"] === "true" || result["summary"] === "1";
+      
+      return result;
     }
     return obj;
   },
