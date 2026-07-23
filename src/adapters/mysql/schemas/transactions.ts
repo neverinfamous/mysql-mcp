@@ -138,6 +138,18 @@ export const TransactionExecuteSchema = z
   })
   .refine(
     (data) => {
+      return data.statements.every((stmt) => {
+        if (typeof stmt === "string") return true;
+        if (typeof stmt === "object" && stmt !== null && "sql" in stmt && typeof (stmt as any).sql === "string") return true;
+        return false;
+      });
+    },
+    {
+      message: "Each statement must be a SQL string or an object with a 'sql' string property.",
+    }
+  )
+  .refine(
+    (data) => {
       if (!data.isolationLevel) return true;
       const validLevels = [
         "READ UNCOMMITTED",
