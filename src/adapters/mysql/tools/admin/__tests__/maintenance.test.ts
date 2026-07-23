@@ -376,7 +376,7 @@ describe("Admin Maintenance Tools", () => {
       expect(result).toMatchObject({ success: true });
     });
 
-    it("should execute FLUSH TABLES for all tables when empty array", async () => {
+    it("should return validation error for empty array", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
       const tool = createFlushTablesTool(
@@ -384,8 +384,9 @@ describe("Admin Maintenance Tools", () => {
       );
       const result = await tool.handler({ tables: [] }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith("FLUSH TABLES");
-      expect(result).toMatchObject({ success: true });
+      expect(result).toHaveProperty("success", false);
+      expect(result).toHaveProperty("error");
+      expect((result as Record<string, unknown>).error).toMatch(/must not be empty/);
     });
 
     it("should execute FLUSH TABLES for specific table", async () => {

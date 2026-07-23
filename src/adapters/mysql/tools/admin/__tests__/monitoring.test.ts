@@ -568,7 +568,7 @@ describe("Admin Monitoring Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toBe("Pool not available");
+      expect(result.error).toBe("Connection pool is not configured on this server");
     });
 
     it("should return structured error on pool error", async () => {
