@@ -494,25 +494,33 @@ export const ReplicationStatusSchemaBase = z.object({
 export const ReplicationStatusSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
-      const data = { ...(obj as Record<string, unknown>) };
+      const dataObj = { ...obj };
+      let summaryVal: unknown = "summary" in dataObj ? (dataObj as { summary?: unknown }).summary : undefined;
+      const formatVal: unknown = "format" in dataObj ? (dataObj as { format?: unknown }).format : undefined;
+      let rawVal: unknown = "raw" in dataObj ? (dataObj as { raw?: unknown }).raw : undefined;
       
       // Alias handling for format and raw
-      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true" || data["raw"] === 1 || data["raw"] === "1") {
-        data["summary"] = false;
+      if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true" || rawVal === 1 || rawVal === "1") {
+        summaryVal = false;
       }
       
-      if (typeof data["summary"] === "string") {
-        if (data["summary"] === "true" || data["summary"] === "1") data["summary"] = true;
-        else if (data["summary"] === "false" || data["summary"] === "0") data["summary"] = false;
+      if (typeof summaryVal === "string") {
+        if (summaryVal === "true" || summaryVal === "1") summaryVal = true;
+        else if (summaryVal === "false" || summaryVal === "0") summaryVal = false;
       }
-      if (typeof data["summary"] === "number") data["summary"] = data["summary"] === 1;
+      if (typeof summaryVal === "number") summaryVal = summaryVal === 1;
 
-      if (typeof data["raw"] === "string") {
-        if (data["raw"] === "true" || data["raw"] === "1") data["raw"] = true;
-        else if (data["raw"] === "false" || data["raw"] === "0") data["raw"] = false;
+      if (typeof rawVal === "string") {
+        if (rawVal === "true" || rawVal === "1") rawVal = true;
+        else if (rawVal === "false" || rawVal === "0") rawVal = false;
       }
-      if (typeof data["raw"] === "number") data["raw"] = data["raw"] === 1;
-      return data;
+      if (typeof rawVal === "number") rawVal = rawVal === 1;
+      
+      return {
+        ...dataObj,
+        ...(summaryVal !== undefined ? { summary: summaryVal } : {}),
+        ...(rawVal !== undefined ? { raw: rawVal } : {}),
+      };
     }
     return obj ?? {};
   },
@@ -532,21 +540,32 @@ export const PoolStatsSchemaBase = z.object({
 export const PoolStatsSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
-      const data = { ...(obj as Record<string, unknown>) };
-      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true" || data["raw"] === 1 || data["raw"] === "1") data["summary"] = false;
-      
-      if (typeof data["summary"] === "string") {
-        if (data["summary"] === "true" || data["summary"] === "1") data["summary"] = true;
-        else if (data["summary"] === "false" || data["summary"] === "0") data["summary"] = false;
-      }
-      if (typeof data["summary"] === "number") data["summary"] = data["summary"] === 1;
+      const dataObj = { ...obj };
+      let summaryVal: unknown = "summary" in dataObj ? (dataObj as { summary?: unknown }).summary : undefined;
+      const formatVal: unknown = "format" in dataObj ? (dataObj as { format?: unknown }).format : undefined;
+      let rawVal: unknown = "raw" in dataObj ? (dataObj as { raw?: unknown }).raw : undefined;
 
-      if (typeof data["raw"] === "string") {
-        if (data["raw"] === "true" || data["raw"] === "1") data["raw"] = true;
-        else if (data["raw"] === "false" || data["raw"] === "0") data["raw"] = false;
+      if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true" || rawVal === 1 || rawVal === "1") {
+        summaryVal = false;
       }
-      if (typeof data["raw"] === "number") data["raw"] = data["raw"] === 1;
-      return data;
+      
+      if (typeof summaryVal === "string") {
+        if (summaryVal === "true" || summaryVal === "1") summaryVal = true;
+        else if (summaryVal === "false" || summaryVal === "0") summaryVal = false;
+      }
+      if (typeof summaryVal === "number") summaryVal = summaryVal === 1;
+
+      if (typeof rawVal === "string") {
+        if (rawVal === "true" || rawVal === "1") rawVal = true;
+        else if (rawVal === "false" || rawVal === "0") rawVal = false;
+      }
+      if (typeof rawVal === "number") rawVal = rawVal === 1;
+
+      return {
+        ...dataObj,
+        ...(summaryVal !== undefined ? { summary: summaryVal } : {}),
+        ...(rawVal !== undefined ? { raw: rawVal } : {}),
+      };
     }
     return obj ?? {};
   },
@@ -618,38 +637,62 @@ export const ServerConfigSchemaBase = z.object({
 export const ServerConfigSchema = z.preprocess(
   (obj: unknown) => {
     if (obj === null || obj === undefined || typeof obj !== "object") return { action: "get" };
-    const record = obj as Record<string, unknown>;
-    const result = { ...record };
     
-    if (result["action"] === undefined) {
-      result["action"] = "get";
+    const result = { ...obj };
+    
+    let actionVal: unknown = "action" in result ? (result as { action?: unknown }).action : undefined;
+    let settingVal: unknown = "setting" in result ? (result as { setting?: unknown }).setting : undefined;
+    const keyVal: unknown = "key" in result ? (result as { key?: unknown }).key : undefined;
+    let valueVal: unknown = "value" in result ? (result as { value?: unknown }).value : undefined;
+    const valVal: unknown = "val" in result ? (result as { val?: unknown }).val : undefined;
+    const configVal: unknown = "config" in result ? (result as { config?: unknown }).config : undefined;
+
+    if (actionVal === undefined) {
+      actionVal = "get";
     }
-    if (result["setting"] === undefined) {
-      result["setting"] = result["key"] ?? (result["config"] as Record<string, unknown>)?.["setting"];
+    
+    if (settingVal === undefined) {
+      if (keyVal !== undefined) {
+        settingVal = keyVal;
+      } else if (typeof configVal === "object" && configVal !== null && "setting" in configVal) {
+        settingVal = (configVal as { setting?: unknown }).setting;
+      }
     }
-    if (result["value"] === undefined) {
-      result["value"] = result["val"] ?? (result["config"] as Record<string, unknown>)?.["value"];
+    
+    if (valueVal === undefined) {
+      if (valVal !== undefined) {
+        valueVal = valVal;
+      } else if (typeof configVal === "object" && configVal !== null && "value" in configVal) {
+        valueVal = (configVal as { value?: unknown }).value;
+      }
     }
-    if (result["value"] !== undefined && typeof result["value"] !== "string") {
-      result["value"] = typeof result["value"] === "object" && result["value"] !== null 
-        ? JSON.stringify(result["value"]) 
+    
+    if (valueVal !== undefined && typeof valueVal !== "string") {
+      valueVal = typeof valueVal === "object" && valueVal !== null 
+        ? JSON.stringify(valueVal) 
         // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        : String(result["value"]);
+        : String(valueVal);
     }
     
     // Check if it's passed as config: { logLevel: "debug" }
-    if (result["setting"] === undefined && result["value"] === undefined && typeof result["config"] === "object" && result["config"] !== null) {
-      const configObj = result["config"] as Record<string, unknown>;
-      const keys = Object.keys(configObj);
+    if (settingVal === undefined && valueVal === undefined && typeof configVal === "object" && configVal !== null) {
+      const keys = Object.keys(configVal);
       const firstKey = keys[0];
       if (firstKey !== undefined) {
-        result["setting"] = firstKey;
-        result["value"] = typeof configObj[firstKey] === "object" && configObj[firstKey] !== null
-          ? JSON.stringify(configObj[firstKey])
-          : String(configObj[firstKey]);
+        settingVal = firstKey;
+        const firstVal = (configVal as Record<string, unknown>)[firstKey];
+        valueVal = typeof firstVal === "object" && firstVal !== null
+          ? JSON.stringify(firstVal)
+          : String(firstVal);
       }
     }
-    return result;
+    
+    return {
+      ...result,
+      action: actionVal,
+      ...(settingVal !== undefined ? { setting: settingVal } : {}),
+      ...(valueVal !== undefined ? { value: valueVal } : {}),
+    };
   },
   ServerConfigSchemaBase
 ).refine(

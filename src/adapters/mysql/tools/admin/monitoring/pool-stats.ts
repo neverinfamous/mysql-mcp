@@ -5,6 +5,7 @@ import type {
 } from "../../../../../types/index.js";
 import { PoolStatsSchema, PoolStatsSchemaBase, PoolStatsOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
+import { MySQLMcpError } from "../../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
 export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
@@ -23,7 +24,9 @@ export function createPoolStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const { summary } = PoolStatsSchema.parse(params);
         const pool = await Promise.resolve(adapter.getPool());
         if (!pool) {
-          return formatHandlerErrorResponse(new Error("Pool not available"));
+          return formatHandlerErrorResponse(
+            new MySQLMcpError("Connection pool is not configured on this server", "POOL_NOT_CONFIGURED", "validation")
+          );
         }
         const stats = pool.getStats();
         const response = {
