@@ -279,7 +279,7 @@ export const ShowProcesslistSchemaBase = z.object({
       "Maximum number of processes to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return only summarized counts"),
-}).strict();
+});
 
 export const ShowProcesslistSchema = z.preprocess(
   (obj: unknown) => {
@@ -336,7 +336,7 @@ export const ShowStatusSchemaBase = z.object({
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return key metrics only"),
-}).strict();
+});
 
 export const ShowStatusSchema = z.preprocess(
   (obj: unknown) => {
@@ -398,7 +398,7 @@ export const ShowVariablesSchemaBase = z.object({
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return key metrics only"),
-}).strict();
+});
 
 export const ShowVariablesSchema = z.preprocess(
   (obj: unknown) => {
@@ -447,7 +447,7 @@ export const InnodbStatusSchemaBase = z.object({
   extended: z.boolean().optional().describe("Alias for raw (set to true for raw)"),
   detailed: z.boolean().optional().describe("Alias for raw (set to true for raw)"),
   json: z.boolean().optional().describe("Ignored alias"),
-}).strict();
+});
 
 export const InnodbStatusSchema = z.preprocess(
   (obj: unknown) => {
@@ -511,7 +511,7 @@ export const ReplicationStatusSchemaBase = z.object({
     ),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-}).strict();
+});
 
 export const ReplicationStatusSchema = z.preprocess(
   (obj: unknown) => {
@@ -557,7 +557,7 @@ export const PoolStatsSchemaBase = z.object({
     .describe("Return key metrics only"),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-}).strict();
+});
 
 export const PoolStatsSchema = z.preprocess(
   (obj: unknown) => {
@@ -598,7 +598,7 @@ export const ServerHealthSchemaBase = z.object({
   summary: z.boolean().optional().describe("Return key metrics only"),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary"),
   raw: z.boolean().optional().describe("Alias for summary"),
-}).strict();
+});
 
 export const ServerHealthSchema = z.preprocess(
   (obj: unknown) => {
@@ -748,7 +748,7 @@ export const AuditSearchSchemaBase = z.object({
   toTimestamp: z.string().regex(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})$/, { message: "Invalid date format. Must be a valid ISO 8601 string." }).optional().describe("Filter by end timestamp (ISO 8601)"),
   limit: z.number().int().min(1).max(100).default(5).describe("Max results to return"),
   offset: z.number().int().min(0).default(0).describe("Pagination offset"),
-}).strict().refine(
+}).refine(
   (data) => {
     return (
       data.search !== undefined ||

@@ -380,15 +380,15 @@ export const ForceIndexSchema = z
 
 export const DetectQueryAnomaliesSchemaBase = z.object({
   threshold: z
-    .coerce.number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
-  stdDevThreshold: z.coerce.number().optional().describe("Alias for threshold"),
+  stdDevThreshold: z.union([z.number(), z.string()]).optional().describe("Alias for threshold"),
   minCalls: z
-    .coerce.number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.coerce.number().optional().describe("Alias for minCalls"),
+  minExecutions: z.union([z.number(), z.string()]).optional().describe("Alias for minCalls"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query anomalies."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query anomalies."),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server query anomalies."),
@@ -438,10 +438,10 @@ export const DetectBloatRiskSchemaBase = z.object({
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
   minSizeMb: z
-    .coerce.number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Minimum table size in MB to include (default: 10)"),
-  minSize: z.coerce.number().optional().describe("Alias for minSizeMb"),
+  minSize: z.union([z.number(), z.string()]).optional().describe("Alias for minSizeMb"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes tables, not queries."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes tables, not queries."),
 });
@@ -481,18 +481,18 @@ export const DetectBloatRiskSchema = z
 
 export const DetectConnectionSpikeSchemaBase = z.object({
   warningPercent: z
-    .number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Percentage threshold for flagging concentration (default: 70)"),
   windowMinutes: z
-    .number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Idle time window in minutes to flag connections (default: 5)"),
-  window: z.number().optional().describe("Alias for windowMinutes"),
-  time: z.number().optional().describe("Alias for windowMinutes"),
-  duration: z.number().optional().describe("Alias for windowMinutes"),
-  thresholdPercent: z.number().optional().describe("Alias for warningPercent"),
-  threshold: z.number().optional().describe("Alias for warningPercent"),
+  window: z.union([z.number(), z.string()]).optional().describe("Alias for windowMinutes"),
+  time: z.union([z.number(), z.string()]).optional().describe("Alias for windowMinutes"),
+  duration: z.union([z.number(), z.string()]).optional().describe("Alias for windowMinutes"),
+  thresholdPercent: z.union([z.number(), z.string()]).optional().describe("Alias for warningPercent"),
+  threshold: z.union([z.number(), z.string()]).optional().describe("Alias for warningPercent"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool analyzes global connections."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool analyzes global connections."),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool analyzes global connections."),
@@ -507,10 +507,10 @@ export const DetectConnectionSpikeSchemaBase = z.object({
   clientHost: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a clientHost. This tool analyzes global connections."),
   ip: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass an ip. This tool analyzes global connections."),
   address: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass an address. This tool analyzes global connections."),
-  id: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass an id. This tool analyzes global connections."),
-  processId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a processId. This tool analyzes global connections."),
-  threadId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a threadId. This tool analyzes global connections."),
-  connectionId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a connectionId. This tool analyzes global connections."),
+  id: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass an id. This tool analyzes global connections."),
+  processId: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a processId. This tool analyzes global connections."),
+  threadId: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a threadId. This tool analyzes global connections."),
+  connectionId: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a connectionId. This tool analyzes global connections."),
 });
 
 export const DetectConnectionSpikeSchema = z
