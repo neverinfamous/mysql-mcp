@@ -422,12 +422,20 @@ export const InnodbStatusSchema = z.preprocess(
         data["format"] === "full" || 
         data["raw"] === true || 
         data["raw"] === "true" ||
+        data["raw"] === 1 ||
+        data["raw"] === "1" ||
         data["verbose"] === true ||
         data["verbose"] === "true" ||
+        data["verbose"] === 1 ||
+        data["verbose"] === "1" ||
         data["extended"] === true ||
         data["extended"] === "true" ||
+        data["extended"] === 1 ||
+        data["extended"] === "1" ||
         data["detailed"] === true ||
-        data["detailed"] === "true"
+        data["detailed"] === "true" ||
+        data["detailed"] === 1 ||
+        data["detailed"] === "1"
       ) {
         data["summary"] = false;
       }
@@ -437,8 +445,17 @@ export const InnodbStatusSchema = z.preprocess(
       delete data["detailed"];
       delete data["json"];
 
-      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true" || data["summary"] === "1";
-      if (typeof data["raw"] === "string") data["raw"] = data["raw"] === "true" || data["raw"] === "1";
+      if (typeof data["summary"] === "string") {
+        if (data["summary"] === "true" || data["summary"] === "1") data["summary"] = true;
+        else if (data["summary"] === "false" || data["summary"] === "0") data["summary"] = false;
+      }
+      if (typeof data["summary"] === "number") data["summary"] = data["summary"] === 1;
+      
+      if (typeof data["raw"] === "string") {
+        if (data["raw"] === "true" || data["raw"] === "1") data["raw"] = true;
+        else if (data["raw"] === "false" || data["raw"] === "0") data["raw"] = false;
+      }
+      if (typeof data["raw"] === "number") data["raw"] = data["raw"] === 1;
       return data;
     }
     return obj ?? {};
@@ -464,12 +481,21 @@ export const ReplicationStatusSchema = z.preprocess(
       const data = { ...(obj as Record<string, unknown>) };
       
       // Alias handling for format and raw
-      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") {
+      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true" || data["raw"] === 1 || data["raw"] === "1") {
         data["summary"] = false;
       }
       
-      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true" || data["summary"] === "1";
-      if (typeof data["raw"] === "string") data["raw"] = data["raw"] === "true" || data["raw"] === "1";
+      if (typeof data["summary"] === "string") {
+        if (data["summary"] === "true" || data["summary"] === "1") data["summary"] = true;
+        else if (data["summary"] === "false" || data["summary"] === "0") data["summary"] = false;
+      }
+      if (typeof data["summary"] === "number") data["summary"] = data["summary"] === 1;
+
+      if (typeof data["raw"] === "string") {
+        if (data["raw"] === "true" || data["raw"] === "1") data["raw"] = true;
+        else if (data["raw"] === "false" || data["raw"] === "0") data["raw"] = false;
+      }
+      if (typeof data["raw"] === "number") data["raw"] = data["raw"] === 1;
       return data;
     }
     return obj ?? {};
@@ -491,9 +517,19 @@ export const PoolStatsSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = { ...(obj as Record<string, unknown>) };
-      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") data["summary"] = false;
-      if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true" || data["summary"] === "1";
-      if (typeof data["raw"] === "string") data["raw"] = data["raw"] === "true" || data["raw"] === "1";
+      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true" || data["raw"] === 1 || data["raw"] === "1") data["summary"] = false;
+      
+      if (typeof data["summary"] === "string") {
+        if (data["summary"] === "true" || data["summary"] === "1") data["summary"] = true;
+        else if (data["summary"] === "false" || data["summary"] === "0") data["summary"] = false;
+      }
+      if (typeof data["summary"] === "number") data["summary"] = data["summary"] === 1;
+
+      if (typeof data["raw"] === "string") {
+        if (data["raw"] === "true" || data["raw"] === "1") data["raw"] = true;
+        else if (data["raw"] === "false" || data["raw"] === "0") data["raw"] = false;
+      }
+      if (typeof data["raw"] === "number") data["raw"] = data["raw"] === 1;
       return data;
     }
     return obj ?? {};
