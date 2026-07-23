@@ -83,7 +83,7 @@ export const TransactionSavepointSchemaBase = z.object({
   txId: z.string().optional().describe("Alias for transactionId"),
   tx: z.string().optional().describe("Alias for transactionId"),
   transaction_id: z.string().optional().describe("Alias for transactionId"),
-  savepoint: z.string().optional().describe("Savepoint name"),
+  savepoint: z.string().optional().describe("Savepoint name (must start with letter/underscore and contain only alphanumeric/underscores)"),
   name: z.string().optional().describe("Alias for savepoint"),
   savepointName: z.string().optional().describe("Alias for savepoint"),
   id: z.string().optional().describe("Alias for savepoint"),
