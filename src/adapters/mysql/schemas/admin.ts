@@ -351,9 +351,10 @@ export const ShowVariablesSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
+      const { pattern, search, filter, name, query, sql, variable, variableName, like, ...rest } = data;
       const result: Record<string, unknown> = {
-        ...data,
-        like: data["like"] ?? data["pattern"] ?? data["search"] ?? data["filter"] ?? data["name"] ?? data["query"] ?? data["sql"] ?? data["variable"] ?? data["variableName"],
+        ...rest,
+        like: like ?? pattern ?? search ?? filter ?? name ?? query ?? sql ?? variable ?? variableName,
       };
       
       if (typeof result["global"] === "string") result["global"] = result["global"] === "true" || result["global"] === "1";
