@@ -140,7 +140,7 @@ export const TransactionExecuteSchema = z
     (data) => {
       return data.statements.every((stmt) => {
         if (typeof stmt === "string") return true;
-        if (typeof stmt === "object" && stmt !== null && "sql" in stmt && typeof (stmt as any).sql === "string") return true;
+        if (typeof stmt === "object" && stmt !== null && "sql" in stmt && typeof (stmt as { sql?: unknown }).sql === "string") return true;
         return false;
       });
     },
