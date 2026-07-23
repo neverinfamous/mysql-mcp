@@ -285,6 +285,11 @@ export const ShowStatusSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for like"),
   variable: z.string().optional().describe("Alias for like"),
   variableName: z.string().optional().describe("Alias for like"),
+  variable_name: z.string().optional().describe("Alias for like"),
+  search_pattern: z.string().optional().describe("Alias for like"),
+  searchPattern: z.string().optional().describe("Alias for like"),
+  var: z.string().optional().describe("Alias for like"),
+  varName: z.string().optional().describe("Alias for like"),
   global: z.boolean().optional().default(true).describe("Show global status"),
   limit: z
     .unknown()
@@ -299,10 +304,10 @@ export const ShowStatusSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
-      const { pattern, search, filter, name, query, sql, variable, variableName, like, ...rest } = data;
+      const { pattern, search, filter, name, query, sql, variable, variableName, variable_name, search_pattern, searchPattern, var: varAlias, varName, like, ...rest } = data;
       const result: Record<string, unknown> = {
         ...rest,
-        like: like ?? pattern ?? search ?? filter ?? name ?? query ?? sql ?? variable ?? variableName,
+        like: like ?? pattern ?? search ?? filter ?? name ?? query ?? sql ?? variable ?? variableName ?? variable_name ?? search_pattern ?? searchPattern ?? varAlias ?? varName,
       };
       
       if (typeof result["global"] === "string") result["global"] = result["global"] === "true" || result["global"] === "1";
@@ -338,6 +343,11 @@ export const ShowVariablesSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for like"),
   variable: z.string().optional().describe("Alias for like"),
   variableName: z.string().optional().describe("Alias for like"),
+  variable_name: z.string().optional().describe("Alias for like"),
+  search_pattern: z.string().optional().describe("Alias for like"),
+  searchPattern: z.string().optional().describe("Alias for like"),
+  var: z.string().optional().describe("Alias for like"),
+  varName: z.string().optional().describe("Alias for like"),
   global: z
     .boolean()
     .optional()
@@ -356,10 +366,10 @@ export const ShowVariablesSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const data = obj as Record<string, unknown>;
-      const { pattern, search, filter, name, query, sql, variable, variableName, like, ...rest } = data;
+      const { pattern, search, filter, name, query, sql, variable, variableName, variable_name, search_pattern, searchPattern, var: varAlias, varName, like, ...rest } = data;
       const result: Record<string, unknown> = {
         ...rest,
-        like: like ?? pattern ?? search ?? filter ?? name ?? query ?? sql ?? variable ?? variableName,
+        like: like ?? pattern ?? search ?? filter ?? name ?? query ?? sql ?? variable ?? variableName ?? variable_name ?? search_pattern ?? searchPattern ?? varAlias ?? varName,
       };
       
       if (typeof result["global"] === "string") result["global"] = result["global"] === "true" || result["global"] === "1";
@@ -395,6 +405,10 @@ export const InnodbStatusSchemaBase = z.object({
     ),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
+  verbose: z.boolean().optional().describe("Alias for raw (set to true for raw)"),
+  extended: z.boolean().optional().describe("Alias for raw (set to true for raw)"),
+  detailed: z.boolean().optional().describe("Alias for raw (set to true for raw)"),
+  json: z.boolean().optional().describe("Ignored alias"),
 }).strict();
 
 export const InnodbStatusSchema = z.preprocess(
@@ -403,10 +417,26 @@ export const InnodbStatusSchema = z.preprocess(
       const data = { ...(obj as Record<string, unknown>) };
       
       // Alias handling for format and raw
-      if (data["format"] === "raw" || data["format"] === "full" || data["raw"] === true || data["raw"] === "true") {
+      if (
+        data["format"] === "raw" || 
+        data["format"] === "full" || 
+        data["raw"] === true || 
+        data["raw"] === "true" ||
+        data["verbose"] === true ||
+        data["verbose"] === "true" ||
+        data["extended"] === true ||
+        data["extended"] === "true" ||
+        data["detailed"] === true ||
+        data["detailed"] === "true"
+      ) {
         data["summary"] = false;
       }
       
+      delete data["verbose"];
+      delete data["extended"];
+      delete data["detailed"];
+      delete data["json"];
+
       if (typeof data["summary"] === "string") data["summary"] = data["summary"] === "true" || data["summary"] === "1";
       if (typeof data["raw"] === "string") data["raw"] = data["raw"] === "true" || data["raw"] === "1";
       return data;
