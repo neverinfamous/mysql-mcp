@@ -150,6 +150,21 @@ export const TransactionExecuteSchema = z
   )
   .refine(
     (data) => {
+      return data.statements.every((stmt) => {
+        if (typeof stmt === "string") return true;
+        if (typeof stmt === "object" && stmt !== null) {
+          const s = stmt as { params?: unknown };
+          if (s.params !== undefined && !Array.isArray(s.params)) return false;
+        }
+        return true;
+      });
+    },
+    {
+      message: "If a statement provides 'params', it must be an array.",
+    }
+  )
+  .refine(
+    (data) => {
       if (!data.isolationLevel) return true;
       const validLevels = [
         "READ UNCOMMITTED",
