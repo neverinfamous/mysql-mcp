@@ -58,6 +58,33 @@ export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, local } = OptimizeTableSchema.parse(params);
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
         const tableList = tables.map(escapeQualifiedTable).join(", ");
 
         const reporter = progressFactory.create(_context.progressToken);
@@ -108,6 +135,33 @@ export function createAnalyzeTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, local, update_histograms } = AnalyzeTableSchema.parse(params);
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
         const rows: Record<string, unknown>[] = [];
         
         const reporter = progressFactory.create(_context.progressToken);
@@ -172,6 +226,33 @@ export function createCheckTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, option } = CheckTableSchema.parse(params);
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
         const optionClause = option ? ` ${option}` : "";
         const rows: Record<string, unknown>[] = [];
 
@@ -230,6 +311,33 @@ export function createRepairTableTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { tables, quick } = RepairTableSchema.parse(params);
+        
+        // Pre-check table existence
+        const checkPromises = tables.map(async (t) => {
+          const parsed = parseQualifiedTable(t);
+          const schema = parsed.schema;
+          const tableName = parsed.table;
+          const query = schema !== undefined
+            ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+            : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+          const args = schema !== undefined ? [schema, tableName] : [tableName];
+          const res = await adapter.executeReadQuery(query, args);
+          return { table: t, found: (res.rows ?? []).length > 0 };
+        });
+        const results = await Promise.all(checkPromises);
+        const notFound = results.filter((r) => !r.found).map((r) => r.table);
+        if (notFound.length > 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `Tables not found: ${notFound.join(", ")}`,
+            code: "MAINTENANCE_ERROR",
+            category: ErrorCategory.RESOURCE,
+            suggestion: undefined,
+            recoverable: false,
+            details: { notFound },
+          });
+        }
+
         const tableList = tables.map(escapeQualifiedTable).join(", ");
         const quickClause = quick ? " QUICK" : "";
 

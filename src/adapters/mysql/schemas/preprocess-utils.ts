@@ -116,7 +116,7 @@ export function preprocessTableParams(input: unknown): unknown {
     else if (result["table_name"] !== undefined) result["table"] = result["table_name"];
   }
 
-  if (typeof result["table"] === "string" && result["table"].startsWith("{")) {
+  if (typeof result["table"] === "string" && (result["table"].startsWith("{") || result["table"].startsWith("["))) {
     try {
       const parsed = JSON.parse(result["table"]) as unknown;
       if (typeof parsed === "object" && parsed !== null) {
@@ -692,7 +692,7 @@ export function preprocessAdminTableParams(val: unknown): unknown {
   // Hardening: Handle if 'tables' or aliases are passed as stringified objects
   const checkStringified = (key: string): void => {
     const kVal = v[key];
-    if (typeof kVal === "string" && kVal.startsWith("{")) {
+    if (typeof kVal === "string" && (kVal.startsWith("{") || kVal.startsWith("["))) {
       try {
         const parsed = JSON.parse(kVal) as unknown;
         if (typeof parsed === "object" && parsed !== null) {
