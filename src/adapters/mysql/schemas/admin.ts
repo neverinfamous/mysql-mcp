@@ -488,9 +488,16 @@ export const ServerHealthSchema = z.preprocess(
       if ("raw" in dataObj) rawVal = (dataObj as { raw?: unknown }).raw;
       
       if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true") summaryVal = false;
-      if (typeof summaryVal === "string") summaryVal = summaryVal === "true" || summaryVal === "1";
+      if (typeof summaryVal === "string") {
+        if (summaryVal === "true" || summaryVal === "1") summaryVal = true;
+        else if (summaryVal === "false" || summaryVal === "0") summaryVal = false;
+      }
       if (typeof summaryVal === "number") summaryVal = summaryVal === 1;
-      if (typeof rawVal === "string") rawVal = rawVal === "true" || rawVal === "1";
+      
+      if (typeof rawVal === "string") {
+        if (rawVal === "true" || rawVal === "1") rawVal = true;
+        else if (rawVal === "false" || rawVal === "0") rawVal = false;
+      }
       if (typeof rawVal === "number") rawVal = rawVal === 1;
       
       if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
