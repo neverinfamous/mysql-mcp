@@ -39,10 +39,7 @@ export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
 
         const auditLogger = adapter.getAuditLogger();
         if (!auditLogger) {
-          return withTokenEstimate({
-            success: false,
-            error: "Audit Logger is not enabled or available",
-          });
+          throw new Error("Audit Logger is not enabled or available");
         }
 
         const { entries, totalCount } = await auditLogger.search(parsed);
