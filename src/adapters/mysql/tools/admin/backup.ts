@@ -424,6 +424,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       if (res["tables"] === undefined && aliasVal !== undefined) {
         res["tables"] = Array.isArray(aliasVal) ? aliasVal : [aliasVal];
       }
+      if (typeof res["noData"] === "string") {
+        res["noData"] = res["noData"].toLowerCase() === "true" || res["noData"] === "1";
+      }
+      if (typeof res["singleTransaction"] === "string") {
+        res["singleTransaction"] = res["singleTransaction"].toLowerCase() === "true" || res["singleTransaction"] === "1";
+      }
       return res;
     },
     z.object({
@@ -513,10 +519,11 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        let command = `mysqldump -u [username] -p ${database}`;
+        let command = `mysqldump -u [username] -p "${database}"`;
 
         if (tables && tables.length > 0) {
-          command += ` ${tables.join(" ")}`;
+          const quotedTables = tables.map(t => `"${t}"`);
+          command += ` ${quotedTables.join(" ")}`;
         }
 
         if (noData) {
@@ -633,7 +640,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        const command = `mysql -u [username] -p ${database} < ${filename}`;
+        const command = `mysql -u [username] -p "${database}" < "${filename}"`;
 
         return withTokenEstimate({
           success: true,
