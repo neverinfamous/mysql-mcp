@@ -63,16 +63,28 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
             serverHealth: {
               ...health,
               uptime:
-                uptime != null && typeof uptime === "string"
-                  ? parseInt(uptime, 10)
+                uptime != null
+                  ? typeof uptime === "string"
+                    ? parseInt(uptime, 10)
+                    : typeof uptime === "number"
+                      ? uptime
+                      : undefined
                   : undefined,
               activeConnections:
-                connections != null && typeof connections === "string"
-                  ? parseInt(connections, 10)
+                connections != null
+                  ? typeof connections === "string"
+                    ? parseInt(connections, 10)
+                    : typeof connections === "number"
+                      ? connections
+                      : undefined
                   : undefined,
               totalQueries:
-                queries != null && typeof queries === "string"
-                  ? parseInt(queries, 10)
+                queries != null
+                  ? typeof queries === "string"
+                    ? parseInt(queries, 10)
+                    : typeof queries === "number"
+                      ? queries
+                      : undefined
                   : undefined,
             },
           },
