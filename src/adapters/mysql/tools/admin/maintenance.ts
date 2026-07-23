@@ -272,17 +272,24 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (tables && tables.length > 0) {
           // Pre-check table existence since FLUSH TABLES silently succeeds for nonexistent tables
-          const placeholders = tables.map(() => "?").join(", ");
-          const checkResult = await adapter.executeReadQuery(
-            `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME IN (${placeholders})`,
-            tables,
-          );
-          const foundTables = new Set(
-            (checkResult.rows ?? []).map(
-              (r: Record<string, unknown>) => typeof r["TABLE_NAME"] === "string" ? r["TABLE_NAME"] : String(r["TABLE_NAME"]),
-            ),
-          );
-          const notFound = tables.filter((t) => !foundTables.has(t));
+          const checkPromises = tables.map(async (t) => {
+            const parts = t.split(".");
+            // strip backticks if present to get raw schema/table names for information_schema
+            const schema = parts.length > 1 ? parts[0]!.replace(/`/g, "") : null;
+            const tableName = parts[parts.length - 1]!.replace(/`/g, "");
+            
+            const query = schema 
+              ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
+              : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
+            const args = schema ? [schema, tableName] : [tableName];
+            
+            const res = await adapter.executeReadQuery(query, args);
+            return { table: t, found: (res.rows ?? []).length > 0 };
+          });
+          
+          const results = await Promise.all(checkPromises);
+          const foundTables = new Set(results.filter(r => r.found).map(r => r.table));
+          const notFound = results.filter(r => !r.found).map(r => r.table);
 
           if (notFound.length > 0) {
             // Flush valid tables before reporting missing ones
