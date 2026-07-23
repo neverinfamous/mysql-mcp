@@ -549,9 +549,21 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
       result["statements"] = result["sql"];
   }
 
-  // Wrap singular string in array
   if (typeof result["statements"] === "string") {
-    result["statements"] = [result["statements"]];
+    if (result["statements"].trim().startsWith("[")) {
+      try {
+        const parsed = JSON.parse(result["statements"]) as unknown;
+        if (Array.isArray(parsed)) {
+          result["statements"] = parsed;
+        } else {
+          result["statements"] = [result["statements"]];
+        }
+      } catch {
+        result["statements"] = [result["statements"]];
+      }
+    } else {
+      result["statements"] = [result["statements"]];
+    }
   }
 
   // Handle arrays of {sql: "..."} objects gracefully
@@ -559,7 +571,18 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
     result["statements"] = result["statements"].map((s: unknown) => {
       if (typeof s === "object" && s !== null) {
         const obj = s as Record<string, unknown>;
-        const params = obj["params"] ?? obj["parameters"] ?? obj["values"];
+        const rawParams = obj["params"] ?? obj["parameters"] ?? obj["values"];
+        
+        let params = rawParams;
+        if (typeof rawParams === "string" && rawParams.trim().startsWith("[")) {
+          try {
+            const parsed = JSON.parse(rawParams) as unknown;
+            if (Array.isArray(parsed)) params = parsed;
+          } catch {
+            // Ignore
+          }
+        }
+        
         const paramsArray = params !== undefined ? (Array.isArray(params) ? params : [params]) : undefined;
         
         if ("sql" in obj && typeof obj["sql"] === "string") {
