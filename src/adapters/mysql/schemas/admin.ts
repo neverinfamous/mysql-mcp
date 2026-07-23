@@ -523,6 +523,7 @@ export const ServerConfigSchemaBase = z.object({
     .optional()
     .describe("The new value for the setting (e.g., 'debug', 'info', 'warning')"),
   val: z.string().optional().describe("Alias for value"),
+  config: z.unknown().optional().describe("Alias for setting/value pair"),
 });
 
 export const ServerConfigSchema = z.preprocess(
@@ -534,11 +535,31 @@ export const ServerConfigSchema = z.preprocess(
     if (result["action"] === undefined) {
       result["action"] = "get";
     }
-    if (result["setting"] === undefined && result["key"] !== undefined) {
-      result["setting"] = result["key"];
+    if (result["setting"] === undefined) {
+      result["setting"] = result["key"] ?? (result["config"] as Record<string, unknown>)?.["setting"];
     }
-    if (result["value"] === undefined && result["val"] !== undefined) {
-      result["value"] = result["val"];
+    if (result["value"] === undefined) {
+      result["value"] = result["val"] ?? (result["config"] as Record<string, unknown>)?.["value"];
+    }
+    if (result["value"] !== undefined && typeof result["value"] !== "string") {
+      result["value"] = typeof result["value"] === "object" && result["value"] !== null 
+        ? JSON.stringify(result["value"]) 
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        : String(result["value"]);
+    }
+    
+    // Check if it's passed as config: { logLevel: "debug" }
+    if (result["setting"] === undefined && result["value"] === undefined && typeof result["config"] === "object" && result["config"] !== null) {
+      const configObj = result["config"] as Record<string, unknown>;
+      const keys = Object.keys(configObj);
+      const firstKey = keys[0];
+      if (firstKey !== undefined) {
+        result["setting"] = firstKey;
+        result["value"] = typeof configObj[firstKey] === "object" && configObj[firstKey] !== null
+          ? JSON.stringify(configObj[firstKey])
+          // eslint-disable-next-line @typescript-eslint/no-base-to-string
+          : String(configObj[firstKey]);
+      }
     }
     return result;
   },
@@ -621,9 +642,16 @@ export const AppendInsightSchema = z
     (obj: unknown) => {
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
+        let insightVal = data["insight"] ?? data["text"] ?? data["message"] ?? data["query"] ?? data["sql"] ?? data["name"] ?? data["table"];
+        if (insightVal !== undefined && insightVal !== null && typeof insightVal !== "string") {
+            insightVal = typeof insightVal === "object" 
+              ? JSON.stringify(insightVal) 
+              // eslint-disable-next-line @typescript-eslint/no-base-to-string
+              : String(insightVal);
+        }
         return {
           ...data,
-          insight: data["insight"] ?? data["text"] ?? data["message"] ?? data["query"] ?? data["sql"] ?? data["name"] ?? data["table"],
+          insight: insightVal,
         };
       }
       return obj;
