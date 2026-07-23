@@ -241,7 +241,7 @@ describe("Performance Analysis Tools", () => {
       )) as { success: boolean; error: string };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("SQL syntax");
+      expect(result.error).toContain("Anti-Hallucination");
     });
 
     it("should accept sql alias for query", async () => {
