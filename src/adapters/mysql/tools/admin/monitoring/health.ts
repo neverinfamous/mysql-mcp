@@ -3,7 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ServerHealthSchema, ServerHealthOutputSchema } from "../../../schemas/index.js";
+import { ServerHealthSchema, ServerHealthSchemaBase, ServerHealthOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -14,7 +14,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Server Health",
     description: "Get comprehensive server health information.",
     group: "monitoring",
-    inputSchema: ServerHealthSchema,
+    inputSchema: ServerHealthSchemaBase,
     outputSchema: ServerHealthOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
