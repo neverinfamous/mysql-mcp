@@ -52,12 +52,12 @@ function formatForMySQL(val: unknown): string {
 
   // Handle objects (JSON columns) - stringify
   if (typeof val === "object") {
-    return `'${JSON.stringify(val).replace(/'/g, "''")}'`;
+    return `'${JSON.stringify(val).replace(/\\/g, "\\\\").replace(/'/g, "''")}'`;
   }
 
   // Handle strings
   if (typeof val === "string") {
-    return `'${val.replace(/'/g, "''")}'`;
+    return `'${val.replace(/\\/g, "\\\\").replace(/'/g, "''")}'`;
   }
 
   // Numbers and booleans
@@ -347,7 +347,9 @@ export function createImportDataTool(adapter: MySQLAdapter): ToolDefinition {
               valueGroups.push(`(${columnNames.map(() => "?").join(", ")})`);
               for (const col of columnNames) {
                 let val: unknown = row[col] ?? null;
-                if (
+                if (val !== null && typeof val === "object" && !(val instanceof Date)) {
+                  val = JSON.stringify(val);
+                } else if (
                   typeof val === "string" &&
                   /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z$/.test(val)
                 ) {
@@ -395,7 +397,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     schema: z.string().optional().describe("Alias for database"),
     schemaName: z.string().optional().describe("Alias for database"),
     tables: z
-      .array(z.string())
+      .union([z.string(), z.array(z.string())])
       .optional()
       .describe("Specific tables to dump"),
     table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
@@ -424,11 +426,18 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       if (res["tables"] === undefined && aliasVal !== undefined) {
         res["tables"] = Array.isArray(aliasVal) ? aliasVal : [aliasVal];
       }
+      if (typeof res["tables"] === "string") {
+        res["tables"] = [res["tables"]];
+      }
       if (typeof res["noData"] === "string") {
         res["noData"] = res["noData"].toLowerCase() === "true" || res["noData"] === "1";
+      } else if (typeof res["noData"] === "number") {
+        res["noData"] = res["noData"] === 1;
       }
       if (typeof res["singleTransaction"] === "string") {
         res["singleTransaction"] = res["singleTransaction"].toLowerCase() === "true" || res["singleTransaction"] === "1";
+      } else if (typeof res["singleTransaction"] === "number") {
+        res["singleTransaction"] = res["singleTransaction"] === 1;
       }
       return res;
     },
