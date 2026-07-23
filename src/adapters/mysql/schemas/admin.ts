@@ -254,7 +254,9 @@ export const ShowProcesslistSchema = z.preprocess(
       };
       
       if (typeof result["full"] === "string") result["full"] = result["full"] === "true" || result["full"] === "1";
+      if (typeof result["full"] === "number") result["full"] = result["full"] === 1;
       if (typeof result["summary"] === "string") result["summary"] = result["summary"] === "true" || result["summary"] === "1";
+      if (typeof result["summary"] === "number") result["summary"] = result["summary"] === 1;
       
       return result;
     }
@@ -304,7 +306,9 @@ export const ShowStatusSchema = z.preprocess(
       };
       
       if (typeof result["global"] === "string") result["global"] = result["global"] === "true" || result["global"] === "1";
+      if (typeof result["global"] === "number") result["global"] = result["global"] === 1;
       if (typeof result["summary"] === "string") result["summary"] = result["summary"] === "true" || result["summary"] === "1";
+      if (typeof result["summary"] === "number") result["summary"] = result["summary"] === 1;
       
       return result;
     }
@@ -359,7 +363,9 @@ export const ShowVariablesSchema = z.preprocess(
       };
       
       if (typeof result["global"] === "string") result["global"] = result["global"] === "true" || result["global"] === "1";
+      if (typeof result["global"] === "number") result["global"] = result["global"] === 1;
       if (typeof result["summary"] === "string") result["summary"] = result["summary"] === "true" || result["summary"] === "1";
+      if (typeof result["summary"] === "number") result["summary"] = result["summary"] === 1;
       
       return result;
     }
