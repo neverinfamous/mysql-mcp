@@ -184,7 +184,9 @@ export const FlushTablesSchema = z
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
         if (typeof record["withReadLock"] === "string") record["withReadLock"] = record["withReadLock"] === "true" || record["withReadLock"] === "1";
+        if (typeof record["withReadLock"] === "number") record["withReadLock"] = record["withReadLock"] === 1;
         if (typeof record["forExport"] === "string") record["forExport"] = record["forExport"] === "true" || record["forExport"] === "1";
+        if (typeof record["forExport"] === "number") record["forExport"] = record["forExport"] === 1;
       }
       return data;
     },
@@ -230,6 +232,9 @@ export const KillQuerySchema = z
         const data = obj as Record<string, unknown>;
         if (typeof data["connection"] === "string") {
           data["connection"] = data["connection"] === "true" || data["connection"] === "1";
+        }
+        if (typeof data["connection"] === "number") {
+          data["connection"] = data["connection"] === 1;
         }
         return data;
       }
