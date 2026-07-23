@@ -258,6 +258,12 @@ const ERROR_SUGGESTIONS: {
     category: ErrorCategory.QUERY,
     code: "TRANSACTION_CONFLICT",
   },
+  {
+    pattern: /Transaction (?:not found|ID is invalid)/i,
+    suggestion: "Transaction ID is invalid or has already been committed/rolled back.",
+    category: ErrorCategory.QUERY,
+    code: "TRANSACTION_NOT_FOUND",
+  },
 
   // =========================================================================
   // Connection errors

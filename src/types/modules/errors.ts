@@ -204,7 +204,7 @@ export class TransactionError extends MySQLMcpError {
     super(message, "TRANSACTION_ERROR", ErrorCategory.QUERY, {
       suggestion:
         options?.suggestion ??
-        "Use mysql_transaction_rollback to end the aborted transaction, or mysql_transaction_rollback_to to recover to a savepoint.",
+        "Verify the transaction ID and ensure the transaction is still active.",
       details,
       recoverable: true,
       cause: options?.cause,
