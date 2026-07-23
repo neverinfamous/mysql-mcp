@@ -189,6 +189,9 @@ export const FlushTablesSchema = z
   .refine((data) => !(data.withReadLock && data.forExport), {
     message: "Cannot specify both withReadLock and forExport",
   })
+  .refine((data) => data.tables === undefined || data.tables.length > 0, {
+    message: "If tables array is provided, it must not be empty",
+  })
   .refine((data) => !data.forExport || (data.tables && data.tables.length > 0), {
     message: "FOR EXPORT requires at least one table to be specified",
   });

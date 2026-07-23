@@ -43,7 +43,7 @@ import {
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
 import { progressFactory } from "../../../../progress/index.js";
-import { escapeQualifiedTable } from "../../../../utils/validators.js";
+import { escapeQualifiedTable, parseQualifiedTable } from "../../../../utils/validators.js";
 
 export function createOptimizeTableTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -286,15 +286,14 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
         if (tables && tables.length > 0) {
           // Pre-check table existence since FLUSH TABLES silently succeeds for nonexistent tables
           const checkPromises = tables.map(async (t) => {
-            const parts = t.split(".");
-            // strip backticks if present to get raw schema/table names for information_schema
-            const schema = parts.length > 1 ? (parts[0] ?? "").replace(/`/g, "") : null;
-            const tableName = (parts[parts.length - 1] ?? "").replace(/`/g, "");
+            const parsed = parseQualifiedTable(t);
+            const schema = parsed.schema;
+            const tableName = parsed.table;
             
-            const query = schema 
+            const query = schema !== undefined
               ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`
               : `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ?`;
-            const args = schema ? [schema, tableName] : [tableName];
+            const args = schema !== undefined ? [schema, tableName] : [tableName];
             
             const res = await adapter.executeReadQuery(query, args);
             return { table: t, found: (res.rows ?? []).length > 0 };
