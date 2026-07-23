@@ -65,6 +65,9 @@ export const ExplainAnalyzeSchema = z
   }))
   .refine((data) => data.query !== "", {
     message: "query (or sql alias) is required",
+  })
+  .refine((data) => /^\s*(SELECT|WITH)\b/i.test(data.query), {
+    message: "Anti-Hallucination Hint: EXPLAIN ANALYZE actually executes the query and can mutate data. Only SELECT or WITH queries are permitted.",
   });
 
 // --- SlowQuery (no table/query aliases — simple passthrough) ---
