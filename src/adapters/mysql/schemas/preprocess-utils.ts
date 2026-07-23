@@ -433,7 +433,7 @@ export function preprocessTransactionIdParams(input: unknown): unknown {
   }
 
   if (normalized["transactionId"] !== undefined && typeof normalized["transactionId"] !== "string" && typeof normalized["transactionId"] !== "object") {
-    normalized["transactionId"] = String(normalized["transactionId"]);
+    normalized["transactionId"] = String(normalized["transactionId"] as number | boolean | bigint);
   }
 
   return normalized;
@@ -460,10 +460,10 @@ export function preprocessSavepointParams(input: unknown): unknown {
   }
 
   if (result["transactionId"] !== undefined && typeof result["transactionId"] !== "string" && typeof result["transactionId"] !== "object") {
-    result["transactionId"] = String(result["transactionId"]);
+    result["transactionId"] = String(result["transactionId"] as number | boolean | bigint);
   }
   if (result["savepoint"] !== undefined && typeof result["savepoint"] !== "string" && typeof result["savepoint"] !== "object") {
-    result["savepoint"] = String(result["savepoint"]);
+    result["savepoint"] = String(result["savepoint"] as number | boolean | bigint);
   }
 
   return result;
