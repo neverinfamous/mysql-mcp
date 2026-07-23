@@ -938,7 +938,7 @@ export const AuditListBackupsSchemaBase = z.object({
     .optional()
     .describe("Max backups to return"),
   target: z
-    .string()
+    .unknown()
     .optional()
     .describe("Filter by exact target object name (e.g. users)"),
   name: z.unknown().optional().describe("Alias for target"),
@@ -994,6 +994,7 @@ export const AuditRestoreBackupSchemaBase = z.object({
   fileUrl: z.unknown().optional().describe("Alias for filename"),
   id: z.unknown().optional().describe("Alias for filename"),
   backupId: z.unknown().optional().describe("Alias for filename"),
+  backup: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
   table: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
   tableName: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
   target: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
@@ -1003,6 +1004,8 @@ export const AuditRestoreBackupSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Execute INSERT data if present in snapshot"),
+  withData: z.unknown().optional().describe("Alias for includeData"),
+  data: z.unknown().optional().describe("Alias for includeData"),
   dryRun: z
     .unknown()
     .optional()
@@ -1014,13 +1017,13 @@ export const AuditRestoreBackupSchema = z
     (obj: unknown) => {
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
-        const rawIncludeData = data["includeData"];
+        const rawIncludeData = data["includeData"] ?? data["withData"] ?? data["data"];
         const parsedIncludeData = rawIncludeData === "true" || rawIncludeData === true || rawIncludeData === 1 || rawIncludeData === "1";
         
         const rawDryRun = data["dryRun"];
         const parsedDryRun = rawDryRun === "true" || rawDryRun === true || rawDryRun === 1 || rawDryRun === "1";
 
-        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
+        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["backup"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
         if (typeof filename === "number" || typeof filename === "boolean") {
           filename = String(filename);
         }
@@ -1064,18 +1067,19 @@ export const AuditRestoreBackupOutputSchema = BaseOutputSchema.extend({
 
 export const AuditDiffBackupSchemaBase = z.object({
   filename: z
-    .string()
+    .unknown()
     .optional()
     .describe("Snapshot filename to compare against current schema. Note: Pass filename, not table or target."),
-  file: z.string().optional().describe("Alias for filename"),
-  fileUrl: z.string().optional().describe("Alias for filename"),
-  id: z.string().optional().describe("Alias for filename"),
-  backupId: z.string().optional().describe("Alias for filename"),
-  table: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  tableName: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  target: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  sql: z.string().optional().describe("Alias for filename (anti-hallucination)"),
-  query: z.string().optional().describe("Alias for filename (anti-hallucination)"),
+  file: z.unknown().optional().describe("Alias for filename"),
+  fileUrl: z.unknown().optional().describe("Alias for filename"),
+  id: z.unknown().optional().describe("Alias for filename"),
+  backupId: z.unknown().optional().describe("Alias for filename"),
+  backup: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  table: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  tableName: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  target: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  sql: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  query: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
 });
 
 export const AuditDiffBackupSchema = z
@@ -1083,7 +1087,7 @@ export const AuditDiffBackupSchema = z
     (obj: unknown) => {
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
-        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
+        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["backup"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
         
         if (typeof filename === "number" || typeof filename === "boolean") {
           filename = String(filename);
