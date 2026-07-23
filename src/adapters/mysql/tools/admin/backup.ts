@@ -212,7 +212,7 @@ export function createExportTableTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({
             success: true,
             data: {
-              json: JSON.stringify(rows, null, 2),
+              json: JSON.stringify(rows),
               rowCount: rows.length,
             },
           });
