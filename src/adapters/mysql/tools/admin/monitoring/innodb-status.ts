@@ -110,6 +110,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const rawStatus =
           typeof rawRow?.["Status"] === "string" ? rawRow["Status"] :
           typeof rawRow?.["STATUS"] === "string" ? rawRow["STATUS"] :
+          typeof rawRow?.["status"] === "string" ? rawRow["status"] :
           "";
 
         if (summary) {
