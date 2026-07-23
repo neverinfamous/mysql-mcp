@@ -503,6 +503,14 @@ export const DetectConnectionSpikeSchemaBase = z.object({
   user: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a user name. This tool analyzes global connections."),
   username: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a username. This tool analyzes global connections."),
   host: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a host. This tool analyzes global connections."),
+  client: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a client. This tool analyzes global connections."),
+  clientHost: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a clientHost. This tool analyzes global connections."),
+  ip: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass an ip. This tool analyzes global connections."),
+  address: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass an address. This tool analyzes global connections."),
+  id: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass an id. This tool analyzes global connections."),
+  processId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a processId. This tool analyzes global connections."),
+  threadId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a threadId. This tool analyzes global connections."),
+  connectionId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a connectionId. This tool analyzes global connections."),
 });
 
 export const DetectConnectionSpikeSchema = z
@@ -534,8 +542,16 @@ export const DetectConnectionSpikeSchema = z
       user: z.string().optional(),
       username: z.string().optional(),
       host: z.string().optional(),
-    }).refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.database && !data.db && !data.schema && !data.user && !data.username && !data.host, {
-      message: "Anti-Hallucination Hint: mysql_detect_connection_spike analyzes global connection pool patterns. It does NOT accept a specific query, sql, table, database, schema, user, or host string.",
+      client: z.string().optional(),
+      clientHost: z.string().optional(),
+      ip: z.string().optional(),
+      address: z.string().optional(),
+      id: z.coerce.number().optional(),
+      processId: z.coerce.number().optional(),
+      threadId: z.coerce.number().optional(),
+      connectionId: z.coerce.number().optional(),
+    }).refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.database && !data.db && !data.schema && !data.user && !data.username && !data.host && !data.client && !data.clientHost && !data.ip && !data.address && data.id === undefined && data.processId === undefined && data.threadId === undefined && data.connectionId === undefined, {
+      message: "Anti-Hallucination Hint: mysql_detect_connection_spike analyzes global connection pool patterns. It does NOT accept a specific query, sql, table, database, schema, user, host, client, or connection id.",
     }),
   )
   .transform((data) => ({
