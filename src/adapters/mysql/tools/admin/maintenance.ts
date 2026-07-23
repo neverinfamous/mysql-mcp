@@ -275,8 +275,8 @@ export function createFlushTablesTool(adapter: MySQLAdapter): ToolDefinition {
           const checkPromises = tables.map(async (t) => {
             const parts = t.split(".");
             // strip backticks if present to get raw schema/table names for information_schema
-            const schema = parts.length > 1 ? parts[0]!.replace(/`/g, "") : null;
-            const tableName = parts[parts.length - 1]!.replace(/`/g, "");
+            const schema = parts.length > 1 ? (parts[0] ?? "").replace(/`/g, "") : null;
+            const tableName = (parts[parts.length - 1] ?? "").replace(/`/g, "");
             
             const query = schema 
               ? `SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?`

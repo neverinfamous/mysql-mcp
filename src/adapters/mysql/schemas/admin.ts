@@ -522,7 +522,7 @@ export const AuditSearchSchemaBase = z.object({
   toTimestamp: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "Invalid date format. Must be a valid ISO 8601 string." }).optional().describe("Filter by end timestamp (ISO 8601)"),
   limit: z.number().int().min(1).max(100).default(5).describe("Max results to return"),
   offset: z.number().int().min(0).default(0).describe("Pagination offset"),
-}).refine(
+}).strict().refine(
   (data) => {
     return (
       data.search !== undefined ||
@@ -553,6 +553,9 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
   if (typeof result["offset"] === "string") {
     const num = Number(result["offset"]);
     if (!Number.isNaN(num)) result["offset"] = num;
+  }
+  if (typeof result["success"] === "string") {
+    result["success"] = result["success"] === "true" || result["success"] === "1";
   }
   return result;
 }, AuditSearchSchemaBase);
