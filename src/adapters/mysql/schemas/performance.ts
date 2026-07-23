@@ -292,15 +292,15 @@ export const ForceIndexSchema = z
 
 export const DetectQueryAnomaliesSchemaBase = z.object({
   threshold: z
-    .number()
+    .coerce.number()
     .optional()
     .describe("Max/Avg variance multiplier threshold (default: 10.0)"),
-  stdDevThreshold: z.number().optional().describe("Alias for threshold"),
+  stdDevThreshold: z.coerce.number().optional().describe("Alias for threshold"),
   minCalls: z
-    .number()
+    .coerce.number()
     .optional()
     .describe("Minimum call count to filter noise (default: 50)"),
-  minExecutions: z.number().optional().describe("Alias for minCalls"),
+  minExecutions: z.coerce.number().optional().describe("Alias for minCalls"),
 });
 
 export const DetectQueryAnomaliesSchema = z
@@ -340,10 +340,10 @@ export const DetectBloatRiskSchemaBase = z.object({
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
   minSizeMb: z
-    .number()
+    .coerce.number()
     .optional()
     .describe("Minimum table size in MB to include (default: 10)"),
-  minSize: z.number().optional().describe("Alias for minSizeMb"),
+  minSize: z.coerce.number().optional().describe("Alias for minSizeMb"),
 });
 
 export const DetectBloatRiskSchema = z
