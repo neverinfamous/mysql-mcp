@@ -383,7 +383,7 @@ function createTransactionExecuteTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (error) {
         try {
           await adapter.rollbackTransaction(transactionId);
-        } catch (rollbackError) {
+        } catch {
           // Ignore rollback errors to ensure the original error is returned
         }
         const cleanMsg = formatMysqlError(error);
