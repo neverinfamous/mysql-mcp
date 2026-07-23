@@ -637,18 +637,18 @@ export const ServerHealthSchema = z.preprocess(
 // --- ServerConfig ---
 export const ServerConfigSchemaBase = z.object({
   action: z
-    .enum(["get", "set"])
-    .describe("Whether to get or set the configuration value."),
+    .unknown()
+    .describe("Whether to get or set the configuration value (get or set)."),
   setting: z
-    .enum(["logLevel"])
+    .unknown()
     .optional()
-    .describe("The setting to modify"),
-  key: z.enum(["logLevel"]).optional().describe("Alias for setting"),
+    .describe("The setting to modify (e.g. logLevel)"),
+  key: z.unknown().optional().describe("Alias for setting"),
   value: z
-    .string()
+    .unknown()
     .optional()
     .describe("The new value for the setting (e.g., 'debug', 'info', 'warning')"),
-  val: z.string().optional().describe("Alias for value"),
+  val: z.unknown().optional().describe("Alias for value"),
   config: z.unknown().optional().describe("Alias for setting/value pair"),
 });
 
@@ -712,7 +712,11 @@ export const ServerConfigSchema = z.preprocess(
       ...(valueVal !== undefined ? { value: valueVal } : {}),
     };
   },
-  ServerConfigSchemaBase
+  z.object({
+    action: z.enum(["get", "set"]),
+    setting: z.enum(["logLevel"]).optional(),
+    value: z.string().optional(),
+  })
 ).refine(
   (data) => {
     if (data.action === "set") {
@@ -781,13 +785,13 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
 // --- AppendInsight ---
 export const AppendInsightSchemaBase = z.object({
   insight: z
-    .string()
+    .unknown()
     .optional()
     .describe(
       "Business insight text to record. Note: Pass insight, not text or message.",
     ),
-  text: z.string().optional().describe("Alias for insight"),
-  message: z.string().optional().describe("Alias for insight"),
+  text: z.unknown().optional().describe("Alias for insight"),
+  message: z.unknown().optional().describe("Alias for insight"),
 });
 
 export const AppendInsightSchema = z
