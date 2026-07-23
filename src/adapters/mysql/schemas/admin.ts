@@ -7,12 +7,12 @@ import { preprocessAdminTableParams } from "./preprocess-utils.js";
 
 // --- OptimizeTable ---
 export const OptimizeTableSchemaBase = z.object({
-  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to optimize"),
-  table: z.string().optional().describe("Single table name (alias for tables)"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  local: z.boolean().optional().describe("Write to binlog using LOCAL"),
-  no_write_to_binlog: z.boolean().optional().describe("Alias for local"),
+  tables: z.unknown().optional().describe("Table names to optimize"),
+  table: z.unknown().optional().describe("Single table name (alias for tables)"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
+  local: z.unknown().optional().describe("Write to binlog using LOCAL"),
+  no_write_to_binlog: z.unknown().optional().describe("Alias for local"),
 });
 
 export const OptimizeTableSchema = z
@@ -45,13 +45,13 @@ export const OptimizeTableSchema = z
 
 // --- AnalyzeTable ---
 export const AnalyzeTableSchemaBase = z.object({
-  tables: z.union([z.array(z.string()), z.string()]).optional().describe("Table names to analyze"),
-  table: z.string().optional().describe("Single table name (alias for tables)"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  local: z.boolean().optional().describe("Write to binlog using LOCAL"),
-  no_write_to_binlog: z.boolean().optional().describe("Alias for local"),
-  update_histograms: z.boolean().optional().describe("Update histograms instead of index statistics"),
+  tables: z.unknown().optional().describe("Table names to analyze"),
+  table: z.unknown().optional().describe("Single table name (alias for tables)"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
+  local: z.unknown().optional().describe("Write to binlog using LOCAL"),
+  no_write_to_binlog: z.unknown().optional().describe("Alias for local"),
+  update_histograms: z.unknown().optional().describe("Update histograms instead of index statistics"),
 });
 
 export const AnalyzeTableSchema = z
@@ -166,15 +166,12 @@ export const RepairTableSchema = z
 
 // --- FlushTables ---
 export const FlushTablesSchemaBase = z.object({
-  tables: z
-    .union([z.array(z.string()), z.string()])
-    .optional()
-    .describe("Specific tables to flush (empty for all)"),
-  table: z.string().optional().describe("Single table name (alias for tables)"),
-  tableName: z.string().optional().describe("Alias for table"),
-  name: z.string().optional().describe("Alias for table"),
-  withReadLock: z.boolean().optional().describe("Acquire read lock (WITH READ LOCK)"),
-  forExport: z.boolean().optional().describe("Flush for export (FOR EXPORT)"),
+  tables: z.unknown().optional().describe("Specific tables to flush (empty for all)"),
+  table: z.unknown().optional().describe("Single table name (alias for tables)"),
+  tableName: z.unknown().optional().describe("Alias for table"),
+  name: z.unknown().optional().describe("Alias for table"),
+  withReadLock: z.unknown().optional().describe("Acquire read lock (WITH READ LOCK)"),
+  forExport: z.unknown().optional().describe("Flush for export (FOR EXPORT)"),
 });
 
 export const FlushTablesSchema = z
@@ -218,11 +215,7 @@ export const KillQuerySchemaBase = z.object({
   processId: z.unknown().optional().describe("Process ID to kill"),
   id: z.unknown().optional().describe("Alias for process ID to kill"),
   connectionId: z.unknown().optional().describe("Alias for process ID to kill"),
-  connection: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe("Kill connection instead of query"),
+  connection: z.unknown().optional().describe("Kill connection instead of query"),
 });
 
 export const KillQuerySchema = z
