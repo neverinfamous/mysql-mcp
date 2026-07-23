@@ -66,7 +66,16 @@ export const CheckTableSchemaBase = z.object({
 
 export const CheckTableSchema = z
   .preprocess(
-    preprocessAdminTableParams,
+    (obj: unknown) => {
+      const data = preprocessAdminTableParams(obj);
+      if (typeof data === "object" && data !== null) {
+        const record = data as Record<string, unknown>;
+        if (typeof record["option"] === "string") {
+          record["option"] = record["option"].toUpperCase();
+        }
+      }
+      return data;
+    },
     z.object({
       tables: z.array(z.string()).optional(),
       table: z.string().optional(),
@@ -100,7 +109,16 @@ export const RepairTableSchemaBase = z.object({
 
 export const RepairTableSchema = z
   .preprocess(
-    preprocessAdminTableParams,
+    (obj: unknown) => {
+      const data = preprocessAdminTableParams(obj);
+      if (typeof data === "object" && data !== null) {
+        const record = data as Record<string, unknown>;
+        if (typeof record["quick"] === "string") {
+          record["quick"] = record["quick"] === "true" || record["quick"] === "1";
+        }
+      }
+      return data;
+    },
     z.object({
       tables: z.array(z.string()).optional(),
       table: z.string().optional(),
