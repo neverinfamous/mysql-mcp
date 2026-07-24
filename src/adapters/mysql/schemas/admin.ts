@@ -394,7 +394,9 @@ export const ShowVariablesSchemaBase = z.object({
     .default(true)
     .describe("Show global variables"),
   limit: z
-    .unknown()
+    .number()
+    .int()
+    .positive()
     .optional()
     .describe(
       "Maximum number of variables to return (default: 10). Set higher to see all.",
@@ -417,6 +419,11 @@ export const ShowVariablesSchema = z.preprocess(
       if (typeof result["summary"] === "string") result["summary"] = result["summary"] === "true" || result["summary"] === "1";
       if (typeof result["summary"] === "number") result["summary"] = result["summary"] === 1;
       
+      if (typeof result["limit"] === "string") {
+        const parsedLimit = parseInt(result["limit"], 10);
+        if (!isNaN(parsedLimit)) result["limit"] = parsedLimit;
+      }
+      
       return result;
     }
     return obj;
@@ -425,14 +432,9 @@ export const ShowVariablesSchema = z.preprocess(
     .transform((data) => ({
       like: data.like,
       global: data.global,
-      limit: data.limit !== undefined ? Number(data.limit) : 10,
+      limit: data.limit !== undefined ? data.limit : 10,
       summary: data.summary ?? false,
     }))
-    .refine(
-      (data) =>
-        data.limit === undefined || (Number.isInteger(data.limit) && data.limit > 0),
-      { message: "limit must be a positive integer" },
-    )
 );
 
 export const InnodbStatusSchemaBase = z.object({
