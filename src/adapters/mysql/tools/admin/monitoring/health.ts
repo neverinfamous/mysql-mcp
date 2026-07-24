@@ -23,7 +23,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
         const { summary } = ServerHealthSchema.parse(params);
         const health = await adapter.getHealth();
 
-        if (summary) {
+        if (summary || !health.connected) {
           const response = {
             success: true,
             data: {
@@ -31,6 +31,7 @@ export function createServerHealthTool(adapter: MySQLAdapter): ToolDefinition {
                 connected: health.connected,
                 latencyMs: health.latencyMs,
                 version: health.version,
+                error: health.error,
               },
               summary: true
             },

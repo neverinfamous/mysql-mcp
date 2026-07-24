@@ -597,8 +597,8 @@ export const PoolStatsSchema = z.preprocess(
 
 export const ServerHealthSchemaBase = z.object({
   summary: z.boolean().optional().describe("Return key metrics only"),
-  format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary"),
-  raw: z.boolean().optional().describe("Alias for summary"),
+  format: z.enum(["raw", "full", "summary"]).optional().describe("Controls detail level (raw, full, summary)"),
+  raw: z.boolean().optional().describe("Alias for format='raw' (returns full metrics)"),
 }).strict();
 
 export const ServerHealthSchema = z.preprocess(
