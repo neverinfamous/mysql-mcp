@@ -585,9 +585,10 @@ export const ReplicationStatusSchema = z.preprocess(
       if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
       if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
-      if (verboseVal !== undefined) Object.assign(dataObj, { verbose: verboseVal });
-      if (detailedVal !== undefined) Object.assign(dataObj, { detailed: detailedVal });
-      if (extendedVal !== undefined) Object.assign(dataObj, { extended: extendedVal });
+      
+      delete (dataObj as Record<string, unknown>).verbose;
+      delete (dataObj as Record<string, unknown>).detailed;
+      delete (dataObj as Record<string, unknown>).extended;
       
       return dataObj;
     }
@@ -651,9 +652,10 @@ export const PoolStatsSchema = z.preprocess(
       if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
       if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
-      if (verboseVal !== undefined) Object.assign(dataObj, { verbose: verboseVal });
-      if (detailedVal !== undefined) Object.assign(dataObj, { detailed: detailedVal });
-      if (extendedVal !== undefined) Object.assign(dataObj, { extended: extendedVal });
+      
+      delete (dataObj as Record<string, unknown>).verbose;
+      delete (dataObj as Record<string, unknown>).detailed;
+      delete (dataObj as Record<string, unknown>).extended;
       
       return dataObj;
     }
@@ -706,8 +708,9 @@ export const ServerHealthSchema = z.preprocess(
       if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
       if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
-      if (verboseVal !== undefined) Object.assign(dataObj, { verbose: verboseVal });
-      if (detailedVal !== undefined) Object.assign(dataObj, { detailed: detailedVal });
+      
+      delete (dataObj as Record<string, unknown>).verbose;
+      delete (dataObj as Record<string, unknown>).detailed;
       
       return dataObj;
     }
