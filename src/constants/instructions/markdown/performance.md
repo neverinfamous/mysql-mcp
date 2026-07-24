@@ -10,7 +10,7 @@
 ### Performance Schema (`mysql_slow_queries`, `mysql_query_stats`, `mysql_index_usage`, `mysql_buffer_pool_stats`, `mysql_thread_stats`)
 - **Requirements**: Requires `performance_schema` enabled.
 - **Data Limits**: `mysql_slow_queries` and `mysql_query_stats` truncate query digests to 200 chars. Timers > 24 hours are clamped to `-1` with `overflow: true`.
-- **Server-Level Tools**: `mysql_slow_queries`, `mysql_query_stats`, `mysql_buffer_pool_stats`, `mysql_thread_stats` are server-level. No table parameter required. If no data, they return empty results. `mysql_slow_queries` and `mysql_query_stats` do NOT accept `query`, `sql`, `table`, `tableName`, `schema`, or `database` strings. Use `mysql_explain` to analyze a specific query.
+- **Server-Level Tools**: `mysql_slow_queries`, `mysql_query_stats`, `mysql_buffer_pool_stats`, `mysql_thread_stats` are server-level. No table parameter required. If no data, they return empty results. These tools do NOT accept `query`, `sql`, `table`, `tableName`, `schema`, or `database` strings. Use `mysql_explain` to analyze a specific query.
 - **Index Usage**: `mysql_index_usage` filters to the current database by default. Returns a structured error if the specific table doesn't exist.
 
 ### Table Statistics (`mysql_table_stats`)
