@@ -338,7 +338,7 @@ export function createMigrationStatusTool(
         const parsed = MigrationStatusSchema.parse(params);
         let targetSchema = parsed.database;
 
-        if (!targetSchema) {
+        if (typeof targetSchema !== "string") {
           const dbRow = (
             await adapter.executeReadQuery("SELECT DATABASE() as db")
           ).rows?.[0];
@@ -353,7 +353,7 @@ export function createMigrationStatusTool(
           [targetSchema, TRACKING_TABLE],
         );
 
-        if (parsed.database) {
+        if (typeof parsed.database === "string") {
           const schemaCheck = await adapter.executeReadQuery(
             `SELECT EXISTS(SELECT 1 FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?) AS schema_exists`,
             [parsed.database]
