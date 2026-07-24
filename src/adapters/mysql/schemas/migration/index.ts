@@ -244,13 +244,13 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
       .preprocess((val) => {
         if (typeof val === "string") return parseInt(val, 10);
         return val;
-      }, z.number().optional())
+      }, z.number().int().min(1).optional())
       .optional(),
     offset: z
       .preprocess((val) => {
         if (typeof val === "string") return parseInt(val, 10);
         return val;
-      }, z.number().optional())
+      }, z.number().int().min(0).optional())
       .optional(),
     database: z.string().optional(),
   })
