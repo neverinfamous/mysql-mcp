@@ -643,6 +643,7 @@ export const ServerHealthSchema = z.preprocess(
 export const ServerConfigSchemaBase = z.object({
   action: z
     .unknown()
+    .optional()
     .describe("Whether to get or set the configuration value (get or set)."),
   setting: z
     .unknown()
