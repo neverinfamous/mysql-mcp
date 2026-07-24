@@ -210,7 +210,7 @@ export const BufferPoolStatsSchema = z
 
 // --- ThreadStats ---
 export const ThreadStatsSchemaBase = z.object({
-  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of threads to return (default: 5)"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of threads to return (default: 5, max: 100)"),
   maxThreads: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   threads: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server thread stats."),
@@ -233,7 +233,7 @@ export const ThreadStatsSchema = z
       };
     },
     z.object({
-      limit: z.coerce.number().int().positive().optional().default(5),
+      limit: z.coerce.number().int().positive().max(100).optional().default(5),
       maxThreads: z.coerce.number().optional(),
       threads: z.coerce.number().optional(),
       query: z.string().optional(),

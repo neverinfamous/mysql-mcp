@@ -41,7 +41,7 @@ export function createThreadStatsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM performance_schema.threads
                 WHERE PROCESSLIST_ID IS NOT NULL
                 ORDER BY PROCESSLIST_TIME DESC
-                LIMIT ${Math.min(limit, 50)}
+                LIMIT ${Math.min(limit, 100)}
             `);
 
         // Strip null values to conserve tokens
