@@ -280,7 +280,7 @@ export const ShowProcesslistSchemaBase = z.object({
       "Maximum number of processes to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return only summarized counts"),
-});
+}).strict();
 
 export const ShowProcesslistSchema = z.preprocess(
   (obj: unknown) => {
@@ -337,7 +337,7 @@ export const ShowStatusSchemaBase = z.object({
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return key metrics only"),
-});
+}).strict();
 
 export const ShowStatusSchema = z.preprocess(
   (obj: unknown) => {
@@ -399,7 +399,7 @@ export const ShowVariablesSchemaBase = z.object({
       "Maximum number of variables to return (default: 10). Set higher to see all.",
     ),
   summary: z.boolean().optional().describe("Return key metrics only"),
-});
+}).strict();
 
 export const ShowVariablesSchema = z.preprocess(
   (obj: unknown) => {
