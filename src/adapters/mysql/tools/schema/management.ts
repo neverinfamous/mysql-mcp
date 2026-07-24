@@ -114,6 +114,7 @@ const DropSchemaSchema = z.preprocess(
         ...obj,
         name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'] ?? obj['databaseName'],
         ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
+        table: obj['table'] ?? obj['tableName'],
       };
     }
     return val;
@@ -125,8 +126,11 @@ const DropSchemaSchema = z.preprocess(
       .optional()
       .default(false)
       .describe("Add IF EXISTS clause"),
+    table: z.unknown().optional(),
   })
-);
+).refine((data) => data.table === undefined, {
+  message: "🛠️ AUTONOMOUS HEALING: You passed 'table' or 'tableName' to mysql_drop_schema. This tool drops an ENTIRE DATABASE. To drop a table, use mysql_drop_table.",
+});
 
 const DropSchemaOutputSchema = BaseOutputSchema.extend({
   data: z.object({

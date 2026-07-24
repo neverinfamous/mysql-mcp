@@ -24,6 +24,9 @@ const ListViewsSchemaBase = z.object({
   database: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
+  pattern: z.string().optional().describe("Filter pattern for view name (LIKE syntax, e.g. 'user_%')"),
+  filter: z.string().optional().describe("Alias for pattern"),
+  search: z.string().optional().describe("Alias for pattern"),
 });
 
 const ListViewsSchema = z.preprocess(
@@ -35,6 +38,8 @@ const ListViewsSchema = z.preprocess(
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
         limit: obj['limit'] !== undefined ? Number(obj['limit']) : undefined,
         offset: obj['offset'] !== undefined ? Number(obj['offset']) : undefined,
+        pattern: obj['pattern'] ?? obj['filter'] ?? obj['search'],
+        view: obj['view'] ?? obj['name'] ?? obj['viewName'] ?? obj['tableName'],
       };
     }
     return val;
@@ -43,8 +48,12 @@ const ListViewsSchema = z.preprocess(
     schema: z.string().optional(),
     limit: z.number().int().min(0).default(50),
     offset: z.number().int().min(0).default(0),
+    pattern: z.string().optional(),
+    view: z.unknown().optional(),
   })
-);
+).refine((data) => data.view === undefined, {
+  message: "🛠️ AUTONOMOUS HEALING: Do not pass 'view', 'name', or 'tableName' to mysql_list_views. To read data from a view, use mysql_read_query. To list views, you don't need to specify a view name.",
+});
 
 const ListViewsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -179,7 +188,7 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        const query = `
+        let query = `
                 SELECT
                     TABLE_NAME as name,
                     VIEW_DEFINITION as definition,
@@ -189,13 +198,18 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
                     IS_UPDATABLE as isUpdatable
                 FROM information_schema.VIEWS
                 WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
-                ORDER BY TABLE_NAME
-                LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
-        const result = await adapter.executeQuery(query, [
-          targetSchema ?? null,
-        ]);
+        const queryParams: unknown[] = [targetSchema ?? null];
+
+        if (parsedParams.pattern) {
+          query += " AND TABLE_NAME LIKE ?";
+          queryParams.push(parsedParams.pattern);
+        }
+
+        query += ` ORDER BY TABLE_NAME LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}`;
+
+        const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
           data: {
