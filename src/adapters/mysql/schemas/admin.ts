@@ -586,9 +586,9 @@ export const ReplicationStatusSchema = z.preprocess(
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
       if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
       
-      delete (dataObj as Record<string, unknown>).verbose;
-      delete (dataObj as Record<string, unknown>).detailed;
-      delete (dataObj as Record<string, unknown>).extended;
+      delete (dataObj as Record<string, unknown>)["verbose"];
+      delete (dataObj as Record<string, unknown>)["detailed"];
+      delete (dataObj as Record<string, unknown>)["extended"];
       
       return dataObj;
     }
@@ -653,9 +653,9 @@ export const PoolStatsSchema = z.preprocess(
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
       if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
       
-      delete (dataObj as Record<string, unknown>).verbose;
-      delete (dataObj as Record<string, unknown>).detailed;
-      delete (dataObj as Record<string, unknown>).extended;
+      delete (dataObj as Record<string, unknown>)["verbose"];
+      delete (dataObj as Record<string, unknown>)["detailed"];
+      delete (dataObj as Record<string, unknown>)["extended"];
       
       return dataObj;
     }
@@ -709,8 +709,8 @@ export const ServerHealthSchema = z.preprocess(
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
       if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
       
-      delete (dataObj as Record<string, unknown>).verbose;
-      delete (dataObj as Record<string, unknown>).detailed;
+      delete (dataObj as Record<string, unknown>)["verbose"];
+      delete (dataObj as Record<string, unknown>)["detailed"];
       
       return dataObj;
     }
