@@ -512,7 +512,7 @@ export const ReplicationStatusSchemaBase = z.object({
     ),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-}).strict();
+}).strip();
 
 export const ReplicationStatusSchema = z.preprocess(
   (obj: unknown) => {
@@ -558,7 +558,7 @@ export const PoolStatsSchemaBase = z.object({
     .describe("Return key metrics only"),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-}).strict();
+}).strip();
 
 export const PoolStatsSchema = z.preprocess(
   (obj: unknown) => {
