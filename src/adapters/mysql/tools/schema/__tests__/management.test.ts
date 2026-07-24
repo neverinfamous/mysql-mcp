@@ -220,7 +220,7 @@ describe("Schema Management Tools", () => {
           error: string;
         };
         expect(result.success).toBe(false);
-        expect(result.error).toBe("Cannot drop system schema");
+        expect(result.error).toContain("Cannot drop system schema");
       }
     });
 

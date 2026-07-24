@@ -287,7 +287,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
         ];
         if (systemSchemas.includes(name.toLowerCase())) {
           return formatHandlerErrorResponse(
-            new Error("Cannot drop system schema"),
+            new ValidationError("Cannot drop system schema", "name"),
           );
         }
 
