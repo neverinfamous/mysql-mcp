@@ -790,6 +790,11 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
   if (result["search"] === undefined && (result["query"] !== undefined || result["sql"] !== undefined)) {
     result["search"] = result["query"] ?? result["sql"];
   }
+  if (typeof result["search"] === "number" || typeof result["search"] === "boolean") result["search"] = String(result["search"]);
+  if (typeof result["query"] === "number" || typeof result["query"] === "boolean") result["query"] = String(result["query"]);
+  if (typeof result["sql"] === "number" || typeof result["sql"] === "boolean") result["sql"] = String(result["sql"]);
+  if (typeof result["tool"] === "number" || typeof result["tool"] === "boolean") result["tool"] = String(result["tool"]);
+  if (typeof result["category"] === "number" || typeof result["category"] === "boolean") result["category"] = String(result["category"]);
   if (typeof result["limit"] === "string" || typeof result["limit"] === "number") {
     const num = Number(result["limit"]);
     if (Number.isNaN(num) || num < 1) {
@@ -815,16 +820,20 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
   if (typeof result["success"] === "number") {
     result["success"] = result["success"] > 0;
   }
-  if (typeof result["fromTimestamp"] === "string") {
+  if (typeof result["fromTimestamp"] === "string" || typeof result["fromTimestamp"] === "number") {
     const d = new Date(result["fromTimestamp"]);
     if (!Number.isNaN(d.getTime())) {
       result["fromTimestamp"] = d.toISOString();
+    } else if (typeof result["fromTimestamp"] === "number") {
+      delete result["fromTimestamp"];
     }
   }
-  if (typeof result["toTimestamp"] === "string") {
+  if (typeof result["toTimestamp"] === "string" || typeof result["toTimestamp"] === "number") {
     const d = new Date(result["toTimestamp"]);
     if (!Number.isNaN(d.getTime())) {
       result["toTimestamp"] = d.toISOString();
+    } else if (typeof result["toTimestamp"] === "number") {
+      delete result["toTimestamp"];
     }
   }
   return result;
