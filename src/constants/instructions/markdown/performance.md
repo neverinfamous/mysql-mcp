@@ -19,4 +19,4 @@
 ### Detectors (`mysql_detect_query_anomalies`, `mysql_detect_bloat_risk`, `mysql_detect_connection_spike`)
 - **Query Anomalies**: Identifies queries with execution times exceeding standard deviation thresholds.
 - **Bloat Risk**: Scans for tables with significant data/index fragmentation.
-- **Connection Spikes**: Analyzes recent connection rates against baselines to flag potential spikes or leaks.
+- **Connection Spikes**: Analyzes connection concentration by user, host, and state. Flags when a single user monopolizes the pool or idle connections accumulate. Does NOT accept specific `query`, `sql`, `table`, or `database` strings.
