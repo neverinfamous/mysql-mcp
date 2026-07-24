@@ -100,6 +100,10 @@ export const TransactionSavepointSchema = z
   .refine((data) => data.transactionId !== "" && data.savepoint !== "", {
     message:
       'Both transactionId and savepoint are required. Example: {transactionId: "...", savepoint: "sp1"}',
+  })
+  .refine((data) => data.savepoint === "" || /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(data.savepoint), {
+    message: "Invalid savepoint name. Must start with a letter or underscore and contain only alphanumeric characters and underscores.",
+    path: ["savepoint"],
   });
 
 export const TransactionSavepointOutputSchema = BaseOutputSchema.extend({

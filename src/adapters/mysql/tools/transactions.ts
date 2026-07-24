@@ -7,7 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { TransactionError, ValidationError } from "../../../types/index.js";
+import { TransactionError } from "../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -172,12 +172,7 @@ function createTransactionSavepointTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        // Validate savepoint name
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(
-            new ValidationError("Invalid savepoint name"),
-          );
-        }
+
 
         // Use query() instead of execute() - SAVEPOINT not supported in prepared statement protocol
         await connection.query(`SAVEPOINT \`${savepoint}\``);
@@ -219,11 +214,7 @@ function createTransactionReleaseTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(
-            new ValidationError("Invalid savepoint name"),
-          );
-        }
+
 
         // Use query() instead of execute() - RELEASE SAVEPOINT not supported in prepared statement protocol
         await connection.query(`RELEASE SAVEPOINT \`${savepoint}\``);
@@ -271,11 +262,7 @@ function createTransactionRollbackToTool(
           );
         }
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(savepoint)) {
-          return formatHandlerErrorResponse(
-            new ValidationError("Invalid savepoint name"),
-          );
-        }
+
 
         // Use query() instead of execute() - ROLLBACK TO SAVEPOINT not supported in prepared statement protocol
         await connection.query(`ROLLBACK TO SAVEPOINT \`${savepoint}\``);
