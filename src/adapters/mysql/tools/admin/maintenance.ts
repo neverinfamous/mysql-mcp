@@ -481,6 +481,17 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
             details: undefined,
           });
         }
+        if (message.includes("You are not owner of thread")) {
+          return withTokenEstimate({
+            success: false,
+            error: `Permission denied: ${message}`,
+            code: "KILL_ERROR",
+            category: ErrorCategory.AUTH,
+            suggestion: "Ensure you have the PROCESS or SUPER privilege, or own the thread you are trying to kill.",
+            recoverable: false,
+            details: undefined,
+          });
+        }
         return formatHandlerErrorResponse(error);
       }
     },
