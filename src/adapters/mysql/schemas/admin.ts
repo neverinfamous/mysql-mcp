@@ -1120,6 +1120,7 @@ export const AuditDiffBackupSchemaBase = z.object({
   target: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
   sql: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
   query: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
+  name: z.unknown().optional().describe("Alias for filename (anti-hallucination)"),
 });
 
 export const AuditDiffBackupSchema = z
@@ -1127,7 +1128,7 @@ export const AuditDiffBackupSchema = z
     (obj: unknown) => {
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
-        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["backup"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
+        let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["backup"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"] ?? data["name"];
         
         if (typeof filename === "number" || typeof filename === "boolean") {
           filename = String(filename);

@@ -259,8 +259,14 @@ export function createAuditDiffBackupTool(
               }
             }
           }
-        } catch {
-          liveDdl = `-- Object "${target}" does not exist in current schema`;
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          const errCode = (err as Record<string, unknown>)?.code;
+          if (errMsg.includes("doesn't exist") || errMsg.includes("does not exist") || errCode === "ER_NO_SUCH_TABLE") {
+            liveDdl = `-- Object "${target}" does not exist in current schema`;
+          } else {
+            throw err;
+          }
         }
 
         return withTokenEstimate({
