@@ -496,7 +496,7 @@ export const DetectQueryAnomaliesSchema = z
       sql: z.string().optional(),
       table: z.string().optional(),
       tableName: z.string().optional(),
-    }).refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
+    }).strict().refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
       message: "Anti-Hallucination Hint: mysql_detect_query_anomalies analyzes global workload variance. It does NOT accept a specific query, sql, table, or tableName string.",
     }),
   )
@@ -550,7 +550,7 @@ export const DetectBloatRiskSchema = z
       minSize: z.coerce.number().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-    }).refine((data) => !data.query && !data.sql, {
+    }).strict().refine((data) => !data.query && !data.sql, {
       message: "Anti-Hallucination Hint: mysql_detect_bloat_risk analyzes tables, not queries. Do NOT pass a query or sql string.",
     }),
   )
@@ -631,7 +631,7 @@ export const DetectConnectionSpikeSchema = z
       processId: z.coerce.number().optional(),
       threadId: z.coerce.number().optional(),
       connectionId: z.coerce.number().optional(),
-    }).refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.database && !data.db && !data.schema && !data.user && !data.username && !data.host && !data.client && !data.clientHost && !data.ip && !data.address && data.id === undefined && data.processId === undefined && data.threadId === undefined && data.connectionId === undefined, {
+    }).strict().refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.database && !data.db && !data.schema && !data.user && !data.username && !data.host && !data.client && !data.clientHost && !data.ip && !data.address && data.id === undefined && data.processId === undefined && data.threadId === undefined && data.connectionId === undefined, {
       message: "Anti-Hallucination Hint: mysql_detect_connection_spike analyzes global connection pool patterns. It does NOT accept a specific query, sql, table, database, schema, user, host, client, or connection id.",
     }),
   )
