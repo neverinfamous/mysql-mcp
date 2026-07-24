@@ -83,6 +83,16 @@ export const CorrelationOutputSchema = BaseOutputSchema.extend({
     column1: z.string().optional(),
     column2: z.string().optional(),
     correlation: z.number().nullish(),
+    interpretation: z.string().optional(),
+    sampleSize: z.number().optional(),
+    column1Stats: z.object({
+      mean: z.union([z.number(), z.string()]).nullish(),
+      stddev: z.union([z.number(), z.string()]).nullish(),
+    }).loose().optional(),
+    column2Stats: z.object({
+      mean: z.union([z.number(), z.string()]).nullish(),
+      stddev: z.union([z.number(), z.string()]).nullish(),
+    }).loose().optional(),
   }).loose().optional(),
 });
 
