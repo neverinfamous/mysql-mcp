@@ -486,7 +486,7 @@ export function createKillQueryTool(adapter: MySQLAdapter): ToolDefinition {
             success: false,
             error: `Permission denied: ${message}`,
             code: "KILL_ERROR",
-            category: ErrorCategory.AUTH,
+            category: ErrorCategory.PERMISSION,
             suggestion: "Ensure you have the PROCESS or SUPER privilege, or own the thread you are trying to kill.",
             recoverable: false,
             details: undefined,
