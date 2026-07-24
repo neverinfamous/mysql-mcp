@@ -254,6 +254,12 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         const { database, table, column, n, direction, selectColumns, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
@@ -377,6 +383,12 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const { database, table, column, limit, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
@@ -450,6 +462,12 @@ export function createStatsFrequencyTool(
         const { database, table, column, limit, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
@@ -530,6 +548,12 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const { database, table, where } = parsed;
         const whereClause = where ? `WHERE ${where}` : "";
 
+        if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid database name",
+          });
+        }
         if (!/^[a-zA-Z0-9_]+(\.[a-zA-Z0-9_]+)?$/.test(table)) {
           return withTokenEstimate({
             success: false,
