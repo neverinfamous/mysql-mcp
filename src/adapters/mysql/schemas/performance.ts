@@ -630,12 +630,16 @@ export const DetectConnectionSpikeSchema = z
       client: z.string().optional(),
       clientHost: z.string().optional(),
       ip: z.string().optional(),
-      address: z.string().optional(),
-      id: z.coerce.number().optional(),
-      processId: z.coerce.number().optional(),
-      threadId: z.coerce.number().optional(),
-      connectionId: z.coerce.number().optional(),
-    }).strict().refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.database && !data.db && !data.schema && !data.user && !data.username && !data.host && !data.client && !data.clientHost && !data.ip && !data.address && data.id === undefined && data.processId === undefined && data.threadId === undefined && data.connectionId === undefined, {
+      address: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass an address. This tool analyzes global connections."),
+      id: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass an id. This tool analyzes global connections."),
+      processId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a processId. This tool analyzes global connections."),
+      threadId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a threadId. This tool analyzes global connections."),
+      connectionId: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a connectionId. This tool analyzes global connections."),
+      connection_id: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a connection_id. This tool analyzes global connections."),
+      process_id: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a process_id. This tool analyzes global connections."),
+      thread_id: z.coerce.number().optional().describe("Anti-Hallucination Hint: Do NOT pass a thread_id. This tool analyzes global connections."),
+      client_host: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a client_host. This tool analyzes global connections."),
+    }).strict().refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.database && !data.db && !data.schema && !data.user && !data.username && !data.host && !data.client && !data.clientHost && !data.client_host && !data.ip && !data.address && data.id === undefined && data.processId === undefined && data.threadId === undefined && data.connectionId === undefined && data.connection_id === undefined && data.process_id === undefined && data.thread_id === undefined, {
       message: "Anti-Hallucination Hint: mysql_detect_connection_spike analyzes global connection pool patterns. It does NOT accept a specific query, sql, table, database, schema, user, host, client, or connection id.",
     }),
   )
