@@ -5,7 +5,7 @@ export function selectList(
 ): string {
   const cols =
     selectColumns && selectColumns.length > 0
-      ? selectColumns.map((c) => `\`${c}\``).join(", ")
+      ? selectColumns.map((c) => c === "*" ? "*" : `\`${c}\``).join(", ")
       : "*";
   return `${cols}, ${windowExpr} AS \`${windowAlias}\``;
 }
