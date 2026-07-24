@@ -19,6 +19,9 @@ export const ExplainSchemaBase = z.object({
     .describe("Output format"),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
   tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+  schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+  database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
 });
 
 export const ExplainSchema = z
@@ -41,6 +44,11 @@ export const ExplainSchema = z
         .default("TREE"),
       table: z.string().optional(),
       tableName: z.string().optional(),
+      schema: z.string().optional(),
+      database: z.string().optional(),
+      db: z.string().optional(),
+    }).refine((data) => !data.schema && !data.database && !data.db, {
+      message: "Anti-Hallucination Hint: mysql_explain executes against the current database. It does NOT accept a schema, database, or db string.",
     }),
   )
   .transform((data) => ({
@@ -66,6 +74,9 @@ export const ExplainAnalyzeSchemaBase = z.object({
     .describe("Output format"),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
   tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+  schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+  database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
 });
 
 export const ExplainAnalyzeSchema = z
@@ -85,6 +96,11 @@ export const ExplainAnalyzeSchema = z
       format: z.enum(["TREE"]).optional().default("TREE"),
       table: z.string().optional(),
       tableName: z.string().optional(),
+      schema: z.string().optional(),
+      database: z.string().optional(),
+      db: z.string().optional(),
+    }).refine((data) => !data.schema && !data.database && !data.db, {
+      message: "Anti-Hallucination Hint: mysql_explain_analyze executes against the current database. It does NOT accept a schema, database, or db string.",
     }),
   )
   .transform((data) => ({
