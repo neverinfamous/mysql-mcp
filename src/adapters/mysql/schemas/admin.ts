@@ -396,7 +396,7 @@ export const ShowVariablesSchemaBase = z.object({
   limit: z
     .number()
     .int()
-    .positive()
+    .positive({ message: "limit must be a positive integer" })
     .optional()
     .describe(
       "Maximum number of variables to return (default: 10). Set higher to see all.",
