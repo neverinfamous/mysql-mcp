@@ -528,10 +528,10 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        let command = `mysqldump -u [username] -p "${database}"`;
+        let command = `mysqldump -u [username] -p "${database.replace(/"/g, '\\"')}"`;
 
         if (tables && tables.length > 0) {
-          const quotedTables = tables.map(t => `"${t}"`);
+          const quotedTables = tables.map(t => `"${t.replace(/"/g, '\\"')}"`);
           command += ` ${quotedTables.join(" ")}`;
         }
 
@@ -649,7 +649,17 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        const command = `mysql -u [username] -p "${database}" < "${filename}"`;
+        if (filename.includes('"')) {
+          return withTokenEstimate({
+            success: false,
+            error: "Filename contains invalid characters (double quotes).",
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
+
+        const command = `mysql -u [username] -p "${database.replace(/"/g, '\\"')}" < "${filename}"`;
 
         return withTokenEstimate({
           success: true,
