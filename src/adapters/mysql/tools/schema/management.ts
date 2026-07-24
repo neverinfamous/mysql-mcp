@@ -15,7 +15,7 @@ import {
   WRITE,
   DESTRUCTIVE,
 } from "../../../../utils/annotations.js";
-import { validateIdentifier } from "../../../../utils/validators.js";
+import { validateIdentifier, ValidationError } from "../../../../utils/validators.js";
 
 const ListSchemasSchemaBase = z.object({
   pattern: z
@@ -198,12 +198,12 @@ export function createCreateSchemaTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (!/^[a-zA-Z0-9_]+$/.test(charset)) {
           return formatHandlerErrorResponse(
-            new Error(`Invalid charset: ${charset}`),
+            new ValidationError(`Invalid charset: ${charset}`, "charset"),
           );
         }
         if (!/^[a-zA-Z0-9_]+$/.test(collation)) {
           return formatHandlerErrorResponse(
-            new Error(`Invalid collation: ${collation}`),
+            new ValidationError(`Invalid collation: ${collation}`, "collation"),
           );
         }
 

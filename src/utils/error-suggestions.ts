@@ -142,6 +142,13 @@ const ERROR_SUGGESTIONS: {
     code: "INVALID_IDENTIFIER",
   },
   {
+    pattern: /Invalid (?:charset|collation)/i,
+    suggestion:
+      "Check that the charset or collation is valid and contains only alphanumeric characters or underscores.",
+    category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
+  },
+  {
     pattern: /Data too long for column/i,
     suggestion:
       "The value exceeds the column's maximum length. Check column limits with mysql_describe_table.",
