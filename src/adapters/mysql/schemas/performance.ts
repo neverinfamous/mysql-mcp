@@ -33,6 +33,7 @@ export const ExplainSchema = z
       return {
         ...record,
         table: record["table"] ?? record["tableName"],
+        format: typeof record["format"] === "string" ? record["format"].toUpperCase() : record["format"],
       };
     },
     z.object({
@@ -88,6 +89,7 @@ export const ExplainAnalyzeSchema = z
       return {
         ...record,
         table: record["table"] ?? record["tableName"],
+        format: typeof record["format"] === "string" ? record["format"].toUpperCase() : record["format"],
       };
     },
     z.object({
