@@ -56,6 +56,7 @@ const CreateSchemaSchema = z.preprocess(
       return {
         ...obj,
         name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'],
+        ifNotExists: typeof obj['ifNotExists'] === 'string' ? obj['ifNotExists'].toLowerCase() === 'true' : obj['ifNotExists'],
       };
     }
     return val;
@@ -99,6 +100,7 @@ const DropSchemaSchema = z.preprocess(
       return {
         ...obj,
         name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'],
+        ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
       };
     }
     return val;

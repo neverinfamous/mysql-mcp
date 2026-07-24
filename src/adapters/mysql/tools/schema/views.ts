@@ -33,14 +33,16 @@ const ListViewsSchema = z.preprocess(
       return {
         ...obj,
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        limit: obj['limit'] !== undefined ? Number(obj['limit']) : undefined,
+        offset: obj['offset'] !== undefined ? Number(obj['offset']) : undefined,
       };
     }
     return val;
   },
   z.object({
     schema: z.string().optional(),
-    limit: z.number().default(50),
-    offset: z.number().default(0),
+    limit: z.number().int().min(0).default(50),
+    offset: z.number().int().min(0).default(0),
   })
 );
 
@@ -78,6 +80,7 @@ const CreateViewSchema = z.preprocess(
         name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
         definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? (obj['query'] === "" ? undefined : obj['query']) ?? (obj['sql'] === "" ? undefined : obj['sql']),
+        orReplace: typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : obj['orReplace'],
       };
     }
     return val;
@@ -124,6 +127,7 @@ const DropViewSchema = z.preprocess(
         ...obj,
         name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
       };
     }
     return val;
