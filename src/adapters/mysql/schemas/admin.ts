@@ -432,7 +432,7 @@ export const ShowVariablesSchema = z.preprocess(
     .transform((data) => ({
       like: data.like,
       global: data.global,
-      limit: data.limit !== undefined ? data.limit : 10,
+      limit: data.limit ?? 10,
       summary: data.summary ?? false,
     }))
 );
