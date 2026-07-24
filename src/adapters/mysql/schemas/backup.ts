@@ -10,6 +10,9 @@ export const ExportTableSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  filepath: z.string().optional().describe("FORBIDDEN: Do not pass a filepath. Tool returns data directly."),
+  file: z.string().optional().describe("FORBIDDEN: Do not pass a file. Tool returns data directly."),
+  path: z.string().optional().describe("FORBIDDEN: Do not pass a path. Tool returns data directly."),
   format: z
     .enum(["SQL", "CSV", "JSON", "sql", "csv", "json"])
     .transform((val) => val.toUpperCase() as "SQL" | "CSV" | "JSON")
@@ -41,6 +44,9 @@ export const ExportTableSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      filepath: z.any().optional(),
+      file: z.any().optional(),
+      path: z.any().optional(),
       format: z
         .enum(["SQL", "CSV", "JSON", "sql", "csv", "json"])
         .transform((val) => val.toUpperCase() as "SQL" | "CSV" | "JSON")
@@ -53,6 +59,10 @@ export const ExportTableSchema = z
       limit: z.unknown().optional(),
       batch: z.unknown().optional(),
     }),
+  )
+  .refine(
+    (data) => data.filepath === undefined && data.file === undefined && data.path === undefined,
+    { message: "Do not pass filepath, file, or path. This tool returns data directly in the response payload and does not write to a file." }
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
@@ -85,6 +95,9 @@ export const ImportDataSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
+  filepath: z.string().optional().describe("FORBIDDEN: Do not pass a filepath. Tool accepts raw data arrays."),
+  file: z.string().optional().describe("FORBIDDEN: Do not pass a file. Tool accepts raw data arrays."),
+  path: z.string().optional().describe("FORBIDDEN: Do not pass a path. Tool accepts raw data arrays."),
   data: z
     .array(z.record(z.string(), z.unknown()))
     .optional()
@@ -116,11 +129,18 @@ export const ImportDataSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       tbl: z.string().optional(),
+      filepath: z.any().optional(),
+      file: z.any().optional(),
+      path: z.any().optional(),
       data: z.array(z.record(z.string(), z.unknown())).optional(),
       rows: z.array(z.record(z.string(), z.unknown())).optional(),
       values: z.array(z.record(z.string(), z.unknown())).optional(),
       items: z.array(z.record(z.string(), z.unknown())).optional(),
     }),
+  )
+  .refine(
+    (data) => data.filepath === undefined && data.file === undefined && data.path === undefined,
+    { message: "Do not pass filepath, file, or path. This tool accepts raw data arrays directly in the 'data' property. To import a .sql file natively, use shell.importTable." }
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? "",
