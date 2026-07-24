@@ -599,6 +599,8 @@ export const ServerHealthSchemaBase = z.object({
   summary: z.boolean().optional().describe("Return key metrics only"),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Controls detail level (raw, full, summary)"),
   raw: z.boolean().optional().describe("Alias for format='raw' (returns full metrics)"),
+  verbose: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
+  detailed: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
 }).strict();
 
 export const ServerHealthSchema = z.preprocess(
@@ -608,10 +610,17 @@ export const ServerHealthSchema = z.preprocess(
       let summaryVal: unknown = undefined;
       let formatVal: unknown = undefined;
       let rawVal: unknown = undefined;
+      let verboseVal: unknown = undefined;
+      let detailedVal: unknown = undefined;
       
       if ("summary" in dataObj) summaryVal = (dataObj as { summary?: unknown }).summary;
       if ("format" in dataObj) formatVal = (dataObj as { format?: unknown }).format;
       if ("raw" in dataObj) rawVal = (dataObj as { raw?: unknown }).raw;
+      if ("verbose" in dataObj) verboseVal = (dataObj as { verbose?: unknown }).verbose;
+      if ("detailed" in dataObj) detailedVal = (dataObj as { detailed?: unknown }).detailed;
+      
+      if (verboseVal === true || verboseVal === "true" || verboseVal === 1 || verboseVal === "1") rawVal = true;
+      if (detailedVal === true || detailedVal === "true" || detailedVal === 1 || detailedVal === "1") rawVal = true;
       
       if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true" || rawVal === 1 || rawVal === "1") summaryVal = false;
       else if (formatVal === "summary") summaryVal = true;
@@ -630,6 +639,8 @@ export const ServerHealthSchema = z.preprocess(
       if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
       if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
       if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
+      if (verboseVal !== undefined) Object.assign(dataObj, { verbose: verboseVal });
+      if (detailedVal !== undefined) Object.assign(dataObj, { detailed: detailedVal });
       
       return dataObj;
     }
