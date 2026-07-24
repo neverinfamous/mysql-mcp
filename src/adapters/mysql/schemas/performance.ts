@@ -569,6 +569,8 @@ export const DetectConnectionSpikeSchemaBase = z.object({
     .union([z.number(), z.string()])
     .optional()
     .describe("Idle time window in minutes to flag connections (default: 5)"),
+  warning_percent: z.union([z.number(), z.string()]).optional().describe("Alias for warningPercent"),
+  window_minutes: z.union([z.number(), z.string()]).optional().describe("Alias for windowMinutes"),
   window: z.union([z.number(), z.string()]).optional().describe("Alias for windowMinutes"),
   time: z.union([z.number(), z.string()]).optional().describe("Alias for windowMinutes"),
   duration: z.union([z.number(), z.string()]).optional().describe("Alias for windowMinutes"),
@@ -608,6 +610,8 @@ export const DetectConnectionSpikeSchema = z
     z.object({
       warningPercent: z.coerce.number().min(0).max(100).optional().default(70),
       windowMinutes: z.coerce.number().int().min(1).max(1440).optional().default(5),
+      warning_percent: z.coerce.number().optional(),
+      window_minutes: z.coerce.number().optional(),
       window: z.coerce.number().optional(),
       time: z.coerce.number().optional(),
       duration: z.coerce.number().optional(),
