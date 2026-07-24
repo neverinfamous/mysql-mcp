@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { TimeSeriesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { TimeSeriesSchemaBase, TimeSeriesSchema } from "./schemas.js";
@@ -45,6 +45,7 @@ export function createTimeSeriesToolStats(
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(valueColumn, "column");
         validateIdentifier(timeColumn, "column");
+        validateWhereClause(where);
 
         const normalizedInterval = interval.toLowerCase();
         const validIntervals = ["minute", "hour", "day", "week", "month"];

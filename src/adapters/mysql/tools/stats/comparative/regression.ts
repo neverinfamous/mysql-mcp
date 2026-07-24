@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { RegressionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { RegressionSchemaBase, RegressionSchema } from "./schemas.js";
@@ -35,6 +35,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(xColumn, "column");
         validateIdentifier(yColumn, "column");
+        validateWhereClause(where);
 
         const whereClause = where ? `WHERE ${where}` : "";
 
