@@ -106,7 +106,7 @@ export const CheckTableSchema = z
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
         if (typeof record["option"] === "string") {
-          record["option"] = record["option"].toUpperCase();
+          record["option"] = record["option"].toUpperCase().trim();
         }
       }
       return data;
@@ -149,6 +149,9 @@ export const RepairTableSchema = z
         const record = data as Record<string, unknown>;
         if (typeof record["quick"] === "string") {
           record["quick"] = record["quick"] === "true" || record["quick"] === "1";
+        }
+        if (typeof record["quick"] === "number") {
+          record["quick"] = record["quick"] === 1;
         }
       }
       return data;
