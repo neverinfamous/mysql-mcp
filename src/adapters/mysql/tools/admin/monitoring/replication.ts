@@ -28,15 +28,16 @@ export function createReplicationStatusTool(
       secondsBehind:
         row["Seconds_Behind_Master"] ??
         row["Seconds_Behind_Source"] ??
-        row["seconds_behind_master"],
+        row["seconds_behind_master"] ??
+        row["seconds_behind_source"],
       lastError:
-        row["Last_Error"] ?? row["Last_SQL_Error"] ?? row["last_error"],
+        row["Last_Error"] ?? row["Last_SQL_Error"] ?? row["last_error"] ?? row["last_sql_error"],
       lastErrno:
-        row["Last_Errno"] ?? row["Last_SQL_Errno"] ?? row["last_errno"],
+        row["Last_Errno"] ?? row["Last_SQL_Errno"] ?? row["last_errno"] ?? row["last_sql_errno"],
       sourceHost:
-        row["Master_Host"] ?? row["Source_Host"] ?? row["master_host"],
+        row["Master_Host"] ?? row["Source_Host"] ?? row["master_host"] ?? row["source_host"],
       sourcePort:
-        row["Master_Port"] ?? row["Source_Port"] ?? row["master_port"],
+        row["Master_Port"] ?? row["Source_Port"] ?? row["master_port"] ?? row["source_port"],
       executedGtidSet: row["Executed_Gtid_Set"] ?? row["executed_gtid_set"],
       retrievedGtidSet: row["Retrieved_Gtid_Set"] ?? row["retrieved_gtid_set"],
       channelName: row["Channel_Name"] ?? row["channel_name"],
