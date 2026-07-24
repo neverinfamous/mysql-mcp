@@ -97,10 +97,17 @@ export const HistogramSchemaBase = z.object({
     .number()
     .optional()
     .describe("Number of histogram buckets (max 1024)"),
+  bucket: z.number().optional().describe("Alias for buckets"),
+  num_buckets: z.number().optional().describe("Alias for buckets"),
+  bucket_count: z.number().optional().describe("Alias for buckets"),
+  numBuckets: z.number().optional().describe("Alias for buckets"),
   update: z
     .boolean()
     .optional()
     .describe("Whether to create/update the histogram"),
+  force: z.boolean().optional().describe("Alias for update"),
+  refresh: z.boolean().optional().describe("Alias for update"),
+  create: z.boolean().optional().describe("Alias for update"),
 });
 
 export const HistogramSchema = z.preprocess(
@@ -111,6 +118,8 @@ export const HistogramSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      buckets: obj["buckets"] ?? obj["bucket"] ?? obj["num_buckets"] ?? obj["bucket_count"] ?? obj["numBuckets"],
+      update: obj["update"] ?? obj["force"] ?? obj["refresh"] ?? obj["create"],
     };
   },
   z.object({

@@ -31,10 +31,6 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
         const { table, sampleSize, columns, seed, where } =
           SamplingSchema.parse(params);
 
-        if (sampleSize < 0) {
-          throw new ValidationError("sampleSize must be >= 0");
-        }
-
         // Validate table name
         validateQualifiedIdentifier(table, "table");
 

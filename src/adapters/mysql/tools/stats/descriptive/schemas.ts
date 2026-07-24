@@ -176,6 +176,9 @@ export const SamplingSchemaBase = z.object({
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
   sampleSize: z.number().optional().describe("Number of rows to sample"),
+  sample_size: z.number().optional().describe("Alias for sampleSize"),
+  size: z.number().optional().describe("Alias for sampleSize"),
+  limit: z.number().optional().describe("Alias for sampleSize"),
   columns: z
     .array(z.string())
     .optional()
@@ -195,12 +198,13 @@ export const SamplingSchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
+      sampleSize: obj["sampleSize"] ?? obj["sample_size"] ?? obj["size"] ?? obj["limit"],
       where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
     table: z.string().min(1, "table is required"),
-    sampleSize: z.number().default(10),
+    sampleSize: z.number().min(0).default(10),
     columns: z.array(z.string()).optional(),
     seed: z.number().optional(),
     where: z.string().optional(),
