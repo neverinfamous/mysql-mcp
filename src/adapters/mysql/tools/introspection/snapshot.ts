@@ -47,6 +47,12 @@ export function createSchemaSnapshotTool(
           throw new ValidationError("Validation error: schema parameter is required");
         }
 
+        if (parsed.table || parsed.tableName) {
+          throw new ValidationError(
+            "Validation error: mysql_schema_snapshot does not support filtering by table. Please use mysql_describe_table instead to inspect a specific table."
+          );
+        }
+
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
 
