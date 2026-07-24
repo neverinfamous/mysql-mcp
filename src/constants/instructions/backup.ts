@@ -14,5 +14,5 @@ export const BACKUP_HELP = `# Backup Tools
 
 - **Audit Backup availability**: These interact with the Audit Subsystem's pre-mutation snapshots. If disabled, they return a \`CONFIGURATION_ERROR\`.
 - **List backups**: \`mysql_audit_list_backups\` has no required parameters, legitimately returns up to 5 latest backups. Use \`table\` parameter to filter.
-- **Diff backup**: \`mysql_audit_diff_backup\` provides a row-level differential. If the table was dropped, it safely returns a placeholder string. Returns \`{ success: false, error }\` for invalid \`filename\`. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`. Aliases: \`diff\`, \`auditDiff\`, \`diffBackup\`.
+- **Diff backup**: \`mysql_audit_diff_backup\` provides a DDL comparison against the live schema. If the table was dropped, it safely returns a placeholder string. Returns \`{ success: false, error }\` for invalid \`filename\`. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`. Aliases: \`diff\`, \`auditDiff\`, \`diffBackup\`.
 - **Restore backup**: \`mysql_audit_restore_backup\` restores a specific table. Set \`dryRun: true\` to safely view the DDL and DML of a snapshot before actually executing the restoration. Note: Requires a \`filename\` parameter, not \`table\` or \`target\`.`;
