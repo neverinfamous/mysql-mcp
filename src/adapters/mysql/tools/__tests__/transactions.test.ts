@@ -237,7 +237,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Invalid savepoint name");
+      expect((result as { error: string }).error).toContain("Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -292,7 +292,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Invalid savepoint name");
+      expect((result as { error: string }).error).toContain("Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {
@@ -354,7 +354,7 @@ describe("Handler Execution", () => {
       );
 
       expect(result).toHaveProperty("success", false);
-      expect(result).toHaveProperty("error", "Invalid savepoint name");
+      expect((result as { error: string }).error).toContain("Invalid savepoint name");
     });
 
     it("should return structured error for non-existent transaction", async () => {

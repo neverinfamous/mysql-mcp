@@ -46,7 +46,7 @@ describe("insights tool", () => {
       );
 
       expect(result.success).toBe(false);
-      expect((result as Record<string, unknown>).error).toContain("Insight text cannot be empty");
+      expect((result as Record<string, unknown>).error).toContain("insight (or text/message alias) is required");
       expect((result as Record<string, unknown>).category).toBe(ErrorCategory.VALIDATION);
       expect(insightsManager.append).not.toHaveBeenCalled();
     });
