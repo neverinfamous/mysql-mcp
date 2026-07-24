@@ -17,11 +17,21 @@ export const ExplainSchemaBase = z.object({
     .optional()
     .default("TREE")
     .describe("Output format"),
+  table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+  tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
 });
 
 export const ExplainSchema = z
   .preprocess(
-    preprocessQueryOnlyParams,
+    (data: unknown) => {
+      const processed = preprocessQueryOnlyParams(data);
+      if (typeof processed !== "object" || processed === null) return processed;
+      const record = processed as Record<string, unknown>;
+      return {
+        ...record,
+        table: record["table"] ?? record["tableName"],
+      };
+    },
     z.object({
       query: z.string().optional(),
       sql: z.string().optional(),
@@ -29,12 +39,18 @@ export const ExplainSchema = z
         .enum(["TRADITIONAL", "JSON", "TREE"])
         .optional()
         .default("TREE"),
+      table: z.string().optional(),
+      tableName: z.string().optional(),
     }),
   )
   .transform((data) => ({
     query: data.query ?? data.sql ?? "",
     format: data.format,
+    table: data.table,
   }))
+  .refine((data) => !data.table, {
+    message: "Anti-Hallucination Hint: mysql_explain expects a query, not a table name.",
+  })
   .refine((data) => data.query !== "", {
     message: "query (or sql alias) is required",
   });
@@ -48,25 +64,44 @@ export const ExplainAnalyzeSchemaBase = z.object({
     .optional()
     .default("TREE")
     .describe("Output format"),
+  table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+  tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
 });
 
 export const ExplainAnalyzeSchema = z
   .preprocess(
-    preprocessQueryOnlyParams,
+    (data: unknown) => {
+      const processed = preprocessQueryOnlyParams(data);
+      if (typeof processed !== "object" || processed === null) return processed;
+      const record = processed as Record<string, unknown>;
+      return {
+        ...record,
+        table: record["table"] ?? record["tableName"],
+      };
+    },
     z.object({
       query: z.string().optional(),
       sql: z.string().optional(),
       format: z.enum(["TREE"]).optional().default("TREE"),
+      table: z.string().optional(),
+      tableName: z.string().optional(),
     }),
   )
   .transform((data) => ({
     query: data.query ?? data.sql ?? "",
     format: data.format,
+    table: data.table,
   }))
+  .refine((data) => !data.table, {
+    message: "Anti-Hallucination Hint: mysql_explain_analyze expects a query, not a table name.",
+  })
   .refine((data) => data.query !== "", {
     message: "query (or sql alias) is required",
   })
-  .refine((data) => /^\s*(SELECT|WITH)\b/i.test(data.query), {
+  .refine((data) => {
+    if (!data.query) return true;
+    return /^\s*(SELECT|WITH)\b/i.test(data.query);
+  }, {
     message: "Anti-Hallucination Hint: EXPLAIN ANALYZE actually executes the query and can mutate data. Only SELECT or WITH queries are permitted.",
   });
 
