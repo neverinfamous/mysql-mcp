@@ -76,7 +76,7 @@ CREATE TABLE test_orders (
     order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     status ENUM('pending', 'shipped', 'completed', 'cancelled') DEFAULT 'pending',
     notes JSON,
-    FOREIGN KEY (product_id) REFERENCES test_products(id) ON DELETE SET NULL,
+    FOREIGN KEY (product_id) REFERENCES test_products(id),
     INDEX idx_orders_status (status),
     INDEX idx_orders_date (order_date),
     INDEX idx_orders_customer (customer_name)
