@@ -984,19 +984,25 @@ export const AuditListBackupsSchema = z
         const data = obj as Record<string, unknown>;
         const rawLimit = data["limit"];
         let parsedLimit = rawLimit;
-        if (typeof rawLimit === "string" && !isNaN(Number(rawLimit))) {
-          parsedLimit = Number(rawLimit);
+        if (typeof rawLimit === "string") {
+          const num = Number(rawLimit);
+          parsedLimit = isNaN(num) ? undefined : num;
+        } else if (typeof rawLimit !== "number" && rawLimit !== undefined) {
+          parsedLimit = undefined;
         }
         
         let target = data["target"] ?? data["name"] ?? data["tableName"] ?? data["table"];
-        if (typeof target === "number" || typeof target === "boolean") {
-          target = String(target);
+        if (target !== undefined && target !== null && typeof target !== "string") {
+          target = typeof target === "object" 
+            ? JSON.stringify(target) 
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
+            : String(target);
         }
 
         return {
           ...data,
           target,
-          ...(rawLimit !== undefined && { limit: parsedLimit }),
+          limit: parsedLimit,
         };
       }
       return obj;
@@ -1055,8 +1061,11 @@ export const AuditRestoreBackupSchema = z
         const parsedDryRun = rawDryRun === "true" || rawDryRun === true || rawDryRun === 1 || rawDryRun === "1";
 
         let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["backup"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
-        if (typeof filename === "number" || typeof filename === "boolean") {
-          filename = String(filename);
+        if (filename !== undefined && filename !== null && typeof filename !== "string") {
+          filename = typeof filename === "object" 
+            ? JSON.stringify(filename) 
+            // eslint-disable-next-line @typescript-eslint/no-base-to-string
+            : String(filename);
         }
 
         return {
