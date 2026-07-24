@@ -404,12 +404,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     noData: z
-      .boolean()
+      .union([z.boolean(), z.string(), z.number()])
       .optional()
       .default(false)
       .describe("Schema only, no data"),
     singleTransaction: z
-      .boolean()
+      .union([z.boolean(), z.string(), z.number()])
       .optional()
       .default(false)
       .describe("Use single transaction for dump (no locking)"),
