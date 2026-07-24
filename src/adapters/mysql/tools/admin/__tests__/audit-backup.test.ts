@@ -181,7 +181,7 @@ describe("Audit Backup Tools", () => {
         metadata: { target: "users", schema: "test" },
       });
       mockAdapter.executeReadQuery.mockRejectedValue(
-        new Error("Table missing"),
+        new Error("Table doesn't exist"),
       );
 
       const tool = createAuditDiffBackupTool(mockAdapter);
