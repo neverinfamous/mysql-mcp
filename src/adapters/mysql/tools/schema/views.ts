@@ -340,11 +340,18 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
           unqualifiedName = parts[1] || name;
         }
 
-        const checkQuery = "SELECT TABLE_NAME FROM information_schema.VIEWS WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?";
+        const checkQuery = "SELECT TABLE_TYPE FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?";
         const check = await adapter.executeQuery(checkQuery, [schemaForCheck ?? null, unqualifiedName]);
-        const viewAbsent = check.rows === undefined || check.rows.length === 0;
+        const objectExists = check.rows !== undefined && check.rows.length > 0;
 
-        if (viewAbsent) {
+        if (objectExists) {
+          const row = check.rows?.[0];
+          if (row && String(row['TABLE_TYPE']) !== 'VIEW') {
+            return formatHandlerErrorResponse(
+              new Error(`'${schemaForCheck ? schemaForCheck + '.' : ''}${unqualifiedName}' is not VIEW`)
+            );
+          }
+        } else {
           if (parsedParams.ifExists) {
             return withTokenEstimate({
               success: true,
