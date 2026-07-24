@@ -107,8 +107,8 @@ export const ExplainAnalyzeSchema = z
 
 // --- SlowQuery (no table/query aliases — simple passthrough) ---
 export const SlowQuerySchemaBase = z.object({
-  limit: z.number().optional().describe("Number of slow queries to return (max 100)"),
-  minTime: z.number().optional().describe("Minimum query time in seconds"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Number of slow queries to return (max 100)"),
+  minTime: z.union([z.number(), z.string()]).optional().describe("Minimum query time in seconds"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server slow queries."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server slow queries."),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server slow queries."),
@@ -147,7 +147,7 @@ export const SlowQuerySchema = z.object({
 // --- QueryStats (no table/query aliases — simple passthrough) ---
 export const QueryStatsSchemaBase = z.object({
   orderBy: z.enum(["total_time", "avg_time", "executions"]).optional().describe("Order results by metric"),
-  limit: z.number().optional().describe("Maximum number of queries to return (max 100)"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of queries to return (max 100)"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query stats. Use explain or explainAnalyze instead."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query stats. Use explain or explainAnalyze instead."),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server query stats."),
