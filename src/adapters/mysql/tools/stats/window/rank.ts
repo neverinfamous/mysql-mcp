@@ -49,7 +49,7 @@ export function createStatsRankTool(adapter: MySQLAdapter): ToolDefinition {
         const windowExpr = `${fnName}() OVER(${partition} ORDER BY ${parsed.orderBy})`;
 
         const sql = `
-          SELECT ${selectList(parsed.selectColumns, windowExpr, rankType)}
+          SELECT ${selectList(parsed.selectColumns, windowExpr, parsed.asColumn)}
           FROM ${fullTableName}
           ${whereClause(parsed.where)}
           ORDER BY ${parsed.orderBy}

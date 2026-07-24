@@ -27,16 +27,26 @@ export const StatsRowNumberSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Number of rows to skip (default: 0)"),
+  asColumn: z.string().optional().describe("Alias for the output column"),
+  as_column: z.string().optional().describe("Alias for asColumn"),
+  alias: z.string().optional().describe("Alias for asColumn"),
 });
 
 export const StatsRowNumberSchema = z.preprocess(
-  preprocessJsonColumnParams,
+  (val: unknown) => {
+    const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    return {
+      ...v,
+      asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
+    };
+  },
   z.object({
     database: z.string().optional(),
     table: z.string().min(1, "Table is required"),
     orderBy: z.string().min(1, "orderBy is required"),
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
+    asColumn: z.string().default("row_number"),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     offset: z.number().min(0).default(0),
@@ -73,10 +83,23 @@ export const StatsRankSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Number of rows to skip (default: 0)"),
+  rankType: z.unknown().optional().describe("Alias for method"),
+  rank_type: z.unknown().optional().describe("Alias for method"),
+  type: z.unknown().optional().describe("Alias for method"),
+  asColumn: z.string().optional().describe("Alias for the output column"),
+  as_column: z.string().optional().describe("Alias for asColumn"),
+  alias: z.string().optional().describe("Alias for asColumn"),
 });
 
 export const StatsRankSchema = z.preprocess(
-  preprocessJsonColumnParams,
+  (val: unknown) => {
+    const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    return {
+      ...v,
+      method: v["method"] ?? v["rankType"] ?? v["rank_type"] ?? v["type"],
+      asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
+    };
+  },
   z.object({
     database: z.string().optional(),
     table: z.string().min(1, "Table is required"),
@@ -84,6 +107,7 @@ export const StatsRankSchema = z.preprocess(
     partitionBy: z.string().optional(),
     selectColumns: z.array(z.string()).optional(),
     method: z.enum(["rank", "dense_rank", "percent_rank"]).default("rank"),
+    asColumn: z.string().default("rank"),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.number().min(1).max(1000).default(10),
     offset: z.number().min(0).default(0),
