@@ -513,16 +513,33 @@ export const ReplicationStatusSchemaBase = z.object({
     ),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-}).strip();
+  verbose: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
+  extended: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
+  detailed: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
+}).strict();
 
 export const ReplicationStatusSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const dataObj = { ...obj };
-      let summaryVal: unknown = "summary" in dataObj ? (dataObj as { summary?: unknown }).summary : undefined;
-      const formatVal: unknown = "format" in dataObj ? (dataObj as { format?: unknown }).format : undefined;
-      let rawVal: unknown = "raw" in dataObj ? (dataObj as { raw?: unknown }).raw : undefined;
-      
+      let summaryVal: unknown = undefined;
+      let formatVal: unknown = undefined;
+      let rawVal: unknown = undefined;
+      let verboseVal: unknown = undefined;
+      let detailedVal: unknown = undefined;
+      let extendedVal: unknown = undefined;
+
+      if ("summary" in dataObj) summaryVal = (dataObj as { summary?: unknown }).summary;
+      if ("format" in dataObj) formatVal = (dataObj as { format?: unknown }).format;
+      if ("raw" in dataObj) rawVal = (dataObj as { raw?: unknown }).raw;
+      if ("verbose" in dataObj) verboseVal = (dataObj as { verbose?: unknown }).verbose;
+      if ("detailed" in dataObj) detailedVal = (dataObj as { detailed?: unknown }).detailed;
+      if ("extended" in dataObj) extendedVal = (dataObj as { extended?: unknown }).extended;
+
+      if (verboseVal === true || verboseVal === "true" || verboseVal === 1 || verboseVal === "1") rawVal = true;
+      if (detailedVal === true || detailedVal === "true" || detailedVal === 1 || detailedVal === "1") rawVal = true;
+      if (extendedVal === true || extendedVal === "true" || extendedVal === 1 || extendedVal === "1") rawVal = true;
+
       // Alias handling for format and raw
       if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true" || rawVal === 1 || rawVal === "1") {
         summaryVal = false;
@@ -540,11 +557,14 @@ export const ReplicationStatusSchema = z.preprocess(
       }
       if (typeof rawVal === "number") rawVal = rawVal === 1;
       
-      return {
-        ...dataObj,
-        ...(summaryVal !== undefined ? { summary: summaryVal } : {}),
-        ...(rawVal !== undefined ? { raw: rawVal } : {}),
-      };
+      if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
+      if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
+      if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
+      if (verboseVal !== undefined) Object.assign(dataObj, { verbose: verboseVal });
+      if (detailedVal !== undefined) Object.assign(dataObj, { detailed: detailedVal });
+      if (extendedVal !== undefined) Object.assign(dataObj, { extended: extendedVal });
+      
+      return dataObj;
     }
     return obj ?? {};
   },
@@ -559,16 +579,34 @@ export const PoolStatsSchemaBase = z.object({
     .describe("Return key metrics only"),
   format: z.enum(["raw", "full", "summary"]).optional().describe("Alias for summary (use 'raw' or 'full' for false)"),
   raw: z.boolean().optional().describe("Alias for summary (set to true for false)"),
-}).strip();
+  verbose: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
+  extended: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
+  detailed: z.boolean().optional().describe("Anti-Hallucination Alias for raw=true"),
+}).strict();
 
 export const PoolStatsSchema = z.preprocess(
   (obj: unknown) => {
     if (typeof obj === "object" && obj !== null) {
       const dataObj = { ...obj };
-      let summaryVal: unknown = "summary" in dataObj ? (dataObj as { summary?: unknown }).summary : undefined;
-      const formatVal: unknown = "format" in dataObj ? (dataObj as { format?: unknown }).format : undefined;
-      let rawVal: unknown = "raw" in dataObj ? (dataObj as { raw?: unknown }).raw : undefined;
+      let summaryVal: unknown = undefined;
+      let formatVal: unknown = undefined;
+      let rawVal: unknown = undefined;
+      let verboseVal: unknown = undefined;
+      let detailedVal: unknown = undefined;
+      let extendedVal: unknown = undefined;
 
+      if ("summary" in dataObj) summaryVal = (dataObj as { summary?: unknown }).summary;
+      if ("format" in dataObj) formatVal = (dataObj as { format?: unknown }).format;
+      if ("raw" in dataObj) rawVal = (dataObj as { raw?: unknown }).raw;
+      if ("verbose" in dataObj) verboseVal = (dataObj as { verbose?: unknown }).verbose;
+      if ("detailed" in dataObj) detailedVal = (dataObj as { detailed?: unknown }).detailed;
+      if ("extended" in dataObj) extendedVal = (dataObj as { extended?: unknown }).extended;
+
+      if (verboseVal === true || verboseVal === "true" || verboseVal === 1 || verboseVal === "1") rawVal = true;
+      if (detailedVal === true || detailedVal === "true" || detailedVal === 1 || detailedVal === "1") rawVal = true;
+      if (extendedVal === true || extendedVal === "true" || extendedVal === 1 || extendedVal === "1") rawVal = true;
+
+      // Alias handling for format and raw
       if (formatVal === "raw" || formatVal === "full" || rawVal === true || rawVal === "true" || rawVal === 1 || rawVal === "1") {
         summaryVal = false;
       }
@@ -584,12 +622,15 @@ export const PoolStatsSchema = z.preprocess(
         else if (rawVal === "false" || rawVal === "0") rawVal = false;
       }
       if (typeof rawVal === "number") rawVal = rawVal === 1;
-
-      return {
-        ...dataObj,
-        ...(summaryVal !== undefined ? { summary: summaryVal } : {}),
-        ...(rawVal !== undefined ? { raw: rawVal } : {}),
-      };
+      
+      if (summaryVal !== undefined) Object.assign(dataObj, { summary: summaryVal });
+      if (formatVal !== undefined) Object.assign(dataObj, { format: formatVal });
+      if (rawVal !== undefined) Object.assign(dataObj, { raw: rawVal });
+      if (verboseVal !== undefined) Object.assign(dataObj, { verbose: verboseVal });
+      if (detailedVal !== undefined) Object.assign(dataObj, { detailed: detailedVal });
+      if (extendedVal !== undefined) Object.assign(dataObj, { extended: extendedVal });
+      
+      return dataObj;
     }
     return obj ?? {};
   },
