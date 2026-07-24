@@ -138,7 +138,10 @@ export function createStatsHypothesisTool(
         };
 
         // Two-sample test
-        if (groupColumn && group1 !== undefined && group2 !== undefined) {
+        if (groupColumn !== undefined || group1 !== undefined || group2 !== undefined) {
+          if (groupColumn === undefined || group1 === undefined || group2 === undefined) {
+            return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "groupColumn, group1, and group2 are all required for a two-sample test" });
+          }
           const sql = `
               SELECT
                   \`${groupColumn}\` as group_key,
