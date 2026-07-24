@@ -19,8 +19,8 @@ const ListObjectsSchemaBase = z.object({
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   dbName: z.string().optional().describe("Alias for schema"),
-  limit: z.number().default(50).describe("Maximum number of results to return"),
-  offset: z.number().default(0).describe("Number of results to skip"),
+  limit: z.number().int().positive().default(50).describe("Maximum number of results to return"),
+  offset: z.number().int().nonnegative().default(0).describe("Number of results to skip"),
 });
 
 const ListObjectsSchema = z.preprocess(
@@ -36,8 +36,8 @@ const ListObjectsSchema = z.preprocess(
   },
   z.object({
     schema: z.string().optional(),
-    limit: z.number().default(50),
-    offset: z.number().default(0),
+    limit: z.number().int().positive().default(50),
+    offset: z.number().int().nonnegative().default(0),
   })
 );
 
