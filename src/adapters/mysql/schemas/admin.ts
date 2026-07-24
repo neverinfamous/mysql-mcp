@@ -309,7 +309,7 @@ export const ShowProcesslistSchema = z.preprocess(
   }))
   .refine(
     (data) =>
-      data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+      data.limit === undefined || (Number.isInteger(data.limit) && data.limit > 0),
     { message: "limit must be a positive integer" },
   )
 );
@@ -367,7 +367,7 @@ export const ShowStatusSchema = z.preprocess(
     }))
     .refine(
       (data) =>
-        data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+        data.limit === undefined || (Number.isInteger(data.limit) && data.limit > 0),
       { message: "limit must be a positive integer" },
     )
 );
@@ -429,7 +429,7 @@ export const ShowVariablesSchema = z.preprocess(
     }))
     .refine(
       (data) =>
-        data.limit === undefined || (!Number.isNaN(data.limit) && data.limit > 0),
+        data.limit === undefined || (Number.isInteger(data.limit) && data.limit > 0),
       { message: "limit must be a positive integer" },
     )
 );
