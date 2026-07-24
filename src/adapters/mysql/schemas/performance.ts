@@ -22,7 +22,7 @@ export const ExplainSchemaBase = z.object({
   schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
   database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
-});
+}).strict();
 
 export const ExplainSchema = z
   .preprocess(
@@ -78,7 +78,7 @@ export const ExplainAnalyzeSchemaBase = z.object({
   schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
   database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
-});
+}).strict();
 
 export const ExplainAnalyzeSchema = z
   .preprocess(
@@ -134,7 +134,7 @@ export const SlowQuerySchemaBase = z.object({
   schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific schema name. This tool returns overall server slow queries."),
   database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server slow queries."),
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server slow queries."),
-});
+}).strict();
 
 export const SlowQuerySchema = z.object({
   limit: z.coerce
@@ -173,7 +173,7 @@ export const QueryStatsSchemaBase = z.object({
   schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific schema name. This tool returns overall server query stats."),
   database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server query stats."),
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server query stats."),
-});
+}).strict();
 
 export const QueryStatsSchema = z.object({
   orderBy: z
@@ -216,7 +216,7 @@ export const IndexUsageSchemaBase = z.object({
   orderBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass an orderBy string. This tool orders by usage automatically."),
   sort: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a sort string. This tool orders by usage automatically."),
   sortBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a sortBy string. This tool orders by usage automatically."),
-});
+}).strict();
 
 export const IndexUsageSchema = z
   .preprocess(
@@ -257,7 +257,7 @@ export const BufferPoolStatsSchemaBase = z.object({
   database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server buffer pool stats."),
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool returns overall server buffer pool stats."),
   limit: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a limit. This tool returns all buffer pool stats."),
-});
+}).strict();
 
 export const BufferPoolStatsSchema = z
   .object({
@@ -290,7 +290,7 @@ export const ThreadStatsSchemaBase = z.object({
   status: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a status. This tool returns all active threads."),
   state: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a state. This tool returns all active threads."),
   user: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a user. This tool returns all active threads."),
-});
+}).strict();
 
 export const ThreadStatsSchema = z
   .preprocess(
@@ -339,7 +339,7 @@ export const TableStatsSchemaBase = z.object({
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes table stats."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes table stats."),
   limit: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a limit. This tool returns stats for a single table."),
-});
+}).strict();
 
 export const TableStatsSchema = z
   .preprocess(
@@ -382,7 +382,7 @@ export const IndexRecommendationSchemaBase = z.object({
     .describe("Detect redundant/duplicate indexes (default: true)"),
   includeUnindexed: z.boolean().optional()
     .describe("Flag large tables without secondary indexes (default: true)"),
-});
+}).strict();
 
 // Transformed schema for handler parsing
 export const IndexRecommendationSchema = z
@@ -418,7 +418,7 @@ export const ForceIndexSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for query"),
   indexName: z.string().optional().describe("Index name to force"),
   index: z.string().optional().describe("Alias for index name"),
-});
+}).strict();
 
 // Transformed schema for handler parsing
 export const ForceIndexSchema = z
@@ -477,7 +477,7 @@ export const DetectQueryAnomaliesSchemaBase = z.object({
   schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific schema name. This tool analyzes global workload variance."),
   database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool analyzes global workload variance."),
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool analyzes global workload variance."),
-});
+}).strict();
 
 export const DetectQueryAnomaliesSchema = z
   .preprocess(
@@ -535,7 +535,7 @@ export const DetectBloatRiskSchemaBase = z.object({
   orderBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass orderBy. This tool orders by fragmentation automatically."),
   sort: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass sort. This tool orders by fragmentation automatically."),
   sortBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass sortBy. This tool orders by fragmentation automatically."),
-});
+}).strict();
 
 export const DetectBloatRiskSchema = z
   .preprocess(
@@ -608,7 +608,7 @@ export const DetectConnectionSpikeSchemaBase = z.object({
   processId: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a processId. This tool analyzes global connections."),
   threadId: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a threadId. This tool analyzes global connections."),
   connectionId: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a connectionId. This tool analyzes global connections."),
-});
+}).strict();
 
 export const DetectConnectionSpikeSchema = z
   .preprocess(
@@ -673,7 +673,7 @@ export const ExplainOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     plan: z.unknown()
   }).optional()
-});
+}).strict();
 
 export const ExplainAnalyzeOutputSchema = BaseOutputSchema.extend({
   data: z.object({
