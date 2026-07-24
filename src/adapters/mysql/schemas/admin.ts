@@ -778,20 +778,42 @@ export const AuditSearchSchema = z.preprocess((obj: unknown) => {
   if (result["search"] === undefined && (result["query"] !== undefined || result["sql"] !== undefined)) {
     result["search"] = result["query"] ?? result["sql"];
   }
-  if (typeof result["limit"] === "string") {
+  if (typeof result["limit"] === "string" || typeof result["limit"] === "number") {
     const num = Number(result["limit"]);
-    if (!Number.isNaN(num)) result["limit"] = num;
+    if (Number.isNaN(num) || num < 1) {
+      delete result["limit"];
+    } else {
+      result["limit"] = Math.min(100, Math.floor(num));
+    }
   }
-  if (typeof result["offset"] === "string") {
+  if (typeof result["offset"] === "string" || typeof result["offset"] === "number") {
     const num = Number(result["offset"]);
-    if (!Number.isNaN(num)) result["offset"] = num;
+    if (Number.isNaN(num) || num < 0) {
+      delete result["offset"];
+    } else {
+      result["offset"] = Math.floor(num);
+    }
   }
   if (typeof result["success"] === "string") {
-    if (result["success"] === "true" || result["success"] === "1") result["success"] = true;
-    else if (result["success"] === "false" || result["success"] === "0") result["success"] = false;
+    const s = result["success"].toLowerCase().trim();
+    if (s === "true" || s === "1" || s === "yes" || s === "y") result["success"] = true;
+    else if (s === "false" || s === "0" || s === "no" || s === "n") result["success"] = false;
+    else delete result["success"];
   }
   if (typeof result["success"] === "number") {
-    result["success"] = result["success"] === 1;
+    result["success"] = result["success"] > 0;
+  }
+  if (typeof result["fromTimestamp"] === "string") {
+    const d = new Date(result["fromTimestamp"]);
+    if (!Number.isNaN(d.getTime())) {
+      result["fromTimestamp"] = d.toISOString();
+    }
+  }
+  if (typeof result["toTimestamp"] === "string") {
+    const d = new Date(result["toTimestamp"]);
+    if (!Number.isNaN(d.getTime())) {
+      result["toTimestamp"] = d.toISOString();
+    }
   }
   return result;
 }, AuditSearchSchemaBase);
