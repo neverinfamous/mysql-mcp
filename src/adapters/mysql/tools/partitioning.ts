@@ -7,10 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import {
-  formatMysqlError,
-  formatHandlerErrorResponse,
-} from "./core/error-helpers.js";
+import { formatHandlerErrorResponse } from "./core/error-helpers.js";
 import {
   PartitionInfoSchema,
   PartitionInfoSchemaBase,
@@ -352,17 +349,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             return { ...response, metrics: { tokenEstimate } };
           }
 
-          const response = {
-            success: false as const,
-            error: formatMysqlError(error),
-            code: "UNKNOWN_ERROR",
-            category: "internal",
-            recoverable: false,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(error);
         }
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -481,17 +468,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             return { ...response, metrics: { tokenEstimate } };
           }
 
-          const response = {
-            success: false as const,
-            error: formatMysqlError(error),
-            code: "UNKNOWN_ERROR",
-            category: "internal",
-            recoverable: false,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(error);
         }
       } catch (err) {
         return formatHandlerErrorResponse(err);
@@ -633,17 +610,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             return { ...response, metrics: { tokenEstimate } };
           }
 
-          const response = {
-            success: false as const,
-            error: formatMysqlError(error),
-            code: "UNKNOWN_ERROR",
-            category: "internal",
-            recoverable: false,
-          };
-          const tokenEstimate = Math.ceil(
-            Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-          );
-          return { ...response, metrics: { tokenEstimate } };
+          return formatHandlerErrorResponse(error);
         }
       } catch (err: unknown) {
         return formatHandlerErrorResponse(err);
