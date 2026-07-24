@@ -172,7 +172,7 @@ export const ReorganizePartitionSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   database: z.string().optional().describe("Database name"),
   fromPartitions: z
-    .array(z.string())
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Source partition names. If passing a string, use a comma-separated list."),
   partitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for fromPartitions"),
