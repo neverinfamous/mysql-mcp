@@ -5,6 +5,7 @@ import type {
 } from "../../../../../types/index.js";
 import {
   ShowProcesslistSchema,
+  ShowProcesslistSchemaBase,
   ShowProcesslistOutputSchema,
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
@@ -18,7 +19,7 @@ export function createShowProcesslistTool(
     title: "MySQL Show Processlist",
     description: "Show all running processes and queries.",
     group: "monitoring",
-    inputSchema: ShowProcesslistSchema,
+    inputSchema: ShowProcesslistSchemaBase,
     outputSchema: ShowProcesslistOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

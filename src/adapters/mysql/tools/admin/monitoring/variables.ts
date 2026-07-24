@@ -5,6 +5,7 @@ import type {
 } from "../../../../../types/index.js";
 import {
   ShowVariablesSchema,
+  ShowVariablesSchemaBase,
   ShowVariablesOutputSchema,
 } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
@@ -16,7 +17,7 @@ export function createShowVariablesTool(adapter: MySQLAdapter): ToolDefinition {
     title: "MySQL Show Variables",
     description: "Show server configuration variables.",
     group: "monitoring",
-    inputSchema: ShowVariablesSchema,
+    inputSchema: ShowVariablesSchemaBase,
     outputSchema: ShowVariablesOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

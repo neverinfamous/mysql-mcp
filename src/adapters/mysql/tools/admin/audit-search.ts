@@ -16,7 +16,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 import { hasScope, SCOPES } from "../../../../auth/scopes.js";
 import { getAuthContext } from "../../../../auth/auth-context.js";
 import { InsufficientScopeError } from "../../../../auth/errors.js";
-import { AuditSearchOutputSchema, AuditSearchSchema } from "../../schemas/index.js";
+import { AuditSearchOutputSchema, AuditSearchSchema, AuditSearchSchemaBase } from "../../schemas/index.js";
 
 export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -25,7 +25,7 @@ export function createAuditSearchTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Search and filter structured audit logs from the System Database. Returns recent tool invocations, outcomes, token estimates, and parameters.",
     group: "admin",
-    inputSchema: AuditSearchSchema,
+    inputSchema: AuditSearchSchemaBase,
     outputSchema: AuditSearchOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,

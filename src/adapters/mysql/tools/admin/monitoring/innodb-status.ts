@@ -3,7 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { InnodbStatusSchema, InnodbStatusOutputSchema } from "../../../schemas/index.js";
+import { InnodbStatusSchema, InnodbStatusSchemaBase, InnodbStatusOutputSchema } from "../../../schemas/index.js";
 import { formatHandlerErrorResponse } from "../../core/error-helpers.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 
@@ -98,7 +98,7 @@ export function createInnodbStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get detailed InnoDB engine status. Defaults to parsed summary output. Use raw=true for full text.",
     group: "monitoring",
-    inputSchema: InnodbStatusSchema,
+    inputSchema: InnodbStatusSchemaBase,
     outputSchema: InnodbStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
