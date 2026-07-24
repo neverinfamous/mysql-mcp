@@ -426,12 +426,18 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       if (res["database"] === undefined) {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
+      if (res["database"] !== undefined && typeof res["database"] !== "string") {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        res["database"] = typeof res["database"] === "object" && res["database"] !== null ? JSON.stringify(res["database"]) : String(res["database"]);
+      }
       const aliasVal = res["table"] ?? res["tableName"] ?? res["name"];
       if (res["tables"] === undefined && aliasVal !== undefined) {
         res["tables"] = Array.isArray(aliasVal) ? aliasVal : [aliasVal];
       }
-      if (typeof res["tables"] === "string") {
-        res["tables"] = [res["tables"]];
+      if (typeof res["tables"] === "string" || typeof res["tables"] === "number" || typeof res["tables"] === "boolean") {
+        res["tables"] = [String(res["tables"])];
+      } else if (Array.isArray(res["tables"])) {
+        res["tables"] = res["tables"].map(String);
       }
       if (res["noData"] === undefined) {
         res["noData"] = res["no_data"] ?? res["schemaOnly"] ?? res["schema_only"];
@@ -596,8 +602,16 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       if (res["database"] === undefined) {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
+      if (res["database"] !== undefined && typeof res["database"] !== "string") {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        res["database"] = typeof res["database"] === "object" && res["database"] !== null ? JSON.stringify(res["database"]) : String(res["database"]);
+      }
       if (res["filename"] === undefined) {
         res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"] ?? res["dump_file"];
+      }
+      if (res["filename"] !== undefined && typeof res["filename"] !== "string") {
+        // eslint-disable-next-line @typescript-eslint/no-base-to-string
+        res["filename"] = typeof res["filename"] === "object" && res["filename"] !== null ? JSON.stringify(res["filename"]) : String(res["filename"]);
       }
       return res;
     },
