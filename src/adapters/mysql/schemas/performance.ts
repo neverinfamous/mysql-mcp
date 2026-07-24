@@ -474,6 +474,9 @@ export const DetectQueryAnomaliesSchemaBase = z.object({
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific query or sql string. This tool returns overall server query anomalies."),
   table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server query anomalies."),
   tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific table name. This tool returns overall server query anomalies."),
+  schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific schema name. This tool analyzes global workload variance."),
+  database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool analyzes global workload variance."),
+  db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool analyzes global workload variance."),
 });
 
 export const DetectQueryAnomaliesSchema = z
@@ -496,8 +499,11 @@ export const DetectQueryAnomaliesSchema = z
       sql: z.string().optional(),
       table: z.string().optional(),
       tableName: z.string().optional(),
-    }).strict().refine((data) => !data.query && !data.sql && !data.table && !data.tableName, {
-      message: "Anti-Hallucination Hint: mysql_detect_query_anomalies analyzes global workload variance. It does NOT accept a specific query, sql, table, or tableName string.",
+      schema: z.string().optional(),
+      database: z.string().optional(),
+      db: z.string().optional(),
+    }).strict().refine((data) => !data.query && !data.sql && !data.table && !data.tableName && !data.schema && !data.database && !data.db, {
+      message: "Anti-Hallucination Hint: mysql_detect_query_anomalies analyzes global workload variance. It does NOT accept a specific query, sql, table, tableName, schema, database, or db string.",
     }),
   )
   .transform((data) => ({
@@ -525,6 +531,10 @@ export const DetectBloatRiskSchemaBase = z.object({
   minSize: z.union([z.number(), z.string()]).optional().describe("Alias for minSizeMb"),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes tables, not queries."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes tables, not queries."),
+  limit: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a limit. This tool returns the top 50 bloated tables automatically."),
+  orderBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass orderBy. This tool orders by fragmentation automatically."),
+  sort: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass sort. This tool orders by fragmentation automatically."),
+  sortBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass sortBy. This tool orders by fragmentation automatically."),
 });
 
 export const DetectBloatRiskSchema = z
@@ -550,8 +560,12 @@ export const DetectBloatRiskSchema = z
       minSize: z.coerce.number().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-    }).strict().refine((data) => !data.query && !data.sql, {
-      message: "Anti-Hallucination Hint: mysql_detect_bloat_risk analyzes tables, not queries. Do NOT pass a query or sql string.",
+      limit: z.union([z.number(), z.string()]).optional(),
+      orderBy: z.string().optional(),
+      sort: z.string().optional(),
+      sortBy: z.string().optional(),
+    }).strict().refine((data) => !data.query && !data.sql && data.limit === undefined && !data.orderBy && !data.sort && !data.sortBy, {
+      message: "Anti-Hallucination Hint: mysql_detect_bloat_risk analyzes tables, not queries. Do NOT pass a query, sql, limit, orderBy, sort, or sortBy.",
     }),
   )
   .transform((data) => ({
