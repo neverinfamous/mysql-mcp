@@ -180,7 +180,7 @@ export const SchemaSnapshotSchemaBase = z.object({
       "Include system schemas like mysql, information_schema (default: false)",
     ),
   sections: z
-    .array(z.string())
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Specific sections to include (default: all)"),
   compact: z
@@ -203,8 +203,12 @@ export const SchemaSnapshotSchema = z
     table: z.string().optional(),
     tableName: z.string().optional(),
     includeSystem: z.boolean().optional(),
-    sections: z
-      .array(
+    sections: z.preprocess(
+      (val) => {
+        if (typeof val === "string") return [val];
+        return val;
+      },
+      z.array(
         z.enum([
           "tables",
           "views",
@@ -217,7 +221,8 @@ export const SchemaSnapshotSchema = z
           "extensions",
         ]),
       )
-      .optional(),
+      .optional()
+    ),
     compact: z.boolean().optional().default(true),
     limit: z.preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
