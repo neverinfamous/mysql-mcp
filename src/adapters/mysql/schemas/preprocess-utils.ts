@@ -495,6 +495,14 @@ export function preprocessSavepointParams(input: unknown): unknown {
     }
   }
 
+  delete result["txId"];
+  delete result["tx"];
+  delete result["transaction_id"];
+  delete result["name"];
+  delete result["savepointName"];
+  delete result["id"];
+  delete result["savepoint_name"];
+
   return result;
 }
 
