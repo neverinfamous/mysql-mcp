@@ -649,10 +649,10 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        if (filename.includes('"')) {
+        if (/[&|;$`"\\n\\r<>]/.test(filename)) {
           return withTokenEstimate({
             success: false,
-            error: "Filename contains invalid characters (double quotes).",
+            error: "Filename contains invalid shell characters.",
             code: "VALIDATION_ERROR",
             category: "validation",
             recoverable: false,
