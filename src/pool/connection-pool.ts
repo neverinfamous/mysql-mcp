@@ -247,7 +247,7 @@ export class ConnectionPool {
     return {
       ...this.stats,
       total: this.config.pool?.connectionLimit ?? 10,
-      idle: (this.config.pool?.connectionLimit ?? 10) - this.stats.active,
+      idle: Math.max(0, (this.config.pool?.connectionLimit ?? 10) - this.stats.active),
     };
   }
 
