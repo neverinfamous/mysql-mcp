@@ -11,6 +11,7 @@ import { WindowFunctionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { StatsRunningTotalSchemaBase, StatsRunningTotalSchema } from "./schemas.js";
 import { selectList, partitionClause, whereClause } from "./helpers.js";
+import { validateWhereClause } from "../../../../../utils/validators.js";
 
 // =============================================================================
 // RUNNING TOTAL
@@ -49,6 +50,10 @@ export function createStatsRunningTotalTool(
             code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
           });
         }
+
+        validateWhereClause(parsed.where);
+        validateWhereClause(parsed.orderBy);
+        validateWhereClause(parsed.partitionBy);
 
         const partition = partitionClause(parsed.partitionBy);
         const windowExpr = `SUM(\`${parsed.column}\`) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS UNBOUNDED PRECEDING)`;

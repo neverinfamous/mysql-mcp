@@ -11,6 +11,7 @@ import { WindowFunctionOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { StatsLagLeadSchemaBase, StatsLagLeadSchema } from "./schemas.js";
 import { selectList, partitionClause, whereClause } from "./helpers.js";
+import { validateWhereClause } from "../../../../../utils/validators.js";
 
 // =============================================================================
 // LAG / LEAD
@@ -47,6 +48,10 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
             code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
           });
         }
+
+        validateWhereClause(parsed.where);
+        validateWhereClause(parsed.orderBy);
+        validateWhereClause(parsed.partitionBy);
 
         const partition = partitionClause(parsed.partitionBy);
         const fnName = parsed.direction.toUpperCase();
