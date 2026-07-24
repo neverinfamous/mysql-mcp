@@ -300,7 +300,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
             ORDER BY ORDINAL_POSITION
           `;
           const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
-          const tblParam = table.includes('.') ? table.split('.')[1] : table;
+          const tblParam = database ? table : (table.includes('.') ? table.split('.')[1] : table);
           const colResult = await adapter.executeQuery(colQuery, dbParam ? [dbParam, tblParam] : [tblParam]);
           const allCols = (colResult.rows ?? []).map((row) => ({
             COLUMN_NAME: String(row["COLUMN_NAME"]),
@@ -567,7 +567,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         await adapter.executeQuery(`SELECT 1 FROM ${fullTableName} LIMIT 1`);
 
         const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
-        const tblParam = table.includes('.') ? table.split('.')[1] : table;
+        const tblParam = database ? table : (table.includes('.') ? table.split('.')[1] : table);
 
         // Determine columns to summarize
         let targetColumns: string[];
