@@ -764,12 +764,16 @@ export function preprocessAdminTableParams(val: unknown): unknown {
     else if (typeof v["name"] === "string") v["tables"] = [v["name"]];
   }
 
-  // Handle comma-separated strings inside arrays
+  // Handle comma-separated strings inside arrays and harden against array of objects
   if (Array.isArray(v["tables"])) {
     if (v["tables"].length === 1 && typeof v["tables"][0] === "string" && v["tables"][0].includes(",")) {
       v["tables"] = v["tables"][0].split(",").map((t: string) => t.trim());
     } else {
       v["tables"] = v["tables"].flatMap((t: unknown) => {
+        if (typeof t === "object" && t !== null) {
+          const obj = t as Record<string, unknown>;
+          t = obj["name"] ?? obj["tableName"] ?? obj["table"] ?? JSON.stringify(obj);
+        }
         if (typeof t === "string" && t.includes(",")) {
           return t.split(",").map((part) => part.trim());
         }
