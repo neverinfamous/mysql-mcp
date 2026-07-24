@@ -471,11 +471,28 @@ export function preprocessSavepointParams(input: unknown): unknown {
     else if (result["savepoint_name"] !== undefined) result["savepoint"] = result["savepoint_name"];
   }
 
-  if (result["transactionId"] !== undefined && typeof result["transactionId"] === "number") {
-    result["transactionId"] = String(result["transactionId"]);
+  if (result["transactionId"] !== undefined) {
+    if (typeof result["transactionId"] === "number") {
+      result["transactionId"] = String(result["transactionId"]);
+    } else if (Array.isArray(result["transactionId"])) {
+      result["transactionId"] = String(result["transactionId"][0] ?? "");
+    } else if (typeof result["transactionId"] === "object" && result["transactionId"] !== null) {
+      const obj = result["transactionId"] as Record<string, unknown>;
+      const rawVal = obj["transactionId"] ?? obj["txId"] ?? obj["tx"] ?? obj["transaction_id"] ?? result["transactionId"];
+      result["transactionId"] = typeof rawVal === "string" ? rawVal : (JSON.stringify(rawVal) ?? "");
+    }
   }
-  if (result["savepoint"] !== undefined && typeof result["savepoint"] === "number") {
-    result["savepoint"] = String(result["savepoint"]);
+
+  if (result["savepoint"] !== undefined) {
+    if (typeof result["savepoint"] === "number") {
+      result["savepoint"] = String(result["savepoint"]);
+    } else if (Array.isArray(result["savepoint"])) {
+      result["savepoint"] = String(result["savepoint"][0] ?? "");
+    } else if (typeof result["savepoint"] === "object" && result["savepoint"] !== null) {
+      const obj = result["savepoint"] as Record<string, unknown>;
+      const rawVal = obj["savepoint"] ?? obj["name"] ?? obj["savepointName"] ?? obj["id"] ?? obj["savepoint_name"] ?? result["savepoint"];
+      result["savepoint"] = typeof rawVal === "string" ? rawVal : (JSON.stringify(rawVal) ?? "");
+    }
   }
 
   return result;
