@@ -467,6 +467,19 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             );
             return { ...response, metrics: { tokenEstimate } };
           }
+          if (msg.includes("Cannot remove all partitions")) {
+            const response = {
+              success: false as const,
+              error: `Cannot remove all partitions, use DROP TABLE instead`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
 
           return formatHandlerErrorResponse(error);
         }
@@ -600,6 +613,74 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: false as const,
               error: `Inconsistency in usage of column lists for partitioning (check your VALUES syntax)`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (
+            msg.includes("Only RANGE PARTITIONING can use VALUES LESS THAN") ||
+            msg.includes("Only LIST PARTITIONING can use VALUES IN")
+          ) {
+            const response = {
+              success: false as const,
+              error: `Mismatched partition type: ${msg}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("Multiple definition")) {
+            const response = {
+              success: false as const,
+              error: `Partition value(s) already exist in another partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("Duplicate partition name")) {
+            const response = {
+              success: false as const,
+              error: `One of the specified partition names already exists`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("strictly increasing")) {
+            const response = {
+              success: false as const,
+              error: `VALUES LESS THAN value must be strictly increasing for each partition`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("syntax error") || msg.includes("parse error")) {
+            const response = {
+              success: false as const,
+              error: `SQL syntax error in partition values (check your VALUES syntax)`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: false,
