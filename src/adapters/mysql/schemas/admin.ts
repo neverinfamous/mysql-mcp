@@ -22,7 +22,9 @@ export const OptimizeTableSchema = z
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
         if (typeof record["local"] === "string") record["local"] = record["local"] === "true" || record["local"] === "1";
+        if (typeof record["local"] === "number") record["local"] = record["local"] === 1;
         if (typeof record["no_write_to_binlog"] === "string") record["no_write_to_binlog"] = record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1";
+        if (typeof record["no_write_to_binlog"] === "number") record["no_write_to_binlog"] = record["no_write_to_binlog"] === 1;
       }
       return data;
     },
@@ -61,8 +63,11 @@ export const AnalyzeTableSchema = z
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
         if (typeof record["local"] === "string") record["local"] = record["local"] === "true" || record["local"] === "1";
+        if (typeof record["local"] === "number") record["local"] = record["local"] === 1;
         if (typeof record["no_write_to_binlog"] === "string") record["no_write_to_binlog"] = record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1";
+        if (typeof record["no_write_to_binlog"] === "number") record["no_write_to_binlog"] = record["no_write_to_binlog"] === 1;
         if (typeof record["update_histograms"] === "string") record["update_histograms"] = record["update_histograms"] === "true" || record["update_histograms"] === "1";
+        if (typeof record["update_histograms"] === "number") record["update_histograms"] = record["update_histograms"] === 1;
       }
       return data;
     },
