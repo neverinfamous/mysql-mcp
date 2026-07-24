@@ -85,6 +85,15 @@ export const AddPartitionSchema = z
           else if (obj["expression"] !== undefined) obj["value"] = obj["expression"];
           else if (obj["definition"] !== undefined) obj["value"] = obj["definition"];
         }
+
+        if (typeof obj["value"] === "string") {
+          let valStr = obj["value"].trim();
+          valStr = valStr.replace(/^(?:VALUES\s+)?(?:LESS\s+THAN|IN)\s*/i, "").trim();
+          if (valStr.startsWith("(") && valStr.endsWith(")")) {
+            valStr = valStr.substring(1, valStr.length - 1).trim();
+          }
+          obj["value"] = valStr;
+        }
       }
       return v;
     },
@@ -253,6 +262,20 @@ export const ReorganizePartitionSchema = z
               .split(",")
               .map((s) => s.trim());
           }
+        }
+        
+        if (Array.isArray(obj["toPartitions"])) {
+          obj["toPartitions"] = obj["toPartitions"].map((p: unknown) => {
+            if (p !== null && typeof p === "object" && "value" in p && typeof p.value === "string") {
+              let valStr = p.value.trim();
+              valStr = valStr.replace(/^(?:VALUES\s+)?(?:LESS\s+THAN|IN)\s*/i, "").trim();
+              if (valStr.startsWith("(") && valStr.endsWith(")")) {
+                valStr = valStr.substring(1, valStr.length - 1).trim();
+              }
+              return { ...p, value: valStr };
+            }
+            return p;
+          });
         }
       }
       return v;
