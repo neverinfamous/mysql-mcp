@@ -586,6 +586,16 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
     else if (result["level"] !== undefined) result["isolationLevel"] = result["level"];
   }
 
+  if (result["isolationLevel"] !== undefined) {
+    if (Array.isArray(result["isolationLevel"])) {
+      result["isolationLevel"] = String(result["isolationLevel"][0] ?? "");
+    } else if (typeof result["isolationLevel"] === "object" && result["isolationLevel"] !== null) {
+      const obj = result["isolationLevel"] as Record<string, unknown>;
+      const rawVal = obj["isolationLevel"] ?? obj["isolation_level"] ?? obj["level"] ?? result["isolationLevel"];
+      result["isolationLevel"] = typeof rawVal === "string" ? rawVal : (JSON.stringify(rawVal) ?? "");
+    }
+  }
+
   if (typeof result["isolationLevel"] === "string") {
     result["isolationLevel"] = result["isolationLevel"].toUpperCase();
   }
