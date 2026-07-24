@@ -21,9 +21,15 @@ export const OptimizeTableSchema = z
       const data = preprocessAdminTableParams(obj);
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
-        if (typeof record["local"] === "string") record["local"] = record["local"] === "true" || record["local"] === "1";
+        if (typeof record["local"] === "string") {
+          if (record["local"] === "true" || record["local"] === "1") record["local"] = true;
+          else if (record["local"] === "false" || record["local"] === "0") record["local"] = false;
+        }
         if (typeof record["local"] === "number") record["local"] = record["local"] === 1;
-        if (typeof record["no_write_to_binlog"] === "string") record["no_write_to_binlog"] = record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1";
+        if (typeof record["no_write_to_binlog"] === "string") {
+          if (record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1") record["no_write_to_binlog"] = true;
+          else if (record["no_write_to_binlog"] === "false" || record["no_write_to_binlog"] === "0") record["no_write_to_binlog"] = false;
+        }
         if (typeof record["no_write_to_binlog"] === "number") record["no_write_to_binlog"] = record["no_write_to_binlog"] === 1;
       }
       return data;
@@ -62,11 +68,20 @@ export const AnalyzeTableSchema = z
       const data = preprocessAdminTableParams(obj);
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
-        if (typeof record["local"] === "string") record["local"] = record["local"] === "true" || record["local"] === "1";
+        if (typeof record["local"] === "string") {
+          if (record["local"] === "true" || record["local"] === "1") record["local"] = true;
+          else if (record["local"] === "false" || record["local"] === "0") record["local"] = false;
+        }
         if (typeof record["local"] === "number") record["local"] = record["local"] === 1;
-        if (typeof record["no_write_to_binlog"] === "string") record["no_write_to_binlog"] = record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1";
+        if (typeof record["no_write_to_binlog"] === "string") {
+          if (record["no_write_to_binlog"] === "true" || record["no_write_to_binlog"] === "1") record["no_write_to_binlog"] = true;
+          else if (record["no_write_to_binlog"] === "false" || record["no_write_to_binlog"] === "0") record["no_write_to_binlog"] = false;
+        }
         if (typeof record["no_write_to_binlog"] === "number") record["no_write_to_binlog"] = record["no_write_to_binlog"] === 1;
-        if (typeof record["update_histograms"] === "string") record["update_histograms"] = record["update_histograms"] === "true" || record["update_histograms"] === "1";
+        if (typeof record["update_histograms"] === "string") {
+          if (record["update_histograms"] === "true" || record["update_histograms"] === "1") record["update_histograms"] = true;
+          else if (record["update_histograms"] === "false" || record["update_histograms"] === "0") record["update_histograms"] = false;
+        }
         if (typeof record["update_histograms"] === "number") record["update_histograms"] = record["update_histograms"] === 1;
       }
       return data;
@@ -148,7 +163,8 @@ export const RepairTableSchema = z
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
         if (typeof record["quick"] === "string") {
-          record["quick"] = record["quick"] === "true" || record["quick"] === "1";
+          if (record["quick"] === "true" || record["quick"] === "1") record["quick"] = true;
+          else if (record["quick"] === "false" || record["quick"] === "0") record["quick"] = false;
         }
         if (typeof record["quick"] === "number") {
           record["quick"] = record["quick"] === 1;
@@ -188,9 +204,15 @@ export const FlushTablesSchema = z
       const data = preprocessAdminTableParams(obj);
       if (typeof data === "object" && data !== null) {
         const record = data as Record<string, unknown>;
-        if (typeof record["withReadLock"] === "string") record["withReadLock"] = record["withReadLock"] === "true" || record["withReadLock"] === "1";
+        if (typeof record["withReadLock"] === "string") {
+          if (record["withReadLock"] === "true" || record["withReadLock"] === "1") record["withReadLock"] = true;
+          else if (record["withReadLock"] === "false" || record["withReadLock"] === "0") record["withReadLock"] = false;
+        }
         if (typeof record["withReadLock"] === "number") record["withReadLock"] = record["withReadLock"] === 1;
-        if (typeof record["forExport"] === "string") record["forExport"] = record["forExport"] === "true" || record["forExport"] === "1";
+        if (typeof record["forExport"] === "string") {
+          if (record["forExport"] === "true" || record["forExport"] === "1") record["forExport"] = true;
+          else if (record["forExport"] === "false" || record["forExport"] === "0") record["forExport"] = false;
+        }
         if (typeof record["forExport"] === "number") record["forExport"] = record["forExport"] === 1;
       }
       return data;
@@ -232,7 +254,8 @@ export const KillQuerySchema = z
       if (typeof obj === "object" && obj !== null) {
         const data = obj as Record<string, unknown>;
         if (typeof data["connection"] === "string") {
-          data["connection"] = data["connection"] === "true" || data["connection"] === "1";
+          if (data["connection"] === "true" || data["connection"] === "1") data["connection"] = true;
+          else if (data["connection"] === "false" || data["connection"] === "0") data["connection"] = false;
         }
         if (typeof data["connection"] === "number") {
           data["connection"] = data["connection"] === 1;
