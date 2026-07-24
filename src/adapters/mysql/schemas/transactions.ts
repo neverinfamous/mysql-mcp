@@ -124,6 +124,7 @@ export const TransactionExecuteSchemaBase = z.object({
     .describe("SQL statements to execute atomically. Anti-Hallucination Hint: Pass an array of strings. You can also pass a single string or use the 'queries' or 'sql' alias."),
   queries: z.union([z.string(), z.record(z.string(), z.unknown()), z.array(z.union([z.string(), z.record(z.string(), z.unknown())]))]).optional().describe("Alias for statements"),
   query: z.union([z.string(), z.record(z.string(), z.unknown()), z.array(z.union([z.string(), z.record(z.string(), z.unknown())]))]).optional().describe("Alias for statements"),
+  sqls: z.union([z.string(), z.record(z.string(), z.unknown()), z.array(z.union([z.string(), z.record(z.string(), z.unknown())]))]).optional().describe("Alias for statements"),
   sql: z.union([z.string(), z.record(z.string(), z.unknown()), z.array(z.union([z.string(), z.record(z.string(), z.unknown())]))]).optional().describe("Alias for statements"),
   isolationLevel: z.string().optional().describe("Transaction isolation level. Expected one of: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE"),
   isolation_level: z.string().optional().describe("Alias for isolationLevel"),
