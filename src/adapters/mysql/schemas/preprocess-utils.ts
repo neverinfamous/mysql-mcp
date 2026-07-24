@@ -564,6 +564,8 @@ export function preprocessTransactionExecuteParams(input: unknown): unknown {
     } else {
       result["statements"] = [result["statements"]];
     }
+  } else if (result["statements"] !== undefined && !Array.isArray(result["statements"])) {
+    result["statements"] = [result["statements"]];
   }
 
   // Handle arrays of {sql: "..."} objects gracefully
