@@ -587,8 +587,8 @@ export const DetectConnectionSpikeSchema = z
       const record = data as Record<string, unknown>;
       return {
         ...record,
-        warningPercent: record["warningPercent"] ?? record["thresholdPercent"] ?? record["threshold"],
-        windowMinutes: record["windowMinutes"] ?? record["window"] ?? record["time"] ?? record["duration"],
+        warningPercent: record["warningPercent"] ?? record["warning_percent"] ?? record["thresholdPercent"] ?? record["threshold"],
+        windowMinutes: record["windowMinutes"] ?? record["window_minutes"] ?? record["window"] ?? record["time"] ?? record["duration"],
       };
     },
     z.object({
