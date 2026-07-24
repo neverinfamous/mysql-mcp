@@ -1029,7 +1029,8 @@ export const ReplicationStatusOutputSchema = BaseOutputSchema.extend({
 
 export const PoolStatsOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    poolStats: z.record(z.string(), z.unknown())
+    poolStats: z.record(z.string(), z.unknown()),
+    summary: z.boolean().optional()
   }).optional()
 });
 
