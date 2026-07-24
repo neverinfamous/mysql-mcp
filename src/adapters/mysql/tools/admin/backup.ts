@@ -649,7 +649,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        if (/[&|;$`"\\n\\r<>]/.test(filename)) {
+        if (/[&|;$`"\n\r<>]/.test(filename)) {
           return withTokenEstimate({
             success: false,
             error: "Filename contains invalid shell characters.",
