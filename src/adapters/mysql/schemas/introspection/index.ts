@@ -234,6 +234,10 @@ export const SchemaSnapshotSchema = z
     if (val.db && !val.schema) val.schema = val.db;
     return val;
   })
+  .refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+    message: "schema parameter is required",
+    path: ["schema"],
+  })
   .default({ compact: true, limit: 100 });
 
 /**
@@ -309,6 +313,9 @@ export const ConstraintAnalysisSchema = z.preprocess((input: unknown) => {
     }
   }
   return val;
+}).refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
+  message: "schema parameter is required (e.g., { schema: 'my_database' })",
+  path: ["schema"],
 });
 
 /**

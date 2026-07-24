@@ -43,10 +43,6 @@ export function createSchemaSnapshotTool(
       try {
         const parsed = SchemaSnapshotSchema.parse(params);
 
-        if (!parsed.schema) {
-          throw new ValidationError("Validation error: schema parameter is required");
-        }
-
         if (parsed.table || parsed.tableName) {
           throw new ValidationError(
             "Validation error: mysql_schema_snapshot does not support filtering by table. Please use mysql_describe_table instead to inspect a specific table."

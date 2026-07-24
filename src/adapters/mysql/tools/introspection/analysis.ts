@@ -52,10 +52,6 @@ export function createConstraintAnalysisTool(
       try {
         const parsed = ConstraintAnalysisSchema.parse(params);
 
-        if (!parsed.schema && !parsed.table) {
-          throw new ValidationError("Validation error: schema or table parameter is required");
-        }
-
         // Validate schema existence when filtering by schema
         await checkSchemaExists(adapter, parsed.schema);
 
