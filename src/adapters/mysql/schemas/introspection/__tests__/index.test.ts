@@ -49,7 +49,7 @@ describe("Introspection Schemas", () => {
 
   describe("SchemaSnapshotSchema", () => {
     it("should provide default values", () => {
-      const result = SchemaSnapshotSchema.safeParse({});
+      const result = SchemaSnapshotSchema.safeParse({ schema: "testdb" });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.compact).toBe(true);
@@ -58,7 +58,7 @@ describe("Introspection Schemas", () => {
     });
 
     it("should coerce string limit to number", () => {
-      const result = SchemaSnapshotSchema.safeParse({ limit: "50" });
+      const result = SchemaSnapshotSchema.safeParse({ schema: "testdb", limit: "50" });
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.limit).toBe(50);
@@ -77,7 +77,7 @@ describe("Introspection Schemas", () => {
     });
 
     it("should support string input", () => {
-      const result = ConstraintAnalysisSchema.safeParse("users");
+      const result = ConstraintAnalysisSchema.safeParse("testdb.users");
       expect(result.success).toBe(true);
       if (result.success) {
         expect(result.data.table).toBe("users");

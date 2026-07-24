@@ -260,7 +260,7 @@ describe("Handler Execution", () => {
             return createMockQueryResult([{ DATA_TYPE: "int" }]);
           }
           if (typeof query === "string" && query.includes("min_val")) {
-            return createMockQueryResult([{ min_val: 0, max_val: 100 }]);
+            return createMockQueryResult([{ min_val: 0, max_val: 100, total_count: 10 }]);
           }
           return createMockQueryResult([{ bucket: 0, count: 10 }]);
         },
@@ -641,7 +641,7 @@ describe("Stats Validation Errors", () => {
             return createMockQueryResult([{ DATA_TYPE: "int" }]);
           }
           if (typeof query === "string" && query.includes("min_val")) {
-            return createMockQueryResult([{ min_val: 50, max_val: 50 }]);
+            return createMockQueryResult([{ min_val: 50, max_val: 50, total_count: 10 }]);
           }
           return createMockQueryResult([]);
         },

@@ -175,7 +175,7 @@ describe("Descriptive Stats Tools", () => {
           ]);
         }
         if (query.includes("MIN(")) {
-          return createMockQueryResult([{ min_val: 0, max_val: 100 }]);
+          return createMockQueryResult([{ min_val: 0, max_val: 100, total_count: 10 }]);
         }
         return createMockQueryResult([]);
       });
