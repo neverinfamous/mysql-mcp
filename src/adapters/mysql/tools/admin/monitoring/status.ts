@@ -42,9 +42,9 @@ export function createShowStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const status: Record<string, string> = {};
         for (const row of result.rows ?? []) {
           const rawName = row["Variable_name"] ?? row["VARIABLE_NAME"] ?? row["variable_name"];
-          const name = typeof rawName === "string" ? rawName : "";
+          const name = typeof rawName === "string" || typeof rawName === "number" || typeof rawName === "boolean" ? String(rawName) : "";
           const rawValue = row["Value"] ?? row["VALUE"] ?? row["value"];
-          const value = typeof rawValue === "string" ? rawValue : "";
+          const value = typeof rawValue === "string" || typeof rawValue === "number" || typeof rawValue === "boolean" ? String(rawValue) : "";
           if (name) {
             // Redact RSA public key blobs (multi-line PEM certificates)
             status[name] = value?.includes("-----BEGIN PUBLIC KEY-----")
