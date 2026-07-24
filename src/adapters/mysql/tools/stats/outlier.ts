@@ -209,6 +209,7 @@ async function detectZScoreOutliers(
         outlierCount: 0,
         totalCount: 0,
         stats: { mean: 0, stdDev: 0, lowerBound: 0, upperBound: 0 },
+        outliers: [],
       },
     };
   }
@@ -226,6 +227,7 @@ async function detectZScoreOutliers(
         stats: { mean, stdDev: 0, lowerBound: mean, upperBound: mean },
         outlierCount: 0,
         totalCount: totalRows,
+        outliers: [],
       },
     };
   }
@@ -303,6 +305,7 @@ async function detectIqrOutliers(
         outlierCount: 0,
         totalCount: 0,
         stats: { q1: 0, q3: 0, iqr: 0, lowerBound: 0, upperBound: 0 },
+        outliers: [],
       },
     };
   }
@@ -322,6 +325,16 @@ async function detectIqrOutliers(
 
   const q1 = await getPercentile(25);
   const q3 = await getPercentile(75);
+
+  if (Number.isNaN(q1) || Number.isNaN(q3)) {
+    return {
+      success: false,
+      code: "VALIDATION_ERROR",
+      category: "validation",
+      recoverable: false,
+      error: `Column '${column}' contains non-numeric values which cannot be used for IQR outlier detection.`,
+    };
+  }
 
   const iqr = q3 - q1;
 
