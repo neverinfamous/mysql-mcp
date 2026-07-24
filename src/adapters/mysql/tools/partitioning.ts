@@ -348,6 +348,48 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             );
             return { ...response, metrics: { tokenEstimate } };
           }
+          if (
+            msg.includes("Only RANGE PARTITIONING can use VALUES LESS THAN") ||
+            msg.includes("Only LIST PARTITIONING can use VALUES IN")
+          ) {
+            const response = {
+              success: false as const,
+              error: `Mismatched partition type: ${msg}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("syntax error") || msg.includes("parse error")) {
+            const response = {
+              success: false as const,
+              error: `SQL syntax error in partition values (check your VALUES syntax)`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
+          if (msg.includes("each partition must be defined")) {
+            const response = {
+              success: false as const,
+              error: `Mismatched partition type: ${msg}`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
 
           return formatHandlerErrorResponse(error);
         }
