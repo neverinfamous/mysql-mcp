@@ -213,6 +213,9 @@ export const IndexUsageSchemaBase = z.object({
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool only uses the current database."),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes index usage."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes index usage."),
+  orderBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass an orderBy string. This tool orders by usage automatically."),
+  sort: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a sort string. This tool orders by usage automatically."),
+  sortBy: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a sortBy string. This tool orders by usage automatically."),
 });
 
 export const IndexUsageSchema = z
@@ -230,8 +233,13 @@ export const IndexUsageSchema = z
       db: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-    }).refine((data) => !data.schema && !data.database && !data.db && !data.query && !data.sql, {
-      message: "Anti-Hallucination Hint: mysql_index_usage operates on the current database and table. It does NOT accept a schema, database, db, query, or sql string.",
+      orderBy: z.string().optional(),
+      sort: z.string().optional(),
+      sortBy: z.string().optional(),
+    })
+    .strict()
+    .refine((data) => !data.schema && !data.database && !data.db && !data.query && !data.sql && !data.orderBy && !data.sort && !data.sortBy, {
+      message: "Anti-Hallucination Hint: mysql_index_usage operates on the current database and table. It does NOT accept a schema, database, db, query, sql, orderBy, sort, or sortBy string.",
     }),
   )
   .transform((data) => ({
@@ -330,6 +338,7 @@ export const TableStatsSchemaBase = z.object({
   db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a specific database name. This tool only uses the current database."),
   query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes table stats."),
   sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query or sql string. This tool analyzes table stats."),
+  limit: z.union([z.number(), z.string()]).optional().describe("Anti-Hallucination Hint: Do NOT pass a limit. This tool returns stats for a single table."),
 });
 
 export const TableStatsSchema = z
@@ -346,8 +355,11 @@ export const TableStatsSchema = z
       db: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
-    }).refine((data) => !data.schema && !data.database && !data.db && !data.query && !data.sql, {
-      message: "Anti-Hallucination Hint: mysql_table_stats operates on the current database and table. It does NOT accept a schema, database, db, query, or sql string.",
+      limit: z.union([z.number(), z.string()]).optional(),
+    })
+    .strict()
+    .refine((data) => !data.schema && !data.database && !data.db && !data.query && !data.sql && data.limit === undefined, {
+      message: "Anti-Hallucination Hint: mysql_table_stats operates on the current database and table. It does NOT accept a schema, database, db, query, sql, or limit.",
     }),
   )
   .transform((data) => ({
