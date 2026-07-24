@@ -408,11 +408,15 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       .optional()
       .default(false)
       .describe("Schema only, no data"),
+    no_data: z.any().optional().describe("Alias for noData"),
+    schemaOnly: z.any().optional().describe("Alias for noData"),
+    schema_only: z.any().optional().describe("Alias for noData"),
     singleTransaction: z
       .union([z.boolean(), z.string(), z.number()])
       .optional()
       .default(false)
       .describe("Use single transaction for dump (no locking)"),
+    single_transaction: z.any().optional().describe("Alias for singleTransaction"),
   });
 
   const schema = z.preprocess(
@@ -428,6 +432,12 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       }
       if (typeof res["tables"] === "string") {
         res["tables"] = [res["tables"]];
+      }
+      if (res["noData"] === undefined) {
+        res["noData"] = res["no_data"] ?? res["schemaOnly"] ?? res["schema_only"];
+      }
+      if (res["singleTransaction"] === undefined) {
+        res["singleTransaction"] = res["single_transaction"];
       }
       if (typeof res["noData"] === "string") {
         res["noData"] = res["noData"].toLowerCase() === "true" || res["noData"] === "1";
@@ -576,6 +586,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
     path: z.string().optional().describe("Alias for filename"),
     filepath: z.string().optional().describe("Alias for filename"),
     dumpFile: z.string().optional().describe("Alias for filename"),
+    dump_file: z.string().optional().describe("Alias for filename"),
   });
 
   const schema = z.preprocess(
@@ -586,7 +597,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
       if (res["filename"] === undefined) {
-        res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"];
+        res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"] ?? res["dump_file"];
       }
       return res;
     },
@@ -601,6 +612,7 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
       path: z.string().optional(),
       filepath: z.string().optional(),
       dumpFile: z.string().optional(),
+      dump_file: z.string().optional(),
     })
   )
     .transform((data) => ({
