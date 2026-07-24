@@ -226,7 +226,20 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         let sql: string;
         const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
 
-        switch (partitionType) {
+        let resolvedPartitionType = partitionType;
+        if (!resolvedPartitionType) {
+          const typeResult = await adapter.executeQuery(
+            `SELECT PARTITION_METHOD FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ? LIMIT 1`,
+            checkParams
+          );
+          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0] && typeof typeResult.rows[0]["PARTITION_METHOD"] === "string") {
+            resolvedPartitionType = typeResult.rows[0]["PARTITION_METHOD"] as typeof partitionType;
+          } else {
+            resolvedPartitionType = "RANGE";
+          }
+        }
+
+        switch (resolvedPartitionType) {
           case "RANGE":
           case "RANGE COLUMNS":
             sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
@@ -240,7 +253,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             sql = `ALTER TABLE ${tableRef} ADD PARTITION PARTITIONS ${value}`;
             break;
           default: {
-            const unexpectedType: never = partitionType;
+            const unexpectedType = resolvedPartitionType as never;
             const response = {
               success: false as const,
               error: `Unsupported partition type: ${String(unexpectedType)}`,
@@ -591,11 +604,25 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
+        
+        let resolvedPartitionType = partitionType;
+        if (!resolvedPartitionType) {
+          const typeResult = await adapter.executeQuery(
+            `SELECT PARTITION_METHOD FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ? LIMIT 1`,
+            checkParams
+          );
+          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0] && typeof typeResult.rows[0]["PARTITION_METHOD"] === "string") {
+            resolvedPartitionType = typeResult.rows[0]["PARTITION_METHOD"] as typeof partitionType;
+          } else {
+            resolvedPartitionType = "RANGE";
+          }
+        }
+
         const toList = toPartitions
           .map((p) => {
             if (
-              partitionType === "RANGE" ||
-              partitionType === "RANGE COLUMNS"
+              resolvedPartitionType === "RANGE" ||
+              resolvedPartitionType === "RANGE COLUMNS"
             ) {
               return `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`;
             } else {

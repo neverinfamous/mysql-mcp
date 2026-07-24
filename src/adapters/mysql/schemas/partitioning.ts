@@ -113,7 +113,7 @@ export const AddPartitionSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
     partitionName: data.partitionName ?? "",
-    partitionType: data.partitionType ? data.partitionType : "RANGE",
+    partitionType: data.partitionType,
     value: data.value ?? "",
   }))
   .refine((data) => data.table !== "", {
@@ -303,7 +303,7 @@ export const ReorganizePartitionSchema = z
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
     fromPartitions: data.fromPartitions ?? [],
-    partitionType: data.partitionType ? data.partitionType : "RANGE",
+    partitionType: data.partitionType,
     toPartitions: data.toPartitions ?? [],
   }))
   .refine((data) => data.table !== "", {
