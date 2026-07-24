@@ -260,6 +260,22 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
             code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
           });
         }
+        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
+          return withTokenEstimate({
+            success: false,
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
+          });
+        }
+        if (selectColumns && selectColumns.length > 0) {
+          for (const c of selectColumns) {
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
+              return withTokenEstimate({
+                success: false,
+                code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: `Invalid column name in selectColumns: ${c}`,
+              });
+            }
+          }
+        }
         
         const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
 
@@ -534,6 +550,14 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (parsed.columns && parsed.columns.length > 0) {
           // Verify they are valid columns
+          for (const c of parsed.columns) {
+            if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
+              return withTokenEstimate({
+                success: false,
+                code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: `Invalid column name in columns: ${c}`,
+              });
+            }
+          }
           targetColumns = parsed.columns;
         } else {
           // Auto-detect numeric columns
