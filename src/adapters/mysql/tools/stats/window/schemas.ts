@@ -9,7 +9,13 @@ export const StatsRowNumberSchemaBase = z.object({
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  order_by: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partition_by: z.string().optional().describe("Alias for partitionBy"),
+  groupBy: z.string().optional().describe("Alias for partitionBy"),
+  group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
     .unknown()
     .optional()
@@ -35,8 +41,19 @@ export const StatsRowNumberSchemaBase = z.object({
 export const StatsRowNumberSchema = z.preprocess(
   (val: unknown) => {
     const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    
+    // Coerce orderBy to string if array
+    let ob = v["orderBy"] ?? v["order_by"] ?? v["sort"] ?? v["sortBy"];
+    if (Array.isArray(ob)) ob = ob.join(", ");
+    
+    // Coerce partitionBy to string if array
+    let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
+    if (Array.isArray(pb)) pb = pb.join(", ");
+
     return {
       ...v,
+      orderBy: ob,
+      partitionBy: pb,
       asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
     };
   },
@@ -64,7 +81,13 @@ export const StatsRankSchemaBase = z.object({
     .string()
     .optional()
     .describe("Column(s) to order by (determines rank). Required."),
+  order_by: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partition_by: z.string().optional().describe("Alias for partitionBy"),
+  groupBy: z.string().optional().describe("Alias for partitionBy"),
+  group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
     .unknown()
     .optional()
@@ -94,8 +117,17 @@ export const StatsRankSchemaBase = z.object({
 export const StatsRankSchema = z.preprocess(
   (val: unknown) => {
     const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+
+    let ob = v["orderBy"] ?? v["order_by"] ?? v["sort"] ?? v["sortBy"];
+    if (Array.isArray(ob)) ob = ob.join(", ");
+    
+    let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
+    if (Array.isArray(pb)) pb = pb.join(", ");
+
     return {
       ...v,
+      orderBy: ob,
+      partitionBy: pb,
       method: v["method"] ?? v["rankType"] ?? v["rank_type"] ?? v["type"],
       asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
     };
