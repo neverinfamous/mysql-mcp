@@ -30,16 +30,17 @@ const ListSchemasSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
+      const { filter, search, ...rest } = obj;
       return {
-        ...obj,
-        pattern: obj['pattern'] ?? obj['filter'] ?? obj['search'],
+        ...rest,
+        pattern: obj['pattern'] ?? filter ?? search,
       };
     }
     return val;
   },
   z.object({
     pattern: z.string().optional(),
-  })
+  }).strict()
 );
 
 const ListSchemasOutputSchema = BaseOutputSchema.extend({
@@ -65,9 +66,10 @@ const CreateSchemaSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
+      const { schema, database, schemaName, databaseName, ...rest } = obj;
       return {
-        ...obj,
-        name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'] ?? obj['databaseName'],
+        ...rest,
+        name: obj['name'] ?? schema ?? database ?? schemaName ?? databaseName,
         ifNotExists: typeof obj['ifNotExists'] === 'string' ? obj['ifNotExists'].toLowerCase() === 'true' : obj['ifNotExists'],
       };
     }
@@ -86,7 +88,7 @@ const CreateSchemaSchema = z.preprocess(
       .optional()
       .default(false)
       .describe("Add IF NOT EXISTS clause"),
-  })
+  }).strict()
 );
 
 const CreateSchemaOutputSchema = BaseOutputSchema.extend({
@@ -110,11 +112,12 @@ const DropSchemaSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
+      const { schema, database, schemaName, databaseName, tableName, ...rest } = obj;
       return {
-        ...obj,
-        name: obj['name'] ?? obj['schema'] ?? obj['database'] ?? obj['schemaName'] ?? obj['databaseName'],
+        ...rest,
+        name: obj['name'] ?? schema ?? database ?? schemaName ?? databaseName,
         ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
-        table: obj['table'] ?? obj['tableName'],
+        table: obj['table'] ?? tableName,
       };
     }
     return val;
@@ -127,7 +130,7 @@ const DropSchemaSchema = z.preprocess(
       .default(false)
       .describe("Add IF EXISTS clause"),
     table: z.unknown().optional(),
-  })
+  }).strict()
 ).refine((data) => data.table === undefined, {
   message: "🛠️ AUTONOMOUS HEALING: You passed 'table' or 'tableName' to mysql_drop_schema. This tool drops an ENTIRE DATABASE. To drop a table, use mysql_drop_table.",
 });
