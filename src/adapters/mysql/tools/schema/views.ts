@@ -72,7 +72,7 @@ const CreateViewSchemaBase = z.object({
   definition: z
     .string()
     .default("")
-    .describe("SELECT statement defining the view"),
+    .describe("SELECT statement defining the view (required)"),
   query: z.string().default("").describe("Alias for definition"),
   sql: z.string().default("").describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
@@ -86,9 +86,9 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']) ?? "",
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
-        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? (obj['query'] === "" ? undefined : obj['query']) ?? (obj['sql'] === "" ? undefined : obj['sql']),
+        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? (obj['query'] === "" ? undefined : obj['query']) ?? (obj['sql'] === "" ? undefined : obj['sql']) ?? "",
         orReplace: typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : obj['orReplace'],
       };
     }
@@ -99,6 +99,7 @@ const CreateViewSchema = z.preprocess(
     schema: z.string().optional(),
     definition: z
       .string()
+      .min(1, "View definition (SELECT statement) is required")
       .describe("SELECT statement defining the view"),
     orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
     algorithm: z
@@ -134,7 +135,7 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
+        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']) ?? "",
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
         ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
       };
