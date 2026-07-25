@@ -211,11 +211,11 @@ export const MigrationRollbackSchema = z.preprocess((input: unknown) => {
  * mysql_migration_history input
  */
 export const MigrationHistorySchemaBase = z.object({
-  status: z.string().optional().describe("Filter by status"),
-  state: z.string().optional().describe("Alias for status"),
-  filter: z.string().optional().describe("Alias for status"),
-  sourceSystem: z.string().optional().describe("Filter by source system"),
-  source: z.string().optional().describe("Alias for sourceSystem"),
+  status: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Filter by status"),
+  state: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for status"),
+  filter: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for status"),
+  sourceSystem: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Filter by source system"),
+  source: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for sourceSystem"),
   limit: z
     .union([z.number(), z.string()])
     .optional()
@@ -226,15 +226,15 @@ export const MigrationHistorySchemaBase = z.object({
     .describe("Offset for pagination (default: 0)"),
   skip: z.union([z.number(), z.string()]).optional().describe("Alias for offset"),
   database: z
-    .union([z.string(), z.boolean()])
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database to read the migration history from (default: active database)"),
-  system: z.string().optional().describe("Alias for sourceSystem"),
+  system: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for sourceSystem"),
   count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   take: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-  db: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
-  schema: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 export const MigrationHistorySchema = z.preprocess((input: unknown) => {
@@ -242,24 +242,16 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
 
-    // Gracefully ignore boolean arguments hallucinated by agents
-    if (typeof out["database"] === "boolean") delete out["database"];
-    if (typeof out["db"] === "boolean") delete out["db"];
-    if (typeof out["schema"] === "boolean") delete out["schema"];
-    
-    // Ignore boolean hallucinations for primitive parameters
-    if (typeof out["status"] === "boolean") delete out["status"];
-    if (typeof out["state"] === "boolean") delete out["state"];
-    if (typeof out["filter"] === "boolean") delete out["filter"];
-    if (typeof out["sourceSystem"] === "boolean") delete out["sourceSystem"];
-    if (typeof out["source"] === "boolean") delete out["source"];
-    if (typeof out["system"] === "boolean") delete out["system"];
-    if (typeof out["limit"] === "boolean") delete out["limit"];
-    if (typeof out["offset"] === "boolean") delete out["offset"];
-    if (typeof out["skip"] === "boolean") delete out["skip"];
-    if (typeof out["count"] === "boolean") delete out["count"];
-    if (typeof out["max"] === "boolean") delete out["max"];
-    if (typeof out["take"] === "boolean") delete out["take"];
+    const stringFields = ["database", "db", "schema", "status", "state", "filter", "sourceSystem", "source", "system"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
+    }
+
+    const numberFields = ["limit", "offset", "skip", "count", "max", "take"];
+    for (const field of numberFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+    }
 
     if (out["state"] !== undefined && out["status"] === undefined) out["status"] = out["state"];
     if (out["filter"] !== undefined && out["status"] === undefined) out["status"] = out["filter"];
@@ -306,26 +298,21 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
  */
 export const MigrationStatusSchemaBase = z.object({
   database: z
-    .union([z.string(), z.boolean()])
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database where the tracking table lives (default: active database)"),
-  db: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
-  schema: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 export const MigrationStatusSchema = z.preprocess((input: unknown) => {
   if (typeof input === "object" && input !== null) {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
-    // Gracefully ignore boolean arguments hallucinated by agents (e.g. status(true))
-    if (typeof out["database"] === "boolean") {
-      delete out["database"];
-    }
-    if (typeof out["db"] === "boolean") {
-      delete out["db"];
-    }
-    if (typeof out["schema"] === "boolean") {
-      delete out["schema"];
+    const stringFields = ["database", "db", "schema"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
     }
     if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
     if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
