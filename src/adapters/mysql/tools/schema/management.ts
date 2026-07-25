@@ -125,7 +125,7 @@ const DropSchemaSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().min(1, "Schema name is required").describe("Schema/database name to drop"),
+    name: z.string().optional().describe("Schema/database name to drop"),
     ifExists: z
       .boolean()
       .optional()
@@ -133,8 +133,19 @@ const DropSchemaSchema = z.preprocess(
       .describe("Add IF EXISTS clause"),
     table: z.unknown().optional(),
   }).strict()
-).refine((data) => data.table === undefined, {
-  message: "🛠️ AUTONOMOUS HEALING: You passed 'table' or 'tableName' to mysql_drop_schema. This tool drops an ENTIRE DATABASE. To drop a table, use mysql_drop_table.",
+).superRefine((data, ctx) => {
+  if (data.table !== undefined) {
+    ctx.addIssue({
+      code: "custom",
+      message: "🛠️ AUTONOMOUS HEALING: You passed 'table' or 'tableName' to mysql_drop_schema. This tool drops an ENTIRE DATABASE. To drop a table, use mysql_drop_table.",
+    });
+  } else if (!data.name || data.name.trim().length === 0) {
+    ctx.addIssue({
+      code: "custom",
+      message: "Schema name is required",
+      path: ["name"],
+    });
+  }
 });
 
 const DropSchemaOutputSchema = BaseOutputSchema.extend({
@@ -295,7 +306,7 @@ export function createDropSchemaTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { name, ifExists } = DropSchemaSchema.parse(params);
+        const { name, ifExists } = DropSchemaSchema.parse(params) as { name: string; ifExists: boolean };
 
         try {
           validateIdentifier(name, "schema");
