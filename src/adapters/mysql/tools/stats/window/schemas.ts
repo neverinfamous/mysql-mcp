@@ -50,10 +50,16 @@ export const StatsRowNumberSchema = z.preprocess(
     let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
     if (Array.isArray(pb)) pb = pb.join(", ");
 
+    let sc = v["selectColumns"];
+    if (typeof sc === "string") {
+      sc = sc.includes(",") ? sc.split(",").map((s) => s.trim()) : [sc];
+    }
+
     return {
       ...v,
       orderBy: ob,
       partitionBy: pb,
+      selectColumns: sc,
       asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
     };
   },
@@ -124,10 +130,16 @@ export const StatsRankSchema = z.preprocess(
     let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
     if (Array.isArray(pb)) pb = pb.join(", ");
 
+    let sc = v["selectColumns"];
+    if (typeof sc === "string") {
+      sc = sc.includes(",") ? sc.split(",").map((s) => s.trim()) : [sc];
+    }
+
     return {
       ...v,
       orderBy: ob,
       partitionBy: pb,
+      selectColumns: sc,
       method: v["method"] ?? v["rankType"] ?? v["rank_type"] ?? v["type"],
       asColumn: v["asColumn"] ?? v["as_column"] ?? v["alias"],
     };
