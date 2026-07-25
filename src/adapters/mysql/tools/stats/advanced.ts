@@ -87,11 +87,14 @@ export const StatsTopNSchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    const rawN = obj["n"] ?? obj["limit"];
+    const rawSelectCols = obj["selectColumns"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
-      n: obj["n"] ?? obj["limit"],
+      n: rawN !== undefined ? Number(rawN) : undefined,
+      selectColumns: typeof rawSelectCols === "string" ? rawSelectCols.split(",").map(s => s.trim()) : rawSelectCols,
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -131,10 +134,12 @@ export const StatsDistinctSchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    const rawLimit = obj["limit"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      limit: rawLimit !== undefined ? Number(rawLimit) : undefined,
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
@@ -175,10 +180,12 @@ export const StatsFrequencySchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    const rawLimit = obj["limit"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      limit: rawLimit !== undefined ? Number(rawLimit) : undefined,
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
