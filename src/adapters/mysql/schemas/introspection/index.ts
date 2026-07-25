@@ -28,6 +28,7 @@ export const DependencyGraphSchemaBase = z.object({
     .optional()
     .describe("Maximum depth for traversal (default: no limit)"),
   table: z.string().optional().describe("Table to filter dependencies for"),
+  tables: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for table. Anti-Hallucination: This tool only supports filtering by a single table at a time."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
 });
@@ -37,6 +38,7 @@ export const DependencyGraphSchema = z.object({
   database: z.string().optional(),
   db: z.string().optional(),
   table: z.string().optional(),
+  tables: z.union([z.string(), z.array(z.string())]).optional(),
   tableName: z.string().optional(),
   name: z.string().optional(),
   includeRowCounts: z.boolean().optional(),
@@ -54,8 +56,12 @@ export const DependencyGraphSchema = z.object({
 }).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
   if (val.db && !val.schema) val.schema = val.db;
-  if (val.tableName && !val.table) val.table = val.tableName;
-  if (val.name && !val.table) val.table = val.name;
+  
+  let targetTable = val.table ?? val.tableName ?? val.name;
+  if (targetTable === undefined && val.tables !== undefined) {
+    targetTable = Array.isArray(val.tables) ? val.tables[0] : val.tables;
+  }
+  if (targetTable !== undefined) val.table = targetTable;
   
   if (
     typeof val.table === "string" &&
@@ -90,6 +96,8 @@ export const TopologicalSortSchemaBase = z.object({
     .describe(
       "Sort direction: 'create' = dependencies first, 'drop' = dependents first (default: create)",
     ),
+  table: z.string().optional().describe("Anti-Hallucination: Topological sort operates on the entire schema. Do not provide a table."),
+  tables: z.union([z.string(), z.array(z.string())]).optional().describe("Anti-Hallucination: Topological sort operates on the entire schema. Do not provide a list of tables."),
 });
 
 export const TopologicalSortSchema = z
