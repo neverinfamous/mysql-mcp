@@ -384,7 +384,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             );
             return { ...response, metrics: { tokenEstimate } };
           }
-          if (msg.includes("syntax error") || msg.includes("parse error")) {
+          if (msg.toLowerCase().includes("syntax") || msg.toLowerCase().includes("parse error")) {
             const response = {
               success: false as const,
               error: `SQL syntax error in partition values (check your VALUES syntax)`,
@@ -759,7 +759,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             );
             return { ...response, metrics: { tokenEstimate } };
           }
-          if (msg.includes("syntax error") || msg.includes("parse error")) {
+          if (msg.toLowerCase().includes("syntax") || msg.toLowerCase().includes("parse error")) {
             const response = {
               success: false as const,
               error: `SQL syntax error in partition values (check your VALUES syntax)`,
