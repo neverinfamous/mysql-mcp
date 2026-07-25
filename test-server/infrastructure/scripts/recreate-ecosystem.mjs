@@ -33,12 +33,12 @@ const wsl = (cmd) => isWindows && cmd.startsWith('docker') ? `wsl ${cmd}` : cmd;
 function run(command) {
     const cmd = wsl(command);
     console.log(`\n> ${cmd}`);
-    execSync(cmd, { stdio: 'inherit', cwd: REPO_ROOT });
+    execSync(cmd, { stdio: 'inherit', cwd: REPO_ROOT, env: process.env });
 }
 
 function runQuiet(command) {
     try {
-        return execSync(wsl(command), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
+        return execSync(wsl(command), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe', env: process.env }).trim();
     } catch {
         return '';
     }
@@ -46,7 +46,7 @@ function runQuiet(command) {
 
 function exec(cmd, ignoreError = false) {
     try {
-        return execSync(wsl(cmd), { encoding: 'utf-8', stdio: 'pipe' });
+        return execSync(wsl(cmd), { encoding: 'utf-8', stdio: 'pipe', env: process.env });
     } catch (e) {
         if (!ignoreError) {
             console.error(`Error: ${e.message}`);
@@ -159,23 +159,31 @@ try {
         await waitForMySQL(node);
     }
 
+    const fullSeeds = MYSQL_NODES.map(n => `${n}:33061`).join(',');
+
+    for (const node of MYSQL_NODES) {
+        console.log(`  Configuring Group Replication variables for ${node}...`);
+        mysqlExec(node, "SET SQL_LOG_BIN=0; INSTALL PLUGIN group_replication SONAME 'group_replication.so';");
+        mysqlExec(node, "SET SQL_LOG_BIN=0; INSTALL PLUGIN clone SONAME 'mysql_clone.so';");
+        mysqlExec(node, "SET SQL_LOG_BIN=0; SET PERSIST group_replication_group_name='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';");
+        mysqlExec(node, `SET SQL_LOG_BIN=0; SET PERSIST group_replication_local_address='${node}:33061';`);
+        mysqlExec(node, `SET SQL_LOG_BIN=0; SET PERSIST group_replication_group_seeds='${fullSeeds}';`);
+        mysqlExec(node, `SET SQL_LOG_BIN=0; SET PERSIST group_replication_ip_allowlist='AUTOMATIC';`);
+        mysqlExec(node, "SET SQL_LOG_BIN=0; CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';");
+    }
+
     console.log('\n  Bootstrapping Group Replication on mysql-node1...');
     mysqlExec('mysql-node1', "SET GLOBAL group_replication_bootstrap_group=ON; START GROUP_REPLICATION; SET GLOBAL group_replication_bootstrap_group=OFF;");
     await setTimeout(3000);
 
     for (const node of MYSQL_NODES.slice(1)) {
         console.log(`  Starting Group Replication on ${node}...`);
+        mysqlExec(node, "RESET BINARY LOGS AND GTIDS;");
+        mysqlExec(node, "SET SQL_LOG_BIN=0; CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';");
         mysqlExec(node, "START GROUP_REPLICATION;");
         await setTimeout(2000);
     }
 
-    // Normalize group_seeds so all nodes know about all peers (critical for crash recovery)
-    console.log('\n  Normalizing group_seeds across all nodes...');
-    const fullSeeds = MYSQL_NODES.map(n => `${n}:33061`).join(',');
-    for (const node of MYSQL_NODES) {
-        mysqlExec(node, `SET PERSIST group_replication_group_seeds='${fullSeeds}';`);
-        mysqlExec(node, `SET PERSIST group_replication_ip_allowlist='AUTOMATIC';`);
-    }
     console.log(`  ✅ All nodes have group_seeds: ${fullSeeds}`);
 
     // ── Phase 4: Start remaining ecosystem ───────────────────────────

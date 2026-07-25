@@ -53,7 +53,7 @@ reboot_cluster() {
 
     for node in mysql-node2 mysql-node3; do
         echo "[Healer] Starting Group Replication on $node..."
-        run_sql "$node" "CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';" || true
+        run_sql "$node" "SET SQL_LOG_BIN=0; CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';" || true
         run_sql "$node" "START GROUP_REPLICATION;" || true
         sleep 3
     done
@@ -68,7 +68,7 @@ rejoin_node() {
     local node="$1"
     echo "[Healer] Attempting to rejoin $node..."
     run_sql "$node" "STOP GROUP_REPLICATION;" || true
-    run_sql "$node" "CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';" || true
+    run_sql "$node" "SET SQL_LOG_BIN=0; CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';" || true
     sleep 1
     run_sql "$node" "START GROUP_REPLICATION;" || true
 }
