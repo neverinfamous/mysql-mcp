@@ -7,35 +7,47 @@ CONF_FILE="$ROUTER_DIR/mysqlrouter.conf"
 if [ ! -f "$CONF_FILE" ]; then
     echo "[Router-Init] Bootstrapping router..."
     
-    # Loop until bootstrap succeeds (it fails if cluster isn't ONLINE yet)
-    max_tries=30
-    attempt_num=0
-    until mysqlrouter --bootstrap root:root@mysql-node1:3306 \
+    if ! mysqlrouter --bootstrap root:root@mysql-node1:3306 \
         --directory "$ROUTER_DIR" \
         --force \
         --conf-set-option http_server.port=8443 \
         --conf-set-option rest_connection_pool.require_realm=default_auth_realm \
         --conf-set-option routing:bootstrap_rw.connection_sharing=1 \
-        --conf-set-option routing:bootstrap_ro.connection_sharing=1; do
+        --conf-set-option routing:bootstrap_ro.connection_sharing=1 2>/dev/null; then
         
-        echo "[Router-Init] Bootstrap failed or cluster not ONLINE yet. Retrying in 3 seconds ($attempt_num/$max_tries)..."
-        sleep 3
-        attempt_num=$(( attempt_num + 1 ))
-        if [ $attempt_num -eq $max_tries ]; then
-            echo "[Router-Init] Error: Could not bootstrap mysql-router."
-            exit 1
-        fi
-    done
+        echo "[Router-Init] Dynamic metadata bootstrap unavailable; configuring static routing..."
+        mkdir -p "$ROUTER_DIR/data"
+        cat <<'EOF' > "$CONF_FILE"
+[DEFAULT]
+logging_folder=
+runtime_folder=/tmp/mysqlrouter
+data_folder=/tmp/mysqlrouter/data
 
-    echo "[Router-Init] Bootstrap complete. Configuring REST API authentication..."
-    # Create REST API user
-    echo 'router_api' | /usr/bin/mysqlrouter_passwd set "$ROUTER_DIR/data/rest_users" rest_api
-    
-    # Switch REST auth from metadata_cache to file-based
-    sed -i 's|backend=metadata_cache|backend=file\nfilename=/tmp/mysqlrouter/data/rest_users|' "$CONF_FILE"
+[routing:bootstrap_rw]
+bind_address=0.0.0.0
+bind_port=6446
+destinations=mysql-node1:3306,mysql-node2:3306,mysql-node3:3306
+routing_strategy=first-available
+protocol=classic
 
-    # Make router log to stdout/stderr so we can see what it's doing
-    sed -i -e 's/logging_folder=.*$/logging_folder=/' "$CONF_FILE"
+[routing:bootstrap_ro]
+bind_address=0.0.0.0
+bind_port=6447
+destinations=mysql-node2:3306,mysql-node3:3306,mysql-node1:3306
+routing_strategy=round-robin
+protocol=classic
+EOF
+    else
+        echo "[Router-Init] Bootstrap complete. Configuring REST API authentication..."
+        # Create REST API user
+        echo 'router_api' | /usr/bin/mysqlrouter_passwd set "$ROUTER_DIR/data/rest_users" rest_api
+        
+        # Switch REST auth from metadata_cache to file-based
+        sed -i 's|backend=metadata_cache|backend=file\nfilename=/tmp/mysqlrouter/data/rest_users|' "$CONF_FILE"
+
+        # Make router log to stdout/stderr so we can see what it's doing
+        sed -i -e 's/logging_folder=.*$/logging_folder=/' "$CONF_FILE"
+    fi
 
     echo "[Router-Init] Configuration complete."
 else

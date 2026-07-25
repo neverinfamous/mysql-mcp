@@ -15,7 +15,7 @@ This directory contains the Node.js automation scripts for managing the unified 
 - `check-status.mjs`: Dynamically discovers containers and validates their health, plus checks the InnoDB Cluster quorum.
 - `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
 
-*(Note: `create-cluster.mjs` was absorbed into `recreate-ecosystem.mjs`, and `reboot-cluster.mjs` was deleted and replaced by the `cluster-healer` service.)*
+*(Note: `create-cluster.mjs` and `recreate-test-ecosystem.mjs` were absorbed into `recreate-ecosystem.mjs`, and `reboot-cluster.mjs` was deleted and replaced by the `cluster-healer` service.)*
 
 ### Cluster Auto-Recovery
 - **`cluster-healer`**: This is a Docker sidecar service (not a manual script) that runs continuously alongside the cluster. It polls all nodes every 30 seconds, automatically reboots the cluster from complete outages, and restarts group replication on individual disconnected nodes.

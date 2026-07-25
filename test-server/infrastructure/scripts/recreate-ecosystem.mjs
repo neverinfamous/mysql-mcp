@@ -25,16 +25,20 @@ const REPO_ROOT = join(__dirname, '..');
 const MAX_RETRIES = 60;
 const RETRY_DELAY_MS = 2000;
 
+const isWindows = process.platform === 'win32';
+const wsl = (cmd) => isWindows && cmd.startsWith('docker') ? `wsl ${cmd}` : cmd;
+
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function run(command) {
-    console.log(`\n> ${command}`);
-    execSync(command, { stdio: 'inherit', cwd: REPO_ROOT });
+    const cmd = wsl(command);
+    console.log(`\n> ${cmd}`);
+    execSync(cmd, { stdio: 'inherit', cwd: REPO_ROOT });
 }
 
 function runQuiet(command) {
     try {
-        return execSync(command, { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
+        return execSync(wsl(command), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
     } catch {
         return '';
     }
@@ -42,7 +46,7 @@ function runQuiet(command) {
 
 function exec(cmd, ignoreError = false) {
     try {
-        return execSync(cmd, { encoding: 'utf-8', stdio: 'pipe' });
+        return execSync(wsl(cmd), { encoding: 'utf-8', stdio: 'pipe' });
     } catch (e) {
         if (!ignoreError) {
             console.error(`Error: ${e.message}`);
@@ -91,8 +95,9 @@ try {
             const envPath = join(REPO_ROOT, '.env');
             let envContent = '';
             try { envContent = fs.readFileSync(envPath, 'utf-8'); } catch {}
-            const filteredLines = envContent.split('\n').filter(l => !l.startsWith('WINDOWS_HOST_IP='));
+            const filteredLines = envContent.split('\n').filter(l => !l.startsWith('WINDOWS_HOST_IP=') && !l.startsWith('MYSQL_ROOT_PASSWORD='));
             filteredLines.push(`WINDOWS_HOST_IP=${wslGateway}`);
+            filteredLines.push(`MYSQL_ROOT_PASSWORD=${process.env.MYSQL_ROOT_PASSWORD || 'root'}`);
             fs.writeFileSync(envPath, filteredLines.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n');
             console.log(`  Windows Host IP: ${wslGateway}`);
         }
@@ -154,20 +159,14 @@ try {
         await waitForMySQL(node);
     }
 
-    console.log('\n  Creating cluster on mysql-node1...');
-    const createCmd = `docker exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { dba.createCluster('testCluster', {localAddress: 'mysql-node1:33061', communicationStack: 'XCOM', exitStateAction: 'READ_ONLY'}); print('Cluster created'); } catch(e) { print('Error: ' + e); }"`;
-    const createOut = exec(createCmd);
-    if (createOut) console.log(createOut.trim());
+    console.log('\n  Bootstrapping Group Replication on mysql-node1...');
+    mysqlExec('mysql-node1', "SET GLOBAL group_replication_bootstrap_group=ON; START GROUP_REPLICATION; SET GLOBAL group_replication_bootstrap_group=OFF;");
+    await setTimeout(3000);
 
     for (const node of MYSQL_NODES.slice(1)) {
-        console.log(`  Adding ${node} to cluster...`);
-        const addCmd = `docker exec mysql-node1 mysqlsh --uri root:root@mysql-node1:3306 --js -e "try { var c = dba.getCluster('testCluster'); c.addInstance('root:root@${node}:3306', {recoveryMethod: 'clone', localAddress: '${node}:33061', exitStateAction: 'READ_ONLY'}); } catch(e) { print('${node}: ' + e); }"`;
-        exec(addCmd, true);
-
-        // After clone, node restarts — wait for it
-        await waitForMySQL(node);
-        console.log('  Allowing Group Replication to stabilize...');
-        await setTimeout(5000);
+        console.log(`  Starting Group Replication on ${node}...`);
+        mysqlExec(node, "START GROUP_REPLICATION;");
+        await setTimeout(2000);
     }
 
     // Normalize group_seeds so all nodes know about all peers (critical for crash recovery)

@@ -129,7 +129,8 @@ if (!skipVerify) {
     }
     
     if (!allPassed) {
-        console.log(`\n[WARN] Some verifications failed`);
+        console.error(`\n[FAIL] Some verifications failed`);
+        process.exit(1);
     }
 } else {
     console.log(`\n[2/4] Skipping verification (--SkipVerify)`);
