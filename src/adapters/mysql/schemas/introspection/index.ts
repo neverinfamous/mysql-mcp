@@ -259,6 +259,7 @@ export const ConstraintAnalysisSchemaBase = z.object({
     .string()
     .optional()
     .describe("Analyze constraints for a specific table only"),
+  tables: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for table. Anti-Hallucination: This tool only supports filtering by a single table at a time."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   checks: z
@@ -281,6 +282,7 @@ const ConstraintAnalysisInnerSchema = z.object({
   database: z.string().optional(),
   db: z.string().optional(),
   table: z.string().optional(),
+  tables: z.union([z.string(), z.array(z.string())]).optional(),
   tableName: z.string().optional(),
   name: z.string().optional(),
   checks: z
@@ -303,8 +305,12 @@ export const ConstraintAnalysisSchema = z.preprocess((input: unknown) => {
 }, ConstraintAnalysisInnerSchema.default({})).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
   if (val.db && !val.schema) val.schema = val.db;
-  if (val.tableName && !val.table) val.table = val.tableName;
-  if (val.name && !val.table) val.table = val.name;
+
+  let targetTable = val.table ?? val.tableName ?? val.name;
+  if (targetTable === undefined && val.tables !== undefined) {
+    targetTable = Array.isArray(val.tables) ? val.tables[0] : val.tables;
+  }
+  if (targetTable !== undefined) val.table = targetTable;
 
   if (
     typeof val.table === "string" &&
@@ -337,6 +343,7 @@ export const MigrationRisksSchemaBase = z.object({
     .describe("Single DDL statement (alias for statements)"),
   sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
   query: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
+  queries: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
   ddlQuery: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for statements/statement"),
   schema: z
     .string()
@@ -351,6 +358,7 @@ export const MigrationRisksSchema = z.object({
   statement: z.union([z.string(), z.array(z.string())]).optional(),
   sql: z.union([z.string(), z.array(z.string())]).optional(),
   query: z.union([z.string(), z.array(z.string())]).optional(),
+  queries: z.union([z.string(), z.array(z.string())]).optional(),
   ddlQuery: z.union([z.string(), z.array(z.string())]).optional(),
   schema: z.string().optional(),
   database: z.string().optional(),
@@ -378,6 +386,7 @@ export const MigrationRisksSchema = z.object({
   addStrings(val.statement);
   addStrings(val.sql);
   addStrings(val.query);
+  addStrings(val.queries);
   addStrings(val.ddlQuery);
 
   val.statements = stmts;

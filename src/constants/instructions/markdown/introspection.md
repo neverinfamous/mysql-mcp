@@ -18,3 +18,5 @@ The **Introspection** group provides advanced schema analysis capabilities, spec
 - **Pre-Migration Checks**: Always run `mysql_migration_risks` and `mysql_topological_sort` before executing any broad schema changes.
 - **Cascade Safety**: If you are planning a `DELETE` on a core table (e.g., `users` or `organizations`), use `mysql_cascade_simulator` first to understand the blast radius.
 - **Dependency Awareness**: When writing complex `JOIN` queries across unfamiliar schemas, use `mysql_dependency_graph` to ensure you understand the optimal traversal paths.
+- **Anti-Hallucination (Constraint Analysis)**: `mysql_constraint_analysis` only supports filtering by a single `table` at a time. It does not accept an array of `tables`.
+- **Anti-Hallucination (Migration Risks)**: `mysql_migration_risks` accepts one or more DDL statements via the `statements` array. It handles `sql`, `query`, or `queries` aliases transparently.
