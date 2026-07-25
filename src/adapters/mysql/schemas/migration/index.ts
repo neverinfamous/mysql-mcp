@@ -9,23 +9,31 @@ import { BaseOutputSchema } from "../output-schemas.js";
  */
 export const MigrationInitSchemaBase = z.object({
   database: z
-    .string()
+    .union([z.string(), z.boolean()])
     .optional()
     .describe("Database to create the tracking table in (default: active database)"),
-  db: z.string().optional().describe("Alias for database"),
-  schema: z.string().optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
 });
 
 export const MigrationInitSchema = z.preprocess((input: unknown) => {
   if (typeof input === "object" && input !== null) {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
+    
+    // Gracefully ignore boolean arguments hallucinated by agents
+    if (typeof out["database"] === "boolean") delete out["database"];
+    if (typeof out["db"] === "boolean") delete out["db"];
+    if (typeof out["schema"] === "boolean") delete out["schema"];
+    
     if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
     if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
     return out;
   }
   return input;
-}, MigrationInitSchemaBase.default({}));
+}, z.object({
+  database: z.string().optional()
+}).default({}));
 
 /**
  * mysql_migration_record input
@@ -58,11 +66,11 @@ export const MigrationRecordSchemaBase = z.object({
     .optional()
     .describe("Who/what applied this migration (e.g., agent name, user)"),
   database: z
-    .string()
+    .union([z.string(), z.boolean()])
     .optional()
     .describe("Database to apply the migration in (default: active database)"),
-  db: z.string().optional().describe("Alias for database"),
-  schema: z.string().optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
 });
 
 // Internal parse schema — version and migrationSql are required
@@ -94,6 +102,12 @@ export const MigrationRecordSchema = z.preprocess((input: unknown) => {
   if (typeof input === "object" && input !== null) {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
+
+    // Gracefully ignore boolean arguments hallucinated by agents
+    if (typeof out["database"] === "boolean") delete out["database"];
+    if (typeof out["db"] === "boolean") delete out["db"];
+    if (typeof out["schema"] === "boolean") delete out["schema"];
+
     if (out["migrationSql"] === undefined) {
       if (out["sql"] !== undefined) out["migrationSql"] = out["sql"];
       else if (out["query"] !== undefined) out["migrationSql"] = out["query"];

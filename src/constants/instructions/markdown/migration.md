@@ -6,7 +6,7 @@ The **Migration** group provides an integrated, structured schema versioning and
 
 ## Core Capabilities
 
-- **Initialization**: Set up the migration tracking tables (`_mysql_migrations`) in the target database (`mysql_migration_init`).
+- **Initialization**: Set up the migration tracking tables (`_mcp_schema_versions`) in the target database (`mysql_migration_init`).
 - **Tracking & Status**: View applied migrations (`mysql_migration_history`) and check the current state against pending migrations (`mysql_migration_status`).
 - **Execution**: Apply a single forward migration step (`mysql_migration_apply`) safely.
 - **Rollback**: Revert a recently applied migration (`mysql_migration_rollback`).
