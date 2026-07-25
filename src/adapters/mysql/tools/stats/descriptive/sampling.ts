@@ -52,7 +52,7 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
                 .join(", ")
             : "*";
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         // If seed is provided, use it for reproducibility
         let query: string;

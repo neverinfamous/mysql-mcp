@@ -252,7 +252,7 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsTopNSchema.parse(params);
 
         const { database, table, column, n, direction, selectColumns, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
           return withTokenEstimate({
@@ -381,7 +381,7 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsDistinctSchema.parse(params);
 
         const { database, table, column, limit, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
           return withTokenEstimate({
@@ -460,7 +460,7 @@ export function createStatsFrequencyTool(
         const parsed = StatsFrequencySchema.parse(params);
 
         const { database, table, column, limit, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
           return withTokenEstimate({
@@ -546,7 +546,7 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         const parsed = StatsSummarySchema.parse(params);
 
         const { database, table, where } = parsed;
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         if (database && !/^[a-zA-Z0-9_]+$/.test(database)) {
           return withTokenEstimate({

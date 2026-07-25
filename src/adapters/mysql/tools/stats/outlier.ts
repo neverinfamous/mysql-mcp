@@ -137,7 +137,7 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         if (method === "zscore") {
           return withTokenEstimate(

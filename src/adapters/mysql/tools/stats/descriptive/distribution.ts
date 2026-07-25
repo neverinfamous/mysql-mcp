@@ -38,7 +38,7 @@ export function createDistributionTool(adapter: MySQLAdapter): ToolDefinition {
           throw new ValidationError("buckets must be at least 1");
         }
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where}) AND \`${column}\` IS NOT NULL` : `WHERE \`${column}\` IS NOT NULL`;
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);

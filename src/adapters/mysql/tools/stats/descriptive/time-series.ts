@@ -80,7 +80,7 @@ export function createTimeSeriesToolStats(
             dateFormat = "%Y-%m-%d";
         }
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
         const aggFunc = normalizedAggregation.toUpperCase();
 
         const query = `

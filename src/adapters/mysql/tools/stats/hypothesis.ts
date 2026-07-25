@@ -127,7 +127,7 @@ export function createStatsHypothesisTool(
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupColumn name" });
         }
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         const formatInterpretation = (pValueRounded: number): string => {
           if (pValueRounded < 0.001) return "Highly significant (p < 0.001): Strong evidence against the null hypothesis";

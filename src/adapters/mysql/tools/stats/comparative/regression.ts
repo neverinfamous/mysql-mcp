@@ -37,7 +37,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(yColumn, "column");
         validateWhereClause(where);
 
-        const whereClause = where ? `WHERE ${where}` : "";
+        const whereClause = where ? `WHERE (${where})` : "";
 
         // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
         await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
