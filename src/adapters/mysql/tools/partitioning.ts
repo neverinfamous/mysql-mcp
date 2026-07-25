@@ -233,7 +233,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             checkParams
           );
           if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0]) {
-            const row = typeResult.rows[0] as Record<string, unknown>;
+            const row = typeResult.rows[0];
             const method = row["PARTITION_METHOD"] ?? row["partition_method"];
             if (typeof method === "string") {
               resolvedPartitionType = method.toUpperCase() as typeof partitionType;
@@ -618,7 +618,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             checkParams
           );
           if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0]) {
-            const row = typeResult.rows[0] as Record<string, unknown>;
+            const row = typeResult.rows[0];
             const method = row["PARTITION_METHOD"] ?? row["partition_method"];
             if (typeof method === "string") {
               resolvedPartitionType = method.toUpperCase() as typeof partitionType;
