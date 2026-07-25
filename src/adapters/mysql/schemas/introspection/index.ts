@@ -46,12 +46,12 @@ export const DependencyGraphSchema = z.object({
   limit: z.preprocess((val) => {
     if (typeof val === "string") return parseInt(val, 10);
     return val;
-  }, z.number().optional().default(100)),
+  }, z.number().min(1).optional().default(100)),
   maxDepth: z
     .preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
       return val;
-    }, z.number().optional())
+    }, z.number().min(0).optional())
     .optional(),
 }).transform(val => {
   if (val.database && !val.schema) val.schema = val.database;
@@ -232,7 +232,7 @@ export const SchemaSnapshotSchema = z
     limit: z.preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
       return val;
-    }, z.number().optional().default(100)),
+    }, z.number().min(1).optional().default(100)),
   })
   .transform(val => {
     if (val.database && !val.schema) val.schema = val.database;
