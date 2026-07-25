@@ -147,7 +147,7 @@ export const StatsDistinctSchema = z.preprocess(
     database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    limit: z.number().min(1).max(1000).default(100),
+    limit: z.coerce.number().min(1).max(1000).default(100),
     where: z.string().optional(),
   })
 );
@@ -193,7 +193,7 @@ export const StatsFrequencySchema = z.preprocess(
     database: z.string().optional(),
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    limit: z.number().min(1).max(1000).default(20),
+    limit: z.coerce.number().min(1).max(1000).default(20),
     where: z.string().optional(),
   })
 );
