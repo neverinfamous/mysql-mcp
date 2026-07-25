@@ -259,7 +259,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             sql = `ALTER TABLE ${tableRef} ADD PARTITION PARTITIONS ${value}`;
             break;
           default: {
-            const unexpectedType = resolvedPartitionType as never;
+            const unexpectedType = resolvedPartitionType;
             const response = {
               success: false as const,
               error: `Unsupported partition type: ${String(unexpectedType)}`,

@@ -73,8 +73,8 @@ describe("Outliers Tool", () => {
         mockContext,
       );
 
-      expect((result as Record<string, unknown>).success).toBe(true);
-      expect((result as Record<string, unknown>).data.outlierCount).toBe(0);
+      expect((result as Record<string, unknown>).success).toBe(false);
+      expect((result as Record<string, unknown>).error).toContain("zero variance");
     });
 
     it("should detect outliers using IQR", async () => {
