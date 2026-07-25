@@ -247,7 +247,7 @@ export function createStatsHypothesisTool(
         const row = rows[0];
         if (!row) return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "No data found" });
         const resultObj = calculateTestResults(Number(row['n'] ?? 0), Number(row['mean'] ?? 0), Number(row['stddev'] ?? 0));
-        return withTokenEstimate(resultObj['error'] != null ? { success: false, code: "CALCULATION_ERROR", category: "calculation", recoverable: false, error: typeof resultObj['error'] === 'string' ? resultObj['error'] : "Calculation error" } : { success: true, data: { table, column, testType, hypothesizedMean, results: resultObj } });
+        return withTokenEstimate(resultObj['error'] != null ? { success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: typeof resultObj['error'] === 'string' ? resultObj['error'] : "Calculation error" } : { success: true, data: { table, column, testType, hypothesizedMean, results: resultObj } });
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

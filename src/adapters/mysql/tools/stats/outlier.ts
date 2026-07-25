@@ -220,15 +220,11 @@ async function detectZScoreOutliers(
 
   if (stdDev === 0) {
     return {
-      success: true,
-      data: {
-        method: "zscore",
-        column,
-        stats: { mean, stdDev: 0, lowerBound: mean, upperBound: mean },
-        outlierCount: 0,
-        totalCount: totalRows,
-        outliers: [],
-      },
+      success: false,
+      code: "VALIDATION_ERROR",
+      category: "validation",
+      recoverable: false,
+      error: `Column '${column}' has zero variance or contains non-numeric values. Z-score cannot be calculated.`,
     };
   }
 
