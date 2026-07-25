@@ -78,6 +78,9 @@ export const DependencyGraphSchema = z.object({
 }).refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
   message: "schema parameter is required (e.g., { schema: 'my_database' })",
   path: ["schema"],
+}).refine(val => !(Array.isArray(val.tables) && val.tables.length > 1), {
+  message: "This tool only supports filtering by a single table at a time. Do not pass an array of multiple tables.",
+  path: ["tables"],
 });
 
 /**
@@ -106,6 +109,8 @@ export const TopologicalSortSchema = z
     database: z.string().optional(),
     db: z.string().optional(),
     direction: z.enum(["create", "drop"]).optional(),
+    table: z.any().optional(),
+    tables: z.any().optional(),
   })
   .transform(val => {
     if (val.database && !val.schema) val.schema = val.database;
@@ -115,6 +120,10 @@ export const TopologicalSortSchema = z
   .refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
     message: "schema parameter is required (e.g., { schema: 'my_database' })",
     path: ["schema"],
+  })
+  .refine(val => val.table === undefined && val.tables === undefined, {
+    message: "Topological sort operates on the entire schema. Do not provide a table parameter.",
+    path: ["table"],
   });
 
 /**
