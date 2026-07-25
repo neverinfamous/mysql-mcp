@@ -62,11 +62,19 @@ export const PercentilesSchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    
+    let p = obj["percentiles"] ?? obj["p"] ?? obj["pct"] ?? obj["percentile"];
+    if (typeof p === "number") {
+      p = [p];
+    } else if (typeof p === "string" && !isNaN(parseFloat(p))) {
+      p = [parseFloat(p)];
+    }
+
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
-      percentiles: obj["percentiles"] ?? obj["p"] ?? obj["pct"] ?? obj["percentile"],
+      percentiles: p,
       where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
