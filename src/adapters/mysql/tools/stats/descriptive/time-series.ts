@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, validateIdentifier, escapeQualifiedTable, parseQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { TimeSeriesOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { TimeSeriesSchemaBase, TimeSeriesSchema } from "./schemas.js";
@@ -46,6 +46,55 @@ export function createTimeSeriesToolStats(
         validateIdentifier(valueColumn, "column");
         validateIdentifier(timeColumn, "column");
         validateWhereClause(where);
+
+        // Ensure table exists to trigger ER_NO_SUCH_TABLE for P154 object existence compliance
+        await adapter.executeQuery(`SELECT 1 FROM ${escapeQualifiedTable(table)} LIMIT 1`);
+
+        // Verify columns
+        const { schema, table: parsedTableName } = parseQualifiedTable(table);
+
+        const colCheck = await adapter.executeQuery(
+          `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
+           WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? 
+           AND COLUMN_NAME IN (?, ?)`,
+          schema ? [schema, parsedTableName, valueColumn, timeColumn] : [parsedTableName, valueColumn, timeColumn],
+        );
+
+        const NUMERIC_TYPES = new Set([
+          "tinyint", "smallint", "mediumint", "int", "bigint",
+          "decimal", "numeric", "float", "double",
+        ]);
+        const TEMPORAL_TYPES = new Set([
+          "date", "datetime", "timestamp", "time", "year",
+        ]);
+
+        const validCols = new Set<string>();
+        const temporalCols = new Set<string>();
+        const numericCols = new Set<string>();
+
+        for (const row of colCheck.rows ?? []) {
+          const type = typeof row["DATA_TYPE"] === "string" ? row["DATA_TYPE"].toLowerCase() : undefined;
+          const colName = typeof row["COLUMN_NAME"] === "string" ? row["COLUMN_NAME"] : undefined;
+          
+          if (type && colName) {
+            validCols.add(colName);
+            if (NUMERIC_TYPES.has(type)) numericCols.add(colName);
+            if (TEMPORAL_TYPES.has(type)) temporalCols.add(colName);
+          }
+        }
+
+        const missingCols = [valueColumn, timeColumn].filter((c) => !validCols.has(c));
+        if (missingCols.length > 0) {
+          throw new ValidationError(`Column(s) not found: ${missingCols.join(", ")}`);
+        }
+
+        if (!numericCols.has(valueColumn)) {
+          throw new ValidationError(`Value column must be numeric type. Non-numeric: ${valueColumn}`);
+        }
+        
+        if (!temporalCols.has(timeColumn)) {
+          throw new ValidationError(`Time column must be temporal type. Non-temporal: ${timeColumn}`);
+        }
 
         const normalizedInterval = interval.toLowerCase();
         const validIntervals = ["minute", "hour", "day", "week", "month"];
