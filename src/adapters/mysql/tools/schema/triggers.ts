@@ -178,7 +178,11 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`),
+              new MySQLMcpError(
+                `Schema '${targetSchema}' does not exist`,
+                "DATABASE_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
             );
           }
         }
@@ -192,7 +196,11 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Table '${table}' does not exist`),
+              new MySQLMcpError(
+                `Table '${table}' does not exist`,
+                "TABLE_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
             );
           }
         }
@@ -269,7 +277,11 @@ export function createCreateTriggerTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`),
+              new MySQLMcpError(
+                `Schema '${targetSchema}' does not exist`,
+                "DATABASE_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
             );
           }
           // If name is not qualified, qualify it with the schema
@@ -295,7 +307,11 @@ export function createCreateTriggerTool(adapter: MySQLAdapter): ToolDefinition {
         );
         if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
           return formatHandlerErrorResponse(
-            new Error(`Table '${table}' does not exist`),
+            new MySQLMcpError(
+              `Table '${table}' does not exist`,
+              "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            )
           );
         }
 
@@ -385,7 +401,11 @@ export function createDropTriggerTool(adapter: MySQLAdapter): ToolDefinition {
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${targetSchema}' does not exist`),
+              new MySQLMcpError(
+                `Schema '${targetSchema}' does not exist`,
+                "DATABASE_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
             );
           }
           // If name is not qualified, qualify it with the schema

@@ -9,6 +9,10 @@ import {
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
+import {
+  MySQLMcpError,
+  ErrorCategory,
+} from "../../../../types/index.js";
 import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
@@ -89,7 +93,11 @@ export function createListConstraintsTool(
           );
           if (schemaCheck.rows === undefined || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new Error(`Schema '${schemaName}' does not exist`),
+              new MySQLMcpError(
+                `Schema '${schemaName}' does not exist`,
+                "DATABASE_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
             );
           }
         }
@@ -101,7 +109,11 @@ export function createListConstraintsTool(
         );
         if (existsResult.rows === undefined || existsResult.rows.length === 0) {
           return formatHandlerErrorResponse(
-            new Error(`Table '${tableName}' does not exist`),
+            new MySQLMcpError(
+              `Table '${tableName}' does not exist`,
+              "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            )
           );
         }
 
