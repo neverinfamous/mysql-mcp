@@ -100,7 +100,7 @@ export function createMigrationRollbackTool(
           coercedId = num;
         }
 
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         // Find the migration
         const whereClause = coercedId !== undefined ? "id = ?" : "version = ?";
@@ -250,7 +250,7 @@ export function createMigrationHistoryTool(
           ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         await ensureTrackingTable(adapter, targetSchema);
 
@@ -402,7 +402,7 @@ export function createMigrationStatusTool(
           return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
 
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         // Get aggregate status
         const statsResult = await adapter.executeReadQuery(

@@ -63,7 +63,7 @@ export function createMigrationInitTool(adapter: MySQLAdapter): ToolDefinition {
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
 
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         const check = await adapter.executeReadQuery(
           `SELECT EXISTS (
@@ -147,7 +147,7 @@ export function createMigrationRecordTool(
           ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         await adapter.executeWriteQuery(
           `INSERT INTO ${qualifiedTable}
@@ -237,7 +237,7 @@ export function createMigrationApplyTool(
           ).rows?.[0];
           targetSchema = (dbRow?.["db"] as string) || "mysql";
         }
-        const qualifiedTable = `${targetSchema}.${TRACKING_TABLE}`;
+        const qualifiedTable = `\`${targetSchema}\`.\`${TRACKING_TABLE}\``;
 
         // We do not use transactions for DDL in MySQL because MySQL DDL commits implicitly
         // We will just execute it, and if it succeeds, write the record.
