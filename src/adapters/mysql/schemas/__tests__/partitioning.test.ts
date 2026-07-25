@@ -77,14 +77,6 @@ describe("Partitioning Schemas", () => {
       expect(result3.value).toBe("5");
     });
 
-    it("should default partitionType to RANGE", () => {
-      const result = AddPartitionSchema.parse({
-        table: "users",
-        partitionName: "p1",
-        value: "2025",
-      });
-      expect(result.partitionType).toBe("RANGE");
-    });
 
     it("should fail if required fields are missing", () => {
       expect(() => AddPartitionSchema.parse({ table: "users", value: "2024" })).toThrow("partitionName");

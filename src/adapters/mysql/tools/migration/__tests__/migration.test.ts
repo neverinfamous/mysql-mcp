@@ -63,7 +63,7 @@ describe("Migration Core Tools", () => {
       const sqlCall = mockAdapter.executeWriteQuery.mock
         .calls[0]?.[0];
       expect(sqlCall).toContain(
-        "CREATE TABLE IF NOT EXISTS testdb._mcp_schema_versions",
+        "CREATE TABLE IF NOT EXISTS `testdb`.`_mcp_schema_versions`",
       );
     });
 
@@ -109,7 +109,7 @@ describe("Migration Core Tools", () => {
 
       expect(
         executedQueries.some((q) =>
-          q.includes("INSERT INTO testdb._mcp_schema_versions"),
+          q.includes("INSERT INTO `testdb`.`_mcp_schema_versions`"),
         ),
       ).toBe(true);
       expect(executedQueries.some((q) => q === "CREATE TABLE a (id INT)")).toBe(
@@ -161,7 +161,7 @@ describe("Migration Core Tools", () => {
       // Should insert into tracking table
       expect(
         executedQueries.some((q) =>
-          q.includes("INSERT INTO testdb._mcp_schema_versions"),
+          q.includes("INSERT INTO `testdb`.`_mcp_schema_versions`"),
         ),
       ).toBe(true);
     });

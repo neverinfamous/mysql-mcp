@@ -204,7 +204,13 @@ describe("Descriptive Stats Tools", () => {
     });
 
     it("should aggregate time series data", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+            { COLUMN_NAME: "created_at", DATA_TYPE: "datetime" }
+          ]);
+        }
         return createMockQueryResult([
           {
             period: "2024-01-01",
@@ -237,6 +243,15 @@ describe("Descriptive Stats Tools", () => {
     });
 
     it("should reject invalid intervals", async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+            { COLUMN_NAME: "created_at", DATA_TYPE: "datetime" }
+          ]);
+        }
+        return createMockQueryResult([]);
+      });
       const result = await tool.handler(
         {
           table: "sales",

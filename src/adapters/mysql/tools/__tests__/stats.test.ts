@@ -283,9 +283,15 @@ describe("Handler Execution", () => {
 
   describe("mysql_stats_time_series", () => {
     it("should compute time series with moving average", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ period: "2024-01", value: 100 }]),
-      );
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "sale_date", DATA_TYPE: "date" },
+            { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+          ]);
+        }
+        return createMockQueryResult([{ period: "2024-01", value: 100 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
       const result = await tool.handler(
@@ -692,7 +698,15 @@ describe("Stats Validation Errors", () => {
     });
 
     it("should use different interval formats", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("information_schema.COLUMNS")) {
+          return createMockQueryResult([
+            { COLUMN_NAME: "ts", DATA_TYPE: "datetime" },
+            { COLUMN_NAME: "value", DATA_TYPE: "int" },
+          ]);
+        }
+        return createMockQueryResult([]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_stats_time_series")!;
 
@@ -706,8 +720,8 @@ describe("Stats Validation Errors", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("%H:%i");
+      const calls = mockAdapter.executeQuery.mock.calls.map(c => c[0] as string);
+      expect(calls.some(c => c.includes("%H:%i"))).toBe(true);
     });
   });
 
@@ -1003,12 +1017,22 @@ describe("Stats Nonexistent Table Handling", () => {
 describe("Stats Zod Validation Guards", () => {
   let tools: ReturnType<typeof getStatsTools>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    const mockAdapter = createMockMySQLAdapter();
+    mockAdapter = createMockMySQLAdapter();
     tools = getStatsTools(mockAdapter);
     mockContext = createMockRequestContext();
+    mockAdapter.executeQuery.mockImplementation(async (query) => {
+      if (query.includes("information_schema.COLUMNS")) {
+        return createMockQueryResult([
+          { COLUMN_NAME: "amount", DATA_TYPE: "decimal" },
+          { COLUMN_NAME: "created_at", DATA_TYPE: "datetime" },
+        ]);
+      }
+      return createMockQueryResult([]);
+    });
   });
 
   it("mysql_stats_time_series returns structured error for invalid interval", async () => {

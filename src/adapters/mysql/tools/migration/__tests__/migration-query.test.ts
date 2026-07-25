@@ -46,6 +46,15 @@ describe("Migration Query Tools", () => {
 
     it("should rollback a migration by id", async () => {
       mockAdapter.executeReadQuery.mockImplementation(async (query: string) => {
+        if (query.includes("SELECT DATABASE()")) {
+          return createMockQueryResult([{ db: "testdb" }]);
+        }
+        if (query.includes("information_schema.TABLES")) {
+          return createMockQueryResult([{ table_exists: 1 }]);
+        }
+        if (query.includes("information_schema.SCHEMATA")) {
+          return createMockQueryResult([{ schema_exists: 1 }]);
+        }
         if (query.includes("LIMIT 1")) {
           return createMockQueryResult([
             {
@@ -108,6 +117,9 @@ describe("Migration Query Tools", () => {
 
     it("should reject if no rollback SQL exists", async () => {
       mockAdapter.executeReadQuery.mockImplementation(async (query: string) => {
+        if (query.includes("SELECT DATABASE()")) return createMockQueryResult([{ db: "testdb" }]);
+        if (query.includes("information_schema.TABLES")) return createMockQueryResult([{ table_exists: 1 }]);
+        if (query.includes("information_schema.SCHEMATA")) return createMockQueryResult([{ schema_exists: 1 }]);
         if (query.includes("LIMIT 1")) {
           return createMockQueryResult([
             { id: 1, version: "1.0", status: "applied", rollback_sql: null },
@@ -132,6 +144,9 @@ describe("Migration Query Tools", () => {
 
     it("should retrieve history with pagination", async () => {
       mockAdapter.executeReadQuery.mockImplementation(async (query: string) => {
+        if (query.includes("SELECT DATABASE()")) return createMockQueryResult([{ db: "testdb" }]);
+        if (query.includes("information_schema.TABLES")) return createMockQueryResult([{ table_exists: 1 }]);
+        if (query.includes("information_schema.SCHEMATA")) return createMockQueryResult([{ schema_exists: 1 }]);
         if (query.includes("COUNT(*)")) {
           return createMockQueryResult([{ count: 2 }]);
         }
