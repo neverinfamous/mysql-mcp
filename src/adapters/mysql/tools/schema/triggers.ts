@@ -3,6 +3,7 @@ import { z } from "zod";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
+  stripErrorPrefix,
 } from "../core/error-helpers.js";
 import { BaseOutputSchema } from "../../schemas/output-schemas.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
@@ -359,7 +360,7 @@ export function createCreateTriggerTool(adapter: MySQLAdapter): ToolDefinition {
           if (message.includes("does not exist") && message.includes("Referenced trigger")) {
             return formatHandlerErrorResponse(
               new MySQLMcpError(
-                message,
+                stripErrorPrefix(message),
                 "TRIGGER_NOT_FOUND",
                 ErrorCategory.RESOURCE
               )

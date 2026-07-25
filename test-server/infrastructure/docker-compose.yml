@@ -424,7 +424,7 @@ services:
       - ../../logs:/var/log/mysql-mcp:ro
     networks:
       - default
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 1024m
     logging:
       driver: json-file
