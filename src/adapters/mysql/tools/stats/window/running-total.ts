@@ -49,10 +49,14 @@ export function createStatsRunningTotalTool(
         const fullTableName = parsed.database 
           ? `\`${parsed.database}\`.${escapeQualifiedTable(parsed.table)}` 
           : escapeQualifiedTable(parsed.table);
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
+        const cleanColumn = parseQualifiedTable(parsed.column);
+        const columnToValidate = cleanColumn.schema ? `${cleanColumn.schema}.${cleanColumn.table}` : cleanColumn.table;
+        try {
+          validateQualifiedIdentifier(columnToValidate, "column");
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid column name",
           });
         }
 
@@ -61,7 +65,8 @@ export function createStatsRunningTotalTool(
         validateWhereClause(parsed.partitionBy);
 
         const partition = partitionClause(parsed.partitionBy);
-        const windowExpr = `SUM(\`${parsed.column}\`) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS UNBOUNDED PRECEDING)`;
+        const escapedColumn = escapeQualifiedTable(parsed.column);
+        const windowExpr = `SUM(${escapedColumn}) OVER(${partition} ORDER BY ${parsed.orderBy} ROWS UNBOUNDED PRECEDING)`;
 
         const sql = `
           SELECT ${selectList(parsed.selectColumns, windowExpr, "running_total")}

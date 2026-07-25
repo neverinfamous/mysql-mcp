@@ -169,7 +169,7 @@ export const StatsLagLeadSchema = z.preprocess(
     orderBy: z.string().min(1, "orderBy is required").refine(val => !val.includes(";"), { message: "Invalid characters in orderBy" }),
     direction: z.preprocess((val: unknown) => typeof val === "string" ? val.toLowerCase() : val, z.enum(["lag", "lead"])).default("lag"),
     offset: z.number().min(1).default(1),
-    defaultValue: z.string().optional(),
+    defaultValue: z.union([z.string(), z.number(), z.boolean()]).transform(v => String(v)).optional(),
     partitionBy: z.string().optional().refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string()).optional(),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),

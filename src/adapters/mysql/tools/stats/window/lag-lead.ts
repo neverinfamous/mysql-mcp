@@ -47,10 +47,14 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
         const fullTableName = parsed.database 
           ? `\`${parsed.database}\`.${escapeQualifiedTable(parsed.table)}` 
           : escapeQualifiedTable(parsed.table);
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(parsed.column)) {
+        const cleanColumn = parseQualifiedTable(parsed.column);
+        const columnToValidate = cleanColumn.schema ? `${cleanColumn.schema}.${cleanColumn.table}` : cleanColumn.table;
+        try {
+          validateQualifiedIdentifier(columnToValidate, "column");
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid column name",
           });
         }
 
@@ -65,7 +69,8 @@ export function createStatsLagLeadTool(adapter: MySQLAdapter): ToolDefinition {
             ? `, '${parsed.defaultValue.replace(/'/g, "''")}'`
             : "";
 
-        const windowExpr = `${fnName}(\`${parsed.column}\`, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
+        const escapedColumn = escapeQualifiedTable(parsed.column);
+        const windowExpr = `${fnName}(${escapedColumn}, ${String(parsed.offset)}${defaultArg}) OVER(${partition} ORDER BY ${parsed.orderBy})`;
         const alias = `${parsed.direction}_value`;
 
         const sql = `
