@@ -31,16 +31,21 @@ export function createStatsNtileTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const parsed = StatsNtileSchema.parse(params);
 
-        if (!/^[a-zA-Z0-9_.]+$/.test(parsed.table)) {
+        const { parseQualifiedTable, validateQualifiedIdentifier, escapeQualifiedTable } = await import("../../../../../utils/validators.js");
+        const cleanTable = parseQualifiedTable(parsed.table);
+        const tableNameToValidate = cleanTable.schema ? `${cleanTable.schema}.${cleanTable.table}` : cleanTable.table;
+        try {
+          validateQualifiedIdentifier(tableNameToValidate);
+        } catch (e: unknown) {
           return withTokenEstimate({
             success: false,
-            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid table name",
+            code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: e instanceof Error ? e.message : "Invalid table name",
           });
         }
         
         const fullTableName = parsed.database 
-          ? `\`${parsed.database}\`.\`${parsed.table}\`` 
-          : (parsed.table.includes('.') ? parsed.table.split('.').map(p => `\`${p}\``).join('.') : `\`${parsed.table}\``);
+          ? `\`${parsed.database}\`.${escapeQualifiedTable(parsed.table)}` 
+          : escapeQualifiedTable(parsed.table);
 
         const buckets = parsed.buckets;
         const partition = partitionClause(parsed.partitionBy);
