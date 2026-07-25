@@ -232,8 +232,14 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
             `SELECT PARTITION_METHOD FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ? LIMIT 1`,
             checkParams
           );
-          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0] && typeof typeResult.rows[0]["PARTITION_METHOD"] === "string") {
-            resolvedPartitionType = typeResult.rows[0]["PARTITION_METHOD"] as typeof partitionType;
+          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0]) {
+            const row = typeResult.rows[0] as Record<string, unknown>;
+            const method = row["PARTITION_METHOD"] ?? row["partition_method"];
+            if (typeof method === "string") {
+              resolvedPartitionType = method.toUpperCase() as typeof partitionType;
+            } else {
+              resolvedPartitionType = "RANGE";
+            }
           } else {
             resolvedPartitionType = "RANGE";
           }
@@ -611,8 +617,14 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
             `SELECT PARTITION_METHOD FROM information_schema.PARTITIONS WHERE TABLE_SCHEMA = ${dbFilter} AND TABLE_NAME = ? LIMIT 1`,
             checkParams
           );
-          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0] && typeof typeResult.rows[0]["PARTITION_METHOD"] === "string") {
-            resolvedPartitionType = typeResult.rows[0]["PARTITION_METHOD"] as typeof partitionType;
+          if (typeResult.rows && typeResult.rows.length > 0 && typeResult.rows[0]) {
+            const row = typeResult.rows[0] as Record<string, unknown>;
+            const method = row["PARTITION_METHOD"] ?? row["partition_method"];
+            if (typeof method === "string") {
+              resolvedPartitionType = method.toUpperCase() as typeof partitionType;
+            } else {
+              resolvedPartitionType = "RANGE";
+            }
           } else {
             resolvedPartitionType = "RANGE";
           }
