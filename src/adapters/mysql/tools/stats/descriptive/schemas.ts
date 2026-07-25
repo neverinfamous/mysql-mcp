@@ -173,7 +173,7 @@ export const TimeSeriesSchema = z.preprocess(
     interval: z.string().default("day"),
     aggregation: z.string().default("avg"),
     where: z.string().optional(),
-    limit: z.number().default(50),
+    limit: z.number().min(1).max(1000).default(50),
   })
 );
 
