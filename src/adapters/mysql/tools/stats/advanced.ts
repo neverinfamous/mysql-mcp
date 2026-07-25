@@ -94,6 +94,7 @@ export const StatsTopNSchema = z.preprocess(
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       n: rawN !== undefined ? Number(rawN) : undefined,
+      direction: typeof obj["direction"] === "string" ? obj["direction"].toLowerCase() : obj["direction"],
       selectColumns: typeof rawSelectCols === "string" ? rawSelectCols.split(",").map(s => s.trim()) : rawSelectCols,
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
@@ -125,6 +126,7 @@ export const StatsDistinctSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Maximum values to return (default: 100)"),
+  n: z.unknown().optional().describe("Alias for limit"),
   where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -134,7 +136,7 @@ export const StatsDistinctSchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
-    const rawLimit = obj["limit"];
+    const rawLimit = obj["limit"] ?? obj["n"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
@@ -171,6 +173,7 @@ export const StatsFrequencySchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Maximum rows to return (default: 20)"),
+  n: z.unknown().optional().describe("Alias for limit"),
   where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
@@ -180,7 +183,7 @@ export const StatsFrequencySchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
-    const rawLimit = obj["limit"];
+    const rawLimit = obj["limit"] ?? obj["n"];
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
