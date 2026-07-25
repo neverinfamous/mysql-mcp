@@ -340,6 +340,15 @@ export function createCreateTriggerTool(adapter: MySQLAdapter): ToolDefinition {
               new Error(`Trigger '${name}' already exists`),
             );
           }
+          if (message.includes("does not exist") && message.includes("Referenced trigger")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                message,
+                "TRIGGER_NOT_FOUND",
+                ErrorCategory.RESOURCE
+              )
+            );
+          }
           return formatHandlerErrorResponse(err);
         }
       } catch (err) {
