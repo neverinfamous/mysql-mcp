@@ -224,9 +224,6 @@ export const SchemaSnapshotSchema = z
           "constraints",
           "functions",
           "triggers",
-          "sequences",
-          "types",
-          "extensions",
         ]),
       )
       .optional()
@@ -430,9 +427,6 @@ export const SchemaSnapshotOutputSchema = BaseOutputSchema.extend({
     constraints: z.array(z.record(z.string(), z.unknown())).optional(),
     functions: z.array(z.record(z.string(), z.unknown())).optional(),
     triggers: z.array(z.record(z.string(), z.unknown())).optional(),
-    sequences: z.array(z.record(z.string(), z.unknown())).optional(),
-    types: z.array(z.record(z.string(), z.unknown())).optional(),
-    extensions: z.array(z.record(z.string(), z.unknown())).optional(),
     stats: z.record(z.string(), z.unknown()).optional(),
     hint: z.string().optional()
   }).optional()

@@ -128,7 +128,7 @@ export function createCascadeSimulatorTool(
             const isAlreadyVisited = visited.has(refQName);
             visited.add(refQName);
 
-            const action = operation === "DELETE" ? ref.onDelete : "CASCADE";
+            const action = operation === "DELETE" ? ref.onDelete : "RESTRICT";
             const tableInfo = tableMap.get(refQName);
 
             if (action === "CASCADE") {
@@ -178,9 +178,7 @@ export function createCascadeSimulatorTool(
         // Severity assessment
         let severity: "low" | "medium" | "high" | "critical";
         if (blockingActions > 0) {
-          severity = operation === "DELETE" ? "high" : "critical"; // DELETE fail gracefully, DROP force-cascades
-        } else if (operation !== "DELETE" && cascadeActions > 0) {
-          severity = "critical"; // DROP/TRUNCATE force-cascades everything
+          severity = operation === "DELETE" ? "high" : "critical"; // DELETE fail gracefully, DROP/TRUNCATE are blocked
         } else if (cascadeActions > 5 || maxDepth > 3) {
           severity = "high";
         } else if (cascadeActions > 0) {
