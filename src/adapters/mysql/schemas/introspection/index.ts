@@ -143,6 +143,9 @@ export const CascadeSimulatorSchemaBase = z.object({
     .string()
     .optional()
     .describe("Operation to simulate (default: DELETE)"),
+  action: z.string().optional().describe("Alias for operation"),
+  where: z.string().optional().describe("Anti-Hallucination: Cascade simulator operates on the schema level. Do not provide a WHERE clause."),
+  condition: z.string().optional().describe("Anti-Hallucination: Cascade simulator operates on the schema level. Do not provide a condition."),
 });
 
 const CascadeSimulatorInnerSchema = z.object({
@@ -153,6 +156,9 @@ const CascadeSimulatorInnerSchema = z.object({
   database: z.string().optional(),
   db: z.string().optional(),
   operation: z.enum(["DELETE", "DROP", "TRUNCATE"]).optional(),
+  action: z.enum(["DELETE", "DROP", "TRUNCATE"]).optional(),
+  where: z.any().optional(),
+  condition: z.any().optional(),
 });
 
 export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
@@ -175,10 +181,14 @@ export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
       val.table = parts[1];
     }
   }
+  if (val.action && !val.operation) val.operation = val.action;
   return val;
 }).refine(val => val.table !== undefined && val.table.trim().length > 0, {
   message: "table parameter is required",
   path: ["table"],
+}).refine(val => val.where === undefined && val.condition === undefined, {
+  message: "Cascade simulator operates on the schema level to trace foreign key paths. Do not provide a WHERE clause or condition.",
+  path: ["where"],
 });
 
 /**
