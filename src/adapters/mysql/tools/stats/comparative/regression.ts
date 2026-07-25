@@ -48,7 +48,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         const colCheck = await adapter.executeQuery(
           `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
            WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? 
-           AND COLUMN_NAME IN (?, ?)`,
+           AND LOWER(COLUMN_NAME) IN (LOWER(?), LOWER(?))`,
           schema ? [schema, parsedTableName, xColumn, yColumn] : [parsedTableName, xColumn, yColumn],
         );
 
@@ -69,7 +69,7 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
             typeof row["DATA_TYPE"] === "string" ? row["DATA_TYPE"] : undefined;
           const colName =
             typeof row["COLUMN_NAME"] === "string"
-              ? row["COLUMN_NAME"]
+              ? row["COLUMN_NAME"].toLowerCase()
               : undefined;
           if (type && colName && NUMERIC_TYPES.has(type.toLowerCase())) {
             validCols.add(colName);
@@ -77,11 +77,11 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const missingRegCols = [xColumn, yColumn].filter(
-          (c) => !validCols.has(c),
+          (c) => !validCols.has(c.toLowerCase()),
         );
         if (missingRegCols.length > 0) {
           const notFoundReg = missingRegCols.filter(
-            (c) => !(colCheck.rows ?? []).some((r) => r["COLUMN_NAME"] === c),
+            (c) => !(colCheck.rows ?? []).some((r) => typeof r["COLUMN_NAME"] === "string" && r["COLUMN_NAME"].toLowerCase() === c.toLowerCase()),
           );
           if (notFoundReg.length > 0) {
             throw new ValidationError(`Column(s) not found: ${notFoundReg.join(", ")}`);

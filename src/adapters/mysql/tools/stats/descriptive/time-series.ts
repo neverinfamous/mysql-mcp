@@ -56,7 +56,7 @@ export function createTimeSeriesToolStats(
         const colCheck = await adapter.executeQuery(
           `SELECT COLUMN_NAME, DATA_TYPE FROM information_schema.COLUMNS 
            WHERE TABLE_SCHEMA = ${schema ? '?' : 'DATABASE()'} AND TABLE_NAME = ? 
-           AND COLUMN_NAME IN (?, ?)`,
+           AND LOWER(COLUMN_NAME) IN (LOWER(?), LOWER(?))`,
           schema ? [schema, parsedTableName, valueColumn, timeColumn] : [parsedTableName, valueColumn, timeColumn],
         );
 
@@ -74,7 +74,7 @@ export function createTimeSeriesToolStats(
 
         for (const row of colCheck.rows ?? []) {
           const type = typeof row["DATA_TYPE"] === "string" ? row["DATA_TYPE"].toLowerCase() : undefined;
-          const colName = typeof row["COLUMN_NAME"] === "string" ? row["COLUMN_NAME"] : undefined;
+          const colName = typeof row["COLUMN_NAME"] === "string" ? row["COLUMN_NAME"].toLowerCase() : undefined;
           
           if (type && colName) {
             validCols.add(colName);
@@ -83,16 +83,16 @@ export function createTimeSeriesToolStats(
           }
         }
 
-        const missingCols = [valueColumn, timeColumn].filter((c) => !validCols.has(c));
+        const missingCols = [valueColumn, timeColumn].filter((c) => !validCols.has(c.toLowerCase()));
         if (missingCols.length > 0) {
           throw new ValidationError(`Column(s) not found: ${missingCols.join(", ")}`);
         }
 
-        if (!numericCols.has(valueColumn)) {
+        if (!numericCols.has(valueColumn.toLowerCase())) {
           throw new ValidationError(`Value column must be numeric type. Non-numeric: ${valueColumn}`);
         }
         
-        if (!temporalCols.has(timeColumn)) {
+        if (!temporalCols.has(timeColumn.toLowerCase())) {
           throw new ValidationError(`Time column must be temporal type. Non-temporal: ${timeColumn}`);
         }
 
