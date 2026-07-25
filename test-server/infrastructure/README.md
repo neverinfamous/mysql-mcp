@@ -9,7 +9,7 @@ This directory contains the unified `docker-compose.yml` for the entire database
 To spin up the entire ecosystem from scratch (teardown + start + cluster bootstrap + seed):
 
 ```powershell
-cd C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem
+cd C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure
 node scripts/recreate-ecosystem.mjs
 ```
 
@@ -28,10 +28,8 @@ docker compose up -d
 | **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.1.0` |
 | **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1.0` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2.6.3` |
-| **PostgreSQL** | `postgres-server` | `5432` | `postgres-hypopg:18` (Custom Build) |
-| **MongoDB** | `mongo-server` | `27017` | `mongo:8.0.0` |
 | **Redis** | `redis-server` | `6379` | `redis:7.4.0` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.9` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.11` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4.8.1` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2.54.1` |
 | **Loki** | `loki` | `3100` | `grafana/loki:3.1.0` |
@@ -49,7 +47,7 @@ The `datadog-unified` container runs with `pid: host` and eBPF system-probe to p
 
 - **Host system metrics**: CPU, memory, disk, I/O, load, network, NTP, file handles, uptime
 - **Container monitoring**: All Docker container metrics via socket + Autodiscovery
-- **Database integrations**: MySQL (InnoDB Cluster), PostgreSQL, MongoDB, Redis, ProxySQL
+- **Database integrations**: MySQL (InnoDB Cluster), Redis, ProxySQL
 - **Process collection**: Live Processes with host PID namespace
 - **Network Performance Monitoring**: eBPF-based TCP/UDP connection tracking
 - **APM tracing**: Enabled for application containers (set `DD_AGENT_HOST=datadog-unified`)
@@ -61,14 +59,12 @@ Hostname: `adamic-wsl2`
 All scripts are located in the `scripts/` directory and can be executed natively with `node`.
 
 - `recreate-ecosystem.mjs`: Single self-contained script that automates the entire lifecycle: dynamic container discovery, orphaned container cleanup, teardown, startup, InnoDB Cluster bootstrap (with retry/healing), and database seeding.
-- `create-cluster.mjs`: Standalone cluster initializer. Fully idempotent with deep retry logic (up to 60 retries), connection-drop handling during the `clone` process, stabilization sleeps, and autonomous reboot healing. Not needed if using `recreate-ecosystem.mjs`.
 - `check-status.mjs`: Dynamically discovers containers from `docker-compose.yml` and validates their health, plus checks the InnoDB Cluster quorum.
-- `reboot-cluster.mjs`: Use this if all containers go offline at once and auto-bootstrap fails.
 - `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
 
 ## 5. Disaster Recovery & Volumes
 
-All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`, `postgres-data-v2`, `mongo-data-v2`).
+All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`).
 
 **Auto-Healing Host Crashes**: The InnoDB cluster will not naturally reboot after a hard host crash (e.g. power loss or Windows/Docker crash) to prevent split-brain. However, a lightweight `cluster-healer` sidecar container runs continuously to detect total cluster outages and automatically injects the necessary `mysqlsh` commands to rebuild the cluster quorum. You do not need to intervene.
 

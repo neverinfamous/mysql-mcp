@@ -4,9 +4,9 @@
 
 _Updated: July 2026_
 
-This guide explains how to spin up, manage, and troubleshoot the global unified database ecosystem (InnoDB Cluster, PostgreSQL, MongoDB, Redis, MySQL Router, ProxySQL) designed for the Adamic architecture.
+This guide explains how to spin up, manage, and troubleshoot the derived MySQL test server ecosystem (InnoDB Cluster, Redis, MySQL Router, ProxySQL) for `mysql-mcp`.
 
-> **Note on Datadog:** This environment includes full Datadog Agent monitoring with host-level system metrics (CPU, memory, disk, I/O, load, network), Docker container monitoring, process collection, eBPF system-probe (network performance monitoring), APM tracing, and database integrations (MySQL, PostgreSQL, MongoDB, Redis, ProxySQL). Native Prometheus and Grafana are also available as secondary observability.
+> **Note on Datadog:** This environment includes full Datadog Agent monitoring with host-level system metrics (CPU, memory, disk, I/O, load, network), Docker container monitoring, process collection, eBPF system-probe (network performance monitoring), APM tracing, and database integrations (MySQL, Redis, ProxySQL). Native Prometheus and Grafana are also available as secondary observability.
 
 ---
 
@@ -15,7 +15,7 @@ This guide explains how to spin up, manage, and troubleshoot the global unified 
 The entire process of tearing down, spinning up the containers, and bootstrapping Group Replication is automated and idempotent.
 
 ```powershell
-cd docs/unified-database-ecosystem
+cd test-server/infrastructure
 node scripts/recreate-ecosystem.mjs
 ```
 
@@ -70,12 +70,12 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │            ┌──────────────────┐           ┌──────────────┐                   │
 │            │       Loki       │           │   Promtail   │                   │
 │            │   Port: 3100     │           │  (Internal)  │                   │
-│            └──────────────────┘           └──────────────┘                   │
+│            └──────────────────┴───────────┴──────────────┘                   │
 │                                                                              │
-│       ┌──────────────┐   ┌────────────────┐   ┌──────────────┐               │
-│       │ Redis Server │   │ Postgres Server│   │ Mongo Server │               │
-│       │  Port: 6379  │   │   Port: 5432   │   │  Port: 27017 │               │
-│       └──────────────┘   └────────────────┘   └──────────────┘               │
+│                           ┌──────────────┐                                   │
+│                           │ Redis Server │                                   │
+│                           │  Port: 6379  │                                   │
+│                           └──────────────┘                                   │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -133,8 +133,6 @@ docker logs -f cluster-healer
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
 | Redis | `localhost:6379` |
-| PostgreSQL | `localhost:5432` |
-| MongoDB | `localhost:27017` |
 | Datadog AI Efficiency | `https://app.datadoghq.com/dashboard/q48-mq9-3i7` (Tracks `mysql-mcp` cache, pool metrics, and error rates) |
 | Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` (Includes the **MySQL-MCP Audit Log** widget `source:mysql_mcp log_type:mcp_audit`) |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
