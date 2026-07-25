@@ -279,11 +279,15 @@ async function detectIqrOutliers(
 ): Promise<Record<string, unknown>> {
   const { table, column, whereClause } = parts;
 
+  const iqrWhereClause = whereClause 
+    ? `${whereClause} AND \`${column}\` IS NOT NULL`
+    : `WHERE \`${column}\` IS NOT NULL`;
+
   // Get count to calculate offsets for Q1 (25th percentile) and Q3 (75th percentile)
   const countSql = `
     SELECT COUNT(\`${column}\`) AS total_count
     FROM ${table}
-    ${whereClause}
+    ${iqrWhereClause}
   `;
   const countResult = await adapter.executeQuery(countSql);
   const countRow = countResult.rows?.[0] as
@@ -311,7 +315,7 @@ async function detectIqrOutliers(
     const query = `
       SELECT \`${column}\` as value
       FROM ${table}
-      ${whereClause}
+      ${iqrWhereClause}
       ORDER BY \`${column}\`
       LIMIT 1 OFFSET ${String(offset)}
     `;
@@ -341,7 +345,7 @@ async function detectIqrOutliers(
   const outlierSql = `
     SELECT \`${column}\` AS value
     FROM ${table}
-    ${whereClause ? whereClause + " AND" : "WHERE"}
+    ${iqrWhereClause} AND
       (\`${column}\` < ${String(lowerBound)} OR \`${column}\` > ${String(upperBound)})
     ORDER BY ABS(\`${column}\` - ${String((q1 + q3) / 2)}) DESC
     LIMIT ${String(limit)}
