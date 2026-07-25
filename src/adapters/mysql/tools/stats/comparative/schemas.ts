@@ -21,6 +21,10 @@ export const CorrelationSchemaBase = z.object({
   y: z.string().optional().describe("Alias for column2"),
   c2: z.string().optional().describe("Alias for column2"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const CorrelationSchema = z.preprocess(
@@ -32,6 +36,7 @@ export const CorrelationSchema = z.preprocess(
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column1: obj["column1"] ?? obj["columnA"] ?? obj["col1"] ?? obj["columnX"] ?? obj["colX"] ?? obj["x"] ?? obj["c1"],
       column2: obj["column2"] ?? obj["columnB"] ?? obj["col2"] ?? obj["columnY"] ?? obj["colY"] ?? obj["y"] ?? obj["c2"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
@@ -61,6 +66,10 @@ export const RegressionSchemaBase = z.object({
   c2: z.string().optional().describe("Alias for yColumn"),
   column2: z.string().optional().describe("Alias for yColumn"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
+  sql: z.string().optional().describe("Alias for where"),
+  query: z.string().optional().describe("Alias for where"),
 });
 
 export const RegressionSchema = z.preprocess(
@@ -72,6 +81,7 @@ export const RegressionSchema = z.preprocess(
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       xColumn: obj["xColumn"] ?? obj["columnX"] ?? obj["column1"] ?? obj["colX"] ?? obj["x"] ?? obj["c1"],
       yColumn: obj["yColumn"] ?? obj["columnY"] ?? obj["column2"] ?? obj["colY"] ?? obj["y"] ?? obj["c2"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
