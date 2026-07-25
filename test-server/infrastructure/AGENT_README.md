@@ -27,6 +27,7 @@ This single self-contained script handles the entire lifecycle:
 - Wait for all MySQL nodes to be healthy (up to 60 retries).
 - Bootstrap the InnoDB Cluster: create on primary, add secondaries with clone recovery.
 - Auto-heal with `rebootClusterFromCompleteOutage()` if the cluster appears unstable.
+- Leverage the `cluster-healer` service for ongoing background auto-recovery and `group_seeds` normalization.
 - Seed the test database via `reset-database.mjs`.
 
 ### Verifying Ecosystem Health
@@ -52,6 +53,8 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │  └──────┬───────┘  └──────┬───────┘  └──────┬───────┘                       │
 │         │                 │                 │                                │
 │         └────────────┬────┴─────────────────┘                                │
+│                      ▼                                                       │
+│           [ 🔧 cluster-healer service (Auto-recovery) ]                      │
 │                      ▼                                                       │
 │            ┌──────────────────┐           ┌──────────────┐                   │
 │            │   MySQL Router   │           │   ProxySQL   │                   │
@@ -86,12 +89,17 @@ If you need to re-seed the `testdb` for the E2E tests without tearing down the e
 node scripts/reset-database.mjs
 ```
 
-### Manual Cluster Recovery
-If containers are restarted and the cluster fails to auto-recover via `SET PERSIST`:
+### Cluster Healer Service
+The environment runs a `cluster-healer` Docker sidecar service that automatically monitors the MySQL cluster and handles disaster recovery.
+
+- **How it works:** It polls all 3 nodes every 30 seconds.
+- **Complete Outage:** If the cluster loses quorum (all nodes down), it runs `dba.rebootClusterFromCompleteOutage()`.
+- **Individual Node Drops:** If a node falls offline or gets out of sync, it forces a rejoin via `START GROUP_REPLICATION`.
+
+To view its logs and check recovery actions:
 ```powershell
-node scripts/reboot-cluster.mjs
+docker logs -f cluster-healer
 ```
-This script executes `dba.rebootClusterFromCompleteOutage()`.
 
 ---
 
@@ -189,7 +197,8 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 - **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
 - **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
 - **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.
-- **`validate_password` Component**: The `init.sql` script dynamically installs the `validate_password` component at startup to support MCP security tool testing (`mysql.security.passwordValidate`).
+- **`validate_password` Component**: The `validate_password` component has been REMOVED from `init.sql` because it corrupts the `mysql.user` data dictionary (52 columns vs expected 51), which breaks the MySQL Router 9.1.0 bootstrap process. It is no longer installed at startup.
+- **`group_replication_ip_allowlist` & `group_seeds`**: The `recreate-ecosystem.mjs` script automatically sets `group_replication_ip_allowlist` to `AUTOMATIC` and normalizes `group_seeds` to include all 3 nodes.
 - **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.
 - **MySQL Router**: Connection sharing for the read-only bootstrap pool is explicitly enabled (`bootstrap_ro.connection_sharing=1`) to prevent connection exhaustion during concurrent MCP testing.
 - **Audit Logging**: The Datadog `MySQL-MCP Audit Log` widget queries `source:mysql_mcp log_type:mcp_audit` (no `@` symbol, as Datadog integration tags are infrastructure tags, not JSON attributes). To log read-scoped tools (like `mysql_read_query`), you must explicitly add `--audit-reads` to the `mysql-mcp` startup arguments.
