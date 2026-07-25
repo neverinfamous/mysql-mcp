@@ -110,24 +110,32 @@ console.log('\n2. InnoDB Cluster Status:');
 console.log('----------------------------------------');
 
 const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
-const primaryNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
-const clusterOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'] : ['exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], false);
-const primaryOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"] : ['exec', '-e', 'MYSQL_PWD=root', primaryNode, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"], false);
+let clusterOut = null;
+let primaryOut = null;
+
+for (const node of mysqlNodes) {
+    clusterOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', '-e', 'MYSQL_PWD=root', node, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'] : ['exec', '-e', 'MYSQL_PWD=root', node, 'mysql', '-uroot', '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], true);
+    if (clusterOut !== null) {
+        primaryOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', '-e', 'MYSQL_PWD=root', node, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"] : ['exec', '-e', 'MYSQL_PWD=root', node, 'mysql', '-uroot', '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"], true);
+        break;
+    }
+}
 
 if (clusterOut !== null) {
     // Check how many are ONLINE
     const onlineCount = (clusterOut.match(/ONLINE/g) || []).length;
     const currentPrimary = primaryOut ? primaryOut.trim() : 'Unknown';
-    if (onlineCount >= 3) {
-        console.log(`✅ Cluster Quorum is ONLINE (${onlineCount} nodes)`);
+    const targetQuorum = mysqlNodes.length > 0 ? mysqlNodes.length : 3;
+    if (onlineCount >= targetQuorum) {
+        console.log(`✅ Cluster Quorum is ONLINE (${onlineCount}/${targetQuorum} nodes)`);
         console.log(`   👑 Current Primary: ${currentPrimary}`);
     } else {
-        console.log(`⚠️ Cluster Quorum is DEGRADED. Only ${onlineCount} nodes ONLINE.\nDetails:\n${clusterOut.replace(/mysql: \[Warning\].*\n/g, '').trim()}`);
+        console.log(`⚠️ Cluster Quorum is DEGRADED. Only ${onlineCount}/${targetQuorum} nodes ONLINE.\nDetails:\n${clusterOut.replace(/mysql: \[Warning\].*\n/g, '').trim()}`);
         console.log(`   👑 Current Primary: ${currentPrimary}`);
         allUp = false;
     }
 } else {
-    console.log('❌ Failed to retrieve cluster status.');
+    console.log('❌ Failed to retrieve cluster status from any MySQL node.');
     allUp = false;
 }
 
