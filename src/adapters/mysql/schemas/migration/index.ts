@@ -210,7 +210,10 @@ export const MigrationRollbackSchema = z.preprocess((input: unknown) => {
  */
 export const MigrationHistorySchemaBase = z.object({
   status: z.string().optional().describe("Filter by status"),
+  state: z.string().optional().describe("Alias for status"),
+  filter: z.string().optional().describe("Alias for status"),
   sourceSystem: z.string().optional().describe("Filter by source system"),
+  source: z.string().optional().describe("Alias for sourceSystem"),
   limit: z
     .union([z.number(), z.string()])
     .optional()
@@ -219,6 +222,7 @@ export const MigrationHistorySchemaBase = z.object({
     .union([z.number(), z.string()])
     .optional()
     .describe("Offset for pagination (default: 0)"),
+  skip: z.union([z.number(), z.string()]).optional().describe("Alias for offset"),
   database: z
     .union([z.string(), z.boolean()])
     .optional()
@@ -226,6 +230,7 @@ export const MigrationHistorySchemaBase = z.object({
   system: z.string().optional().describe("Alias for sourceSystem"),
   count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  take: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   db: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
   schema: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
 });
@@ -236,19 +241,32 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
     const out = { ...obj };
 
     // Gracefully ignore boolean arguments hallucinated by agents
-    if (typeof out["database"] === "boolean") {
-      delete out["database"];
-    }
-    if (typeof out["db"] === "boolean") {
-      delete out["db"];
-    }
-    if (typeof out["schema"] === "boolean") {
-      delete out["schema"];
-    }
+    if (typeof out["database"] === "boolean") delete out["database"];
+    if (typeof out["db"] === "boolean") delete out["db"];
+    if (typeof out["schema"] === "boolean") delete out["schema"];
+    
+    // Ignore boolean hallucinations for primitive parameters
+    if (typeof out["status"] === "boolean") delete out["status"];
+    if (typeof out["state"] === "boolean") delete out["state"];
+    if (typeof out["filter"] === "boolean") delete out["filter"];
+    if (typeof out["sourceSystem"] === "boolean") delete out["sourceSystem"];
+    if (typeof out["source"] === "boolean") delete out["source"];
+    if (typeof out["system"] === "boolean") delete out["system"];
+    if (typeof out["limit"] === "boolean") delete out["limit"];
+    if (typeof out["offset"] === "boolean") delete out["offset"];
+    if (typeof out["skip"] === "boolean") delete out["skip"];
+    if (typeof out["count"] === "boolean") delete out["count"];
+    if (typeof out["max"] === "boolean") delete out["max"];
+    if (typeof out["take"] === "boolean") delete out["take"];
 
+    if (out["state"] !== undefined && out["status"] === undefined) out["status"] = out["state"];
+    if (out["filter"] !== undefined && out["status"] === undefined) out["status"] = out["filter"];
+    if (out["source"] !== undefined && out["sourceSystem"] === undefined) out["sourceSystem"] = out["source"];
     if (out["system"] !== undefined && out["sourceSystem"] === undefined) out["sourceSystem"] = out["system"];
     if (out["count"] !== undefined && out["limit"] === undefined) out["limit"] = out["count"];
     if (out["max"] !== undefined && out["limit"] === undefined) out["limit"] = out["max"];
+    if (out["take"] !== undefined && out["limit"] === undefined) out["limit"] = out["take"];
+    if (out["skip"] !== undefined && out["offset"] === undefined) out["offset"] = out["skip"];
     if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
     if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
 
