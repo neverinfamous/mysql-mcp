@@ -82,7 +82,7 @@ export const PercentilesSchema = z.preprocess(
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
     percentiles: z
-      .array(z.number().min(0).max(100))
+      .array(z.coerce.number().min(0).max(100))
       .default([25, 50, 75, 90, 95, 99]),
     where: z.string().optional(),
   })
