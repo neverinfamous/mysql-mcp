@@ -12,7 +12,7 @@ import {
   CascadeSimulatorSchema,
   CascadeSimulatorOutputSchema,
 } from "../../../schemas/index.js";
-import { MySQLMcpError, ValidationError } from "../../../../../types/modules/errors.js";
+import { MySQLMcpError } from "../../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../../types/modules/error-types.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import type { FkEdge } from "../helpers.js";
@@ -43,9 +43,7 @@ export function createCascadeSimulatorTool(
           operation?: "DELETE" | "DROP" | "TRUNCATE";
         };
         
-        if (!parsed.table) {
-          throw new ValidationError("Validation error: table parameter is required");
-        }
+
         
         let schema = parsed.schema;
 

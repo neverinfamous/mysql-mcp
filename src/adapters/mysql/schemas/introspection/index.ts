@@ -46,7 +46,7 @@ export const DependencyGraphSchema = z.object({
   limit: z.preprocess((val) => {
     if (typeof val === "string") return parseInt(val, 10);
     return val;
-  }, z.number().min(1).optional().default(100)),
+  }, z.number().min(1).max(500).optional().default(100)),
   maxDepth: z
     .preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
@@ -167,6 +167,9 @@ export const CascadeSimulatorSchema = z.preprocess((input: unknown) => {
     }
   }
   return val;
+}).refine(val => val.table !== undefined && val.table.trim().length > 0, {
+  message: "table parameter is required",
+  path: ["table"],
 });
 
 /**
@@ -232,7 +235,7 @@ export const SchemaSnapshotSchema = z
     limit: z.preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
       return val;
-    }, z.number().min(1).optional().default(100)),
+    }, z.number().min(1).max(500).optional().default(100)),
   })
   .transform(val => {
     if (val.database && !val.schema) val.schema = val.database;
