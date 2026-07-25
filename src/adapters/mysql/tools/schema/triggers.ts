@@ -104,6 +104,9 @@ const CreateTriggerSchema = z.preprocess(
   }).refine((data) => !(data.order && !data.otherTrigger), {
     message: "otherTrigger is required when order is specified",
     path: ["otherTrigger"]
+  }).refine((data) => !(data.otherTrigger && !data.order), {
+    message: "order is required when otherTrigger is specified",
+    path: ["order"]
   })
 );
 
