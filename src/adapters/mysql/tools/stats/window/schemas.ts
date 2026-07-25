@@ -48,8 +48,8 @@ export const StatsRowNumberSchema = z.preprocess(
     selectColumns: z.array(z.string()).optional(),
     asColumn: z.string().default("row_number"),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
-    limit: z.number().min(1).max(1000).default(10),
-    offset: z.number().min(0).default(0),
+    limit: z.coerce.number().min(1).max(1000).default(10),
+    offset: z.coerce.number().min(0).default(0),
   })
 );
 
@@ -109,8 +109,8 @@ export const StatsRankSchema = z.preprocess(
     method: z.enum(["rank", "dense_rank", "percent_rank"]).default("rank"),
     asColumn: z.string().default("rank"),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
-    limit: z.number().min(1).max(1000).default(10),
-    offset: z.number().min(0).default(0),
+    limit: z.coerce.number().min(1).max(1000).default(10),
+    offset: z.coerce.number().min(0).default(0),
   })
 );
 
@@ -173,8 +173,8 @@ export const StatsLagLeadSchema = z.preprocess(
     partitionBy: z.string().optional().refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string()).optional(),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
-    limit: z.number().min(1).max(1000).default(10),
-    paginationOffset: z.number().min(0).default(0),
+    limit: z.coerce.number().min(1).max(1000).default(10),
+    paginationOffset: z.coerce.number().min(0).default(0),
   })
 );
 
@@ -225,8 +225,8 @@ export const StatsRunningTotalSchema = z.preprocess(
     partitionBy: z.string().optional().refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string()).optional(),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
-    limit: z.number().min(1).max(1000).default(10),
-    offset: z.number().min(0).default(0),
+    limit: z.coerce.number().min(1).max(1000).default(10),
+    offset: z.coerce.number().min(0).default(0),
   })
 );
 
@@ -288,8 +288,8 @@ export const StatsMovingAvgSchema = z.preprocess(
     partitionBy: z.string().optional().refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string()).optional(),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
-    limit: z.number().min(1).max(1000).default(10),
-    offset: z.number().min(0).default(0),
+    limit: z.coerce.number().min(1).max(1000).default(10),
+    offset: z.coerce.number().min(0).default(0),
   })
 );
 
@@ -343,7 +343,7 @@ export const StatsNtileSchema = z.preprocess(
     partitionBy: z.string().optional().refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string()).optional(),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
-    limit: z.number().min(1).max(1000).default(10),
-    offset: z.number().min(0).default(0),
+    limit: z.coerce.number().min(1).max(1000).default(10),
+    offset: z.coerce.number().min(0).default(0),
   })
 );
