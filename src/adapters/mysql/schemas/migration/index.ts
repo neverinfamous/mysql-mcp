@@ -56,7 +56,7 @@ export const MigrationRecordSchemaBase = z.object({
     .describe("The DDL/SQL statements applied"),
   sql: z.string().optional().describe("Alias for migrationSql"),
   query: z.string().optional().describe("Alias for migrationSql"),
-  rollbackSql: z.string().optional().describe("SQL to reverse this migration"),
+  rollbackSql: z.string().optional().describe("SQL to reverse this migration (Note: MySQL DDL statements cannot be rolled back, they commit implicitly)"),
   sourceSystem: z
     .string()
     .optional()
@@ -144,11 +144,11 @@ export const MigrationRollbackSchemaBase = z.object({
   id: z
     .union([z.number(), z.string()])
     .optional()
-    .describe("Migration ID to roll back"),
+    .describe("Migration ID to roll back (Required if version is not provided)"),
   version: z
     .string()
     .optional()
-    .describe("Migration version to roll back (alternative to id)"),
+    .describe("Migration version to roll back (alternative to id, required if id not provided)"),
   dryRun: z
     .boolean()
     .optional()

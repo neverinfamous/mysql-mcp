@@ -17,4 +17,4 @@ The **Migration** group provides an integrated, structured schema versioning and
 - **Idempotency**: Always ensure your migration scripts are idempotent (`CREATE TABLE IF NOT EXISTS`, `DROP TABLE IF EXISTS`).
 - **Downtime Minimization**: Combine with tools from the `introspection` group (like `mysql_migration_risks`) prior to applying migrations to production databases.
 - **Transactions**: For storage engines that support transactional DDL (note: MySQL largely commits DDL implicitly, unlike PostgreSQL), still attempt to group related DML updates together safely.
-- **Initialization First**: You must run `mysql_migration_init` before attempting to use `mysql_migration_apply` or track history.
+- **Initialization**: Tools like `mysql_migration_apply` and `mysql_migration_history` will automatically provision the tracking table (`_mcp_schema_versions`) on first use. `mysql_migration_init` can be used to explicitly initialize or check its state.
