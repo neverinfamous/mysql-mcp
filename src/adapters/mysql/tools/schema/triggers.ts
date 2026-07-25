@@ -48,8 +48,8 @@ const ListTriggersSchema = z.preprocess(
   z.object({
     table: z.string().optional(),
     schema: z.string().min(1, "Schema parameter is required"),
-    limit: z.number().default(50),
-    offset: z.number().default(0),
+    limit: z.number().min(1, "Limit must be at least 1").max(1000, "Limit cannot exceed 1000").default(50),
+    offset: z.number().min(0, "Offset cannot be negative").default(0),
   })
 );
 
@@ -101,6 +101,9 @@ const CreateTriggerSchema = z.preprocess(
     order: z.enum(["FOLLOWS", "PRECEDES"]).optional(),
     otherTrigger: z.string().optional(),
     ifNotExists: z.boolean().default(false),
+  }).refine((data) => !(data.order && !data.otherTrigger), {
+    message: "otherTrigger is required when order is specified",
+    path: ["otherTrigger"]
   })
 );
 
@@ -312,6 +315,10 @@ export function createCreateTriggerTool(adapter: MySQLAdapter): ToolDefinition {
           }
           const fullOtherTriggerName = escapeQualifiedTable(otherTrigger);
           sql += ` ${order} ${fullOtherTriggerName}`;
+        } else if (order && !otherTrigger) {
+          return formatHandlerErrorResponse(
+            new Error("Validation error: otherTrigger is required when order is specified"),
+          );
         }
         
         sql += ` ${body}`;
