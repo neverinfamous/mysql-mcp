@@ -12,7 +12,7 @@ services:
       - "3307:3306"
       - "33061:33060"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
     command: >
@@ -51,7 +51,7 @@ services:
       - "3308:3306"
       - "33062:33060"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
     command: >
@@ -89,7 +89,7 @@ services:
       - "3309:3306"
       - "33063:33060"
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
     command: >
@@ -183,7 +183,7 @@ services:
         "extra_status_metrics": true, "extra_innodb_metrics": false,
         "extra_performance_metrics": false}}]'
     healthcheck:
-      test: [ "CMD-SHELL", "nc -z 127.0.0.1 6446 || exit 1" ]
+      test: [ "CMD-SHELL", "grep -q '192E' /proc/net/tcp || exit 1" ]
       interval: 15s
       timeout: 10s
       retries: 30
@@ -216,7 +216,7 @@ services:
         "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
       com.datadoghq.ad.logs: '[{"source":"proxysql","service":"proxysql"}]'
     healthcheck:
-      test: [ "CMD-SHELL", "proxysql-admin --ping || nc -z 127.0.0.1 6033 || exit 1" ]
+      test: [ "CMD-SHELL", "grep -q '1791' /proc/net/tcp || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 10
