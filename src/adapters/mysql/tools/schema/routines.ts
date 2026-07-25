@@ -219,8 +219,17 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                         THEN CONCAT(LEFT(r.ROUTINE_COMMENT, 97), '...') 
                         ELSE r.ROUTINE_COMMENT 
                     END as comment,
-                    r.IS_DETERMINISTIC as isDeterministic
+                    r.IS_DETERMINISTIC as isDeterministic,
+                    GROUP_CONCAT(
+                        CONCAT(COALESCE(p.PARAMETER_NAME, ''), ' ', p.DATA_TYPE)
+                        ORDER BY p.ORDINAL_POSITION
+                        SEPARATOR ', '
+                    ) as parameters
                 FROM information_schema.ROUTINES r
+                LEFT JOIN information_schema.PARAMETERS p
+                    ON r.ROUTINE_SCHEMA = p.SPECIFIC_SCHEMA
+                    AND r.ROUTINE_NAME = p.SPECIFIC_NAME
+                    AND p.ORDINAL_POSITION > 0
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'FUNCTION'
             `;
@@ -233,6 +242,9 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         query += `
+                GROUP BY r.ROUTINE_NAME, r.DATA_TYPE, r.DEFINER, r.CREATED,
+                         r.LAST_ALTERED, r.SQL_DATA_ACCESS, r.SECURITY_TYPE, r.ROUTINE_COMMENT,
+                         r.IS_DETERMINISTIC
                 ORDER BY r.ROUTINE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
