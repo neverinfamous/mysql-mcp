@@ -268,11 +268,8 @@ export const ConstraintAnalysisSchemaBase = z.object({
   checks: z
     .array(
       z.enum([
-        "redundant",
-        "missing_fk",
         "missing_not_null",
         "missing_pk",
-        "unindexed_fk",
         "circular_dependency",
       ]),
     )
@@ -291,11 +288,8 @@ const ConstraintAnalysisInnerSchema = z.object({
   checks: z
     .array(
       z.enum([
-        "redundant",
-        "missing_fk",
         "missing_not_null",
         "missing_pk",
-        "unindexed_fk",
         "circular_dependency",
       ]),
     )

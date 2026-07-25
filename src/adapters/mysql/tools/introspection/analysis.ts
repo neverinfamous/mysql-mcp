@@ -442,7 +442,7 @@ export function createMigrationRisksTool(
           summary: {
             totalStatements: parsed.statements.length,
             totalRisks: risks.length,
-            highestSeverity: highestRiskLevel,
+            highestSeverity: risks.length > 0 ? highestRiskLevel : "none",
             requiresDowntime,
             estimatedLockImpact:
               lockImpacts.size > 0 ? [...lockImpacts].join("; ") : "None",
