@@ -72,7 +72,7 @@ export const StatsOutliersSchema = z.preprocess(
     column: z.string().min(1, "column is required"),
     method: z.enum(["iqr", "zscore"]).default("iqr"),
     threshold: z.coerce.number().optional(),
-    where: z.string().optional(),
+    where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }),
     limit: z.coerce.number().max(100000).default(10000),
     maxOutliers: z.coerce.number().max(1000).default(50),
   })
