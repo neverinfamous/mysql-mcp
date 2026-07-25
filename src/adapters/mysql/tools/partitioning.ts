@@ -23,6 +23,7 @@ import {
   ReorganizePartitionOutputSchema,
 } from "../schemas/partitioning.js";
 import { READ_ONLY, WRITE, DESTRUCTIVE } from "../../../utils/annotations.js";
+import { escapeIdentifier } from "../../../utils/validators.js";
 
 /**
  * Get partitioning tools
@@ -224,7 +225,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         let sql: string;
-        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+        const tableRef = database ? `\`${escapeIdentifier(database)}\`.\`${escapeIdentifier(table)}\`` : `\`${escapeIdentifier(table)}\``;
 
         let resolvedPartitionType = partitionType;
         if (!resolvedPartitionType) {
@@ -248,11 +249,11 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         switch (resolvedPartitionType) {
           case "RANGE":
           case "RANGE COLUMNS":
-            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES LESS THAN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${escapeIdentifier(partitionName)}\` VALUES LESS THAN (${value}))`;
             break;
           case "LIST":
           case "LIST COLUMNS":
-            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${partitionName}\` VALUES IN (${value}))`;
+            sql = `ALTER TABLE ${tableRef} ADD PARTITION (PARTITION \`${escapeIdentifier(partitionName)}\` VALUES IN (${value}))`;
             break;
           case "HASH":
           case "KEY":
@@ -478,9 +479,9 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         try {
-          const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+          const tableRef = database ? `\`${escapeIdentifier(database)}\`.\`${escapeIdentifier(table)}\`` : `\`${escapeIdentifier(table)}\``;
           await adapter.executeQuery(
-            `ALTER TABLE ${tableRef} DROP PARTITION \`${partitionName}\``,
+            `ALTER TABLE ${tableRef} DROP PARTITION \`${escapeIdentifier(partitionName)}\``,
           );
 
           adapter.clearSchemaCache();
@@ -609,7 +610,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         }
 
-        const fromList = fromPartitions.map((p) => `\`${p}\``).join(", ");
+        const fromList = fromPartitions.map((p) => `\`${escapeIdentifier(p)}\``).join(", ");
         
         let resolvedPartitionType = partitionType;
         if (!resolvedPartitionType) {
@@ -636,14 +637,14 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
               resolvedPartitionType === "RANGE" ||
               resolvedPartitionType === "RANGE COLUMNS"
             ) {
-              return `PARTITION \`${p.name}\` VALUES LESS THAN (${p.value})`;
+              return `PARTITION \`${escapeIdentifier(p.name)}\` VALUES LESS THAN (${p.value})`;
             } else {
-              return `PARTITION \`${p.name}\` VALUES IN (${p.value})`;
+              return `PARTITION \`${escapeIdentifier(p.name)}\` VALUES IN (${p.value})`;
             }
           })
           .join(", ");
 
-        const tableRef = database ? `\`${database}\`.\`${table}\`` : `\`${table}\``;
+        const tableRef = database ? `\`${escapeIdentifier(database)}\`.\`${escapeIdentifier(table)}\`` : `\`${escapeIdentifier(table)}\``;
         const sql = `ALTER TABLE ${tableRef} REORGANIZE PARTITION ${fromList} INTO (${toList})`;
 
         try {
