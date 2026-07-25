@@ -100,6 +100,10 @@ export const DistributionSchemaBase = z.object({
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
   buckets: z.number().optional().describe("Number of histogram buckets"),
+  bucket: z.number().optional().describe("Alias for buckets"),
+  num_buckets: z.number().optional().describe("Alias for buckets"),
+  bucket_count: z.number().optional().describe("Alias for buckets"),
+  numBuckets: z.number().optional().describe("Alias for buckets"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
@@ -115,13 +119,14 @@ export const DistributionSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
+      buckets: obj["buckets"] ?? obj["bucket"] ?? obj["num_buckets"] ?? obj["bucket_count"] ?? obj["numBuckets"],
       where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["query"] ?? obj["sql"],
     };
   },
   z.object({
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    buckets: z.number().max(100).default(10),
+    buckets: z.coerce.number().min(1).max(100).default(10),
     where: z.string().optional(),
   })
 );
