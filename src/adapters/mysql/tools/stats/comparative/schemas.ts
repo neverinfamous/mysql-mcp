@@ -114,18 +114,22 @@ export const HistogramSchema = z.preprocess(
   (val: unknown) => {
     if (val === null || typeof val !== "object") return val;
     const obj = val as Record<string, unknown>;
+    let updateVal = obj["update"] ?? obj["force"] ?? obj["refresh"] ?? obj["create"];
+    if (updateVal === "true") updateVal = true;
+    if (updateVal === "false") updateVal = false;
+
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
       buckets: obj["buckets"] ?? obj["bucket"] ?? obj["num_buckets"] ?? obj["bucket_count"] ?? obj["numBuckets"],
-      update: obj["update"] ?? obj["force"] ?? obj["refresh"] ?? obj["create"],
+      update: updateVal,
     };
   },
   z.object({
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    buckets: z.number().min(1).default(16),
+    buckets: z.coerce.number().min(1).default(16),
     update: z.boolean().default(false),
   })
 );

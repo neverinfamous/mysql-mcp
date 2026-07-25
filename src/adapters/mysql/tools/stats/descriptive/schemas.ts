@@ -212,9 +212,9 @@ export const SamplingSchema = z.preprocess(
   },
   z.object({
     table: z.string().min(1, "table is required"),
-    sampleSize: z.number().min(0).default(10),
+    sampleSize: z.coerce.number().min(0).default(10),
     columns: z.array(z.string()).optional(),
-    seed: z.number().optional(),
+    seed: z.coerce.number().optional(),
     where: z.string().optional(),
   })
 );
