@@ -325,8 +325,10 @@ export function createStatsTopNTool(adapter: MySQLAdapter): ToolDefinition {
             }
           }
 
-          if (excluded.length > 0) {
+          if (excluded.length > 0 && included.length > 0) {
             hint = `Auto-excluded long-content columns: ${excluded.join(", ")}. Use selectColumns to override.`;
+          } else if (excluded.length > 0 && included.length === 0) {
+            hint = `All columns are long-content. Could not auto-exclude.`;
           }
 
           columnList =
@@ -422,11 +424,13 @@ export function createStatsDistinctTool(adapter: MySQLAdapter): ToolDefinition {
         const result = await adapter.executeQuery(sql);
         const values = (result.rows ?? []).map((row) => row["value"]);
 
-        // Get total distinct count
+        // Get total distinct count including NULLs
         const countSql = `
-          SELECT COUNT(DISTINCT \`${column}\`) AS cnt
-          FROM ${fullTableName}
-          ${whereClause}
+          SELECT COUNT(*) AS cnt FROM (
+            SELECT DISTINCT \`${column}\`
+            FROM ${fullTableName}
+            ${whereClause}
+          ) t
         `;
         const countResult = await adapter.executeQuery(countSql);
         const distinctCount = Number(countResult.rows?.[0]?.["cnt"] ?? 0);
