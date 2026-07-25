@@ -35,4 +35,11 @@ while true; do
             echo "[Healer] Cluster has $ONLINE_COUNT online nodes, waiting for natural recovery..."
         fi
     fi
+
+    # Check ProxySQL backend status and heal if shunned
+    PROXY_STATUS=$(mysql -uadmin -padmin -h proxysql -P 6032 -N -s -e 'SELECT status FROM stats_mysql_connection_pool WHERE srv_host="mysql-router";' 2>/dev/null || echo "UNKNOWN")
+    if [ "$PROXY_STATUS" = "SHUNNED" ]; then
+        echo "[Healer] ProxySQL backend mysql-router is SHUNNED! Forcing reload to runtime..."
+        mysql -uadmin -padmin -h proxysql -P 6032 -e "LOAD MYSQL SERVERS TO RUNTIME;"
+    fi
 done
