@@ -97,7 +97,11 @@ export function createListStoredProceduresTool(
                     r.LAST_ALTERED as lastAltered,
                     r.SQL_DATA_ACCESS as dataAccess,
                     r.SECURITY_TYPE as securityType,
-                    r.ROUTINE_COMMENT as comment,
+                    CASE 
+                        WHEN CHAR_LENGTH(r.ROUTINE_COMMENT) > 100 
+                        THEN CONCAT(LEFT(r.ROUTINE_COMMENT, 97), '...') 
+                        ELSE r.ROUTINE_COMMENT 
+                    END as comment,
                     GROUP_CONCAT(
                         CONCAT(p.PARAMETER_MODE, ' ', p.PARAMETER_NAME, ' ', p.DATA_TYPE)
                         ORDER BY p.ORDINAL_POSITION
@@ -174,7 +178,11 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                     r.LAST_ALTERED as lastAltered,
                     r.SQL_DATA_ACCESS as dataAccess,
                     r.SECURITY_TYPE as securityType,
-                    r.ROUTINE_COMMENT as comment,
+                    CASE 
+                        WHEN CHAR_LENGTH(r.ROUTINE_COMMENT) > 100 
+                        THEN CONCAT(LEFT(r.ROUTINE_COMMENT, 97), '...') 
+                        ELSE r.ROUTINE_COMMENT 
+                    END as comment,
                     r.IS_DETERMINISTIC as isDeterministic
                 FROM information_schema.ROUTINES r
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
