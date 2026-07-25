@@ -90,9 +90,15 @@ const CreateViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']) ?? "",
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
-        definition: (obj['definition'] === "" ? undefined : obj['definition']) ?? (obj['query'] === "" ? undefined : obj['query']) ?? (obj['sql'] === "" ? undefined : obj['sql']) ?? "",
+        name: (typeof obj['name'] === 'string' && obj['name'] !== "") ? obj['name'] :
+              (typeof obj['view'] === 'string' && obj['view'] !== "") ? obj['view'] :
+              (typeof obj['viewName'] === 'string' && obj['viewName'] !== "") ? obj['viewName'] :
+              (typeof obj['tableName'] === 'string' && obj['tableName'] !== "") ? obj['tableName'] : "",
+        schema: (typeof obj['schema'] === 'string' && obj['schema'] !== "") ? obj['schema'] :
+                (typeof obj['database'] === 'string' && obj['database'] !== "") ? obj['database'] : undefined,
+        definition: (typeof obj['definition'] === 'string' && obj['definition'] !== "") ? obj['definition'] :
+                    (typeof obj['query'] === 'string' && obj['query'] !== "") ? obj['query'] :
+                    (typeof obj['sql'] === 'string' && obj['sql'] !== "") ? obj['sql'] : "",
         orReplace: typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : obj['orReplace'],
       };
     }
@@ -139,8 +145,12 @@ const DropViewSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['view'] === "" ? undefined : obj['view']) ?? (obj['viewName'] === "" ? undefined : obj['viewName']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']) ?? "",
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        name: (typeof obj['name'] === 'string' && obj['name'] !== "") ? obj['name'] :
+              (typeof obj['view'] === 'string' && obj['view'] !== "") ? obj['view'] :
+              (typeof obj['viewName'] === 'string' && obj['viewName'] !== "") ? obj['viewName'] :
+              (typeof obj['tableName'] === 'string' && obj['tableName'] !== "") ? obj['tableName'] : "",
+        schema: (typeof obj['schema'] === 'string' && obj['schema'] !== "") ? obj['schema'] :
+                (typeof obj['database'] === 'string' && obj['database'] !== "") ? obj['database'] : undefined,
         ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
       };
     }
