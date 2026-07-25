@@ -66,7 +66,7 @@ export const StatsHypothesisSchema = z.preprocess(
     column: z.string().min(1, "column is required"),
     testType: z.enum(["t_test", "z_test"]).default("t_test"),
     hypothesizedMean: z.coerce.number().default(0),
-    populationStdDev: z.coerce.number().optional(),
+    populationStdDev: z.coerce.number().min(0).optional(),
     groupBy: z.string().optional(),
     groupColumn: z.string().optional(),
     group1: z.union([z.string(), z.number()]).optional(),
