@@ -142,6 +142,13 @@ const ERROR_SUGGESTIONS: {
     code: "INVALID_IDENTIFIER",
   },
   {
+    pattern: /is not VIEW/i,
+    suggestion:
+      "The specified object is not a view. Verify the object name or use the correct tool for the object type.",
+    category: ErrorCategory.VALIDATION,
+    code: "INVALID_OBJECT_TYPE",
+  },
+  {
     pattern: /Invalid (?:charset|collation)/i,
     suggestion:
       "Check that the charset or collation is valid and contains only alphanumeric characters or underscores.",
