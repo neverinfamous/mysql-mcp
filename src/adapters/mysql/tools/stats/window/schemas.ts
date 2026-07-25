@@ -284,12 +284,12 @@ export const StatsMovingAvgSchema = z.preprocess(
     table: z.string().min(1, "Table is required"),
     column: z.string().min(1, "Column is required"),
     orderBy: z.string().min(1, "orderBy is required").refine(val => !val.includes(";"), { message: "Invalid characters in orderBy" }),
-    windowSize: z.coerce.number().min(1).default(3),
+    windowSize: z.coerce.number().int("windowSize must be an integer").min(1).default(3),
     partitionBy: z.string().optional().refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string().refine(val => !val.includes(";"), { message: "Invalid characters in selectColumns" })).optional(),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }).refine(val => !val?.includes(";"), { message: "Invalid characters in where clause" }),
-    limit: z.coerce.number().min(1).max(1000).default(10),
-    offset: z.coerce.number().min(0).default(0),
+    limit: z.coerce.number().int().min(1).max(1000).default(10),
+    offset: z.coerce.number().int().min(0).default(0),
   })
 );
 
@@ -339,11 +339,11 @@ export const StatsNtileSchema = z.preprocess(
     database: z.string().optional(),
     table: z.string().min(1, "Table is required"),
     orderBy: z.string().min(1, "orderBy is required").refine(val => !val.includes(";"), { message: "Invalid characters in orderBy" }),
-    buckets: z.coerce.number().min(1).default(4),
+    buckets: z.coerce.number().int("buckets must be an integer").min(1).default(4),
     partitionBy: z.string().optional().refine(val => !val?.includes(";"), { message: "Invalid characters in partitionBy" }),
     selectColumns: z.array(z.string().refine(val => !val.includes(";"), { message: "Invalid characters in selectColumns" })).optional(),
     where: z.string().optional().refine(val => !val || !/^\s*SELECT\s/i.test(val), { message: "Do not pass a full SELECT query. Pass only the filter condition." }).refine(val => !val?.includes(";"), { message: "Invalid characters in where clause" }),
-    limit: z.coerce.number().min(1).max(1000).default(10),
-    offset: z.coerce.number().min(0).default(0),
+    limit: z.coerce.number().int().min(1).max(1000).default(10),
+    offset: z.coerce.number().int().min(0).default(0),
   })
 );
