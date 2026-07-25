@@ -52,14 +52,14 @@ const ListObjectsSchema = z.preprocess(
     routine: z.unknown().optional(),
     limit: z.preprocess((val) => {
       if (typeof val === "string") {
-        const parsed = parseInt(val, 10);
+        const parsed = Number(val);
         return isNaN(parsed) ? val : parsed;
       }
       return val;
     }, z.number().int().positive().default(50)),
     offset: z.preprocess((val) => {
       if (typeof val === "string") {
-        const parsed = parseInt(val, 10);
+        const parsed = Number(val);
         return isNaN(parsed) ? val : parsed;
       }
       return val;
@@ -139,6 +139,7 @@ export function createListStoredProceduresTool(
                 LEFT JOIN information_schema.PARAMETERS p
                     ON r.ROUTINE_SCHEMA = p.SPECIFIC_SCHEMA
                     AND r.ROUTINE_NAME = p.SPECIFIC_NAME
+                    AND p.ROUTINE_TYPE = r.ROUTINE_TYPE
                     AND p.PARAMETER_MODE IS NOT NULL
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'PROCEDURE'
@@ -229,6 +230,7 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 LEFT JOIN information_schema.PARAMETERS p
                     ON r.ROUTINE_SCHEMA = p.SPECIFIC_SCHEMA
                     AND r.ROUTINE_NAME = p.SPECIFIC_NAME
+                    AND p.ROUTINE_TYPE = r.ROUTINE_TYPE
                     AND p.ORDINAL_POSITION > 0
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'FUNCTION'
