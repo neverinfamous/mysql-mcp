@@ -84,7 +84,7 @@ describe("Advanced Stats Tools", () => {
 
     it("should fetch distinct values", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
-        if (query.includes("COUNT(DISTINCT")) {
+        if (query.includes("COUNT(DISTINCT") || query.includes("COUNT(*)")) {
           return createMockQueryResult([{ cnt: 3 }]);
         }
         if (query.includes("SELECT DISTINCT")) {
