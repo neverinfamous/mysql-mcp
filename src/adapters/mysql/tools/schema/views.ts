@@ -27,6 +27,10 @@ const ListViewsSchemaBase = z.object({
   pattern: z.string().optional().describe("Filter pattern for view name (LIKE syntax, e.g. 'user_%')"),
   filter: z.string().optional().describe("Alias for pattern"),
   search: z.string().optional().describe("Alias for pattern"),
+  view: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  name: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  viewName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  tableName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
 });
 
 const ListViewsSchema = z.preprocess(

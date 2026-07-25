@@ -106,6 +106,8 @@ const DropSchemaSchemaBase = z.object({
   schemaName: z.string().optional().describe("Alias for name"),
   databaseName: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
+  table: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  tableName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
 });
 
 const DropSchemaSchema = z.preprocess(
