@@ -40,7 +40,7 @@ export function createHistogramTool(adapter: MySQLAdapter): ToolDefinition {
         let warning: string | undefined;
         if (update) {
           // Create or update histogram
-          const numBuckets = Math.min(buckets, 1024);
+          const numBuckets = Math.floor(Math.min(buckets, 1024));
           if (buckets > 1024) {
             warning = `Requested ${buckets} buckets; clamped to max 1024`;
           }

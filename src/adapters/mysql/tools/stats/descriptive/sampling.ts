@@ -8,7 +8,7 @@ import type {
   RequestContext,
 } from "../../../../../types/index.js";
 import { ValidationError } from "../../../../../types/index.js";
-import { validateQualifiedIdentifier, escapeQualifiedTable } from "../../../../../utils/validators.js";
+import { validateQualifiedIdentifier, escapeQualifiedTable, validateWhereClause } from "../../../../../utils/validators.js";
 import { SampleOutputSchema } from "../../../schemas/stats.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
 import { SamplingSchemaBase, SamplingSchema } from "./schemas.js";
@@ -33,6 +33,10 @@ export function createSamplingTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Validate table name
         validateQualifiedIdentifier(table, "table");
+
+        if (where) {
+          validateWhereClause(where);
+        }
 
         // Validate column names if provided
         if (columns) {
