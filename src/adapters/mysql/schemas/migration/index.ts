@@ -9,11 +9,11 @@ import { BaseOutputSchema } from "../output-schemas.js";
  */
 export const MigrationInitSchemaBase = z.object({
   database: z
-    .union([z.string(), z.boolean()])
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database to create the tracking table in (default: active database)"),
-  db: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
-  schema: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 export const MigrationInitSchema = z.preprocess((input: unknown) => {
@@ -21,10 +21,11 @@ export const MigrationInitSchema = z.preprocess((input: unknown) => {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
     
-    // Gracefully ignore boolean arguments hallucinated by agents
-    if (typeof out["database"] === "boolean") delete out["database"];
-    if (typeof out["db"] === "boolean") delete out["db"];
-    if (typeof out["schema"] === "boolean") delete out["schema"];
+    const stringFields = ["database", "db", "schema"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
+    }
     
     if (out["db"] !== undefined && out["database"] === undefined) out["database"] = out["db"];
     if (out["schema"] !== undefined && out["database"] === undefined) out["database"] = out["schema"];
@@ -40,37 +41,37 @@ export const MigrationInitSchema = z.preprocess((input: unknown) => {
  */
 export const MigrationRecordSchemaBase = z.object({
   version: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Version identifier (e.g., '1.0.0', '2024-01-15-add-users')"),
-  migrationName: z.string().optional().describe("Alias for version"),
-  migration: z.string().optional().describe("Alias for version"),
+  migrationName: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for version"),
+  migration: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for version"),
   description: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Human-readable description of the migration"),
-  name: z.string().optional().describe("Alias for description"),
+  name: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for description"),
   migrationSql: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("The DDL/SQL statements applied"),
-  sql: z.string().optional().describe("Alias for migrationSql"),
-  query: z.string().optional().describe("Alias for migrationSql"),
-  rollbackSql: z.string().optional().describe("SQL to reverse this migration (Note: MySQL DDL statements cannot be rolled back, they commit implicitly)"),
+  sql: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for migrationSql"),
+  query: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for migrationSql"),
+  rollbackSql: z.union([z.string(), z.boolean(), z.number()]).optional().describe("SQL to reverse this migration (Note: MySQL DDL statements cannot be rolled back, they commit implicitly)"),
   sourceSystem: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Origin system (e.g., 'mysql', 'sqlite', 'manual', 'agent')"),
   appliedBy: z
-    .string()
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Who/what applied this migration (e.g., agent name, user)"),
   database: z
-    .union([z.string(), z.boolean()])
+    .union([z.string(), z.boolean(), z.number()])
     .optional()
     .describe("Database to apply the migration in (default: active database)"),
-  db: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
-  schema: z.union([z.string(), z.boolean()]).optional().describe("Alias for database"),
+  db: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
+  schema: z.union([z.string(), z.boolean(), z.number()]).optional().describe("Alias for database"),
 });
 
 // Internal parse schema — version and migrationSql are required
@@ -103,10 +104,11 @@ export const MigrationRecordSchema = z.preprocess((input: unknown) => {
     const obj = input as Record<string, unknown>;
     const out = { ...obj };
 
-    // Gracefully ignore boolean arguments hallucinated by agents
-    if (typeof out["database"] === "boolean") delete out["database"];
-    if (typeof out["db"] === "boolean") delete out["db"];
-    if (typeof out["schema"] === "boolean") delete out["schema"];
+    const stringFields = ["version", "migrationName", "migration", "description", "name", "migrationSql", "sql", "query", "rollbackSql", "sourceSystem", "appliedBy", "database", "db", "schema"];
+    for (const field of stringFields) {
+      if (typeof out[field] === "boolean") out[field] = undefined;
+      if (typeof out[field] === "number") out[field] = String(out[field]);
+    }
 
     if (out["migrationSql"] === undefined) {
       if (out["sql"] !== undefined) out["migrationSql"] = out["sql"];
