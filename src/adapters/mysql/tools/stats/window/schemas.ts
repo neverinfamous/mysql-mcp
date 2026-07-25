@@ -276,6 +276,9 @@ export const StatsMovingAvgSchemaBase = z.object({
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  order_by: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
   windowSize: z
     .unknown()
     .optional()
@@ -284,6 +287,9 @@ export const StatsMovingAvgSchemaBase = z.object({
   size: z.unknown().optional().describe("Alias for windowSize"),
   period: z.unknown().optional().describe("Alias for windowSize"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partition_by: z.string().optional().describe("Alias for partitionBy"),
+  groupBy: z.string().optional().describe("Alias for partitionBy"),
+  group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
     .unknown()
     .optional()
@@ -306,8 +312,23 @@ export const StatsMovingAvgSchemaBase = z.object({
 export const StatsMovingAvgSchema = z.preprocess(
   (val: unknown) => {
     const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    
+    let ob = v["orderBy"] ?? v["order_by"] ?? v["sort"] ?? v["sortBy"];
+    if (Array.isArray(ob)) ob = ob.join(", ");
+    
+    let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
+    if (Array.isArray(pb)) pb = pb.join(", ");
+
+    let sc = v["selectColumns"];
+    if (typeof sc === "string") {
+      sc = sc.includes(",") ? sc.split(",").map((s) => s.trim()) : [sc];
+    }
+
     return {
       ...v,
+      orderBy: ob,
+      partitionBy: pb,
+      selectColumns: sc,
       windowSize: v["windowSize"] ?? v["window_size"] ?? v["size"] ?? v["period"],
     };
   },
@@ -333,6 +354,9 @@ export const StatsNtileSchemaBase = z.object({
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
   orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  order_by: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
   buckets: z
     .unknown()
     .optional()
@@ -340,6 +364,9 @@ export const StatsNtileSchemaBase = z.object({
   quantiles: z.unknown().optional().describe("Alias for buckets"),
   n: z.unknown().optional().describe("Alias for buckets"),
   partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partition_by: z.string().optional().describe("Alias for partitionBy"),
+  groupBy: z.string().optional().describe("Alias for partitionBy"),
+  group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
     .unknown()
     .optional()
@@ -362,8 +389,23 @@ export const StatsNtileSchemaBase = z.object({
 export const StatsNtileSchema = z.preprocess(
   (val: unknown) => {
     const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    
+    let ob = v["orderBy"] ?? v["order_by"] ?? v["sort"] ?? v["sortBy"];
+    if (Array.isArray(ob)) ob = ob.join(", ");
+    
+    let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
+    if (Array.isArray(pb)) pb = pb.join(", ");
+
+    let sc = v["selectColumns"];
+    if (typeof sc === "string") {
+      sc = sc.includes(",") ? sc.split(",").map((s) => s.trim()) : [sc];
+    }
+
     return {
       ...v,
+      orderBy: ob,
+      partitionBy: pb,
+      selectColumns: sc,
       buckets: v["buckets"] ?? v["quantiles"] ?? v["n"],
     };
   },
