@@ -21,6 +21,16 @@ const ListObjectsSchemaBase = z.object({
   dbName: z.string().optional().describe("Alias for schema"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results to return (default: 50)"),
   offset: z.union([z.number(), z.string()]).optional().describe("Number of results to skip (default: 0)"),
+  pattern: z.string().optional().describe("Filter pattern for routine name (LIKE syntax, e.g. 'get_%')"),
+  filter: z.string().optional().describe("Alias for pattern"),
+  search: z.string().optional().describe("Alias for pattern"),
+  routine: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  name: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  routineName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  procedure: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  procedureName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  function: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  functionName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
 });
 
 const ListObjectsSchema = z.preprocess(
@@ -30,12 +40,16 @@ const ListObjectsSchema = z.preprocess(
       return {
         ...obj,
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']) ?? (obj['dbName'] === "" ? undefined : obj['dbName']),
+        pattern: obj['pattern'] ?? obj['filter'] ?? obj['search'],
+        routine: obj['routine'] ?? obj['name'] ?? obj['routineName'] ?? obj['procedure'] ?? obj['procedureName'] ?? obj['function'] ?? obj['functionName'],
       };
     }
     return val;
   },
   z.object({
     schema: z.string().optional(),
+    pattern: z.string().optional(),
+    routine: z.unknown().optional(),
     limit: z.preprocess((val) => {
       if (typeof val === "string") {
         const parsed = parseInt(val, 10);
@@ -51,7 +65,9 @@ const ListObjectsSchema = z.preprocess(
       return val;
     }, z.number().int().nonnegative().default(0)),
   })
-);
+).refine((data) => data.routine === undefined, {
+  message: "🛠️ AUTONOMOUS HEALING: Do not pass 'name', 'procedure', or 'function' to list tools. To read data from a routine, use mysql_read_query. To list routines, you don't need to specify a routine name.",
+});
 
 const ListStoredProceduresOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -100,7 +116,7 @@ export function createListStoredProceduresTool(
           }
         }
 
-        const query = `
+        let query = `
                 SELECT
                     r.ROUTINE_NAME as name,
                     r.ROUTINE_TYPE as type,
@@ -126,15 +142,23 @@ export function createListStoredProceduresTool(
                     AND p.PARAMETER_MODE IS NOT NULL
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'PROCEDURE'
+            `;
+
+        const queryParams: unknown[] = [targetSchema ?? null];
+
+        if (parsedParams.pattern) {
+          query += " AND r.ROUTINE_NAME LIKE ?";
+          queryParams.push(parsedParams.pattern);
+        }
+
+        query += `
                 GROUP BY r.ROUTINE_NAME, r.ROUTINE_TYPE, r.DEFINER, r.CREATED,
                          r.LAST_ALTERED, r.SQL_DATA_ACCESS, r.SECURITY_TYPE, r.ROUTINE_COMMENT
                 ORDER BY r.ROUTINE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
-        const result = await adapter.executeQuery(query, [
-          targetSchema ?? null,
-        ]);
+        const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
           data: {
@@ -181,7 +205,7 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
-        const query = `
+        let query = `
                 SELECT
                     r.ROUTINE_NAME as name,
                     r.DATA_TYPE as returnType,
@@ -199,13 +223,21 @@ export function createListFunctionsTool(adapter: MySQLAdapter): ToolDefinition {
                 FROM information_schema.ROUTINES r
                 WHERE r.ROUTINE_SCHEMA = COALESCE(?, DATABASE())
                   AND r.ROUTINE_TYPE = 'FUNCTION'
+            `;
+
+        const queryParams: unknown[] = [targetSchema ?? null];
+
+        if (parsedParams.pattern) {
+          query += " AND r.ROUTINE_NAME LIKE ?";
+          queryParams.push(parsedParams.pattern);
+        }
+
+        query += `
                 ORDER BY r.ROUTINE_NAME
                 LIMIT ${parsedParams.limit} OFFSET ${parsedParams.offset}
             `;
 
-        const result = await adapter.executeQuery(query, [
-          targetSchema ?? null,
-        ]);
+        const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
           success: true,
           data: {
