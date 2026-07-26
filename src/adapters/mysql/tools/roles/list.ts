@@ -10,6 +10,9 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 export const RoleListSchemaBase = z.object({
   pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),
+  name: z.string().optional().describe("Alias for pattern"),
+  role: z.string().optional().describe("Alias for pattern"),
+  roleName: z.string().optional().describe("Alias for pattern"),
   limit: z.number().int().min(1).max(100).default(50).describe("Max results"),
 });
 
@@ -21,7 +24,10 @@ export const RoleListSchema = z.preprocess((val: unknown) => {
     res["limit"] = isNaN(parsed) ? res["limit"] : parsed;
   }
   return res;
-}, RoleListSchemaBase);
+}, RoleListSchemaBase).transform((val) => {
+  const pattern = val.pattern || val.name || val.role || val.roleName;
+  return { ...val, pattern };
+});
 
 export function getRoleListTool(adapter: MySQLAdapter): ToolDefinition {
   return {
