@@ -34,14 +34,24 @@ const ListTriggersSchemaBase = z.object({
   offset: z.number().default(0).describe("Number of results to skip"),
 });
 
+const extractNestedString = (v: unknown): string | undefined => {
+  if (typeof v === "string") return v === "" ? undefined : v;
+  if (typeof v === "object" && v !== null) {
+    const inner = v as Record<string, unknown>;
+    const extracted = inner['name'] ?? inner['triggerName'] ?? inner['tableName'] ?? inner['table'] ?? inner['schema'] ?? inner['database'] ?? inner['dbName'] ?? inner['body'] ?? inner['statement'] ?? inner['definition'];
+    if (typeof extracted === "string" && extracted !== "") return extracted;
+  }
+  return undefined;
+};
+
 const ListTriggersSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        table: (obj['table'] === "" ? undefined : obj['table']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']) ?? (obj['dbName'] === "" ? undefined : obj['dbName']),
+        table: extractNestedString(obj['table']) ?? extractNestedString(obj['tableName']),
+        schema: extractNestedString(obj['schema']) ?? extractNestedString(obj['database']) ?? extractNestedString(obj['dbName']),
       };
     }
     return val;
@@ -87,10 +97,10 @@ const CreateTriggerSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['triggerName'] === "" ? undefined : obj['triggerName']),
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
-        table: (obj['table'] === "" ? undefined : obj['table']) ?? (obj['tableName'] === "" ? undefined : obj['tableName']),
-        body: (obj['body'] === "" ? undefined : obj['body']) ?? (obj['statement'] === "" ? undefined : obj['statement']) ?? (obj['definition'] === "" ? undefined : obj['definition']),
+        name: extractNestedString(obj['name']) ?? extractNestedString(obj['triggerName']),
+        schema: extractNestedString(obj['schema']) ?? extractNestedString(obj['database']),
+        table: extractNestedString(obj['table']) ?? extractNestedString(obj['tableName']),
+        body: extractNestedString(obj['body']) ?? extractNestedString(obj['statement']) ?? extractNestedString(obj['definition']),
       };
     }
     return val;
@@ -143,8 +153,8 @@ const DropTriggerSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        name: (obj['name'] === "" ? undefined : obj['name']) ?? (obj['triggerName'] === "" ? undefined : obj['triggerName']),
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        name: extractNestedString(obj['name']) ?? extractNestedString(obj['triggerName']),
+        schema: extractNestedString(obj['schema']) ?? extractNestedString(obj['database']),
       };
     }
     return val;

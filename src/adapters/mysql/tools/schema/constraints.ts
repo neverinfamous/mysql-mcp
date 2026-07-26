@@ -25,14 +25,24 @@ const ListConstraintsSchemaBase = z.object({
   type: z.string().optional().describe("Filter by constraint type"),
 });
 
+const extractNestedString = (v: unknown): string | undefined => {
+  if (typeof v === "string") return v === "" ? undefined : v;
+  if (typeof v === "object" && v !== null) {
+    const inner = v as Record<string, unknown>;
+    const extracted = inner['name'] ?? inner['tableName'] ?? inner['table'] ?? inner['schema'] ?? inner['database'];
+    if (typeof extracted === "string" && extracted !== "") return extracted;
+  }
+  return undefined;
+};
+
 const ListConstraintsSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        table: obj['table'] ?? obj['tableName'] ?? obj['name'],
-        schema: obj['schema'] ?? obj['database'],
+        table: extractNestedString(obj['table']) ?? extractNestedString(obj['tableName']) ?? extractNestedString(obj['name']),
+        schema: extractNestedString(obj['schema']) ?? extractNestedString(obj['database']),
       };
     }
     return val;
