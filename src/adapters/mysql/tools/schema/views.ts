@@ -115,6 +115,9 @@ const CreateViewSchema = z.preprocess(
                     (typeof obj['sql'] === 'string' && obj['sql'] !== "") ? obj['sql'] : "",
         orReplace: (typeof obj['orReplace'] === 'boolean' ? obj['orReplace'] : typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : false) ||
                    (typeof obj['replace'] === 'boolean' ? obj['replace'] : typeof obj['replace'] === 'string' ? obj['replace'].toLowerCase() === 'true' : false),
+        algorithm: typeof obj['algorithm'] === 'string' ? obj['algorithm'].toUpperCase() : obj['algorithm'],
+        security: typeof obj['security'] === 'string' ? obj['security'].toUpperCase() : obj['security'],
+        checkOption: typeof obj['checkOption'] === 'string' ? obj['checkOption'].toUpperCase() : obj['checkOption'],
       };
     }
     return val;
