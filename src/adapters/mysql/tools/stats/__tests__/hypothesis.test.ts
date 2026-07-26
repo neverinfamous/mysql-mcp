@@ -25,7 +25,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should perform t-test", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([{ n: 100, mean: 5.5, stddev: 2.0 }]);
       });
 
@@ -49,7 +50,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should perform z-test with population stddev", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([{ n: 100, mean: 5.5, stddev: 2.0 }]);
       });
 
@@ -73,7 +75,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should handle grouped hypothesis tests", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([
           { group_key: "A", n: 50, mean: 6.0, stddev: 1.5 },
           { group_key: "B", n: 50, mean: 5.2, stddev: 1.5 },
@@ -101,7 +104,8 @@ describe("Hypothesis Tool", () => {
     });
 
     it("should handle insufficient data", async () => {
-      mockAdapter.executeQuery.mockImplementation(async () => {
+      mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         return createMockQueryResult([{ n: 1, mean: 5.5, stddev: 0 }]);
       });
 

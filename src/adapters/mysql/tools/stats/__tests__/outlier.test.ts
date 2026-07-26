@@ -26,6 +26,7 @@ describe("Outliers Tool", () => {
 
     it("should detect outliers using Z-score", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("AVG(")) {
           return createMockQueryResult([
             { mean: 10, stddev: 2, total_count: 100 },
@@ -57,6 +58,7 @@ describe("Outliers Tool", () => {
 
     it("should handle z-score with zero stddev", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("AVG(")) {
           return createMockQueryResult([
             { mean: 10, stddev: 0, total_count: 100 },
@@ -79,6 +81,7 @@ describe("Outliers Tool", () => {
 
     it("should detect outliers using IQR", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("COUNT(")) {
           return createMockQueryResult([{ cnt: 100, total_count: 100 }]);
         }
@@ -117,6 +120,7 @@ describe("Outliers Tool", () => {
 
     it("should handle empty tables for IQR", async () => {
       mockAdapter.executeQuery.mockImplementation(async (query: string) => {
+        if (query.includes("DATA_TYPE")) return createMockQueryResult([{ DATA_TYPE: "int" }]);
         if (query.includes("COUNT(")) {
           return createMockQueryResult([{ cnt: 0, total_count: 0 }]);
         }
