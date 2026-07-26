@@ -36,8 +36,8 @@ const MaskDataSchemaBase = z.object({
   text: z.string().optional().describe("Alias for value"),
   input: z.string().optional().describe("Alias for value"),
   type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]).describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
-  keepFirst: z.number().optional().describe("Characters to keep from start"),
-  keepLast: z.number().optional().describe("Characters to keep from end"),
+  keepFirst: z.number().min(0).optional().describe("Characters to keep from start"),
+  keepLast: z.number().min(0).optional().describe("Characters to keep from end"),
   maskChar: z.string().optional().describe("Character to use for masking"),
 });
 
@@ -55,8 +55,8 @@ const MaskDataSchema = z.preprocess(
   z.object({
     value: z.string(),
     type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]),
-    keepFirst: z.coerce.number().default(0),
-    keepLast: z.coerce.number().default(0),
+    keepFirst: z.coerce.number().min(0).default(0),
+    keepLast: z.coerce.number().min(0).default(0),
     maskChar: z.string().default("*"),
   })
 );
