@@ -6,3 +6,5 @@ instances:
     tags:
       - "hostname:adamic-wsl2"
     reported_hostname: adamic-wsl2
+    command_stats: true
+    slowlog-max-len: 128

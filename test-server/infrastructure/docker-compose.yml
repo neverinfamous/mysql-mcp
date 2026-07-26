@@ -230,7 +230,7 @@ services:
       - "6379:6379"
     environment:
       TZ: America/New_York
-    command: redis-server --save 60 1 --loglevel warning
+    command: redis-server --save 60 1 --loglevel verbose
     stop_grace_period: 30s
     mem_limit: 256m
     logging:
@@ -241,7 +241,8 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379, "command_stats":
+        true, "slowlog-max-len": 128}]'
       com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
