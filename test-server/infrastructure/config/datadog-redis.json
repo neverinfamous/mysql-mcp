@@ -5,7 +5,7 @@
   "description": "This dashboard provides a high-level overview of key Redis metrics to help you monitor your Redis primary's performance and manage your Redis instance.\n\nFor more information, see:\n\n- Our [official Redis documentation](https://docs.datadoghq.com/integrations/redisdb/)\n\nOr our 3-part series blog post:\n\n- Part 1: [How to monitor Redis performance metrics](https://www.datadoghq.com/blog/how-to-monitor-redis-performance-metrics/) \n- Part 2: [Collecting Redis metrics](https://www.datadoghq.com/blog/how-to-collect-redis-metrics/)\n- Part 3: [Monitoring Redis with Datadog](https://www.datadoghq.com/blog/monitor-redis-using-datadog/) (cloned) (cloned)",
   "id": "khx-zry-d49",
   "layout_type": "ordered",
-  "modified_at": "2026-07-26T05:29:51.005847Z",
+  "modified_at": "2026-07-26T13:45:23.699125Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -29,7 +29,7 @@
     }
   ],
   "title": "Redis",
-  "url": "/dashboard/khx-zry-d49/redis-laptop",
+  "url": "/dashboard/khx-zry-d49/redis",
   "widgets": [
     {
       "definition": {
@@ -87,6 +87,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -132,6 +135,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Average CPU usage",
         "title_align": "left",
         "title_size": "16",
@@ -633,6 +637,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -666,6 +673,7 @@
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Evictions",
         "type": "timeseries",
         "yaxis": {
@@ -791,6 +799,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -826,6 +837,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Blocked clients",
         "type": "timeseries",
         "yaxis": {
@@ -993,6 +1005,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -1026,6 +1041,7 @@
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Rejected connections",
         "type": "timeseries",
         "yaxis": {
@@ -1101,6 +1117,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -1153,6 +1172,7 @@
           }
         ],
         "show_legend": false,
+        "time": {},
         "title": "Cache hit rate",
         "type": "timeseries",
         "yaxis": {
@@ -1293,6 +1313,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -1326,6 +1349,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Total keys",
         "type": "timeseries",
         "yaxis": {
@@ -1346,6 +1370,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -1385,6 +1412,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Slowlog duration",
         "type": "timeseries",
         "yaxis": {
@@ -1405,6 +1433,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "max",
@@ -1418,7 +1449,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.net.bytes_in{$scope,$host} by {host}",
+                "query": "avg:redis.net.instantaneous_input{$scope,$host} by {host}",
                 "semantic_mode": "combined"
               }
             ],
@@ -1438,7 +1469,7 @@
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:redis.net.bytes_out{$scope,$host} by {host}",
+                "query": "avg:redis.net.instantaneous_output{$scope,$host} by {host}",
                 "semantic_mode": "combined"
               }
             ],
@@ -1449,6 +1480,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Network I/O",
         "type": "timeseries",
         "yaxis": {
@@ -1468,11 +1500,16 @@
       "definition": {
         "requests": [
           {
+            "formulas": [
+              {
+                "formula": "top(query1, 10, 'mean', 'desc')"
+              }
+            ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.command.calls{$scope,$host} by {command}.as_count()",
+                "query": "avg:redis.command.calls{$scope,$host} by {command}",
                 "semantic_mode": "combined"
               }
             ],
@@ -1511,7 +1548,7 @@
             "query": {
               "data_source": "logs_stream",
               "indexes": [],
-              "query_string": "source:redis $scope $host status:error",
+              "query_string": "source:redis $scope $host (error OR fail* OR refused OR slow OR warn*)",
               "sort": {
                 "column": "timestamp",
                 "order": "desc"

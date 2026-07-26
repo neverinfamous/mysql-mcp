@@ -75,15 +75,22 @@ async function main() {
       # INFO — server info command
       redis-cli INFO > /dev/null 2>&1
 
-      # ─── Phase 0C: Key length distribution ─────────────────────────────
+      # ─── Phase 0C: Key length distribution & Expirations ───────────────
       redis-cli SET "load:size:tiny" "x" > /dev/null 2>&1
       redis-cli SET "load:size:small" "$(head -c 100 /dev/urandom | base64 | head -c 100)" > /dev/null 2>&1
       redis-cli SET "load:size:medium" "$(head -c 1024 /dev/urandom | base64 | head -c 1024)" > /dev/null 2>&1
       redis-cli SET "load:size:large" "$(head -c 10240 /dev/urandom | base64 | head -c 10240)" > /dev/null 2>&1
+      
+      # Generate expirations (TTL = 1s)
+      for i in \$(seq 1 50); do
+        redis-cli SETEX "load:expire:$i" 1 "expiring_value" > /dev/null 2>&1
+      done
+      # Wait for them to expire so Datadog captures the event
+      sleep 2
 
-      # ─── Phase 0D: Slowlog triggers (>10ms threshold) ──────────────────
+      # ─── Phase 0D: Slowlog triggers (>20ms threshold) ──────────────────
       for i in $(seq 1 10); do
-        redis-cli DEBUG SLEEP 0.015 > /dev/null 2>&1
+        redis-cli EVAL "local t0 = redis.call('TIME'); while true do local t1 = redis.call('TIME'); if (t1[1]-t0[1])*1000000 + (t1[2]-t0[2]) > 20000 then break end end; return 1" 0 > /dev/null 2>&1
       done
       # KEYS * on a populated keyspace is naturally slow
       redis-cli KEYS "*" > /dev/null 2>&1
@@ -97,12 +104,29 @@ async function main() {
       done
 
       # ─── Phase 0F: Blocked clients ─────────────────────────────────────
-      # BLPOP on nonexistent lists blocks for 2s each (3 concurrent clients)
-      redis-cli BLPOP "load:block:1" 2 > /dev/null 2>&1 &
-      redis-cli BLPOP "load:block:2" 2 > /dev/null 2>&1 &
-      redis-cli BLPOP "load:block:3" 2 > /dev/null 2>&1 &
-      # Wait for blocked clients to time out
+      # BLPOP on nonexistent lists blocks for 20s each (3 concurrent clients)
+      # Datadog checks every 15s, so this ensures it is captured.
+      redis-cli BLPOP "load:block:1" 20 > /dev/null 2>&1 &
+      redis-cli BLPOP "load:block:2" 20 > /dev/null 2>&1 &
+      redis-cli BLPOP "load:block:3" 20 > /dev/null 2>&1 &
+      # Wait for blocked clients to be sampled by Datadog
+      sleep 20
+
+      # ─── Phase 0H: Rejected connections & Error logs ───────────────────
+      # Force a rejected connection by setting maxclients artificially low.
+      # We use BLPOP with a short timeout to hold connections open without hanging forever.
+      redis-cli CONFIG SET maxclients 10 > /dev/null 2>&1
+      for i in \$(seq 1 15); do
+        redis-cli BLPOP "load:block:reject" 2 > /dev/null 2>&1 &
+      done
+      # Wait for the blocked clients to timeout (2s) plus a small buffer
       sleep 3
+      redis-cli CONFIG SET maxclients 10000 > /dev/null 2>&1
+      
+      # Force an error/warning log by attempting to replicate a dead server
+      redis-cli REPLICAOF 127.0.0.1 1 > /dev/null 2>&1
+      sleep 2
+      redis-cli REPLICAOF NO ONE > /dev/null 2>&1
 
       # ─── Phase 0G: Cleanup & revert ────────────────────────────────────
       # Revert Redis to default configuration
@@ -133,6 +157,25 @@ async function main() {
       mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1
       for i in {1..2000}; do
         mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1
+        
+        # Inject DML and slow queries periodically to light up Insert/Update/Delete/Fsync/Slow/Lock metrics
+        if [ $((i % 20)) -eq 0 ]; then
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "INSERT INTO testdb.test_events (event_name, event_data) VALUES ('load_event_$i', '{\"load\": true}');" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_name = 'updated_$i' WHERE id = (SELECT MAX(id) FROM testdb.test_events);" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "DELETE FROM testdb.test_events WHERE id = (SELECT MIN(id) FROM testdb.test_events);" > /dev/null 2>&1
+        fi
+        
+        # Generate slow queries and locks
+        if [ $((i % 100)) -eq 0 ]; then
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1.5);" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "LOCK TABLES testdb.test_events WRITE; DO SLEEP(0.5); UNLOCK TABLES;" > /dev/null 2>&1
+        fi
+        
+        # Generate aborted connection to ProxySQL
+        if [ $((i % 50)) -eq 0 ]; then
+           # Use a short timeout that forces abort to light up ProxySQL Connection Aborts
+           timeout 0.1 mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1);" > /dev/null 2>&1 || true
+        fi
       done
     `;
     child.stdin.write(script.replace(/\\r\\n/g, '\\n'));
@@ -152,7 +195,7 @@ async function main() {
       "--port", "9464",
       "--server-host", "0.0.0.0",
       "--tool-filter", "core, json, text",
-      "--audit-log", path.resolve(process.cwd(), "logs/mcp-audit.jsonl"),
+      "--audit-log", path.resolve(cliPath, "../../logs/mcp-audit.jsonl"),
       "--audit-reads"
     ],
     env: {
@@ -175,13 +218,13 @@ async function main() {
   await client.callTool({ name: "mysql_list_tables", arguments: {} });
   await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_measurements" } });
 
-  console.log("🌊 Starting continuous load generation for 60 seconds...");
+  console.log("🌊 Starting continuous load generation for 10 minutes...");
   
   // Create a flag to control the loop
   let running = true;
   setTimeout(() => {
     running = false;
-  }, 65000); // Run for 65 seconds to give Prometheus ~4 scrapes
+  }, 900000); // Run for 15 minutes to give Prometheus ~4 scrapes
 
   // Function to continuously generate traffic
   const generateTraffic = async () => {
