@@ -5,6 +5,7 @@
  */
 
 import { logger } from "../utils/logger.js";
+import { metrics } from "../observability/metrics.js";
 import {
   DEFAULT_SECURITY_CONFIG,
   type SecurityConfig,
@@ -44,6 +45,15 @@ export class CodeModeSecurityManager {
         logger.error("Redis connection failed in CodeModeSecurityManager", {
           error: err instanceof Error ? err : new Error(String(err)),
         });
+      });
+      this.redisClient.on('ready', () => {
+        metrics.setRedisConnected(true);
+      });
+      this.redisClient.on('error', () => {
+        metrics.setRedisConnected(false);
+      });
+      this.redisClient.on('end', () => {
+        metrics.setRedisConnected(false);
       });
     }
   }
@@ -110,16 +120,23 @@ if current == 1 then
 end
 return current
 `;
+        const evalStart = performance.now();
         const current = await this.redisClient.eval(luaScript, {
           keys: [key],
           arguments: [this.windowMs.toString()],
         }) as number;
         
-        return current <= this.config.maxExecutionsPerMinute;
+        metrics.recordRedisLuaEvalLatency(performance.now() - evalStart);
+        const allowed = current <= this.config.maxExecutionsPerMinute;
+        if (!allowed) {
+          metrics.recordRedisRateLimitExceeded();
+        }
+        return allowed;
       } catch (err) {
         logger.error("Redis rate limit error, falling back to memory", {
           error: err instanceof Error ? err : new Error(String(err)),
         });
+        metrics.recordRedisFallback();
       }
     }
 
@@ -141,6 +158,7 @@ return current
     }
 
     if (existing.count >= this.config.maxExecutionsPerMinute) {
+      metrics.recordRedisRateLimitExceeded();
       return false;
     }
 

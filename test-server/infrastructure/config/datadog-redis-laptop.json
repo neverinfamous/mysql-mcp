@@ -1405,6 +1405,93 @@
     },
     {
       "definition": {
+        "legend_columns": [
+          "avg",
+          "max",
+          "value"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "area",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:redis.net.bytes_in{$scope,$host} by {host}",
+                "semantic_mode": "combined"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "dog_classic"
+            }
+          },
+          {
+            "display_type": "area",
+            "formulas": [
+              {
+                "formula": "-query2"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "avg:redis.net.bytes_out{$scope,$host} by {host}",
+                "semantic_mode": "combined"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "palette": "warm"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Network I/O",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "scale": "linear"
+        }
+      },
+      "id": 9999000001,
+      "layout": {
+        "height": 2,
+        "width": 6,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:redis.command.calls{$scope,$host} by {command}.as_count()",
+                "semantic_mode": "combined"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Top Commands",
+        "type": "toplist"
+      },
+      "id": 9999000002,
+      "layout": {
+        "height": 2,
+        "width": 6,
+        "x": 6,
+        "y": 14
+      }
+    },
+    {
+      "definition": {
         "requests": [
           {
             "columns": [
@@ -1443,7 +1530,7 @@
         "height": 6,
         "width": 6,
         "x": 0,
-        "y": 14
+        "y": 16
       }
     },
     {
@@ -1486,7 +1573,7 @@
         "height": 6,
         "width": 6,
         "x": 6,
-        "y": 14
+        "y": 16
       }
     }
   ]

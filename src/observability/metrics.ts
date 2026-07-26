@@ -139,10 +139,58 @@ class CacheMetric {
   }
 }
 
+class RedisMetric {
+  public rateLimitExceeded = 0;
+  public fallbackToMemory = 0;
+  public connected = false;
+
+  // Circular buffer for Lua eval latency samples
+  private samples: number[] = new Array<number>(MAX_SAMPLES).fill(0);
+  private sampleIndex = 0;
+  private sampleCount = 0;
+
+  recordRateLimitExceeded(): void {
+    this.rateLimitExceeded++;
+  }
+
+  recordFallback(): void {
+    this.fallbackToMemory++;
+  }
+
+  recordLuaEvalLatency(durationMs: number): void {
+    this.samples[this.sampleIndex] = durationMs;
+    this.sampleIndex = (this.sampleIndex + 1) % MAX_SAMPLES;
+    if (this.sampleCount < MAX_SAMPLES) {
+      this.sampleCount++;
+    }
+  }
+
+  setConnected(state: boolean): void {
+    this.connected = state;
+  }
+
+  getLuaEvalP95(): number {
+    if (this.sampleCount === 0) return 0;
+    const active = this.samples.slice(0, this.sampleCount).sort((a, b) => a - b);
+    const idx = Math.floor((active.length - 1) * 0.95);
+    return active[idx] ?? 0;
+  }
+
+  getSummary(): { rateLimitExceeded: number; fallbackToMemory: number; connected: boolean; luaEvalP95: number } {
+    return {
+      rateLimitExceeded: this.rateLimitExceeded,
+      fallbackToMemory: this.fallbackToMemory,
+      connected: this.connected,
+      luaEvalP95: this.getLuaEvalP95(),
+    };
+  }
+}
+
 export class MetricsRegistry {
   private tools = new Map<string, ToolMetric>();
   private resources = new Map<string, ResourceMetric>();
   private cache = new CacheMetric();
+  private redis = new RedisMetric();
   private systemDb: SystemDb | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
@@ -378,6 +426,22 @@ export class MetricsRegistry {
     this.cache.recordMiss();
   }
 
+  recordRedisRateLimitExceeded(): void {
+    this.redis.recordRateLimitExceeded();
+  }
+
+  recordRedisFallback(): void {
+    this.redis.recordFallback();
+  }
+
+  recordRedisLuaEvalLatency(durationMs: number): void {
+    this.redis.recordLuaEvalLatency(durationMs);
+  }
+
+  setRedisConnected(state: boolean): void {
+    this.redis.setConnected(state);
+  }
+
   getSummary(): Record<string, unknown> {
     const toolsSummary: Record<string, MetricSummary> = {};
     for (const [name, metric] of this.tools.entries()) {
@@ -393,6 +457,7 @@ export class MetricsRegistry {
       tools: toolsSummary,
       resources: resourcesSummary,
       cache: this.cache.getSummary(),
+      redis: this.redis.getSummary(),
       timestamp: new Date().toISOString(),
     };
   }
@@ -472,6 +537,24 @@ export class MetricsRegistry {
     lines.push("# HELP mysql_mcp_cache_misses_total Total schema cache misses");
     lines.push("# TYPE mysql_mcp_cache_misses_total counter");
     lines.push(`mysql_mcp_cache_misses_total ${cacheSummary.misses}`);
+
+    // Redis rate limiting
+    const redisSummary = this.redis.getSummary();
+    lines.push("# HELP mysql_mcp_redis_rate_limit_exceeded_total Code Mode rate limit rejections");
+    lines.push("# TYPE mysql_mcp_redis_rate_limit_exceeded_total counter");
+    lines.push(`mysql_mcp_redis_rate_limit_exceeded_total ${redisSummary.rateLimitExceeded}`);
+
+    lines.push("# HELP mysql_mcp_redis_fallback_to_memory_total Redis fallback events to in-memory rate limiter");
+    lines.push("# TYPE mysql_mcp_redis_fallback_to_memory_total counter");
+    lines.push(`mysql_mcp_redis_fallback_to_memory_total ${redisSummary.fallbackToMemory}`);
+
+    lines.push("# HELP mysql_mcp_redis_connected Whether Redis is currently connected");
+    lines.push("# TYPE mysql_mcp_redis_connected gauge");
+    lines.push(`mysql_mcp_redis_connected ${redisSummary.connected ? 1 : 0}`);
+
+    lines.push("# HELP mysql_mcp_redis_lua_eval_latency_p95_ms P95 latency of Redis Lua rate limit eval (ms)");
+    lines.push("# TYPE mysql_mcp_redis_lua_eval_latency_p95_ms gauge");
+    lines.push(`mysql_mcp_redis_lua_eval_latency_p95_ms ${redisSummary.luaEvalP95}`);
 
     // Pool metrics
     if (this.poolStatsProvider) {
