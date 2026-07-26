@@ -265,6 +265,10 @@ export const SchemaSnapshotSchema = z
     message: "schema parameter is required",
     path: ["schema"],
   })
+  .refine(val => val.table === undefined && val.tableName === undefined, {
+    message: "mysql_schema_snapshot does not support filtering by table. Please use mysql_describe_table instead to inspect a specific table.",
+    path: ["table"],
+  })
   .default({ compact: true, limit: 100 });
 
 /**
