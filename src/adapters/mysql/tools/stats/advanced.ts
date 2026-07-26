@@ -230,7 +230,9 @@ export const StatsSummarySchema = z.preprocess(
     return {
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"] ?? obj["collection"] ?? obj["coll"],
-      columns: typeof obj["columns"] === "string" ? [obj["columns"]] : (obj["columns"] ?? (typeof obj["column"] === "string" ? [obj["column"]] : obj["column"]) ?? (typeof obj["col"] === "string" ? [obj["col"]] : obj["col"])),
+      columns: typeof obj["columns"] === "string" 
+        ? obj["columns"].split(",").map((s: string) => s.trim()) 
+        : (obj["columns"] ?? (typeof obj["column"] === "string" ? obj["column"].split(",").map((s: string) => s.trim()) : obj["column"]) ?? (typeof obj["col"] === "string" ? obj["col"].split(",").map((s: string) => s.trim()) : obj["col"])),
       where: obj["where"] ?? obj["sql"] ?? obj["query"],
     };
   },
