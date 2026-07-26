@@ -433,11 +433,11 @@ export const MigrationRisksSchema = z.object({
   addStrings(val.queries);
   addStrings(val.ddlQuery);
 
-  val.statements = stmts;
+  val.statements = stmts.map(s => s.trim()).filter(s => s.length > 0);
   
   return val;
 }).refine(val => val.statements !== undefined && val.statements.length > 0, {
-  message: "statements are required",
+  message: "statements are required and cannot be empty",
   path: ["statements"],
 });
 
