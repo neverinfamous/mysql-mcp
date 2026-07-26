@@ -135,10 +135,10 @@ export function createRegressionTool(adapter: MySQLAdapter): ToolDefinition {
             xColumn,
             yColumn,
             sampleSize: n,
-            slope: isNaN(slope) ? null : slope,
-            intercept: isNaN(intercept) ? null : intercept,
-            rSquared: isNaN(rSquared) ? null : rSquared,
-            equation: isNaN(slope)
+            slope: !Number.isFinite(slope) ? null : slope,
+            intercept: !Number.isFinite(intercept) ? null : intercept,
+            rSquared: !Number.isFinite(rSquared) ? null : rSquared,
+            equation: !Number.isFinite(slope) || !Number.isFinite(intercept)
               ? null
               : `y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`,
             interpretation:
