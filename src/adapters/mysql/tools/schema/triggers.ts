@@ -26,8 +26,8 @@ const ListTriggersSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   schema: z
     .string()
-    .default("")
-    .describe("Schema name to list triggers for"),
+    .optional()
+    .describe("Schema name to list triggers for (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
   dbName: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
@@ -58,14 +58,11 @@ const ListTriggersSchema = z.preprocess(
   },
   z.object({
     table: z.string().optional(),
-    schema: z.string().default(""),
+    schema: z.string().optional(),
     limit: z.number().min(1, "Limit must be at least 1").max(1000, "Limit cannot exceed 1000").default(50),
     offset: z.number().min(0, "Offset cannot be negative").default(0),
   })
-).refine((data) => data.schema !== "", {
-  message: "Schema parameter is required",
-  path: ["schema"]
-});
+);
 
 const ListTriggersOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -224,10 +221,10 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
             unqualifiedTable = parts[1] || table;
           }
 
-          const tableCheckQuery = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
+          const tableCheckQuery = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?";
           const tableCheck = await adapter.executeQuery(
             tableCheckQuery,
-            [tableSchemaForCheck, unqualifiedTable],
+            [tableSchemaForCheck || null, unqualifiedTable],
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
@@ -250,10 +247,10 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
                     DEFINER as definer,
                     CREATED as created
                 FROM information_schema.TRIGGERS
-                WHERE TRIGGER_SCHEMA = ?
+                WHERE TRIGGER_SCHEMA = COALESCE(?, DATABASE())
             `;
 
-        const queryParams: unknown[] = [targetSchema];
+        const queryParams: unknown[] = [targetSchema || null];
 
         if (table !== undefined && table !== "") {
             query += " AND EVENT_OBJECT_TABLE = ?";

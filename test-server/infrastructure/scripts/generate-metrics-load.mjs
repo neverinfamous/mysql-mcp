@@ -168,7 +168,9 @@ async function main() {
         # Generate slow queries and locks
         if [ $((i % 100)) -eq 0 ]; then
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1.5);" > /dev/null 2>&1
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "LOCK TABLES testdb.test_events WRITE; DO SLEEP(0.5); UNLOCK TABLES;" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "BEGIN; UPDATE testdb.test_events SET event_name = 'lock' WHERE id = 1; DO SLEEP(1.5); COMMIT;" > /dev/null 2>&1 &
+          sleep 0.1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_name = 'lock_wait' WHERE id = 1;" > /dev/null 2>&1 &
         fi
         
         # Generate aborted connection to ProxySQL
