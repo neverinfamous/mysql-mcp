@@ -22,6 +22,8 @@ const ListViewsSchemaBase = z.object({
     .optional()
     .describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  schemaName: z.string().optional().describe("Alias for schema"),
+  databaseName: z.string().optional().describe("Alias for schema"),
   limit: z.number().default(50).describe("Maximum number of results to return"),
   offset: z.number().default(0).describe("Number of results to skip"),
   pattern: z.string().optional().describe("Filter pattern for view name (LIKE syntax, e.g. 'user_%')"),
@@ -39,7 +41,7 @@ const ListViewsSchema = z.preprocess(
       const obj = val as Record<string, unknown>;
       return {
         ...obj,
-        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']),
+        schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']) ?? (obj['schemaName'] === "" ? undefined : obj['schemaName']) ?? (obj['databaseName'] === "" ? undefined : obj['databaseName']),
         limit: obj['limit'] !== undefined ? Number(obj['limit']) : undefined,
         offset: obj['offset'] !== undefined ? Number(obj['offset']) : undefined,
         pattern: obj['pattern'] ?? obj['filter'] ?? obj['search'],
@@ -73,6 +75,8 @@ const CreateViewSchemaBase = z.object({
   tableName: z.string().default("").describe("Alias for name (anti-hallucination)"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  schemaName: z.string().optional().describe("Alias for schema"),
+  databaseName: z.string().optional().describe("Alias for schema"),
   definition: z
     .string()
     .default("")
@@ -95,7 +99,9 @@ const CreateViewSchema = z.preprocess(
               (typeof obj['viewName'] === 'string' && obj['viewName'] !== "") ? obj['viewName'] :
               (typeof obj['tableName'] === 'string' && obj['tableName'] !== "") ? obj['tableName'] : "",
         schema: (typeof obj['schema'] === 'string' && obj['schema'] !== "") ? obj['schema'] :
-                (typeof obj['database'] === 'string' && obj['database'] !== "") ? obj['database'] : undefined,
+                (typeof obj['database'] === 'string' && obj['database'] !== "") ? obj['database'] :
+                (typeof obj['schemaName'] === 'string' && obj['schemaName'] !== "") ? obj['schemaName'] :
+                (typeof obj['databaseName'] === 'string' && obj['databaseName'] !== "") ? obj['databaseName'] : undefined,
         definition: (typeof obj['definition'] === 'string' && obj['definition'] !== "") ? obj['definition'] :
                     (typeof obj['query'] === 'string' && obj['query'] !== "") ? obj['query'] :
                     (typeof obj['sql'] === 'string' && obj['sql'] !== "") ? obj['sql'] : "",
@@ -136,6 +142,8 @@ const DropViewSchemaBase = z.object({
   tableName: z.string().default("").describe("Alias for name (anti-hallucination)"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
   database: z.string().optional().describe("Alias for schema"),
+  schemaName: z.string().optional().describe("Alias for schema"),
+  databaseName: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().default(false).describe("Use IF EXISTS"),
 });
 
@@ -150,7 +158,9 @@ const DropViewSchema = z.preprocess(
               (typeof obj['viewName'] === 'string' && obj['viewName'] !== "") ? obj['viewName'] :
               (typeof obj['tableName'] === 'string' && obj['tableName'] !== "") ? obj['tableName'] : "",
         schema: (typeof obj['schema'] === 'string' && obj['schema'] !== "") ? obj['schema'] :
-                (typeof obj['database'] === 'string' && obj['database'] !== "") ? obj['database'] : undefined,
+                (typeof obj['database'] === 'string' && obj['database'] !== "") ? obj['database'] :
+                (typeof obj['schemaName'] === 'string' && obj['schemaName'] !== "") ? obj['schemaName'] :
+                (typeof obj['databaseName'] === 'string' && obj['databaseName'] !== "") ? obj['databaseName'] : undefined,
         ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
       };
     }
