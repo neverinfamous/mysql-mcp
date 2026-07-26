@@ -359,6 +359,9 @@ export const ConstraintAnalysisSchema = z.preprocess((input: unknown) => {
 }).refine(val => val.schema !== undefined && val.schema.trim().length > 0, {
   message: "schema parameter is required (e.g., { schema: 'my_database' })",
   path: ["schema"],
+}).refine(val => !(Array.isArray(val.tables) && val.tables.length > 1), {
+  message: "This tool only supports filtering by a single table at a time. Do not pass an array of multiple tables.",
+  path: ["tables"],
 });
 
 /**
