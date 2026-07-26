@@ -27,10 +27,13 @@ const ListObjectsSchemaBase = z.object({
   routine: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   name: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   routineName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  routines: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   procedure: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   procedureName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  procedures: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   function: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   functionName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  functions: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   table: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   tableName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   tables: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
@@ -44,7 +47,7 @@ const ListObjectsSchema = z.preprocess(
         ...obj,
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']) ?? (obj['dbName'] === "" ? undefined : obj['dbName']),
         pattern: obj['pattern'] ?? obj['filter'] ?? obj['search'],
-        routine: obj['routine'] ?? obj['name'] ?? obj['routineName'] ?? obj['procedure'] ?? obj['procedureName'] ?? obj['function'] ?? obj['functionName'],
+        routine: obj['routine'] ?? obj['name'] ?? obj['routineName'] ?? obj['routines'] ?? obj['procedure'] ?? obj['procedureName'] ?? obj['procedures'] ?? obj['function'] ?? obj['functionName'] ?? obj['functions'],
         table: obj['table'] ?? obj['tableName'] ?? obj['tables'],
       };
     }

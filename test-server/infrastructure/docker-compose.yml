@@ -182,6 +182,7 @@ services:
         "username":"root", "password":"root", "options": {"replication": false,
         "extra_status_metrics": true, "extra_innodb_metrics": false,
         "extra_performance_metrics": false}}]'
+      com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
     healthcheck:
       test: [ "CMD-SHELL", "grep -q '192E' /proc/net/tcp || exit 1" ]
       interval: 15s
