@@ -175,6 +175,9 @@ export function createMigrationRecordTool(
           const errorResponse = {
             success: false as const,
             error: "Failed to insert migration record.",
+            code: "INTERNAL_ERROR",
+            category: "system",
+            recoverable: false,
           };
           const tokenEstimate = Math.ceil(
             Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
@@ -272,6 +275,9 @@ export function createMigrationApplyTool(
               success: false as const,
               error:
                 "Migration was applied but failed to insert tracking record.",
+              code: "INTERNAL_ERROR",
+              category: "system",
+              recoverable: false,
             };
             const tokenEstimate = Math.ceil(
               Buffer.byteLength(JSON.stringify(errorResponse), "utf8") / 4,
