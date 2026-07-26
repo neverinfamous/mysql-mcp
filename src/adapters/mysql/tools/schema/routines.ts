@@ -31,6 +31,9 @@ const ListObjectsSchemaBase = z.object({
   procedureName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   function: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   functionName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  table: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  tableName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  tables: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
 });
 
 const ListObjectsSchema = z.preprocess(
@@ -42,6 +45,7 @@ const ListObjectsSchema = z.preprocess(
         schema: (obj['schema'] === "" ? undefined : obj['schema']) ?? (obj['database'] === "" ? undefined : obj['database']) ?? (obj['dbName'] === "" ? undefined : obj['dbName']),
         pattern: obj['pattern'] ?? obj['filter'] ?? obj['search'],
         routine: obj['routine'] ?? obj['name'] ?? obj['routineName'] ?? obj['procedure'] ?? obj['procedureName'] ?? obj['function'] ?? obj['functionName'],
+        table: obj['table'] ?? obj['tableName'] ?? obj['tables'],
       };
     }
     return val;
@@ -50,6 +54,7 @@ const ListObjectsSchema = z.preprocess(
     schema: z.string().optional(),
     pattern: z.string().optional(),
     routine: z.unknown().optional(),
+    table: z.unknown().optional(),
     limit: z.preprocess((val) => {
       if (typeof val === "string") {
         const parsed = Number(val);
@@ -67,6 +72,8 @@ const ListObjectsSchema = z.preprocess(
   })
 ).refine((data) => data.routine === undefined, {
   message: "🛠️ AUTONOMOUS HEALING: Do not pass 'name', 'procedure', or 'function' to list tools. To read data from a routine, use mysql_read_query. To list routines, you don't need to specify a routine name.",
+}).refine((data) => data.table === undefined, {
+  message: "🛠️ AUTONOMOUS HEALING: Routines belong to a schema, not a table. Do not pass 'table' or 'tableName'. Use 'schema' to filter by database.",
 });
 
 const ListStoredProceduresOutputSchema = BaseOutputSchema.extend({
