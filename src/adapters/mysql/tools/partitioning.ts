@@ -290,6 +290,19 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const msg = error instanceof Error ? error.message : String(error);
           const cleanMsg = stripErrorPrefix(msg);
 
+          if (msg.includes("is not BASE TABLE")) {
+            const response = {
+              success: false as const,
+              error: `Table '${table}' is a view, not a base table`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
           if (msg.includes("not partitioned")) {
             const response = {
               success: false as const,
@@ -503,6 +516,19 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
 
+          if (msg.includes("is not BASE TABLE")) {
+            const response = {
+              success: false as const,
+              error: `Table '${table}' is a view, not a base table`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
           if (msg.includes("not partitioned")) {
             const response = {
               success: false as const,
@@ -669,6 +695,19 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           const msg = error instanceof Error ? error.message : String(error);
           const cleanMsg = stripErrorPrefix(msg);
 
+          if (msg.includes("is not BASE TABLE")) {
+            const response = {
+              success: false as const,
+              error: `Table '${table}' is a view, not a base table`,
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: false,
+            };
+            const tokenEstimate = Math.ceil(
+              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+            );
+            return { ...response, metrics: { tokenEstimate } };
+          }
           if (msg.includes("not partitioned")) {
             const response = {
               success: false as const,
