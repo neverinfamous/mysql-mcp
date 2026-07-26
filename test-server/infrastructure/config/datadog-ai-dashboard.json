@@ -5,7 +5,7 @@
   "description": "AI Efficiency metrics for mysql-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
   "id": "q48-mq9-3i7",
   "layout_type": "ordered",
-  "modified_at": "2026-07-19T13:37:42.793383Z",
+  "modified_at": "2026-07-26T07:47:25.849729Z",
   "notify_list": [],
   "reflow_type": "fixed",
   "restricted_roles": [],
@@ -418,13 +418,22 @@
     },
     {
       "definition": {
-        "sizing": "zoom",
-        "type": "image",
-        "url": "/static/images/logos/proxysql_large.svg"
+        "check": "proxysql.can_connect",
+        "group": "proxysql_port:6032,proxysql_server:localhost,host:adamic-wsl2",
+        "group_by": [
+          "proxysql_server",
+          "proxysql_port"
+        ],
+        "grouping": "cluster",
+        "tags": [],
+        "title": "ProxySQL monitored instances status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
       },
-      "id": 2524995767004926,
+      "id": 4740005024234863,
       "layout": {
-        "height": 2,
+        "height": 1,
         "width": 3,
         "x": 0,
         "y": 6
@@ -469,7 +478,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL latency per hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -529,7 +537,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL connections currently used per hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -611,7 +618,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL bytes received and sent per hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -634,23 +640,55 @@
     },
     {
       "definition": {
-        "check": "proxysql.can_connect",
-        "group": "proxysql_port:6032,proxysql_server:localhost,host:adamic-wsl2",
-        "group_by": [
-          "proxysql_server",
-          "proxysql_port"
-        ],
+        "check": "proxysql.backend.status",
+        "group": "*",
+        "group_by": [],
         "grouping": "cluster",
         "tags": [],
-        "time": {},
-        "title": "ProxySQL monitored instances status",
+        "title": "ProxySQL backends status",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
       },
-      "id": 4740005024234863,
+      "id": 2452699725061914,
       "layout": {
         "height": 1,
+        "width": 3,
+        "x": 0,
+        "y": 7
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.pool.Client_Connections_aborted{*}.as_rate()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "avg:proxysql.pool.Server_Connections_aborted{*}.as_rate()"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Connection Aborts",
+        "type": "timeseries"
+      },
+      "id": 5321445597837382,
+      "layout": {
+        "height": 2,
         "width": 3,
         "x": 0,
         "y": 8
@@ -704,7 +742,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL statements that took more than 5 seconds to complete",
         "title_align": "left",
         "title_size": "16",
@@ -764,7 +801,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL memory usage of the query cache",
         "title_align": "left",
         "title_size": "16",
@@ -824,7 +860,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL cache read throughput",
         "title_align": "left",
         "title_size": "16",
@@ -843,27 +878,6 @@
         "width": 3,
         "x": 9,
         "y": 8
-      }
-    },
-    {
-      "definition": {
-        "check": "proxysql.backend.status",
-        "group": "*",
-        "group_by": [],
-        "grouping": "cluster",
-        "tags": [],
-        "time": {},
-        "title": "ProxySQL backends status",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "check_status"
-      },
-      "id": 2452699725061914,
-      "layout": {
-        "height": 1,
-        "width": 3,
-        "x": 0,
-        "y": 9
       }
     },
     {
@@ -1371,7 +1385,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Agent Quality (Error Classification)",
         "title_align": "left",
         "title_size": "16",
