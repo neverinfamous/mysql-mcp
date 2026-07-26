@@ -13,6 +13,7 @@ import type {
 import {
   validateQualifiedIdentifier,
   escapeQualifiedTable,
+  validateIdentifier,
 } from "../../../../utils/validators.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
@@ -222,6 +223,11 @@ export function createListViewsTool(adapter: MySQLAdapter): ToolDefinition {
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {
+          try {
+            validateIdentifier(targetSchema, "schema");
+          } catch (err: unknown) {
+            return formatHandlerErrorResponse(err);
+          }
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [targetSchema],
@@ -296,6 +302,11 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {
+          try {
+            validateIdentifier(targetSchema, "schema");
+          } catch (err: unknown) {
+            return formatHandlerErrorResponse(err);
+          }
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [targetSchema],
@@ -371,6 +382,11 @@ export function createDropViewTool(adapter: MySQLAdapter): ToolDefinition {
 
         // P154: Schema existence check when explicitly provided
         if (targetSchema !== undefined && targetSchema !== "") {
+          try {
+            validateIdentifier(targetSchema, "schema");
+          } catch (err: unknown) {
+            return formatHandlerErrorResponse(err);
+          }
           const schemaCheck = await adapter.executeQuery(
             "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
             [targetSchema],
