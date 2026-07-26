@@ -41,8 +41,14 @@ export const DependencyGraphSchema = z.object({
   tables: z.union([z.string(), z.array(z.string())]).optional(),
   tableName: z.string().optional(),
   name: z.string().optional(),
-  includeRowCounts: z.boolean().optional(),
-  compact: z.boolean().optional(),
+  includeRowCounts: z.preprocess((val) => {
+    if (typeof val === "string") return val.toLowerCase() === "true";
+    return val;
+  }, z.boolean().optional()),
+  compact: z.preprocess((val) => {
+    if (typeof val === "string") return val.toLowerCase() === "true";
+    return val;
+  }, z.boolean().optional()),
   limit: z.preprocess((val) => {
     if (typeof val === "string") return parseInt(val, 10);
     return val;
@@ -108,7 +114,10 @@ export const TopologicalSortSchema = z
     schema: z.string().optional(),
     database: z.string().optional(),
     db: z.string().optional(),
-    direction: z.enum(["create", "drop"]).optional(),
+    direction: z.preprocess((val) => {
+      if (typeof val === "string") return val.toLowerCase();
+      return val;
+    }, z.enum(["create", "drop"]).optional()),
     table: z.any().optional(),
     tables: z.any().optional(),
   })
