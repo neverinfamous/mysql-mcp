@@ -172,6 +172,9 @@ export const StatsLagLeadSchemaBase = z.object({
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
   orderBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to order by (Required)"),
+  order_by: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
   direction: z
     .union([z.string(), z.array(z.string()), z.number()])
     .optional()
@@ -185,6 +188,9 @@ export const StatsLagLeadSchemaBase = z.object({
     .optional()
     .describe("Default value if no row exists"),
   partitionBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to partition by"),
+  partition_by: z.string().optional().describe("Alias for partitionBy"),
+  groupBy: z.string().optional().describe("Alias for partitionBy"),
+  group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
     .union([z.string(), z.array(z.string()), z.number()])
     .optional()
@@ -256,10 +262,16 @@ export const StatsRunningTotalSchemaBase = z.object({
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
   orderBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to order by (Required)"),
+  order_by: z.string().optional().describe("Alias for orderBy"),
+  sort: z.string().optional().describe("Alias for orderBy"),
+  sortBy: z.string().optional().describe("Alias for orderBy"),
   partitionBy: z
     .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Reset running total for each partition"),
+  partition_by: z.string().optional().describe("Alias for partitionBy"),
+  groupBy: z.string().optional().describe("Alias for partitionBy"),
+  group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
     .union([z.string(), z.array(z.string()), z.number()])
     .optional()

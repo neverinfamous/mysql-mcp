@@ -160,17 +160,17 @@ async function main() {
         
         # Inject DML and slow queries periodically to light up Insert/Update/Delete/Fsync/Slow/Lock metrics
         if [ $((i % 20)) -eq 0 ]; then
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "INSERT INTO testdb.test_events (event_name, event_data) VALUES ('load_event_$i', '{\"load\": true}');" > /dev/null 2>&1
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_name = 'updated_$i' WHERE id = (SELECT MAX(id) FROM testdb.test_events);" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "INSERT INTO testdb.test_events (event_type, payload) VALUES ('load_event_$i', '{\"load\": true}');" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_type = 'updated_$i' WHERE id = (SELECT MAX(id) FROM testdb.test_events);" > /dev/null 2>&1
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "DELETE FROM testdb.test_events WHERE id = (SELECT MIN(id) FROM testdb.test_events);" > /dev/null 2>&1
         fi
         
         # Generate slow queries and locks
         if [ $((i % 100)) -eq 0 ]; then
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(11);" > /dev/null 2>&1 &
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "BEGIN; UPDATE testdb.test_events SET event_name = 'lock' WHERE id = 1; DO SLEEP(1.5); COMMIT;" > /dev/null 2>&1 &
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "BEGIN; UPDATE testdb.test_events SET event_type = 'lock' WHERE id = 1; DO SLEEP(1.5); COMMIT;" > /dev/null 2>&1 &
           sleep 0.1
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_name = 'lock_wait' WHERE id = 1;" > /dev/null 2>&1 &
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_type = 'lock_wait' WHERE id = 1;" > /dev/null 2>&1 &
           
           # Also send some traffic to mysql-router to light up router metrics and logs
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6446 -e "SELECT * FROM testdb.test_events LIMIT 10;" > /dev/null 2>&1 &
