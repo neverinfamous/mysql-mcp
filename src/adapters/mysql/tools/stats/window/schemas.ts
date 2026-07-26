@@ -8,16 +8,16 @@ export const StatsRowNumberSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
-  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to order by (Required)"),
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
-  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
+  partitionBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
@@ -26,11 +26,11 @@ export const StatsRowNumberSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Maximum rows to return (default: 10)"),
   offset: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
   asColumn: z.string().optional().describe("Alias for the output column"),
@@ -90,31 +90,31 @@ export const StatsRankSchemaBase = z.object({
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
-  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
+  partitionBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Columns to include in result"),
-  method: z.unknown().optional().describe("Rank function type (default: rank)"),
+  method: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Rank function type (default: rank)"),
   where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Maximum rows to return (default: 10)"),
   offset: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
-  rankType: z.unknown().optional().describe("Alias for method"),
-  rank_type: z.unknown().optional().describe("Alias for method"),
-  type: z.unknown().optional().describe("Alias for method"),
+  rankType: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for method"),
+  rank_type: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for method"),
+  type: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for method"),
   asColumn: z.string().optional().describe("Alias for the output column"),
   as_column: z.string().optional().describe("Alias for asColumn"),
   alias: z.string().optional().describe("Alias for asColumn"),
@@ -171,22 +171,22 @@ export const StatsLagLeadSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to order by (Required)"),
   direction: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("LAG (previous row) or LEAD (next row)"),
   offset: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to look back/ahead (default: 1)"),
   defaultValue: z
     .string()
     .optional()
     .describe("Default value if no row exists"),
-  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
+  partitionBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to partition by"),
   selectColumns: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
@@ -195,11 +195,11 @@ export const StatsLagLeadSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Maximum rows to return (default: 10)"),
   paginationOffset: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
 });
@@ -255,13 +255,13 @@ export const StatsRunningTotalSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to order by (Required)"),
   partitionBy: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Reset running total for each partition"),
   selectColumns: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
@@ -270,11 +270,11 @@ export const StatsRunningTotalSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Maximum rows to return (default: 10)"),
   offset: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
 });
@@ -327,23 +327,23 @@ export const StatsMovingAvgSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to order by (Required)"),
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
   windowSize: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows in the moving window"),
-  window_size: z.unknown().optional().describe("Alias for windowSize"),
-  size: z.unknown().optional().describe("Alias for windowSize"),
-  period: z.unknown().optional().describe("Alias for windowSize"),
-  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
+  window_size: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for windowSize"),
+  size: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for windowSize"),
+  period: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for windowSize"),
+  partitionBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
@@ -352,11 +352,11 @@ export const StatsMovingAvgSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Maximum rows to return (default: 10)"),
   offset: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
 });
@@ -405,22 +405,22 @@ export const StatsNtileSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
-  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to order by (Required)"),
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
   buckets: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of buckets (e.g., 4 for quartiles)"),
-  quantiles: z.unknown().optional().describe("Alias for buckets"),
-  n: z.unknown().optional().describe("Alias for buckets"),
-  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
+  quantiles: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for buckets"),
+  n: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Alias for buckets"),
+  partitionBy: z.union([z.string(), z.array(z.string()), z.number()]).optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
   selectColumns: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Columns to include in result"),
   where: z.string().optional().describe("Filter condition. Anti-Hallucination Hint: Pass only the condition (e.g. 'amount > 100'), NOT a full SELECT query."),
@@ -429,11 +429,11 @@ export const StatsNtileSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Maximum rows to return (default: 10)"),
   offset: z
-    .unknown()
+    .union([z.string(), z.array(z.string()), z.number()])
     .optional()
     .describe("Number of rows to skip (default: 0)"),
 });

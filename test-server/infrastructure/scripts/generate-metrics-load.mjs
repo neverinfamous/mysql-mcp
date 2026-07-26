@@ -167,10 +167,15 @@ async function main() {
         
         # Generate slow queries and locks
         if [ $((i % 100)) -eq 0 ]; then
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1.5);" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(11);" > /dev/null 2>&1 &
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "BEGIN; UPDATE testdb.test_events SET event_name = 'lock' WHERE id = 1; DO SLEEP(1.5); COMMIT;" > /dev/null 2>&1 &
           sleep 0.1
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_name = 'lock_wait' WHERE id = 1;" > /dev/null 2>&1 &
+          
+          # Also send some traffic to mysql-router to light up router metrics and logs
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6446 -e "SELECT * FROM testdb.test_events LIMIT 10;" > /dev/null 2>&1 &
+          # Trigger an access denied error to generate a MySQL Error Log entry
+          mysql -u cluster_admin -pwrongpassword -h 127.0.0.1 -P 6033 -e "SELECT 1;" > /dev/null 2>&1 &
         fi
         
         # Generate aborted connection to ProxySQL
