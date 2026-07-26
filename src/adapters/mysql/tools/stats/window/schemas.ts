@@ -8,11 +8,11 @@ export const StatsRowNumberSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
-  orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
-  partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
@@ -90,7 +90,7 @@ export const StatsRankSchemaBase = z.object({
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
-  partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
@@ -171,7 +171,7 @@ export const StatsLagLeadSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
   direction: z
     .unknown()
     .optional()
@@ -184,7 +184,7 @@ export const StatsLagLeadSchemaBase = z.object({
     .string()
     .optional()
     .describe("Default value if no row exists"),
-  partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
   selectColumns: z
     .unknown()
     .optional()
@@ -255,9 +255,9 @@ export const StatsRunningTotalSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
   partitionBy: z
-    .string()
+    .unknown()
     .optional()
     .describe("Reset running total for each partition"),
   selectColumns: z
@@ -327,7 +327,7 @@ export const StatsMovingAvgSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
@@ -338,7 +338,7 @@ export const StatsMovingAvgSchemaBase = z.object({
   window_size: z.unknown().optional().describe("Alias for windowSize"),
   size: z.unknown().optional().describe("Alias for windowSize"),
   period: z.unknown().optional().describe("Alias for windowSize"),
-  partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
@@ -405,7 +405,7 @@ export const StatsNtileSchemaBase = z.object({
   name: z.string().optional().describe("Alias for table"),
   tbl: z.string().optional().describe("Alias for table"),
   table_name: z.string().optional().describe("Alias for table"),
-  orderBy: z.string().optional().describe("Column(s) to order by (Required)"),
+  orderBy: z.unknown().optional().describe("Column(s) to order by (Required)"),
   order_by: z.string().optional().describe("Alias for orderBy"),
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
@@ -415,7 +415,7 @@ export const StatsNtileSchemaBase = z.object({
     .describe("Number of buckets (e.g., 4 for quartiles)"),
   quantiles: z.unknown().optional().describe("Alias for buckets"),
   n: z.unknown().optional().describe("Alias for buckets"),
-  partitionBy: z.string().optional().describe("Column(s) to partition by"),
+  partitionBy: z.unknown().optional().describe("Column(s) to partition by"),
   partition_by: z.string().optional().describe("Alias for partitionBy"),
   groupBy: z.string().optional().describe("Alias for partitionBy"),
   group_by: z.string().optional().describe("Alias for partitionBy"),
