@@ -577,17 +577,6 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
         
-        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
-
-        // Check if table exists (P154) and allow native error formatting
-        await adapter.executeQuery(`SELECT 1 FROM ${fullTableName} LIMIT 1`);
-
-        const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
-        const tblParam = database ? table : (table.includes('.') ? table.split('.')[1] : table);
-
-        // Determine columns to summarize
-        let targetColumns: string[];
-
         if (parsed.columns !== undefined) {
           if (parsed.columns.length === 0) {
             return withTokenEstimate({
@@ -607,6 +596,20 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
               });
             }
           }
+        }
+        
+        const fullTableName = database ? `\`${database}\`.\`${table}\`` : (table.includes('.') ? table.split('.').map(p => `\`${p}\``).join('.') : `\`${table}\``);
+
+        // Check if table exists (P154) and allow native error formatting
+        await adapter.executeQuery(`SELECT 1 FROM ${fullTableName} LIMIT 1`);
+
+        const dbParam = database ? database : (table.includes('.') ? table.split('.')[0] : null);
+        const tblParam = database ? table : (table.includes('.') ? table.split('.')[1] : table);
+
+        // Determine columns to summarize
+        let targetColumns: string[];
+
+        if (parsed.columns !== undefined) {
           targetColumns = parsed.columns;
         } else {
           // Auto-detect numeric columns
