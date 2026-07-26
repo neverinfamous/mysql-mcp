@@ -588,7 +588,16 @@ export function createStatsSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         // Determine columns to summarize
         let targetColumns: string[];
 
-        if (parsed.columns && parsed.columns.length > 0) {
+        if (parsed.columns !== undefined) {
+          if (parsed.columns.length === 0) {
+            return withTokenEstimate({
+              success: true,
+              data: {
+                table,
+                summaries: [],
+              },
+            });
+          }
           // Verify they are valid columns
           for (const c of parsed.columns) {
             if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(c)) {
