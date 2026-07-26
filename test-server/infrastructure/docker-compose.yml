@@ -139,14 +139,15 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    labels:
+      com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql-node1"}]'
+      com.datadoghq.ad.check_names: '[]'
     healthcheck:
       test: [ "CMD-SHELL", "cat /tmp/cluster-healthy 2>/dev/null || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 60
       start_period: 120s
-    labels:
-      com.datadoghq.ad.check_names: '[]'
 
   # ==========================================
   # ROUTING & PROXIES
