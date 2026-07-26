@@ -203,12 +203,21 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
           }
         }
 
+        let unqualifiedTable = table;
+        
         // P154: Table existence check when explicitly provided
         if (table !== undefined && table !== "") {
+          let tableSchemaForCheck = targetSchema;
+          if (table.includes('.')) {
+            const parts = table.split('.');
+            tableSchemaForCheck = parts[0] || targetSchema;
+            unqualifiedTable = parts[1] || table;
+          }
+
           const tableCheckQuery = "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?";
           const tableCheck = await adapter.executeQuery(
             tableCheckQuery,
-            [targetSchema, table],
+            [tableSchemaForCheck, unqualifiedTable],
           );
           if (tableCheck.rows === undefined || tableCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
@@ -238,7 +247,7 @@ export function createListTriggersTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (table !== undefined && table !== "") {
             query += " AND EVENT_OBJECT_TABLE = ?";
-            queryParams.push(table);
+            queryParams.push(unqualifiedTable);
         }
 
         query +=
