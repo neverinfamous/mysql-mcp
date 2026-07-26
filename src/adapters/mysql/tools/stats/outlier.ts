@@ -37,22 +37,29 @@ export const StatsOutliersSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  method: z.unknown().optional().describe("Detection method to use"),
+  method: z.unknown().optional().describe("Detection method to use (iqr or zscore)"),
+  type: z.unknown().optional().describe("Alias for method"),
   threshold: z
     .unknown()
     .optional()
     .describe("Multiplier threshold (default: 1.5 for IQR, 3.0 for Z-score)"),
+  multiplier: z.unknown().optional().describe("Alias for threshold"),
   where: z.string().optional().describe("Filter condition. Note: Pass where, not sql or query."),
+  filter: z.string().optional().describe("Alias for where"),
+  condition: z.string().optional().describe("Alias for where"),
   sql: z.string().optional().describe("Alias for where"),
   query: z.string().optional().describe("Alias for where"),
   limit: z
     .unknown()
     .optional()
     .describe("Maximum rows to process (default: 10000)"),
+  maxRows: z.unknown().optional().describe("Alias for limit"),
+  max_rows: z.unknown().optional().describe("Alias for limit"),
   maxOutliers: z
     .unknown()
     .optional()
     .describe("Maximum number of outliers to return (default: 50)"),
+  max_outliers: z.unknown().optional().describe("Alias for maxOutliers"),
 });
 
 export const StatsOutliersSchema = z.preprocess(
@@ -63,7 +70,11 @@ export const StatsOutliersSchema = z.preprocess(
       ...obj,
       table: obj["table"] ?? obj["tableName"] ?? obj["name"] ?? obj["tbl"] ?? obj["table_name"],
       column: obj["column"] ?? obj["col"] ?? obj["columnName"] ?? obj["fieldName"] ?? obj["c"],
-      where: obj["where"] ?? obj["sql"] ?? obj["query"],
+      where: obj["where"] ?? obj["filter"] ?? obj["condition"] ?? obj["sql"] ?? obj["query"],
+      method: typeof (obj["method"] ?? obj["type"]) === "string" ? String(obj["method"] ?? obj["type"]).replace(/[-_]/g, "") : (obj["method"] ?? obj["type"]),
+      threshold: obj["threshold"] ?? obj["multiplier"],
+      limit: obj["limit"] ?? obj["maxRows"] ?? obj["max_rows"],
+      maxOutliers: obj["maxOutliers"] ?? obj["max_outliers"],
     };
   },
   z.object({

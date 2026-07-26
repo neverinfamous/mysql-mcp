@@ -371,7 +371,7 @@ services:
       retries: 5
 
   datadog-unified:
-    image: gcr.io/datadoghq/agent:7.81.0
+    image: gcr.io/datadoghq/agent:7.81.2
     container_name: datadog-unified
     restart: unless-stopped
     pid: host
