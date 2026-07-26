@@ -134,6 +134,29 @@ export function createStatsOutliersTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
+        const dbPart = database ? database : (table.includes('.') ? (table.split('.')[0] || '').replace(/`/g, '') : null);
+        const tblPart = table.includes('.') ? (table.split('.')[1] || '').replace(/`/g, '') : table.replace(/`/g, '');
+        
+        const typeCheckSql = `
+          SELECT DATA_TYPE 
+          FROM information_schema.COLUMNS 
+          WHERE TABLE_NAME = ? 
+          AND COLUMN_NAME = ?
+          ${dbPart ? `AND TABLE_SCHEMA = ?` : `AND TABLE_SCHEMA = DATABASE()`}
+        `;
+        const typeParams = dbPart ? [tblPart, column, dbPart] : [tblPart, column];
+        const typeRes = await adapter.executeQuery(typeCheckSql, typeParams);
+        const firstRow = typeRes.rows && typeRes.rows.length > 0 ? typeRes.rows[0] : undefined;
+        if (!firstRow) {
+          return withTokenEstimate({ success: false, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false, error: `Column '${column}' not found` });
+        }
+        
+        const dataType = String(firstRow['DATA_TYPE']).toLowerCase();
+        const numericTypes = ['tinyint', 'smallint', 'mediumint', 'int', 'integer', 'bigint', 'decimal', 'numeric', 'float', 'double', 'real', 'bit', 'year'];
+        if (!numericTypes.includes(dataType)) {
+          return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: `Column '${column}' is not numeric (type: ${dataType}). Statistical functions require numeric columns.` });
+        }
+
         // Validate minimum rows to perform outlier detection
         const countQuery = `SELECT COUNT(\`${column}\`) AS cnt FROM ${fullTableName} ${where ? `WHERE ${where}` : ""}`;
         const countRes = await adapter.executeQuery(countQuery);
