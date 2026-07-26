@@ -7,7 +7,7 @@
 
 import type { MySQLAdapter } from "../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../types/index.js";
-import { formatHandlerErrorResponse } from "./core/error-helpers.js";
+import { formatHandlerErrorResponse, stripErrorPrefix } from "./core/error-helpers.js";
 import {
   PartitionInfoSchema,
   PartitionInfoSchemaBase,
@@ -288,6 +288,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
+          const cleanMsg = stripErrorPrefix(msg);
 
           if (msg.includes("not partitioned")) {
             const response = {
@@ -374,7 +375,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           ) {
             const response = {
               success: false as const,
-              error: `Mismatched partition type: ${msg}`,
+              error: `Mismatched partition type: ${cleanMsg}`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: false,
@@ -400,7 +401,7 @@ function createAddPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           if (msg.includes("each partition must be defined")) {
             const response = {
               success: false as const,
-              error: `Mismatched partition type: ${msg}`,
+              error: `Mismatched partition type: ${cleanMsg}`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: false,
@@ -664,6 +665,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           return { ...response, metrics: { tokenEstimate } };
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
+          const cleanMsg = stripErrorPrefix(msg);
 
           if (msg.includes("not partitioned")) {
             const response = {
@@ -710,7 +712,7 @@ function createReorganizePartitionTool(adapter: MySQLAdapter): ToolDefinition {
           ) {
             const response = {
               success: false as const,
-              error: `Mismatched partition type: ${msg}`,
+              error: `Mismatched partition type: ${cleanMsg}`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: false,
