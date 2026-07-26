@@ -139,7 +139,7 @@ export const HistogramSchema = z.preprocess(
   z.object({
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    buckets: z.coerce.number().min(1).default(16),
+    buckets: z.coerce.number().int().min(1).default(16),
     update: z.boolean().default(false),
   })
 );

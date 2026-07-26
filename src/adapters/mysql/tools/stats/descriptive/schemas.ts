@@ -126,7 +126,7 @@ export const DistributionSchema = z.preprocess(
   z.object({
     table: z.string().min(1, "table is required"),
     column: z.string().min(1, "column is required"),
-    buckets: z.coerce.number().min(1).max(100).default(10),
+    buckets: z.coerce.number().int().min(1).max(100).default(10),
     where: z.string().optional(),
   })
 );
@@ -178,7 +178,7 @@ export const TimeSeriesSchema = z.preprocess(
     interval: z.string().default("day"),
     aggregation: z.string().default("avg"),
     where: z.string().optional(),
-    limit: z.coerce.number().min(1).max(1000).default(50),
+    limit: z.coerce.number().int().min(1).max(1000).default(50),
   })
 );
 
@@ -217,7 +217,7 @@ export const SamplingSchema = z.preprocess(
   },
   z.object({
     table: z.string().min(1, "table is required"),
-    sampleSize: z.coerce.number().min(0).max(1000).default(10),
+    sampleSize: z.coerce.number().int().min(0).max(1000).default(10),
     columns: z.array(z.string()).optional(),
     seed: z.coerce.number().optional(),
     where: z.string().optional(),
