@@ -107,8 +107,8 @@ const CreateViewSchema = z.preprocess(
         definition: (typeof obj['definition'] === 'string' && obj['definition'] !== "") ? obj['definition'] :
                     (typeof obj['query'] === 'string' && obj['query'] !== "") ? obj['query'] :
                     (typeof obj['sql'] === 'string' && obj['sql'] !== "") ? obj['sql'] : "",
-        orReplace: (typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : obj['orReplace']) ??
-                   (typeof obj['replace'] === 'string' ? obj['replace'].toLowerCase() === 'true' : obj['replace']),
+        orReplace: (typeof obj['orReplace'] === 'boolean' ? obj['orReplace'] : typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : false) ||
+                   (typeof obj['replace'] === 'boolean' ? obj['replace'] : typeof obj['replace'] === 'string' ? obj['replace'].toLowerCase() === 'true' : false),
       };
     }
     return val;
