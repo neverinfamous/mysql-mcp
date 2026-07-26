@@ -78,12 +78,14 @@ export const MigrationRecordSchemaBase = z.object({
 const MigrationRecordParseSchema = z.object({
   version: z
     .string()
+    .trim()
+    .min(1, "Version cannot be empty")
     .describe("Version identifier (e.g., '1.0.0', '2024-01-15-add-users')"),
   description: z
     .string()
     .optional()
     .describe("Human-readable description of the migration"),
-  migrationSql: z.string().describe("The DDL/SQL statements applied"),
+  migrationSql: z.string().trim().min(1, "Migration SQL cannot be empty").describe("The DDL/SQL statements applied"),
   rollbackSql: z.string().optional().describe("SQL to reverse this migration"),
   sourceSystem: z
     .string()
