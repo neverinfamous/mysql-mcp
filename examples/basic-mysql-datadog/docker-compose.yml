@@ -1,6 +1,6 @@
 services:
   mysql-server:
-    image: mysql:9.1
+    image: mysql:9.1.0
     container_name: basic-mysql
     restart: unless-stopped
     ports:
@@ -19,7 +19,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["mysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": true, "extra_performance_metrics": true}}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"replication": false, "extra_status_metrics": true, "extra_innodb_metrics": true, "extra_performance_metrics": false}}]'
       com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql"}]'
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
@@ -28,7 +28,7 @@ services:
       retries: 10
 
   datadog-agent:
-    image: gcr.io/datadoghq/agent:7
+    image: gcr.io/datadoghq/agent:7.81.0
     container_name: datadog-agent
     restart: unless-stopped
     pid: host

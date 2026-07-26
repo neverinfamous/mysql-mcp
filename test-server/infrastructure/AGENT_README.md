@@ -44,7 +44,7 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    Docker Network: unified-database-ecosystem-default         │
+│                    Docker Network: infrastructure_default                      │
 │                                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                       │
 │  │ mysql-node1  │  │ mysql-node2  │  │ mysql-node3  │                       │
@@ -121,6 +121,7 @@ docker logs -f cluster-healer
 | REST API Password | `router_api` |
 | RW Routing Port | `6446` (→ PRIMARY) |
 | RO Routing Port | `6447` (→ SECONDARY) |
+| X-Protocol RO Port | `6448` (→ SECONDARY) |
 
 ### Observability & Tools
 | Property | URL |

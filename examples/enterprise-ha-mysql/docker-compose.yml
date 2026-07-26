@@ -1,6 +1,6 @@
 services:
   mysql-node1:
-    image: mysql:9.1
+    image: mysql:9.1.0
     container_name: mysql-node1
     hostname: mysql-node1
     restart: unless-stopped
@@ -18,6 +18,7 @@ services:
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
+    mem_limit: 1024m
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
       interval: 10s
@@ -29,7 +30,7 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}"}]'
 
   mysql-node2:
-    image: mysql:9.1
+    image: mysql:9.1.0
     container_name: mysql-node2
     hostname: mysql-node2
     restart: unless-stopped
@@ -46,6 +47,7 @@ services:
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
+    mem_limit: 1024m
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
       interval: 10s
@@ -53,7 +55,7 @@ services:
       retries: 10
 
   mysql-node3:
-    image: mysql:9.1
+    image: mysql:9.1.0
     container_name: mysql-node3
     hostname: mysql-node3
     restart: unless-stopped
@@ -70,6 +72,7 @@ services:
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
+    mem_limit: 1024m
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
       interval: 10s
@@ -94,6 +97,7 @@ services:
       - /tmp/mysqlrouter:uid=999,gid=999
     ports:
       - "6446:6446"
+    mem_limit: 256m
     healthcheck:
       test: ["CMD", "mysql", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot", "-e", "SELECT 1"]
       interval: 15s
@@ -121,9 +125,10 @@ services:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin"}]'
+    mem_limit: 256m
 
   datadog-agent:
-    image: gcr.io/datadoghq/agent:7
+    image: gcr.io/datadoghq/agent:7.81.0
     container_name: datadog-agent
     restart: unless-stopped
     pid: host
@@ -150,6 +155,7 @@ services:
       - NET_RAW
       - IPC_LOCK
       - CHOWN
+    mem_limit: 512m
 
 volumes:
   node1-data:

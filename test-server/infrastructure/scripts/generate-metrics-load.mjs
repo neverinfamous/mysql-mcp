@@ -33,6 +33,7 @@ async function main() {
     child.stdin.end();
   } catch (err) {
     console.error("Failed to trigger ProxySQL spike:", err);
+    process.exit(1);
   }
 
   // 2. Connect to mysql-mcp via stdio transport

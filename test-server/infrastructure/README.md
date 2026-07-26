@@ -26,10 +26,10 @@ docker compose up -d
 | **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.1.0` |
 | **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.1.0` |
 | **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.1.0` |
-| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1.0` |
+| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1.0` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:2.6.3` |
 | **Redis** | `redis-server` | `6379` | `redis:7.4.0` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.11` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:4.8.1` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v2.54.1` |
 | **Loki** | `loki` | `3100` | `grafana/loki:3.1.0` |
