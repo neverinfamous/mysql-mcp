@@ -84,7 +84,9 @@ const CreateViewSchemaBase = z.object({
   query: z.string().default("").describe("Alias for definition"),
   sql: z.string().default("").describe("Alias for definition"),
   orReplace: z.boolean().default(false).describe("Use CREATE OR REPLACE"),
+  replace: z.boolean().default(false).describe("Alias for orReplace"),
   algorithm: z.string().default("UNDEFINED").describe("View algorithm"),
+  security: z.string().optional().describe("SQL SECURITY (DEFINER or INVOKER)"),
   checkOption: z.string().default("NONE").describe("WITH CHECK OPTION"),
 });
 
@@ -105,7 +107,8 @@ const CreateViewSchema = z.preprocess(
         definition: (typeof obj['definition'] === 'string' && obj['definition'] !== "") ? obj['definition'] :
                     (typeof obj['query'] === 'string' && obj['query'] !== "") ? obj['query'] :
                     (typeof obj['sql'] === 'string' && obj['sql'] !== "") ? obj['sql'] : "",
-        orReplace: typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : obj['orReplace'],
+        orReplace: (typeof obj['orReplace'] === 'string' ? obj['orReplace'].toLowerCase() === 'true' : obj['orReplace']) ??
+                   (typeof obj['replace'] === 'string' ? obj['replace'].toLowerCase() === 'true' : obj['replace']),
       };
     }
     return val;
@@ -122,6 +125,10 @@ const CreateViewSchema = z.preprocess(
       .enum(["UNDEFINED", "MERGE", "TEMPTABLE"])
       .default("UNDEFINED")
       .describe("View algorithm"),
+    security: z
+      .enum(["DEFINER", "INVOKER"])
+      .optional()
+      .describe("SQL SECURITY"),
     checkOption: z
       .enum(["NONE", "CASCADED", "LOCAL"])
       .default("NONE")
@@ -271,6 +278,7 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const definition = parsedParams.definition;
         const orReplace = parsedParams.orReplace;
         const algorithm = parsedParams.algorithm;
+        const security = parsedParams.security;
         const checkOption = parsedParams.checkOption;
 
         // P154: Schema existence check when explicitly provided
@@ -299,7 +307,8 @@ export function createCreateViewTool(adapter: MySQLAdapter): ToolDefinition {
         const fullViewName = escapeQualifiedTable(name);
 
         const createClause = orReplace ? "CREATE OR REPLACE" : "CREATE";
-        let sql = `${createClause} ALGORITHM=${algorithm} VIEW ${fullViewName} AS ${definition}`;
+        const securityClause = security ? ` SQL SECURITY ${security}` : "";
+        let sql = `${createClause} ALGORITHM=${algorithm}${securityClause} VIEW ${fullViewName} AS ${definition}`;
 
         if (checkOption !== "NONE") {
           sql += ` WITH ${checkOption} CHECK OPTION`;
