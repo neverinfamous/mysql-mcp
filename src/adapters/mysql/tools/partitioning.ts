@@ -481,8 +481,10 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
 
         try {
           const tableRef = database ? `\`${escapeIdentifier(database)}\`.\`${escapeIdentifier(table)}\`` : `\`${escapeIdentifier(table)}\``;
+          const partitionsList = partitionName.map(p => `\`${escapeIdentifier(p)}\``).join(", ");
+            
           await adapter.executeQuery(
-            `ALTER TABLE ${tableRef} DROP PARTITION \`${escapeIdentifier(partitionName)}\``,
+            `ALTER TABLE ${tableRef} DROP PARTITION ${partitionsList}`,
           );
 
           adapter.clearSchemaCache();
@@ -520,7 +522,7 @@ function createDropPartitionTool(adapter: MySQLAdapter): ToolDefinition {
           ) {
             const response = {
               success: false as const,
-              error: `Partition '${partitionName}' does not exist on table '${table}'`,
+              error: `Partition '${partitionName.join(", ")}' does not exist on table '${table}'`,
               code: "VALIDATION_ERROR",
               category: "validation",
               recoverable: false,

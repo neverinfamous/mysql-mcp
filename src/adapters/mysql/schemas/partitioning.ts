@@ -132,9 +132,9 @@ export const DropPartitionSchemaBase = z.object({
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
   database: z.string().optional().describe("Database name"),
-  partitionName: z.string().optional().describe("Partition name to drop"),
-  partition: z.string().optional().describe("Alias for partitionName"),
-  partitions: z.string().optional().describe("Alias for partitionName"),
+  partitionName: z.union([z.string(), z.array(z.string())]).optional().describe("Partition name(s) to drop. Can be a comma-separated string or array."),
+  partition: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for partitionName"),
+  partitions: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for partitionName"),
 });
 
 export const DropPartitionSchema = z
@@ -150,6 +150,19 @@ export const DropPartitionSchema = z
           else if (obj["partitions"] !== undefined) obj["partitionName"] = obj["partitions"];
           else if (obj["name"] !== undefined && obj["table"] !== obj["name"]) obj["partitionName"] = obj["name"];
         }
+
+        if (typeof obj["partitionName"] === "string") {
+          const partStr = obj["partitionName"];
+          try {
+            const parsed = JSON.parse(partStr) as unknown;
+            obj["partitionName"] = Array.isArray(parsed) ? parsed : [parsed];
+          } catch {
+            obj["partitionName"] = partStr
+              .split(",")
+              .map((s) => s.trim())
+              .filter((s) => s !== "");
+          }
+        }
       }
       return v;
     },
@@ -158,19 +171,18 @@ export const DropPartitionSchema = z
       tableName: z.string().optional(),
       name: z.string().optional(),
       database: z.string().optional(),
-      partitionName: z.string().optional(),
-      partition: z.string().optional(),
+      partitionName: z.array(z.string()).optional(),
     }),
   )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     database: data.database,
-    partitionName: data.partitionName ?? data.partition ?? "",
+    partitionName: data.partitionName ?? [],
   }))
   .refine((data) => data.table !== "", {
     message: "table (or tableName/name alias) is required",
   })
-  .refine((data) => data.partitionName !== "", {
+  .refine((data) => data.partitionName.length > 0, {
     message: "partitionName (or partition alias) is required",
   });
 
@@ -342,7 +354,7 @@ export const AddPartitionOutputSchema = BaseOutputSchema.extend({
 export const DropPartitionOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     table: z.string(),
-    partitionName: z.string(),
+    partitionName: z.union([z.string(), z.array(z.string())]),
     warning: z.string().optional(),
   }).loose().optional(),
 });
