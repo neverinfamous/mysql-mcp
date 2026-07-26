@@ -16,6 +16,101 @@ async function main() {
   console.log("🚀 Starting metrics generation load test...");
   const startTime = Math.floor(Date.now() / 1000);
 
+  // 0. Generate Redis metrics load to light up dashboard widgets
+  // Targets: Slowlog, Evictions, Blocked Clients, Key Distribution,
+  //          Network I/O, Top Commands, Error/All Logs, Percent Used Memory
+  console.log("🔴 Generating Redis metrics load...");
+  try {
+    const redisChild = spawn("wsl.exe", ["-e", "docker", "exec", "-i", "redis-server", "bash"], { stdio: ["pipe", "ignore", "ignore"] });
+    redisChild.on('error', err => console.error("Redis load error:", err));
+
+    redisChild.stdin.write(`
+      # ─── Phase 0A: Configure eviction simulation ───────────────────────
+      # Temporarily lower maxmemory so we can trigger evictions, and set
+      # the ratio denominator for the "Percent Used Memory" widget.
+      redis-cli CONFIG SET maxmemory 8mb 2>/dev/null
+      redis-cli CONFIG SET maxmemory-policy allkeys-lru 2>/dev/null
+
+      # ─── Phase 0B: Diverse command mix (Top Commands widget) ────────────
+      # SET/GET — drives Top Commands + Network I/O bytes_in/bytes_out
+      for i in $(seq 1 500); do
+        redis-cli SET "load:key:$i" "value_padding_data_$i" > /dev/null 2>&1
+      done
+      for i in $(seq 1 500); do
+        redis-cli GET "load:key:$i" > /dev/null 2>&1
+      done
+
+      # HSET/HGET — hash commands
+      for i in $(seq 1 100); do
+        redis-cli HSET "load:hash" "field_$i" "value_$i" > /dev/null 2>&1
+      done
+      redis-cli HGETALL "load:hash" > /dev/null 2>&1
+
+      # LPUSH/LLEN — list commands
+      for i in $(seq 1 100); do
+        redis-cli LPUSH "load:list" "item_$i" > /dev/null 2>&1
+      done
+      redis-cli LLEN "load:list" > /dev/null 2>&1
+
+      # SADD/SCARD — set commands
+      for i in $(seq 1 100); do
+        redis-cli SADD "load:set" "member_$i" > /dev/null 2>&1
+      done
+      redis-cli SCARD "load:set" > /dev/null 2>&1
+
+      # INCR — counter commands
+      for i in $(seq 1 200); do
+        redis-cli INCR "load:counter" > /dev/null 2>&1
+      done
+
+      # INFO — server info command
+      redis-cli INFO > /dev/null 2>&1
+
+      # ─── Phase 0C: Key length distribution ─────────────────────────────
+      redis-cli SET "load:size:tiny" "x" > /dev/null 2>&1
+      redis-cli SET "load:size:small" "$(head -c 100 /dev/urandom | base64 | head -c 100)" > /dev/null 2>&1
+      redis-cli SET "load:size:medium" "$(head -c 1024 /dev/urandom | base64 | head -c 1024)" > /dev/null 2>&1
+      redis-cli SET "load:size:large" "$(head -c 10240 /dev/urandom | base64 | head -c 10240)" > /dev/null 2>&1
+
+      # ─── Phase 0D: Slowlog triggers (>10ms threshold) ──────────────────
+      for i in $(seq 1 10); do
+        redis-cli DEBUG SLEEP 0.015 > /dev/null 2>&1
+      done
+      # KEYS * on a populated keyspace is naturally slow
+      redis-cli KEYS "*" > /dev/null 2>&1
+
+      # ─── Phase 0E: Eviction pressure ───────────────────────────────────
+      # Flood keys with ~2KB values to exceed 8MB maxmemory limit.
+      # allkeys-lru policy will evict oldest keys, lighting up the
+      # Evictions widget and generating log entries.
+      for i in $(seq 1 5000); do
+        redis-cli SET "evict:key:$i" "$(head -c 2048 /dev/urandom | base64 | head -c 2048)" > /dev/null 2>&1
+      done
+
+      # ─── Phase 0F: Blocked clients ─────────────────────────────────────
+      # BLPOP on nonexistent lists blocks for 2s each (3 concurrent clients)
+      redis-cli BLPOP "load:block:1" 2 > /dev/null 2>&1 &
+      redis-cli BLPOP "load:block:2" 2 > /dev/null 2>&1 &
+      redis-cli BLPOP "load:block:3" 2 > /dev/null 2>&1 &
+      # Wait for blocked clients to time out
+      sleep 3
+
+      # ─── Phase 0G: Cleanup & revert ────────────────────────────────────
+      # Revert Redis to default configuration
+      redis-cli CONFIG SET maxmemory 0 2>/dev/null
+      redis-cli CONFIG SET maxmemory-policy noeviction 2>/dev/null
+
+      # Remove all load test keys
+      redis-cli KEYS "load:*" | xargs -r redis-cli DEL > /dev/null 2>&1
+      redis-cli KEYS "evict:*" | xargs -r redis-cli DEL > /dev/null 2>&1
+      echo "Redis load generation complete"
+    `);
+    redisChild.stdin.end();
+  } catch (err) {
+    console.error("Failed to trigger Redis load:", err);
+    process.exit(1);
+  }
+
   // 1. Hammer ProxySQL via native client to bypass multiplexing limits
   console.log("🔨 Spiking ProxySQL cache memory and read throughput...");
   try {
