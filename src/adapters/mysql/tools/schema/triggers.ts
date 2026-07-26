@@ -48,11 +48,14 @@ const ListTriggersSchema = z.preprocess(
   },
   z.object({
     table: z.string().optional(),
-    schema: z.string().min(1, "Schema parameter is required"),
+    schema: z.string().default(""),
     limit: z.number().min(1, "Limit must be at least 1").max(1000, "Limit cannot exceed 1000").default(50),
     offset: z.number().min(0, "Offset cannot be negative").default(0),
   })
-);
+).refine((data) => data.schema !== "", {
+  message: "Schema parameter is required",
+  path: ["schema"]
+});
 
 const ListTriggersOutputSchema = BaseOutputSchema.extend({
   data: z.object({
@@ -93,15 +96,24 @@ const CreateTriggerSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().min(1, "Trigger name is required"),
+    name: z.string().default(""),
     schema: z.string().optional(),
-    table: z.string().min(1, "Table name is required"),
+    table: z.string().default(""),
     timing: z.enum(["BEFORE", "AFTER"]),
     event: z.enum(["INSERT", "UPDATE", "DELETE"]),
-    body: z.string().min(1, "Trigger body is required"),
+    body: z.string().default(""),
     order: z.enum(["FOLLOWS", "PRECEDES"]).optional(),
     otherTrigger: z.string().optional(),
     ifNotExists: z.boolean().default(false),
+  }).refine((data) => data.name !== "", {
+    message: "Trigger name is required",
+    path: ["name"]
+  }).refine((data) => data.table !== "", {
+    message: "Table name is required",
+    path: ["table"]
+  }).refine((data) => data.body !== "", {
+    message: "Trigger body is required",
+    path: ["body"]
   }).refine((data) => !(data.order && !data.otherTrigger), {
     message: "otherTrigger is required when order is specified",
     path: ["otherTrigger"]
@@ -138,9 +150,12 @@ const DropTriggerSchema = z.preprocess(
     return val;
   },
   z.object({
-    name: z.string().min(1, "Trigger name is required"),
+    name: z.string().default(""),
     schema: z.string().optional(),
     ifExists: z.boolean().default(false),
+  }).refine((data) => data.name !== "", {
+    message: "Trigger name is required",
+    path: ["name"]
   })
 );
 
