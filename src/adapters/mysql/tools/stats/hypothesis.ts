@@ -140,6 +140,18 @@ export function createStatsHypothesisTool(
         const dbPart = database ? database : (table.includes('.') ? (table.split('.')[0] || '').replace(/`/g, '') : null);
         const tblPart = table.includes('.') ? (table.split('.')[1] || '').replace(/`/g, '') : table.replace(/`/g, '');
         
+        const tableCheckSql = `
+          SELECT 1 
+          FROM information_schema.TABLES 
+          WHERE TABLE_NAME = ? 
+          ${dbPart ? `AND TABLE_SCHEMA = ?` : `AND TABLE_SCHEMA = DATABASE()`}
+        `;
+        const tableParams = dbPart ? [tblPart, dbPart] : [tblPart];
+        const tableRes = await adapter.executeQuery(tableCheckSql, tableParams);
+        if (!tableRes.rows || tableRes.rows.length === 0) {
+          return withTokenEstimate({ success: false, code: "TABLE_NOT_FOUND", category: "resource", recoverable: false, error: `Table '${tblPart}' not found` });
+        }
+
         const typeCheckSql = `
           SELECT DATA_TYPE 
           FROM information_schema.COLUMNS 
@@ -151,7 +163,7 @@ export function createStatsHypothesisTool(
         const typeRes = await adapter.executeQuery(typeCheckSql, typeParams);
         const firstRow = typeRes.rows && typeRes.rows.length > 0 ? typeRes.rows[0] : undefined;
         if (!firstRow) {
-          return withTokenEstimate({ success: false, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false, error: `Column '${column}' not found` });
+          return withTokenEstimate({ success: false, code: "COLUMN_NOT_FOUND", category: "resource", recoverable: false, error: `Column '${column}' not found in table '${tblPart}'` });
         }
         
         const dataType = String(firstRow['DATA_TYPE']).toLowerCase();
