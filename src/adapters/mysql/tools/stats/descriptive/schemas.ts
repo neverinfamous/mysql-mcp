@@ -47,10 +47,10 @@ export const PercentilesSchemaBase = z.object({
   columnName: z.string().optional().describe("Alias for column"),
   fieldName: z.string().optional().describe("Alias for column"),
   c: z.string().optional().describe("Alias for column"),
-  percentiles: z.array(z.union([z.number(), z.string()])).optional().describe("Percentiles to calculate"),
-  p: z.array(z.union([z.number(), z.string()])).optional().describe("Alias for percentiles"),
-  pct: z.array(z.union([z.number(), z.string()])).optional().describe("Alias for percentiles"),
-  percentile: z.array(z.union([z.number(), z.string()])).optional().describe("Alias for percentiles"),
+  percentiles: z.union([z.array(z.union([z.number(), z.string()])), z.string()]).optional().describe("Percentiles to calculate (array or comma-separated string)"),
+  p: z.union([z.array(z.union([z.number(), z.string()])), z.string()]).optional().describe("Alias for percentiles"),
+  pct: z.union([z.array(z.union([z.number(), z.string()])), z.string()]).optional().describe("Alias for percentiles"),
+  percentile: z.union([z.array(z.union([z.number(), z.string()])), z.string()]).optional().describe("Alias for percentiles"),
   where: z.string().optional().describe("Optional WHERE clause condition"),
   filter: z.string().optional().describe("Alias for where"),
   condition: z.string().optional().describe("Alias for where"),
@@ -66,8 +66,8 @@ export const PercentilesSchema = z.preprocess(
     let p = obj["percentiles"] ?? obj["p"] ?? obj["pct"] ?? obj["percentile"];
     if (typeof p === "number") {
       p = [p];
-    } else if (typeof p === "string" && !isNaN(parseFloat(p))) {
-      p = [parseFloat(p)];
+    } else if (typeof p === "string") {
+      p = p.split(",").map(s => parseFloat(s.trim())).filter(n => !isNaN(n));
     }
 
     return {
