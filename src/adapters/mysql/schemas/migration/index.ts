@@ -33,7 +33,7 @@ export const MigrationInitSchema = z.preprocess((input: unknown) => {
   }
   return input;
 }, z.object({
-  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional()
+  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").max(64, "Database name cannot exceed 64 characters").optional()
 }).default({}));
 
 /**
@@ -80,6 +80,7 @@ const MigrationRecordParseSchema = z.object({
     .string()
     .trim()
     .min(1, "Version cannot be empty")
+    .max(50, "Version cannot exceed 50 characters")
     .describe("Version identifier (e.g., '1.0.0', '2024-01-15-add-users')"),
   description: z
     .string()
@@ -89,15 +90,18 @@ const MigrationRecordParseSchema = z.object({
   rollbackSql: z.string().optional().describe("SQL to reverse this migration"),
   sourceSystem: z
     .string()
+    .max(50, "Origin system cannot exceed 50 characters")
     .optional()
     .describe("Origin system (e.g., 'mysql', 'sqlite', 'manual', 'agent')"),
   appliedBy: z
     .string()
+    .max(255, "Applied by cannot exceed 255 characters")
     .optional()
     .describe("Who/what applied this migration (e.g., agent name, user)"),
   database: z
     .string()
     .regex(/^[a-zA-Z0-9_]+$/, "Invalid database name")
+    .max(64, "Database name cannot exceed 64 characters")
     .optional()
     .describe("Database to apply the migration in (default: active database)"),
 });
