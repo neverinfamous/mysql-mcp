@@ -33,7 +33,7 @@ export const MigrationInitSchema = z.preprocess((input: unknown) => {
   }
   return input;
 }, z.object({
-  database: z.string().optional()
+  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional()
 }).default({}));
 
 /**
@@ -97,6 +97,7 @@ const MigrationRecordParseSchema = z.object({
     .describe("Who/what applied this migration (e.g., agent name, user)"),
   database: z
     .string()
+    .regex(/^[a-zA-Z0-9_]+$/, "Invalid database name")
     .optional()
     .describe("Database to apply the migration in (default: active database)"),
 });
@@ -206,7 +207,7 @@ export const MigrationRollbackSchema = z.preprocess((input: unknown) => {
     .optional(),
   version: z.string().optional(),
   dryRun: z.boolean().optional(),
-  database: z.string().optional(),
+  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional(),
 }));
 
 /**
@@ -291,7 +292,7 @@ export const MigrationHistorySchema = z.preprocess((input: unknown) => {
         return val;
       }, z.number().int().min(0).optional())
       .optional(),
-    database: z.string().optional(),
+    database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional(),
   })
   .default({}));
 
@@ -321,7 +322,9 @@ export const MigrationStatusSchema = z.preprocess((input: unknown) => {
     return out;
   }
   return input;
-}, MigrationStatusSchemaBase.default({}));
+}, z.object({
+  database: z.string().regex(/^[a-zA-Z0-9_]+$/, "Invalid database name").optional()
+}).default({}));
 
 // Output Schemas
 // =============================================================================
