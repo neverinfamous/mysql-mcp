@@ -120,10 +120,10 @@ export function createStatsHypothesisTool(
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(column)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid column name" });
         }
-        if (groupBy && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
+        if (groupBy !== undefined && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupBy)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupBy column name" });
         }
-        if (groupColumn && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupColumn)) {
+        if (groupColumn !== undefined && !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(groupColumn)) {
           return withTokenEstimate({ success: false, code: "VALIDATION_ERROR", category: "validation", recoverable: false, error: "Invalid groupColumn name" });
         }
 
