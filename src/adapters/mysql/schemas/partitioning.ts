@@ -207,16 +207,19 @@ export const ReorganizePartitionSchemaBase = z.object({
     ),
   type: z.string().optional().describe("Alias for partitionType"),
   toPartitions: z
-    .array(
-      z.object({
-        name: z.string().describe("New partition name"),
-        value: z
-          .string()
-          .describe(
-            'Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
-          ),
-      }),
-    )
+    .union([
+      z.string(),
+      z.array(
+        z.object({
+          name: z.string().describe("New partition name"),
+          value: z
+            .string()
+            .describe(
+              'Partition boundary value only - e.g., "2024" for RANGE, "1,2,3" for LIST. Do NOT include "LESS THAN" or "VALUES IN" keywords.',
+            ),
+        }),
+      )
+    ])
     .optional()
     .describe("Array of new partition definitions. MUST be an array of objects: [{ name: 'p1', value: '2024' }]"),
   into: z.unknown().optional().describe("Alias for toPartitions"),
