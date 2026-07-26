@@ -26,6 +26,10 @@ const ListSchemasSchemaBase = z.object({
   search: z.string().optional().describe("Alias for pattern"),
   schema: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   database: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  schemaName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  databaseName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  schema_name: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
+  database_name: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   table: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   tableName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
 });
@@ -34,11 +38,11 @@ const ListSchemasSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
-      const { filter, search, tableName, database, ...rest } = obj;
+      const { filter, search, tableName, database, schemaName, databaseName, schema_name, database_name, ...rest } = obj;
       return {
         ...rest,
         pattern: obj['pattern'] ?? filter ?? search,
-        schema: obj['schema'] ?? database,
+        schema: obj['schema'] ?? database ?? schemaName ?? databaseName ?? schema_name ?? database_name,
         table: obj['table'] ?? tableName,
       };
     }
@@ -78,6 +82,8 @@ const CreateSchemaSchemaBase = z.object({
   database: z.string().optional().describe("Alias for name"),
   schemaName: z.string().optional().describe("Alias for name"),
   databaseName: z.string().optional().describe("Alias for name"),
+  schema_name: z.string().optional().describe("Alias for name"),
+  database_name: z.string().optional().describe("Alias for name"),
   charset: z.string().optional().describe("Character set"),
   collation: z.string().optional().describe("Collation"),
   ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
@@ -91,10 +97,10 @@ const CreateSchemaSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
-      const { schema, database, schemaName, databaseName, tableName, fields, ...rest } = obj;
+      const { schema, database, schemaName, databaseName, schema_name, database_name, tableName, fields, ...rest } = obj;
       return {
         ...rest,
-        name: obj['name'] ?? schema ?? database ?? schemaName ?? databaseName,
+        name: obj['name'] ?? schema ?? database ?? schemaName ?? databaseName ?? schema_name ?? database_name,
         ifNotExists: typeof obj['ifNotExists'] === 'string' ? obj['ifNotExists'].toLowerCase() === 'true' : obj['ifNotExists'],
         table: obj['table'] ?? tableName,
         columns: obj['columns'] ?? fields,
@@ -147,6 +153,8 @@ const DropSchemaSchemaBase = z.object({
   database: z.string().optional().describe("Alias for name"),
   schemaName: z.string().optional().describe("Alias for name"),
   databaseName: z.string().optional().describe("Alias for name"),
+  schema_name: z.string().optional().describe("Alias for name"),
+  database_name: z.string().optional().describe("Alias for name"),
   ifExists: z.boolean().optional().describe("Add IF EXISTS clause"),
   table: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
   tableName: z.unknown().optional().describe("Anti-hallucination property. Do not use."),
@@ -156,10 +164,10 @@ const DropSchemaSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
       const obj = val as Record<string, unknown>;
-      const { schema, database, schemaName, databaseName, tableName, ...rest } = obj;
+      const { schema, database, schemaName, databaseName, schema_name, database_name, tableName, ...rest } = obj;
       return {
         ...rest,
-        name: obj['name'] ?? schema ?? database ?? schemaName ?? databaseName,
+        name: obj['name'] ?? schema ?? database ?? schemaName ?? databaseName ?? schema_name ?? database_name,
         ifExists: typeof obj['ifExists'] === 'string' ? obj['ifExists'].toLowerCase() === 'true' : obj['ifExists'],
         table: obj['table'] ?? tableName,
       };
