@@ -205,7 +205,27 @@ export const StatsLagLeadSchemaBase = z.object({
 });
 
 export const StatsLagLeadSchema = z.preprocess(
-  preprocessJsonColumnParams,
+  (val: unknown) => {
+    const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    
+    let ob = v["orderBy"] ?? v["order_by"] ?? v["sort"] ?? v["sortBy"];
+    if (Array.isArray(ob)) ob = ob.join(", ");
+    
+    let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
+    if (Array.isArray(pb)) pb = pb.join(", ");
+
+    let sc = v["selectColumns"];
+    if (typeof sc === "string") {
+      sc = sc.includes(",") ? sc.split(",").map((s) => s.trim()) : [sc];
+    }
+
+    return {
+      ...v,
+      orderBy: ob,
+      partitionBy: pb,
+      selectColumns: sc,
+    };
+  },
   z.object({
     database: z.string().optional(),
     table: z.string().min(1, "Table is required"),
@@ -260,7 +280,27 @@ export const StatsRunningTotalSchemaBase = z.object({
 });
 
 export const StatsRunningTotalSchema = z.preprocess(
-  preprocessJsonColumnParams,
+  (val: unknown) => {
+    const v = preprocessJsonColumnParams(val) as Record<string, unknown>;
+    
+    let ob = v["orderBy"] ?? v["order_by"] ?? v["sort"] ?? v["sortBy"];
+    if (Array.isArray(ob)) ob = ob.join(", ");
+    
+    let pb = v["partitionBy"] ?? v["partition_by"] ?? v["groupBy"] ?? v["group_by"];
+    if (Array.isArray(pb)) pb = pb.join(", ");
+
+    let sc = v["selectColumns"];
+    if (typeof sc === "string") {
+      sc = sc.includes(",") ? sc.split(",").map((s) => s.trim()) : [sc];
+    }
+
+    return {
+      ...v,
+      orderBy: ob,
+      partitionBy: pb,
+      selectColumns: sc,
+    };
+  },
   z.object({
     database: z.string().optional(),
     table: z.string().min(1, "Table is required"),
