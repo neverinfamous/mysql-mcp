@@ -155,8 +155,14 @@ const CascadeSimulatorInnerSchema = z.object({
   schema: z.string().optional(),
   database: z.string().optional(),
   db: z.string().optional(),
-  operation: z.enum(["DELETE", "DROP", "TRUNCATE"]).optional(),
-  action: z.enum(["DELETE", "DROP", "TRUNCATE"]).optional(),
+  operation: z.preprocess((val) => {
+    if (typeof val === "string") return val.toUpperCase();
+    return val;
+  }, z.enum(["DELETE", "DROP", "TRUNCATE"]).optional()),
+  action: z.preprocess((val) => {
+    if (typeof val === "string") return val.toUpperCase();
+    return val;
+  }, z.enum(["DELETE", "DROP", "TRUNCATE"]).optional()),
   where: z.any().optional(),
   condition: z.any().optional(),
 });
@@ -232,10 +238,13 @@ export const SchemaSnapshotSchema = z
     db: z.string().optional(),
     table: z.string().optional(),
     tableName: z.string().optional(),
-    includeSystem: z.boolean().optional(),
+    includeSystem: z.preprocess((val) => {
+      if (typeof val === "string") return val.toLowerCase() === "true";
+      return val;
+    }, z.boolean().optional()),
     sections: z.preprocess(
       (val) => {
-        if (typeof val === "string") return [val];
+        if (typeof val === "string") return val.split(",").map((s) => s.trim());
         return val;
       },
       z.array(
@@ -250,7 +259,10 @@ export const SchemaSnapshotSchema = z
       )
       .optional()
     ),
-    compact: z.boolean().optional().default(true),
+    compact: z.preprocess((val) => {
+      if (typeof val === "string") return val.toLowerCase() === "true";
+      return val;
+    }, z.boolean().optional().default(true)),
     limit: z.preprocess((val) => {
       if (typeof val === "string") return parseInt(val, 10);
       return val;
