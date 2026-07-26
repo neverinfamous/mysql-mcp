@@ -4,6 +4,15 @@ import { spawn, execSync } from "child_process";
 import path from "path";
 import fs from "fs";
 import { config } from "dotenv";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+let cliPath = path.resolve(__dirname, "../../../dist/cli.js");
+if (!fs.existsSync(cliPath)) {
+  cliPath = path.resolve(__dirname, "../../../../mysql-mcp/dist/cli.js");
+}
+
 
 // Auto-load Datadog secrets for E2E validation
 if (fs.existsSync('C:/Users/chris/Desktop/adamic/secrets.env')) {
@@ -21,10 +30,10 @@ async function main() {
   //          Network I/O, Top Commands, Error/All Logs, Percent Used Memory
   console.log("🔴 Generating Redis metrics load...");
   try {
-    const redisChild = spawn("wsl.exe", ["-e", "docker", "exec", "-i", "redis-server", "bash"], { stdio: ["pipe", "ignore", "ignore"] });
+    const redisChild = spawn("wsl.exe", ["-e", "docker", "exec", "-i", "redis-server", "bash"], { stdio: ["pipe", "inherit", "inherit"] });
     redisChild.on('error', err => console.error("Redis load error:", err));
 
-    redisChild.stdin.write(`
+    const script = `
       # ─── Phase 0A: Configure eviction simulation ───────────────────────
       # Temporarily lower maxmemory so we can trigger evictions, and set
       # the ratio denominator for the "Percent Used Memory" widget.
@@ -104,7 +113,8 @@ async function main() {
       redis-cli KEYS "load:*" | xargs -r redis-cli DEL > /dev/null 2>&1
       redis-cli KEYS "evict:*" | xargs -r redis-cli DEL > /dev/null 2>&1
       echo "Redis load generation complete"
-    `);
+    `;
+    redisChild.stdin.write(script.replace(/\\r\\n/g, '\\n'));
     redisChild.stdin.end();
   } catch (err) {
     console.error("Failed to trigger Redis load:", err);
@@ -119,12 +129,13 @@ async function main() {
     child.on('error', err => console.error("ProxySQL loop error:", err));
     
     // Pass the script directly via stdin to completely avoid Windows cmd.exe quoting issues
-    child.stdin.write(`
+    const script = `
       mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1
       for i in {1..2000}; do
         mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e 'SELECT * FROM testdb.test_measurements LIMIT 200;' > /dev/null 2>&1
       done
-    `);
+    `;
+    child.stdin.write(script.replace(/\\r\\n/g, '\\n'));
     child.stdin.end();
   } catch (err) {
     console.error("Failed to trigger ProxySQL spike:", err);
@@ -136,7 +147,7 @@ async function main() {
   const transport = new StdioClientTransport({
     command: "node",
     args: [
-      path.resolve(process.cwd(), "dist/cli.js"), 
+      cliPath, 
       "--metrics-export", "prometheus", 
       "--port", "9464",
       "--server-host", "0.0.0.0",
