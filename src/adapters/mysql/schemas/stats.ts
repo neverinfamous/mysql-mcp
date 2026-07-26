@@ -141,12 +141,16 @@ export const WindowFunctionOutputSchema = BaseOutputSchema.extend({
 
 export const TTestOutputSchema = BaseOutputSchema.extend({
   data: z.object({
+    table: z.string().optional(),
     column: z.string(),
     testType: z.string().optional(),
     hypothesizedMean: z.number().optional(),
     groupColumn: z.string().optional(),
     group1: z.union([z.string(), z.number()]).optional(),
     group2: z.union([z.string(), z.number()]).optional(),
+    groupBy: z.string().optional(),
+    groups: z.array(z.record(z.string(), z.unknown())).optional(),
+    count: z.number().optional(),
     tStat: z.number().nullish(),
     degreesOfFreedom: z.number().nullish(),
     pValue: z.number().nullish(),
@@ -163,9 +167,12 @@ export const OutliersOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     column: z.string(),
     method: z.string(),
+    stats: z.record(z.string(), z.unknown()).optional(),
     outlierCount: z.number(),
     totalCount: z.number(),
     outliers: z.array(z.record(z.string(), z.unknown())),
+    truncated: z.boolean().optional(),
+    totalOutliers: z.number().optional(),
   }).loose().optional(),
 });
 
