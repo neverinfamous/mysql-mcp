@@ -115,7 +115,7 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 // Tool Input Schemas
 // =============================================================================
 
-export const RouterBaseInputSchema = z.object({});
+export const RouterBaseInputSchema = z.object({}).strict();
 
 export const RouteNameInputSchemaBase = z.object({
   routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
@@ -127,7 +127,7 @@ export const RouteNameInputSchemaBase = z.object({
   id: z.string().optional().describe("Alias for routeName"),
   clusterName: z.string().optional().describe("Alias for routeName"),
   cluster_name: z.string().optional().describe("Alias for routeName"),
-});
+}).strict();
 
 export const RouteNameInputSchema = z.preprocess(
   (data: unknown) => {
@@ -165,7 +165,7 @@ export const MetadataNameInputSchemaBase = z.object({
   id: z.string().optional().describe("Alias for metadataName"),
   clusterName: z.string().optional().describe("Alias for metadataName"),
   cluster_name: z.string().optional().describe("Alias for metadataName"),
-});
+}).strict();
 
 export const MetadataNameInputSchema = z.preprocess(
   (data: unknown) => {
@@ -199,7 +199,7 @@ export const ConnectionPoolNameInputSchemaBase = z.object({
   id: z.string().optional().describe("Alias for poolName"),
   clusterName: z.string().optional().describe("Alias for poolName"),
   cluster_name: z.string().optional().describe("Alias for poolName"),
-});
+}).strict();
 
 export const ConnectionPoolNameInputSchema = z.preprocess(
   (data: unknown) => {

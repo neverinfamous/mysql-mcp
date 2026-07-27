@@ -287,30 +287,35 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "Database connection not established. Ensure MySQL is configured and connected.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
     pattern: /Connection refused/i,
     suggestion:
       "MySQL server is not accepting connections. Verify the host, port, and that the server is running.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
     pattern: /Too many connections/i,
     suggestion:
       "Connection limit reached. Close unused connections or increase max_connections.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
     pattern: /Connection (?:lost|terminated|closed)/i,
     suggestion:
       "Database connection was closed unexpectedly. This may indicate a server restart or timeout.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
   {
     pattern: /Can't connect to (?:local )?MySQL server/i,
     suggestion:
       "Cannot reach MySQL server. Verify the host, port, and that mysqld is running.",
     category: ErrorCategory.CONNECTION,
+    code: "CONNECTION_ERROR",
   },
 
   // =========================================================================
