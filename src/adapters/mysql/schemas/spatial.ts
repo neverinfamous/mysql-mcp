@@ -428,6 +428,10 @@ export const ContainsSchema = z.preprocess(
   }))
 )
   .refine((data) => data.polygon.trim() !== "", { message: "polygon (WKT) must be a non-empty string" })
+  .refine((data) => {
+    const g = data.polygon.trim().toUpperCase();
+    return Array.from(VALID_GEOMETRY_TYPES).some((t) => g.startsWith(t));
+  }, { message: "polygon must be a valid WKT string (e.g. POLYGON((...)))" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
@@ -476,6 +480,10 @@ export const WithinSchema = z.preprocess(
   }))
 )
   .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
+  .refine((data) => {
+    const g = data.geometry.trim().toUpperCase();
+    return Array.from(VALID_GEOMETRY_TYPES).some((t) => g.startsWith(t));
+  }, { message: "geometry must be a valid WKT string (e.g. POINT(1 1))" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
