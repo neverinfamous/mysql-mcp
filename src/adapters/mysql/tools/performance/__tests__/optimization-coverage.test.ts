@@ -86,7 +86,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([])) // user query
-        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson }]));
+        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson, QUERY: "SELECT * FROM users WHERE email = 'test'" }]));
 
       const tool = createOptimizerTraceTool(
         mockAdapter,
@@ -126,7 +126,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([]))
-        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson }]));
+        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson, QUERY: "SELECT * FROM orders" }]));
 
       const tool = createOptimizerTraceTool(
         mockAdapter,
@@ -180,7 +180,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([]))
-        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson }]));
+        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: traceJson, QUERY: "SELECT * FROM products WHERE category_id = 1" }]));
 
       const tool = createOptimizerTraceTool(
         mockAdapter,
@@ -203,7 +203,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(
-          createMockQueryResult([{ TRACE: "not valid json {{{" }]),
+          createMockQueryResult([{ TRACE: "not valid json {{{", QUERY: "SELECT 1" }]),
         );
 
       const tool = createOptimizerTraceTool(
@@ -221,7 +221,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery
         .mockResolvedValueOnce(createMockQueryResult([]))
-        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: 12345 }]));
+        .mockResolvedValueOnce(createMockQueryResult([{ TRACE: 12345, QUERY: "SELECT 1" }]));
 
       const tool = createOptimizerTraceTool(
         mockAdapter,
