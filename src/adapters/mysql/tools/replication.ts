@@ -86,7 +86,9 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const schema = z.object({
+    channel: z.string().optional().describe("Optional replication channel name"),
+  });
 
   return {
     name: "mysql_slave_status",
@@ -98,14 +100,19 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      let channel: string | undefined;
       try {
-        schema.parse(_params);
+        const parsed = schema.parse(_params);
+        channel = parsed.channel;
       } catch (e) {
         return formatHandlerErrorResponse(e);
       }
+      
+      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/'/g, "''")}'` : "";
+
       // Try new syntax first
       try {
-        const result = await adapter.executeQuery("SHOW REPLICA STATUS");
+        const result = await adapter.executeQuery(`SHOW REPLICA STATUS${channelClause}`);
         const status = result.rows?.[0];
         if (status) {
           const response = { success: true as const, data: { status } };
@@ -113,7 +120,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
       } catch {
         try {
-          const result = await adapter.executeQuery("SHOW SLAVE STATUS");
+          const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
           const status = result.rows?.[0];
           if (status) {
             const response = { success: true as const, data: { status } };
