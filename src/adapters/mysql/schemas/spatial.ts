@@ -22,7 +22,7 @@ export function isValidWKT(wkt: string): boolean {
   }
   
   const match = /^([A-Z]+)\s*\((.*)\)$/.exec(t);
-  if (!match || !match[1] || match[2] === undefined) return false;
+  if (!match?.[1] || match?.[2] === undefined) return false;
   
   const type = match[1];
   const content = match[2];
@@ -652,9 +652,21 @@ export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   "Either geometry or geoJson must be provided, but not both",
 ).refine((data) => {
   if (data.geometry !== undefined && !isValidWKT(data.geometry)) return false;
-  if (data.geoJson?.trim() === "") return false;
+  if (data.geoJson !== undefined) {
+    if (data.geoJson.trim() === "") return false;
+    try {
+      const parsed = JSON.parse(data.geoJson) as unknown;
+      if (typeof parsed !== "object" || parsed === null || !("type" in parsed)) return false;
+      const type = parsed["type" as keyof typeof parsed];
+      if (typeof type !== "string") return false;
+      const validTypes = ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection", "Feature", "FeatureCollection"];
+      if (!validTypes.includes(type)) return false;
+    } catch {
+      return false;
+    }
+  }
   return true;
-}, { message: "Provided geometry must be a valid WKT string, or geoJson must not be empty" });
+}, { message: "Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object" });
 
 // Output Schemas
 
