@@ -12,6 +12,32 @@ export const VALID_GEOMETRY_TYPES = new Set([
   "GEOMETRYCOLLECTION",
 ]);
 
+export function isValidWKT(wkt: string): boolean {
+  if (!wkt || typeof wkt !== "string") return false;
+  const t = wkt.trim().toUpperCase();
+  
+  if (t.endsWith(" EMPTY")) {
+    const type = t.replace(" EMPTY", "").trim();
+    return VALID_GEOMETRY_TYPES.has(type);
+  }
+  
+  const match = /^([A-Z]+)\s*\((.*)\)$/.exec(t);
+  if (!match) return false;
+  if (!VALID_GEOMETRY_TYPES.has(match[1])) return false;
+  
+  const content = match[2];
+  if (!/^[-\d.,\s()]*$/.test(content)) return false;
+  
+  if (match[1] === "POINT") {
+    return /^[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+$/.test(content.trim());
+  }
+  
+  const pairs = content.match(/[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+/g);
+  if (!pairs || pairs.length === 0) return false;
+  
+  return true;
+}
+
 export const SpatialColumnSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
   tableName: z.unknown().optional(),
@@ -376,11 +402,9 @@ export const DistanceSchema = z
   .refine((data) => {
     if (!data.table) {
       if (!data.geometry1 || !data.geometry2) return false;
-      const g1 = typeof data.geometry1 === "string" ? data.geometry1.trim().toUpperCase() : "";
-      const g2 = typeof data.geometry2 === "string" ? data.geometry2.trim().toUpperCase() : "";
-      const valid1 = Array.from(VALID_GEOMETRY_TYPES).some((t) => g1.startsWith(t));
-      const valid2 = Array.from(VALID_GEOMETRY_TYPES).some((t) => g2.startsWith(t));
-      return valid1 && valid2;
+      const g1 = typeof data.geometry1 === "string" ? data.geometry1 : "";
+      const g2 = typeof data.geometry2 === "string" ? data.geometry2 : "";
+      return isValidWKT(g1) && isValidWKT(g2);
     }
     return true;
   }, {
@@ -429,8 +453,7 @@ export const ContainsSchema = z.preprocess(
 )
   .refine((data) => data.polygon.trim() !== "", { message: "polygon (WKT) must be a non-empty string" })
   .refine((data) => {
-    const g = data.polygon.trim().toUpperCase();
-    return Array.from(VALID_GEOMETRY_TYPES).some((t) => g.startsWith(t));
+    return isValidWKT(data.polygon);
   }, { message: "polygon must be a valid WKT string (e.g. POLYGON((...)))" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
@@ -481,8 +504,7 @@ export const WithinSchema = z.preprocess(
 )
   .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => {
-    const g = data.geometry.trim().toUpperCase();
-    return Array.from(VALID_GEOMETRY_TYPES).some((t) => g.startsWith(t));
+    return isValidWKT(data.geometry);
   }, { message: "geometry must be a valid WKT string (e.g. POINT(1 1))" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
@@ -512,7 +534,7 @@ export const IntersectionSchema = z.preprocess(
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
 )
-  .refine((data) => data.geometry1.trim() !== "" && data.geometry2.trim() !== "", { message: "both geometries must be non-empty strings" })
+  .refine((data) => isValidWKT(data.geometry1) && isValidWKT(data.geometry2), { message: "both geometries must be valid WKT strings (e.g. POINT(1 1))" })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   });
@@ -548,7 +570,14 @@ export const BufferSchema = z.preprocess(
     segments: data.segments !== undefined ? Number(data.segments) : 8,
   }))
 )
-  .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
+  .refine((data) => isValidWKT(data.geometry), { message: "geometry must be a valid WKT string (e.g. POINT(1 1))" })
+  .refine((data) => {
+    if (data.srid === 4326) {
+      const g = data.geometry.trim().toUpperCase();
+      return g.startsWith("POINT") || g.startsWith("MULTIPOINT");
+    }
+    return true;
+  }, { message: "MySQL only supports ST_Buffer for POINT and MULTIPOINT geometries when using geographic SRS (SRID 4326). Use SRID 0 (Cartesian) for other geometries." })
   .refine((data) => !Number.isNaN(data.distance), {
     message: "distance must be a valid number",
   })
@@ -580,7 +609,7 @@ export const TransformSchema = z.preprocess(
     toSrid: Number(data.toSrid),
   }))
 )
-  .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
+  .refine((data) => isValidWKT(data.geometry), { message: "geometry must be a valid WKT string (e.g. POINT(1 1))" })
   .refine((data) => !Number.isNaN(data.fromSrid), {
     message: "fromSrid must be a valid number",
   })
@@ -620,10 +649,10 @@ export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   (data) => (data.geometry !== undefined) !== (data.geoJson !== undefined),
   "Either geometry or geoJson must be provided, but not both",
 ).refine((data) => {
-  if (data.geometry?.trim() === "") return false;
+  if (data.geometry !== undefined && !isValidWKT(data.geometry)) return false;
   if (data.geoJson?.trim() === "") return false;
   return true;
-}, { message: "Provided geometry or geoJson must not be an empty string" });
+}, { message: "Provided geometry must be a valid WKT string, or geoJson must not be empty" });
 
 // Output Schemas
 
