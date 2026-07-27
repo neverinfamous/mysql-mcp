@@ -208,7 +208,26 @@ export class MetricsRegistry {
       "mysql://help/core",
       "mysql://help/advanced",
       "mysql://audit",
-      "mysql://metrics"
+      "mysql://metrics",
+      "mysql://schema",
+      "mysql://tables",
+      "mysql://variables",
+      "mysql://status",
+      "mysql://processlist",
+      "mysql://pool",
+      "mysql://capabilities",
+      "mysql://health",
+      "mysql://performance",
+      "mysql://indexes",
+      "mysql://replication",
+      "mysql://innodb",
+      "mysql://events",
+      "mysql://sysschema",
+      "mysql://locks",
+      "mysql://cluster",
+      "mysql://spatial",
+      "mysql://docstore",
+      "mysql://insights"
     ];
     for (const uri of knownResources) {
       this.resources.set(uri, new ResourceMetric());
