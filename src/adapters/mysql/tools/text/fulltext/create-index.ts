@@ -16,6 +16,12 @@ import {
 } from "../../core/error-helpers.js";
 import { WRITE } from "../../../../../utils/annotations.js";
 import { isDuplicateKeyError } from "./helpers.js";
+import {
+  validateIdentifier,
+  validateQualifiedIdentifier,
+  escapeIdentifier,
+  escapeQualifiedTable,
+} from "../../../../../utils/validators.js";
 
 export function createFulltextCreateTool(
   adapter: MySQLAdapter,
@@ -35,10 +41,15 @@ export function createFulltextCreateTool(
         const { table, columns, indexName } =
           FulltextCreateSchema.parse(params);
 
-        const name = indexName ?? `ft_${table}_${columns.join("_")}`;
-        const columnList = columns.map((c) => `\`${c}\``).join(", ");
+        validateQualifiedIdentifier(table, "table");
+        columns.forEach((c) => validateIdentifier(c, "column"));
 
-        const sql = `CREATE FULLTEXT INDEX \`${name}\` ON \`${table}\` (${columnList})`;
+        const name = indexName ?? `ft_${table.split('.').pop()}_${columns.join("_")}`;
+        validateIdentifier(name, "index");
+
+        const columnList = columns.map((c) => `\`${escapeIdentifier(c)}\``).join(", ");
+
+        const sql = `CREATE FULLTEXT INDEX \`${escapeIdentifier(name)}\` ON ${escapeQualifiedTable(table)} (${columnList})`;
 
         try {
           await adapter.executeQuery(sql);
