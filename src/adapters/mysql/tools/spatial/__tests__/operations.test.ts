@@ -78,7 +78,7 @@ describe("Spatial Operations Tools", () => {
       const result = (await tool.handler(
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-          geometry2: "POINT(100 100)",
+          geometry2: "POINT(50 50)",
         },
         mockContext,
       )) as { data: { intersects: boolean } };
@@ -184,7 +184,12 @@ describe("Spatial Operations Tools", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      
+      // Find the actual transform query, as validateSrid might have been called first
+      const transformCall = mockAdapter.executeQuery.mock.calls.find(c => String(c[0]).includes("ST_Transform"));
+      expect(transformCall).toBeDefined();
+      const call = transformCall![0];
+      
       expect(call).toContain("ST_Transform");
       expect(call).toContain("4326");
       expect(call).toContain("3857");

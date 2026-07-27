@@ -208,7 +208,7 @@ async function main() {
     ],
     env: {
       ...process.env,
-      MYSQL_HOST: "192.168.55.39",
+      MYSQL_HOST: "127.0.0.1",
       MYSQL_PORT: "6033",
       MYSQL_USER: "cluster_admin",
       MYSQL_PASSWORD: "cluster_admin",

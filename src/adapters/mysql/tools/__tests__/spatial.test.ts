@@ -427,7 +427,12 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      
+      // Find the actual transform query, as validateSrid might have been called first
+      const transformCall = mockAdapter.executeQuery.mock.calls.find(c => String(c[0]).includes("ST_Transform"));
+      expect(transformCall).toBeDefined();
+      const call = transformCall![0];
+      
       expect(call).toContain("ST_Transform");
     });
   });
