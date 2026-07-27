@@ -414,6 +414,8 @@ export const ForceIndexSchemaBase = z.object({
   table: z.string().optional().describe("Table name"),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
+  tbl: z.string().optional().describe("Alias for table"),
+  table_name: z.string().optional().describe("Alias for table"),
   query: z.string().optional().describe("Original query"),
   sql: z.string().optional().describe("Alias for query"),
   indexName: z.string().optional().describe("Index name to force"),
@@ -436,6 +438,8 @@ export const ForceIndexSchema = z
       table: z.string().optional(),
       tableName: z.string().optional(),
       name: z.string().optional(),
+      tbl: z.string().optional(),
+      table_name: z.string().optional(),
       query: z.string().optional(),
       sql: z.string().optional(),
       indexName: z.string().optional(),
@@ -443,7 +447,7 @@ export const ForceIndexSchema = z
     }),
   )
   .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
+    table: data.table ?? data.tableName ?? data.name ?? data.tbl ?? data.table_name ?? "",
     query: data.query ?? data.sql ?? "",
     indexName: data.indexName ?? data.index ?? "",
   }))
