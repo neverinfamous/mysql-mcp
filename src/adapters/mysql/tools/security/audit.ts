@@ -46,7 +46,7 @@ const AuditLogSchemaBase = z.object({
   event: z.string().optional().describe("Alias for eventType"),
   startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
   time: z.string().optional().describe("Alias for startTime"),
-});
+}).strict();
 
 const AuditLogSchema = z.preprocess(
   (val: unknown) => {
@@ -65,7 +65,7 @@ const AuditLogSchema = z.preprocess(
     user: z.string().optional(),
     eventType: z.string().optional(),
     startTime: z.string().optional(),
-  })
+  }).strict()
 );
 
 const FirewallRulesSchemaBase = z.object({
