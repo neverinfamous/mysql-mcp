@@ -262,7 +262,8 @@ export function createSecurityPasswordValidateTool(
 
         if (Object.keys(policy).length === 0) {
           return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("validate_password")
+            new ExtensionNotAvailableError("validate_password"),
+            { module: "security", tool: "mysql_security_password_validate" }
           );
         }
 
