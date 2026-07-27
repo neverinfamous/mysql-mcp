@@ -93,6 +93,19 @@ export function createSpatialIntersectionTool(
       try {
         const { geometry1, geometry2, srid } = IntersectionSchema.parse(params);
 
+        const validateSrid = async (sridNum: number): Promise<boolean> => {
+          if (sridNum === 0 || sridNum === 4326) return true;
+          const check = await adapter.executeQuery(
+            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            [sridNum]
+          );
+          return (check.rows?.length ?? 0) > 0;
+        };
+
+        if (!(await validateSrid(srid))) {
+          throw new Error(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
+        }
+
         const isGeographic = srid !== 0;
         const axisClauseGeom = isGeographic ? ", 'axis-order=long-lat'" : "";
         const axisClauseAsText = isGeographic ? ", 'axis-order=long-lat'" : "";
@@ -156,6 +169,19 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
         // Furthermore, 'point_circle' strategy causes MySQL connection drops if applied to non-point geometries.
         // Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm.
+        const validateSrid = async (sridNum: number): Promise<boolean> => {
+          if (sridNum === 0 || sridNum === 4326) return true;
+          const check = await adapter.executeQuery(
+            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            [sridNum]
+          );
+          return (check.rows?.length ?? 0) > 0;
+        };
+
+        if (!(await validateSrid(srid))) {
+          throw new Error(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
+        }
+
         const isGeographic = srid !== 0;
         const strategyClause = isGeographic || !isPoint
           ? ""

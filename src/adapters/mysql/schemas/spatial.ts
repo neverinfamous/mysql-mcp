@@ -37,6 +37,14 @@ export function isValidWKT(wkt: string): boolean {
   const pairs = content.match(/[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+/g);
   if (!pairs || pairs.length === 0) return false;
   
+  if (type === "LINESTRING" || type === "MULTIPOINT") {
+    if (pairs.length < 2) return false;
+  }
+  
+  if (type === "POLYGON") {
+    if (pairs.length < 4) return false;
+  }
+  
   return true;
 }
 
