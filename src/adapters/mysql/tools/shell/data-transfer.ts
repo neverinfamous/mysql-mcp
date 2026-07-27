@@ -73,6 +73,15 @@ export function createShellExportTableTool(
         assertSafeIoPath(finalOutputPath, adapter.getAllowedIoRoots());
 
         const resolvedPath = path.resolve(finalOutputPath);
+        const targetDir = path.dirname(resolvedPath);
+        if (!fs.existsSync(targetDir)) {
+          throw new MySQLMcpError(
+            `Target directory does not exist.`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Ensure the directory path exists before exporting.", details: { targetDir } }
+          );
+        }
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
@@ -218,6 +227,14 @@ export function createShellImportTableTool(
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots(), false);
 
         const resolvedPath = path.resolve(finalInputPath);
+        if (!fs.existsSync(resolvedPath)) {
+          throw new MySQLMcpError(
+            `Input file does not exist.`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Ensure the input file exists and the path is correct.", details: { inputPath: finalInputPath } }
+          );
+        }
         const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
 
         const options: string[] = [];
@@ -403,10 +420,10 @@ export function createShellImportJSONTool(
         
         if (!fs.existsSync(resolvedPath)) {
           throw new MySQLMcpError(
-            `Cannot open file '${resolvedPath}': No such file or directory`,
-            "QUERY_ERROR",
-            ErrorCategory.QUERY,
-            { details: { protocol: "X Protocol" } }
+            `Input file does not exist.`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION,
+            { suggestion: "Ensure the input file exists and the path is correct.", details: { protocol: "X Protocol", inputPath: finalInputPath } }
           );
         }
 
