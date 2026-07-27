@@ -392,8 +392,26 @@ export const DistanceSchema = z
     { message: "If table is provided, point.longitude and point.latitude must be valid numbers. Otherwise, point1 and point2 (or geometry1 and geometry2) must be provided." },
   )
   .refine(
-    (data) => data.maxDistance === undefined || !Number.isNaN(data.maxDistance),
-    { message: "maxDistance must be a valid number" },
+    (data) => data.maxDistance === undefined || (!Number.isNaN(data.maxDistance) && data.maxDistance >= 0),
+    { message: "maxDistance must be a valid non-negative number" },
+  )
+  .refine(
+    (data) => {
+       if (data.table && data.srid === 4326) {
+           return data.point.latitude >= -90 && data.point.latitude <= 90;
+       }
+       return true;
+    },
+    { message: "latitude must be between -90 and 90 degrees for SRID 4326" }
+  )
+  .refine(
+    (data) => {
+       if (data.table && data.srid === 4326) {
+           return data.point.longitude >= -180 && data.point.longitude <= 180;
+       }
+       return true;
+    },
+    { message: "longitude must be between -180 and 180 degrees for SRID 4326" }
   )
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
