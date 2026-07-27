@@ -139,15 +139,15 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    labels:
-      com.datadoghq.ad.logs: '[{"source":"mysql","service":"mysql-node1"}]'
-      com.datadoghq.ad.check_names: '[]'
     healthcheck:
       test: [ "CMD-SHELL", "cat /tmp/cluster-healthy 2>/dev/null || exit 1" ]
       interval: 10s
       timeout: 5s
       retries: 60
       start_period: 120s
+    labels:
+      com.datadoghq.ad.check_names: '[]'
+      com.datadoghq.ad.logs: '[{"source":"mysql-shell","service":"cluster-healer"}]'
 
   # ==========================================
   # ROUTING & PROXIES
@@ -177,12 +177,11 @@ services:
         max-size: "10m"
         max-file: "3"
     labels:
-      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.check_names: '["http_check"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6446,
-        "username":"root", "password":"root", "options": {"replication": false,
-        "extra_status_metrics": true, "extra_innodb_metrics": false,
-        "extra_performance_metrics": false}}]'
+      com.datadoghq.ad.instances: '[{"name": "mysql_router_rest_api", "url":
+        "http://%%host%%:8443/api/20190715/router/status", "username":
+        "rest_api", "password": "router_api", "skip_cert_verify": true}]'
       com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
     healthcheck:
       test: [ "CMD-SHELL", "grep -q '192E' /proc/net/tcp || exit 1" ]
@@ -243,7 +242,9 @@ services:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379, "command_stats":
-        true, "slowlog-max-len": 128}]'
+        true, "slowlog-max-len": 128, "keys": ["load:size:tiny",
+        "load:size:small", "load:size:medium", "load:size:large", "load:list",
+        "load:set"]}]'
       com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]

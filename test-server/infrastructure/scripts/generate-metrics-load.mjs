@@ -160,31 +160,21 @@ async function main() {
         
         # Inject DML and slow queries periodically to light up Insert/Update/Delete/Fsync/Slow/Lock metrics
         if [ $((i % 20)) -eq 0 ]; then
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "INSERT INTO testdb.test_events (event_type, payload) VALUES ('page_view', '{\"load\": true}');" > /dev/null 2>&1
-          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET payload = '{\"updated\": true}' WHERE id = (SELECT MAX(id) FROM testdb.test_events);" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "INSERT INTO testdb.test_events (event_name, event_data) VALUES ('load_event_$i', '{\"load\": true}');" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "UPDATE testdb.test_events SET event_name = 'updated_$i' WHERE id = (SELECT MAX(id) FROM testdb.test_events);" > /dev/null 2>&1
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "DELETE FROM testdb.test_events WHERE id = (SELECT MIN(id) FROM testdb.test_events);" > /dev/null 2>&1
         fi
         
         # Generate slow queries and locks
         if [ $((i % 100)) -eq 0 ]; then
-          # Bypass ProxySQL for lock generation to guarantee transactions hold the row lock
-          mysql -u cluster_admin -pcluster_admin -h mysql-node1 -P 3306 -e "BEGIN; UPDATE testdb.test_events SET payload = '{\"lock\": true}' WHERE id = 1; SELECT SLEEP(1.5); COMMIT;" > /dev/null 2>&1 &
-          sleep 0.1
-          mysql -u cluster_admin -pcluster_admin -h mysql-node1 -P 3306 -e "UPDATE testdb.test_events SET payload = '{\"wait\": true}' WHERE id = 1;" > /dev/null 2>&1 &
-          
-          # Also send some traffic to mysql-router to light up router metrics and logs
-          mysql -u cluster_admin -pcluster_admin -h mysql-router -P 6446 -e "SELECT * FROM testdb.test_events LIMIT 10;" > /dev/null 2>&1 &
-          # Trigger an access denied error to generate a MySQL Error Log entry
-          mysql -u cluster_admin -pwrongpassword -h mysql-node1 -P 3306 -e "SELECT 1;" > /dev/null 2>&1 &
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1.5);" > /dev/null 2>&1
+          mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "LOCK TABLES testdb.test_events WRITE; DO SLEEP(0.5); UNLOCK TABLES;" > /dev/null 2>&1
         fi
         
-        # Generate aborted connection to ProxySQL and a Slow Query
+        # Generate aborted connection to ProxySQL
         if [ $((i % 50)) -eq 0 ]; then
            # Use a short timeout that forces abort to light up ProxySQL Connection Aborts
            timeout 0.1 mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1);" > /dev/null 2>&1 || true
-           
-           # Generate a query longer than long_query_time (10s)
-           mysql -u cluster_admin -pcluster_admin -h mysql-node1 -P 3306 -e "SELECT SLEEP(12);" > /dev/null 2>&1 &
         fi
       done
     `;
@@ -228,13 +218,13 @@ async function main() {
   await client.callTool({ name: "mysql_list_tables", arguments: {} });
   await client.callTool({ name: "mysql_describe_table", arguments: { tableName: "test_measurements" } });
 
-  console.log("🌊 Starting continuous load generation for 10 minutes...");
+  console.log("🌊 Starting continuous load generation for 60 seconds...");
   
   // Create a flag to control the loop
   let running = true;
   setTimeout(() => {
     running = false;
-  }, 900000); // Run for 15 minutes to give Prometheus ~4 scrapes
+  }, 65000); // Run for 65 seconds to give Prometheus ~4 scrapes
 
   // Function to continuously generate traffic
   const generateTraffic = async () => {

@@ -17,6 +17,7 @@ if [ ! -f "$CONF_FILE" ]; then
         
         echo "[Router-Init] Dynamic metadata bootstrap unavailable; configuring static routing..."
         mkdir -p "$ROUTER_DIR/data"
+        echo 'router_api' | /usr/bin/mysqlrouter_passwd set "$ROUTER_DIR/data/rest_users" rest_api
         cat <<'EOF' > "$CONF_FILE"
 [DEFAULT]
 logging_folder=
@@ -36,6 +37,28 @@ bind_port=6447
 destinations=mysql-node2:3306,mysql-node3:3306,mysql-node1:3306
 routing_strategy=round-robin
 protocol=classic
+
+[http_server]
+bind_address=0.0.0.0
+port=8443
+
+[http_auth_backend:default_auth_backend]
+backend=file
+filename=/tmp/mysqlrouter/data/rest_users
+
+[http_auth_realm:default_auth_realm]
+backend=default_auth_backend
+method=basic
+name=default_realm
+
+[rest_api]
+require_realm=default_auth_realm
+
+[rest_router]
+require_realm=default_auth_realm
+
+[rest_routing]
+require_realm=default_auth_realm
 EOF
     else
         echo "[Router-Init] Bootstrap complete. Configuring REST API authentication..."

@@ -8,3 +8,10 @@ instances:
     reported_hostname: adamic-wsl2
     command_stats: true
     slowlog-max-len: 128
+    keys:
+      - "load:size:tiny"
+      - "load:size:small"
+      - "load:size:medium"
+      - "load:size:large"
+      - "load:list"
+      - "load:set"
