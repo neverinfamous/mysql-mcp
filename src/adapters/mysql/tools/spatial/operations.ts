@@ -208,6 +208,23 @@ export function createSpatialTransformTool(
       try {
         const { geometry, fromSrid, toSrid } = TransformSchema.parse(params);
 
+        // Pre-validate SRIDs to prevent MySQL connection drop (ER_SPATIAL_UNKNOWN_DICT_SRID)
+        const validateSrid = async (srid: number): Promise<boolean> => {
+          if (srid === 0 || srid === 4326) return true;
+          const check = await adapter.executeQuery(
+            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            [srid]
+          );
+          return (check.rows?.length ?? 0) > 0;
+        };
+
+        if (!(await validateSrid(fromSrid))) {
+          throw new Error(`Validation error: Invalid fromSrid: ${fromSrid} is not a known spatial reference system in the database.`);
+        }
+        if (!(await validateSrid(toSrid))) {
+          throw new Error(`Validation error: Invalid toSrid: ${toSrid} is not a known spatial reference system in the database.`);
+        }
+
         const result = await adapter.executeQuery(
           `SELECT
                     ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 'axis-order=long-lat') as transformed_wkt,
