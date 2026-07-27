@@ -79,7 +79,7 @@ ssl_key = /path/to/router-key.pem
 
 Set environment variables:
 \`\`\`bash
-MYSQL_ROUTER_URL=https://localhost:8443
+MYSQL_ROUTER_URL=http://localhost:8443
 MYSQL_ROUTER_USERNAME=admin
 MYSQL_ROUTER_PASSWORD=your_password
 MYSQL_ROUTER_INSECURE=true  # For self-signed certs

@@ -1,4 +1,5 @@
 import https from "node:https";
+import http from "node:http";
 import type { RouterConfig, ErrorResponse } from "../../../../types/index.js";
 import { formatHandlerErrorResponse } from "../core/error-helpers.js";
 
@@ -8,7 +9,7 @@ export type SafeRouterResult<T> =
 
 export function getRouterConfig(): RouterConfig {
   return {
-    url: process.env["MYSQL_ROUTER_URL"] ?? "https://localhost:8443",
+    url: process.env["MYSQL_ROUTER_URL"] ?? "http://localhost:8443",
     username: process.env["MYSQL_ROUTER_USER"] ?? "",
     password: process.env["MYSQL_ROUTER_PASSWORD"] ?? "",
     insecure: process.env["MYSQL_ROUTER_INSECURE"] === "true",
@@ -21,7 +22,7 @@ export async function routerFetch(
   config?: RouterConfig,
 ): Promise<unknown> {
   const cfg = config ?? getRouterConfig();
-  const baseUrl = cfg.url ?? "https://localhost:8443";
+  const baseUrl = cfg.url ?? "http://localhost:8443";
   const apiVersion = cfg.apiVersion ?? "/api/20190715";
   const username = cfg.username ?? "";
   const password = cfg.password ?? "";
@@ -46,11 +47,15 @@ export async function routerFetch(
       path: parsedUrl.pathname,
       method: "GET",
       headers,
-      rejectUnauthorized: !insecure,
       timeout: 10000,
     };
 
-    const req = https.request(requestOptions, (res) => {
+    if (parsedUrl.protocol === "https:") {
+      requestOptions.rejectUnauthorized = !insecure;
+    }
+
+    const client = parsedUrl.protocol === "https:" ? https : http;
+    const req = client.request(requestOptions, (res) => {
       let data = "";
 
       res.on("data", (chunk) => {

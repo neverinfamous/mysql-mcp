@@ -14,6 +14,8 @@ import {
 } from "../../../../__tests__/mocks/index.js";
 import { EventEmitter } from "events";
 
+process.env["MYSQL_ROUTER_URL"] = "https://localhost:8443";
+
 // Mock https module
 vi.mock("node:https", () => ({
   default: {
@@ -616,7 +618,7 @@ describe("Authentication and TLS Handling", () => {
     // Save original env
     originalEnv = { ...process.env };
     // Clear relevant env vars
-    delete process.env["MYSQL_ROUTER_URL"];
+    process.env["MYSQL_ROUTER_URL"] = "https://localhost:8443";
     delete process.env["MYSQL_ROUTER_USER"];
     delete process.env["MYSQL_ROUTER_PASSWORD"];
     delete process.env["MYSQL_ROUTER_INSECURE"];
