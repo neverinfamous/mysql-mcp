@@ -358,8 +358,8 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        // Simple replacement - insert FORCE INDEX after table name
-        const regex = new RegExp(`FROM\\s+\`?${table}\`?(?=\\s|,|$)`, "i");
+        // Support optional database prefix and semicolon at the end of the query
+        const regex = new RegExp(`(FROM\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${table}\`?)(?=\\s|,|;|$)`, "i");
         if (!regex.test(query)) {
           throw new ValidationError(
             `Table '${table}' not found in query FROM clause`,
@@ -368,7 +368,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
 
         const rewritten = query.replace(
           regex,
-          `FROM \`${table}\` FORCE INDEX (\`${indexName}\`)`,
+          `$1 FORCE INDEX (\`${indexName}\`)`
         );
 
         const response = {
