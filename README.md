@@ -523,45 +523,77 @@ Use the remote hostname directly:
 
 ---
 
-## 🛠️ Prevent Token Limits with Tool Filtering
+## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have strict tool limits. You MUST use tool filtering.** This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools). With 200+ tools available, you MUST use tool filtering.** This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### Discover Filtering Options
 
 The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
 
-| Filter Pattern   | Example                     | Description               |
-| ---------------- | --------------------------- | ------------------------- |
-| Shortcut only    | `starter`                   | Use a predefined bundle   |
-| Groups only      | `core,json,transactions`    | Combine individual groups |
-| Shortcut + Group | `starter,spatial`           | Extend a shortcut         |
-| Shortcut - Tool  | `starter,-mysql_drop_table` | Remove specific tools     |
+| Filter Pattern | Example | Tools | Description |
+|---|---|---|---|
+| Shortcut only | `starter` | 43 | Use a predefined bundle |
+| Groups only | `core,json,transactions` | 36 | Combine individual groups |
+| Shortcut + Group | `starter,spatial` | 55 | Extend a shortcut |
+| Shortcut - Tool | `starter,-mysql_drop_table` | 42 | Remove specific tools |
 
-### Use Predefined Shortcuts
+### Shortcuts (Predefined Bundles)
 
-> Note: `codemode` is listed in the shortcuts table for demonstrative completeness. It is automatically injected.
+| Shortcut | Tools | Use Case | What's Included |
+|---|---|---|---|
+| `starter` | 43 | Standard Package | core, json, transactions, text, codemode |
+| `essential` | 20 | Minimal footprint | core, transactions, codemode |
+| `dev-power` | 47 | Power Developer | core, schema, performance, fulltext, transactions, codemode |
+| `dev-analytics` | 44 | Developer Analytics | core, stats, performance, codemode |
+| `ai-data-nosql` | 39 | AI Data NoSQL | core, json, docstore, codemode |
+| `ai-search` | 35 | AI Search | core, text, fulltext, vector, codemode |
+| `ai-spatial` | 32 | AI Spatial Analyst | core, spatial, transactions, codemode |
+| `ai-vector` | 29 | AI Vector Analyst | core, vector, fulltext, codemode |
+| `dba-monitor` | 43 | DBA Monitoring | core, monitoring, performance, sysschema, optimization, codemode |
+| `dba-manage` | 44 | DBA Management | core, admin, backup, replication, partitioning, events, codemode |
+| `dba-secure` | 37 | DBA Security | core, security, roles, transactions, codemode |
+| `dba-schema` | 36 | DBA Schema | core, schema, introspection, migration, codemode |
+| `base-relational` | 37 | Base Relational | core, transactions, text, schema, codemode |
+| `base-analytics` | 27 | Base Analytics | stats, events, codemode |
+| `base-nosql` | 33 | Base NoSQL | docstore, spatial, vector, codemode |
+| `ecosystem` | 41 | External Tools | cluster, proxysql, router, shell, codemode |
 
-| Shortcut        | Use Case           | What's Included                                                    |
-| --------------- | ------------------ | ------------------------------------------------------------------ |
-| `starter`         | Standard Package    | core, json, transactions, text, codemode                         |
-| `essential`       | Minimal footprint   | core, transactions, codemode                                     |
-| `dev-power`       | Power Developer     | core, schema, performance, fulltext, transactions, codemode      |
+### Tool Groups (28 Available)
 
-> **📖 See the [Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the complete list of available shortcuts.
+> Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-### Leverage Available Tool Groups
-
-To optimize AI context windows, tool groups are categorized into high-level domains. **[See the Tool Filtering Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/Tool-Filtering)** for the exhaustive list.
-
-| Category | Key Tool Groups | Description |
+| Group | Tools | Description |
 |---|---|---|
-| **Core CRUD** | `core`, `json`, `transactions`, `vector`, `spatial`, `text` | Essential database operations, querying, and specialized data types. |
-| **Schema** | `schema`, `introspection`, `migration` | Structure design, dependency analysis, and version management. |
-| **Observability** | `performance`, `monitoring`, `sysschema`, `stats` | Real-time diagnostics, EXPLAIN analysis, and anomaly detection. |
-| **Ecosystem** | `cluster`, `proxysql`, `router`, `shell` | Integration with MySQL Router, ProxySQL, and InnoDB Cluster. |
-| **Administration** | `admin`, `backup`, `security`, `roles` | Server maintenance, snapshots, and OAuth/RBAC security configuration. |
+| `codemode` | 1 | Code Mode (sandboxed code execution) 🌟 Recommended |
+| `core` | 12 | Read/write queries, tables, indexes |
+| `transactions` | 7 | BEGIN, COMMIT, ROLLBACK, savepoints |
+| `json` | 17 | JSON functions, merge, diff, stats |
+| `text` | 6 | REGEXP, LIKE, SOUNDEX |
+| `fulltext` | 5 | Natural language & boolean search |
+| `performance` | 11 | EXPLAIN, query analysis, anomaly detection |
+| `optimization` | 4 | Index hints, database-wide audits, EXPLAIN recommendations |
+| `admin` | 9 | OPTIMIZE, ANALYZE, CHECK, insights |
+| `monitoring` | 7 | PROCESSLIST, status variables |
+| `backup` | 7 | Export, import, mysqldump, audit backups |
+| `replication` | 5 | Master/slave, binlog |
+| `partitioning` | 4 | Partition management |
+| `schema` | 11 | Views, procedures, triggers, constraints |
+| `introspection` | 6 | Dependency graphs, cascade simulation, snapshots |
+| `migration` | 6 | Schema versioning, apply, rollback, history |
+| `shell` | 10 | MySQL Shell utilities |
+| `events` | 6 | Event Scheduler management |
+| `sysschema` | 8 | sys schema diagnostics |
+| `stats` | 20 | Statistical analysis, window functions, sampling |
+| `spatial` | 12 | Spatial/GIS operations |
+| `security` | 9 | Audit, SSL, encryption, masking |
+| `roles` | 8 | MySQL 8.0 role management |
+| `docstore` | 9 | Document Store collections |
+| `cluster` | 10 | Group Replication, InnoDB Cluster |
+| `proxysql` | 11 | ProxySQL management |
+| `router` | 9 | MySQL Router REST API |
+| `vector` | 11 | Vector embeddings, KNN search, hybrid search (MySQL 9.0+) |
 
 ---
 
