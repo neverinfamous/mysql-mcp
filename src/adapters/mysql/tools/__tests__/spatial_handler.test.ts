@@ -414,7 +414,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid GIS data",
+        error: "Validation error: both geometries must be valid WKT strings (e.g. POINT(1 1))",
       });
     });
 
@@ -434,7 +434,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid GIS data",
+        error: "Validation error: geometry must be a valid WKT string (e.g. POINT(1 1)); MySQL only supports ST_Buffer for POINT and MULTIPOINT geometries when using geographic SRS (SRID 4326). Use SRID 0 (Cartesian) for other geometries.",
       });
     });
 
@@ -474,7 +474,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid GIS data",
+        error: "Validation error: Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object",
       });
     });
 
@@ -494,7 +494,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Latitude must be in range",
+        error: "Validation error: latitude must be between -90 and 90 degrees for SRID 4326",
       });
     });
 

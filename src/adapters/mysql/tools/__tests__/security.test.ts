@@ -901,7 +901,7 @@ describe("Security Tools", () => {
 
       expect(result.success).toBe(false);
       expect(result.error).toBe(
-        "[ERROR] [security] [UNKNOWN_ERROR] Connection lost (context: mysql_security_sensitive_tables)",
+        "[ERROR] [security] [CONNECTION_ERROR] Connection lost (context: mysql_security_sensitive_tables)",
       );
     });
 

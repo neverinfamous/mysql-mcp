@@ -279,7 +279,7 @@ describe("Spatial Queries Tools", () => {
         {
           table: "bad-table",
           spatialColumn: "boundary",
-          polygon: "P",
+          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
         },
         mockContext,
       );
@@ -348,7 +348,7 @@ describe("Spatial Queries Tools", () => {
         {
           table: "t",
           spatialColumn: "bad col",
-          geometry: "P",
+          geometry: "POINT(0 0)",
         },
         mockContext,
       );

@@ -37,8 +37,8 @@ describe("createFulltextBooleanTool", () => {
       {} as Record<string, unknown>
     );
 
-    expect(result.success).toBe(true);
-    expect(result.data.rows).toEqual([]);
+    expect(result.success).toBe(false);
+    expect(result.error).toContain("Validation error");
     expect(mockAdapter.executeReadQuery).not.toHaveBeenCalled();
   });
 

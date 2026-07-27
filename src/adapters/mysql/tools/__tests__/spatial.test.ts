@@ -249,7 +249,7 @@ describe("Handler Execution", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid coordinate",
+        error: "Validation error: longitude must be between -180 and 180 degrees for SRID 4326",
       });
     });
   });
@@ -471,7 +471,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ geometry: "" }, mockContext);
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("Provided geometry or geoJson must not be an empty string"),
+        error: "Validation error: Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object",
       });
     });
   });

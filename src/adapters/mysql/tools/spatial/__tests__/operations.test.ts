@@ -52,7 +52,7 @@ describe("Spatial Operations Tools", () => {
       );
       const result = (await tool.handler(
         {
-          geometry1: "POLYGON(...)",
+          geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POINT(5 5)",
         },
         mockContext,
@@ -77,7 +77,7 @@ describe("Spatial Operations Tools", () => {
       );
       const result = (await tool.handler(
         {
-          geometry1: "POLYGON(...)",
+          geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POINT(100 100)",
         },
         mockContext,
