@@ -281,7 +281,7 @@ export async function execShellJS(
   // If no JSON found, return raw output
   if (result.exitCode !== 0) {
     throw new QueryError(
-      result.stderr || result.stdout || "MySQL Shell command failed",
+      stderrClean || result.stdout || "MySQL Shell command failed",
     );
   }
 

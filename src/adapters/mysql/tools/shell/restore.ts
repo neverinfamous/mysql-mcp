@@ -373,7 +373,7 @@ export function createShellRunScriptTool(
                 language,
                 exitCode: result.exitCode,
                 stdout: result.stdout,
-                stderr: result.stderr,
+                stderr: cleanStderr,
             } }
           );
         }
