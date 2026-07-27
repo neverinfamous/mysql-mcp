@@ -52,15 +52,15 @@ export const FulltextCreateSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   columns: z
-    .array(z.string())
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Columns to include in index. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   indexName: z.string().optional().describe("Optional index name"),
   index_name: z.string().optional().describe("Alias for indexName"),
   name: z.string().optional().describe("Alias for indexName"),
   index: z.string().optional().describe("Alias for indexName"),
-  col: z.array(z.string()).optional().describe("Alias for columns"),
-  column: z.array(z.string()).optional().describe("Alias for columns"),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
 });
 
 export const FulltextCreateSchema = z
@@ -95,9 +95,9 @@ export const FulltextSearchSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
-  col: z.array(z.string()).optional().describe("Alias for columns"),
-  column: z.array(z.string()).optional().describe("Alias for columns"),
+  columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   query: z.string().optional().describe("Search query. REQUIRED. Note: must be a string, not an array."),
   sql: z.string().optional().describe("Alias for query"),
   search: z.string().optional().describe("Alias for query"),
@@ -217,9 +217,9 @@ export const FulltextBooleanSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
-  col: z.array(z.string()).optional().describe("Alias for columns"),
-  column: z.array(z.string()).optional().describe("Alias for columns"),
+  columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   query: z
     .string()
     .optional()
@@ -296,9 +296,9 @@ export const FulltextExpandSchemaBase = z.object({
   table: z.string().optional().describe("Table name. REQUIRED."),
   tableName: z.string().optional().describe("Alias for table"),
   name: z.string().optional().describe("Alias for table"),
-  columns: z.array(z.string()).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
-  col: z.array(z.string()).optional().describe("Alias for columns"),
-  column: z.array(z.string()).optional().describe("Alias for columns"),
+  columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
+  col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
+  column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   query: z.string().optional().describe("Search query to expand. REQUIRED. Note: must be a string, not an array."),
   sql: z.string().optional().describe("Alias for query"),
   search: z.string().optional().describe("Alias for query"),
