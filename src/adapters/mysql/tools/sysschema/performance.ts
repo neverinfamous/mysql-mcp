@@ -44,7 +44,7 @@ const StatementSummarySchemaBase = z.object({
   sort: z.string().optional().describe("Alias for orderBy"),
   sortBy: z.string().optional().describe("Alias for orderBy"),
   order_by: z.string().optional().describe("Alias for orderBy"),
-  limit: z.number().optional().describe("Maximum number of results"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
 });
 
 const StatementSummarySchema = z.preprocess(
@@ -79,7 +79,7 @@ const VALID_WAIT_TYPES: readonly string[] = [
 const WaitSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of wait summary. Anti-Hallucination: Valid values are 'global', 'by_host', 'by_user', 'by_instance'."),
   waitType: z.string().optional().describe("Alias for type"),
-  limit: z.number().optional().describe("Maximum number of results"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
 });
 
 const WaitSummarySchema = z.preprocess(
@@ -106,7 +106,7 @@ const VALID_IO_TYPES: readonly string[] = ["file", "table", "global"];
 const IOSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of I/O summary. Anti-Hallucination: Valid values are 'file', 'table', 'global'."),
   ioType: z.string().optional().describe("Alias for type"),
-  limit: z.number().optional().describe("Maximum number of results"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
 });
 
 const IOSummarySchema = z.preprocess(
