@@ -37,7 +37,7 @@ export const ProxySQLServerSchema = z.object({
   use_ssl: z.number().optional(),
   max_latency_ms: z.number().optional(),
   comment: z.string().optional(),
-});
+}).loose();
 
 export type ProxySQLServer = z.infer<typeof ProxySQLServerSchema>;
 
@@ -60,34 +60,34 @@ export const ProxySQLHostgroupSchema = z.object({
 export type ProxySQLHostgroup = z.infer<typeof ProxySQLHostgroupSchema>;
 
 export const ProxySQLQueryRuleSchema = z.object({
-  rule_id: z.number(),
-  active: z.number().optional(),
+  rule_id: z.coerce.number(),
+  active: z.coerce.number().optional(),
   username: z.string().optional(),
   schemaname: z.string().optional(),
   match_digest: z.string().optional(),
   match_pattern: z.string().optional(),
-  destination_hostgroup: z.number().optional(),
-  cache_ttl: z.number().optional(),
-  multiplex: z.number().optional(),
-  flagOUT: z.number().optional(),
+  destination_hostgroup: z.coerce.number().optional(),
+  cache_ttl: z.coerce.number().optional(),
+  multiplex: z.coerce.number().optional(),
+  flagOUT: z.coerce.number().optional(),
   comment: z.string().optional(),
-});
+}).loose();
 
 export type ProxySQLQueryRule = z.infer<typeof ProxySQLQueryRuleSchema>;
 
 export const ProxySQLQueryDigestSchema = z.object({
-  hostgroup: z.number(),
+  hostgroup: z.coerce.number(),
   schemaname: z.string(),
   username: z.string(),
   digest: z.string(),
   digest_text: z.string(),
-  count_star: z.number(),
-  first_seen: z.number().optional(),
-  last_seen: z.number().optional(),
-  sum_time: z.number().optional(),
-  min_time: z.number().optional(),
-  max_time: z.number().optional(),
-});
+  count_star: z.coerce.number(),
+  first_seen: z.coerce.number().optional(),
+  last_seen: z.coerce.number().optional(),
+  sum_time: z.coerce.number().optional(),
+  min_time: z.coerce.number().optional(),
+  max_time: z.coerce.number().optional(),
+}).loose();
 
 export type ProxySQLQueryDigest = z.infer<typeof ProxySQLQueryDigestSchema>;
 
@@ -164,7 +164,7 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 export const ProxySQLBaseInputSchema = z.object({}).strict();
 
 export const ProxySQLUsersInputSchemaBase = z.object({
-  username: z.string().optional().describe("Filter by username"),
+  username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
   user: z.string().optional().describe("Alias for username"),
   name: z.string().optional().describe("Alias for username"),
 }).strict();
@@ -198,7 +198,7 @@ export const ProxySQLStatusInputSchemaBase = z.object({
     .boolean()
     .optional()
     .describe(
-      "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Set to false to get all variables.",
+      "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Anti-Hallucination Hint: pass 'summary', not 'database' or 'table'.",
     ),
   database: z.boolean().optional().describe("Alias for summary"),
   table: z.boolean().optional().describe("Alias for summary"),
@@ -244,7 +244,7 @@ export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
     .number()
     .optional()
-    .describe("Maximum number of results to return (default: 20)"),
+    .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
   count: z.number().optional().describe("Alias for limit"),
 }).strict();
 
@@ -277,7 +277,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 );
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
-  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID"),
+  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
   hostgroup: z.number().optional().describe("Alias for hostgroup ID"),
 }).strict();
 
