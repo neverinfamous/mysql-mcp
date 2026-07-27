@@ -454,9 +454,19 @@ export function createOptimizerTraceTool(
         }
 
         // Get the trace
-        const [rows] = await connection.query(
+        let [rows] = await connection.query(
           "SELECT * FROM information_schema.OPTIMIZER_TRACE",
         );
+
+        // Prevent cross-query trace leaking by verifying the trace matches our query
+        if (Array.isArray(rows) && rows.length > 0) {
+          const firstRow = rows[0] as Record<string, unknown>;
+          const queryVal = firstRow["QUERY"];
+          const traceQuery = typeof queryVal === "string" ? queryVal : "";
+          if (traceQuery.trim() !== query.trim()) {
+            rows = [];
+          }
+        }
 
         if (summary) {
           const traceRows: Record<string, unknown>[] = [];
