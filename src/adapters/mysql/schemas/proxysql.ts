@@ -164,9 +164,9 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 export const ProxySQLBaseInputSchema = z.object({}).strict();
 
 export const ProxySQLUsersInputSchemaBase = z.object({
-  username: z.unknown().optional().describe("Filter by username"),
-  user: z.unknown().optional().describe("Alias for username"),
-  name: z.unknown().optional().describe("Alias for username"),
+  username: z.string().optional().describe("Filter by username"),
+  user: z.string().optional().describe("Alias for username"),
+  name: z.string().optional().describe("Alias for username"),
 }).strict();
 
 export const ProxySQLUsersInputSchema = z.preprocess(
@@ -195,13 +195,13 @@ export const ProxySQLUsersInputSchema = z.preprocess(
 
 export const ProxySQLStatusInputSchemaBase = z.object({
   summary: z
-    .unknown()
+    .boolean()
     .optional()
     .describe(
       "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Set to false to get all variables.",
     ),
-  database: z.unknown().optional().describe("Alias for summary"),
-  table: z.unknown().optional().describe("Alias for summary"),
+  database: z.boolean().optional().describe("Alias for summary"),
+  table: z.boolean().optional().describe("Alias for summary"),
 }).strict();
 
 export const ProxySQLStatusInputSchema = z.preprocess(
@@ -242,10 +242,10 @@ export const ProxySQLStatusInputSchema = z.preprocess(
 
 export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
-    .unknown()
+    .number()
     .optional()
     .describe("Maximum number of results to return (default: 20)"),
-  count: z.unknown().optional().describe("Alias for limit"),
+  count: z.number().optional().describe("Alias for limit"),
 }).strict();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
@@ -277,8 +277,8 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 );
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
-  hostgroup_id: z.unknown().optional().describe("Filter by hostgroup ID"),
-  hostgroup: z.unknown().optional().describe("Alias for hostgroup ID"),
+  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID"),
+  hostgroup: z.number().optional().describe("Alias for hostgroup ID"),
 }).strict();
 
 export const ProxySQLHostgroupInputSchema = z.preprocess(
@@ -310,22 +310,22 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
   prefix: z
-    .unknown()
+    .string()
     .optional()
     .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
   like: z
-    .unknown()
+    .string()
     .optional()
     .describe(
       "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
     ),
   limit: z
-    .unknown()
+    .number()
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
-  pattern: z.unknown().optional().describe("Alias for like"),
-  search: z.unknown().optional().describe("Alias for like"),
-  name: z.unknown().optional().describe("Alias for like"),
+  pattern: z.string().optional().describe("Alias for like"),
+  search: z.string().optional().describe("Alias for like"),
+  name: z.string().optional().describe("Alias for like"),
 }).strict();
 
 export const ProxySQLVariableFilterSchema = z.preprocess(
@@ -372,11 +372,24 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
 
 export const ProxySQLCommandInputSchemaBase = z.object({
   command: z
-    .unknown()
+    .enum([
+      "LOAD MYSQL USERS TO RUNTIME",
+      "SAVE MYSQL USERS TO DISK",
+      "LOAD MYSQL SERVERS TO RUNTIME",
+      "SAVE MYSQL SERVERS TO DISK",
+      "LOAD MYSQL QUERY RULES TO RUNTIME",
+      "SAVE MYSQL QUERY RULES TO DISK",
+      "LOAD MYSQL VARIABLES TO RUNTIME",
+      "SAVE MYSQL VARIABLES TO DISK",
+      "LOAD ADMIN VARIABLES TO RUNTIME",
+      "SAVE ADMIN VARIABLES TO DISK",
+      "PROXYSQL FLUSH QUERY CACHE",
+      "PROXYSQL FLUSH LOGS",
+    ])
     .optional()
     .describe("ProxySQL admin command to execute. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
-  sql: z.unknown().optional().describe("Alias for command"),
-  query: z.unknown().optional().describe("Alias for command"),
+  sql: z.string().optional().describe("Alias for command"),
+  query: z.string().optional().describe("Alias for command"),
 }).strict();
 
 export const ProxySQLCommandInputSchema = z.preprocess(
