@@ -321,8 +321,11 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
             success: true as const,
             data: {
               lagSeconds:
-                status["Seconds_Behind_Source"] ??
-                status["Seconds_Behind_Master"],
+                status["Seconds_Behind_Source"] != null
+                  ? Number(status["Seconds_Behind_Source"])
+                  : status["Seconds_Behind_Master"] != null
+                  ? Number(status["Seconds_Behind_Master"])
+                  : null,
               ioRunning:
                 status["Replica_IO_Running"] ?? status["Slave_IO_Running"],
               sqlRunning:
@@ -341,7 +344,10 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
             const response = {
               success: true as const,
               data: {
-                lagSeconds: status["Seconds_Behind_Master"],
+                lagSeconds:
+                  status["Seconds_Behind_Master"] != null
+                    ? Number(status["Seconds_Behind_Master"])
+                    : null,
                 ioRunning: status["Slave_IO_Running"],
                 sqlRunning: status["Slave_SQL_Running"],
                 lastError: status["Last_Error"],

@@ -78,9 +78,9 @@ export const GtidStatusOutputSchema = BaseOutputSchema.extend({
 
 export const ReplicationLagOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    lagSeconds: z.unknown(),
-    ioRunning: z.unknown().optional(),
-    sqlRunning: z.unknown().optional(),
-    lastError: z.unknown().optional(),
+    lagSeconds: z.union([z.number(), z.null()]).optional(),
+    ioRunning: z.string().optional(),
+    sqlRunning: z.string().optional(),
+    lastError: z.string().optional(),
   }).loose().optional(),
 });
