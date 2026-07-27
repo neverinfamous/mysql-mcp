@@ -86,6 +86,22 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tableRef = escapeTableRef(collection, schema);
           for (const field of fields) {
             const cleanPath = field.path.replace(/^\$\.?/, "");
+            if (!/^[a-zA-Z0-9_.]+$/.test(cleanPath)) {
+              return withTokenEstimate({
+                success: false,
+                error: `Invalid field path: "${field.path}". Paths must contain only letters, digits, underscores, and dots.`,
+                code: "VALIDATION_ERROR",
+                category: "validation",
+              });
+            }
+            if (!/^[a-zA-Z0-9_()]+$/.test(field.type)) {
+              return withTokenEstimate({
+                success: false,
+                error: `Invalid field type: "${field.type}". Types must contain only letters, digits, underscores, and parentheses.`,
+                code: "VALIDATION_ERROR",
+                category: "validation",
+              });
+            }
             const colName = `_idx_${cleanPath.replace(/\./g, "_")}`;
             const typeUpper = field.type.toUpperCase();
             const cast = (typeUpper === "TEXT" || typeUpper === "STRING") 
