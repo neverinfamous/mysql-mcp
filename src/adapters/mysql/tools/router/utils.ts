@@ -93,23 +93,23 @@ export async function routerFetch(
         error instanceof Error && "code" in error && typeof error.code === "string"
           ? error.code
           : undefined;
-      let message = error.message;
-      if (errorCode === "ECONNREFUSED") {
+      let message = error instanceof Error ? error.message : String(error);
+      if (errorCode === "ECONNREFUSED" || message.includes("ECONNREFUSED")) {
         message = `Connection refused - MySQL Router REST API is not reachable at ${baseUrl}`;
-      } else if (errorCode === "ETIMEDOUT" || errorCode === "ESOCKETTIMEDOUT") {
+      } else if (errorCode === "ETIMEDOUT" || errorCode === "ESOCKETTIMEDOUT" || message.includes("ETIMEDOUT")) {
         message = `Connection timed out - MySQL Router REST API at ${baseUrl} is not responding`;
-      } else if (errorCode === "ENOTFOUND") {
+      } else if (errorCode === "ENOTFOUND" || message.includes("ENOTFOUND")) {
         message = `Host not found - cannot resolve ${parsedUrl.hostname}`;
-      } else if (errorCode === "ECONNRESET") {
+      } else if (errorCode === "ECONNRESET" || message.includes("ECONNRESET")) {
         message = `Connection reset - MySQL Router REST API at ${baseUrl} forcefully closed the connection`;
       } else if (
         errorCode === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
         errorCode === "CERT_HAS_EXPIRED" ||
         errorCode === "DEPTH_ZERO_SELF_SIGNED_CERT" ||
-        error.message.includes("self-signed") ||
-        error.message.includes("certificate")
+        message.includes("self-signed") ||
+        message.includes("certificate")
       ) {
-        message = `TLS certificate error: ${error.message}. Set MYSQL_ROUTER_INSECURE=true for self-signed certificates`;
+        message = `TLS certificate error: ${message}. Set MYSQL_ROUTER_INSECURE=true for self-signed certificates`;
       }
       reject(new Error(`Router API request failed: ${message}`));
     });
