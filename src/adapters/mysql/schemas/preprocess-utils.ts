@@ -98,6 +98,25 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
   if (result["documents"] === undefined && result["document"] !== undefined) {
     result["documents"] = Array.isArray(result["document"]) ? result["document"] : [result["document"]];
   }
+  if (typeof result["documents"] === "string") {
+    try {
+      const parsed = JSON.parse(result["documents"]) as unknown;
+      result["documents"] = Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      // ignore
+    }
+  } else if (Array.isArray(result["documents"])) {
+    result["documents"] = result["documents"].map((d: unknown) => {
+      if (typeof d === "string") {
+        try {
+          return JSON.parse(d) as unknown;
+        } catch {
+          return d;
+        }
+      }
+      return d;
+    });
+  }
   return result;
 }
 
@@ -910,19 +929,36 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   }
 
   if (result["filter"] !== undefined) {
-    if (
-      typeof result["filter"] === "object" &&
-      result["filter"] !== null &&
-      Object.keys(result["filter"]).length === 0
-    ) {
-      result["filter"] = undefined;
-    } else if (
-      result["filter"] === "{}" ||
-      result["filter"] === "[]" ||
-      result["filter"] === ""
-    ) {
-      result["filter"] = undefined;
+    if (typeof result["filter"] !== "string") {
+      result["filter"] = JSON.stringify(result["filter"]);
+    } else {
+      if (
+        result["filter"] === "{}" ||
+        result["filter"] === "[]" ||
+        result["filter"] === ""
+      ) {
+        result["filter"] = undefined;
+      }
     }
+  }
+
+  if (typeof result["set"] === "string") {
+    try {
+      result["set"] = JSON.parse(result["set"]) as unknown;
+    } catch {
+      // ignore
+    }
+  }
+
+  if (typeof result["unset"] === "string") {
+    try {
+      const parsed = JSON.parse(result["unset"]) as unknown;
+      result["unset"] = Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      result["unset"] = (result["unset"] as string).split(",").map((s: string) => s.trim());
+    }
+  } else if (result["unset"] !== undefined && !Array.isArray(result["unset"])) {
+    result["unset"] = [result["unset"]];
   }
 
   delete result["criteria"];
