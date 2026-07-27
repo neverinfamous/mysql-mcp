@@ -253,8 +253,8 @@ export async function execShellJS(
       if (!parsed.success) {
         const errorMsg = parsed.error ?? "Unknown MySQL Shell error";
 
-        // For "Fatal error during dump" errors, check stderr for specific MySQL error details
-        if (errorMsg.includes("Fatal error during dump") && stderrClean) {
+        // For "Fatal error during dump" or "Error loading dump" errors, check stderr for specific MySQL error details
+        if ((errorMsg.includes("Fatal error during dump") || errorMsg.includes("Error loading dump")) && stderrClean) {
           const errorLines = stderrClean
             .split(/\r?\n/)
             .filter((line) => /^ERROR:/i.test(line.trim()));

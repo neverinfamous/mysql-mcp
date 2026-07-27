@@ -378,13 +378,17 @@ export function createShellRunScriptTool(
           );
         }
 
+        const finalStderr = result.stderr
+          ? result.stderr.replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "").trim()
+          : "";
+
         return withTokenEstimate({
           success: true,
           data: {
             language,
             exitCode: result.exitCode,
             stdout: result.stdout,
-            stderr: result.stderr,
+            stderr: finalStderr,
           },
         });
       } catch (err) {
