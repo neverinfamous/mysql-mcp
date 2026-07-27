@@ -199,6 +199,8 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { role, user, host, privileges, database, table } =
             RoleRevokeSchema.parse(params);
 
+          validateIdentifier(role, "role");
+
           const checkResult = await adapter.executeQuery(
             `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
             [role],
@@ -210,6 +212,9 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           if (user) {
+            validateMySQLUserHost(user, "user");
+            validateMySQLUserHost(host, "host");
+
             const userCheck = await adapter.executeQuery(
               `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
               [user, host],
@@ -233,10 +238,6 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
                 )
               );
             }
-
-            validateIdentifier(role, "role");
-            validateMySQLUserHost(user, "user");
-            validateMySQLUserHost(host, "host");
 
             await adapter.rawQuery(`REVOKE '${role}' FROM '${user}'@'${host}'`);
             const data = { role, user, host };
@@ -313,6 +314,9 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
       handler: async (params: unknown, _context: RequestContext) => {
         try {
           const { user, host } = UserRolesSchema.parse(params);
+
+          validateMySQLUserHost(user, "user");
+          validateMySQLUserHost(host, "host");
 
           const userCheck = await adapter.executeQuery(
             `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
