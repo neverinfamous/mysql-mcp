@@ -31,9 +31,9 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const LimitSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of results to return"),
-  max: z.number().optional().describe("Alias for limit"),
-  count: z.number().optional().describe("Alias for limit"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results to return"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
 });
 
 const LimitSchema = z.preprocess(
@@ -62,9 +62,9 @@ const SchemaStatsSchemaBase = z.object({
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
   schemaName: z.string().optional().describe("Alias for schema"),
-  limit: z.number().optional().describe("Maximum number of results"),
-  max: z.number().optional().describe("Alias for limit"),
-  count: z.number().optional().describe("Alias for limit"),
+  limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
 });
 
 const SchemaStatsSchema = z.preprocess(
