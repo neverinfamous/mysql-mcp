@@ -213,10 +213,10 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (e) {
           const message = String(e);
           const targetFile = effectiveLogFile || logFile;
-          if (targetFile && message.includes("Could not find target log")) {
+          if (targetFile && (message.includes("Could not find target log") || message.includes("Connection lost"))) {
             return formatHandlerErrorResponse(
               new MySQLMcpError(
-                `Binlog file '${targetFile}' not found`,
+                `Binlog file '${targetFile}' not found (or server rejected file)`,
                 "DOMAIN_ERROR",
                 ErrorCategory.RESOURCE
               )
