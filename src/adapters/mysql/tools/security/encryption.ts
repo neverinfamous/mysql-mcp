@@ -31,9 +31,9 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 // =============================================================================
 
 const PasswordValidateSchemaBase = z.object({
-  password: z.string().optional().describe("Password to validate"),
-  pass: z.string().optional().describe("Alias for password"),
-  pwd: z.string().optional().describe("Alias for password"),
+  password: z.coerce.string().optional().describe("Password to validate"),
+  pass: z.coerce.string().optional().describe("Alias for password"),
+  pwd: z.coerce.string().optional().describe("Alias for password"),
 });
 
 const PasswordValidateSchema = z.preprocess(
@@ -47,7 +47,7 @@ const PasswordValidateSchema = z.preprocess(
     return val;
   },
   z.object({
-    password: z.string().min(1, "Password cannot be empty"),
+    password: z.coerce.string().min(1, "Password cannot be empty"),
   })
 );
 
