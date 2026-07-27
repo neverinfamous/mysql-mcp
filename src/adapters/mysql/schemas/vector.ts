@@ -101,7 +101,7 @@ export const VectorStoreSchema = z
   table: tableParam,
   column: columnParam,
   id: idParam,
-  vector: z.array(z.number()).min(1, "Vector cannot be empty").describe("Vector embedding as an array of numbers"),
+  vector: z.array(z.number()).min(1, "Vector cannot be empty").max(16383, "Maximum vector dimensions is 16383").describe("Vector embedding as an array of numbers"),
   idColumn: idColumnParam,
 })
   );
@@ -124,8 +124,8 @@ export const VectorBatchStoreSchema = z
   column: columnParam,
   items: z.array(z.object({
     id: idParam,
-    vector: z.array(z.number()).min(1, "Vector cannot be empty")
-  })).min(1, "Items array cannot be empty").describe("Array of objects with 'id' and 'vector' fields"),
+    vector: z.array(z.number()).min(1, "Vector cannot be empty").max(16383, "Maximum vector dimensions is 16383")
+  })).min(1, "Items array cannot be empty").max(1000, "Maximum batch size is 1000").describe("Array of objects with 'id' and 'vector' fields"),
   idColumn: idColumnParam,
 })
   );
@@ -184,7 +184,7 @@ export const VectorSearchSchema = z
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
-  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
+  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty").max(16383, "Maximum vector dimensions is 16383"),
   k: z.number().int().positive().max(1000).optional().default(10),
   metric: metricParam,
   filter: filterParam,
@@ -209,7 +209,7 @@ export const VectorRangeSearchSchema = z
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
-  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty"),
+  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty").max(16383, "Maximum vector dimensions is 16383"),
   maxDistance: z.number().nonnegative("Distance threshold must be non-negative"),
   metric: metricParam,
   limit: z.number().int().positive().max(1000).optional().default(50),
@@ -242,7 +242,7 @@ export const VectorHybridSearchSchema = z
   table: tableParam,
   vectorColumn: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
   textColumn: z.string().min(1, "Text column name cannot be empty"),
-  queryVector: z.array(z.number()).min(1).optional(),
+  queryVector: z.array(z.number()).min(1, "Query vector cannot be empty").max(16383, "Maximum vector dimensions is 16383").optional(),
   queryText: z.string().optional(),
   k: z.number().int().positive().max(1000).optional().default(10),
   metric: metricParam,
