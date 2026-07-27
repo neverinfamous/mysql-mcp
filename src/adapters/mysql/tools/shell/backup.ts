@@ -136,6 +136,16 @@ export function createShellDumpInstanceTool(
             )
           );
         }
+        if (errorMessage.includes("already exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
         if (errorMessage.includes("Fatal error during dump")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -261,6 +271,16 @@ export function createShellDumpSchemasTool(
               {
                 suggestion: "Set ddlOnly: true to skip events, triggers, and routines.",
               }
+            )
+          );
+        }
+        if (errorMessage.includes("already exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
             )
           );
         }
@@ -412,6 +432,17 @@ export function createShellDumpTablesTool(
               {
                 suggestion: "Set all: false to skip metadata that requires extra privileges.",
               }
+            )
+          );
+        }
+
+        if (errorMessage.includes("already exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
             )
           );
         }
