@@ -169,12 +169,20 @@ async function main() {
         if [ $((i % 100)) -eq 0 ]; then
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1.5);" > /dev/null 2>&1
           mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "LOCK TABLES testdb.test_events WRITE; DO SLEEP(0.5); UNLOCK TABLES;" > /dev/null 2>&1
+          
+          # Also send some traffic to mysql-router to light up router metrics and logs
+          mysql -u cluster_admin -pcluster_admin -h mysql-router -P 6446 -e "SELECT * FROM testdb.test_events LIMIT 10;" > /dev/null 2>&1 &
+          # Trigger an access denied error to generate a MySQL Error Log entry
+          mysql -u cluster_admin -pwrongpassword -h mysql-node1 -P 3306 -e "SELECT 1;" > /dev/null 2>&1 &
         fi
         
-        # Generate aborted connection to ProxySQL
+        # Generate aborted connection to ProxySQL and a Slow Query
         if [ $((i % 50)) -eq 0 ]; then
            # Use a short timeout that forces abort to light up ProxySQL Connection Aborts
            timeout 0.1 mysql -u cluster_admin -pcluster_admin -h 127.0.0.1 -P 6033 -e "SELECT SLEEP(1);" > /dev/null 2>&1 || true
+           
+           # Generate a query longer than long_query_time (10s)
+           mysql -u cluster_admin -pcluster_admin -h mysql-node1 -P 3306 -e "SELECT SLEEP(12);" > /dev/null 2>&1 &
         fi
       done
     `;

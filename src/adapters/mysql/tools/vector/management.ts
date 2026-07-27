@@ -130,8 +130,7 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
             created: true,
             table: validated.table,
             column: validated.column,
-            indexName,
-            metric: validated.metric
+            indexName
           }
         });
       } catch (e) {

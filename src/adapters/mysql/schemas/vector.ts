@@ -279,8 +279,6 @@ export const VectorInfoSchema = z
 export const VectorCreateIndexSchemaBase = z.object({
   ...tableAliasesBase,
   ...columnAliasesBase,
-  metric: metricParamBase,
-  type: z.enum(["HNSW"]).optional().describe("Vector index type (default: 'HNSW')"),
 });
 
 export const VectorCreateIndexSchema = z
@@ -289,8 +287,6 @@ export const VectorCreateIndexSchema = z
     z.object({
   table: tableParam,
   column: z.string().min(1).optional().describe("Vector column name (optional if table has only one)"),
-  metric: metricParam,
-  type: z.enum(["HNSW"]).optional().default("HNSW"),
 })
   );
 
@@ -411,7 +407,6 @@ export const VectorCreateIndexOutputSchema = BaseOutputSchema.extend({
     table: z.string(),
     column: z.string(),
     indexName: z.string(),
-    metric: z.string(),
   }).loose().optional(),
 });
 
