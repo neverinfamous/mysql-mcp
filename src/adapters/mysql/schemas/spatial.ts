@@ -372,6 +372,19 @@ export const DistanceSchema = z
   })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
+  })
+  .refine((data) => {
+    if (!data.table) {
+      if (!data.geometry1 || !data.geometry2) return false;
+      const g1 = typeof data.geometry1 === "string" ? data.geometry1.trim().toUpperCase() : "";
+      const g2 = typeof data.geometry2 === "string" ? data.geometry2.trim().toUpperCase() : "";
+      const valid1 = Array.from(VALID_GEOMETRY_TYPES).some((t) => g1.startsWith(t));
+      const valid2 = Array.from(VALID_GEOMETRY_TYPES).some((t) => g2.startsWith(t));
+      return valid1 && valid2;
+    }
+    return true;
+  }, {
+    message: "geometry1 and geometry2 must be valid WKT strings (e.g. POINT(1 1))",
   });
 
 export const ContainsSchemaBase = z.object({
