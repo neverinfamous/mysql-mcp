@@ -539,7 +539,24 @@ export const IntersectionSchema = z.preprocess(
   .refine((data) => isValidWKT(data.geometry1) && isValidWKT(data.geometry2), { message: "both geometries must be valid WKT strings (e.g. POINT(1 1))" })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
-  });
+  })
+  .refine((data) => {
+    if (data.srid === 4326) {
+        for (const geom of [data.geometry1, data.geometry2]) {
+            const matches = geom.match(/[-\d.]+\s+[-\d.]+/g);
+            if (matches) {
+                for (const match of matches) {
+                    const [lonStr, latStr] = match.split(/\s+/);
+                    const lon = Number(lonStr);
+                    const lat = Number(latStr);
+                    if (lon < -180 || lon > 180) return false;
+                    if (lat < -90 || lat > 90) return false;
+                }
+            }
+        }
+    }
+    return true;
+  }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" });
 
 export const BufferSchemaBase = z.object({
   geometry: z.unknown().optional().describe("WKT geometry. Note: Pass geometry or wkt, not coords or point."),
@@ -580,9 +597,33 @@ export const BufferSchema = z.preprocess(
     }
     return true;
   }, { message: "MySQL only supports ST_Buffer for POINT and MULTIPOINT geometries when using geographic SRS (SRID 4326). Use SRID 0 (Cartesian) for other geometries." })
+  .refine((data) => {
+    if (data.srid === 4326) {
+        const matches = data.geometry.match(/[-\d.]+\s+[-\d.]+/g);
+        if (matches) {
+            for (const match of matches) {
+                const [lonStr, latStr] = match.split(/\s+/);
+                const lon = Number(lonStr);
+                const lat = Number(latStr);
+                if (lon < -180 || lon > 180) return false;
+                if (lat < -90 || lat > 90) return false;
+            }
+        }
+    }
+    return true;
+  }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" })
   .refine((data) => !Number.isNaN(data.distance), {
     message: "distance must be a valid number",
   })
+  .refine((data) => {
+    if (data.distance < 0) {
+        const g = data.geometry.trim().toUpperCase();
+        if (!g.startsWith("POLYGON") && !g.startsWith("MULTIPOLYGON")) {
+            return false;
+        }
+    }
+    return true;
+  }, { message: "negative distance is only valid for POLYGON and MULTIPOLYGON geometries" })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   })
