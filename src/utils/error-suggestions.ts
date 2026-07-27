@@ -326,12 +326,21 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "Insufficient privileges. Check the user's permissions on the target database object.",
     category: ErrorCategory.PERMISSION,
+    code: "PERMISSION_DENIED",
   },
   {
     pattern: /command denied to user/i,
     suggestion:
       "This command requires elevated privileges. Check GRANT statements for the user.",
     category: ErrorCategory.PERMISSION,
+    code: "PERMISSION_DENIED",
+  },
+  {
+    pattern: /needs to be performed by user with .* privileges/i,
+    suggestion:
+      "This command requires elevated privileges. Check GRANT statements for the user.",
+    category: ErrorCategory.PERMISSION,
+    code: "PERMISSION_DENIED",
   },
 
   // =========================================================================
