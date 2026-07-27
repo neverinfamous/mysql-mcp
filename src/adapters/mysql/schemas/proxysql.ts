@@ -356,6 +356,7 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
       .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
     like: z
       .string()
+      .regex(/^[a-zA-Z0-9_%\-. *]+$/, "Invalid like pattern — only alphanumeric, underscore, dash, dot, percent (%), and space characters are allowed")
       .optional()
       .describe(
         "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
