@@ -78,6 +78,16 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
       message: "Must provide 'user'/'fromUser'/'userName'/'username' OR 'privileges'/'privilege'",
     },
   )
+  .refine(
+    (val) => {
+      const hasUser = Boolean(val.user) || Boolean(val.fromUser) || Boolean(val.userName) || Boolean(val.username);
+      const hasPriv = Boolean(val.privileges) || Boolean(val.privilege);
+      return !(hasUser && hasPriv);
+    },
+    {
+      message: "Cannot provide both user and privileges. Use 'user' to revoke a role, or 'privileges' to revoke specific privileges.",
+    }
+  )
   .transform((val) => {
     const role = val.role || val.name || val.roleName || "";
     const user = val.user || val.fromUser || val.userName || val.username || "";
@@ -232,7 +242,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             if (!assignCheck.rows || assignCheck.rows.length === 0) {
               return formatHandlerErrorResponse(
                 new MySQLMcpError(
-                  `Role '${role}' is not assigned to user '${user}'@'${host}'`,
+                  `Role '${role}' is not assigned to user '${user}'`,
                   "OBJECT_NOT_FOUND",
                   ErrorCategory.RESOURCE
                 )
