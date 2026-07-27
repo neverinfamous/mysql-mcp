@@ -304,7 +304,7 @@ const ERROR_SUGGESTIONS: {
     code: "CONNECTION_ERROR",
   },
   {
-    pattern: /Connection (?:lost|terminated|closed)/i,
+    pattern: /Connection (?:lost|terminated|closed|reset)/i,
     suggestion:
       "Database connection was closed unexpectedly. This may indicate a server restart or timeout.",
     category: ErrorCategory.CONNECTION,

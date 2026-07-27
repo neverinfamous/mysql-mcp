@@ -100,6 +100,8 @@ export async function routerFetch(
         message = `Connection timed out - MySQL Router REST API at ${baseUrl} is not responding`;
       } else if (errorCode === "ENOTFOUND") {
         message = `Host not found - cannot resolve ${parsedUrl.hostname}`;
+      } else if (errorCode === "ECONNRESET") {
+        message = `Connection reset - MySQL Router REST API at ${baseUrl} forcefully closed the connection`;
       } else if (
         errorCode === "UNABLE_TO_VERIFY_LEAF_SIGNATURE" ||
         errorCode === "CERT_HAS_EXPIRED" ||
