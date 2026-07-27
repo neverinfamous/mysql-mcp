@@ -182,9 +182,10 @@ export class ValidationError extends MySQLMcpError {
   constructor(
     message: string,
     details?: Record<string, unknown>,
-    options?: { cause?: Error },
+    options?: { cause?: Error; suggestion?: string },
   ) {
     super(message, "VALIDATION_ERROR", ErrorCategory.VALIDATION, {
+      suggestion: options?.suggestion,
       details,
       recoverable: false,
       cause: options?.cause,
