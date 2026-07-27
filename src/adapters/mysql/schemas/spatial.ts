@@ -22,13 +22,15 @@ export function isValidWKT(wkt: string): boolean {
   }
   
   const match = /^([A-Z]+)\s*\((.*)\)$/.exec(t);
-  if (!match) return false;
-  if (!VALID_GEOMETRY_TYPES.has(match[1])) return false;
+  if (!match || !match[1] || match[2] === undefined) return false;
   
+  const type = match[1];
   const content = match[2];
+  
+  if (!VALID_GEOMETRY_TYPES.has(type)) return false;
   if (!/^[-\d.,\s()]*$/.test(content)) return false;
   
-  if (match[1] === "POINT") {
+  if (type === "POINT") {
     return /^[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+$/.test(content.trim());
   }
   
