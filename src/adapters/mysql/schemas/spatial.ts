@@ -142,6 +142,24 @@ export const PointSchema = z.preprocess(
     (data) => !Number.isNaN(data.longitude) && !Number.isNaN(data.latitude),
     { message: "longitude and latitude must be valid numbers" },
   )
+  .refine(
+    (data) => {
+       if (data.srid === 4326) {
+           return data.latitude >= -90 && data.latitude <= 90;
+       }
+       return true;
+    },
+    { message: "latitude must be between -90 and 90 degrees for SRID 4326" }
+  )
+  .refine(
+    (data) => {
+       if (data.srid === 4326) {
+           return data.longitude >= -180 && data.longitude <= 180;
+       }
+       return true;
+    },
+    { message: "longitude must be between -180 and 180 degrees for SRID 4326" }
+  )
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   });
@@ -198,6 +216,56 @@ export const PolygonSchema = z.preprocess(
   
   return { ...data, coordinates: Array.isArray(coords) ? coords : undefined, polygon: polygonWkt };
 }).refine(data => data.coordinates ?? data.polygon, { message: "Either coordinates or polygon WKT must be provided" })
+  .refine(data => {
+    if (Array.isArray(data.coordinates)) {
+        for (const ring of data.coordinates) {
+            if (ring.length < 4) return false;
+            const first = ring[0];
+            const last = ring[ring.length - 1];
+            if (!first || !last || first[0] !== last[0] || first[1] !== last[1]) return false;
+        }
+    } else if (data.polygon) {
+        const wkt = data.polygon.trim().toUpperCase();
+        if (!wkt.startsWith("POLYGON")) return false;
+        const match = /POLYGON\s*\(\s*(.*)\s*\)/.exec(wkt);
+        if (!match?.[1]) return false;
+        const rings = match[1].split(/\)\s*,\s*\(/);
+        for (let ring of rings) {
+            ring = ring.replace(/[()]/g, "").trim();
+            const points = ring.split(",").map(p => p.trim());
+            if (points.length < 4) return false;
+            if (points[0] !== points[points.length - 1]) return false;
+        }
+    }
+    return true;
+  }, { message: "polygon WKT or coordinates must contain closed rings with at least 4 points each" })
+  .refine(data => {
+    if (data.srid === 4326) {
+        if (Array.isArray(data.coordinates)) {
+            for (const ring of data.coordinates) {
+                for (const point of ring) {
+                    if (point[0] !== undefined && (point[0] < -180 || point[0] > 180)) return false;
+                    if (point[1] !== undefined && (point[1] < -90 || point[1] > 90)) return false;
+                }
+            }
+        } else if (data.polygon) {
+            const match = /POLYGON\s*\(\s*(.*)\s*\)/i.exec(data.polygon);
+            if (match?.[1]) {
+                const points = match[1].replace(/[()]/g, "").split(",");
+                for (const p of points) {
+                    const coords = p.trim().split(/\s+/);
+                    if (coords.length >= 2) {
+                        const lon = Number(coords[0]);
+                        const lat = Number(coords[1]);
+                        if (lon < -180 || lon > 180) return false;
+                        if (lat < -90 || lat > 90) return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+  }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   });
