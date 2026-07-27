@@ -295,11 +295,12 @@ export function createShellImportTableTool(
 
         if (
           errorMessage.includes("local_infile") ||
-          errorMessage.includes("Loading local data is disabled")
+          errorMessage.includes("Loading local data is disabled") ||
+          errorMessage.includes("Unsupported 'LOAD DATA LOCAL INFILE'")
         ) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              "Import failed: local_infile is disabled on the server.",
+              "Import failed: local_infile is disabled on the server or client.",
               "CONFIGURATION_ERROR",
               ErrorCategory.CONFIGURATION,
               { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
