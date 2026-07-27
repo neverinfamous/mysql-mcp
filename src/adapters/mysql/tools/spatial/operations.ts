@@ -11,9 +11,10 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  type ToolDefinition,
+  type RequestContext,
+  ValidationError,
 } from "../../../../types/index.js";
 import {
   IntersectionSchemaBase,
@@ -103,7 +104,7 @@ export function createSpatialIntersectionTool(
         };
 
         if (!(await validateSrid(srid))) {
-          throw new Error(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
+          throw new ValidationError(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
         }
 
         const isGeographic = srid !== 0;
@@ -179,7 +180,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         };
 
         if (!(await validateSrid(srid))) {
-          throw new Error(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
+          throw new ValidationError(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
         }
 
         const isGeographic = srid !== 0;
@@ -245,10 +246,10 @@ export function createSpatialTransformTool(
         };
 
         if (!(await validateSrid(fromSrid))) {
-          throw new Error(`Validation error: Invalid fromSrid: ${fromSrid} is not a known spatial reference system in the database.`);
+          throw new ValidationError(`Validation error: Invalid fromSrid: ${fromSrid} is not a known spatial reference system in the database.`);
         }
         if (!(await validateSrid(toSrid))) {
-          throw new Error(`Validation error: Invalid toSrid: ${toSrid} is not a known spatial reference system in the database.`);
+          throw new ValidationError(`Validation error: Invalid toSrid: ${toSrid} is not a known spatial reference system in the database.`);
         }
 
         const result = await adapter.executeQuery(
