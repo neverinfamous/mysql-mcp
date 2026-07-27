@@ -449,8 +449,8 @@ export const ContainsSchema = z.preprocess(
     table: data.table ?? data.tableName ?? data.name ?? "",
     spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
     polygon: data.polygon ?? data.wkt ?? "",
-    limit: data.limit !== undefined ? Number(data.limit) : 100,
-    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+    limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
+    srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
   }))
 )
   .refine((data) => data.polygon.trim() !== "", { message: "polygon (WKT) must be a non-empty string" })
@@ -500,8 +500,8 @@ export const WithinSchema = z.preprocess(
     table: data.table ?? data.tableName ?? data.name ?? "",
     spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
     geometry: data.geometry ?? data.wkt ?? "",
-    limit: data.limit !== undefined ? Number(data.limit) : 100,
-    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+    limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
+    srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
   }))
 )
   .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
