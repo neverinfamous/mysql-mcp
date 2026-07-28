@@ -759,7 +759,7 @@ describe("Replication Fallback Handling", () => {
   describe("mysql_slave_status fallback", () => {
     it("should fallback to SHOW SLAVE STATUS on error", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(
           createMockQueryResult([{ Slave_IO_Running: "Yes" }]),
         );
@@ -773,8 +773,8 @@ describe("Replication Fallback Handling", () => {
 
     it("should return message when not configured as replica", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
-        .mockRejectedValueOnce(new Error("Not configured"));
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_slave_status")!;
       const result = (await tool.handler({}, mockContext)) as {
@@ -898,7 +898,7 @@ describe("Replication Fallback Handling", () => {
 
     it("should fallback to SHOW SLAVE STATUS on error", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(
           createMockQueryResult([
             {
@@ -920,23 +920,23 @@ describe("Replication Fallback Handling", () => {
 
     it("should return message when not a replica after both fail", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockRejectedValueOnce(new Error("Not configured"));
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
       const result = (await tool.handler({}, mockContext)) as {
         success: boolean;
-        data: { lagSeconds: null };
+        error: string;
       };
 
-      expect(result.success).toBe(true);
-      expect(result.data.lagSeconds).toBeNull();
+      expect(result.success).toBe(false);
+      expect(result.error).toContain("Failed to retrieve slave status");
     });
 
     it("should return message when replica status returns empty", async () => {
       // Empty result means it's not configured as a replica
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_replication_lag")!;

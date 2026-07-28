@@ -39,8 +39,16 @@ export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role ||
   })
   .transform((val) => {
     const role = val.role || val.name || val.roleName || "";
-    const user = val.user || val.toUser || val.userName || val.username || "";
-    return { ...val, role, user };
+    let user = val.user || val.toUser || val.userName || val.username || "";
+    let host = val.host;
+    if (user && user.includes("@")) {
+      const parts = user.split("@");
+      user = parts[0] || "";
+      if (parts.length > 1) {
+        host = parts.slice(1).join("@");
+      }
+    }
+    return { ...val, role, user, host };
   });
 
 export const RoleRevokeSchemaBase = z.object({
@@ -90,7 +98,15 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
   )
   .transform((val) => {
     const role = val.role || val.name || val.roleName || "";
-    const user = val.user || val.fromUser || val.userName || val.username || "";
+    let user = val.user || val.fromUser || val.userName || val.username || "";
+    let host = val.host;
+    if (user && user.includes("@")) {
+      const parts = user.split("@");
+      user = parts[0] || "";
+      if (parts.length > 1) {
+        host = parts.slice(1).join("@");
+      }
+    }
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
     const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
     let database = val.db ?? val.schema ?? val.database;
@@ -108,7 +124,7 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
       }
     }
 
-    return { ...val, role, user, privileges, database, table };
+    return { ...val, role, user, host, privileges, database, table };
   });
 
 export const UserRolesSchemaBase = z.object({
@@ -125,8 +141,16 @@ export const UserRolesSchema = UserRolesSchemaBase.refine(
     message: "Must provide 'user', 'targetUser', 'userName', or 'username'",
   },
 ).transform((val) => {
-  const user = val.user || val.targetUser || val.userName || val.username || "";
-  return { ...val, user };
+  let user = val.user || val.targetUser || val.userName || val.username || "";
+  let host = val.host;
+  if (user && user.includes("@")) {
+    const parts = user.split("@");
+    user = parts[0] || "";
+    if (parts.length > 1) {
+      host = parts.slice(1).join("@");
+    }
+  }
+  return { ...val, user, host };
 });
 
 export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
