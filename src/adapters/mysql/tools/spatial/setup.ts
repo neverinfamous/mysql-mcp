@@ -182,7 +182,7 @@ export function createSpatialCreateIndexTool(
 
         // Check if column is nullable - SPATIAL indexes require NOT NULL
         const colInfo = await adapter.executeQuery(
-          `SELECT IS_NULLABLE, DATA_TYPE FROM information_schema.COLUMNS
+          `/* write */ SELECT IS_NULLABLE, DATA_TYPE FROM information_schema.COLUMNS
            WHERE ${schemaClause} AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
           [...schemaParams, bareTable, column],
         );
@@ -202,7 +202,7 @@ export function createSpatialCreateIndexTool(
 
         // Check if a SPATIAL index already exists on this column (any name)
         const existingIdx = await adapter.executeQuery(
-          `SELECT INDEX_NAME FROM information_schema.STATISTICS
+          `/* write */ SELECT INDEX_NAME FROM information_schema.STATISTICS
            WHERE ${schemaClause} AND TABLE_NAME = ? AND COLUMN_NAME = ? AND INDEX_TYPE = 'SPATIAL'
            LIMIT 1`,
           [...schemaParams, bareTable, column],
