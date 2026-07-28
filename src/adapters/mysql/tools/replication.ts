@@ -264,15 +264,19 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
       }
       try {
         const result = await adapter.executeQuery(
-          "SELECT @@global.gtid_executed as gtid_executed, @@global.gtid_purged as gtid_purged, @@global.gtid_mode as gtid_mode",
+          "SHOW GLOBAL VARIABLES LIKE 'gtid_%'",
         );
+
+        const rows = result.rows ?? [];
+        const getValue = (name: string): unknown =>
+          rows.find((r: Record<string, unknown>) => r["Variable_name"] === name)?.["Value"];
 
         const response = {
           success: true as const,
           data: {
-            gtidExecuted: result.rows?.[0]?.["gtid_executed"],
-            gtidPurged: result.rows?.[0]?.["gtid_purged"],
-            gtidMode: result.rows?.[0]?.["gtid_mode"],
+            gtidExecuted: getValue("gtid_executed"),
+            gtidPurged: getValue("gtid_purged"),
+            gtidMode: getValue("gtid_mode"),
           },
         };
         return withTokenEstimate(response);

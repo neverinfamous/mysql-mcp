@@ -633,7 +633,7 @@ export function createOptimizerTraceTool(
             await connection.query('SET optimizer_trace="enabled=off"');
             await connection.query('COMMIT');
           } catch {
-            try { await connection.query('ROLLBACK'); } catch {}
+            try { await connection.query('ROLLBACK'); } catch { /* ignore rollback error */ }
           }
         }
         if (connection !== null) {
