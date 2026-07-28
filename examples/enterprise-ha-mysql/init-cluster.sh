@@ -3,7 +3,7 @@ set -e
 
 echo "Bootstrapping InnoDB Cluster 'mcpCluster'..."
 
-mysqlsh --user=cluster_admin --password=cluster_admin --host=127.0.0.1 --port=3307 --execute="
+mysqlsh --user=cluster_admin --password=cluster_admin --host=127.0.0.1 --port=3317 --execute="
 try {
   var cluster = dba.getCluster('mcpCluster');
   print('Cluster already exists.\\n');
@@ -30,4 +30,4 @@ try {
 "
 
 echo "Cluster status:"
-mysqlsh --user=cluster_admin --password=cluster_admin --host=127.0.0.1 --port=3307 --execute="dba.getCluster('mcpCluster').status()"
+mysqlsh --user=cluster_admin --password=cluster_admin --host=127.0.0.1 --port=3317 --execute="dba.getCluster('mcpCluster').status()"

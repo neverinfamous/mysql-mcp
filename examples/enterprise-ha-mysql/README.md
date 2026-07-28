@@ -23,7 +23,7 @@ This is a clean, sanitized template for deploying an enterprise-grade High-Avail
    ```
 
 3. **Bootstrap the Cluster:**
-   Once `mysql-node1` is healthy, run the initialization script to bootstrap the Group Replication cluster across all 3 nodes:
+   Once `example-ha-node1` is healthy, run the initialization script to bootstrap the Group Replication cluster across all 3 nodes:
    ```bash
    bash init-cluster.sh
    ```

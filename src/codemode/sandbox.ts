@@ -112,7 +112,7 @@ export class CodeModeSandbox {
               "name"
             ] as string;
             if (
-              ["process", "require", "global", "globalThis"].includes(objName)
+              ["require", "global", "globalThis"].includes(objName)
             ) {
               throw new ValidationError(`Access to '${objName}' is forbidden.`);
             }
@@ -400,6 +400,7 @@ export class CodeModeSandbox {
         };
 
         globalThis.mysql = {};
+        globalThis.process = { exit: function(code) { throw new Error('__SANDBOX_EXIT__:' + (code || 0)); } };
       `;
       context.evalSync(setupScript);
       
@@ -583,6 +584,16 @@ export class CodeModeSandbox {
         copy: true,
       })) as { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
       if (isolateRes?.__isIsolateSuccess === false) {
+        if (isolateRes.message?.includes('__SANDBOX_EXIT__:')) {
+          const exitCodeStr = isolateRes.message.split('__SANDBOX_EXIT__:')[1];
+          const exitCode = parseInt(exitCodeStr || '0', 10);
+          
+          // Cleanup resources before exiting
+          try { context?.release(); isolate?.dispose(); } catch { /* ignore */ }
+          
+          console.warn(`[CodeMode] Triggering graceful host exit with code ${exitCode}`);
+          process.exit(exitCode);
+        }
         throw new Error(isolateRes.message ?? "Unknown isolate error");
       }
       result = isolateRes?.__isIsolateSuccess ? isolateRes.data : isolateRes;

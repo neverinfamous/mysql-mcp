@@ -7,5 +7,6 @@ instances:
       - service:mysql_mcp
       - env:development
     min_collection_interval: 15
+    timeout: 10
     metrics:
       - '.*'

@@ -7,6 +7,7 @@ This directory contains pre-configured Datadog dashboard templates that you can 
 - `datadog-dashboard.json`: The core **Token & Tool Metrics** dashboard. Tracks MCP tool invocations, latencies, and token consumption.
 - `datadog-ai-dashboard.json`: The **AI Efficiency** dashboard. Tracks cost metrics, cache hit rates, and connection pooling efficiency.
 - `datadog-mysql.json`: The **MySQL Cluster Telemetry** dashboard. Provides deep insights into InnoDB Cluster replication, ProxySQL routing, and raw MySQL performance.
+- `datadog-redis.json`: The **Redis Telemetry** dashboard.
 
 ## How to Import
 

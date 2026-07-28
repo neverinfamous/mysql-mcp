@@ -151,7 +151,7 @@ export function createShellDumpInstanceTool(
             new MySQLMcpError(
               `Dump failed: Administrative command rejected.`,
               "PROXY_COMPATIBILITY_ERROR",
-              ErrorCategory.SYSTEM,
+              ErrorCategory.QUERY,
               { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands (like FLUSH TABLES) required by util.dumpInstance(). Connect directly to the MySQL cluster node instead." }
             )
           );
@@ -294,6 +294,16 @@ export function createShellDumpSchemasTool(
             )
           );
         }
+        if (errorMessage.includes("unexpected input near ;") || errorMessage.includes("ProxySQL")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed: Administrative command rejected.`,
+              "PROXY_COMPATIBILITY_ERROR",
+              ErrorCategory.QUERY,
+              { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands required by util.dumpSchemas(). Connect directly to the MySQL cluster node instead." }
+            )
+          );
+        }
         if (errorMessage.includes("Following schemas were not found")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -370,9 +380,10 @@ export function createShellDumpTablesTool(
         }
         if (where !== undefined && Object.keys(where).length > 0) {
           const whereEntries = Object.entries(where)
-            .map(
-              ([tbl, cond]) => `"${escapeForJS(tbl)}": "${escapeForJS(cond)}"`,
-            )
+            .map(([tbl, cond]) => {
+              const fullTblName = tbl.includes(".") ? tbl : `${schema}.${tbl}`;
+              return `"${escapeForJS(fullTblName)}": "${escapeForJS(cond)}"`;
+            })
             .join(", ");
           options.push(`where: { ${whereEntries} }`);
         }
@@ -461,7 +472,7 @@ export function createShellDumpTablesTool(
             new MySQLMcpError(
               `Dump failed: Administrative command rejected.`,
               "PROXY_COMPATIBILITY_ERROR",
-              ErrorCategory.SYSTEM,
+              ErrorCategory.QUERY,
               { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands required by util.dumpTables(). Connect directly to the MySQL cluster node instead." }
             )
           );

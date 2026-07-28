@@ -35,7 +35,7 @@ if (servicesRaw) {
 } else {
     // Ultimate fallback: manually parse docker-compose.yml
     try {
-        let yamlContent = fs.readFileSync('docker-compose.yml', 'utf-8');
+        let yamlContent = fs.readFileSync(path.join(REPO_ROOT, 'docker-compose.yml'), 'utf-8');
         let lines = yamlContent.split('\n');
         let inServices = false;
         for (let line of lines) {
