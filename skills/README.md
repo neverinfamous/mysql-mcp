@@ -17,6 +17,7 @@ For example, if you are using Google Antigravity or a similar agent framework:
 # Copy the skills to your agent's skill directory
 cp -r skills/mysql ~/.gemini/skills/
 cp -r skills/mysql-mcp ~/.gemini/skills/
+cp -r skills/mysql-mcp-infrastructure ~/.gemini/skills/
 ```
 
 ## Available Skills

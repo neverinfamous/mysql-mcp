@@ -3,13 +3,13 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-86.44%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport, token optimization via Code Mode, and enterprise security with OAuth 2.1.
+Production-ready MySQL integration for AI agents. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. It includes token optimization via Code Mode. It provides enterprise security with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -30,7 +30,7 @@ Production-ready MySQL integration for AI agents. Features MCP v2 stateless arch
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
-| **MCP v2 Compliant**                | Fully support the July 2026 MCP v2 specification, including stateless HTTP routing headers, caching controls, tool safety hints, and progress notifications. |
+| **MCP v2 Compliant**                | Fully support the MCP v2 specification, including stateless HTTP routing headers, caching controls, tool safety hints, and progress notifications. |
 
 ---
 
@@ -73,7 +73,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 
 ### Install the Server
 
-#### NPM / PNPM (Recommended)
+#### Install via NPM / PNPM
 
 ```bash
 pnpm add -g @neverinfamous/mysql-mcp
@@ -115,9 +115,9 @@ cp .env.example .env
 docker compose up -d
 ```
 
-- **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
-- **Prometheus:** Available at `http://localhost:9090`.
-- **MCP Server:** Available at `http://localhost:3000`.
+- **Grafana:** Available at `https://localhost:3001` (Dashboard pre-loaded).
+- **Prometheus:** Available at `https://localhost:9090`.
+- **MCP Server:** Available at `https://localhost:3000`.
 
 #### Build From Source
 
@@ -131,7 +131,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ---
 
-## 🏗️ Infrastructure Templates
+## 🏗️ Use Infrastructure Templates
 
 If you need a MySQL environment to test or run the MCP server against, we provide production-ready Docker Compose templates in the [`examples/`](examples) directory. These templates include full Datadog observability out-of-the-box (Metrics, APM, and Logs).
 
@@ -282,7 +282,7 @@ node dist/cli.js \
   --allowed-io-roots /path/to/data \
   --mysql "mysql://mcp_user:secure_password@localhost:3306/testdb" \
   --oauth-enabled \
-  --oauth-issuer http://localhost:8080/realms/mysql-mcp \
+  --oauth-issuer https://localhost:8080/realms/mysql-mcp \
   --oauth-audience mysql-mcp-client
 ```
 
@@ -524,68 +524,68 @@ Use the remote hostname directly:
 
 The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names** — mix and match freely:
 
-| Filter Pattern | Example | Tools | Description |
-|---|---|---|---|
-| Shortcut only | `starter` | 43 | Use a predefined bundle |
-| Groups only | `core,json,transactions` | 36 | Combine individual groups |
-| Shortcut + Group | `starter,spatial` | 55 | Extend a shortcut |
-| Shortcut - Tool | `starter,-mysql_drop_table` | 42 | Remove specific tools |
+| Filter Pattern | Example | Description |
+|---|---|---|
+| Shortcut only | `starter` | Use a predefined bundle |
+| Groups only | `core,json,transactions` | Combine individual groups |
+| Shortcut + Group | `starter,spatial` | Extend a shortcut |
+| Shortcut - Tool | `starter,-mysql_drop_table` | Remove specific tools |
 
-### Shortcuts (Predefined Bundles)
+### Use Predefined Shortcuts
 
-| Shortcut | Tools | Use Case | What's Included |
-|---|---|---|---|
-| `starter` | 43 | Standard Package | core, json, transactions, text, codemode |
-| `essential` | 20 | Minimal footprint | core, transactions, codemode |
-| `dev-power` | 47 | Power Developer | core, schema, performance, fulltext, transactions, codemode |
-| `dev-analytics` | 44 | Developer Analytics | core, stats, performance, codemode |
-| `ai-data-nosql` | 39 | AI Data NoSQL | core, json, docstore, codemode |
-| `ai-search` | 35 | AI Search | core, text, fulltext, vector, codemode |
-| `ai-spatial` | 32 | AI Spatial Analyst | core, spatial, transactions, codemode |
-| `ai-vector` | 29 | AI Vector Analyst | core, vector, fulltext, codemode |
-| `dba-monitor` | 43 | DBA Monitoring | core, monitoring, performance, sysschema, optimization, codemode |
-| `dba-manage` | 44 | DBA Management | core, admin, backup, replication, partitioning, events, codemode |
-| `dba-secure` | 37 | DBA Security | core, security, roles, transactions, codemode |
-| `dba-schema` | 36 | DBA Schema | core, schema, introspection, migration, codemode |
-| `base-relational` | 37 | Base Relational | core, transactions, text, schema, codemode |
-| `base-analytics` | 27 | Base Analytics | stats, events, codemode |
-| `base-nosql` | 33 | Base NoSQL | docstore, spatial, vector, codemode |
-| `ecosystem` | 41 | External Tools | cluster, proxysql, router, shell, codemode |
+| Shortcut | Use Case | What's Included |
+|---|---|---|
+| `starter` | Standard Package | core, json, transactions, text, codemode |
+| `essential` | Minimal footprint | core, transactions, codemode |
+| `dev-power` | Power Developer | core, schema, performance, fulltext, transactions, codemode |
+| `dev-analytics` | Developer Analytics | core, stats, performance, codemode |
+| `ai-data-nosql` | AI Data NoSQL | core, json, docstore, codemode |
+| `ai-search` | AI Search | core, text, fulltext, vector, codemode |
+| `ai-spatial` | AI Spatial Analyst | core, spatial, transactions, codemode |
+| `ai-vector` | AI Vector Analyst | core, vector, fulltext, codemode |
+| `dba-monitor` | DBA Monitoring | core, monitoring, performance, sysschema, optimization, codemode |
+| `dba-manage` | DBA Management | core, admin, backup, replication, partitioning, events, codemode |
+| `dba-secure` | DBA Security | core, security, roles, transactions, codemode |
+| `dba-schema` | DBA Schema | core, schema, introspection, migration, codemode |
+| `base-relational` | Base Relational | core, transactions, text, schema, codemode |
+| `base-analytics` | Base Analytics | stats, events, codemode |
+| `base-nosql` | Base NoSQL | docstore, spatial, vector, codemode |
+| `ecosystem` | External Tools | cluster, proxysql, router, shell, codemode |
 
-### Tool Groups (28 Available)
+### Filter by Tool Groups
 
 > Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
 
-| Group | Tools | Description |
-|---|---|---|
-| `codemode` | 1 | Code Mode (sandboxed code execution) 🌟 Recommended |
-| `core` | 12 | Read/write queries, tables, indexes |
-| `transactions` | 7 | BEGIN, COMMIT, ROLLBACK, savepoints |
-| `json` | 17 | JSON functions, merge, diff, stats |
-| `text` | 6 | REGEXP, LIKE, SOUNDEX |
-| `fulltext` | 5 | Natural language & boolean search |
-| `performance` | 11 | EXPLAIN, query analysis, anomaly detection |
-| `optimization` | 4 | Index hints, database-wide audits, EXPLAIN recommendations |
-| `admin` | 9 | OPTIMIZE, ANALYZE, CHECK, insights |
-| `monitoring` | 7 | PROCESSLIST, status variables |
-| `backup` | 7 | Export, import, mysqldump, audit backups |
-| `replication` | 5 | Master/slave, binlog |
-| `partitioning` | 4 | Partition management |
-| `schema` | 11 | Views, procedures, triggers, constraints |
-| `introspection` | 6 | Dependency graphs, cascade simulation, snapshots |
-| `migration` | 6 | Schema versioning, apply, rollback, history |
-| `shell` | 10 | MySQL Shell utilities |
-| `events` | 6 | Event Scheduler management |
-| `sysschema` | 8 | sys schema diagnostics |
-| `stats` | 20 | Statistical analysis, window functions, sampling |
-| `spatial` | 12 | Spatial/GIS operations |
-| `security` | 9 | Audit, SSL, encryption, masking |
-| `roles` | 8 | MySQL 8.0 role management |
-| `docstore` | 9 | Document Store collections |
-| `cluster` | 10 | Group Replication, InnoDB Cluster |
-| `proxysql` | 11 | ProxySQL management |
-| `router` | 9 | MySQL Router REST API |
-| `vector` | 11 | Vector embeddings, KNN search, hybrid search (MySQL 9.0+) |
+| Group | Description |
+|---|---|
+| `codemode` | Code Mode (sandboxed code execution) 🌟 Recommended |
+| `core` | Read/write queries, tables, indexes |
+| `transactions` | BEGIN, COMMIT, ROLLBACK, savepoints |
+| `json` | JSON functions, merge, diff, stats |
+| `text` | REGEXP, LIKE, SOUNDEX |
+| `fulltext` | Natural language & boolean search |
+| `performance` | EXPLAIN, query analysis, anomaly detection |
+| `optimization` | Index hints, database-wide audits, EXPLAIN recommendations |
+| `admin` | OPTIMIZE, ANALYZE, CHECK, insights |
+| `monitoring` | PROCESSLIST, status variables |
+| `backup` | Export, import, mysqldump, audit backups |
+| `replication` | Master/slave, binlog |
+| `partitioning` | Partition management |
+| `schema` | Views, procedures, triggers, constraints |
+| `introspection` | Dependency graphs, cascade simulation, snapshots |
+| `migration` | Schema versioning, apply, rollback, history |
+| `shell` | MySQL Shell utilities |
+| `events` | Event Scheduler management |
+| `sysschema` | sys schema diagnostics |
+| `stats` | Statistical analysis, window functions, sampling |
+| `spatial` | Spatial/GIS operations |
+| `security` | Audit, SSL, encryption, masking |
+| `roles` | MySQL role management |
+| `docstore` | Document Store collections |
+| `cluster` | Group Replication, InnoDB Cluster |
+| `proxysql` | ProxySQL management |
+| `router` | MySQL Router REST API |
+| `vector` | Vector embeddings, KNN search, hybrid search (MySQL 9.0+) |
 
 ---
 
@@ -754,7 +754,7 @@ npx @modelcontextprotocol/inspector node dist/cli.js \
   --mysql mysql://mcp_user:secure_password@localhost:3306/testdb
 ```
 
-Open **http://localhost:5173** to browse all tools, resources, and prompts interactively.
+Open **https://localhost:5173** to browse all tools, resources, and prompts interactively.
 
 **CLI mode for scripting:**
 

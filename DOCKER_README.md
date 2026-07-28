@@ -1,7 +1,7 @@
 # MySQL MCP Server (mysql-mcp)
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-86.44%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 > **Note:** Docker Hub limits descriptions to 25k characters. Some documentation may be truncated. View the **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** or the [GitHub README](https://github.com/neverinfamous/mysql-mcp) for complete details.
 
@@ -89,9 +89,9 @@ cp .env.example .env
 docker compose up -d
 ```
 
-- **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
-- **Prometheus:** Available at `http://localhost:9090`.
-- **MCP Server:** Available at `http://localhost:3000`.
+- **Grafana:** Available at `https://localhost:3001` (Dashboard pre-loaded).
+- **Prometheus:** Available at `https://localhost:9090`.
+- **MCP Server:** Available at `https://localhost:3000`.
 
 ---
 
@@ -157,7 +157,7 @@ docker run --rm -p 3000:3000 \
   --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /app/data --mysql "mysql://mcp_user:secure_password@host.docker.internal:3306/testdb"
 ```
 
-### HTTP Endpoints
+### Access HTTP Endpoints
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |

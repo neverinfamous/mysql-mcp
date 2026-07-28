@@ -14,13 +14,13 @@ The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL th
 ## 1. Context & Architecture Recovery
 
 **\[WHEN\]** you need to understand the server architecture, available tool categories, configuration, or Code Mode mechanics -> **\[ALWAYS\]** read the Code Map:
-- `C:\Users\chris\Desktop\mysql-mcp\test-server\code-map.md`
+- `test-server/code-map.md`
 
 **\[WHEN\]** you need specific tool schemas, argument requirements, or usage examples -> **\[ALWAYS\]** read the Tool Reference:
-- `C:\Users\chris\Desktop\mysql-mcp\test-server\tool-reference.md`
+- `test-server/tool-reference.md`
 
 **\[WHEN\]** you need to update or modify the core instructions -> **\[ALWAYS\]** edit the source markdown files and run the generation script:
-- `C:\Users\chris\Desktop\mysql-mcp\scripts\generate-server-instructions.ts`
+- `scripts/generate-server-instructions.ts`
 
 ## 2. Operational Directives
 
@@ -32,4 +32,4 @@ The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL th
 ## 3. Telemetry & Debugging
 
 - **Datadog Integration**: **\[WHEN\]** debugging MySQL performance, pipeline telemetry, or confirming connection activity -> **\[ALWAYS\]** use the Datadog MCP server (via tools like `query-metrics` or `list-active-metrics`) to inspect `mysql.*` metrics (e.g., `mysql.net.connections`, `mysql.innodb.buffer_pool_utilization`). This is critical for verifying that the database is actively pushing telemetry and not just idling silently.
-- **Local Observability (Prometheus/Grafana)**: **\[WHEN\]** debugging local `mysql-mcp` E2E telemetry or the Docker Compose stack -> **\[ALWAYS\]** query the local Prometheus instance (via HTTP at `http://localhost:9090/api/v1/query`) or direct users to the local Grafana dashboard at `http://localhost:3001`. The `mysql-mcp` server natively exposes metrics on its `/metrics` endpoint.
+- **Local Observability (Prometheus/Grafana)**: **\[WHEN\]** debugging local `mysql-mcp` E2E telemetry or the Docker Compose stack -> **\[ALWAYS\]** query the local Prometheus instance (via HTTP at `https://localhost:9090/api/v1/query`) or direct users to the local Grafana dashboard at `https://localhost:3001`. The `mysql-mcp` server natively exposes metrics on its `/metrics` endpoint.
