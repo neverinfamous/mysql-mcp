@@ -16,7 +16,6 @@ import { findSuggestion } from "../../utils/error-suggestions.js";
  */
 const REFINABLE_CODES = new Set([
   "QUERY_ERROR",
-  "VALIDATION_ERROR",
   "RESOURCE_ERROR",
   "UNKNOWN_ERROR",
 ]);
