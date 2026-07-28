@@ -167,7 +167,7 @@ export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
   user: z.string().optional().describe("Alias for username"),
   name: z.string().optional().describe("Alias for username"),
-}).strict();
+}).passthrough();
 
 export const ProxySQLUsersInputSchema = z.preprocess(
   (val: unknown) => {
@@ -195,14 +195,14 @@ export const ProxySQLUsersInputSchema = z.preprocess(
 
 export const ProxySQLStatusInputSchemaBase = z.object({
   summary: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .describe(
       "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Anti-Hallucination Hint: pass 'summary', not 'database' or 'table'.",
     ),
-  database: z.boolean().optional().describe("Alias for summary"),
-  table: z.boolean().optional().describe("Alias for summary"),
-}).strict();
+  database: z.union([z.boolean(), z.string()]).optional().describe("Alias for summary"),
+  table: z.union([z.boolean(), z.string()]).optional().describe("Alias for summary"),
+}).passthrough();
 
 export const ProxySQLStatusInputSchema = z.preprocess(
   (val: unknown) => {
@@ -242,11 +242,11 @@ export const ProxySQLStatusInputSchema = z.preprocess(
 
 export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
-    .number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
-  count: z.number().optional().describe("Alias for limit"),
-}).strict();
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).passthrough();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
   (val: unknown) => {
@@ -277,9 +277,9 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 );
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
-  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
-  hostgroup: z.number().optional().describe("Alias for hostgroup ID"),
-}).strict();
+  hostgroup_id: z.union([z.number(), z.string()]).optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
+  hostgroup: z.union([z.number(), z.string()]).optional().describe("Alias for hostgroup ID"),
+}).passthrough();
 
 export const ProxySQLHostgroupInputSchema = z.preprocess(
   (val: unknown) => {
@@ -305,12 +305,12 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
       .nonnegative()
       .optional()
       .describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
-  }).strict()
+  }).passthrough()
 );
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
   prefix: z
-    .string()
+    .enum(["mysql", "admin", "all"])
     .optional()
     .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
   like: z
@@ -320,13 +320,13 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
       "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
     ),
   limit: z
-    .number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
   pattern: z.string().optional().describe("Alias for like"),
   search: z.string().optional().describe("Alias for like"),
   name: z.string().optional().describe("Alias for like"),
-}).strict();
+}).passthrough();
 
 export const ProxySQLVariableFilterSchema = z.preprocess(
   (val: unknown) => {
@@ -372,25 +372,28 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
 
 export const ProxySQLCommandInputSchemaBase = z.object({
   command: z
-    .enum([
-      "LOAD MYSQL USERS TO RUNTIME",
-      "SAVE MYSQL USERS TO DISK",
-      "LOAD MYSQL SERVERS TO RUNTIME",
-      "SAVE MYSQL SERVERS TO DISK",
-      "LOAD MYSQL QUERY RULES TO RUNTIME",
-      "SAVE MYSQL QUERY RULES TO DISK",
-      "LOAD MYSQL VARIABLES TO RUNTIME",
-      "SAVE MYSQL VARIABLES TO DISK",
-      "LOAD ADMIN VARIABLES TO RUNTIME",
-      "SAVE ADMIN VARIABLES TO DISK",
-      "PROXYSQL FLUSH QUERY CACHE",
-      "PROXYSQL FLUSH LOGS",
+    .union([
+      z.enum([
+        "LOAD MYSQL USERS TO RUNTIME",
+        "SAVE MYSQL USERS TO DISK",
+        "LOAD MYSQL SERVERS TO RUNTIME",
+        "SAVE MYSQL SERVERS TO DISK",
+        "LOAD MYSQL QUERY RULES TO RUNTIME",
+        "SAVE MYSQL QUERY RULES TO DISK",
+        "LOAD MYSQL VARIABLES TO RUNTIME",
+        "SAVE MYSQL VARIABLES TO DISK",
+        "LOAD ADMIN VARIABLES TO RUNTIME",
+        "SAVE ADMIN VARIABLES TO DISK",
+        "PROXYSQL FLUSH QUERY CACHE",
+        "PROXYSQL FLUSH LOGS",
+      ]),
+      z.string()
     ])
     .optional()
     .describe("ProxySQL admin command to execute. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
   sql: z.string().optional().describe("Alias for command"),
   query: z.string().optional().describe("Alias for command"),
-}).strict();
+}).passthrough();
 
 export const ProxySQLCommandInputSchema = z.preprocess(
   (val: unknown) => {
