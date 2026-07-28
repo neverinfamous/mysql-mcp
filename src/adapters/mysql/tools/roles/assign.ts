@@ -150,7 +150,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           validateMySQLUserHost(host, "host");
 
           const checkResult = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
@@ -160,7 +160,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           const userCheck = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?)`,
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
@@ -212,7 +212,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           validateIdentifier(role, "role");
 
           const checkResult = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
@@ -226,7 +226,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             validateMySQLUserHost(host, "host");
 
             const userCheck = await adapter.executeQuery(
-              `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+              `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?)`,
               [user, host],
             );
             if (!userCheck.rows || userCheck.rows.length === 0) {
@@ -236,7 +236,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
 
             const assignCheck = await adapter.executeQuery(
-              `SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = '%' AND TO_USER = ? AND TO_HOST = ?`,
+              `(SELECT 1 FROM mysql.role_edges WHERE FROM_USER = ? AND FROM_HOST = '%' AND TO_USER = ? AND TO_HOST = ?)`,
               [role, user, host],
             );
             if (!assignCheck.rows || assignCheck.rows.length === 0) {
@@ -329,7 +329,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           validateMySQLUserHost(host, "host");
 
           const userCheck = await adapter.executeQuery(
-            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = ?)`,
             [user, host],
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
@@ -339,8 +339,8 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           const result = await adapter.executeQuery(
-            `SELECT FROM_USER as roleName, FROM_HOST as roleHost, WITH_ADMIN_OPTION as admin
-                       FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?`,
+            `(SELECT FROM_USER as roleName, FROM_HOST as roleHost, WITH_ADMIN_OPTION as admin
+                       FROM mysql.role_edges WHERE TO_USER=? AND TO_HOST=?)`,
             [user, host],
           );
           const data = { user, host, roles: result.rows ?? [] };
