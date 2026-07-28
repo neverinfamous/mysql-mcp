@@ -80,7 +80,13 @@ async function main() {
   }
   
   console.log("\n--- TEST RESULTS ---");
-  console.log("Failures:", failures);
+  if (failures.length === 0) {
+    console.log("✅ All tests passed successfully! Active sessions successfully established and torn down using Streamable HTTP.");
+  } else {
+    console.log("❌ Failures encountered:");
+    failures.forEach((f, i) => console.log(`  ${i + 1}. ${f}`));
+    process.exit(1);
+  }
 }
 
 main().catch(console.error);
