@@ -84,13 +84,6 @@ node test-server/infrastructure/scripts/reset-database.mjs --SkipVerify
 node test-server/infrastructure/scripts/reset-database.mjs --Cluster
 ```
 
-### `test-server/infrastructure/scripts/seed.ts`
-
-Seeds the test database (`testdb`) with data from `test-server/test-seed.sql`. This injects seed data without running the full `reset-database.mjs` script.
-
-```bash
-npx tsx test-server/infrastructure/scripts/seed.ts
-```
 
 ### `test-zod-errors.mjs`
 
