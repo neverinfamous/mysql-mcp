@@ -186,7 +186,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
         const parts: string[] = [];
 
         if (effectiveLogFile) {
-          parts.push(`IN '${effectiveLogFile}'`);
+          parts.push(`IN '${effectiveLogFile.replace(/'/g, "''")}'`);
         }
         if (position != null) {
           parts.push(`FROM ${position}`);
@@ -263,27 +263,16 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
         return formatHandlerErrorResponse(e);
       }
       try {
-        // Get GTID executed
-        const executedResult = await adapter.executeQuery(
-          "SELECT @@global.gtid_executed as gtid_executed",
-        );
-
-        // Get GTID purged
-        const purgedResult = await adapter.executeQuery(
-          "SELECT @@global.gtid_purged as gtid_purged",
-        );
-
-        // Get GTID mode
-        const modeResult = await adapter.executeQuery(
-          "SELECT @@global.gtid_mode as gtid_mode",
+        const result = await adapter.executeQuery(
+          "SELECT @@global.gtid_executed as gtid_executed, @@global.gtid_purged as gtid_purged, @@global.gtid_mode as gtid_mode",
         );
 
         const response = {
           success: true as const,
           data: {
-            gtidExecuted: executedResult.rows?.[0]?.["gtid_executed"],
-            gtidPurged: purgedResult.rows?.[0]?.["gtid_purged"],
-            gtidMode: modeResult.rows?.[0]?.["gtid_mode"],
+            gtidExecuted: result.rows?.[0]?.["gtid_executed"],
+            gtidPurged: result.rows?.[0]?.["gtid_purged"],
+            gtidMode: result.rows?.[0]?.["gtid_mode"],
           },
         };
         return withTokenEstimate(response);
