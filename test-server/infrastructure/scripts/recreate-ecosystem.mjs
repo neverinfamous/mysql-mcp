@@ -80,7 +80,12 @@ async function waitForMySQL(containerName) {
 
 console.log('=== Recreating Unified Database Ecosystem ===');
 
-const MYSQL_NODES = ['mysql-node1', 'mysql-node2', 'mysql-node3'];
+const servicesRaw = execSync(wsl('docker compose config --services'), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
+const MYSQL_NODES = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
+if (MYSQL_NODES.length === 0) {
+    console.error('Error: No mysql-node services found in docker-compose.yml');
+    process.exit(1);
+}
 const MYSQL_VOLUMES = MYSQL_NODES.map(n => `infrastructure_${n}-data-v4`);
 
 try {

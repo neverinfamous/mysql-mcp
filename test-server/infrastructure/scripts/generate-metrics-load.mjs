@@ -256,7 +256,7 @@ async function main() {
         // Wait 1 second between loops to space out the load
         await new Promise(resolve => setTimeout(resolve, 1000));
       } catch (err) {
-        // Ignore loop errors
+        console.error(`⚠️ Traffic loop error (continuing): ${err.message}`);
       }
     }
   };

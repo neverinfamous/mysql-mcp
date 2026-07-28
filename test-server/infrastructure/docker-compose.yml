@@ -367,7 +367,8 @@ services:
         max-size: "10m"
         max-file: "3"
     depends_on:
-      - loki
+      loki:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD-SHELL", "wget -qO- http://localhost:9080/ready | grep -iq ready" ]
       interval: 10s
