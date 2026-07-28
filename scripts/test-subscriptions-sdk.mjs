@@ -33,10 +33,7 @@ async function main() {
   console.log("Connected.");
   let notifications = [];
 
-  const ResourceUpdatedNotificationSchema = z
-    .object({ method: z.literal("notifications/resources/updated") })
-    .passthrough();
-  client.setNotificationHandler(ResourceUpdatedNotificationSchema, (notif) => {
+  client.setNotificationHandler("notifications/resources/updated", (notif) => {
     const uri = notif.params ? notif.params.uri : notif.uri;
     notifications.push(uri);
     console.log("Notification received:", uri);
