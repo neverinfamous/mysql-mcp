@@ -95,7 +95,8 @@ export class QueryExecutor {
     return (
       code === "ER_UNSUPPORTED_PS" ||
       message.toLowerCase().includes("not supported") ||
-      message.includes("ER_UNSUPPORTED_PS")
+      message.includes("ER_UNSUPPORTED_PS") ||
+      message.includes("connection is locked to hostgroup")
     );
   }
 

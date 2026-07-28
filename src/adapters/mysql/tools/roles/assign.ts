@@ -143,7 +143,7 @@ export const UserRolesSchema = UserRolesSchemaBase.refine(
 ).transform((val) => {
   let user = val.user || val.targetUser || val.userName || val.username || "";
   let host = val.host;
-  if (user && user.includes("@")) {
+  if (user?.includes("@")) {
     const parts = user.split("@");
     user = parts[0] || "";
     if (parts.length > 1) {
