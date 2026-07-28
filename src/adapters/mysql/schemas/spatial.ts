@@ -706,7 +706,7 @@ export const GeoJSONSchemaStrict = z.preprocess(
   })
   .transform((data) => ({
     geometry: data.geometry ?? data.wkt,
-    geoJson: typeof data.geoJson === 'object' && data.geoJson !== null ? JSON.stringify(data.geoJson) : (data.geoJson as string | undefined),
+    geoJson: typeof data.geoJson === 'object' && data.geoJson !== null ? JSON.stringify(data.geoJson) : (data.geoJson),
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
 )

@@ -32,9 +32,9 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 // ============================================================================
 
 const AuditLogSchemaBase = z.object({
-  limit: z.number().int().min(1).optional().describe("Maximum number of records"),
-  count: z.number().optional().describe("Alias for limit"),
-  user: z.string().optional().describe("Filter by username"),
+  limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records"),
+  count: z.coerce.number().optional().describe("Alias for limit"),
+  user: z.coerce.string().optional().describe("Filter by username"),
   userName: z.string().optional().describe("Alias for user"),
   username: z.string().optional().describe("Alias for user"),
   eventType: z
@@ -69,9 +69,9 @@ const AuditLogSchema = z.preprocess(
 );
 
 const FirewallRulesSchemaBase = z.object({
-  limit: z.number().int().min(1).optional().describe("Maximum number of records to return"),
-  count: z.number().optional().describe("Alias for limit"),
-  user: z.string().optional().describe("Filter by username"),
+  limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records to return"),
+  count: z.coerce.number().optional().describe("Alias for limit"),
+  user: z.coerce.string().optional().describe("Filter by username"),
   userName: z.string().optional().describe("Alias for user"),
   username: z.string().optional().describe("Alias for user"),
   mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional().describe("Filter by mode"),
