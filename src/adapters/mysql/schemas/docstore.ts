@@ -231,6 +231,7 @@ export const RemoveDocSchemaStrict = z.object({
   schema: z.string().optional(),
   filter: z
     .string()
+    .min(1)
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
@@ -276,11 +277,11 @@ export const CreateDocIndexSchemaStrict = z.object({
   name: z.string().describe("Index name. Hint: Use 'name' instead of 'indexName' or 'index'."),
   fields: z.array(
     z.object({
-      path: z.string(),
+      path: z.string().min(1),
       type: z.string().default("TEXT"),
       required: z.boolean().default(false),
     }),
-  ),
+  ).min(1),
   unique: z.boolean().default(false),
 });
 
