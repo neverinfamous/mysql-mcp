@@ -14,13 +14,13 @@ try {
   });
   
   print('Adding node 2...\\n');
-  cluster.addInstance('cluster_admin:cluster_admin@mysql-node2:3306', {
+  cluster.addInstance('cluster_admin:cluster_admin@example-ha-node2:3306', {
     recoveryMethod: 'clone',
     ipAllowlist: 'AUTOMATIC'
   });
   
   print('Adding node 3...\\n');
-  cluster.addInstance('cluster_admin:cluster_admin@mysql-node3:3306', {
+  cluster.addInstance('cluster_admin:cluster_admin@example-ha-node3:3306', {
     recoveryMethod: 'clone',
     ipAllowlist: 'AUTOMATIC'
   });

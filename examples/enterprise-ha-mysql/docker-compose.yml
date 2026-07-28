@@ -1,24 +1,28 @@
 services:
-  mysql-node1:
+  example-ha-node1:
     image: mysql:9.1.0
-    container_name: mysql-node1
-    hostname: mysql-node1
+    container_name: example-ha-node1
+    hostname: example-ha-node1
     restart: unless-stopped
     ports:
-      - "3307:3306"
+      - "3317:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
     volumes:
-      - node1-data:/var/lib/mysql
+      - example-ha-node-data:/var/lib/mysql
       - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     command: >
-      --default-authentication-plugin=caching_sha2_password
       --server-id=1
       --enforce-gtid-consistency=ON
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
     mem_limit: 1024m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
       interval: 10s
@@ -29,113 +33,131 @@ services:
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}"}]'
 
-  mysql-node2:
+  example-ha-node2:
     image: mysql:9.1.0
-    container_name: mysql-node2
-    hostname: mysql-node2
+    container_name: example-ha-node2
+    hostname: example-ha-node2
     restart: unless-stopped
     ports:
-      - "3308:3306"
+      - "3318:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
     volumes:
-      - node2-data:/var/lib/mysql
+      - example-ha-node-data:/var/lib/mysql
     command: >
-      --default-authentication-plugin=caching_sha2_password
       --server-id=2
       --enforce-gtid-consistency=ON
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
     mem_limit: 1024m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  mysql-node3:
+  example-ha-node3:
     image: mysql:9.1.0
-    container_name: mysql-node3
-    hostname: mysql-node3
+    container_name: example-ha-node3
+    hostname: example-ha-node3
     restart: unless-stopped
     ports:
-      - "3309:3306"
+      - "3319:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
     volumes:
-      - node3-data:/var/lib/mysql
+      - example-ha-node-data:/var/lib/mysql
     command: >
-      --default-authentication-plugin=caching_sha2_password
       --server-id=3
       --enforce-gtid-consistency=ON
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
     mem_limit: 1024m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-mysqlmcp}"]
       interval: 10s
       timeout: 5s
       retries: 10
 
-  mysql-router:
+  example-ha-router:
     image: container-registry.oracle.com/mysql/community-router:9.1.0
-    container_name: mysql-router
+    container_name: example-ha-router
     restart: unless-stopped
     depends_on:
-      mysql-node1:
+      example-ha-node1:
         condition: service_healthy
-      mysql-node2:
+      example-ha-node2:
         condition: service_healthy
-      mysql-node3:
+      example-ha-node3:
         condition: service_healthy
     entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
     volumes:
-      - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
+      - ./config/example-ha-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
     tmpfs:
       - /tmp/mysqlrouter:uid=999,gid=999
     ports:
-      - "6446:6446"
+      - "6456:6446"
     mem_limit: 256m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     healthcheck:
       test: ["CMD", "mysql", "-h", "127.0.0.1", "-P", "6446", "-uroot", "-proot", "-e", "SELECT 1"]
       interval: 15s
       timeout: 5s
       retries: 10
 
-  proxysql:
-    image: proxysql/proxysql:2.6.3
-    container_name: proxysql
+  example-ha-proxysql:
+    image: example-ha-proxysql/example-ha-proxysql:2.6.3
+    container_name: example-ha-proxysql
     restart: unless-stopped
     depends_on:
-      mysql-router:
+      example-ha-router:
         condition: service_healthy
     ports:
-      - "6032:6032"
-      - "6033:6033"
+      - "6042:6032"
+      - "6043:6033"
     volumes:
-      - ./config/proxysql/proxysql.cnf:/etc/proxysql.cnf:ro
+      - ./config/example-ha-proxysql/example-ha-proxysql.cnf:/etc/example-ha-proxysql.cnf:ro
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-P", "6033", "-uroot", "-proot"]
       interval: 10s
       timeout: 5s
       retries: 10
     labels:
-      com.datadoghq.ad.check_names: '["proxysql"]'
+      com.datadoghq.ad.check_names: '["example-ha-proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin"}]'
     mem_limit: 256m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
-  datadog-agent:
+  example-ha-datadog:
     image: gcr.io/datadoghq/agent:7.81.0
-    container_name: datadog-agent
+    container_name: example-ha-datadog
     restart: unless-stopped
     pid: host
     environment:
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=${DD_SITE:-datadoghq.com}
-      - DD_HOSTNAME=mysql-mcp-ha
+      - DD_HOSTNAME=adamic-wsl2
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_APM_ENABLED=true
@@ -156,8 +178,14 @@ services:
       - IPC_LOCK
       - CHOWN
     mem_limit: 512m
+    cgroup: host
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
 volumes:
-  node1-data:
-  node2-data:
-  node3-data:
+  example-ha-node-data:
+  example-ha-node-data:
+  example-ha-node-data:

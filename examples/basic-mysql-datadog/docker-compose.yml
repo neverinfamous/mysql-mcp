@@ -1,10 +1,10 @@
 services:
   mysql-server:
     image: mysql:9.1.0
-    container_name: basic-mysql
+    container_name: example-basic-mysql
     restart: unless-stopped
     ports:
-      - "3306:3306"
+      - "3316:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
       MYSQL_DATABASE: testdb
@@ -12,7 +12,6 @@ services:
       - mysql-data:/var/lib/mysql
     mem_limit: 1024m
     command: >
-      --default-authentication-plugin=caching_sha2_password
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
       --performance_schema=ON
@@ -26,16 +25,26 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
 
-  datadog-agent:
+  example-basic-datadog:
     image: gcr.io/datadoghq/agent:7.81.0
-    container_name: datadog-agent
+    container_name: example-basic-datadog
     restart: unless-stopped
     pid: host
+    cgroup: host
+    mem_limit: 1024m
+    depends_on:
+      mysql-server:
+        condition: service_healthy
     environment:
       - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=${DD_SITE:-datadoghq.com}
-      - DD_HOSTNAME=mysql-mcp-basic
+      - DD_HOSTNAME=adamic-wsl2
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_APM_ENABLED=true
@@ -61,7 +70,12 @@ services:
       - IPC_LOCK
       - CHOWN
     labels:
-      com.datadoghq.ad.logs: '[{"source":"datadog-agent","service":"datadog-agent"}]'
+      com.datadoghq.ad.logs: '[{"source":"example-basic-datadog","service":"example-basic-datadog"}]'
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "5"
 
 volumes:
   mysql-data:
