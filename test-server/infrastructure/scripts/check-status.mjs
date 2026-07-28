@@ -213,12 +213,19 @@ if (routerRO && routerRO.trim().length > 0) {
     allUp = false;
 }
 
-// MySQL Router REST API — use curl from datadog-unified (router container lacks wget)
-const routerAPI = dockerExec('datadog-unified', ['curl', '-sk', '-u', 'rest_api:router_api', 'https://mysql-router:8443/api/20190715/router/status'], true);
-if (routerAPI && routerAPI.includes('processId')) {
-    console.log('✅ Router REST API      : Responding');
+// MySQL Router REST API — verify HTTPS enforcement
+const routerAPIHTTP = dockerExec('datadog-unified', ['curl', '-s', '-m', '2', 'http://mysql-router:8443/api/20190715/router/status'], true);
+const routerAPIHTTPS = dockerExec('datadog-unified', ['curl', '-sk', '-u', 'rest_api:router_api', 'https://mysql-router:8443/api/20190715/router/status'], true);
+
+if (routerAPIHTTPS && routerAPIHTTPS.includes('processId')) {
+    if (routerAPIHTTP === null || routerAPIHTTP.trim() === '') {
+        console.log('✅ Router REST API      : Responding securely (HTTPS enforced, HTTP rejected)');
+    } else {
+        console.log('⚠️ Router REST API      : Responding to HTTPS, but HTTP unexpectedly did not fail');
+        allUp = false;
+    }
 } else {
-    console.log('❌ Router REST API      : Not responding');
+    console.log('❌ Router REST API      : Not responding to HTTPS');
     allUp = false;
 }
 

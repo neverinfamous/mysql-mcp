@@ -180,7 +180,7 @@ services:
       com.datadoghq.ad.check_names: '["http_check"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"name": "mysql_router_rest_api", "url":
-        "http://%%host%%:8443/api/20190715/router/status", "username":
+        "https://%%host%%:8443/api/20190715/router/status", "username":
         "rest_api", "password": "router_api", "skip_cert_verify": true}]'
       com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
     healthcheck:
