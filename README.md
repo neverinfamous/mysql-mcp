@@ -30,7 +30,7 @@ Production-ready MySQL integration for AI agents. Features MCP v2 stateless arch
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
-| **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
+| **MCP v2 Compliant**                | Fully support the July 2026 MCP v2 specification, including stateless HTTP routing headers, caching controls, tool safety hints, and progress notifications. |
 
 ---
 
