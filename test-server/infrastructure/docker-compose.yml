@@ -359,9 +359,6 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    depends_on:
-      loki:
-        condition: service_healthy
 
   datadog-unified:
     image: gcr.io/datadoghq/agent:7.81.2
