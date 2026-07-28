@@ -78,6 +78,17 @@ export function createShellLoadDumpTool(
         assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
 
         const resolvedPath = resolve(finalInputDir);
+
+        try {
+          await fs.access(resolvedPath);
+        } catch {
+          throw new MySQLMcpError(
+            `Dump path not found: ${finalInputDir}`,
+            "VALIDATION_ERROR",
+            ErrorCategory.VALIDATION
+          );
+        }
+
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
