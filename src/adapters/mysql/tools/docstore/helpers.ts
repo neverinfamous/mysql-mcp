@@ -124,21 +124,23 @@ export async function checkCollectionExists(
   | { exists: true }
   | { exists: false; reason: "schema" | "collection"; name: string }
 > {
-  // When schema is explicitly provided, check schema existence first
   if (schema) {
     const schemaCheck = await adapter.executeQuery(
-      "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-      [schema],
+      `SHOW SCHEMAS LIKE '${schema}'`
     );
     if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
       return { exists: false, reason: "schema", name: schema };
     }
   }
-  const result = await adapter.executeQuery(
-    `SELECT 1 FROM information_schema.TABLES
-     WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?`,
-    [schema ?? null, collection],
-  );
+
+  let query = `SHOW TABLES LIKE '${collection}'`;
+  
+  if (schema) {
+    const escapedSchema = schema.replace(/`/g, '``');
+    query = `SHOW TABLES FROM \`${escapedSchema}\` LIKE '${collection}'`;
+  }
+  
+  const result = await adapter.executeQuery(query);
   if ((result.rows?.length ?? 0) > 0) {
     return { exists: true };
   }
