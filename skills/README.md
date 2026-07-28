@@ -1,5 +1,10 @@
 # MySQL MCP Agent Skills
 
+## Value Proposition
+- **Enforce Production Rules**: Mandate query parameterization, strict schema validation, and connection safety across AI workflows.
+- **Optimize Token Overhead**: Utilize Code Mode guidelines to streamline complex multi-step database interactions.
+- **Standardize Test Deployment**: Orchestrate E2E database environments and HA cluster infrastructure seamlessly.
+
 This directory contains AI agent skills that enforce enterprise best practices, strict safety rules, and optimized usage patterns when interacting with the `mysql-mcp` server.
 
 ## Installation

@@ -12,10 +12,13 @@
 host: "127.0.0.1"
 port: 3000
 _comment_transport: "Defaults to stdio. Use http for docker-compose configurations."
-transport: "stdio" # or "http", "sse"
+transport: "stdio" # or "http"
 enableHSTS: false
 trustProxy: false
-corsAllowedOrigins: "*"
+_comment_stateless: "MCP v2 stateless HTTP mode using NodeStreamableHTTPServerTransport over /mcp"
+stateless: false
+authToken: "your-secure-auth-token"
+metricsExport: "prometheus"
 
 # Tooling and Sandbox
 toolFilter: "starter"
@@ -60,5 +63,4 @@ oauth:
   clockTolerance: 60
 
 # Advanced & Ecosystem Features
-# REDIS_URL, CODEMODE_ISOLATION, PROXYSQL_HOST, PROXYSQL_PORT, PROXYSQL_USER, PROXYSQL_PASSWORD, MYSQL_ROUTER_URL, MYSQL_ROUTER_USER, MYSQL_ROUTER_PASSWORD, MYSQL_ROUTER_INSECURE, MYSQLSH_PATH, and LOG_LEVEL features, as well as CODEMODE_MAX_RESULT_SIZE, METADATA_CACHE_TTL_MS, MCP_RATE_LIMIT_MAX, CODEMODE_RATE_LIMIT_MAX, MCP_REQUEST_TIMEOUT, MCP_HEADERS_TIMEOUT, MCP_AUTH_TOKEN, MCP_METRICS_EXPORT, and MYSQL_XPORT are injected via environment variables only
-# (REDIS_URL, etc.) and are silently ignored by the JSON/YAML file parser.
+# Many configuration options can also be specified natively as camelCase properties. REDIS_URL, CODEMODE_ISOLATION, PROXYSQL_HOST, PROXYSQL_PORT, PROXYSQL_USER, PROXYSQL_PASSWORD, MYSQL_ROUTER_URL, MYSQL_ROUTER_USER, MYSQL_ROUTER_PASSWORD, MYSQL_ROUTER_INSECURE, MYSQLSH_PATH, and LOG_LEVEL features, as well as CODEMODE_MAX_RESULT_SIZE, METADATA_CACHE_TTL_MS, MCP_RATE_LIMIT_MAX, CODEMODE_RATE_LIMIT_MAX, MCP_REQUEST_TIMEOUT, MCP_HEADERS_TIMEOUT, and MYSQL_XPORT are injected via environment variables.

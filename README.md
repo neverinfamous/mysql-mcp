@@ -3,13 +3,13 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-86.53%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-395%20passing%20%C2%B7%200%20skipped-blue.svg)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT) ![Coverage](https://img.shields.io/badge/Coverage-86.53%25-green.svg) ![E2E](https://img.shields.io/badge/E2E-passing-blue.svg)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode and secure connections with OAuth 2.1.
+Production-ready MySQL integration for AI agents. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport, token optimization via Code Mode, and enterprise security with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -22,7 +22,7 @@ Production-ready MySQL integration for AI agents. Optimize tokens with Code Mode
 | **Token-Optimized Payloads**          | Maximize token efficiency. Use optional flags to reduce response size for large payloads. |
 | **OAuth 2.1 Security**                | Enforce granular access control with RFC compliance, strict scopes, and Keycloak integration. |
 | **Smart Tool Filtering**              | Use tool groups and shortcuts to stay within IDE tool limits. |
-| **Dual HTTP Transport**               | Support modern streamable HTTP and legacy SSE clients simultaneously with full session management. |
+| **Streamable & Stateless HTTP**               | Support MCP v2 streamable HTTP and stateless HTTP deployments via NodeStreamableHTTPServerTransport. |
 | **Connection Pooling**                | Leverage built-in connection pooling for efficient, highly concurrent database access. |
 | **Ecosystem Integrations**            | Manage MySQL Router, ProxySQL, and MySQL Shell utilities directly from your agent. |
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
@@ -186,7 +186,7 @@ This exposes just `mysql_execute_code`. Agents write JavaScript against the type
 
 ---
 
-## 🌐 Enable Remote Access via HTTP & SSE
+## 🌐 Enable Remote Access via Streamable & Stateless HTTP
 
 > **When to use HTTP mode:** Deploy `mysql-mcp` as a standalone server. Multiple clients can connect remotely. Use `stdio` mode for local development.
 
@@ -242,16 +242,8 @@ Use stateless deployments where sessions are not needed:
 node dist/cli.js --transport http --server-host 0.0.0.0 --port 3000 --allowed-io-roots /path/to/data --stateless --mysql "mysql://mcp_user:secure_password@..."
 ```
 
-In stateless mode: `GET /mcp` returns 405. `DELETE /mcp` returns 204. `/sse` and `/messages` return 404. Each `POST /mcp` creates a fresh transport.
+In stateless mode: `GET /mcp` returns 405. `DELETE /mcp` returns 204. Each `POST /mcp` instantiates a stateless transport via NodeStreamableHTTPServerTransport.
 
-### Connect via Legacy SSE (Backward Compatibility)
-
-Connect via Legacy SSE — for clients like Python `mcp.client.sse`:
-
-| Method | Endpoint                   | Purpose                                                       |
-| ------ | -------------------------- | ------------------------------------------------------------- |
-| `GET`  | `/sse`                     | Opens SSE stream, returns `/messages?sessionId=<id>` endpoint |
-| `POST` | `/messages?sessionId=<id>` | Send JSON-RPC messages to the session                         |
 
 ### Access Utility Endpoints
 
@@ -526,7 +518,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools). With 200+ tools available, you MUST use tool filtering.** This keeps you within your IDE's limits. All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools). With an extensive suite of specialized tools available, tool filtering ensures compatibility with IDE limits.** All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### Discover Filtering Options
 
@@ -677,8 +669,8 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--version`, `-v`         | —                       | Show version number                                 |
 | `--help`, `-h`            | —                       | Show help                                           |
 | `--json`                  | —                       | Output in JSON format                               |
-| `--transport`, `-t`       | —                       | Transport type: stdio, http, sse (backward-compatibility alias for http) (default: stdio) |
-| `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http/sse transports                   |
+| `--transport`, `-t`       | —                       | Transport type: stdio, http (default: stdio) |
+| `--port`, `-p`            | `MYSQLMCP_PORT`         | HTTP port for http transport                   |
 | `--server-host`           | `MCP_HOST`              | Host to bind HTTP transport to (default: localhost) |
 | `--mysql`, `-m`           | —                       | MySQL connection string                             |
 | `--mysql-host`            | `MYSQL_HOST`            | MySQL host                                          |
@@ -692,7 +684,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 | `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
 | `--name`                  | —                       | Server name                                         |
 | `--auth-token`            | `MCP_AUTH_TOKEN`        | Simple bearer token for HTTP authentication         |
-| `--stateless`             | —                       | Enable stateless HTTP mode (no sessions, no SSE)    |
+| `--stateless`             | —                       | Enable stateless HTTP mode via NodeStreamableHTTPServerTransport    |
 | `--trust-proxy`           | `TRUST_PROXY`           | Trust X-Forwarded-For for client IP                 |
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |

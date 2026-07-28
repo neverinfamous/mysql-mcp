@@ -12,6 +12,7 @@ services:
     command:
       - --transport
       - http
+      # - --stateless # Uncomment to enable MCP v2 stateless HTTP container environments
     env_file:
       - .env # Copy .env.example to .env to configure
     environment:

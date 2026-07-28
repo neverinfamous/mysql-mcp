@@ -5,7 +5,7 @@ Ensure PRs adhere to these SSoT architectural rules:
 - **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
 - **Code Mode** (`mysql_execute_code`) significantly reduces token usage.
 - **Cache**: `METADATA_CACHE_TTL_MS` controls the cache TTL (default 30000).
-- **Transports**: Supports `stdio`, streamable `http`, and standard `sse` transports.
+- **Transports**: Supports `stdio` and streamable `http` (MCP v2 stateless architecture via `NodeStreamableHTTPServerTransport`).
 - **Validation**: Ensure parameter alias validation at the MCP boundary (via the Dual-Schema Pattern).
 - **Authentication**: Secure connections with Bearer Tokens or OAuth.
 - **Features**: Tool filtering, token logging, and ecosystem integrations for MySQL Router, ProxySQL, and Shell.
@@ -87,7 +87,7 @@ src/
 ├── pool/                       # Connection pool management
 ├── progress/                   # Progress notification helpers
 ├── server/                     # MCP server setup and registration
-├── transports/                 # HTTP/SSE transport layer
+├── transports/                 # Streamable HTTP transport layer
 ├── types/                      # Type definitions + barrel exports
 └── utils/                      # Logger, error helpers, utilities
 ```

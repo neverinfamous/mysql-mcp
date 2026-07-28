@@ -1,7 +1,7 @@
 # 🔒 Security Policy
 
 
-MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio, HTTP, and SSE transports. It uses zero-trust, defense-in-depth methodologies.
+MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio and HTTP transports (built on MCP v2 stateless architecture with NodeStreamableHTTPServerTransport). It uses zero-trust, defense-in-depth methodologies.
 
 ## 🛡️ **Defend Your Database Infrastructure**
 
@@ -198,7 +198,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - ✅ **pnpm audit** — dependency vulnerability checking (audit-level: moderate)
 - ✅ **Dependabot** — automated dependency update PRs (weekly for npm and GitHub Actions)
 - ✅ **Secrets scanning** — dedicated workflow for leaked credential detection
-- ✅ **E2E transport parity** — Playwright suite validates HTTP/SSE security behavior
+- ✅ **E2E transport parity** — Playwright suite validates streamable and stateless HTTP behavior
 
 ## 🚨 **Implement Operational Security Best Practices**
 

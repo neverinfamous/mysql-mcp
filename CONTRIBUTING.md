@@ -121,7 +121,7 @@ pnpm run typecheck   # TypeScript strict-mode type checking
 
 ### Run End-to-End Tests
 
-The Playwright E2E suite validates the HTTP transport, including both standard Streamable HTTP endpoints and backward compatibility with SSE clients:
+The Playwright E2E suite validates the HTTP transport, including standard Streamable HTTP endpoints and stateless HTTP architecture via NodeStreamableHTTPServerTransport:
 
 ```bash
 pnpm run test:e2e
@@ -330,7 +330,7 @@ The `mysql-mcp` project is organized into modular directories under `src/`:
 - `src/pool/` — MySQL connection pool management
 - `src/progress/` — Real-time progress notifications for long-running tasks
 - `src/server/` — Core MCP server initialization and request handling
-- `src/transports/` — HTTP/SSE transport layer (Stdio is initialized via core server config)
+- `src/transports/` — HTTP transport layer supporting MCP v2 stateless architecture (NodeStreamableHTTPServerTransport)
 - `src/types/` — Shared TypeScript interfaces and Zod schemas
 - `src/utils/` — Helper functions and common utilities
 
@@ -347,7 +347,7 @@ The `mysql-mcp` project is organized into modular directories under `src/`:
 | `pnpm run generate:instructions` | Generate tool instructions                   |
 | `pnpm test`              | Run all unit tests (Vitest)                          |
 | `pnpm run test:coverage` | Tests with V8 coverage report                        |
-| `pnpm run test:e2e`      | Playwright end-to-end tests (HTTP/SSE transport)     |
+| `pnpm run test:e2e`      | Playwright end-to-end tests (HTTP transport)     |
 | `pnpm run bench`         | Performance benchmarks (tinybench via Vitest)        |
 
 ### Run Benchmarks
