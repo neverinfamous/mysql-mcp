@@ -12,7 +12,7 @@ This directory contains the Node.js automation scripts for managing the unified 
 
 ### Lifecycle & Management
 - `recreate-ecosystem.mjs`: Enhanced with aggressive volume cleanup (orphan container detection + retry), `group_seeds` normalization, `ip_allowlist='AUTOMATIC'`, and raw SQL verification. **This is the single lifecycle management script.** Use this as your primary hammer.
-- `check-status.mjs`: Dynamically discovers containers and validates their health, plus checks the InnoDB Cluster quorum.
+- `check-status.mjs`: Comprehensive 7-section ecosystem validator. Checks: (1) container health, (2) InnoDB Cluster quorum, (3) MySQL Shell metadata, (4) Router R/W + R/O + REST API, ProxySQL backends + data port, Redis SET/GET cycle, (5) Prometheus health + scrape targets, Grafana, Loki, Promtail, (6) Datadog integration ERRORs/WARNINGs, (7) optional MCP server metrics endpoint. Exits non-zero if any hard check fails.
 - `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
 
 ### Cluster Auto-Recovery
