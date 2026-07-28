@@ -66,11 +66,14 @@ export function registerTool(adapter: DatabaseAdapter, server: McpServer, tool: 
     async (params: unknown, ctx?: unknown) => {
       try {
         let progressToken: string | number | undefined;
-        if (typeof ctx === "object" && ctx !== null && "mcpReq" in ctx) {
-          const req = (ctx as { mcpReq?: { params?: { _meta?: { progressToken?: string | number } } } }).mcpReq;
-          const pt = req?.params?._meta?.progressToken;
-          if (typeof pt === "string" || typeof pt === "number") {
-            progressToken = pt;
+        if (typeof ctx === "object" && ctx !== null) {
+          if ("mcpReq" in ctx) {
+            // MCP SDK v2.0.0 attaches _meta directly to mcpReq
+            const req = (ctx as { mcpReq?: { _meta?: { progressToken?: string | number } } }).mcpReq;
+            const pt = req?._meta?.progressToken;
+            if (typeof pt === "string" || typeof pt === "number") {
+              progressToken = pt;
+            }
           }
         }
         const context = adapter.createContext(undefined, server, progressToken);
