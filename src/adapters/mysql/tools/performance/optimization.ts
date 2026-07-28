@@ -474,6 +474,9 @@ export function createOptimizerTraceTool(
 
         connection = await pool.getConnection();
 
+        // Wrap in transaction to prevent ProxySQL hostgroup routing mid-trace
+        await connection.query('START TRANSACTION');
+        
         // Enable optimizer trace
         await connection.query('SET optimizer_trace="enabled=on"');
         tracingEnabled = true;
@@ -628,8 +631,9 @@ export function createOptimizerTraceTool(
           // Disable optimizer trace
           try {
             await connection.query('SET optimizer_trace="enabled=off"');
+            await connection.query('COMMIT');
           } catch {
-            // ignore
+            try { await connection.query('ROLLBACK'); } catch {}
           }
         }
         if (connection !== null) {
