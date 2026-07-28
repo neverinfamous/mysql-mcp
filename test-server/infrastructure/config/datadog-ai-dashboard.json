@@ -1407,6 +1407,85 @@
       "definition": {
         "requests": [
           {
+            "formulas": [
+              {
+                "formula": "default_zero(query1)",
+                "limit": {
+                  "count": 10,
+                  "order": "desc"
+                }
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Errors by Category",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "toplist"
+      },
+      "id": 203565609753300,
+      "layout": {
+        "height": 4,
+        "width": 6,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "definition": {
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
+              }
+            ],
+            "response_format": "timeseries"
+          }
+        ],
+        "show_legend": true,
+        "title": "Transport Errors (HTTP)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 203565609753301,
+      "layout": {
+        "height": 4,
+        "width": 6,
+        "x": 6,
+        "y": 16
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
             "columns": [
               {
                 "field": "status_line",
@@ -1436,7 +1515,7 @@
         "height": 4,
         "width": 12,
         "x": 0,
-        "y": 16
+        "y": 20
       }
     }
   ]

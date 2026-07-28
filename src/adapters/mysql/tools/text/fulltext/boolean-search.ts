@@ -145,6 +145,11 @@ export function createFulltextBooleanTool(
           });
         } catch (error) {
           const msg = error instanceof Error ? error.message : String(error);
+          if (msg.includes("Unknown column")) {
+            return formatHandlerErrorResponse(
+              new Error(`One or more columns specified do not exist in table '${table}'`),
+            );
+          }
           if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(
               new Error(`Table '${table}' does not exist`),
