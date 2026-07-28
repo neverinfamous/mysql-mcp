@@ -61,7 +61,7 @@ export function systemInterceptor(ctx: ExecutionContext): void {
       process.exit(1);
     }
 
-    const fsSearchAliases = ['grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe', 'rg', 'rg.exe', 'select-string', 'select-string.exe'];
+    const fsSearchAliases = ['grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe', 'select-string', 'select-string.exe'];
     const searchCmdStr = tokens.find((t: string) => fsSearchAliases.includes(t));
     if (searchCmdStr) {
       console.error(`\n   💡 AGENT HINT: Do NOT use '${searchCmdStr}' or its PowerShell cmdlet equivalent (Select-String) natively. You MUST use the agent-native 'grep_search' tool instead.\n\x1b[38;5;208m   🛠️ AUTONOMOUS HEALING: Execution blocked. Fix parameters, use native tool, or spawn /mcp-heal. Ref: [AGENT_README.md](file:///C:/Users/chris/Desktop/adamic/.agents/scripts/lib-agent-exec/AGENT_README.md)\x1b[0m`);
@@ -134,14 +134,21 @@ export function systemInterceptor(ctx: ExecutionContext): void {
       // Automatically convert Windows paths (like C:\... or C:/... or "C:\...") to WSL paths (/mnt/c/...)
       ctx.args = ctx.args.map(a => convertToWslPath(a));
     })
-    .with({ isCommand: true, originalCmd: P.union('grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe', 'rg', 'rg.exe') }, () => {
-      if (process.platform === 'win32' && ctx.payload.target !== 'wsl2') {
-        console.error(`\n   🛠️ AUTONOMOUS HEALING: '\${cmdBasename}' natively fails or is not installed on Windows. Switching execution target to WSL2... (Frictionless Recovery)\x1b[0m`);
+    .with({ isCommand: true, originalCmd: P.union('grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe'), hasStdin: true }, () => {
+      console.error(`\n   🛠️ AUTONOMOUS HEALING: Search command with stdin detected. Switching execution target to WSL2... (Frictionless Recovery)\x1b[0m`);
+      ctx.payload.target = 'wsl2';
+    })
+    .with({ isCommand: true, originalCmd: P.union('rg', 'rg.exe') }, () => {
+      if (hasStdin) {
+        console.error(`\n   🛠️ AUTONOMOUS HEALING: Search command with stdin detected. Switching execution target to WSL2... (Frictionless Recovery)\x1b[0m`);
+        ctx.payload.target = 'wsl2';
+      } else if (process.platform === 'win32' && ctx.payload.target !== 'wsl2') {
+        console.error(`\n   🛠️ AUTONOMOUS HEALING: 'rg' natively fails or is not installed on Windows. Switching execution target to WSL2... (Frictionless Recovery)\x1b[0m`);
         ctx.payload.target = 'wsl2';
         ctx.args = ctx.args.map(a => convertToWslPath(a));
       }
-      if (positionalArgs.length <= 1 && !ctx.args.some(a => ['-r', '-R', '--recursive', '--files', '--help', '-h'].includes(a))) {
-        console.error(`\n   🛠️ AUTONOMOUS HEALING: '\${cmdBasename}' missing target directory argument. Auto-appending '.' as target directory... (Frictionless Recovery)\x1b[0m`);
+      if (!hasStdin && positionalArgs.length <= 1 && !ctx.args.some(a => ['-r', '-R', '--recursive', '--files', '--help', '-h'].includes(a))) {
+        console.error(`\n   🛠️ AUTONOMOUS HEALING: 'rg' missing target directory argument. Auto-appending '.' as target directory... (Frictionless Recovery)\x1b[0m`);
         ctx.args.push('.');
       }
     })
@@ -345,7 +352,7 @@ export function systemInterceptor(ctx: ExecutionContext): void {
         process.exit(1);
       }
 
-      const fsSearchAliases = ['grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe', 'rg', 'rg.exe', 'select-string', 'select-string.exe'];
+      const fsSearchAliases = ['grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe', 'select-string', 'select-string.exe'];
       const searchCmdStr = tokens.find(t => fsSearchAliases.includes(t));
       if (searchCmdStr) {
         console.error(`\n   💡 AGENT HINT: Do NOT use '${searchCmdStr}' or its PowerShell cmdlet equivalent (Select-String) natively. You MUST use the agent-native 'grep_search' tool instead.\n\x1b[38;5;208m   🛠️ AUTONOMOUS HEALING: Execution blocked. Fix parameters, use native tool, or spawn /mcp-heal. Ref: [AGENT_README.md](file:///C:/Users/chris/Desktop/adamic/.agents/scripts/lib-agent-exec/AGENT_README.md)\x1b[0m`);
@@ -436,17 +443,17 @@ export function systemInterceptor(ctx: ExecutionContext): void {
       process.exit(1);
     })
 
-    .with({ isCommand: true, hasStdin: false, cmd: P.union('grep', 'grep.exe', 'egrep', 'fgrep', 'rg', 'rg.exe') }, () => {
-      const curPos = ctx.args.filter(a => !a.startsWith('-'));
-      if (ctx.args.includes('--help') || ctx.args.includes('-h')) return;
-      if (curPos.length <= 1 && !['-r', '-R', '--recursive', '--files', '--help', '-h'].some(a => ctx.args.includes(a))) {
-        console.error(`\n   💡 AGENT HINT: '\${cmd.replace(/\.exe\$/, '')}' called without file arguments, no recursive flag, and no stdin. It will hang indefinitely.\n\x1b[38;5;208m   🛠️ AUTONOMOUS HEALING: Execution blocked. Fix parameters, use native tool, or spawn /mcp-heal. Ref: [AGENT_README.md](file:///C:/Users/chris/Desktop/adamic/.agents/scripts/lib-agent-exec/AGENT_README.md)\x1b[0m`);
+    .with({ isCommand: true, hasStdin: false, cmd: P.union('grep', 'grep.exe', 'egrep', 'fgrep'), positionalArgs: P.when(pa => pa.length <= 1) }, () => {
+      if (!args) args = [];
+      if (args.includes('--help') || args.includes('-h')) return;
+      if (!['-r', '-R', '--recursive', '--files', '--help', '-h'].some(a => args.includes(a))) {
+        console.error(`\n   💡 AGENT HINT: '${cmd.replace(/\.exe$/, '')}' called without file arguments, no recursive flag, and no stdin. It will hang indefinitely.\n\x1b[38;5;208m   🛠️ AUTONOMOUS HEALING: Execution blocked. Fix parameters, use native tool, or spawn /mcp-heal. Ref: [AGENT_README.md](file:///C:/Users/chris/Desktop/adamic/.agents/scripts/lib-agent-exec/AGENT_README.md)\x1b[0m`);
         process.exit(1);
       }
     })
 
     // Search tool enforcement (FS Alias Hallucinations)
-    .with({ isCommand: true, originalCmd: P.union('grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe', 'rg', 'rg.exe', 'select-string', 'select-string.exe'), hasStdin: false, payload: P.when((p: unknown) => typeof p === 'object' && p !== null && !('target' in p && p.target === 'wsl2')) }, () => {
+    .with({ isCommand: true, originalCmd: P.union('grep', 'grep.exe', 'egrep', 'egrep.exe', 'fgrep', 'fgrep.exe', 'select-string', 'select-string.exe'), hasStdin: false, payload: P.when((p: unknown) => typeof p === 'object' && p !== null && !('target' in p && p.target === 'wsl2')) }, () => {
       if (args && (args.includes('--help') || args.includes('-h'))) return;
       console.error(`\n   💡 AGENT HINT: Do NOT use '${originalCmd}' or its PowerShell cmdlet equivalent (Select-String) natively. You MUST use the agent-native 'grep_search' tool instead.\n\x1b[38;5;208m   🛠️ AUTONOMOUS HEALING: Execution blocked. Fix parameters, use native tool, or spawn /mcp-heal. Ref: [AGENT_README.md](file:///C:/Users/chris/Desktop/adamic/.agents/scripts/lib-agent-exec/AGENT_README.md)\x1b[0m`);
       process.exit(1);

@@ -420,6 +420,12 @@ export function createOptimizerTraceTool(
     }))
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
+    })
+    .refine((data) => {
+      if (!data.query) return true;
+      return /^\s*(SELECT|WITH)\b/i.test(data.query);
+    }, {
+      message: "Anti-Hallucination Hint: Optimizer trace actually executes the query and can mutate data. Only SELECT or WITH queries are permitted.",
     });
 
   return {
