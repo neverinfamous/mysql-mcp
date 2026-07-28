@@ -9,7 +9,7 @@ export type SafeRouterResult<T> =
 
 export function getRouterConfig(): RouterConfig {
   return {
-    url: process.env["MYSQL_ROUTER_URL"] ?? "http://localhost:8443",
+    url: process.env["MYSQL_ROUTER_URL"] ?? "https://localhost:8443",
     username: process.env["MYSQL_ROUTER_USER"] ?? "",
     password: process.env["MYSQL_ROUTER_PASSWORD"] ?? "",
     insecure: process.env["MYSQL_ROUTER_INSECURE"] === "true",
@@ -22,7 +22,7 @@ export async function routerFetch(
   config?: RouterConfig,
 ): Promise<unknown> {
   const cfg = config ?? getRouterConfig();
-  const baseUrl = cfg.url ?? "http://localhost:8443";
+  const baseUrl = cfg.url ?? "https://localhost:8443";
   const apiVersion = cfg.apiVersion ?? "/api/20190715";
   const username = cfg.username ?? "";
   const password = cfg.password ?? "";
