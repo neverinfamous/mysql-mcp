@@ -242,9 +242,7 @@ services:
       com.datadoghq.ad.check_names: '["redisdb"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6379, "command_stats":
-        true, "slowlog-max-len": 128, "keys": ["load:size:tiny",
-        "load:size:small", "load:size:medium", "load:size:large", "load:list",
-        "load:set"]}]'
+        true, "slowlog-max-len": 128}]'
       com.datadoghq.ad.logs: '[{"source":"redis","service":"redis-server"}]'
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
