@@ -961,6 +961,15 @@ export function preprocessDocFilterParams(val: unknown): unknown {
     result["unset"] = [result["unset"]];
   }
 
+  if (typeof result["limit"] === "string") {
+    const parsed = parseInt(result["limit"], 10);
+    if (!isNaN(parsed)) result["limit"] = parsed;
+  }
+  if (typeof result["offset"] === "string") {
+    const parsed = parseInt(result["offset"], 10);
+    if (!isNaN(parsed)) result["offset"] = parsed;
+  }
+
   delete result["criteria"];
   delete result["condition"];
   delete result["update"];
