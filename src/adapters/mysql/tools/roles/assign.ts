@@ -41,7 +41,7 @@ export const RoleAssignSchema = RoleAssignSchemaBase.refine((val) => val.role ||
     const role = val.role || val.name || val.roleName || "";
     let user = val.user || val.toUser || val.userName || val.username || "";
     let host = val.host;
-    if (user && user.includes("@")) {
+    if (user?.includes("@")) {
       const parts = user.split("@");
       user = parts[0] || "";
       if (parts.length > 1) {
@@ -100,7 +100,7 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
     const role = val.role || val.name || val.roleName || "";
     let user = val.user || val.fromUser || val.userName || val.username || "";
     let host = val.host;
-    if (user && user.includes("@")) {
+    if (user?.includes("@")) {
       const parts = user.split("@");
       user = parts[0] || "";
       if (parts.length > 1) {
