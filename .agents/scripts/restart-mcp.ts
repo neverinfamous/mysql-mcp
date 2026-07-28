@@ -34,15 +34,13 @@ try {
       console.log(`Killing process ID ${pid} for matching server: ${serverName}`);
       console.log(`  > ${cmdLine.replace(/^.*?Node,\s*/, '')}`); // cleanup prefix
       try {
-        console.warn(`\n⚠️ WARNING: Forcefully killing the Node process on Windows results in Exit Code 1.`);
-        console.warn(`If the IDE displays a crash notification (e.g. "mysql exit status 1"), ignore it. This is expected behavior on Windows when restarting the MCP daemon.\\n`);
         process.kill(pid); // Kills the process on Windows
         killed++;
       } catch (e) {
-        if (e.code === 'ESRCH') {
+        if (e instanceof Error && (e as NodeJS.ErrnoException).code === 'ESRCH') {
           // Process already dead
         } else {
-          console.error(`  ❌ Failed to kill process ${pid}: ${e.message}`);
+          console.error(`  ❌ Failed to kill process ${pid}: ${e instanceof Error ? e.message : String(e)}`);
         }
       }
     }
@@ -55,6 +53,6 @@ try {
     console.log(`\n⚠️ No running node processes found for MCP Server: ${serverName}`);
   }
 } catch (err) {
-  console.error(`Failed to query processes: ${err.message}`);
+  console.error(`Failed to query processes: ${err instanceof Error ? err.message : String(err)}`);
   process.exit(1);
 }

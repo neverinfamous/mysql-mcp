@@ -161,7 +161,7 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 // Tool Input Schemas
 // =============================================================================
 
-export const ProxySQLBaseInputSchema = z.object({}).loose();
+export const ProxySQLBaseInputSchema = z.object({}).strict();
 
 export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
@@ -305,7 +305,7 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
       .nonnegative()
       .optional()
       .describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
-  }).loose()
+  }).strict()
 );
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
