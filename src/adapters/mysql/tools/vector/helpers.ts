@@ -5,14 +5,14 @@ import { ExtensionNotAvailableError, ValidationError } from "../../../../types/m
  * Get MySQL server version
  */
 export async function getServerVersion(adapter: MySQLAdapter): Promise<{ major: number; minor: number; patch: number; raw: string }> {
-  const result = await adapter.executeQuery("SELECT VERSION() as version");
+  const result = await adapter.executeQuery("SHOW VARIABLES LIKE 'version'");
   let rawVersion = "0.0.0";
   
   if (result?.rows !== undefined && result.rows.length > 0) {
     const firstRow = result.rows[0];
     if (firstRow !== undefined && firstRow !== null) {
       const row = firstRow;
-      const versionStr = row['version'];
+      const versionStr = row['Value'];
       if (typeof versionStr === 'string') {
         rawVersion = versionStr;
       }
@@ -92,25 +92,26 @@ export function sanitizeIdentifier(id: string): string {
  * Resolves the vector column if it is omitted
  */
 export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, providedColumn?: string): Promise<string> {
-  // Pre-check table existence
-  await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(table)}\` LIMIT 0`);
+  const sanitizedTable = sanitizeIdentifier(table);
+  // Pre-check table existence and find column in one go using SHOW COLUMNS
+  const pkResult = await adapter.executeQuery(`SHOW COLUMNS FROM \`${sanitizedTable}\``);
+  if (!pkResult.rows || pkResult.rows.length === 0) {
+    throw new ValidationError(`Table '${sanitizedTable}' does not exist or has no columns.`);
+  }
 
   if (providedColumn) return providedColumn;
 
-  const infoQuery = `
-    SELECT COLUMN_NAME 
-    FROM INFORMATION_SCHEMA.COLUMNS 
-    WHERE TABLE_NAME = ? AND DATA_TYPE = 'vector' 
-    LIMIT 1
-  `;
-  const pkResult = await adapter.executeQuery(infoQuery, [table]);
-  if (!pkResult.rows || pkResult.rows.length === 0) {
-    throw new ValidationError(`No VECTOR column found in table '${table}'. Please specify the column parameter.`);
+  const vectorColumn = pkResult.rows.find(row => 
+    row['Type'] === 'vector' || (typeof row['Type'] === 'string' && row['Type'].toLowerCase().startsWith('vector'))
+  );
+
+  if (!vectorColumn) {
+    throw new ValidationError(`No VECTOR column found in table '${sanitizedTable}'. Please specify the column parameter.`);
   }
-  const firstRow = pkResult.rows[0];
-  const columnName = firstRow?.['COLUMN_NAME'];
+
+  const columnName = vectorColumn['Field'];
   if (typeof columnName !== 'string') {
-    throw new ValidationError(`No VECTOR column found in table '${table}'. Please specify the column parameter.`);
+    throw new ValidationError(`No VECTOR column found in table '${sanitizedTable}'. Please specify the column parameter.`);
   }
   return columnName;
 }
