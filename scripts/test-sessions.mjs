@@ -1,6 +1,6 @@
 import { createServer, MySQLAdapter } from '../dist/index.js';
 import http from 'http';
-import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
 async function fetchHttp(url, options = {}) {
   return new Promise((resolve, reject) => {
@@ -39,7 +39,7 @@ async function main() {
     if (health.activeSessions !== 0 && health.activeSessions !== undefined) failures.push("activeSessions not 0 or absent");
 
     console.log("Step 2: Establish session");
-    const transport = new SSEClientTransport(new URL("http://localhost:8085/sse"));
+    const transport = new StreamableHTTPClientTransport(new URL("http://localhost:8085/mcp"));
     const client = new Client({ name: "test-client", version: "1.0.0" }, { capabilities: {} });
     await client.connect(transport);
     
@@ -58,7 +58,12 @@ async function main() {
     }
     
     console.log("Step 6: Session Termination");
+    const sid = transport.sessionId;
+    console.log("Session ID:", sid);
     await client.close();
+    if (sid) {
+      await fetchHttp('http://localhost:8085/mcp', { method: 'DELETE', headers: { 'mcp-session-id': sid } });
+    }
     await new Promise(r => setTimeout(r, 500));
     
     console.log("Step 7: Final Validation");
