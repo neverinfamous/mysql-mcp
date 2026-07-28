@@ -10,6 +10,7 @@ services:
       MYSQL_DATABASE: testdb
     volumes:
       - mysql-data:/var/lib/mysql
+    stop_grace_period: 30s
     mem_limit: 1024m
     command: >
       --character-set-server=utf8mb4
@@ -36,7 +37,8 @@ services:
     container_name: example-basic-datadog
     restart: unless-stopped
     pid: host
-    cgroup: host
+    cgroupns_mode: host
+    stop_grace_period: 15s
     mem_limit: 1024m
     depends_on:
       mysql-server:

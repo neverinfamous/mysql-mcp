@@ -9,7 +9,7 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
     volumes:
-      - example-ha-node-data:/var/lib/mysql
+      - example-ha-node1-data:/var/lib/mysql
       - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     command: >
       --server-id=1
@@ -17,6 +17,8 @@ services:
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
+      --relay-log=mysql-node1-relay-bin
+    stop_grace_period: 30s
     mem_limit: 1024m
     logging:
       driver: "json-file"
@@ -31,7 +33,7 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["mysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}"}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   example-ha-node2:
     image: mysql:9.1.0
@@ -43,13 +45,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
     volumes:
-      - example-ha-node-data:/var/lib/mysql
+      - example-ha-node2-data:/var/lib/mysql
     command: >
       --server-id=2
       --enforce-gtid-consistency=ON
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
+      --relay-log=mysql-node2-relay-bin
+    stop_grace_period: 30s
     mem_limit: 1024m
     logging:
       driver: "json-file"
@@ -61,6 +65,10 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   example-ha-node3:
     image: mysql:9.1.0
@@ -72,13 +80,15 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-mysqlmcp}
     volumes:
-      - example-ha-node-data:/var/lib/mysql
+      - example-ha-node3-data:/var/lib/mysql
     command: >
       --server-id=3
       --enforce-gtid-consistency=ON
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
+      --relay-log=mysql-node3-relay-bin
+    stop_grace_period: 30s
     mem_limit: 1024m
     logging:
       driver: "json-file"
@@ -90,11 +100,16 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    labels:
+      com.datadoghq.ad.check_names: '["mysql"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
-  example-ha-router:
-    image: container-registry.oracle.com/mysql/community-router:9.1.0
-    container_name: example-ha-router
+  cluster-healer:
+    image: mysql:9.1.0
+    container_name: example-ha-healer
     restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c", "echo 'cluster-healer not implemented in example' && tail -f /dev/null"]
     depends_on:
       example-ha-node1:
         condition: service_healthy
@@ -102,6 +117,16 @@ services:
         condition: service_healthy
       example-ha-node3:
         condition: service_healthy
+    stop_grace_period: 15s
+    mem_limit: 128m
+
+  example-ha-router:
+    image: container-registry.oracle.com/mysql/community-router:9.1.0
+    container_name: example-ha-router
+    restart: unless-stopped
+    depends_on:
+      cluster-healer:
+        condition: service_started
     entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
     volumes:
       - ./config/example-ha-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
@@ -109,6 +134,7 @@ services:
       - /tmp/mysqlrouter:uid=999,gid=999
     ports:
       - "6456:6446"
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: "json-file"
@@ -122,7 +148,7 @@ services:
       retries: 10
 
   example-ha-proxysql:
-    image: example-ha-proxysql/example-ha-proxysql:2.6.3
+    image: proxysql/proxysql:3.0.9
     container_name: example-ha-proxysql
     restart: unless-stopped
     depends_on:
@@ -141,7 +167,8 @@ services:
     labels:
       com.datadoghq.ad.check_names: '["example-ha-proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
-      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin"}]'
+      com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin", "additional_metrics": ["connection_pool_metrics", "backends_metrics", "users_metrics", "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: "json-file"
@@ -162,10 +189,12 @@ services:
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
       - DD_APM_ENABLED=true
       - DD_PROCESS_AGENT_ENABLED=true
+      - DD_SYSTEM_PROBE_ENABLED=true
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
       - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+      - /sys/kernel/debug:/sys/kernel/debug
     security_opt:
       - apparmor:unconfined
     cap_add:
@@ -177,8 +206,9 @@ services:
       - NET_RAW
       - IPC_LOCK
       - CHOWN
+    stop_grace_period: 15s
     mem_limit: 512m
-    cgroup: host
+    cgroupns_mode: host
     logging:
       driver: "json-file"
       options:
@@ -186,6 +216,6 @@ services:
         max-file: "3"
 
 volumes:
-  example-ha-node-data:
-  example-ha-node-data:
-  example-ha-node-data:
+  example-ha-node1-data:
+  example-ha-node2-data:
+  example-ha-node3-data:

@@ -43,8 +43,8 @@ export function getShellConfig(): ShellConfig {
 
   // Build connection URI for mysqlsh (classic protocol)
   const connectionUri = password
-    ? `mysql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}`
-    : `mysql://${user}@${host}:${port}/${database}`;
+    ? `mysql://${user}:${encodeURIComponent(password)}@${host}:${port}/${database}?local-infile=1`
+    : `mysql://${user}@${host}:${port}/${database}?local-infile=1`;
 
   // Build X Protocol connection URI for document operations
   const xConnectionUri = password
@@ -188,13 +188,12 @@ export async function execShellJS(
   if (stderrClean) {
     // local_infile disabled error
     if (
-      stderrClean.includes("local_infile") ||
-      stderrClean.includes("Loading local data is disabled")
+      stderrClean.includes("Loading local data is disabled") ||
+      stderrClean.includes("Unsupported 'LOAD DATA LOCAL INFILE'")
     ) {
       throw new AuthorizationError(
-        `MySQL Shell operation failed: local_infile is disabled on the server. ` +
-          `Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), ` +
-          `or manually run: SET GLOBAL local_infile = ON`,
+        `MySQL Shell operation failed: local_infile is disabled on the server or you are connected via ProxySQL. ` +
+          `Set updateServerSettings: true (requires SUPER), manually run: SET GLOBAL local_infile = ON, or connect directly to MySQL (ProxySQL does not support LOCAL INFILE).`
       );
     }
     // Privilege errors

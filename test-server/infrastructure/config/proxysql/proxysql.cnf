@@ -42,6 +42,13 @@ mysql_servers =
         hostgroup = 1
         max_connections = 200
         weight = 1
+    },
+    {
+        address = "mysql-router"
+        port = 6447
+        hostgroup = 2
+        max_connections = 200
+        weight = 1
     }
 )
 
@@ -71,6 +78,7 @@ mysql_query_rules =
         rule_id = 1
         active = 1
         match_digest = "^SELECT .*"
+        destination_hostgroup = 2
         cache_ttl = 5000
         apply = 1
     }

@@ -269,13 +269,21 @@ export function createShellImportTableTool(
 
         // Build JavaScript code that optionally enables local_infile
         let jsCode: string;
+        const setLocalInfileClient = `
+          try { shell.options.set("localInfile", true); } catch(e) {}
+          try { shell.options['localInfile'] = true; } catch(e) {}
+        `;
         if (updateServerSettings) {
           jsCode = `
                       session.runSql("SET GLOBAL local_infile = ON");
+                      ${setLocalInfileClient}
                       return util.importTable("${escapedPath}", { ${options.join(", ")} });
                   `;
         } else {
-          jsCode = `return util.importTable("${escapedPath}", { ${options.join(", ")} });`;
+          jsCode = `
+                      ${setLocalInfileClient}
+                      return util.importTable("${escapedPath}", { ${options.join(", ")} });
+                  `;
         }
 
         const result = await execShellJS(jsCode);
@@ -311,16 +319,15 @@ export function createShellImportTableTool(
         }
 
         if (
-          errorMessage.includes("local_infile") ||
           errorMessage.includes("Loading local data is disabled") ||
           errorMessage.includes("Unsupported 'LOAD DATA LOCAL INFILE'")
         ) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              "Import failed: local_infile is disabled on the server or client.",
+              "Import failed: local_infile is disabled on the server or client, or you are connected via ProxySQL.",
               "CONFIGURATION_ERROR",
               ErrorCategory.CONFIGURATION,
-              { suggestion: "Set updateServerSettings: true (requires SUPER or SYSTEM_VARIABLES_ADMIN privilege), or manually run: SET GLOBAL local_infile = ON" }
+              { suggestion: "Set updateServerSettings: true (requires SUPER), manually run: SET GLOBAL local_infile = ON, or ensure you are connecting directly to MySQL (ProxySQL does not support LOAD DATA LOCAL INFILE)." }
             )
           );
         }
