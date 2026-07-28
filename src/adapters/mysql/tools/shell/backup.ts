@@ -146,6 +146,16 @@ export function createShellDumpInstanceTool(
             )
           );
         }
+        if (errorMessage.includes("unexpected input near ;") || errorMessage.includes("ProxySQL")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed: Administrative command rejected.`,
+              "PROXY_COMPATIBILITY_ERROR",
+              ErrorCategory.SYSTEM,
+              { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands (like FLUSH TABLES) required by util.dumpInstance(). Connect directly to the MySQL cluster node instead." }
+            )
+          );
+        }
         if (errorMessage.includes("Fatal error during dump")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -443,6 +453,16 @@ export function createShellDumpTablesTool(
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION,
               { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("unexpected input near ;") || errorMessage.includes("ProxySQL")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Dump failed: Administrative command rejected.`,
+              "PROXY_COMPATIBILITY_ERROR",
+              ErrorCategory.SYSTEM,
+              { suggestion: "This error often occurs when connecting through ProxySQL, which does not support the administrative commands required by util.dumpTables(). Connect directly to the MySQL cluster node instead." }
             )
           );
         }

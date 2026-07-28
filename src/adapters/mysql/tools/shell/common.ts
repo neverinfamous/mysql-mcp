@@ -161,15 +161,7 @@ export async function execShellJS(
   const config = getShellConfig();
 
   // Wrap code to output JSON result
-  const wrappedCode = `
-        var __result__;
-        try {
-            __result__ = (function() { ${jsCode} })();
-            print(JSON.stringify({ success: true, result: __result__ }));
-        } catch (e) {
-            print(JSON.stringify({ success: false, error: e.message }));
-        }
-    `;
+  const wrappedCode = `var __result__; try { __result__ = (function() { ${jsCode} })(); print(JSON.stringify({ success: true, result: __result__ })); } catch (e) { print(JSON.stringify({ success: false, error: e.message })); }`;
 
   const result = await execMySQLShell(
     ["--uri", config.connectionUri, "--js", "-e", wrappedCode],
