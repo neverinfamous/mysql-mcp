@@ -310,7 +310,7 @@ if (promHealth && promHealth.includes('Healthy')) {
 }
 
 // Grafana health
-const grafanaHealth = dockerExec('grafana', ['wget', '-qO-', 'http://localhost:3000/api/health'], true);
+const grafanaHealth = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://grafana:3000/api/health'], true);
 if (grafanaHealth) {
     try {
         const gData = JSON.parse(grafanaHealth);
@@ -329,7 +329,7 @@ if (grafanaHealth) {
 }
 
 // Loki ready
-const lokiReady = dockerExec('loki', ['wget', '-qO-', 'http://localhost:3100/ready'], true);
+const lokiReady = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://loki:3100/ready'], true);
 if (lokiReady && lokiReady.toLowerCase().includes('ready')) {
     console.log('✅ Loki                 : Ready');
 } else {
@@ -338,7 +338,7 @@ if (lokiReady && lokiReady.toLowerCase().includes('ready')) {
 }
 
 // Promtail ready
-const promtailReady = dockerExec('promtail', ['wget', '-qO-', 'http://localhost:9080/ready'], true);
+const promtailReady = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://promtail:9080/ready'], true);
 if (promtailReady && promtailReady.toLowerCase().includes('ready')) {
     console.log('✅ Promtail             : Ready');
 } else {

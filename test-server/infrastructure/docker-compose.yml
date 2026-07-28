@@ -190,7 +190,7 @@ services:
       retries: 30
 
   proxysql:
-    image: proxysql/proxysql:2.6.3
+    image: proxysql/proxysql:3.0.9
     container_name: proxysql
     restart: unless-stopped
     depends_on:
@@ -223,7 +223,7 @@ services:
       retries: 10
 
   redis-server:
-    image: redis:7.4.0
+    image: redis:7.4.10
     container_name: redis-server
     restart: unless-stopped
     ports:
@@ -270,7 +270,7 @@ services:
         max-file: "3"
 
   adminer:
-    image: adminer:4.8.1
+    image: adminer:5.5.0
     container_name: adminer
     restart: unless-stopped
     ports:
@@ -284,7 +284,7 @@ services:
         max-file: "3"
 
   prometheus:
-    image: prom/prometheus:v2.54.1
+    image: prom/prometheus:v3.13.1
     container_name: prometheus
     restart: unless-stopped
     ports:
@@ -308,7 +308,7 @@ services:
       retries: 3
 
   grafana:
-    image: grafana/grafana:11.2.0
+    image: grafana/grafana:13.1.1
     container_name: grafana
     restart: unless-stopped
     ports:
@@ -324,13 +324,13 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:3000/api/health" ]
+      test: [ "CMD", "curl", "-s", "--fail", "http://localhost:3000/api/health" ]
       interval: 15s
       timeout: 5s
       retries: 3
 
   loki:
-    image: grafana/loki:3.1.0
+    image: grafana/loki:3.6.13
     container_name: loki
     restart: unless-stopped
     ports:
@@ -343,14 +343,9 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
-    healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:3100/ready | grep -q ready" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   promtail:
-    image: grafana/promtail:3.1.0
+    image: grafana/promtail:3.6.11
     container_name: promtail
     restart: unless-stopped
     volumes:
@@ -367,11 +362,6 @@ services:
     depends_on:
       loki:
         condition: service_healthy
-    healthcheck:
-      test: [ "CMD-SHELL", "wget -qO- http://localhost:9080/ready | grep -iq ready" ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   datadog-unified:
     image: gcr.io/datadoghq/agent:7.81.2
