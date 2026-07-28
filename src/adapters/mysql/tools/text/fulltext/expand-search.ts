@@ -151,7 +151,7 @@ export function createFulltextExpandTool(
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("Unknown column")) {
             return formatHandlerErrorResponse(
-              new Error(`One or more columns specified do not exist in table '${table}'`),
+              new ValidationError(`One or more columns specified do not exist in table '${table}'`),
             );
           }
           if (msg.includes("does not exist")) {
@@ -163,12 +163,12 @@ export function createFulltextExpandTool(
             msg.includes("Can't find FULLTEXT index matching the column list")
           ) {
             return formatHandlerErrorResponse(
-              new Error("No FULLTEXT index found for the specified columns"),
+              new ValidationError("No FULLTEXT index found for the specified columns"),
             );
           }
           if (msg.includes("syntax error, unexpected")) {
             return formatHandlerErrorResponse(
-              new Error(`Invalid search syntax: ${query}`),
+              new ValidationError(`Invalid search syntax: ${query}`),
             );
           }
           return formatHandlerErrorResponse(error);
