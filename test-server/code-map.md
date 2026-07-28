@@ -372,7 +372,7 @@ try {
 | **Admin Maintenance**       | `optimize_table`, `analyze_table`, `check_table`, `repair_table` use `rawQuery` (not `executeQuery`) to avoid prepared-statement corruption of multi-result-set DDL responses. `extractMaintenanceError()` parses domain errors from multi-row results.                                                                                                                                |
 | **Audit Observability**     | `AuditInterceptor` wraps all tool handlers (scope-based filtering, tokenEstimate, redaction). `AuditLogger` writes JSONL with buffered flush + rotation. `BackupManager` captures DDL/data snapshots before destructive ops. `getAuditInterceptor()` exposes interceptor to Code Mode bridge for 100% sandbox audit coverage. Activated via `--audit-log`, `--audit-backup` CLI flags. |
 | **Skill Injection**         | AI prompts generating SQL dynamically inject a directive. This references the `mysql` agent skill via the `MYSQL_SKILL_PATH` environment variable. This ensures consuming agents strictly adhere to production rules (e.g., parameterization, connection pooling). |
-| **ProxySQL Compatibility**  | Queries against `information_schema` can trigger ProxySQL hostgroup locking errors (`ProxySQL Error: connection is locked to hostgroup 1`). Tools should use `SHOW TABLES` and `SHOW SCHEMAS` where possible for metadata discovery to maintain unified ecosystem compatibility. |
+| **ProxySQL Compatibility**  | Queries against `information_schema` can trigger ProxySQL hostgroup locking errors (`ProxySQL Error: connection is locked to hostgroup 1`). Tools should use `SHOW TABLES`, `SHOW SCHEMAS`, `SHOW COLUMNS`, and `SHOW KEYS` where possible for metadata discovery to maintain unified ecosystem compatibility. |
 
 ---
 

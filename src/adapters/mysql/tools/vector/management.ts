@@ -40,41 +40,41 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
 
         await ensureVectorSupport(adapter);
 
-        const tableParam = validated.table; // Parameterized
-        const columnFilters: unknown[] = [tableParam];
-        
-        let colCondition = "";
-        if (validated.column) {
-          colCondition = "AND COLUMN_NAME = ?";
-          columnFilters.push(validated.column);
+        const query = `SHOW COLUMNS FROM \`${sanitizeIdentifier(validated.table)}\``;
+        const result = await adapter.executeQuery(query);
+
+        interface ColumnRow {
+          Field?: string;
+          Type?: string;
+          Null?: string;
+          Default?: unknown;
         }
+        const rawRows = (result.rows ?? []) as ColumnRow[];
 
-        const query = `
-          SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE, COLUMN_DEFAULT, EXTRA
-          FROM INFORMATION_SCHEMA.COLUMNS
-          WHERE TABLE_NAME = ? AND DATA_TYPE = 'vector' ${colCondition}
-        `;
+        // Parse dimensions from Type (e.g., "vector(1536)")
+        const columns = rawRows
+          .filter((r) => {
+            const field = r.Field ?? "";
+            const typeVal = (r.Type ?? "").toLowerCase();
+            if (validated.column && field !== validated.column) return false;
+            return typeVal.startsWith("vector");
+          })
+          .map((r) => {
+            let dimensions: number | null = null;
+            
+            const typeStr = r.Type ?? "";
+            const match = /vector\((\d+)\)/i.exec(typeStr);
+            if (match?.[1]) {
+              dimensions = parseInt(match[1], 10);
+            }
 
-        const result = await adapter.executeQuery(query, columnFilters);
-
-        // Parse dimensions from COLUMN_TYPE (e.g., "vector(1536)")
-        const columns = (result.rows ?? []).map((r) => {
-          const row = r;
-          let dimensions: number | null = null;
-          
-          const typeStr = typeof row['COLUMN_TYPE'] === "string" ? row['COLUMN_TYPE'] : "";
-          const match = /vector\((\d+)\)/i.exec(typeStr);
-          if (match?.[1]) {
-            dimensions = parseInt(match[1], 10);
-          }
-
-          return {
-            name: String(row['COLUMN_NAME']),
-            dimensions,
-            isNullable: row['IS_NULLABLE'] === "YES",
-            default: row['COLUMN_DEFAULT'],
-          };
-        });
+            return {
+              name: r.Field ?? "",
+              dimensions,
+              isNullable: (r.Null ?? "") === "YES",
+              default: r.Default ?? null,
+            };
+          });
 
         return withTokenEstimate({
           success: true,
@@ -231,13 +231,15 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         await ensureVectorSupport(adapter);
 
         // Pre-check column type to avoid raw MySQL "Incorrect arguments to vector_dim" errors
-        const colCheck = await adapter.executeQuery(`
-          SELECT DATA_TYPE 
-          FROM INFORMATION_SCHEMA.COLUMNS 
-          WHERE TABLE_NAME = ? AND COLUMN_NAME = ?
-        `, [validated.table, targetColumn]);
+        interface ColumnRow {
+          Field?: string;
+          Type?: string;
+        }
+        const colCheck = await adapter.executeQuery(`SHOW COLUMNS FROM \`${sanitizeIdentifier(validated.table)}\``);
+        const colCheckRows = (colCheck.rows ?? []) as ColumnRow[];
+        const colCheckFirstRow = colCheckRows.find((r) => (r.Field ?? "") === targetColumn);
 
-        if (!colCheck.rows || colCheck.rows.length === 0) {
+        if (!colCheckFirstRow) {
           return withTokenEstimate({
             success: false,
             error: `Column '${targetColumn}' not found in table '${validated.table}'`,
@@ -248,8 +250,8 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
-        const colCheckFirstRow = colCheck.rows[0];
-        const dataType = String(colCheckFirstRow ? colCheckFirstRow["DATA_TYPE"] : "").toLowerCase();
+        let dataType = (colCheckFirstRow.Type ?? "").toLowerCase();
+        if (dataType.startsWith("vector")) dataType = "vector";
         if (dataType !== "vector") {
           return withTokenEstimate({
             success: false,
