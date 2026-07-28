@@ -233,6 +233,20 @@ describe("Replication Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
+
+    it("should use channel if provided", async () => {
+      mockAdapter.executeQuery.mockResolvedValue(
+        createMockQueryResult([{ Seconds_Behind_Master: 5 }]),
+      );
+
+      const tool = tools.find((t) => t.name === "mysql_replication_lag")!;
+      const result = await tool.handler({ channel: "replica1" }, mockContext);
+
+      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(call).toContain("FOR CHANNEL 'replica1'");
+      expect(result).toBeDefined();
+    });
   });
 });
 

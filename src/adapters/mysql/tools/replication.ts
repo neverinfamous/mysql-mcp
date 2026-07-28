@@ -290,7 +290,9 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const schema = z.object({
+    channel: z.string().optional().describe("Optional replication channel name"),
+  }).strict();
 
   return {
     name: "mysql_replication_lag",
@@ -302,14 +304,19 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      let channel: string | undefined;
       try {
-        schema.parse(_params);
+        const parsed = schema.parse(_params);
+        channel = parsed.channel;
       } catch (e) {
         return formatHandlerErrorResponse(e);
       }
+      
+      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/'/g, "''")}'` : "";
+
       // Try to get Seconds_Behind_Master from replica status
       try {
-        const result = await adapter.executeQuery("SHOW REPLICA STATUS");
+        const result = await adapter.executeQuery(`SHOW REPLICA STATUS${channelClause}`);
         const status = result.rows?.[0];
 
         if (status != null) {
@@ -333,7 +340,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         }
       } catch {
         try {
-          const result = await adapter.executeQuery("SHOW SLAVE STATUS");
+          const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
           const status = result.rows?.[0];
 
           if (status != null) {
