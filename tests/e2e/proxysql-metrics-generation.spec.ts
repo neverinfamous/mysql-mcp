@@ -8,7 +8,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 import { createClient, callToolAndParse, expectSuccess, startServer, stopServer, TIMEOUTS } from "./helpers.js";
 import { setTimeout as delay } from "node:timers/promises";
 import * as mysql from "mysql2/promise";

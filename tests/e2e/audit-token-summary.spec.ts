@@ -18,7 +18,7 @@ import {
   cleanupAuditFiles,
   auditLogPath,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 const AUDIT_PORT_BASE = 3180;
 const AUDIT_FILTER = "core,transactions,monitoring";

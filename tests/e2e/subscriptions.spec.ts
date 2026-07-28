@@ -1,8 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { setTimeout as delay } from "node:timers/promises";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
-import { ResourceUpdatedNotificationSchema } from "@modelcontextprotocol/sdk/types.js";
+import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
 import { randomUUID } from "node:crypto";
 import { BASE_URL } from "./helpers.js";
 
@@ -21,7 +19,7 @@ test.describe("E2E MCP Subscriptions", () => {
       { capabilities: {} },
     );
     
-    client.setNotificationHandler(ResourceUpdatedNotificationSchema, (notification) => {
+    client.setNotificationHandler('notifications/resources/updated', (notification) => {
       if (notification.params.uri) {
         receivedNotifications.push(notification.params.uri);
       }

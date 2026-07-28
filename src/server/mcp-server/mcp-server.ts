@@ -4,14 +4,12 @@
  * Main MCP server implementation with adapter registration,
  * tool filtering, and transport handling.
  */
-
-import { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
+import { StdioServerTransport } from "@modelcontextprotocol/server/stdio";
+import { McpServer as SdkMcpServer, ProtocolError, ProtocolErrorCode } from "@modelcontextprotocol/server";
+import type { Transport } from "@modelcontextprotocol/server";
 import { INSTRUCTIONS } from "../../constants/server-instructions.js";
 import { CODEMODE_HELP } from "../../constants/instructions/codemode.js";
 import type { DatabaseAdapter } from "../../adapters/database-adapter/index.js";
-import { McpError, ErrorCode } from "@modelcontextprotocol/sdk/types.js";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
 import { SubscriptionManager } from "../subscription-manager.js";
 import * as http from "http";
 import type { McpServerConfig, TransportType, ToolFilterConfig } from "../../types/index.js";
@@ -303,7 +301,7 @@ export class McpServer {
         break;
       }
       default:
-        throw new McpError(ErrorCode.InvalidRequest, `Unknown transport: ${String(transport)}`);
+        throw new ProtocolError(ProtocolErrorCode.InvalidRequest, `Unknown transport: ${String(transport)}`);
     }
   }
 

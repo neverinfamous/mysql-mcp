@@ -12,8 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { rm } from "node:fs/promises";
 import { expect } from "@playwright/test";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
 
 export const BASE_URL = "http://127.0.0.1:3101";
 export const SSE_CONNECT_TIMEOUT_MS = 3000;
@@ -116,7 +115,6 @@ export async function callToolAndParse(
 ): Promise<McpPayload> {
   const response = await client.callTool(
     { name: toolName, arguments: args },
-    undefined,
     { timeout: timeoutMs }
   );
 
@@ -152,7 +150,6 @@ export async function callToolRaw(
 }> {
   const response = await client.callTool(
     { name: toolName, arguments: args },
-    undefined,
     { timeout: timeoutMs }
   );
   return response as {

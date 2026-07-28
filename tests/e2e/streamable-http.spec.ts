@@ -6,8 +6,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { callToolAndParse } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });

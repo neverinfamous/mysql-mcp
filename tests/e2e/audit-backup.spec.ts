@@ -24,7 +24,7 @@ import {
   callToolAndParse,
   BACKUP_DISABLED_PATTERN,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
 import { TIMEOUTS } from "./helpers.js";

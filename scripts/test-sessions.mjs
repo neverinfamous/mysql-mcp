@@ -1,7 +1,6 @@
 import { createServer, MySQLAdapter } from '../dist/index.js';
 import http from 'http';
-import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { SSEClientTransport } from "@modelcontextprotocol/sdk/client/sse.js";
+import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
 
 async function fetchHttp(url, options = {}) {
   return new Promise((resolve, reject) => {

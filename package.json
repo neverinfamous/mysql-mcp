@@ -57,7 +57,9 @@
   },
   "packageManager": "pnpm@9.15.4",
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.29.0",
+    "@modelcontextprotocol/core": "^2.0.0",
+    "@modelcontextprotocol/node": "^2.0.0",
+    "@modelcontextprotocol/server": "^2.0.0",
     "acorn": "^8.17.0",
     "better-sqlite3": "npm:better-sqlite3-multiple-ciphers@^12.11.1",
     "isolated-vm": "7.0.0",
@@ -70,6 +72,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@modelcontextprotocol/client": "^2.0.0",
     "@playwright/test": "1.62.0",
     "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^26.1.2",
@@ -86,7 +89,6 @@
     "vitest": "^4.1.10"
   },
   "resolutions": {
-    "@modelcontextprotocol/sdk>ajv": "8.18.0",
     "@hono/node-server": "^2.0.5",
     "hono": "^4.12.25",
     "esbuild": "^0.28.1",

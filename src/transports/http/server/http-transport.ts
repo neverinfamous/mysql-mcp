@@ -3,9 +3,9 @@ import {
   type IncomingMessage,
   type ServerResponse,
 } from "node:http";
-import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
-import type { SSEServerTransport } from "@modelcontextprotocol/sdk/server/sse.js";
-import type { Transport } from "@modelcontextprotocol/sdk/shared/transport.js";
+import type { Transport } from "@modelcontextprotocol/server";
+
+import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { validateAuth, formatOAuthError } from "../../../auth/middleware.js";
 import type { AuthenticatedContext } from "../../../auth/middleware.js";
 import { logger } from "../../../utils/logger.js";
@@ -29,15 +29,13 @@ import {
 import { metrics } from "../../../observability/metrics.js";
 
 import { handleStreamableRequest, handleStatelessRequest } from "./streamable.js";
-import { handleLegacySSERequest, handleLegacyMessageRequest } from "./sse.js";
+
 import { isPublicPath } from "./utils.js";
 
 /**
  * HTTP Transport for MCP
  *
- * Supports two transport protocols simultaneously:
- * 1. Streamable HTTP (2025-03-26) via `/mcp` — preferred for modern clients
- * 2. Legacy SSE (2024-11-05) via `/sse` + `/messages` — backward compatibility
+ * Uses the Streamable HTTP transport (2025-03-26) via `/mcp`.
  */
 export class HttpTransport {
   private server: ReturnType<typeof createServer> | null = null;
@@ -350,28 +348,7 @@ export class HttpTransport {
       return;
     }
 
-    // =========================================================================
-    // Legacy SSE Transport (Protocol 2024-11-05)
-    // =========================================================================
-    if (url.pathname === "/sse") {
-      if (this.config.stateless) {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Not found" }));
-        return;
-      }
-      await handleLegacySSERequest(req, res, this.sessionManager, this.onConnect);
-      return;
-    }
 
-    if (url.pathname === "/messages") {
-      if (this.config.stateless) {
-        res.writeHead(404, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ error: "Not found" }));
-        return;
-      }
-      await handleLegacyMessageRequest(req, res, url, this.sessionManager, authContext);
-      return;
-    }
 
     res.writeHead(404);
     res.end(JSON.stringify({ error: "Not found" }));
@@ -384,12 +361,7 @@ export class HttpTransport {
   /**
    * Get all active transports (for testing/introspection)
    */
-  getTransports(): Map<
-    string,
-    StreamableHTTPServerTransport | 
-    // eslint-disable-next-line @typescript-eslint/no-deprecated
-    SSEServerTransport
-  > {
+  getTransports(): Map<string, NodeStreamableHTTPServerTransport> {
     return this.sessionManager.getTransports();
   }
 }

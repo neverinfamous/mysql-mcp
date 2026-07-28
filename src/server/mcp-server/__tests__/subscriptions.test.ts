@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setupSubscriptions } from "../subscriptions.js";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { McpError, SubscribeRequestSchema, UnsubscribeRequestSchema } from "@modelcontextprotocol/sdk/types.js";
+
+import { McpServer, ProtocolError } from "@modelcontextprotocol/server";
 import { SubscriptionManager } from "../../subscription-manager.js";
 
 describe("setupSubscriptions", () => {
@@ -21,12 +21,12 @@ describe("setupSubscriptions", () => {
     setupSubscriptions(mcpServer, subscriptionManager);
 
     expect(mcpServer.server.setRequestHandler).toHaveBeenCalledWith(
-      SubscribeRequestSchema,
+      "resources/subscribe",
       expect.any(Function)
     );
     
     expect(mcpServer.server.setRequestHandler).toHaveBeenCalledWith(
-      UnsubscribeRequestSchema,
+      "resources/unsubscribe",
       expect.any(Function)
     );
   });
@@ -37,7 +37,7 @@ describe("setupSubscriptions", () => {
     beforeEach(() => {
       setupSubscriptions(mcpServer, subscriptionManager);
       const subscribeCall = (mcpServer.server.setRequestHandler as Record<string, unknown>).mock.calls.find(
-        (call: any) => call[0] === SubscribeRequestSchema
+        (call: any) => call[0] === "resources/subscribe"
       );
       subscribeHandler = subscribeCall[1];
     });
@@ -72,7 +72,7 @@ describe("setupSubscriptions", () => {
         const request = { params: { uri } };
         const extra = { sessionId: "sess-123" };
         
-        expect(() => subscribeHandler(request, extra)).toThrow(McpError);
+        expect(() => subscribeHandler(request, extra)).toThrow(ProtocolError);
         expect(() => subscribeHandler(request, extra)).toThrowError(
           `Resource ${uri} is not subscribable`
         );
@@ -82,7 +82,7 @@ describe("setupSubscriptions", () => {
 
     it("should fallback to header session ID if extra.sessionId is missing", () => {
       const request = { params: { uri: "mysql://schema" } };
-      const extra = { requestInfo: { headers: { "mcp-session-id": "sess-header" } } };
+      const extra = { http: { req: { headers: { get: (name: string) => name === "mcp-session-id" ? "sess-header" : null } } } };
       
       subscribeHandler(request, extra);
       expect(subscriptionManager.subscribe).toHaveBeenCalledWith("mysql://schema", "sess-header");
@@ -103,7 +103,7 @@ describe("setupSubscriptions", () => {
     beforeEach(() => {
       setupSubscriptions(mcpServer, subscriptionManager);
       const unsubscribeCall = (mcpServer.server.setRequestHandler as Record<string, unknown>).mock.calls.find(
-        (call: any) => call[0] === UnsubscribeRequestSchema
+        (call: any) => call[0] === "resources/unsubscribe"
       );
       unsubscribeHandler = unsubscribeCall[1];
     });
@@ -119,7 +119,7 @@ describe("setupSubscriptions", () => {
 
     it("should fallback to header session ID if extra.sessionId is missing", () => {
       const request = { params: { uri: "mysql://schema" } };
-      const extra = { requestInfo: { headers: { "mcp-session-id": "sess-header" } } };
+      const extra = { http: { req: { headers: { get: (name: string) => name === "mcp-session-id" ? "sess-header" : null } } } };
       
       unsubscribeHandler(request, extra);
       expect(subscriptionManager.unsubscribe).toHaveBeenCalledWith("mysql://schema", "sess-header");

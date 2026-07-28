@@ -13,7 +13,7 @@ import {
   expectSuccess,
   expectHandlerError,
 } from "./helpers.js";
-import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import type { Client } from "@modelcontextprotocol/client";
 
 // Force sequential execution
 import { TIMEOUTS } from "./helpers.js";

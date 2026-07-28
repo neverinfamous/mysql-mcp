@@ -3,18 +3,18 @@ import { SessionManager } from "../session-manager.js";
 import {
   SESSION_IDLE_TIMEOUT_MS,
 } from "../types.js";
-import type { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/streamableHttp.js";
+import type { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 
 describe("SessionManager", () => {
   let sessionManager: SessionManager;
-  let mockTransport: StreamableHTTPServerTransport;
+  let mockTransport: NodeStreamableHTTPServerTransport;
 
   beforeEach(() => {
     vi.useFakeTimers();
     sessionManager = new SessionManager();
     mockTransport = {
       close: vi.fn().mockResolvedValue(undefined),
-    } as unknown as StreamableHTTPServerTransport;
+    } as unknown as NodeStreamableHTTPServerTransport;
   });
 
   afterEach(() => {
@@ -84,7 +84,7 @@ describe("SessionManager", () => {
     it("should close all sessions", async () => {
       const mockTransport2 = {
         close: vi.fn().mockResolvedValue(undefined),
-      } as unknown as StreamableHTTPServerTransport;
+      } as unknown as NodeStreamableHTTPServerTransport;
 
       sessionManager.register("test-1", mockTransport);
       sessionManager.register("test-2", mockTransport2);

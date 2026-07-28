@@ -1,6 +1,5 @@
-import type { McpServer as SdkMcpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { ResourceTemplate } from "@modelcontextprotocol/sdk/server/mcp.js";
-import type { Variables } from "@modelcontextprotocol/sdk/shared/uriTemplate.js";
+import { ResourceTemplate } from "@modelcontextprotocol/server";
+import type { McpServer as SdkMcpServer, Variables } from "@modelcontextprotocol/server";
 import type { McpServer } from "./mcp-server.js";
 import { HELP_CONTENT } from "../../constants/server-instructions.js";
 import { TOOL_GROUPS } from "../../filtering/tool-constants.js";

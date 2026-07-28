@@ -16,7 +16,10 @@ export default defineConfig({
   target: "es2022",
   external: [
     "mysql2",
-    "@modelcontextprotocol/sdk",
+    "@modelcontextprotocol/server",
+    "@modelcontextprotocol/core",
+    "@modelcontextprotocol/node",
+    "@modelcontextprotocol/server-legacy",
     "zod",
     "jose",
     "isolated-vm",

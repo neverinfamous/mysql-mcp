@@ -7,8 +7,7 @@
  * MCP Spec Reference:
  * https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/logging
  */
-
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import type { McpServer } from "@modelcontextprotocol/server";
 
 /**
  * MCP log levels as defined in the specification
@@ -110,6 +109,7 @@ class McpLogger {
 
     try {
       // Use the SDK's sendLoggingMessage method
+      // eslint-disable-next-line @typescript-eslint/no-deprecated
       void this.server.sendLoggingMessage({
         level,
         logger: this.loggerName,
