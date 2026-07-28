@@ -246,7 +246,7 @@ export function createSysWaitSummaryTool(
           case "global":
             query = `
                         SELECT
-                            events,
+                            events AS event,
                             total,
                             total_latency,
                             avg_latency
