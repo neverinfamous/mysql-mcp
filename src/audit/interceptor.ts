@@ -64,6 +64,30 @@ function scopeToCategory(scope: string): AuditCategory {
 }
 
 /**
+ * Heuristic fallback for unhandled error categorization.
+ * Ensures metrics never report 'unknown' categories for tool errors.
+ */
+function heuristicCategorize(errorMsg: string): { type: string; category: string } {
+  const lower = errorMsg.toLowerCase();
+  if (lower.includes("invalid parameters") || lower.includes("validation") || lower.includes("zoderror")) {
+    return { type: "VALIDATION_ERROR", category: "validation" };
+  }
+  if (lower.includes("syntax")) {
+    return { type: "SYNTAX_ERROR", category: "query" };
+  }
+  if (lower.includes("denied") || lower.includes("privilege")) {
+    return { type: "PERMISSION_DENIED", category: "permission" };
+  }
+  if (lower.includes("timeout") || lower.includes("connect")) {
+    return { type: "CONNECTION_ERROR", category: "connection" };
+  }
+  if (lower.includes("not found") || lower.includes("doesn't exist") || lower.includes("does not exist")) {
+    return { type: "OBJECT_NOT_FOUND", category: "resource" };
+  }
+  return { type: "TOOL_ERROR", category: "internal" };
+}
+
+/**
  * Create an audit interceptor bound to the given logger.
  *
  * @param auditLogger  The JSONL audit logger
@@ -151,14 +175,11 @@ export function createAuditInterceptor(
             errorType = match?.code;
             errorCategory = match?.category;
             
-            // Heuristic fallback if findSuggestion misses but we know it's a Zod/validation error
-            if (!errorType) {
-              if (error.includes("Invalid parameters") || error.includes("validation") || error.includes("ZodError")) {
-                errorType = "VALIDATION_ERROR";
-                errorCategory = "validation";
-              } else {
-                errorType = "TOOL_ERROR";
-              }
+            // Heuristic fallback if findSuggestion misses
+            if (!errorType || !errorCategory) {
+              const fallback = heuristicCategorize(error);
+              errorType = errorType ?? fallback.type;
+              errorCategory = errorCategory ?? fallback.category;
             }
           }
           // Legacy check in case we ever wrap the handler directly again
@@ -167,8 +188,13 @@ export function createAuditInterceptor(
             if ("error" in result) {
               error = typeof result.error === "string" ? result.error : String(result.error);
               const match = findSuggestion(error);
-              errorType = match?.code ?? "TOOL_ERROR";
+              errorType = match?.code;
               errorCategory = match?.category;
+              if (!errorType || !errorCategory) {
+                const fallback = heuristicCategorize(error);
+                errorType = errorType ?? fallback.type;
+                errorCategory = errorCategory ?? fallback.category;
+              }
             }
           }
         }
@@ -193,15 +219,18 @@ export function createAuditInterceptor(
         error = err instanceof Error ? err.message : String(err);
 
         const match = findSuggestion(error);
-        if (match?.code != null) {
-          errorType = match.code;
-          errorCategory = match.category;
-        } else if (err instanceof Error && err.name === "ZodError") {
-          errorType = "VALIDATION_ERROR";
-          errorCategory = "validation";
-        } else {
-          errorType = "INTERNAL_ERROR";
-          errorCategory = "internal";
+        errorType = match?.code;
+        errorCategory = match?.category;
+        
+        if (!errorType || !errorCategory) {
+          if (err instanceof Error && err.name === "ZodError") {
+            errorType = "VALIDATION_ERROR";
+            errorCategory = "validation";
+          } else {
+            const fallback = heuristicCategorize(error);
+            errorType = errorType ?? fallback.type;
+            errorCategory = errorCategory ?? fallback.category;
+          }
         }
 
         // Match mcp-registry.ts raw exception fallback token calculation

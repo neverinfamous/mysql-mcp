@@ -232,24 +232,28 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "The referenced row does not exist. Ensure the parent record exists before inserting.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Cannot delete or update a parent row: a foreign key constraint/i,
     suggestion:
       "Child rows reference this record. Delete or update child rows first, or use CASCADE.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Column .* cannot be null/i,
     suggestion:
       "A required column is missing a value. Provide a value or set a DEFAULT.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Check constraint .* is violated/i,
     suggestion:
       "The value does not meet the column's check constraint requirements.",
     category: ErrorCategory.QUERY,
+    code: "CONSTRAINT_ERROR",
   },
   {
     pattern: /Deadlock found when trying to get lock/i,
@@ -376,6 +380,7 @@ const ERROR_SUGGESTIONS: {
     suggestion:
       "Check for blocked patterns: require(), process., eval(), Function(), import(). Use mysql.* API instead.",
     category: ErrorCategory.VALIDATION,
+    code: "SANDBOX_VALIDATION_ERROR",
   },
   {
     pattern: /rate limit exceeded/i,
@@ -395,6 +400,7 @@ const ERROR_SUGGESTIONS: {
     pattern: /sandbox.*not initialized/i,
     suggestion: "Internal sandbox error. Retry the operation.",
     category: ErrorCategory.INTERNAL,
+    code: "SANDBOX_ERROR",
   },
 ];
 
