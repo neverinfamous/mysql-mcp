@@ -9,6 +9,7 @@
 import type { SystemDb } from "./system-db.js";
 import { logger } from "../utils/logger.js";
 import type { PoolStats } from "../types/modules/database.js";
+import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 
 const MAX_SAMPLES = 1000;
 
@@ -231,6 +232,13 @@ export class MetricsRegistry {
     ];
     for (const uri of knownResources) {
       this.resources.set(uri, new ResourceMetric());
+    }
+
+    // Pre-register all known tools so they emit 0 on startup.
+    // Required for Datadog's monotonic_diff to calculate the first increment (0 -> 1).
+    const knownTools = Object.values(TOOL_GROUPS).flat();
+    for (const toolName of knownTools) {
+      this.tools.set(toolName, new ToolMetric());
     }
   }
 
