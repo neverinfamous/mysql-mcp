@@ -118,8 +118,9 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
           const response = { success: true as const, data: { status } };
           return withTokenEstimate(response);
         }
-      } catch (e: any) {
-        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || String(e.message).toLowerCase().includes("syntax")) {
+      } catch (error) {
+        const e = error as { code?: string; errno?: number; message?: string };
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || e.message?.toLowerCase().includes("syntax")) {
           try {
             const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
             const status = result.rows?.[0];
@@ -127,10 +128,11 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
               const response = { success: true as const, data: { status } };
               return withTokenEstimate(response);
             }
-          } catch (e2: any) {
+          } catch (error2) {
+            const e2 = error2 as { message?: string };
             return formatHandlerErrorResponse(
               new MySQLMcpError(
-                `Failed to retrieve slave status: ${e2.message || String(e2)}`,
+                `Failed to retrieve slave status: ${e2.message || String(error2)}`,
                 "QUERY_ERROR",
                 ErrorCategory.QUERY
               )
@@ -139,7 +141,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         } else {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              `Failed to retrieve replica status: ${e.message || String(e)}`,
+              `Failed to retrieve replica status: ${e.message || String(error)}`,
               "QUERY_ERROR",
               ErrorCategory.QUERY
             )
@@ -358,8 +360,9 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
           };
           return withTokenEstimate(response);
         }
-      } catch (e: any) {
-        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || String(e.message).toLowerCase().includes("syntax")) {
+      } catch (error) {
+        const e = error as { code?: string; errno?: number; message?: string };
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || e.message?.toLowerCase().includes("syntax")) {
           try {
             const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
             const status = result.rows?.[0];
@@ -379,10 +382,11 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
               };
               return withTokenEstimate(response);
             }
-          } catch (e2: any) {
+          } catch (error2) {
+            const e2 = error2 as { message?: string };
             return formatHandlerErrorResponse(
               new MySQLMcpError(
-                `Failed to retrieve slave status: ${e2.message || String(e2)}`,
+                `Failed to retrieve slave status: ${e2.message || String(error2)}`,
                 "QUERY_ERROR",
                 ErrorCategory.QUERY
               )
@@ -391,7 +395,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         } else {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              `Failed to retrieve replica status: ${e.message || String(e)}`,
+              `Failed to retrieve replica status: ${e.message || String(error)}`,
               "QUERY_ERROR",
               ErrorCategory.QUERY
             )
