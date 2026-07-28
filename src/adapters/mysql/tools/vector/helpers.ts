@@ -99,7 +99,17 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
     throw new ValidationError(`Table '${sanitizedTable}' does not exist or has no columns.`);
   }
 
-  if (providedColumn) return providedColumn;
+  if (providedColumn) {
+    const colInfo = pkResult.rows.find(row => row['Field'] === providedColumn);
+    if (!colInfo) {
+      throw new ValidationError(`Column '${providedColumn}' does not exist in table '${sanitizedTable}'.`);
+    }
+    const type = colInfo['Type'];
+    if (typeof type !== 'string' || !type.toLowerCase().startsWith('vector')) {
+      throw new ValidationError(`Column '${providedColumn}' is not a VECTOR column (found type: ${String(type)}).`);
+    }
+    return providedColumn;
+  }
 
   const vectorColumn = pkResult.rows.find(row => 
     row['Type'] === 'vector' || (typeof row['Type'] === 'string' && row['Type'].toLowerCase().startsWith('vector'))
