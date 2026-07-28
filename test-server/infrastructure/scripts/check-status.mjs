@@ -400,7 +400,7 @@ if (ddHealth !== null) {
 console.log('\n7. MCP Server Metrics (optional):');
 console.log('----------------------------------------');
 
-const mcpMetrics = dockerExec('datadog-unified', ['wget', '-qO-', '--connect-timeout=5', 'http://host.docker.internal:3000/metrics'], true);
+const mcpMetrics = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://host.docker.internal:3000/metrics'], true);
 if (mcpMetrics && mcpMetrics.includes('mysql_mcp_')) {
     // Count unique metric families
     const metricFamilies = new Set(
