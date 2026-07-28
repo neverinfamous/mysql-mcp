@@ -62,15 +62,15 @@ export type ProxySQLHostgroup = z.infer<typeof ProxySQLHostgroupSchema>;
 export const ProxySQLQueryRuleSchema = z.object({
   rule_id: z.coerce.number(),
   active: z.coerce.number().optional(),
-  username: z.string().optional(),
-  schemaname: z.string().optional(),
-  match_digest: z.string().optional(),
-  match_pattern: z.string().optional(),
+  username: z.string().nullable().optional(),
+  schemaname: z.string().nullable().optional(),
+  match_digest: z.string().nullable().optional(),
+  match_pattern: z.string().nullable().optional(),
   destination_hostgroup: z.coerce.number().optional(),
   cache_ttl: z.coerce.number().optional(),
   multiplex: z.coerce.number().optional(),
   flagOUT: z.coerce.number().optional(),
-  comment: z.string().optional(),
+  comment: z.string().nullable().optional(),
 }).loose();
 
 export type ProxySQLQueryRule = z.infer<typeof ProxySQLQueryRuleSchema>;
@@ -167,7 +167,7 @@ export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
   user: z.string().optional().describe("Alias for username"),
   name: z.string().optional().describe("Alias for username"),
-}).passthrough();
+}).loose();
 
 export const ProxySQLUsersInputSchema = z.preprocess(
   (val: unknown) => {
@@ -202,7 +202,7 @@ export const ProxySQLStatusInputSchemaBase = z.object({
     ),
   database: z.union([z.boolean(), z.string()]).optional().describe("Alias for summary"),
   table: z.union([z.boolean(), z.string()]).optional().describe("Alias for summary"),
-}).passthrough();
+}).loose();
 
 export const ProxySQLStatusInputSchema = z.preprocess(
   (val: unknown) => {
@@ -246,7 +246,7 @@ export const ProxySQLLimitInputSchemaBase = z.object({
     .optional()
     .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
   count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-}).passthrough();
+}).loose();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
   (val: unknown) => {
@@ -279,7 +279,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 export const ProxySQLHostgroupInputSchemaBase = z.object({
   hostgroup_id: z.union([z.number(), z.string()]).optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
   hostgroup: z.union([z.number(), z.string()]).optional().describe("Alias for hostgroup ID"),
-}).passthrough();
+}).loose();
 
 export const ProxySQLHostgroupInputSchema = z.preprocess(
   (val: unknown) => {
@@ -305,7 +305,7 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
       .nonnegative()
       .optional()
       .describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
-  }).passthrough()
+  }).loose()
 );
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
@@ -326,7 +326,7 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
   pattern: z.string().optional().describe("Alias for like"),
   search: z.string().optional().describe("Alias for like"),
   name: z.string().optional().describe("Alias for like"),
-}).passthrough();
+}).loose();
 
 export const ProxySQLVariableFilterSchema = z.preprocess(
   (val: unknown) => {
@@ -393,7 +393,7 @@ export const ProxySQLCommandInputSchemaBase = z.object({
     .describe("ProxySQL admin command to execute. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
   sql: z.string().optional().describe("Alias for command"),
   query: z.string().optional().describe("Alias for command"),
-}).passthrough();
+}).loose();
 
 export const ProxySQLCommandInputSchema = z.preprocess(
   (val: unknown) => {
