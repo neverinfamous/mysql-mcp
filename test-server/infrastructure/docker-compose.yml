@@ -375,6 +375,7 @@ services:
     container_name: datadog-unified
     restart: unless-stopped
     pid: host
+    cgroup: host
     # Note: cgroupns_mode: host is a Docker Engine runtime property for accurate
     # cgroup metrics but is not recognized by Docker Compose v5+ schema validation.
     # If needed, set "default-cgroupns-mode": "host" in /etc/docker/daemon.json instead.

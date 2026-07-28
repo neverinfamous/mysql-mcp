@@ -9,9 +9,8 @@ const __dirname = dirname(__filename);
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
 
-const isWindows = process.platform === 'win32';
-const dockerExe = isWindows ? 'wsl' : 'docker';
-const dockerBaseArgs = isWindows ? ['docker'] : [];
+const dockerExe = 'docker';
+const dockerBaseArgs = [];
 
 let cluster = args.includes('--Cluster') || args.includes('--cluster');
 

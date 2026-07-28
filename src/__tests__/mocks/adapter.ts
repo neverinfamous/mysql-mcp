@@ -138,7 +138,8 @@ export class MockMySQLAdapter extends MySQLAdapter {
     getConnection: vi.fn().mockResolvedValue({
       query: vi.fn().mockImplementation(async (...args: unknown[]) => {
         const sql = typeof args[0] === "string" ? args[0] : (args[0] && typeof args[0] === "object" && "sql" in args[0] ? String(Reflect.get(args[0], "sql")) : "");
-        if (sql.trim().toUpperCase().startsWith("SET")) {
+        const upperSql = sql.trim().toUpperCase();
+        if (upperSql.startsWith("SET") || upperSql.startsWith("START TRANSACTION") || upperSql.startsWith("COMMIT") || upperSql.startsWith("ROLLBACK")) {
           const res = await this.executeQuery(sql);
           return [res.rows ?? [], []];
         }

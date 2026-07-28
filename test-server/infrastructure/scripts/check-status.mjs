@@ -20,13 +20,12 @@ const execCommand = (cmd, args, ignoreError = false) => {
 
 
 // Dynamically discover expected containers from docker-compose.yml
-const isWindows = process.platform === 'win32';
-const dockerCmd = isWindows ? 'wsl' : 'docker';
-const dockerArgs = isWindows ? ['docker', 'compose'] : ['compose'];
+const dockerCmd = 'docker';
+const dockerArgs = ['compose'];
 
 let servicesRaw = execCommand(dockerCmd, [...dockerArgs, 'config', '--services'], true);
 if (!servicesRaw) {
-    servicesRaw = execCommand(isWindows ? 'wsl' : 'docker-compose', isWindows ? ['docker-compose', 'config', '--services'] : ['config', '--services'], true);
+    servicesRaw = execCommand('docker-compose', ['config', '--services'], true);
 }
 
 let containers = [];
@@ -65,18 +64,14 @@ if (servicesRaw) {
 
 // Helper: run a command inside a Docker container
 const dockerExec = (container, cmdArgs, ignoreError = true) => {
-    const args = isWindows
-        ? ['docker', 'exec', container, ...cmdArgs]
-        : ['exec', container, ...cmdArgs];
+    const args = ['exec', container, ...cmdArgs];
     return execCommand(dockerCmd, args, ignoreError);
 };
 
 // Helper: run a command inside a Docker container with env vars
 const dockerExecEnv = (container, envPairs, cmdArgs, ignoreError = true) => {
     const envArgs = envPairs.flatMap(pair => ['-e', pair]);
-    const args = isWindows
-        ? ['docker', 'exec', ...envArgs, container, ...cmdArgs]
-        : ['exec', ...envArgs, container, ...cmdArgs];
+    const args = ['exec', ...envArgs, container, ...cmdArgs];
     return execCommand(dockerCmd, args, ignoreError);
 };
 
@@ -90,7 +85,7 @@ let allUp = true;
 console.log(`1. Container Status (${containers.length} services):`);
 console.log('----------------------------------------');
 
-const psOutput = execCommand(dockerCmd, isWindows ? ['docker', 'ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'], false);
+const psOutput = execCommand(dockerCmd, ['ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'], false);
 if (!psOutput) {
     console.error(`Error: Failed to execute docker ps. Docker daemon might not be running.`);
     process.exit(1);

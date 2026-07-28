@@ -349,7 +349,7 @@ describe("Shell Backup Tools", () => {
       expect(jsArg).toContain(
         `util.dumpTables("db1", ["t1"], "${expectedPath}"`,
       );
-      expect(jsArg).toContain('where: { "t1": "id > 100" }');
+      expect(jsArg).toContain('where: { "db1.t1": "id > 100" }');
     });
 
     it("should support compression option", async () => {

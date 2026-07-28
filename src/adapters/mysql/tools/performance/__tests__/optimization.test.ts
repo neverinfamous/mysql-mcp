@@ -270,8 +270,7 @@ describe("Performance Optimization Tools", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
-        1,
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         'SET optimizer_trace="enabled=on"',
       );
       expect(mockAdapter.executeReadQuery).toHaveBeenNthCalledWith(
@@ -282,8 +281,7 @@ describe("Performance Optimization Tools", () => {
         2,
         "SELECT * FROM information_schema.OPTIMIZER_TRACE",
       );
-      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
-        2,
+      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
         'SET optimizer_trace="enabled=off"',
       );
 

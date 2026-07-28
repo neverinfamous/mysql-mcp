@@ -21,6 +21,7 @@ vi.mock("fs", async () => {
     ...actual,
     promises: {
       ...actual.promises,
+      access: vi.fn().mockResolvedValue(undefined),
       mkdtemp: vi.fn().mockResolvedValue("/tmp/mysqlsh_script_abc123"),
       writeFile: vi.fn().mockResolvedValue(undefined),
       rm: vi.fn().mockResolvedValue(undefined),

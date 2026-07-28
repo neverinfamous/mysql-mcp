@@ -25,20 +25,16 @@ const REPO_ROOT = join(__dirname, '..');
 const MAX_RETRIES = 60;
 const RETRY_DELAY_MS = 2000;
 
-const isWindows = process.platform === 'win32';
-const wsl = (cmd) => isWindows && cmd.startsWith('docker') ? `wsl ${cmd}` : cmd;
-
 // ── Helpers ──────────────────────────────────────────────────────────
 
 function run(command) {
-    const cmd = wsl(command);
-    console.log(`\n> ${cmd}`);
-    execSync(cmd, { stdio: 'inherit', cwd: REPO_ROOT, env: process.env });
+    console.log(`\n> ${command}`);
+    execSync(command, { stdio: 'inherit', cwd: REPO_ROOT, env: process.env });
 }
 
 function runQuiet(command) {
     try {
-        return execSync(wsl(command), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe', env: process.env }).trim();
+        return execSync(command, { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe', env: process.env }).trim();
     } catch {
         return '';
     }
@@ -46,7 +42,7 @@ function runQuiet(command) {
 
 function exec(cmd, ignoreError = false) {
     try {
-        return execSync(wsl(cmd), { encoding: 'utf-8', stdio: 'pipe', env: process.env });
+        return execSync(cmd, { encoding: 'utf-8', stdio: 'pipe', env: process.env });
     } catch (e) {
         if (!ignoreError) {
             console.error(`Error: ${e.message}`);
@@ -82,7 +78,7 @@ console.log('=== Recreating Unified Database Ecosystem ===');
 
 let servicesRaw;
 try {
-    servicesRaw = execSync(wsl('docker compose config --services'), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
+    servicesRaw = execSync('docker compose config --services', { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
 } catch (e) {
     // docker compose may exit non-zero for schema validation warnings (e.g., cgroupns_mode)
     // but still produce valid stdout — try to recover it
