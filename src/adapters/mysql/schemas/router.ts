@@ -133,16 +133,26 @@ export const RouteNameInputSchema = z.preprocess(
   (data: unknown) => {
     if (typeof data !== "object" || data === null) return data;
     const obj = data as Record<string, unknown>;
-    return {
-      ...obj,
-      routeName: obj["routeName"] !== undefined ? obj["routeName"] : 
+    let finalName = obj["routeName"] !== undefined ? obj["routeName"] : 
                  (obj["route"] !== undefined ? obj["route"] : 
                   (obj["route_name"] !== undefined ? obj["route_name"] : 
                    (obj["name"] !== undefined ? obj["name"] : 
                     (obj["routename"] !== undefined ? obj["routename"] : 
                      (obj["routerName"] !== undefined ? obj["routerName"] : 
                       (obj["clusterName"] !== undefined ? obj["clusterName"] : 
-                       (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))))),
+                       (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"])))))));
+    
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    }
+    
+    return {
+      ...obj,
+      routeName: finalName,
     };
   },
   RouteNameInputSchemaBase
@@ -171,15 +181,25 @@ export const MetadataNameInputSchema = z.preprocess(
   (data: unknown) => {
     if (typeof data !== "object" || data === null) return data;
     const obj = data as Record<string, unknown>;
-    return {
-      ...obj,
-      metadataName: obj["metadataName"] !== undefined ? obj["metadataName"] : 
+    let finalName = obj["metadataName"] !== undefined ? obj["metadataName"] : 
                     (obj["metadata"] !== undefined ? obj["metadata"] : 
                      (obj["metadata_name"] !== undefined ? obj["metadata_name"] : 
                       (obj["name"] !== undefined ? obj["name"] : 
                        (obj["metadataname"] !== undefined ? obj["metadataname"] : 
                         (obj["clusterName"] !== undefined ? obj["clusterName"] : 
-                         (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"])))))),
+                         (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))));
+                         
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    }
+    
+    return {
+      ...obj,
+      metadataName: finalName,
     };
   },
   MetadataNameInputSchemaBase
@@ -205,15 +225,25 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
   (data: unknown) => {
     if (typeof data !== "object" || data === null) return data;
     const obj = data as Record<string, unknown>;
-    return {
-      ...obj,
-      poolName: obj["poolName"] !== undefined ? obj["poolName"] : 
+    let finalName = obj["poolName"] !== undefined ? obj["poolName"] : 
                 (obj["pool"] !== undefined ? obj["pool"] : 
                  (obj["pool_name"] !== undefined ? obj["pool_name"] : 
                   (obj["name"] !== undefined ? obj["name"] : 
                    (obj["poolname"] !== undefined ? obj["poolname"] : 
                     (obj["clusterName"] !== undefined ? obj["clusterName"] : 
-                     (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"])))))),
+                     (obj["cluster_name"] !== undefined ? obj["cluster_name"] : obj["id"]))))));
+                     
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    }
+    
+    return {
+      ...obj,
+      poolName: finalName,
     };
   },
   ConnectionPoolNameInputSchemaBase
