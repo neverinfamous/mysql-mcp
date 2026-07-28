@@ -23,9 +23,9 @@ docker compose up -d
 
 | Component | Container Name | Exposes / Ports | Image |
 |---|---|---|---|
-| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.1` |
-| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.1` |
-| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.1` |
+| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307`, `33061` | `mysql:9.1` |
+| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308`, `33062` | `mysql:9.1` |
+| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309`, `33063` | `mysql:9.1` |
 | **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql` |
 | **Redis** | `redis-server` | `6379` | `redis` |

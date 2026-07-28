@@ -169,7 +169,7 @@ services:
       - "6447:6447"
       - "6448:6448"
       - "8443:8443"
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -201,7 +201,7 @@ services:
       - "6033:6033"
     volumes:
       - ./config/proxysql/proxysql.cnf:/etc/proxysql.cnf:ro
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -431,7 +431,7 @@ services:
       - ../../logs:/var/log/mysql-mcp:ro
     networks:
       - default
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 1536m
     logging:
       driver: json-file

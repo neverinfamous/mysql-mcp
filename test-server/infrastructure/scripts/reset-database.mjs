@@ -9,14 +9,18 @@ const __dirname = dirname(__filename);
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
 
-const dockerExe = 'docker';
+let dockerCmd = 'docker';
 const dockerBaseArgs = [];
+if (process.platform === 'win32') {
+    dockerCmd = 'wsl';
+    dockerBaseArgs.push('docker');
+}
 
 let cluster = args.includes('--Cluster') || args.includes('--cluster');
 
 if (!cluster) {
     try {
-        const out = execFileSync(dockerExe, [...dockerBaseArgs, 'ps', '-q', '-f', 'name=^mysql-node1$'], { encoding: 'utf-8' }).trim();
+        const out = execFileSync(dockerCmd, [...dockerBaseArgs, 'ps', '-q', '-f', 'name=^mysql-node1$'], { encoding: 'utf-8' }).trim();
         if (out) cluster = true;
     } catch (e) {
         // Suppress expected error if container doesn't exist, fallback to standalone
@@ -50,7 +54,7 @@ function invokeMySql(query, noDatabase = false) {
         : [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', '-e', query];
         
     try {
-        const result = execFileSync(dockerExe, args, { encoding: 'utf-8', stdio: 'pipe' });
+        const result = execFileSync(dockerCmd, args, { encoding: 'utf-8', stdio: 'pipe' });
         return result;
     } catch (e) {
         throw new Error(`Docker exec failed: ${e.message}`);
@@ -62,7 +66,7 @@ function invokeMySqlFile(filePath) {
     try {
         invokeMySql(`CREATE DATABASE IF NOT EXISTS ${mysqlDatabase};`, true);
         const fileContent = readFileSync(filePath);
-        execFileSync(dockerExe, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, encoding: 'utf-8', stdio: 'pipe' });
+        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, encoding: 'utf-8', stdio: 'pipe' });
     } catch (e) {
         throw new Error(`Failed to execute seed file: ${e.message}`);
     }
@@ -111,7 +115,7 @@ if (!skipVerify) {
     let allPassed = true;
     for (const [table, expected] of Object.entries(expectedTables)) {
         try {
-            const result = execFileSync(dockerExe, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
+            const result = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
             const countStr = result.match(/\d+/);
             const count = countStr ? parseInt(countStr[0], 10) : 0;
             
