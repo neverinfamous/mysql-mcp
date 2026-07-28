@@ -77,8 +77,8 @@ export type ProxySQLQueryRule = z.infer<typeof ProxySQLQueryRuleSchema>;
 
 export const ProxySQLQueryDigestSchema = z.object({
   hostgroup: z.coerce.number(),
-  schemaname: z.string(),
-  username: z.string(),
+  schemaname: z.string().nullable().optional(),
+  username: z.string().nullable().optional(),
   digest: z.string(),
   digest_text: z.string(),
   count_star: z.coerce.number(),
@@ -161,7 +161,7 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 // Tool Input Schemas
 // =============================================================================
 
-export const ProxySQLBaseInputSchema = z.object({}).strict();
+export const ProxySQLBaseInputSchema = z.object({}).loose();
 
 export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
