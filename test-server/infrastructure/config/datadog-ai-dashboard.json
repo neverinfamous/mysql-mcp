@@ -354,7 +354,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Top Tools By Tokens",
         "title_align": "left",
         "title_size": "16",
@@ -423,7 +422,8 @@
         ],
         "grouping": "cluster",
         "tags": [],
-        "title": "ProxySQL monitored instances status",
+        "time": {},
+        "title": "ProxySQL Monitored Instances Status",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
@@ -534,7 +534,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL Connections Currently Used Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -616,7 +615,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL Bytes Received And Sent Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -644,7 +642,8 @@
         "group_by": [],
         "grouping": "cluster",
         "tags": [],
-        "title": "ProxySQL backends status",
+        "time": {},
+        "title": "ProxySQL Backends Status",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
@@ -744,7 +743,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
         "title_align": "left",
         "title_size": "16",
@@ -804,7 +802,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL Memory Usage Of Query Cache",
         "title_align": "left",
         "title_size": "16",
@@ -864,7 +861,6 @@
           }
         ],
         "show_legend": false,
-        "time": {},
         "title": "ProxySQL Cache Read Throughput",
         "title_align": "left",
         "title_size": "16",
@@ -1405,15 +1401,13 @@
     },
     {
       "definition": {
+        "has_search_bar": "auto",
         "requests": [
           {
             "formulas": [
               {
-                "formula": "query1",
-                "limit": {
-                  "count": 10,
-                  "order": "desc"
-                }
+                "cell_display_mode": "bar",
+                "formula": "query1"
               }
             ],
             "queries": [
@@ -1424,13 +1418,24 @@
                 "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
               }
             ],
-            "response_format": "scalar"
+            "response_format": "scalar",
+            "sort": {
+              "count": 10,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
           }
         ],
+        "time": {},
         "title": "Errors by Category",
         "title_align": "left",
         "title_size": "16",
-        "type": "toplist"
+        "type": "query_table"
       },
       "id": 203565609753300,
       "layout": {
@@ -1480,42 +1485,6 @@
         "width": 6,
         "x": 6,
         "y": 16
-      }
-    },
-    {
-      "definition": {
-        "requests": [
-          {
-            "columns": [
-              {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
-              }
-            ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "source:mysqlrouter"
-            },
-            "response_format": "event_list"
-          }
-        ],
-        "title": "MySQL Router Logs",
-        "type": "list_stream"
-      },
-      "id": 6177864017720259,
-      "layout": {
-        "height": 4,
-        "width": 12,
-        "x": 0,
-        "y": 20
       }
     }
   ]

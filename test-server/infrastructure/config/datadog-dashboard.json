@@ -116,6 +116,52 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*} by {resource}.as_count()"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "count": 500,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "time": {},
+        "title": "Resource Reads",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 1255873323847733,
+      "layout": {
+        "height": 8,
+        "width": 4,
+        "x": 4,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "auto",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{$tool} by {tool}.as_count()"
               }
             ],
@@ -139,52 +185,6 @@
         "type": "query_table"
       },
       "id": 6809842510829163,
-      "layout": {
-        "height": 10,
-        "width": 4,
-        "x": 4,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "auto",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count()"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "count": 500,
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
-          }
-        ],
-        "time": {},
-        "title": "Top Tools By Calls",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
-      },
-      "id": 1888404469028689,
       "layout": {
         "height": 10,
         "width": 4,
@@ -565,6 +565,53 @@
             ],
             "queries": [
               {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count()"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "count": 500,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "time": {},
+        "title": "Top Tools By Calls",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 1888404469028689,
+      "layout": {
+        "height": 10,
+        "is_column_break": true,
+        "width": 4,
+        "x": 0,
+        "y": 10
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "auto",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
@@ -592,53 +639,6 @@
       "id": 1502111351131205,
       "layout": {
         "height": 10,
-        "is_column_break": true,
-        "width": 4,
-        "x": 0,
-        "y": 10
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "auto",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*} by {resource}.as_count()"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "count": 500,
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
-          }
-        ],
-        "time": {},
-        "title": "Resource Reads",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
-      },
-      "id": 1255873323847733,
-      "layout": {
-        "height": 7,
         "width": 4,
         "x": 4,
         "y": 10
