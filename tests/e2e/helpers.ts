@@ -12,7 +12,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { rm } from "node:fs/promises";
 import { expect } from "@playwright/test";
-import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
 export const BASE_URL = "http://127.0.0.1:3101";
 export const SSE_CONNECT_TIMEOUT_MS = 3000;
@@ -47,8 +47,7 @@ export const MCP_JSON_HEADERS = {
 } as const;
 
 export function getDefaultMysqlUrl(): string {
-  // Use the WSL IP directly to avoid Windows localhost binding issues
-  return process.env.MYSQL_URL || 'mysql://root:root@192.168.55.39:3307/testdb';
+  return process.env.MYSQL_URL || 'mysql://root:root@localhost:3307/testdb';
 }
 
 /**
@@ -67,12 +66,12 @@ export function auditLogPath(prefix: string, suffix: string): string {
  * @param baseURL - Server base URL. Defaults to `http://localhost:3101`.
  */
 export async function createClient(baseURL?: string): Promise<Client> {
-  const url = new URL(`${baseURL ?? BASE_URL}/sse`);
+  const url = new URL(`${baseURL ?? BASE_URL}/mcp`);
   const maxRetries = 3;
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const transport = new SSEClientTransport(url);
+      const transport = new StreamableHTTPClientTransport(url);
       const client = new Client(
         { name: "payload-test-client", version: "1.0.0" },
         { capabilities: {} },

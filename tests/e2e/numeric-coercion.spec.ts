@@ -127,11 +127,11 @@ test.describe("Numeric Coercion: Vector", () => {
 });
 
 test.describe("Numeric Coercion: Admin", () => {
-  test("terminate_backend with pid: 'abc' → structured or MCP error", async () => {
+  test("mysql_kill_query with processId: 'abc' → structured or MCP error", async () => {
     const client = await createClient();
     try {
-      const response = await callToolRaw(client, "mysql_terminate_backend", {
-        pid: "abc",
+      const response = await callToolRaw(client, "mysql_kill_query", {
+        processId: "abc",
       });
       const text = response.content[0]?.text;
       expect(text).toBeDefined();

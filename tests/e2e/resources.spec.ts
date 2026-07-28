@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { BASE_URL, expectSuccess } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
@@ -28,8 +28,8 @@ test.describe("E2E Resource Reads (via MCP SDK Client)", () => {
   let client: Client;
 
   test.beforeAll(async () => {
-    const transport = new SSEClientTransport(
-      new URL(`${BASE_URL}/sse`),
+    const transport = new StreamableHTTPClientTransport(
+      new URL(`${BASE_URL}/mcp`),
     );
     client = new Client(
       { name: "playwright-resource-test", version: "1.0.0" },

@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { setTimeout as delay } from "node:timers/promises";
-import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { randomUUID } from "node:crypto";
 import { BASE_URL } from "./helpers.js";
 
@@ -11,8 +11,8 @@ test.describe("E2E MCP Subscriptions", () => {
   let receivedNotifications: string[] = [];
 
   test.beforeAll(async () => {
-    const transport = new SSEClientTransport(
-      new URL(`${BASE_URL}/sse`),
+    const transport = new StreamableHTTPClientTransport(
+      new URL(`${BASE_URL}/mcp`),
     );
     client = new Client(
       { name: "playwright-subscription-test", version: "1.0.0" },

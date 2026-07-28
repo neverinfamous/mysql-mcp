@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { Client, SSEClientTransport } from "@modelcontextprotocol/client";
+import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 import { BASE_URL } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
@@ -8,8 +8,8 @@ test.describe("Ecosystem Tools (via MCP SDK Client)", () => {
   let client: Client;
 
   test.beforeAll(async () => {
-    const transport = new SSEClientTransport(
-      new URL(`${BASE_URL}/sse`),
+    const transport = new StreamableHTTPClientTransport(
+      new URL(`${BASE_URL}/mcp`),
     );
     client = new Client(
       { name: "playwright-ecosystem-client", version: "1.0.0" },

@@ -104,12 +104,12 @@ test.describe("Bearer Token Authentication", () => {
     expect(response.status).toBe(200);
   });
 
-  test("GET /sse without token should return 401", async () => {
+  test("GET /mcp without token should return 401", async () => {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), SSE_CONNECT_TIMEOUT_MS);
 
     try {
-      const response = await fetch(`${AUTH_BASE}/sse`, {
+      const response = await fetch(`${AUTH_BASE}/mcp`, {
         signal: controller.signal,
       });
       expect(response.status).toBe(401);
