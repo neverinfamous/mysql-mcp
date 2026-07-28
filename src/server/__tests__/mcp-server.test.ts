@@ -17,7 +17,7 @@ import { VERSION } from "../../version.js";
 import type { TransportType } from "../../types/index.js";
 
 // Mock the StdioServerTransport
-vi.mock("@modelcontextprotocol/sdk/server/stdio.js", () => ({
+vi.mock("@modelcontextprotocol/server/stdio", () => ({
   StdioServerTransport: class MockStdioTransport {},
 }));
 
@@ -46,7 +46,13 @@ vi.mock("../auth/token-validator.js", () => ({
 
 // Mock the MCP SDK server with a proper class - capture constructor args
 let lastMockMcpServerOptions: unknown = null;
-vi.mock("@modelcontextprotocol/sdk/server/mcp.js", () => ({
+vi.mock("@modelcontextprotocol/server", () => ({
+  ProtocolError: class ProtocolError extends Error {
+    constructor(public code: number, message?: string) {
+      super(message);
+    }
+  },
+  ProtocolErrorCode: { InternalError: -32603, InvalidParams: -32602, InvalidRequest: -32600, MethodNotFound: -32601, ParseError: -32700 },
   McpServer: class MockMcpServer {
     connect = vi.fn().mockResolvedValue(undefined);
     close = vi.fn().mockResolvedValue(undefined);

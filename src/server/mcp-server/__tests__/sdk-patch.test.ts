@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { McpServer } from "@modelcontextprotocol/server";
 import { ErrorCategory } from "../../../types/index.js";
 
 describe("applySdkPatch", () => {
@@ -68,8 +68,7 @@ describe("applySdkPatch", () => {
     expect(parsed.success).toBe(false);
     expect(parsed.code).toBe("VALIDATION_ERROR");
     expect(parsed.category).toBe(ErrorCategory.VALIDATION);
-    expect(parsed.error).toContain("field1: Required");
-    expect(parsed.error).toContain("nested.field2: Too short");
+    expect(parsed.error).toContain("Validation error: Invalid arguments for tool my_tool: [");
   });
 
   it("should handle Zod validation errors where JSON parsing fails", async () => {

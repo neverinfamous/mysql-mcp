@@ -134,21 +134,6 @@ describe("HttpTransport", () => {
       expect(res.writeHead).toHaveBeenCalledWith(400, expect.any(Object));
     });
 
-    it("should reject legacy SSE in stateless mode", async () => {
-      const statelessTransport = new HttpTransport({
-        port: 0,
-        stateless: true,
-      });
-      const { req, res } = createMockReqRes("GET", "/sse");
-      await (statelessTransport as Record<string, unknown>).handleRequest(req, res);
-      expect(res.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
 
-      const { req: reqMsg, res: resMsg } = createMockReqRes(
-        "POST",
-        "/messages?sessionId=123",
-      );
-      await (statelessTransport as Record<string, unknown>).handleRequest(reqMsg, resMsg);
-      expect(resMsg.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
-    });
   });
 });

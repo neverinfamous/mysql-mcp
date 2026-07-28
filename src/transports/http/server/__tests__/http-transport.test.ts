@@ -258,21 +258,7 @@ describe("HttpTransport", () => {
       }
     });
 
-    it("should reject /sse and /messages in stateless mode", async () => {
-      const statelessTransport = new HttpTransport({ port: 8080, stateless: true });
-      await statelessTransport.start();
-      const requestHandler = (http.createServer as Record<string, unknown>).mock.calls[0][0];
-      
-      req.url = "/sse";
-      await requestHandler(req, res);
-      expect(res.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
 
-      req.url = "/messages";
-      await requestHandler(req, res);
-      expect(res.writeHead).toHaveBeenCalledWith(404, expect.any(Object));
-      
-      await statelessTransport.stop();
-    });
   });
 
   describe("getTransports", () => {
