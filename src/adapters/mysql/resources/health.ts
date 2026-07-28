@@ -19,6 +19,8 @@ export function createHealthResource(
     title: "MySQL Database Health",
     description: "Comprehensive database health status",
     mimeType: "application/json",
+    ttlMs: 10000,
+    cacheScope: "public",
     annotations: {
       audience: ["user", "assistant"],
       priority: 1.0,

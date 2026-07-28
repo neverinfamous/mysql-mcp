@@ -127,6 +127,7 @@ export function registerHelpResources(server: McpServer): void {
             ),
           },
         ],
+        ...{ ttlMs: 3600000, cacheScope: "public" },
       };
     },
   );
@@ -213,6 +214,7 @@ export function registerHelpResources(server: McpServer): void {
             ),
           },
         ],
+        ...{ ttlMs: 3600000, cacheScope: "public" },
       };
     },
   );
@@ -272,6 +274,7 @@ export function registerAuditResource(server: SdkMcpServer, auditLogger: AuditLo
             text: JSON.stringify({ summary, recent }, null, 2),
           },
         ],
+        ...{ ttlMs: 0, cacheScope: "private" },
       };
     },
   );
@@ -300,6 +303,7 @@ export function registerObservabilityResource(server: SdkMcpServer): void {
             text: JSON.stringify(summary, null, 2),
           },
         ],
+        ...{ ttlMs: 0, cacheScope: "private" },
       };
     },
   );

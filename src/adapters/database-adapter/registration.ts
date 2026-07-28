@@ -222,6 +222,7 @@ export function registerResource(
       metrics.recordResourceRead(uri.toString());
       const context = adapter.createContext();
       const result = await resource.handler(uri.toString(), context);
+      
       return {
         contents: [
           {
@@ -233,6 +234,8 @@ export function registerResource(
                 : JSON.stringify(result, null, 2),
           },
         ],
+        ...(resource.ttlMs !== undefined ? { ttlMs: resource.ttlMs } : {}),
+        ...(resource.cacheScope !== undefined ? { cacheScope: resource.cacheScope } : {}),
       };
     },
   );
