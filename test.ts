@@ -1,1 +1,0 @@
-import { preprocessDocFilterParams } from 'C:/Users/chris/Desktop/mysql-mcp/src/adapters/mysql/schemas/preprocess-utils.ts'; console.log(preprocessDocFilterParams({ limit: '10', collection: 'test', filter: { _id: '123' } }));
