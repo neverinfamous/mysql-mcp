@@ -29,6 +29,7 @@ export interface ResourceMetricSummary {
 class ToolMetric {
   public calls = 0;
   public errors: Record<string, number> = {};
+  public errorCategories: Record<string, number> = {};
   public tokens = 0;
 
   // Circular buffer for latency samples
@@ -36,11 +37,13 @@ class ToolMetric {
   private sampleIndex = 0;
   private sampleCount = 0;
 
-  record(durationMs: number, success: boolean, tokens = 0, errorType?: string): void {
+  record(durationMs: number, success: boolean, tokens = 0, errorType?: string, errorCategory?: string): void {
     this.calls++;
     if (!success) {
       const type = errorType ?? "unknown";
       this.errors[type] = (this.errors[type] ?? 0) + 1;
+      const cat = errorCategory ?? "unknown";
+      this.errorCategories[cat] = (this.errorCategories[cat] ?? 0) + 1;
     }
     this.tokens += tokens;
 
@@ -192,6 +195,7 @@ export class MetricsRegistry {
   private resources = new Map<string, ResourceMetric>();
   private cache = new CacheMetric();
   private redis = new RedisMetric();
+  private httpErrors: Record<string, number> = { "401": 0, "413": 0, "429": 0 };
   private systemDb: SystemDb | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
@@ -426,14 +430,15 @@ export class MetricsRegistry {
     durationMs: number,
     success: boolean,
     tokens = 0,
-    errorType?: string
+    errorType?: string,
+    errorCategory?: string
   ): void {
     let metric = this.tools.get(toolName);
     if (!metric) {
       metric = new ToolMetric();
       this.tools.set(toolName, metric);
     }
-    metric.record(durationMs, success, tokens, errorType);
+    metric.record(durationMs, success, tokens, errorType, errorCategory);
   }
 
   recordResourceRead(uri: string): void {
@@ -467,6 +472,11 @@ export class MetricsRegistry {
 
   setRedisConnected(state: boolean): void {
     this.redis.setConnected(state);
+  }
+
+  recordHttpError(statusCode: number): void {
+    const key = String(statusCode);
+    this.httpErrors[key] = (this.httpErrors[key] ?? 0) + 1;
   }
 
   getSummary(): Record<string, unknown> {
@@ -507,6 +517,14 @@ export class MetricsRegistry {
       const summary = metric.getSummary();
       for (const [errorType, count] of Object.entries(summary.errors)) {
         lines.push(`mysql_mcp_tool_errors_total{tool="${name}",error_type="${errorType}"} ${count}`);
+      }
+    }
+
+    lines.push("# HELP mysql_mcp_tool_errors_by_category_total Tool errors by category");
+    lines.push("# TYPE mysql_mcp_tool_errors_by_category_total counter");
+    for (const [name, metric] of this.tools.entries()) {
+      for (const [category, count] of Object.entries(metric.errorCategories)) {
+        lines.push(`mysql_mcp_tool_errors_by_category_total{tool="${name}",category="${category}"} ${count}`);
       }
     }
 
@@ -602,6 +620,13 @@ export class MetricsRegistry {
       lines.push("# HELP mysql_mcp_pool_queries_total Cumulative queries through pool");
       lines.push("# TYPE mysql_mcp_pool_queries_total counter");
       lines.push(`mysql_mcp_pool_queries_total ${poolStats.totalQueries}`);
+    }
+
+    // HTTP transport errors
+    lines.push("# HELP mysql_mcp_http_errors_total HTTP-level errors before tool dispatch");
+    lines.push("# TYPE mysql_mcp_http_errors_total counter");
+    for (const [code, count] of Object.entries(this.httpErrors)) {
+      lines.push(`mysql_mcp_http_errors_total{status_code="${code}"} ${count}`);
     }
 
     // Server uptime

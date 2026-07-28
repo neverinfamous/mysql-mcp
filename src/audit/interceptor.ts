@@ -96,6 +96,7 @@ export function createAuditInterceptor(
       let success = true;
       let error: string | undefined;
       let errorType: string | undefined;
+      let errorCategory: string | undefined;
       let backupRef: string | undefined;
       let tokenEstimate: number | undefined;
 
@@ -148,11 +149,13 @@ export function createAuditInterceptor(
 
             const match = findSuggestion(error);
             errorType = match?.code;
+            errorCategory = match?.category;
             
             // Heuristic fallback if findSuggestion misses but we know it's a Zod/validation error
             if (!errorType) {
               if (error.includes("Invalid parameters") || error.includes("validation") || error.includes("ZodError")) {
                 errorType = "VALIDATION_ERROR";
+                errorCategory = "validation";
               } else {
                 errorType = "TOOL_ERROR";
               }
@@ -165,6 +168,7 @@ export function createAuditInterceptor(
               error = typeof result.error === "string" ? result.error : String(result.error);
               const match = findSuggestion(error);
               errorType = match?.code ?? "TOOL_ERROR";
+              errorCategory = match?.category;
             }
           }
         }
@@ -191,10 +195,13 @@ export function createAuditInterceptor(
         const match = findSuggestion(error);
         if (match?.code != null) {
           errorType = match.code;
+          errorCategory = match.category;
         } else if (err instanceof Error && err.name === "ZodError") {
           errorType = "VALIDATION_ERROR";
+          errorCategory = "validation";
         } else {
           errorType = "INTERNAL_ERROR";
+          errorCategory = "internal";
         }
 
         // Match mcp-registry.ts raw exception fallback token calculation
@@ -218,7 +225,8 @@ export function createAuditInterceptor(
           durationMs,
           success,
           tokenEstimate ?? 0,
-          errorType
+          errorType,
+          errorCategory
         );
 
         if (shouldAudit) {

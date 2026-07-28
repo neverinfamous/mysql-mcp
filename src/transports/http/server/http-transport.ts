@@ -259,6 +259,7 @@ export class HttpTransport {
               error_description: "Bearer token required",
             }),
           );
+          metrics.recordHttpError(401);
           return;
         }
         const token = authHeader.slice(7);
@@ -274,6 +275,7 @@ export class HttpTransport {
               error_description: "Invalid bearer token",
             }),
           );
+          metrics.recordHttpError(401);
           return;
         }
       }
@@ -295,6 +297,7 @@ export class HttpTransport {
           error_description: "Too many requests. Please try again later.",
         }),
       );
+      metrics.recordHttpError(429);
       return;
     }
 
@@ -309,6 +312,7 @@ export class HttpTransport {
           error_description: `Request body exceeds maximum size of ${String(maxBodySize)} bytes.`,
         }),
       );
+      metrics.recordHttpError(413);
       return;
     }
 
@@ -330,6 +334,7 @@ export class HttpTransport {
             "Content-Type": "application/json",
             "WWW-Authenticate": "Bearer",
           });
+          metrics.recordHttpError(status);
           res.end(JSON.stringify(body));
           return;
         }
