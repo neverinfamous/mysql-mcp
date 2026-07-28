@@ -139,6 +139,29 @@ if (clusterOut !== null) {
     allUp = false;
 }
 
+console.log('\n3. MySQL Shell Metadata Verification:');
+console.log('----------------------------------------');
+let shellOut = null;
+if (mysqlNodes.length > 0) {
+    const node = mysqlNodes[0];
+    const jsPayload = "try { var c = dba.getCluster('mcpCluster'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }";
+    shellOut = execCommand(dockerCmd, isWindows ? ['docker', 'exec', node, 'mysqlsh', '--user=root', '--password=root', '--host=127.0.0.1', '--port=3306', '--js', '-e', jsPayload] : ['exec', node, 'mysqlsh', '--user=root', '--password=root', '--host=127.0.0.1', '--port=3306', '--js', '-e', jsPayload], true);
+    
+    if (shellOut && shellOut.includes('OK')) {
+        console.log(`✅ mysqlsh successfully read InnoDB Cluster metadata ('mcpCluster')`);
+    } else {
+        console.log(`❌ mysqlsh could not verify cluster metadata`);
+        if (shellOut) {
+            const errLine = shellOut.split('\n').find(l => l.includes('ERROR') || l.includes('Exception'));
+            console.log(`   ${errLine || shellOut.trim().split('\n').pop()}`);
+        }
+        allUp = false;
+    }
+} else {
+    console.log(`❌ No mysql nodes found to execute mysqlsh`);
+    allUp = false;
+}
+
 console.log('\n========================================');
 if (allUp) {
     console.log('🎉 Ecosystem is fully healthy and ready for testing!');

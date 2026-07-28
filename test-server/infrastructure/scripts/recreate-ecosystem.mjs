@@ -159,32 +159,29 @@ try {
         await waitForMySQL(node);
     }
 
-    const fullSeeds = MYSQL_NODES.map(n => `${n}:33061`).join(',');
-
-    for (const node of MYSQL_NODES) {
-        console.log(`  Configuring Group Replication variables for ${node}...`);
-        mysqlExec(node, "SET SQL_LOG_BIN=0; INSTALL PLUGIN group_replication SONAME 'group_replication.so';");
-        mysqlExec(node, "SET SQL_LOG_BIN=0; INSTALL PLUGIN clone SONAME 'mysql_clone.so';");
-        mysqlExec(node, "SET SQL_LOG_BIN=0; SET PERSIST group_replication_group_name='aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';");
-        mysqlExec(node, `SET SQL_LOG_BIN=0; SET PERSIST group_replication_local_address='${node}:33061';`);
-        mysqlExec(node, `SET SQL_LOG_BIN=0; SET PERSIST group_replication_group_seeds='${fullSeeds}';`);
-        mysqlExec(node, `SET SQL_LOG_BIN=0; SET PERSIST group_replication_ip_allowlist='AUTOMATIC';`);
-        mysqlExec(node, "SET SQL_LOG_BIN=0; CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';");
-    }
-
-    console.log('\n  Bootstrapping Group Replication on mysql-node1...');
-    mysqlExec('mysql-node1', "SET GLOBAL group_replication_bootstrap_group=ON; START GROUP_REPLICATION; SET GLOBAL group_replication_bootstrap_group=OFF;");
-    await setTimeout(3000);
-
-    for (const node of MYSQL_NODES.slice(1)) {
-        console.log(`  Starting Group Replication on ${node}...`);
-        mysqlExec(node, "RESET BINARY LOGS AND GTIDS;");
-        mysqlExec(node, "SET SQL_LOG_BIN=0; CHANGE REPLICATION SOURCE TO SOURCE_USER='root', SOURCE_PASSWORD='root' FOR CHANNEL 'group_replication_recovery';");
-        mysqlExec(node, "START GROUP_REPLICATION;");
-        await setTimeout(2000);
-    }
-
-    console.log(`  ✅ All nodes have group_seeds: ${fullSeeds}`);
+    console.log('  Creating InnoDB Cluster via MySQL Shell...');
+    const mysqlshScript = `
+try {
+  var cluster = dba.getCluster('mcpCluster');
+  print('Cluster already exists.\\n');
+} catch (e) {
+  print('Creating new cluster...\\n');
+  var cluster = dba.createCluster('mcpCluster');
+  
+  print('Adding node 2...\\n');
+  cluster.addInstance('root:root@mysql-node2:3306', { recoveryMethod: 'clone' });
+  
+  print('Adding node 3...\\n');
+  cluster.addInstance('root:root@mysql-node3:3306', { recoveryMethod: 'clone' });
+  
+  print('Cluster bootstrap complete.\\n');
+}
+`;
+    const initClusterPath = join(REPO_ROOT, 'scripts/init-cluster.js');
+    fs.writeFileSync(initClusterPath, mysqlshScript);
+    run('docker cp scripts/init-cluster.js mysql-node1:/tmp/init-cluster.js');
+    fs.unlinkSync(initClusterPath); // Clean up the temporary scratch file
+    run('docker exec mysql-node1 mysqlsh --user=root --password=root --host=127.0.0.1 --port=3306 -f /tmp/init-cluster.js');
 
     // ── Phase 4: Start remaining ecosystem ───────────────────────────
     console.log('\n[4.5/6] Starting remaining ecosystem containers...');
