@@ -382,11 +382,44 @@ export const IndexRecommendationSchemaBase = z.object({
     .describe("Detect redundant/duplicate indexes (default: true)"),
   includeUnindexed: z.boolean().optional()
     .describe("Flag large tables without secondary indexes (default: true)"),
+  schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+  database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  query: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a query string. This tool expects an array of queries in the `queries` field."),
+  sql: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a sql string. This tool expects an array of queries in the `queries` field."),
 }).strict();
 
 // Transformed schema for handler parsing
 export const IndexRecommendationSchema = z
-  .preprocess(preprocessTableParams, IndexRecommendationSchemaBase)
+  .preprocess(
+    (data: unknown) => {
+      const processed = preprocessTableParams(data);
+      if (typeof processed !== "object" || processed === null) return processed;
+      const record = processed as Record<string, unknown>;
+      return {
+        ...record,
+        schema: record["schema"] ?? record["database"] ?? record["db"],
+        query: record["query"] ?? record["sql"],
+      };
+    },
+    z.object({
+      table: z.string().optional(),
+      tableName: z.string().optional(),
+      name: z.string().optional(),
+      queries: z.array(z.string()).optional(),
+      includeRedundant: z.boolean().optional(),
+      includeUnindexed: z.boolean().optional(),
+      schema: z.string().optional(),
+      database: z.string().optional(),
+      db: z.string().optional(),
+      query: z.string().optional(),
+      sql: z.string().optional(),
+    }).refine((data) => !data.schema && !data.database && !data.db, {
+      message: "Anti-Hallucination Hint: mysql_index_recommendation executes against the current database. It does NOT accept a schema, database, or db string.",
+    }).refine((data) => !data.query && !data.sql, {
+      message: "Anti-Hallucination Hint: mysql_index_recommendation expects an array of queries in the `queries` field. It does NOT accept a single query or sql string.",
+    })
+  )
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name,
     queries: data.queries,

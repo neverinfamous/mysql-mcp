@@ -209,19 +209,43 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
       .optional()
       .describe("SQL query to analyze for optimization"),
     sql: z.string().optional().describe("Alias for query"),
-  });
+    table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+    database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+    db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  }).strict();
 
   const schema = z
     .preprocess(
-      preprocessQueryOnlyParams,
+      (data: unknown) => {
+        const processed = preprocessQueryOnlyParams(data);
+        if (typeof processed !== "object" || processed === null) return processed;
+        const record = processed as Record<string, unknown>;
+        return {
+          ...record,
+          table: record["table"] ?? record["tableName"],
+        };
+      },
       z.object({
         query: z.string().optional(),
         sql: z.string().optional(),
+        table: z.string().optional(),
+        tableName: z.string().optional(),
+        schema: z.string().optional(),
+        database: z.string().optional(),
+        db: z.string().optional(),
+      }).refine((data) => !data.schema && !data.database && !data.db, {
+        message: "Anti-Hallucination Hint: mysql_query_rewrite executes against the current database. It does NOT accept a schema, database, or db string.",
       }),
     )
     .transform((data) => ({
       query: data.query ?? data.sql ?? "",
+      table: data.table,
     }))
+    .refine((data) => !data.table, {
+      message: "Anti-Hallucination Hint: mysql_query_rewrite expects a query, not a table name.",
+    })
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
     });
