@@ -127,7 +127,7 @@ node scripts/test-progress.mjs
 
 ### `test-sessions.mjs`
 
-Starts server with HTTP transport and establishes an SSE session. Validates session lifecycle and idle timeouts. Ensures `activeSessions` metric accuracy on `/health`.
+Starts server with HTTP transport and establishes a Streamable HTTP session via the MCP v2 stateless architecture. Validates session lifecycle and explicit teardown. Ensures `activeSessions` metric accuracy on `/health`.
 
 ```bash
 node scripts/test-sessions.mjs
