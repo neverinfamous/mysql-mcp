@@ -88,7 +88,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
     channel: z.string().optional().describe("Optional replication channel name"),
-  });
+  }).strict();
 
   return {
     name: "mysql_slave_status",
