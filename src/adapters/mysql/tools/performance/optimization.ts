@@ -358,8 +358,8 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        // Support optional database prefix and semicolon at the end of the query
-        const regex = new RegExp(`(FROM\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${table}\`?)(?=\\s|,|;|$)`, "i");
+        // Support optional database prefix, optional table alias, and semicolon at the end of the query
+        const regex = new RegExp(`(FROM\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${table}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|$)`, "i");
         if (!regex.test(query)) {
           throw new ValidationError(
             `Table '${table}' not found in query FROM clause`,
