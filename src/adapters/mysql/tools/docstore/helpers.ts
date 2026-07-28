@@ -98,9 +98,10 @@ export function parseDocFilter(filter: string): {
 
   // Default: treat as JSON path existence check
   if (!filter.startsWith("$")) {
-    throw new ValidationError(
-      `Invalid filter: "${filter}". Use JSON path ($.field), _id value, or field=value format.`,
-    );
+    return {
+      where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
+      params: [`$._id`, filter],
+    };
   }
   // Validate JSON path against allowlist regex to prevent injection
   if (!JSON_PATH_RE.test(filter)) {
