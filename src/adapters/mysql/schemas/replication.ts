@@ -34,11 +34,13 @@ export const BinlogEventsSchema = z.preprocess(
       .optional()
       .describe("Binlog file name (aliases: file, filename, fileName, binlog)"),
     position: z
+      .coerce
       .number()
       .nonnegative("Invalid position: must be greater than or equal to 0")
       .optional()
       .describe("Starting position (alias: pos)"),
     limit: z
+      .coerce
       .number()
       .nonnegative()
       .max(50, "Limit capped at 50 to prevent payload exhaustion")
