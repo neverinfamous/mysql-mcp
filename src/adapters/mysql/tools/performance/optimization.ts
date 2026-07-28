@@ -300,7 +300,8 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get EXPLAIN for the query
         let explainResult: unknown = null;
-        const explainSql = `EXPLAIN FORMAT=JSON ${query}`;
+        const cleanQuery = query.replace(/^\s*EXPLAIN\s+(?:FORMAT=JSON\s+)?/i, "");
+        const explainSql = `EXPLAIN FORMAT=JSON ${cleanQuery}`;
         const result = await adapter.executeReadQuery(explainSql);
         if (result.rows?.[0]) {
           const explainStr = result.rows[0]["EXPLAIN"];

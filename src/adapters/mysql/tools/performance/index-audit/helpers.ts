@@ -247,9 +247,15 @@ export async function analyzeQueriesWithExplain(
     }
 
 
-      const explainResult = await adapter.executeReadQuery(
-        `EXPLAIN FORMAT=JSON ${query}`,
-      );
+      let explainResult;
+      try {
+        const cleanQuery = query.replace(/^\s*EXPLAIN\s+(?:FORMAT=JSON\s+)?/i, "");
+        explainResult = await adapter.executeReadQuery(
+          `EXPLAIN FORMAT=JSON ${cleanQuery}`,
+        );
+      } catch {
+        continue;
+      }
       const rows = explainResult.rows ?? [];
       if (rows.length === 0) continue;
 
