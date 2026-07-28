@@ -382,6 +382,9 @@ describe("Handler Execution", () => {
     it("should return top queries by count", async () => {
       const mockDigests = [
         {
+          hostgroup: 1,
+          schemaname: "test",
+          username: "root",
           digest: "abc123",
           digest_text: "SELECT ?",
           count_star: 1000,

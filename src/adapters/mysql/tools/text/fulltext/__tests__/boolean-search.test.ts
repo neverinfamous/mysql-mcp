@@ -97,7 +97,7 @@ describe("createFulltextBooleanTool", () => {
       {} as Record<string, unknown>
     );
 
-    expect(result.data.facets).toBeUndefined();
+    expect(result.data.facets).toEqual({ total: 10 });
     expect(result.data.warnings).toContain("Facet skipped for 'title': Requires individual FULLTEXT index");
   });
 

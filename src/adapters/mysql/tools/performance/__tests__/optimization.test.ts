@@ -163,7 +163,7 @@ describe("Performance Optimization Tools", () => {
       )) as { data: { rewrittenQuery: string } };
 
       expect(result.data.rewrittenQuery).toBe(
-        "SELECT * FROM `users` FORCE INDEX (`PRIMARY`) WHERE id = 1",
+        "SELECT * FROM users FORCE INDEX (`PRIMARY`) WHERE id = 1",
       );
     });
 
