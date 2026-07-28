@@ -118,16 +118,32 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
           const response = { success: true as const, data: { status } };
           return withTokenEstimate(response);
         }
-      } catch {
-        try {
-          const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
-          const status = result.rows?.[0];
-          if (status) {
-            const response = { success: true as const, data: { status } };
-            return withTokenEstimate(response);
+      } catch (e: any) {
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || String(e.message).toLowerCase().includes("syntax")) {
+          try {
+            const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
+            const status = result.rows?.[0];
+            if (status) {
+              const response = { success: true as const, data: { status } };
+              return withTokenEstimate(response);
+            }
+          } catch (e2: any) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Failed to retrieve slave status: ${e2.message || String(e2)}`,
+                "QUERY_ERROR",
+                ErrorCategory.QUERY
+              )
+            );
           }
-        } catch {
-          // Fall through to not-configured response
+        } else {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Failed to retrieve replica status: ${e.message || String(e)}`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY
+            )
+          );
         }
       }
       return withTokenEstimate({
@@ -342,28 +358,44 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
           };
           return withTokenEstimate(response);
         }
-      } catch {
-        try {
-          const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
-          const status = result.rows?.[0];
+      } catch (e: any) {
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || String(e.message).toLowerCase().includes("syntax")) {
+          try {
+            const result = await adapter.executeQuery(`SHOW SLAVE STATUS${channelClause}`);
+            const status = result.rows?.[0];
 
-          if (status != null) {
-            const response = {
-              success: true as const,
-              data: {
-                lagSeconds:
-                  status["Seconds_Behind_Master"] != null
-                    ? Number(status["Seconds_Behind_Master"])
-                    : null,
-                ioRunning: status["Slave_IO_Running"],
-                sqlRunning: status["Slave_SQL_Running"],
-                lastError: status["Last_Error"],
-              },
-            };
-            return withTokenEstimate(response);
+            if (status != null) {
+              const response = {
+                success: true as const,
+                data: {
+                  lagSeconds:
+                    status["Seconds_Behind_Master"] != null
+                      ? Number(status["Seconds_Behind_Master"])
+                      : null,
+                  ioRunning: status["Slave_IO_Running"],
+                  sqlRunning: status["Slave_SQL_Running"],
+                  lastError: status["Last_Error"],
+                },
+              };
+              return withTokenEstimate(response);
+            }
+          } catch (e2: any) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Failed to retrieve slave status: ${e2.message || String(e2)}`,
+                "QUERY_ERROR",
+                ErrorCategory.QUERY
+              )
+            );
           }
-        } catch {
-          // Not a replica
+        } else {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Failed to retrieve replica status: ${e.message || String(e)}`,
+              "QUERY_ERROR",
+              ErrorCategory.QUERY
+            )
+          );
         }
       }
 
