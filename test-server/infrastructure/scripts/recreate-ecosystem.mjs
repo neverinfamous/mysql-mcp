@@ -80,7 +80,32 @@ async function waitForMySQL(containerName) {
 
 console.log('=== Recreating Unified Database Ecosystem ===');
 
-const servicesRaw = execSync(wsl('docker compose config --services'), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
+let servicesRaw;
+try {
+    servicesRaw = execSync(wsl('docker compose config --services'), { encoding: 'utf-8', cwd: REPO_ROOT, stdio: 'pipe' }).trim();
+} catch (e) {
+    // docker compose may exit non-zero for schema validation warnings (e.g., cgroupns_mode)
+    // but still produce valid stdout — try to recover it
+    if (e.stdout && e.stdout.trim()) {
+        servicesRaw = e.stdout.trim();
+    } else {
+        // Fallback: manually parse docker-compose.yml for service names
+        console.log('  ⚠️  docker compose config failed, falling back to YAML parsing...');
+        const yamlContent = fs.readFileSync(join(REPO_ROOT, 'docker-compose.yml'), 'utf-8');
+        const services = [];
+        let inServices = false;
+        for (const line of yamlContent.split('\n')) {
+            if (line.startsWith('services:')) { inServices = true; continue; }
+            if (inServices) {
+                if (line.match(/^[a-zA-Z]/)) break;
+                const match = line.match(/^  ([a-zA-Z0-9_-]+):/);
+                if (match) services.push(match[1]);
+            }
+        }
+        servicesRaw = services.join('\n');
+        if (!servicesRaw) throw new Error('Failed to discover services from docker-compose.yml');
+    }
+}
 const MYSQL_NODES = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
 if (MYSQL_NODES.length === 0) {
     console.error('Error: No mysql-node services found in docker-compose.yml');
@@ -112,7 +137,7 @@ try {
 
     // ── Phase 1: Aggressive cleanup ──────────────────────────────────
     console.log('\n[1/6] Discovering services...');
-    const services = runQuiet('docker compose config --services').split('\n').filter(Boolean);
+    const services = servicesRaw.split('\n').filter(Boolean).sort();
     if (services.length === 0) {
         throw new Error('No services found in docker-compose.yml. Is the file valid?');
     }
