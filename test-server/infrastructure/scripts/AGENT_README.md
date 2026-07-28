@@ -18,8 +18,5 @@ This directory contains the Node.js automation scripts for managing the unified 
 ### Cluster Auto-Recovery
 - **`cluster-healer`**: This is a Docker sidecar service (not a manual script) that runs continuously alongside the cluster. It polls all nodes every 30 seconds, automatically reboots the cluster from complete outages, and restarts group replication on individual disconnected nodes.
 
-### Observability & Load Testing
-- `generate-metrics-load.mjs`: Utility script to simulate synthetic query load through ProxySQL to validate Datadog/Grafana metrics and cache hit ratios. Runs an infinite loop until killed.
-
 ### WSL Stability
 - `register-wsl-keepalive.ps1` & `wsl-keepalive.vbs`: Sets up a Windows Scheduled Task to prevent the background WSL distro from being terminated by Windows power management (which would otherwise crash the Docker daemon).
