@@ -359,10 +359,10 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Support optional database prefix, optional table alias, and semicolon at the end of the query
-        const regex = new RegExp(`(FROM\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${table}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|$)`, "i");
+        const regex = new RegExp(`((?:FROM|JOIN)\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${table}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|$)`, "i");
         if (!regex.test(query)) {
           throw new ValidationError(
-            `Table '${table}' not found in query FROM clause`,
+            `Table '${table}' not found in query FROM/JOIN clause`,
           );
         }
 
@@ -463,7 +463,7 @@ export function createOptimizerTraceTool(
           const firstRow = rows[0] as Record<string, unknown>;
           const queryVal = firstRow["QUERY"];
           const traceQuery = typeof queryVal === "string" ? queryVal : "";
-          if (traceQuery.trim() !== query.trim()) {
+          if (traceQuery.trim().replace(/;+$/, '') !== query.trim().replace(/;+$/, '')) {
             rows = [];
           }
         }
