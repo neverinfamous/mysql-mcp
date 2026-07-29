@@ -360,7 +360,24 @@ export const DistanceSchema = z
     const spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "";
     
     let pt1 = typeof data.point1 === "string" ? data.point1 : typeof data.geometry1 === "string" ? data.geometry1 : "";
+    if (!pt1 && typeof data.point1 === "object" && data.point1 !== null) {
+        const p1 = data.point1 as Record<string, unknown>;
+        const lon = p1["longitude"] ?? p1["lon"] ?? p1["lng"];
+        const lat = p1["latitude"] ?? p1["lat"];
+        if (lon !== undefined && lat !== undefined) {
+            pt1 = `POINT(${Number(lon)} ${Number(lat)})`;
+        }
+    }
+
     let pt2 = typeof data.point2 === "string" ? data.point2 : typeof data.geometry2 === "string" ? data.geometry2 : "";
+    if (!pt2 && typeof data.point2 === "object" && data.point2 !== null) {
+        const p2 = data.point2 as Record<string, unknown>;
+        const lon = p2["longitude"] ?? p2["lon"] ?? p2["lng"];
+        const lat = p2["latitude"] ?? p2["lat"];
+        if (lon !== undefined && lat !== undefined) {
+            pt2 = `POINT(${Number(lon)} ${Number(lat)})`;
+        }
+    }
     const pointStr = typeof data.point === "string" ? data.point : null;
 
     // Heal positional parameters where agents put geometries in `table` and `spatialColumn` 
