@@ -151,19 +151,25 @@ export function createFulltextExpandTool(
           const msg = error instanceof Error ? error.message : String(error);
           if (msg.includes("Unknown column")) {
             return formatHandlerErrorResponse(
-              new ValidationError(`One or more columns specified do not exist in table '${table}'`),
+              new ValidationError(`One or more columns specified do not exist in table '${table}'`, undefined, {
+                suggestion: "Check the table schema using mysql_describe_table to see available columns."
+              }),
             );
           }
           if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(
-              new Error(`Table '${table}' does not exist`),
+              new ValidationError(`Table '${table}' does not exist`, undefined, {
+                suggestion: "Table or collection does not exist. Run mysql_list_tables or mysql_doc_list_collections to see available objects."
+              }),
             );
           }
           if (
             msg.includes("Can't find FULLTEXT index matching the column list")
           ) {
             return formatHandlerErrorResponse(
-              new ValidationError("No FULLTEXT index found for the specified columns"),
+              new ValidationError("No FULLTEXT index found for the specified columns", undefined, {
+                suggestion: "Ensure that a FULLTEXT index exists on the exact combination of columns specified."
+              }),
             );
           }
           if (msg.includes("syntax error, unexpected")) {
