@@ -172,6 +172,7 @@ export const ProxySQLUsersInputSchemaBase = z.object({
 export const ProxySQLUsersInputSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "string") return { username: val };
+    if (typeof val === "number") return { username: String(val) };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     
@@ -185,6 +186,15 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     }
     delete result["user"];
     delete result["name"];
+    
+    const username = result["username"];
+    if (username !== undefined && typeof username !== "string") {
+      if (typeof username === "number" || typeof username === "boolean") {
+        result["username"] = String(username);
+      } else {
+        delete result["username"];
+      }
+    }
     
     return result;
   },
