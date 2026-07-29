@@ -20,6 +20,7 @@ import {
 import { z } from "zod";
 import {
   formatHandlerErrorResponse,
+  stripErrorPrefix,
   withTokenEstimate,
 } from "./core/error-helpers.js";
 import { READ_ONLY } from "../../../utils/annotations.js";
@@ -132,7 +133,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
             const e2 = error2 as { message?: string };
             return formatHandlerErrorResponse(
               new MySQLMcpError(
-                `Failed to retrieve slave status: ${e2.message || String(error2)}`,
+                `Failed to retrieve slave status: ${stripErrorPrefix(e2.message || String(error2))}`,
                 "QUERY_ERROR",
                 ErrorCategory.QUERY
               )
@@ -141,7 +142,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         } else {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              `Failed to retrieve replica status: ${e.message || String(error)}`,
+              `Failed to retrieve replica status: ${stripErrorPrefix(e.message || String(error))}`,
               "QUERY_ERROR",
               ErrorCategory.QUERY
             )
@@ -386,7 +387,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
             const e2 = error2 as { message?: string };
             return formatHandlerErrorResponse(
               new MySQLMcpError(
-                `Failed to retrieve slave status: ${e2.message || String(error2)}`,
+                `Failed to retrieve slave status: ${stripErrorPrefix(e2.message || String(error2))}`,
                 "QUERY_ERROR",
                 ErrorCategory.QUERY
               )
@@ -395,7 +396,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
         } else {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              `Failed to retrieve replica status: ${e.message || String(error)}`,
+              `Failed to retrieve replica status: ${stripErrorPrefix(e.message || String(error))}`,
               "QUERY_ERROR",
               ErrorCategory.QUERY
             )
