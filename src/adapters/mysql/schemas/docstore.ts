@@ -50,7 +50,7 @@ export const CreateCollectionSchemaStrict = z.object({
         .describe("JSON schema"),
       level: z
         .enum(["OFF", "STRICT", "MODERATE"])
-        .default("OFF")
+        .optional()
         .describe("Validation level"),
     })
     .optional()
