@@ -332,6 +332,11 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
               new MySQLMcpError("User does not exist", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
+          if (message.includes("There is no such grant")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError("No such grant exists to revoke", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            );
+          }
           return formatHandlerErrorResponse(error);
         }
       },
