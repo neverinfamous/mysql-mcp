@@ -77,7 +77,7 @@ export const ShellImportTableInputSchema = z.preprocess(
     };
   },
   ShellImportTableInputSchemaBase
-).refine((data) => data.schema !== "", { message: "schema must not be empty" })
+).refine((data) => data.schema != null && data.schema !== "", { message: "schema is required" })
  .refine((data) => data.table != null && data.table !== "", { message: "table is required" });
 
 export const ShellImportJSONInputSchemaBase = z
@@ -130,5 +130,5 @@ export const ShellImportJSONInputSchema = z.preprocess(
     };
   },
   ShellImportJSONInputSchemaBase
-).refine((data) => data.schema !== "", { message: "schema must not be empty" })
+).refine((data) => data.schema != null && data.schema !== "", { message: "schema is required" })
  .refine((data) => data.collection != null && data.collection !== "", { message: "collection is required" });
