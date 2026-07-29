@@ -162,7 +162,7 @@ export function createSysStatementSummaryTool(
         const actualLimit = Math.min(limit, 100);
 
         const query = `
-                SELECT
+                (SELECT
                     query,
                     db,
                     exec_count,
@@ -173,7 +173,7 @@ export function createSysStatementSummaryTool(
                     rows_examined,
                     rows_examined_avg,
                     full_scan
-                FROM sys.statement_analysis
+                FROM sys.statement_analysis)
                 ORDER BY ${orderBy} DESC
                 LIMIT ${String(actualLimit)}
             `;
@@ -245,50 +245,50 @@ export function createSysWaitSummaryTool(
         switch (type) {
           case "global":
             query = `
-                        SELECT
+                        (SELECT
                             events AS event,
                             total,
                             total_latency,
                             avg_latency
-                        FROM sys.waits_global_by_latency
+                        FROM sys.waits_global_by_latency)
                         ORDER BY total_latency DESC
                         LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_host":
             query = `
-                        SELECT
+                        (SELECT
                             host,
                             event,
                             total,
                             total_latency,
                             avg_latency
-                        FROM sys.waits_by_host_by_latency
+                        FROM sys.waits_by_host_by_latency)
                         ORDER BY total_latency DESC
                         LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_user":
             query = `
-                        SELECT
+                        (SELECT
                             user,
                             event,
                             total,
                             total_latency,
                             avg_latency
-                        FROM sys.waits_by_user_by_latency
+                        FROM sys.waits_by_user_by_latency)
                         ORDER BY total_latency DESC
                         LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_instance":
             query = `
-                        SELECT
+                        (SELECT
                             event_name AS event,
                             count_star AS total,
                             FORMAT_PICO_TIME(sum_timer_wait) AS total_latency,
                             FORMAT_PICO_TIME(sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
-                        FROM performance_schema.events_waits_summary_by_instance
+                        FROM performance_schema.events_waits_summary_by_instance)
                         ORDER BY sum_timer_wait DESC
                         LIMIT ${String(actualLimit)}
                     `;
