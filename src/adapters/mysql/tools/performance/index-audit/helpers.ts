@@ -253,8 +253,8 @@ export async function analyzeQueriesWithExplain(
         explainResult = await adapter.executeReadQuery(
           `EXPLAIN FORMAT=JSON ${cleanQuery}`,
         );
-      } catch {
-        continue;
+      } catch (err: unknown) {
+        throw new ValidationError(`Query analysis failed for '${query}': ${err instanceof Error ? err.message : String(err)}`);
       }
       const rows = explainResult.rows ?? [];
       if (rows.length === 0) continue;
