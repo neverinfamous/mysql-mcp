@@ -156,7 +156,7 @@ export const RouteNameInputSchema = z.preprocess(
     };
   },
   RouteNameInputSchemaBase
-).refine((data) => data.routeName !== undefined && data.routeName !== "", {
+).refine((data) => data.routeName !== undefined && data.routeName.trim() !== "", {
   message: "routeName must not be empty",
   path: ["routeName"]
 }).transform((data) => ({
@@ -203,7 +203,7 @@ export const MetadataNameInputSchema = z.preprocess(
     };
   },
   MetadataNameInputSchemaBase
-).refine((data) => data.metadataName !== undefined && data.metadataName !== "", {
+).refine((data) => data.metadataName !== undefined && data.metadataName.trim() !== "", {
   message: "metadataName must not be empty",
   path: ["metadataName"]
 }).transform((data) => ({
@@ -247,7 +247,7 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
     };
   },
   ConnectionPoolNameInputSchemaBase
-).refine((data) => data.poolName !== undefined && data.poolName !== "", {
+).refine((data) => data.poolName !== undefined && data.poolName.trim() !== "", {
   message: "poolName must not be empty",
   path: ["poolName"]
 }).transform((data) => ({
