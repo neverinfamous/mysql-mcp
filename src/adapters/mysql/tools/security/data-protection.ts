@@ -147,6 +147,7 @@ const SensitiveTablesSchema = z
       database: z.string().default(""),
       patterns: z
         .array(z.string())
+        .min(1, "At least one pattern must be provided")
         .default([
           "password",
           "secret",
