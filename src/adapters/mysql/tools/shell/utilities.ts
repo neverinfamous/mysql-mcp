@@ -65,7 +65,8 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
               .trim() || "MySQL Shell command failed";
               
             if (errorMsg.includes("(ArgumentError)")) {
-              const err = new Error(errorMsg);
+              const cleanMsg = errorMsg.replace(/\n\s*at\s+\(command line\):\d+.*$/s, '').trim();
+              const err = new Error(cleanMsg);
               err.name = "ValidationError";
               throw err;
             }

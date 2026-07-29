@@ -38,7 +38,8 @@ export const ShellInfoOutputSchema = BaseOutputSchema.extend({
 export const ShellVersionOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     version: z.string(),
-    components: z.record(z.string(), z.string()).optional(),
+    binPath: z.string().optional(),
+    rawOutput: z.string().optional(),
   }).optional(),
 });
 
