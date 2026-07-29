@@ -111,15 +111,20 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
     return providedColumn;
   }
 
-  const vectorColumn = pkResult.rows.find(row => 
+  const vectorColumns = pkResult.rows.filter(row => 
     row['Type'] === 'vector' || (typeof row['Type'] === 'string' && row['Type'].toLowerCase().startsWith('vector'))
   );
 
-  if (!vectorColumn) {
+  if (vectorColumns.length === 0) {
     throw new ValidationError(`No VECTOR column found in table '${sanitizedTable}'. Please specify the column parameter.`);
   }
 
-  const columnName = vectorColumn['Field'];
+  if (vectorColumns.length > 1) {
+    throw new ValidationError(`Multiple VECTOR columns found in table '${sanitizedTable}'. Please specify the column parameter explicitly.`);
+  }
+
+  const firstColumn = vectorColumns[0];
+  const columnName = firstColumn ? firstColumn['Field'] : undefined;
   if (typeof columnName !== 'string') {
     throw new ValidationError(`No VECTOR column found in table '${sanitizedTable}'. Please specify the column parameter.`);
   }
