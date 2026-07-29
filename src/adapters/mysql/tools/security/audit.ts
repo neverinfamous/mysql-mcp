@@ -413,14 +413,26 @@ export function createSecurityFirewallRulesTool(
 
         // Get firewall whitelist
         let rulesQuery = `
-                    SELECT USERHOST, RULE
-                    FROM mysql.firewall_whitelist
+                    SELECT w.USERHOST, w.RULE
+                    FROM mysql.firewall_whitelist w
                 `;
 
         const rulesParams: unknown[] = [];
+        const rulesConditions: string[] = [];
+
+        if (mode) {
+          rulesQuery += " JOIN mysql.firewall_users u ON w.USERHOST = u.USERHOST";
+          rulesConditions.push("u.MODE = ?");
+          rulesParams.push(mode);
+        }
+
         if (user) {
-          rulesQuery += " WHERE USERHOST LIKE ?";
+          rulesConditions.push("w.USERHOST LIKE ?");
           rulesParams.push(`%${user}%`);
+        }
+
+        if (rulesConditions.length > 0) {
+          rulesQuery += " WHERE " + rulesConditions.join(" AND ");
         }
         
         rulesQuery += " LIMIT ?";
