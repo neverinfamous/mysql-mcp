@@ -13,6 +13,7 @@ import {
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
+  JSON_PATH_RE,
   parseDocFilter,
   checkCollectionExists,
   escapeTableRef,
@@ -223,24 +224,28 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const updateParams: unknown[] = [];
           if (set) {
             for (const [rawPath, value] of Object.entries(set)) {
-              const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
-              // Validate path against identifier regex to prevent injection
-              if (!IDENTIFIER_RE.test(path)) {
-                throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`);
+              let formattedPath = rawPath;
+              if (!formattedPath.startsWith("$")) {
+                formattedPath = formattedPath.startsWith("[") ? "$" + formattedPath : "$." + formattedPath;
+              }
+              if (!JSON_PATH_RE.test(formattedPath)) {
+                throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid JSON paths.`);
               }
               updates.push(`doc = JSON_SET(doc, ?, CAST(CONVERT(? USING utf8mb4) AS JSON))`);
-              updateParams.push(`$.${path}`, JSON.stringify(value));
+              updateParams.push(formattedPath, JSON.stringify(value));
             }
           }
           if (unset) {
             for (const rawPath of unset) {
-              const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
-              // Validate path against identifier regex to prevent injection
-              if (!IDENTIFIER_RE.test(path)) {
-                throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`);
+              let formattedPath = rawPath;
+              if (!formattedPath.startsWith("$")) {
+                formattedPath = formattedPath.startsWith("[") ? "$" + formattedPath : "$." + formattedPath;
+              }
+              if (!JSON_PATH_RE.test(formattedPath)) {
+                throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid JSON paths.`);
               }
               updates.push(`doc = JSON_REMOVE(doc, ?)`);
-              updateParams.push(`$.${path}`);
+              updateParams.push(formattedPath);
             }
           }
 
