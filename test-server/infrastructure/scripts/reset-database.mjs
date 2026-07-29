@@ -114,19 +114,35 @@ if (!skipVerify) {
     
     let allPassed = true;
     for (const [table, expected] of Object.entries(expectedTables)) {
-        try {
-            const result = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
-            const countStr = result.match(/\d+/);
-            const count = countStr ? parseInt(countStr[0], 10) : 0;
-            
+        let success = false;
+        let count = 0;
+        let lastError = null;
+        let stderrStr = '';
+        
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            try {
+                const result = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase, '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], { encoding: 'utf-8', stdio: 'pipe' });
+                const countStr = result.match(/\d+/);
+                count = countStr ? parseInt(countStr[0], 10) : 0;
+                success = true;
+                break;
+            } catch (e) {
+                lastError = e;
+                stderrStr = e.stderr ? e.stderr.toString().trim() : '';
+                // Wait 1 second before retrying transient router errors
+                execFileSync('node', ['-e', 'setTimeout(()=>{}, 1000)']);
+            }
+        }
+        
+        if (success) {
             if (count >= expected) {
                 console.log(`  [PASS] ${table}: ${count} rows (expected: ${expected}+)`);
             } else {
                 console.error(`  [FAIL] ${table}: ${count} rows (expected: ${expected})`);
                 allPassed = false;
             }
-        } catch (e) {
-            console.error(`  [FAIL] ${table}: ERROR - ${e.message}`);
+        } else {
+            console.error(`  [FAIL] ${table}: ERROR - ${lastError.message}${stderrStr ? `\n    STDERR: ${stderrStr}` : ''}`);
             allPassed = false;
         }
     }
