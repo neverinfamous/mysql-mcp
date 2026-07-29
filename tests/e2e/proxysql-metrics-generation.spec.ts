@@ -113,15 +113,17 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
     const res = await callToolAndParse(client, "mysql_read_query", { query: slowQuery });
     expectSuccess(res);
 
-    // ProxySQL updates stats periodically, give it a buffer to flush
-    await delay(1000);
-
-    // Verify the query shows up in the digest
-    const digestPayload = await callToolAndParse(client, "proxysql_query_digest", { limit: 100 });
-    expectSuccess(digestPayload);
-    
-    const queries = digestPayload.data!.queryDigests as Array<Record<string, any>>;
-    const sleepQuery = queries.find(row => String(row.digest_text).toUpperCase().includes('SLEEP'));
+    // ProxySQL updates stats periodically, poll until it appears
+    let sleepQuery: Record<string, any> | undefined;
+    for (let i = 0; i < 10; i++) {
+      await delay(1000);
+      const digestPayload = await callToolAndParse(client, "proxysql_query_digest", { limit: 100 });
+      if (!digestPayload.success) continue;
+      
+      const queries = digestPayload.data!.queryDigests as Array<Record<string, any>>;
+      sleepQuery = queries.find(row => String(row.digest_text).toUpperCase().includes('SLEEP'));
+      if (sleepQuery) break;
+    }
     expect(sleepQuery).toBeDefined();
     
     // Check that it registered execution time
