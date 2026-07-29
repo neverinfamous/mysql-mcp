@@ -53,6 +53,10 @@ The most resilient way to connect to this ecosystem is through ProxySQL (Port 60
 
 ## Datadog Dashboards
 
-Once data is flowing, you can monitor your infrastructure via the native Datadog dashboards:
+Once data is flowing, you can monitor your infrastructure using the pre-configured custom dashboards included in this repository.
+
+See the [Dashboards Documentation](../dashboards/README.md) to import the custom **MySQL Cluster Telemetry**, **AI Efficiency**, and **Token & Tool Metrics** dashboards into your Datadog account.
+
+You can also use the native Datadog integrations:
 - [MySQL Integration Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview)
 - [ProxySQL Integration](https://app.datadoghq.com/dash/integration/244/proxysql---overview)

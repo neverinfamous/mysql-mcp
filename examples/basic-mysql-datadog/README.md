@@ -50,6 +50,10 @@ Once the database is running, you can connect the `mysql-mcp` server to it by ad
 
 ## Datadog Dashboards
 
-Once data is flowing, you can monitor your database via the native Datadog dashboards:
+Once data is flowing, you can monitor your database using the pre-configured custom dashboards included in this repository.
+
+See the [Dashboards Documentation](../dashboards/README.md) to import the custom **MySQL Cluster Telemetry** and **Token & Tool Metrics** dashboards into your Datadog account.
+
+You can also use the native Datadog integrations:
 - [MySQL Integration Overview](https://app.datadoghq.com/dash/integration/12/mysql---overview)
 - [Docker Containers](https://app.datadoghq.com/containers)

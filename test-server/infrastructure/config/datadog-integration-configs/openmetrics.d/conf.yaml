@@ -1,7 +1,7 @@
 init_config:
 
 instances:
-  - openmetrics_endpoint: http://host.docker.internal:3000/metrics
+  - openmetrics_endpoint: http://mysql-mcp-exporter:3000/metrics
     namespace: mysql_mcp
     tags:
       - service:mysql_mcp

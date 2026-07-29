@@ -253,6 +253,41 @@ services:
   # ==========================================
   # MONITORING & TOOLS
   # ==========================================
+  mysql-mcp-exporter:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    container_name: mysql-mcp-exporter
+    restart: unless-stopped
+    command: >
+      --transport http
+      --tool-filter none
+      --metrics-export prometheus
+      --port 3000
+      --audit-log /var/log/mysql-mcp/mcp-audit.jsonl
+      --mysql mysql://cluster_admin:cluster_admin@mysql-router:6446/testdb
+    environment:
+      - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../../logs:/var/log/mysql-mcp:ro
+    stop_grace_period: 15s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/metrics"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql-mcp","service":"mysql-mcp-exporter"}]'
+
+
   dozzle:
     image: amir20/dozzle:v10.6.12
     container_name: dozzle
