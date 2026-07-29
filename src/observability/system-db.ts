@@ -30,7 +30,7 @@ export class SystemDb {
       // Initialize schema
       const key = process.env['DB_ENCRYPTION_KEY'] || "adamic123";
       this.db.pragma(`key = '${key}'`);
-      this.db.pragma("journal_mode = WAL");
+      this.db.pragma("journal_mode = TRUNCATE");
       this.db.pragma("synchronous = NORMAL");
 
       this.db.exec(`
