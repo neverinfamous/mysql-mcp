@@ -162,13 +162,30 @@ export function createSecurityEncryptionStatusTool(
             `);
 
         // Check encrypted tablespaces
-        const tablespaceResult = await adapter.executeQuery(`
-                SELECT
-                    NAME,
-                    ENCRYPTION
-                FROM information_schema.INNODB_TABLESPACES
-                WHERE ENCRYPTION = 'Y'
-            `);
+        // Handle potentially missing ENCRYPTION column or table in some MySQL/MariaDB versions
+        // and limit payload size
+        let encryptedTablespaces: Record<string, unknown>[] = [];
+        let encryptedTablespaceCount = 0;
+        try {
+          const tablespaceResult = await adapter.executeQuery(`
+                  SELECT
+                      NAME,
+                      ENCRYPTION
+                  FROM information_schema.INNODB_TABLESPACES
+                  WHERE ENCRYPTION = 'Y'
+                  LIMIT 100
+              `);
+          encryptedTablespaces = tablespaceResult.rows ?? [];
+
+          const countResult = await adapter.executeQuery(`
+                  SELECT COUNT(*) as cnt
+                  FROM information_schema.INNODB_TABLESPACES
+                  WHERE ENCRYPTION = 'Y'
+              `);
+          encryptedTablespaceCount = Number(countResult.rows?.[0]?.["cnt"] ?? encryptedTablespaces.length);
+        } catch {
+          // Ignore, table or column might not exist
+        }
 
         // Check encryption variables
         const varsResult = await adapter.executeQuery(
@@ -207,8 +224,8 @@ export function createSecurityEncryptionStatusTool(
           data: {
             keyringPlugins: keyringResult.rows ?? [],
             keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
-            encryptedTablespaces: tablespaceResult.rows ?? [],
-            encryptedTablespaceCount: tablespaceResult.rows?.length ?? 0,
+            encryptedTablespaces,
+            encryptedTablespaceCount,
             encryptionSettings: {
               ...variables,
               ...innodbVars,
