@@ -35,6 +35,39 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Helpers
 // =============================================================================
 
+async function validateSpatialColumn(
+  adapter: MySQLAdapter,
+  table: string,
+  spatialColumn: string
+): Promise<void> {
+  const tableInfo = await adapter.describeTable(table);
+  const columns = tableInfo.columns ?? [];
+  if (columns.length === 0) {
+    throw new Error(`Table '${table}' does not exist`);
+  }
+  const columnInfo = columns.find((c) => c.name === spatialColumn);
+  if (!columnInfo) {
+    throw new Error(`Unknown column '${spatialColumn}' in 'field list'`);
+  }
+  const typeLower = columnInfo.type.toLowerCase();
+  const validSpatialTypes = [
+    "geometry",
+    "point",
+    "linestring",
+    "polygon",
+    "multipoint",
+    "multilinestring",
+    "multipolygon",
+    "geometrycollection",
+  ];
+  if (!validSpatialTypes.includes(typeLower)) {
+    throw new ValidationError(
+      `Column '${spatialColumn}' is of type '${columnInfo.type}', not a spatial geometry type. Spatial functions require geometry columns.`,
+      "spatialColumn"
+    );
+  }
+}
+
 // =============================================================================
 
 /**
@@ -74,6 +107,7 @@ export function createSpatialDistanceTool(
             success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
+        await validateSpatialColumn(adapter, table, spatialColumn);
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
@@ -183,6 +217,7 @@ export function createSpatialDistanceSphereTool(
             success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
+        await validateSpatialColumn(adapter, table, spatialColumn);
 
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
@@ -267,6 +302,7 @@ export function createSpatialContainsTool(
             success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
+        await validateSpatialColumn(adapter, table, spatialColumn);
 
         const escapedTable = escapeQualifiedTable(table);
         const query = `
@@ -335,6 +371,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
             success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
           });
         }
+        await validateSpatialColumn(adapter, table, spatialColumn);
 
         const escapedTable = escapeQualifiedTable(table);
         const query = `

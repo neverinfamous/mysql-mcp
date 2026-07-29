@@ -298,10 +298,26 @@ export function createSpatialGeoJSONTool(
       try {
         const { geometry, geoJson, srid } = GeoJSONSchema.parse(params);
 
+        const validateSrid = async (sridNum: number): Promise<boolean> => {
+          if (sridNum === 0 || sridNum === 4326) return true;
+          const check = await adapter.executeQuery(
+            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            [sridNum]
+          );
+          return (check.rows?.length ?? 0) > 0;
+        };
+
         if (geometry) {
+          if (!(await validateSrid(srid))) {
+            throw new ValidationError(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
+          }
+
+          const isGeographic = srid !== 0;
+          const axisClause = isGeographic ? ", 'axis-order=long-lat'" : "";
+
           // Convert WKT to GeoJSON
           const result = await adapter.executeQuery(
-            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), 5) as geoJson`,
+            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}${axisClause}), 5) as geoJson`,
             [geometry],
           );
 
@@ -315,7 +331,34 @@ export function createSpatialGeoJSONTool(
             },
           });
         } else if (geoJson) {
+          // Check for embedded CRS in geoJson to prevent connection drops
+          let embeddedSrid: number | undefined;
+          try {
+             const parsed: unknown = JSON.parse(geoJson);
+             if (typeof parsed === "object" && parsed !== null && "crs" in parsed) {
+                 const crs = parsed.crs;
+                 if (typeof crs === "object" && crs !== null && "properties" in crs) {
+                     const properties = crs.properties;
+                     if (typeof properties === "object" && properties !== null && "name" in properties) {
+                         const crsName = properties.name;
+                         if (typeof crsName === "string") {
+                             const match = /EPSG:{1,2}(\d+)/i.exec(crsName);
+                             if (match?.[1]) embeddedSrid = parseInt(match[1], 10);
+                         }
+                     }
+                 }
+             }
+          } catch {
+             // Ignore JSON parse errors here, let MySQL handle invalid JSON
+          }
+          if (embeddedSrid !== undefined) {
+             if (!(await validateSrid(embeddedSrid))) {
+                 throw new ValidationError(`Validation error: Invalid embedded CRS SRID: ${embeddedSrid} is not a known spatial reference system in the database.`);
+             }
+          }
+
           // Convert GeoJSON to WKT
+          // Note: ST_GeomFromGeoJSON produces SRID 4326 by default, which is geographic.
           const result = await adapter.executeQuery(
             `SELECT ST_AsText(ST_GeomFromGeoJSON(?), 'axis-order=long-lat') as wkt`,
             [geoJson],
