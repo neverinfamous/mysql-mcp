@@ -302,9 +302,6 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     if (typeof hostgroupId === "string") {
       if (hostgroupId.trim() !== "" && !isNaN(Number(hostgroupId))) {
         result["hostgroup_id"] = Number(hostgroupId);
-      } else {
-        // If it's a completely invalid string, ignore it to prevent validation crashes.
-        delete result["hostgroup_id"];
       }
     }
     return result;

@@ -70,12 +70,15 @@ export function createProxySQLConnectionPoolTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
+        console.error("PROXYSQL_CONNECTION_POOL params:", params);
         const { hostgroup_id } = ProxySQLHostgroupInputSchema.parse(params);
+        console.error("PROXYSQL_CONNECTION_POOL hostgroup_id parsed:", hostgroup_id);
         let sql = "SELECT * FROM stats_mysql_connection_pool";
         if (hostgroup_id !== undefined) {
           const safeId = Math.max(0, Math.floor(hostgroup_id));
           sql += ` WHERE hostgroup = ${safeId}`;
         }
+        console.error("PROXYSQL_CONNECTION_POOL executing SQL:", sql);
         const rows = await proxySQLQuery(sql);
         return withTokenEstimate({
           success: true,
