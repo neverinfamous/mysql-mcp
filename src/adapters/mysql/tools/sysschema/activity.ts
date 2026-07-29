@@ -35,7 +35,7 @@ const UserSummarySchemaBase = z.object({
   userName: z.string().optional().describe("Alias for user"),
   account: z.string().optional().describe("Alias for user"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
-});
+}).loose();
 
 const UserSummarySchema = z.preprocess(
   (val: unknown) => {
@@ -65,7 +65,7 @@ const HostSummarySchemaBase = z.object({
   ip: z.string().optional().describe("Alias for host"),
   address: z.string().optional().describe("Alias for host"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
-});
+}).loose();
 
 const HostSummarySchema = z.preprocess(
   (val: unknown) => {

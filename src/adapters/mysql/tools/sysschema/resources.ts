@@ -34,7 +34,7 @@ const LimitSchemaBase = z.object({
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results to return"),
   max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-});
+}).loose();
 
 const LimitSchema = z.preprocess(
   (val: unknown) => {
@@ -65,7 +65,7 @@ const SchemaStatsSchemaBase = z.object({
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
   max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
   count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-});
+}).loose();
 
 const SchemaStatsSchema = z.preprocess(
   (val: unknown) => {
