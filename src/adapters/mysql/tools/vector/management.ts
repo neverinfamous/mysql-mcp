@@ -35,8 +35,7 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const validated = VectorInfoSchema.parse(params);
 
-        // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${sanitizeIdentifier(validated.table)}\` LIMIT 0`);
+        // Table existence pre-check is handled by SHOW COLUMNS below
 
         await ensureVectorSupport(adapter);
 
@@ -108,8 +107,7 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
         const column = sanitizeIdentifier(targetColumn);
         
-        // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        // Table existence pre-check is handled inside resolveVectorColumn
 
         // HNSW indexes were added in MySQL 9.1
         await ensureVectorIndexSupport(adapter);
@@ -168,7 +166,7 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
         const table = sanitizeIdentifier(validated.table);
         
         // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        await adapter.executeQuery(`SHOW COLUMNS FROM \`${table}\``);
 
         await ensureVectorSupport(adapter);
         
@@ -225,8 +223,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
         const column = sanitizeIdentifier(targetColumn);
 
-        // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SELECT 1 FROM \`${table}\` LIMIT 0`);
+        // Table existence pre-check is handled inside resolveVectorColumn
 
         await ensureVectorSupport(adapter);
 
