@@ -363,44 +363,29 @@ export class SchemaManager {
       shortTableName = tableName;
     }
 
-    const schemaClause = schemaName
-      ? "TABLE_SCHEMA = ?"
-      : "TABLE_SCHEMA = DATABASE()";
-    const params = schemaName ? [schemaName, shortTableName] : [shortTableName];
+    const targetTable = schemaName 
+      ? `\`${schemaName}\`.\`${shortTableName}\`` 
+      : `\`${shortTableName}\``;
 
-    const result = await this.executor.executeQuery(
-      `
-            SELECT 
-                INDEX_NAME as name,
-                NON_UNIQUE as nonUnique,
-                COLUMN_NAME as columnName,
-                INDEX_TYPE as type,
-                CARDINALITY as cardinality
-            FROM information_schema.STATISTICS
-            WHERE ${schemaClause}
-              AND TABLE_NAME = ?
-            ORDER BY INDEX_NAME, SEQ_IN_INDEX
-        `,
-      params,
-    );
+    const result = await this.executor.executeQuery(`SHOW KEYS FROM ${targetTable}`);
 
     // Group columns by index name
     const indexMap = new Map<string, IndexInfo>();
 
     for (const row of result.rows ?? []) {
-      const name = row["name"] as string;
+      const name = row["Key_name"] as string;
       const existing = indexMap.get(name);
 
       if (existing) {
-        existing.columns.push(row["columnName"] as string);
+        existing.columns.push(row["Column_name"] as string);
       } else {
         indexMap.set(name, {
           name,
           tableName,
-          columns: [row["columnName"] as string],
-          unique: row["nonUnique"] === 0,
-          type: row["type"] as "BTREE" | "HASH" | "FULLTEXT" | "SPATIAL",
-          cardinality: row["cardinality"] != null ? Number(row["cardinality"]) : undefined,
+          columns: [row["Column_name"] as string],
+          unique: row["Non_unique"] === 0,
+          type: row["Index_type"] as "BTREE" | "HASH" | "FULLTEXT" | "SPATIAL",
+          cardinality: row["Cardinality"] != null ? Number(row["Cardinality"]) : undefined,
         });
       }
     }
