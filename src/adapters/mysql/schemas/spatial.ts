@@ -436,12 +436,31 @@ export const DistanceSchema = z
       if (!data.geometry1 || !data.geometry2) return false;
       const g1 = typeof data.geometry1 === "string" ? data.geometry1 : "";
       const g2 = typeof data.geometry2 === "string" ? data.geometry2 : "";
+      if (g1.toUpperCase().includes("EMPTY") || g2.toUpperCase().includes("EMPTY")) return false;
       return isValidWKT(g1) && isValidWKT(g2);
     }
     return true;
   }, {
-    message: "geometry1 and geometry2 must be valid WKT strings (e.g. POINT(1 1))",
-  });
+    message: "geometry1 and geometry2 must be valid WKT strings (e.g. POINT(1 1)). EMPTY geometries are not supported.",
+  })
+  .refine((data) => {
+    if (!data.table && data.srid === 4326) {
+        for (const geom of [data.geometry1, data.geometry2]) {
+            if (typeof geom !== "string") continue;
+            const matches = geom.match(/[-\d.]+\s+[-\d.]+/g);
+            if (matches) {
+                for (const match of matches) {
+                    const [lonStr, latStr] = match.split(/\s+/);
+                    const lon = Number(lonStr);
+                    const lat = Number(latStr);
+                    if (lon < -180 || lon > 180) return false;
+                    if (lat < -90 || lat > 90) return false;
+                }
+            }
+        }
+    }
+    return true;
+  }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" });
 
 export const ContainsSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
