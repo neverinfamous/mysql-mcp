@@ -360,6 +360,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         switch (type) {
           case "file":
             query = `
+                        WITH sys_query AS (
                         SELECT
                             file,
                             count_read,
@@ -373,10 +374,12 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         FROM sys.io_global_by_file_by_bytes
                         ORDER BY total DESC
                         LIMIT ${String(actualLimit)}
+                        ) SELECT * FROM sys_query
                     `;
             break;
           case "table":
             query = `
+                        WITH sys_query AS (
                         SELECT
                             table_schema,
                             table_name,
@@ -391,10 +394,12 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         FROM sys.schema_table_statistics
                         ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
                         LIMIT ${String(actualLimit)}
+                        ) SELECT * FROM sys_query
                     `;
             break;
           case "global":
             query = `
+                        WITH sys_query AS (
                         SELECT
                             event_name,
                             total,
@@ -403,6 +408,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         FROM sys.io_global_by_wait_by_latency
                         ORDER BY total_latency DESC
                         LIMIT ${String(actualLimit)}
+                        ) SELECT * FROM sys_query
                     `;
             break;
           default:

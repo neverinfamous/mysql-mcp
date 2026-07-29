@@ -112,6 +112,7 @@ export function createSysUserSummaryTool(
         const actualLimit = Math.min(limit, 100);
 
         let query = `
+                WITH sys_query AS (
                 SELECT
                     user,
                     statements,
@@ -123,6 +124,7 @@ export function createSysUserSummaryTool(
                     current_connections,
                     total_connections
                 FROM sys.user_summary
+                ) SELECT * FROM sys_query
             `;
 
         const queryParams: unknown[] = [];
@@ -193,6 +195,7 @@ export function createSysHostSummaryTool(
         const actualLimit = Math.min(limit, 100);
 
         let query = `
+                WITH sys_query AS (
                 SELECT
                     host,
                     statements,
@@ -204,6 +207,7 @@ export function createSysHostSummaryTool(
                     current_connections,
                     total_connections
                 FROM sys.host_summary
+                ) SELECT * FROM sys_query
             `;
 
         const queryParams: unknown[] = [];
