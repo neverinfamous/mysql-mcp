@@ -8,6 +8,7 @@ import {
   type ToolDefinition,
   type RequestContext,
   ConflictError,
+  ValidationError,
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
@@ -54,12 +55,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               `SHOW SCHEMAS LIKE '${schema}'`
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return withTokenEstimate({
-                success: false,
-                error: `Schema '${schema}' does not exist`,
-                code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-              });
+              return formatHandlerErrorResponse(
+                new Error(`Schema '${schema}' does not exist`)
+              );
             }
           }
 
@@ -112,19 +110,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           schema = parsed.schema;
           const { ifNotExists, validation } = parsed;
           if (!IDENTIFIER_RE.test(name))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid collection name")
+            );
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
+            );
 
           const tableRef = escapeTableRef(name, schema);
 
@@ -143,12 +135,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
             // If schema does not exist, report it even with ifNotExists
             if (check.reason === "schema") {
-              return withTokenEstimate({
-                success: false,
-                error: `Schema '${check.name}' does not exist`,
-                code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-              });
+              return formatHandlerErrorResponse(
+                new Error(`Schema '${check.name}' does not exist`)
+              );
             }
           }
 
@@ -167,7 +156,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             sql = `${createClause} ${tableRef} (
                         doc JSON,
                         _id VARBINARY(32) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) STORED PRIMARY KEY,
-                        CONSTRAINT chk_schema CHECK (JSON_SCHEMA_VALID('${schemaJson}', doc))
+                        CHECK (JSON_SCHEMA_VALID('${schemaJson}', doc))
                     ) ENGINE=InnoDB`;
           }
 
@@ -184,12 +173,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const message =
             error instanceof Error ? error.message : String(error);
           if (message.toLowerCase().includes("unknown database")) {
-            return withTokenEstimate({
-              success: false,
-              error: `Schema '${schema ?? "unknown"}' does not exist`,
-              code: "SCHEMA_NOT_FOUND",
-              category: "resource",
-            });
+            return formatHandlerErrorResponse(
+              new Error(`Schema '${schema ?? "unknown"}' does not exist`)
+            );
           }
           if (message.toLowerCase().includes("already exists")) {
             return formatHandlerErrorResponse(
@@ -218,19 +204,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           schema = parsed.schema;
           const { ifExists } = parsed;
           if (!IDENTIFIER_RE.test(name))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid collection name")
+            );
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
+            );
 
           const tableRef = escapeTableRef(name, schema);
 
@@ -240,12 +220,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               `SHOW SCHEMAS LIKE '${schema}'`
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              return withTokenEstimate({
-                success: false,
-                error: `Schema '${schema}' does not exist`,
-                code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-              });
+              return formatHandlerErrorResponse(
+                new Error(`Schema '${schema}' does not exist`)
+              );
             }
           }
 
@@ -300,12 +277,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { collection, schema } = CollectionInfoSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid collection name")
+            );
 
           // Check collection existence (with schema detection)
           const infoCheck = await checkCollectionExists(
@@ -315,18 +289,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!infoCheck.exists) {
             return infoCheck.reason === "schema"
-              ? withTokenEstimate({
-                  success: false,
-                  error: `Schema '${infoCheck.name}' does not exist`,
-                  code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-                })
-              : withTokenEstimate({
-                  success: false,
-                  error: `Collection '${collection}' does not exist`,
-                  code: "TABLE_NOT_FOUND",
-                category: "resource",
-                });
+              ? formatHandlerErrorResponse(
+                  new Error(`Schema '${infoCheck.name}' does not exist`)
+                )
+              : formatHandlerErrorResponse(
+                  new Error(`Collection '${collection}' does not exist`)
+                );
           }
 
           // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
