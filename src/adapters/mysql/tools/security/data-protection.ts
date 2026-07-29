@@ -31,14 +31,14 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // =============================================================================
 
 const MaskDataSchemaBase = z.object({
-  value: z.string().optional().describe("Value to mask"),
-  data: z.string().optional().describe("Alias for value"),
-  text: z.string().optional().describe("Alias for value"),
-  input: z.string().optional().describe("Alias for value"),
-  type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]).describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
-  keepFirst: z.number().min(0).optional().describe("Characters to keep from start"),
-  keepLast: z.number().min(0).optional().describe("Characters to keep from end"),
-  maskChar: z.string().optional().describe("Character to use for masking"),
+  value: z.unknown().optional().describe("Value to mask"),
+  data: z.unknown().optional().describe("Alias for value"),
+  text: z.unknown().optional().describe("Alias for value"),
+  input: z.unknown().optional().describe("Alias for value"),
+  type: z.unknown().optional().describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
+  keepFirst: z.unknown().optional().describe("Characters to keep from start"),
+  keepLast: z.unknown().optional().describe("Characters to keep from end"),
+  maskChar: z.unknown().optional().describe("Character to use for masking"),
 });
 
 const MaskDataSchema = z.preprocess(

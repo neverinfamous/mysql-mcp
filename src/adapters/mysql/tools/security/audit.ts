@@ -85,13 +85,13 @@ const AuditLogSchema = z.preprocess(
 );
 
 const FirewallRulesSchemaBase = z.object({
-  limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records to return"),
-  count: z.coerce.number().optional().describe("Alias for limit"),
-  user: z.coerce.string().optional().describe("Filter by username"),
-  userName: z.string().optional().describe("Alias for user"),
-  username: z.string().optional().describe("Alias for user"),
-  mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional().describe("Filter by mode"),
-}).strict();
+  limit: z.unknown().optional().describe("Maximum number of records to return"),
+  count: z.unknown().optional().describe("Alias for limit"),
+  user: z.unknown().optional().describe("Filter by username"),
+  userName: z.unknown().optional().describe("Alias for user"),
+  username: z.unknown().optional().describe("Alias for user"),
+  mode: z.unknown().optional().describe("Filter by mode"),
+});
 
 const FirewallRulesSchema = z.preprocess(
   (val: unknown) => {
