@@ -45,20 +45,36 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (ifNotExists) {
           const checkResult = await adapter.executeQuery(
-            `/* write */ SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+            `/* write */ SELECT account_locked, password_expired, authentication_string FROM mysql.user WHERE User = ?`,
             [name],
           );
+          
           if (checkResult.rows && checkResult.rows.length > 0) {
-            const data = {
-              skipped: true,
-              roleName: name,
-              reason: "Role already exists",
-            };
-            const response = { success: true, data };
-            const tokenEstimate = Math.ceil(
-              Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
-            );
-            return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+            // Need to handle Record<string, unknown> safely
+            const row = checkResult.rows[0];
+            if (!row) {
+              throw new Error("Unexpected empty row data");
+            }
+            const isRole = row['account_locked'] === 'Y' && 
+                           row['password_expired'] === 'Y' && 
+                           (row['authentication_string'] === '' || row['authentication_string'] === null);
+
+            if (isRole) {
+              const data = {
+                skipped: true,
+                roleName: name,
+                reason: "Role already exists",
+              };
+              const response = { success: true, data };
+              const tokenEstimate = Math.ceil(
+                Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
+              );
+              return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
+            } else {
+              return formatHandlerErrorResponse(
+                new MySQLMcpError(`Cannot create role '${name}': A normal user with this name already exists`, "OBJECT_ALREADY_EXISTS", ErrorCategory.RESOURCE)
+              );
+            }
           }
         }
 

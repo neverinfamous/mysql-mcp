@@ -43,7 +43,7 @@ export function getRoleListTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { pattern, limit } = RoleListSchema.parse(params);
         let query = `SELECT u.User as roleName, u.Host FROM mysql.user u
-                    WHERE u.account_locked='Y' AND u.password_expired='Y' AND u.authentication_string=''`;
+                    WHERE u.account_locked='Y' AND u.password_expired='Y' AND (u.authentication_string='' OR u.authentication_string IS NULL)`;
         const args: unknown[] = [];
         if (pattern) {
           query += ` AND u.User LIKE ?`;
