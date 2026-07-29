@@ -159,10 +159,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           if (validation?.level && validation.level !== "OFF") {
             const schemaJson = JSON.stringify(validation.schema ?? {});
+            // Escape backslashes and single quotes for MySQL string literal
+            const escapedSchemaJson = schemaJson.replace(/\\/g, '\\\\').replace(/'/g, "''");
             sql = `${createClause} ${tableRef} (
                         doc JSON,
                         _id VARBINARY(32) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) STORED PRIMARY KEY,
-                        CHECK (JSON_SCHEMA_VALID('${schemaJson}', doc))
+                        CHECK (JSON_SCHEMA_VALID('${escapedSchemaJson}', doc))
                     ) ENGINE=InnoDB`;
           }
 
