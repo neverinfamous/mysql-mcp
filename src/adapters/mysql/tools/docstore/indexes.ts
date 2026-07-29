@@ -8,6 +8,9 @@ import {
   type ToolDefinition,
   type RequestContext,
   ConflictError,
+  ValidationError,
+  MySQLMcpError,
+  ErrorCategory,
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
@@ -41,26 +44,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           name = parsed.name;
           const { schema, fields, unique } = parsed;
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid collection name");
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid schema name");
           if (!IDENTIFIER_RE.test(name))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid index name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid index name");
 
           const idxCheck = await checkCollectionExists(
             adapter,
@@ -68,39 +56,23 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema,
           );
           if (!idxCheck.exists) {
-            return idxCheck.reason === "schema"
-              ? withTokenEstimate({
-                  success: false,
-                  error: `Schema '${idxCheck.name}' does not exist`,
-                  code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-                })
-              : withTokenEstimate({
-                  success: false,
-                  error: `Collection '${collection}' does not exist`,
-                  code: "TABLE_NOT_FOUND",
-                category: "resource",
-                });
+            throw new MySQLMcpError(
+              idxCheck.reason === "schema"
+                ? `Schema '${idxCheck.name}' does not exist`
+                : `Collection '${collection}' does not exist`,
+              idxCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            );
           }
 
           const tableRef = escapeTableRef(collection, schema);
           for (const field of fields) {
             const cleanPath = field.path.replace(/^\$\.?/, "");
             if (!/^[a-zA-Z0-9_.]+$/.test(cleanPath)) {
-              return withTokenEstimate({
-                success: false,
-                error: `Invalid field path: "${field.path}". Paths must contain only letters, digits, underscores, and dots.`,
-                code: "VALIDATION_ERROR",
-                category: "validation",
-              });
+              throw new ValidationError(`Invalid field path: "${field.path}". Paths must contain only letters, digits, underscores, and dots.`);
             }
             if (!/^[a-zA-Z0-9_()]+$/.test(field.type)) {
-              return withTokenEstimate({
-                success: false,
-                error: `Invalid field type: "${field.type}". Types must contain only letters, digits, underscores, and parentheses.`,
-                code: "VALIDATION_ERROR",
-                category: "validation",
-              });
+              throw new ValidationError(`Invalid field type: "${field.type}". Types must contain only letters, digits, underscores, and parentheses.`);
             }
             const colName = `_idx_${cleanPath.replace(/\./g, "_")}`;
             const typeUpper = field.type.toUpperCase();
