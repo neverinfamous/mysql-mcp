@@ -245,10 +245,10 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
         let query = "";
 
         // Determine primary key column for joining
-        const infoQuery = `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.KEY_COLUMN_USAGE WHERE TABLE_NAME = ? AND CONSTRAINT_NAME = 'PRIMARY' LIMIT 1`.replace(/\s+/g, ' ').trim();
-        const pkResult = await adapter.executeQuery(infoQuery, [validated.table]);
+        const infoQuery = `SHOW KEYS FROM \`${sanitizeIdentifier(validated.table)}\` WHERE Key_name = 'PRIMARY'`.replace(/\s+/g, ' ').trim();
+        const pkResult = await adapter.executeQuery(infoQuery);
         const firstPkRow = pkResult.rows?.[0];
-        const pkCol = firstPkRow && typeof firstPkRow === 'object' ? sanitizeIdentifier(String((firstPkRow)['COLUMN_NAME'])) : "id";
+        const pkCol = firstPkRow && typeof firstPkRow === 'object' ? sanitizeIdentifier(String((firstPkRow)['Column_name'])) : "id";
 
         if (hasVector && hasText) {
           // Full Hybrid Search with RRF
