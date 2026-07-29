@@ -33,14 +33,16 @@ export const MemberSchema = z.preprocess(
 );
 
 export const LimitSchemaBase = z.object({
-  limit: z.number().optional().describe("Maximum number of results"),
+  limit: z.coerce.number().optional().describe("Maximum number of results"),
 }).strict();
 
 export const SummarySchemaBase = z.object({
-  summary: z
-    .boolean()
-    .optional()
-    .describe("If true, return condensed output without configuration blobs"),
+  summary: z.preprocess((val) => {
+    if (typeof val === 'boolean') return val;
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    return val;
+  }, z.boolean().optional()).describe("If true, return condensed output without configuration blobs"),
 }).strict();
 
 // =============================================================================
