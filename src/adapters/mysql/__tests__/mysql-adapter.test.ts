@@ -498,10 +498,10 @@ describe("MySQLAdapter", () => {
       mockPool.execute.mockResolvedValue([
         [
           {
-            name: "PRIMARY",
-            nonUnique: 0,
-            columnName: "id",
-            type: "BTREE",
+            Key_name: "PRIMARY",
+            Non_unique: 0,
+            Column_name: "id",
+            Index_type: "BTREE",
           },
         ],
         undefined,
@@ -518,16 +518,16 @@ describe("MySQLAdapter", () => {
       mockPool.execute.mockResolvedValue([
         [
           {
-            name: "composite_idx",
-            nonUnique: 1,
-            columnName: "col1",
-            type: "BTREE",
+            Key_name: "composite_idx",
+            Non_unique: 1,
+            Column_name: "col1",
+            Index_type: "BTREE",
           },
           {
-            name: "composite_idx",
-            nonUnique: 1,
-            columnName: "col2",
-            type: "BTREE",
+            Key_name: "composite_idx",
+            Non_unique: 1,
+            Column_name: "col2",
+            Index_type: "BTREE",
           },
         ],
         undefined,

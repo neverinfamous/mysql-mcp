@@ -122,7 +122,7 @@ describe("Handler Execution", () => {
     it("should return skipped when ifNotExists and role already exists", async () => {
       // Pre-check finds an existing role
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ "1": 1 }]),
+        createMockQueryResult([{ account_locked: 'Y', password_expired: 'Y', authentication_string: '' }]),
       );
 
       const tool = tools.find((t) => t.name === "mysql_role_create")!;
