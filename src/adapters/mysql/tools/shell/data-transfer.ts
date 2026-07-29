@@ -590,6 +590,18 @@ export function createShellImportJSONTool(
           return formatHandlerErrorResponse(error);
         }
         const errorMessage = error instanceof Error ? error.message : String(error);
+        
+        if (errorMessage.includes("contains invalid bytes (5b)")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "JSON import failed: The input file appears to be a JSON array. util.importJson() requires NDJSON (one JSON object per line). It does not support JSON arrays.",
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Convert the JSON array to NDJSON (JSON Lines) format where each object is on a new line." }
+            )
+          );
+        }
+
         if (
           errorMessage.includes("1146") ||
           errorMessage.includes("doesn't exist") ||
