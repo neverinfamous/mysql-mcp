@@ -423,7 +423,7 @@ export const ProxySQLCommandInputSchemaBase = z.object({
 
 export const ProxySQLCommandInputSchema = z.preprocess(
   (val: unknown) => {
-    if (typeof val === "string") return { command: val };
+    if (typeof val === "string") return { command: val.toUpperCase() };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     
@@ -437,6 +437,10 @@ export const ProxySQLCommandInputSchema = z.preprocess(
     }
     delete result["sql"];
     delete result["query"];
+    
+    if (typeof result["command"] === "string") {
+      result["command"] = result["command"].toUpperCase();
+    }
     
     return result;
   },
