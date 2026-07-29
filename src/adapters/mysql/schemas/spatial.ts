@@ -40,8 +40,15 @@ export function isValidWKT(wkt: string): boolean {
     if (pairs.length < 2) return false;
   }
   
-  if (type === "POLYGON") {
+  if (type === "POLYGON" || type === "MULTIPOLYGON") {
     if (pairs.length < 4) return false;
+    const rings = content.split(/\)\s*,\s*\(/);
+    for (let ring of rings) {
+        ring = ring.replace(/[()]/g, "").trim();
+        const points = ring.split(",").map(p => p.trim());
+        if (points.length < 4) return false;
+        if (points[0] !== points[points.length - 1]) return false;
+    }
   }
   
   return true;
