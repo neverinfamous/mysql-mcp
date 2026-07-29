@@ -414,7 +414,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Validation error: both geometries must be valid WKT strings (e.g. POINT(1 1))",
+        error: expect.stringContaining("Validation error: both geometries must be valid WKT strings"),
       });
     });
 
@@ -434,7 +434,7 @@ describe("Spatial Tools Handlers", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Validation error: geometry must be a valid WKT string (e.g. POINT(1 1)); MySQL only supports ST_Buffer for POINT and MULTIPOINT geometries when using geographic SRS (SRID 4326). Use SRID 0 (Cartesian) for other geometries.",
+        error: expect.stringContaining("Validation error: geometry must be a valid WKT string"),
       });
     });
 

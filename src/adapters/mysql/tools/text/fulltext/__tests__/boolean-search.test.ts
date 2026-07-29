@@ -26,7 +26,7 @@ describe("createFulltextBooleanTool", () => {
     expect(result.success).toBe(true);
     expect(result.data.rows).toEqual([{ title: "MySQL", relevance: 1.2 }]);
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, MATCH(`title`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN BOOLEAN MODE) ORDER BY relevance DESC LIMIT 5",
+      "/*writer*/ SELECT `title`, MATCH(`title`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN BOOLEAN MODE) ORDER BY relevance DESC LIMIT 5",
       ["+MySQL -Tutorial", "+MySQL -Tutorial"]
     );
   });

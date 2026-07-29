@@ -28,7 +28,7 @@ describe("createFulltextSearchTool", () => {
     expect(result.success).toBe(true);
     expect(result.data.rows).toEqual([{ title: "MySQL", relevance: 1.2 }]);
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE) ORDER BY relevance DESC LIMIT 5",
+      "/*writer*/ SELECT `title`, MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? IN NATURAL LANGUAGE MODE) ORDER BY relevance DESC LIMIT 5",
       ["MySQL", "MySQL"]
     );
   });
@@ -45,7 +45,7 @@ describe("createFulltextSearchTool", () => {
 
     expect(result.success).toBe(true);
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, `body`, MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE) ORDER BY relevance DESC LIMIT 5",
+      "/*writer*/ SELECT `title`, `body`, MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE) as relevance FROM `articles` WHERE MATCH(`title`, `body`) AGAINST(? IN BOOLEAN MODE) ORDER BY relevance DESC LIMIT 5",
       ["+MySQL", "+MySQL"]
     );
   });
@@ -59,7 +59,7 @@ describe("createFulltextSearchTool", () => {
     );
 
     expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
-      "SELECT `title`, MATCH(`title`) AGAINST(? WITH QUERY EXPANSION) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? WITH QUERY EXPANSION) ORDER BY relevance DESC LIMIT 10",
+      "/*writer*/ SELECT `title`, MATCH(`title`) AGAINST(? WITH QUERY EXPANSION) as relevance FROM `articles` WHERE MATCH(`title`) AGAINST(? WITH QUERY EXPANSION) ORDER BY relevance DESC LIMIT 10",
       ["MySQL", "MySQL"]
     );
   });
