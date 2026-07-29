@@ -179,11 +179,11 @@ export const ShellDumpTablesInputSchemaBase = z
       .default("zstd")
       .describe("Compression method"),
     where: z
-      .record(z.string(), z.string())
+      .union([z.string(), z.record(z.string(), z.string())])
       .optional()
       .describe('WHERE clauses per table ({tableName: "condition"})'),
     filter: z
-      .record(z.string(), z.string())
+      .union([z.string(), z.record(z.string(), z.string())])
       .optional()
       .describe("Alias for where"),
     dryRun: booleanCoerce
