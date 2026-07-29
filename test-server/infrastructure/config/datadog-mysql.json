@@ -15,6 +15,35 @@
   "widgets": [
     {
       "definition": {
+        "columns": [
+          "host",
+          "service",
+          "message"
+        ],
+        "message_display": "expanded-md",
+        "query": "source:proxysql status:(error OR warn)",
+        "show_date_column": true,
+        "show_message_column": true,
+        "sort": {
+          "column": "time",
+          "order": "desc"
+        },
+        "time": {},
+        "title": "ProxySQL Error \u0026 Warn Logs",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "log_stream"
+      },
+      "id": 6404837014592942,
+      "layout": {
+        "height": 4,
+        "width": 12,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
@@ -120,7 +149,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 0
+        "y": 4
       }
     },
     {
@@ -198,7 +227,7 @@
         "height": 2,
         "width": 4,
         "x": 4,
-        "y": 0
+        "y": 4
       }
     },
     {
@@ -246,7 +275,7 @@
         "height": 2,
         "width": 4,
         "x": 8,
-        "y": 0
+        "y": 4
       }
     },
     {
@@ -315,7 +344,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 2
+        "y": 6
       }
     },
     {
@@ -369,7 +398,7 @@
         "height": 2,
         "width": 4,
         "x": 4,
-        "y": 2
+        "y": 6
       }
     },
     {
@@ -427,7 +456,7 @@
         "height": 2,
         "width": 4,
         "x": 8,
-        "y": 2
+        "y": 6
       }
     },
     {
@@ -475,7 +504,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 4
+        "y": 8
       }
     },
     {
@@ -529,7 +558,7 @@
         "height": 2,
         "width": 4,
         "x": 4,
-        "y": 4
+        "y": 8
       }
     },
     {
@@ -595,7 +624,7 @@
         "height": 2,
         "width": 4,
         "x": 8,
-        "y": 4
+        "y": 8
       }
     },
     {
@@ -643,7 +672,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 6
+        "y": 10
       }
     },
     {
@@ -697,7 +726,7 @@
         "height": 2,
         "width": 4,
         "x": 4,
-        "y": 6
+        "y": 10
       }
     },
     {
@@ -756,7 +785,7 @@
         "height": 2,
         "width": 4,
         "x": 8,
-        "y": 6
+        "y": 10
       }
     },
     {
@@ -815,7 +844,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 8
+        "y": 12
       }
     },
     {
@@ -874,7 +903,7 @@
         "height": 2,
         "width": 4,
         "x": 4,
-        "y": 8
+        "y": 12
       }
     },
     {
@@ -933,7 +962,7 @@
         "height": 2,
         "width": 4,
         "x": 8,
-        "y": 8
+        "y": 12
       }
     },
     {
@@ -981,7 +1010,7 @@
         "height": 2,
         "width": 4,
         "x": 4,
-        "y": 10
+        "y": 14
       }
     },
     {
@@ -1038,7 +1067,7 @@
         "height": 2,
         "width": 4,
         "x": 8,
-        "y": 10
+        "y": 14
       }
     },
     {
@@ -1108,7 +1137,7 @@
         "is_column_break": true,
         "width": 4,
         "x": 0,
-        "y": 12
+        "y": 16
       }
     },
     {
@@ -1129,7 +1158,7 @@
         "height": 2,
         "width": 2,
         "x": 4,
-        "y": 12
+        "y": 16
       }
     },
     {
@@ -1166,7 +1195,7 @@
         "height": 2,
         "width": 2,
         "x": 6,
-        "y": 12
+        "y": 16
       }
     },
     {
@@ -1205,7 +1234,7 @@
         "height": 2,
         "width": 2,
         "x": 8,
-        "y": 12
+        "y": 16
       }
     },
     {
@@ -1242,7 +1271,7 @@
         "height": 2,
         "width": 2,
         "x": 10,
-        "y": 12
+        "y": 16
       }
     },
     {
@@ -1311,7 +1340,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 14
+        "y": 18
       }
     },
     {
@@ -1353,7 +1382,7 @@
         "height": 4,
         "width": 8,
         "x": 4,
-        "y": 14
+        "y": 18
       }
     },
     {
@@ -1416,7 +1445,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 16
+        "y": 20
       }
     },
     {
@@ -1464,7 +1493,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 18
+        "y": 22
       }
     },
     {
@@ -1500,7 +1529,7 @@
         "height": 4,
         "width": 8,
         "x": 4,
-        "y": 18
+        "y": 22
       }
     },
     {
@@ -1559,7 +1588,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 20
+        "y": 24
       }
     },
     {
@@ -1613,7 +1642,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 22
+        "y": 26
       }
     },
     {
@@ -1649,7 +1678,7 @@
         "height": 3,
         "width": 8,
         "x": 4,
-        "y": 22
+        "y": 26
       }
     }
   ]
