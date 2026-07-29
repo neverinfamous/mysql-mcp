@@ -107,10 +107,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             const cast = (typeUpper === "TEXT" || typeUpper === "STRING") 
               ? "VARCHAR(255)" 
               : typeUpper.replace(/^(TEXT|STRING)\(/, "VARCHAR(");
-            await adapter.executeQuery(
-              `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast}
-                           GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${cleanPath}'))) STORED`,
-            );
+            try {
+              await adapter.executeQuery(
+                `ALTER TABLE ${tableRef} ADD COLUMN \`${colName}\` ${cast}
+                             GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$.${cleanPath}'))) STORED`,
+              );
+            } catch (colError: unknown) {
+              const colMessage = colError instanceof Error ? colError.message : String(colError);
+              if (!colMessage.toLowerCase().includes("duplicate column")) {
+                throw colError;
+              }
+              // Ignore duplicate column and reuse the existing one
+            }
           }
 
           const cols = fields
