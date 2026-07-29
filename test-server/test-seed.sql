@@ -12,9 +12,7 @@
 -- CLEANUP: Drop existing test tables
 -- =============================================================================
 
-CREATE USER IF NOT EXISTS 'cluster_admin'@'%' IDENTIFIED WITH caching_sha2_password BY 'cluster_admin';
-GRANT ALL PRIVILEGES ON *.* TO 'cluster_admin'@'%' WITH GRANT OPTION;
-FLUSH PRIVILEGES;
+
 
 SET FOREIGN_KEY_CHECKS = 0;
 
