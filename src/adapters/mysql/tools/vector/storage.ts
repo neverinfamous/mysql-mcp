@@ -136,6 +136,9 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
         const table = sanitizeIdentifier(validated.table);
         const idCol = sanitizeIdentifier(validated.idColumn);
 
+        // Verify this is actually a vector table before allowing deletion
+        await resolveVectorColumn(adapter, validated.table);
+
         const query = `DELETE FROM \`${table}\` WHERE \`${idCol}\` = ?`;
         const result = await adapter.executeQuery(query, [validated.id]);
 
