@@ -16,9 +16,8 @@ export function isValidWKT(wkt: string): boolean {
   if (!wkt || typeof wkt !== "string") return false;
   const t = wkt.trim().toUpperCase();
   
-  if (t.endsWith(" EMPTY")) {
-    const type = t.replace(" EMPTY", "").trim();
-    return VALID_GEOMETRY_TYPES.has(type);
+  if (t.includes("EMPTY")) {
+    return false;
   }
   
   const match = /^([A-Z]+)\s*\((.*)\)$/.exec(t);
@@ -585,7 +584,10 @@ export const IntersectionSchema = z.preprocess(
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
 )
-  .refine((data) => isValidWKT(data.geometry1) && isValidWKT(data.geometry2), { message: "both geometries must be valid WKT strings (e.g. POINT(1 1))" })
+  .refine((data) => {
+    if (data.geometry1.toUpperCase().includes("EMPTY") || data.geometry2.toUpperCase().includes("EMPTY")) return false;
+    return isValidWKT(data.geometry1) && isValidWKT(data.geometry2);
+  }, { message: "both geometries must be valid WKT strings (e.g. POINT(1 1)). EMPTY geometries are not supported." })
   .refine((data) => !Number.isNaN(data.srid), {
     message: "srid must be a valid number",
   })
@@ -638,7 +640,10 @@ export const BufferSchema = z.preprocess(
     segments: data.segments !== undefined ? Number(data.segments) : 8,
   }))
 )
-  .refine((data) => isValidWKT(data.geometry), { message: "geometry must be a valid WKT string (e.g. POINT(1 1))" })
+  .refine((data) => {
+    if (data.geometry.toUpperCase().includes("EMPTY")) return false;
+    return isValidWKT(data.geometry);
+  }, { message: "geometry must be a valid WKT string (e.g. POINT(1 1)). EMPTY geometries are not supported." })
   .refine((data) => {
     if (data.srid === 4326) {
       const g = data.geometry.trim().toUpperCase();
