@@ -712,7 +712,25 @@ export const TransformSchema = z.preprocess(
   })
   .refine((data) => !Number.isNaN(data.toSrid), {
     message: "toSrid must be a valid number",
-  });
+  })
+  .refine((data) => data.fromSrid !== 0 && data.toSrid !== 0, {
+    message: "ST_Transform requires both fromSrid and toSrid to be non-zero (geographic or projected coordinate systems). Cartesian (0) is not supported.",
+  })
+  .refine((data) => {
+    if (data.fromSrid === 4326 && data.geometry) {
+        const matches = data.geometry.match(/[-\d.]+\s+[-\d.]+/g);
+        if (matches) {
+            for (const match of matches) {
+                const [lonStr, latStr] = match.split(/\s+/);
+                const lon = Number(lonStr);
+                const lat = Number(latStr);
+                if (lon < -180 || lon > 180) return false;
+                if (lat < -90 || lat > 90) return false;
+            }
+        }
+    }
+    return true;
+  }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" });
 
 export const GeoJSONSchemaBase = z.object({
   geometry: z
@@ -761,7 +779,39 @@ export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
     }
   }
   return true;
-}, { message: "Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object" });
+}, { message: "Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object" })
+.refine((data) => {
+  if (data.srid === 4326 && data.geometry !== undefined) {
+      const matches = data.geometry.match(/[-\d.]+\s+[-\d.]+/g);
+      if (matches) {
+          for (const match of matches) {
+              const [lonStr, latStr] = match.split(/\s+/);
+              const lon = Number(lonStr);
+              const lat = Number(latStr);
+              if (lon < -180 || lon > 180) return false;
+              if (lat < -90 || lat > 90) return false;
+          }
+      }
+  }
+  return true;
+}, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" })
+.refine((data) => {
+  if (data.geoJson !== undefined) {
+      const matches = data.geoJson.match(/\[\s*([-\d.]+)\s*,\s*([-\d.]+)\s*(?:,\s*[-\d.]+\s*)?\]/g);
+      if (matches) {
+          for (const match of matches) {
+              const inner = match.replace(/[[\]]/g, "").split(",");
+              if (inner.length >= 2 && inner[0] !== undefined && inner[1] !== undefined) {
+                  const lon = Number(inner[0].trim());
+                  const lat = Number(inner[1].trim());
+                  if (lon < -180 || lon > 180) return false;
+                  if (lat < -90 || lat > 90) return false;
+              }
+          }
+      }
+  }
+  return true;
+}, { message: "GeoJSON coordinates must be valid for WGS84: longitude between -180 and 180, and latitude between -90 and 90" });
 
 // Output Schemas
 
