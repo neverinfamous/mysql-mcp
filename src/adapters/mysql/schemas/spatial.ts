@@ -93,8 +93,8 @@ export const SpatialColumnSchema = z.preprocess(
 )
   .refine((data) => data.table !== "", { message: "table is required" })
   .refine((data) => data.column !== "", { message: "column is required" })
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   });
 
 export const SpatialIndexSchemaBase = z.object({
@@ -196,8 +196,8 @@ export const PointSchema = z.preprocess(
     },
     { message: "longitude must be between -180 and 180 degrees for SRID 4326" }
   )
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   });
 
 export const PolygonSchemaBase = z.object({
@@ -302,8 +302,8 @@ export const PolygonSchema = z.preprocess(
     }
     return true;
   }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" })
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   });
 
 export const DistanceSchemaBase = z.object({
@@ -486,8 +486,8 @@ export const ContainsSchema = z.preprocess(
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   });
 
 export const WithinSchemaBase = z.object({
@@ -537,8 +537,8 @@ export const WithinSchema = z.preprocess(
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   });
 
 export const IntersectionSchemaBase = z.object({
@@ -710,8 +710,8 @@ export const GeoJSONSchemaStrict = z.preprocess(
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
 )
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   });
 
 export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
