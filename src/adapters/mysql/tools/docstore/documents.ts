@@ -4,9 +4,12 @@ import {
   withTokenEstimate,
 } from "../core/error-helpers.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  type ToolDefinition,
+  type RequestContext,
+  ValidationError,
+  MySQLMcpError,
+  ErrorCategory,
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
@@ -50,19 +53,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { collection, schema, filter, fields, limit, offset } =
             FindSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid collection name");
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid schema name");
 
           // Check if collection exists (with schema detection)
           const findCheck = await checkCollectionExists(
@@ -71,19 +64,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema,
           );
           if (!findCheck.exists) {
-            return findCheck.reason === "schema"
-              ? withTokenEstimate({
-                  success: false,
-                  error: `Schema '${findCheck.name}' does not exist`,
-                  code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-                })
-              : withTokenEstimate({
-                  success: false,
-                  error: `Collection '${collection}' does not exist`,
-                  code: "TABLE_NOT_FOUND",
-                category: "resource",
-                });
+            throw new MySQLMcpError(
+              findCheck.reason === "schema"
+                ? `Schema '${findCheck.name}' does not exist`
+                : `Collection '${collection}' does not exist`,
+              findCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            );
           }
 
           let selectClause = "_id, doc";
@@ -91,12 +78,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             // Validate all field names to prevent SQL injection
             for (const f of fields) {
               if (!IDENTIFIER_RE.test(f)) {
-                return withTokenEstimate({
-                  success: false,
-                  error: `Invalid field name: "${f}". Field names must be valid identifiers (letters, digits, underscores).`,
-                  code: "VALIDATION_ERROR",
-                  category: "validation",
-                });
+                throw new ValidationError(`Invalid field name: "${f}". Field names must be valid identifiers (letters, digits, underscores).`);
               }
             }
             selectClause =
@@ -166,19 +148,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { collection, schema, documents } = AddDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid collection name");
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid schema name");
 
           const addCheck = await checkCollectionExists(
             adapter,
@@ -186,19 +158,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema,
           );
           if (!addCheck.exists) {
-            return addCheck.reason === "schema"
-              ? withTokenEstimate({
-                  success: false,
-                  error: `Schema '${addCheck.name}' does not exist`,
-                  code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-                })
-              : withTokenEstimate({
-                  success: false,
-                  error: `Collection '${collection}' does not exist`,
-                  code: "TABLE_NOT_FOUND",
-                category: "resource",
-                });
+            throw new MySQLMcpError(
+              addCheck.reason === "schema"
+                ? `Schema '${addCheck.name}' does not exist`
+                : `Collection '${collection}' does not exist`,
+              addCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            );
           }
 
           const tableRef = escapeTableRef(collection, schema);
@@ -234,19 +200,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { collection, schema, filter, set, unset } =
             ModifyDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid collection name");
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid schema name");
 
           const modCheck = await checkCollectionExists(
             adapter,
@@ -254,19 +210,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema,
           );
           if (!modCheck.exists) {
-            return modCheck.reason === "schema"
-              ? withTokenEstimate({
-                  success: false,
-                  error: `Schema '${modCheck.name}' does not exist`,
-                  code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-                })
-              : withTokenEstimate({
-                  success: false,
-                  error: `Collection '${collection}' does not exist`,
-                  code: "TABLE_NOT_FOUND",
-                category: "resource",
-                });
+            throw new MySQLMcpError(
+              modCheck.reason === "schema"
+                ? `Schema '${modCheck.name}' does not exist`
+                : `Collection '${collection}' does not exist`,
+              modCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            );
           }
 
           const updates: string[] = [];
@@ -276,12 +226,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
               // Validate path against identifier regex to prevent injection
               if (!IDENTIFIER_RE.test(path)) {
-                return withTokenEstimate({
-                  success: false,
-                  error: `Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`,
-                  code: "VALIDATION_ERROR",
-                  category: "validation",
-                });
+                throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`);
               }
               updates.push(`doc = JSON_SET(doc, ?, CAST(CONVERT(? USING utf8mb4) AS JSON))`);
               updateParams.push(`$.${path}`, JSON.stringify(value));
@@ -292,12 +237,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               const path = rawPath.startsWith("$.") ? rawPath.slice(2) : rawPath;
               // Validate path against identifier regex to prevent injection
               if (!IDENTIFIER_RE.test(path)) {
-                return withTokenEstimate({
-                  success: false,
-                  error: `Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`,
-                  code: "VALIDATION_ERROR",
-                  category: "validation",
-                });
+                throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid identifiers (letters, digits, underscores).`);
               }
               updates.push(`doc = JSON_REMOVE(doc, ?)`);
               updateParams.push(`$.${path}`);
@@ -305,12 +245,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           if (updates.length === 0)
-            return withTokenEstimate({
-              success: false,
-              error: "No modifications specified",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("No modifications specified");
 
           const { where, params: whereParams } = parseDocFilter(filter);
           const tableRef = escapeTableRef(collection, schema);
@@ -344,19 +279,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { collection, schema, filter } = RemoveDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid collection name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid collection name");
           if (schema && !IDENTIFIER_RE.test(schema))
-            return withTokenEstimate({
-              success: false,
-              error: "Invalid schema name",
-              code: "VALIDATION_ERROR",
-              category: "validation",
-            });
+            throw new ValidationError("Invalid schema name");
 
           const rmCheck = await checkCollectionExists(
             adapter,
@@ -364,19 +289,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             schema,
           );
           if (!rmCheck.exists) {
-            return rmCheck.reason === "schema"
-              ? withTokenEstimate({
-                  success: false,
-                  error: `Schema '${rmCheck.name}' does not exist`,
-                  code: "SCHEMA_NOT_FOUND",
-                category: "resource",
-                })
-              : withTokenEstimate({
-                  success: false,
-                  error: `Collection '${collection}' does not exist`,
-                  code: "TABLE_NOT_FOUND",
-                category: "resource",
-                });
+            throw new MySQLMcpError(
+              rmCheck.reason === "schema"
+                ? `Schema '${rmCheck.name}' does not exist`
+                : `Collection '${collection}' does not exist`,
+              rmCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
+              ErrorCategory.RESOURCE
+            );
           }
 
           const { where, params: whereParams } = parseDocFilter(filter);
