@@ -230,6 +230,10 @@ export const PolygonSchema = z.preprocess(
         coords = data["table"];
     }
 
+    if (Array.isArray(coords) && coords.length > 0 && Array.isArray(coords[0]) && typeof coords[0][0] === "number") {
+        coords = [coords];
+    }
+
     return {
       ...data,
       coordinates: coords,
