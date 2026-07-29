@@ -172,13 +172,13 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           const filtersIgnored: string[] = [];
 
           if (user) {
-            // Safe: escape single quotes in user input for LIKE clause
-            const escaped = user.replace(/'/g, "''");
+            // Safe: escape backslashes and single quotes in user input for LIKE clause
+            const escaped = user.replace(/\\/g, "\\\\").replace(/'/g, "''");
             conditions.push(`t.PROCESSLIST_USER LIKE '%${escaped}%'`);
             filtersApplied.push("user");
           }
           if (eventType) {
-            const escaped = eventType.replace(/'/g, "''");
+            const escaped = eventType.replace(/\\/g, "\\\\").replace(/'/g, "''");
             conditions.push(`e.EVENT_NAME LIKE '%${escaped}%'`);
             filtersApplied.push("eventType");
           }
