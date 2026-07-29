@@ -50,6 +50,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { schema } = ListCollectionsSchema.parse(params);
 
+          if (schema && !IDENTIFIER_RE.test(schema)) {
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
+            );
+          }
+
           if (schema) {
             const schemaCheck = await adapter.executeQuery(
               `SHOW SCHEMAS LIKE '${schema}'`
@@ -279,6 +285,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!IDENTIFIER_RE.test(collection))
             return formatHandlerErrorResponse(
               new ValidationError("Invalid collection name")
+            );
+          if (schema && !IDENTIFIER_RE.test(schema))
+            return formatHandlerErrorResponse(
+              new ValidationError("Invalid schema name")
             );
 
           // Check collection existence (with schema detection)
