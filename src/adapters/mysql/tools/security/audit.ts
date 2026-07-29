@@ -51,12 +51,28 @@ const AuditLogSchemaBase = z.object({
 const AuditLogSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val === "object" && val !== null) {
-      const v = val as Record<string, unknown>;
-      if (v["count"] !== undefined && v["limit"] === undefined) v["limit"] = v["count"];
-      if (v["username"] !== undefined && v["user"] === undefined) v["user"] = v["username"];
-      if (v["userName"] !== undefined && v["user"] === undefined) v["user"] = v["userName"];
-      if (v["event"] !== undefined && v["eventType"] === undefined) v["eventType"] = v["event"];
-      if (v["time"] !== undefined && v["startTime"] === undefined) v["startTime"] = v["time"];
+      const v = { ...(val as Record<string, unknown>) };
+      if (v["count"] !== undefined) {
+        if (v["limit"] === undefined) v["limit"] = v["count"];
+        delete v["count"];
+      }
+      if (v["username"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["username"];
+        delete v["username"];
+      }
+      if (v["userName"] !== undefined) {
+        if (v["user"] === undefined) v["user"] = v["userName"];
+        delete v["userName"];
+      }
+      if (v["event"] !== undefined) {
+        if (v["eventType"] === undefined) v["eventType"] = v["event"];
+        delete v["event"];
+      }
+      if (v["time"] !== undefined) {
+        if (v["startTime"] === undefined) v["startTime"] = v["time"];
+        delete v["time"];
+      }
+      return v;
     }
     return val;
   },
