@@ -51,8 +51,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           if (schema) {
             const schemaCheck = await adapter.executeQuery(
-              "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-              [schema],
+              `SHOW SCHEMAS LIKE '${schema}'`
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
               return withTokenEstimate({
@@ -238,8 +237,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           // P154: Schema existence check when explicitly provided
           if (schema) {
             const schemaCheck = await adapter.executeQuery(
-              "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-              [schema],
+              `SHOW SCHEMAS LIKE '${schema}'`
             );
             if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
               return withTokenEstimate({

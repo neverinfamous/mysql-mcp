@@ -97,14 +97,13 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
-        expect.stringContaining("SCHEMATA"),
-        ["mydb"],
+        "SHOW SCHEMAS LIKE 'mydb'"
       );
       // Second call: collections query with schema params
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
         expect.any(String),
-        ["mydb", "mydb"],
+        ["mydb", "mydb"]
       );
     });
 
@@ -448,14 +447,12 @@ describe("Handler Execution", () => {
       // First call: schema existence check
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
-        expect.stringContaining("SCHEMATA"),
-        ["otherdb"],
+        "SHOW SCHEMAS LIKE 'otherdb'"
       );
       // Second call: collection existence check with schema
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
-        expect.any(String),
-        ["otherdb", "my_coll"],
+        "SHOW TABLES FROM `otherdb` LIKE 'my_coll'"
       );
       // Query should use qualified table ref
       const queryCall = mockAdapter.executeQuery.mock.calls[2][0];
@@ -715,14 +712,12 @@ describe("Handler Execution", () => {
       // First call: schema existence check
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
-        expect.stringContaining("SCHEMATA"),
-        ["otherdb"],
+        "SHOW SCHEMAS LIKE 'otherdb'"
       );
       // Second call: collection existence check with schema
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
-        expect.any(String),
-        ["otherdb", "my_coll"],
+        "SHOW TABLES FROM `otherdb` LIKE 'my_coll'"
       );
       // Insert should use qualified table ref
       const insertCall = mockAdapter.executeQuery.mock.calls[2][0];

@@ -5,8 +5,11 @@ import type { ToolDefinition, RequestContext } from "../../types/index.js";
 
 // Mock the MySQLAdapter
 const mockExecuteQuery = vi.fn().mockImplementation(async (sql) => {
-  if (sql === "SELECT VERSION() as version") {
-    return { rows: [{ version: "9.0.0" }] };
+  if (sql === "SHOW VARIABLES LIKE 'version'") {
+    return { rows: [{ Value: "9.0.0" }] };
+  }
+  if (sql.includes("SHOW COLUMNS")) {
+    return { rows: [{ Field: "v1", Type: "vector(1536)", Null: "YES", Default: null, Extra: "" }, { Field: "id", Type: "int" }] };
   }
   return { rows: [], affectedRows: 0 };
 });
@@ -32,8 +35,11 @@ describe("Vector Tools", () => {
     it("should return an error for MySQL versions < 9.0 on vector tools", async () => {
       // Mock version 8.0.35
       const oldExecuteQuery = vi.fn().mockImplementation(async (sql) => {
-        if (sql === "SELECT VERSION() as version") {
-          return { rows: [{ version: "8.0.35" }] };
+        if (sql === "SHOW VARIABLES LIKE 'version'") {
+          return { rows: [{ Value: "8.0.35" }] };
+        }
+        if (sql.includes("SHOW COLUMNS")) {
+          return { rows: [{ Field: "v1", Type: "vector(1536)", Null: "YES", Default: null, Extra: "" }] };
         }
         return { rows: [], affectedRows: 0 };
       });
@@ -114,11 +120,11 @@ describe("Vector Tools", () => {
       const mockResult = Object.assign(
         function (query: string) {
           if (typeof query === "string") {
-            if (query.includes("VERSION()")) {
-              return Promise.resolve({ rows: [{ version: "9.0.0" }] });
+            if (query.includes("SHOW VARIABLES LIKE 'version'")) {
+              return Promise.resolve({ rows: [{ Value: "9.0.0" }] });
             }
-            if (query.includes("INFORMATION_SCHEMA")) {
-              return Promise.resolve({ rows: [{ COLUMN_NAME: "id" }] });
+            if (query.includes("SHOW COLUMNS")) {
+              return Promise.resolve({ rows: [{ Field: "v1", Type: "vector" }] });
             }
           }
           return Promise.resolve({ rows: [{ id: 1, distance: 0.1 }], affectedRows: 0 });
@@ -174,7 +180,7 @@ describe("Vector Tools", () => {
     it("should handle missing table gracefully", async () => {
       const tool = tools.get("mysql_vector_hybrid_search")!;
       mockAdapter.executeQuery.mockImplementation(async (sql) => {
-        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
+        if (sql === "SHOW VARIABLES LIKE 'version'") return { rows: [{ Value: "9.0.0" }] };
         throw new Error("Table 't1' does not exist");
       });
       
@@ -190,8 +196,8 @@ describe("Vector Tools", () => {
     it("should strip vectorColumn from default select output", async () => {
       const tool = tools.get("mysql_vector_hybrid_search")!;
       mockAdapter.executeQuery.mockImplementation(async (sql) => {
-        if (sql === "SELECT VERSION() as version") return { rows: [{ version: "9.0.0" }] };
-        if (sql.includes("INFORMATION_SCHEMA.COLUMNS")) return { rows: [{ COLUMN_NAME: 'id' }] };
+        if (sql === "SHOW VARIABLES LIKE 'version'") return { rows: [{ Value: "9.0.0" }] };
+        if (sql.includes("SHOW COLUMNS")) return { rows: [{ Field: 'id' }, { Field: 'v1', Type: 'vector(1536)' }] };
         return { rows: [{ id: 1, v1: '[0.1, 0.2]', text: 'hello', combined_score: 1.0 }] };
       });
       

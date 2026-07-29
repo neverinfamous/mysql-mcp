@@ -31,12 +31,12 @@ describe("Vector Tools", () => {
     adapter = createMockMySQLAdapter();
     
     adapter.executeQuery.mockImplementation(async (query: string) => {
-      if (query.includes("VERSION()")) {
-        return { rows: [{ version: "9.1.0" }] };
+      if (query.includes("SHOW VARIABLES LIKE 'version'")) {
+        return { rows: [{ Value: "9.1.0" }] };
       }
-      if (query.includes("INFORMATION_SCHEMA.COLUMNS")) {
+      if (query.includes("SHOW COLUMNS")) {
         return { rows: [
-          { COLUMN_NAME: "vec", COLUMN_TYPE: "vector(1536)", IS_NULLABLE: "YES", COLUMN_DEFAULT: null, EXTRA: "", DATA_TYPE: "vector" }
+          { Field: "vec", Type: "vector(1536)", Null: "YES", Default: null, Extra: "" }
         ] };
       }
       if (query.includes("count(*)") || query.includes("COUNT(*)")) {
