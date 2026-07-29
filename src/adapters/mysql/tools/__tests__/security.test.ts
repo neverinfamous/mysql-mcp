@@ -750,6 +750,10 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([{ NAME: "mysql", ENCRYPTION: "Y" }]),
       );
+      // Tablespaces COUNT
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ cnt: 1 }]),
+      );
       // Variables
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
@@ -774,6 +778,7 @@ describe("Security Tools", () => {
     });
 
     it("should handle missing keyring", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
@@ -821,6 +826,10 @@ describe("Security Tools", () => {
         rows: undefined,
       });
       // Tablespaces
+      mockAdapter.executeQuery.mockResolvedValueOnce({
+        rows: undefined,
+      });
+      // Tablespaces COUNT
       mockAdapter.executeQuery.mockResolvedValueOnce({
         rows: undefined,
       });

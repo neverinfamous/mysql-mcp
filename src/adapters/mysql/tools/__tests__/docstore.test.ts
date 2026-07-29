@@ -452,7 +452,8 @@ describe("Handler Execution", () => {
       // Second call: collection existence check with schema
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
-        "SHOW TABLES FROM `otherdb` LIKE 'my_coll'"
+        expect.stringContaining("information_schema.COLUMNS"),
+        ["my_coll", "otherdb"]
       );
       // Query should use qualified table ref
       const queryCall = mockAdapter.executeQuery.mock.calls[2][0];
@@ -717,7 +718,8 @@ describe("Handler Execution", () => {
       // Second call: collection existence check with schema
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
-        "SHOW TABLES FROM `otherdb` LIKE 'my_coll'"
+        expect.stringContaining("information_schema.COLUMNS"),
+        ["my_coll", "otherdb"]
       );
       // Insert should use qualified table ref
       const insertCall = mockAdapter.executeQuery.mock.calls[2][0];

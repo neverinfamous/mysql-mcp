@@ -93,6 +93,10 @@ describe("Security Encryption Tools", () => {
         .mockResolvedValueOnce({
           rows: [{ NAME: "mysql", ENCRYPTION: "Y" }],
         })
+        // tablespaces count
+        .mockResolvedValueOnce({
+          rows: [{ cnt: 1 }],
+        })
         // variables
         .mockResolvedValueOnce({
           rows: [{ Variable_name: "default_table_encryption", Value: "ON" }],
