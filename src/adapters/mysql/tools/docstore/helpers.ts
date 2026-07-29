@@ -133,14 +133,19 @@ export async function checkCollectionExists(
     }
   }
 
-  let query = `SHOW TABLES LIKE '${collection}'`;
+
+  const query = `
+    SELECT 1 
+    FROM information_schema.COLUMNS c1
+    JOIN information_schema.COLUMNS c2 
+      ON c1.TABLE_SCHEMA = c2.TABLE_SCHEMA AND c1.TABLE_NAME = c2.TABLE_NAME
+    WHERE c1.TABLE_NAME = ?
+      AND c1.TABLE_SCHEMA = COALESCE(?, DATABASE())
+      AND c1.COLUMN_NAME = 'doc' AND c1.DATA_TYPE = 'json'
+      AND c2.COLUMN_NAME = '_id'
+  `;
   
-  if (schema) {
-    const escapedSchema = schema.replace(/`/g, '``');
-    query = `SHOW TABLES FROM \`${escapedSchema}\` LIKE '${collection}'`;
-  }
-  
-  const result = await adapter.executeQuery(query);
+  const result = await adapter.executeQuery(query, [collection, schema ?? null]);
   if ((result.rows?.length ?? 0) > 0) {
     return { exists: true };
   }
