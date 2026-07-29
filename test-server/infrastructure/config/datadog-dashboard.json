@@ -132,7 +132,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Resource Reads",
         "title_align": "left",
         "title_size": "16",
@@ -178,7 +177,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Tokens By Tool",
         "title_align": "left",
         "title_size": "16",
@@ -234,7 +232,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Tool Calls Count",
         "type": "timeseries"
       },
@@ -318,7 +315,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Tool Tokens Per Call",
         "type": "timeseries"
       },
@@ -437,7 +433,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Calls Vs Errors",
         "title_align": "left",
         "title_size": "16",
@@ -584,7 +579,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Top Tools By Calls",
         "title_align": "left",
         "title_size": "16",
@@ -695,7 +689,7 @@
       },
       "id": 2516024086793335,
       "layout": {
-        "height": 5,
+        "height": 4,
         "width": 4,
         "x": 8,
         "y": 10
@@ -748,10 +742,46 @@
       },
       "id": 8706701828007376,
       "layout": {
-        "height": 5,
+        "height": 3,
         "width": 4,
         "x": 8,
-        "y": 15
+        "y": 14
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "ProxySQL Error Logs",
+        "type": "list_stream"
+      },
+      "id": 7992432021567240,
+      "layout": {
+        "height": 3,
+        "width": 4,
+        "x": 8,
+        "y": 17
       }
     }
   ]

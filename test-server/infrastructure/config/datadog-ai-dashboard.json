@@ -422,7 +422,6 @@
         ],
         "grouping": "cluster",
         "tags": [],
-        "time": {},
         "title": "ProxySQL Monitored Instances Status",
         "title_align": "center",
         "title_size": "16",
@@ -642,7 +641,6 @@
         "group_by": [],
         "grouping": "cluster",
         "tags": [],
-        "time": {},
         "title": "ProxySQL Backends Status",
         "title_align": "center",
         "title_size": "16",
@@ -1401,6 +1399,49 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.slow_queries{*}.as_rate()"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Slow Queries Rate",
+        "type": "timeseries"
+      },
+      "id": 273057414915558,
+      "layout": {
+        "height": 2,
+        "width": 4,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "definition": {
         "has_search_bar": "auto",
         "requests": [
           {
@@ -1431,7 +1472,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Errors by Category",
         "title_align": "left",
         "title_size": "16",
@@ -1440,8 +1480,8 @@
       "id": 203565609753300,
       "layout": {
         "height": 4,
-        "width": 6,
-        "x": 0,
+        "width": 4,
+        "x": 4,
         "y": 16
       }
     },
@@ -1482,8 +1522,8 @@
       "id": 203565609753301,
       "layout": {
         "height": 4,
-        "width": 6,
-        "x": 6,
+        "width": 4,
+        "x": 8,
         "y": 16
       }
     }

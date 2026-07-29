@@ -255,16 +255,13 @@ services:
   # ==========================================
   mysql-mcp-exporter:
     build:
-      context: ../..
+      context: ../../../mysql-mcp
       dockerfile: Dockerfile
     container_name: mysql-mcp-exporter
     restart: unless-stopped
     command: >
-      --transport http
-      --tool-filter none
-      --metrics-export prometheus
-      --port 3000
-      --audit-log /var/log/mysql-mcp/mcp-audit.jsonl
+      --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
+      prometheus --port 3000 --audit-log /var/log/mysql-mcp/mcp-audit.jsonl
       --mysql mysql://cluster_admin:cluster_admin@mysql-router:6446/testdb
     environment:
       - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
@@ -280,13 +277,12 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: ["CMD", "wget", "--spider", "-q", "http://localhost:3000/metrics"]
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
       interval: 15s
       timeout: 5s
       retries: 3
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql-mcp","service":"mysql-mcp-exporter"}]'
-
 
   dozzle:
     image: amir20/dozzle:v10.6.12
@@ -428,7 +424,6 @@ services:
     env_file:
       - .env
     environment:
-      - DD_API_KEY=${DD_API_KEY}
       - DD_SITE=datadoghq.com
       - DD_HOSTNAME=adamic-wsl2
       - DD_ENV=development

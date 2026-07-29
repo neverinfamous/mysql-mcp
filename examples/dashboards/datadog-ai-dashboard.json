@@ -1,17 +1,11 @@
 {
-  "author_handle": "admin@adamic.tech",
-  "author_name": "Christopher David LeRoux",
-  "created_at": "2026-07-15T19:48:49.250446Z",
   "description": "AI Efficiency metrics for mysql-mcp server (Opus 4.8 Standard pricing)\n\n*Note: Datadog automatically formats values less than 0.01 in scientific notation. During low-traffic periods, micro-costs may appear in scientific format (e.g., 5e-5 $) until the accumulated cost exceeds $0.01.*",
-  "id": "q48-mq9-3i7",
   "layout_type": "ordered",
-  "modified_at": "2026-07-19T13:37:42.793383Z",
   "notify_list": [],
+  "pause_auto_refresh": null,
   "reflow_type": "fixed",
-  "restricted_roles": [],
   "template_variables": [],
   "title": "MySQL-MCP AI Efficiency",
-  "url": "/dashboard/q48-mq9-3i7/mysql-mcp-ai-efficiency",
   "widgets": [
     {
       "definition": {
@@ -284,6 +278,7 @@
     },
     {
       "definition": {
+        "has_search_bar": "auto",
         "requests": [
           {
             "formulas": [
@@ -331,6 +326,7 @@
     },
     {
       "definition": {
+        "has_search_bar": "auto",
         "requests": [
           {
             "formulas": [
@@ -358,7 +354,7 @@
             }
           }
         ],
-        "title": "Top Tools by Tokens",
+        "title": "Top Tools By Tokens",
         "title_align": "left",
         "title_size": "16",
         "type": "query_table"
@@ -418,13 +414,22 @@
     },
     {
       "definition": {
-        "sizing": "zoom",
-        "type": "image",
-        "url": "/static/images/logos/proxysql_large.svg"
+        "check": "proxysql.can_connect",
+        "group": "proxysql_port:6032,proxysql_server:localhost,host:adamic-wsl2",
+        "group_by": [
+          "proxysql_server",
+          "proxysql_port"
+        ],
+        "grouping": "cluster",
+        "tags": [],
+        "title": "ProxySQL Monitored Instances Status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
       },
-      "id": 2524995767004926,
+      "id": 4740005024234863,
       "layout": {
-        "height": 2,
+        "height": 1,
         "width": 3,
         "x": 0,
         "y": 6
@@ -469,8 +474,7 @@
           }
         ],
         "show_legend": false,
-        "time": {},
-        "title": "ProxySQL latency per hostgroup",
+        "title": "ProxySQL Latency Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -529,8 +533,7 @@
           }
         ],
         "show_legend": false,
-        "time": {},
-        "title": "ProxySQL connections currently used per hostgroup",
+        "title": "ProxySQL Connections Currently Used Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -611,8 +614,7 @@
           }
         ],
         "show_legend": false,
-        "time": {},
-        "title": "ProxySQL bytes received and sent per hostgroup",
+        "title": "ProxySQL Bytes Received And Sent Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -634,23 +636,58 @@
     },
     {
       "definition": {
-        "check": "proxysql.can_connect",
-        "group": "proxysql_port:6032,proxysql_server:localhost,host:adamic-wsl2",
-        "group_by": [
-          "proxysql_server",
-          "proxysql_port"
-        ],
+        "check": "proxysql.backend.status",
+        "group": "*",
+        "group_by": [],
         "grouping": "cluster",
         "tags": [],
-        "time": {},
-        "title": "ProxySQL monitored instances status",
+        "title": "ProxySQL Backends Status",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
       },
-      "id": 4740005024234863,
+      "id": 2452699725061914,
       "layout": {
         "height": 1,
+        "width": 3,
+        "x": 0,
+        "y": 7
+      }
+    },
+    {
+      "definition": {
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.server.connections_connected{*} by {hostgroup}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Backend Server Active Connections",
+        "type": "timeseries"
+      },
+      "id": 7120564611391215,
+      "layout": {
+        "height": 2,
         "width": 3,
         "x": 0,
         "y": 8
@@ -704,8 +741,7 @@
           }
         ],
         "show_legend": false,
-        "time": {},
-        "title": "ProxySQL statements that took more than 5 seconds to complete",
+        "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -764,8 +800,7 @@
           }
         ],
         "show_legend": false,
-        "time": {},
-        "title": "ProxySQL memory usage of the query cache",
+        "title": "ProxySQL Memory Usage Of Query Cache",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -824,8 +859,7 @@
           }
         ],
         "show_legend": false,
-        "time": {},
-        "title": "ProxySQL cache read throughput",
+        "title": "ProxySQL Cache Read Throughput",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -843,27 +877,6 @@
         "width": 3,
         "x": 9,
         "y": 8
-      }
-    },
-    {
-      "definition": {
-        "check": "proxysql.backend.status",
-        "group": "*",
-        "group_by": [],
-        "grouping": "cluster",
-        "tags": [],
-        "time": {},
-        "title": "ProxySQL backends status",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "check_status"
-      },
-      "id": 2452699725061914,
-      "layout": {
-        "height": 1,
-        "width": 3,
-        "x": 0,
-        "y": 9
       }
     },
     {
@@ -1371,7 +1384,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Agent Quality (Error Classification)",
         "title_align": "left",
         "title_size": "16",
@@ -1383,6 +1395,136 @@
         "width": 4,
         "x": 8,
         "y": 12
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.slow_queries{*}.as_rate()"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Slow Queries Rate",
+        "type": "timeseries"
+      },
+      "id": 273057414915558,
+      "layout": {
+        "height": 2,
+        "width": 4,
+        "x": 0,
+        "y": 16
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "auto",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "count": 10,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Errors by Category",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 203565609753300,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 16
+      }
+    },
+    {
+      "definition": {
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
+              }
+            ],
+            "response_format": "timeseries"
+          }
+        ],
+        "show_legend": true,
+        "title": "Transport Errors (HTTP)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 203565609753301,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 8,
+        "y": 16
       }
     }
   ]
