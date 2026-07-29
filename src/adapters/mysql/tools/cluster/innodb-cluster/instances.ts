@@ -49,8 +49,8 @@ export function createClusterInstancesTool(
                     FROM mysql_innodb_cluster_metadata.instances i
                     LEFT JOIN performance_schema.replication_group_members m
                         ON i.mysql_server_uuid = m.MEMBER_ID
-                    LIMIT ${String(limit)}`,
-          [],
+                    LIMIT ?`,
+          [limit],
         );
 
         const data = {
@@ -69,8 +69,8 @@ export function createClusterInstancesTool(
                         MEMBER_ROLE as memberRole,
                         MEMBER_VERSION as version
                     FROM performance_schema.replication_group_members
-                    LIMIT ${String(limit)}`,
-            [],
+                    LIMIT ?`,
+            [limit],
           );
 
           if ((grResult.rows?.length ?? 0) === 0) {
