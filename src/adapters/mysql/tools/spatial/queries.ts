@@ -150,6 +150,23 @@ export function createSpatialDistanceSphereTool(
         const { table, spatialColumn, point, geometry1, geometry2, maxDistance, limit, srid } =
           DistanceSchema.parse(params);
 
+        const validateGeometry = (geom: unknown): boolean => {
+            if (typeof geom === "string" && geom && !geom.toUpperCase().includes('POINT') && !geom.toUpperCase().includes('MULTIPOINT')) {
+                return false;
+            }
+            return true;
+        };
+
+        if (!validateGeometry(geometry1) || !validateGeometry(geometry2)) {
+            return withTokenEstimate({
+                success: false, 
+                error: "Validation error: ST_Distance_Sphere only supports POINT and MULTIPOINT geometries", 
+                code: "VALIDATION_ERROR", 
+                category: "validation", 
+                recoverable: false
+            });
+        }
+
         if (!table) {
           const query = `SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters`;
           const result = await adapter.executeQuery(query, [geometry1, geometry2]);
