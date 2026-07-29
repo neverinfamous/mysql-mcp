@@ -121,8 +121,8 @@ export const FindSchemaStrict = z.object({
       "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
   fields: z.array(z.string()).optional(),
-  limit: z.number().default(100),
-  offset: z.number().default(0),
+  limit: z.number().int().nonnegative().default(100),
+  offset: z.number().int().nonnegative().default(0),
 });
 
 export const FindSchema = z.preprocess(
