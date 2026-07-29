@@ -225,8 +225,14 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     delete result["table"];
     
     if (typeof result["summary"] === "string") {
-      if (result["summary"] === "true") result["summary"] = true;
-      else if (result["summary"] === "false") result["summary"] = false;
+      const s = result["summary"].toLowerCase();
+      if (s === "true" || s === "yes" || s === "1" || s === "t" || s === "y") result["summary"] = true;
+      else if (s === "false" || s === "no" || s === "0" || s === "f" || s === "n") result["summary"] = false;
+      else {
+        // If it's an unrecognized string (like a hallucinated database name),
+        // we can default to true to allow the query to run without erroring.
+        result["summary"] = true;
+      }
     }
     return result;
   },
@@ -293,8 +299,13 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     delete result["hostgroup"];
     
     const hostgroupId = result["hostgroup_id"];
-    if (typeof hostgroupId === "string" && hostgroupId.trim() !== "" && !isNaN(Number(hostgroupId))) {
-      result["hostgroup_id"] = Number(hostgroupId);
+    if (typeof hostgroupId === "string") {
+      if (hostgroupId.trim() !== "" && !isNaN(Number(hostgroupId))) {
+        result["hostgroup_id"] = Number(hostgroupId);
+      } else {
+        // If it's a completely invalid string, ignore it to prevent validation crashes.
+        delete result["hostgroup_id"];
+      }
     }
     return result;
   },
