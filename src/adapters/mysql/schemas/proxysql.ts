@@ -221,6 +221,23 @@ export const ProxySQLStatusInputSchema = z.preprocess(
         result["summary"] = result["table"];
       }
     }
+    if (result["status"] !== undefined && result["summary"] === undefined) {
+      if (typeof result["status"] === "boolean" || typeof result["status"] === "string") result["summary"] = result["status"];
+    }
+    delete result["status"];
+    if (result["stats"] !== undefined && result["summary"] === undefined) {
+      if (typeof result["stats"] === "boolean" || typeof result["stats"] === "string") result["summary"] = result["stats"];
+    }
+    delete result["stats"];
+    if (result["variables"] !== undefined && result["summary"] === undefined) {
+      if (typeof result["variables"] === "boolean" || typeof result["variables"] === "string") result["summary"] = result["variables"];
+    }
+    delete result["variables"];
+    if (result["metrics"] !== undefined && result["summary"] === undefined) {
+      if (typeof result["metrics"] === "boolean" || typeof result["metrics"] === "string") result["summary"] = result["metrics"];
+    }
+    delete result["metrics"];
+    
     delete result["database"];
     delete result["table"];
     
@@ -350,6 +367,10 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
     delete result["pattern"];
     delete result["search"];
     delete result["name"];
+
+    if (typeof result["prefix"] === "string") {
+      result["prefix"] = result["prefix"].toLowerCase();
+    }
 
     const limit = result["limit"];
     if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
