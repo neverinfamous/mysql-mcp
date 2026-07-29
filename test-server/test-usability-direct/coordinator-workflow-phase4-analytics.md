@@ -6,13 +6,18 @@
 
 Follow the exact same workflow rules defined in the [Master Coordinator Index](coordinator-workflow.md).
 
-- **CRITICAL WARNING FOR SUBAGENTS:** Do NOT run `pnpm run test`, `pnpm run check`, or `pnpm run build` after making changes to save time (15-20 mins). Only run `pnpm run lint` and `pnpm run typecheck`. The main coordinator agent will run the full test suite at the end of the phase.
+# Subagent Instructions
+When calling `invoke_subagent`, you MUST use the following exact prompt (replacing `{test_file}`):
 
-- **CRITICAL WARNING FOR SUBAGENTS:** "Infrastructure Absent" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS INFRASTRUCTURE ABSENT.
-- Execute these tests sequentially.
-- Launch a subagent for each test.
-- Report progress exactly as formatted: "Test X (<name>) out of Y: A Prompt Fixes / B Code Fixes / C Infrastructure Absent" (Where Y is 62).
-- Terminate subagents when done to save context.
+<subagent_prompt>
+Execute the usability test: {test_file} (located in `test-server/test-usability-direct/`)
+Follow the rules in `coordinator-workflow-phase4-analytics.md` with these strict overrides:
+
+1. **USE MCP TOOLS NATIVELY:** You must organically test the tools using the native `call_mcp_tool` interface (directly providing the JSON arguments via tool call). **DO NOT** substitute use of the terminal `run_command` tool to run scripts or bash commands.
+2. **NO CONFIG CHANGES OR RESTARTS:** Do NOT adjust `mcp_config.json` and do NOT restart the MCP server under any circumstances. If you encounter any problems in this regard, or if you run into an "Infrastructure Absent" problem, you MUST just stop and tell me.
+3. **NO FULL TEST SUITE RUNS:** CRITICAL: Do NOT run `pnpm run test`, `check`, or `build`. Only run `pnpm run lint` and `pnpm run typecheck` and only if changes/fixes are made.
+4. **INFRASTRUCTURE ABSENT CLARIFICATION:** "Infrastructure Absent" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS INFRASTRUCTURE ABSENT.
+</subagent_prompt>
 
 ## Test Sequence Queue (Phase 4: Analytics)
 
@@ -82,3 +87,4 @@ Follow the exact same workflow rules defined in the [Master Coordinator Index](c
 ## Completion
 
 Once this phase is complete, run the standard `pnpm run` checks, ensure everything is committed, and instruct the user to proceed to the next phase in a NEW thread.
+
