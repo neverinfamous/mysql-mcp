@@ -55,7 +55,7 @@ const distanceAliasesBase = {
 };
 
 const metricParamBase = z
-  .enum(["COSINE", "EUCLIDEAN", "DOT"])
+  .string()
   .optional()
   .describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')");
 const filterParamBase = z
@@ -227,7 +227,7 @@ export const VectorHybridSearchSchemaBase = z.object({
   ...queryVectorAliasesBase,
   queryText: z.string().optional().describe("Natural language search query (Note: Pass queryText, not sql)"),
   k: z.number().optional().describe("Number of fused results to return (default: 10)"),
-  metric: z.enum(["COSINE", "EUCLIDEAN", "DOT"]).optional().describe("Distance metric: 'COSINE', 'EUCLIDEAN', or 'DOT' (default: 'COSINE')"),
+  metric: metricParamBase,
   rrfK: z.number().optional().describe("RRF smoothing constant (default: 60). Lower = more weight to top ranks"),
   vectorWeight: z.number().optional().describe("Weight for vector score in RRF (0.0 to 1.0, default: 0.5)"),
   textWeight: z.number().optional().describe("Weight for text score in RRF (0.0 to 1.0, default: 0.5)"),
