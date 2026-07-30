@@ -30,27 +30,12 @@ export class QueryExecutor {
       return this.processExecutionResult(results, fields, startTime);
     } catch (error) {
       if (this.isUnsupportedPreparedStatementError(error)) {
-        const errMsg = (error as Error).message || "";
-        if (errMsg.includes("connection is locked to hostgroup")) {
-          try {
-            return await this.executeWithTransactionFallback(sql, params);
-          } catch (txFallbackErr) {
-            throw new QueryError(`Transaction fallback failed: ${(txFallbackErr as Error).message}`, { sql });
-          }
-        }
 
         try {
           const [results, fields] = await this.adapter.pool.query(sql, params);
           return this.processExecutionResult(results, fields, startTime);
         } catch (fallbackError) {
           const err = fallbackError as Error;
-          if (err.message.includes("connection is locked to hostgroup")) {
-            try {
-              return await this.executeWithTransactionFallback(sql, params);
-            } catch (txFallbackErr) {
-              throw new QueryError(`Transaction fallback failed: ${(txFallbackErr as Error).message}`, { sql });
-            }
-          }
           throw new QueryError(`Query fallback failed: ${err.message}`, { sql });
         }
       }
@@ -116,19 +101,6 @@ export class QueryExecutor {
     );
   }
 
-  private async executeWithTransactionFallback(sql: string, params?: unknown[]): Promise<QueryResult> {
-    const txId = await this.adapter.beginTransaction("READ COMMITTED");
-    try {
-      const conn = this.adapter.getTransactionConnection(txId);
-      if (!conn) throw new Error("Transaction connection not found");
-      const result = await this.executeOnConnection(conn, sql, params);
-      await this.adapter.commitTransaction(txId);
-      return result;
-    } catch (txErr) {
-      await this.adapter.rollbackTransaction(txId);
-      throw txErr;
-    }
-  }
 
   private processExecutionResult(
     results: unknown,

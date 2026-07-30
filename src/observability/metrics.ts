@@ -231,7 +231,7 @@ export class MetricsRegistry {
   private cache = new CacheMetric();
   private redis = new RedisMetric();
   private httpErrors: Record<string, number> = { "401": 0, "413": 0, "429": 0 };
-  private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[]; errorTypes: Record<string, number>; errorCategories: Record<string, number> }>(), resourceStats: new Map<string, { reads: number }>() };
+  private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[]; errorTypes: Record<string, number>; errorCategories: Record<string, number> }>(), resourceStats: new Map<string, { reads: number }>(), poolStatsByPid: new Map<number, PoolStats>() };
   private systemDb: SystemDb | null = null;
   private auditLogger: AuditLogger | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
@@ -514,6 +514,20 @@ export class MetricsRegistry {
                     }
 
                     if (category === "resource") {
+                      if (toolName === "mysql://pool/stats" && entry['args'] !== undefined) {
+                        const args = entry['args'] as Record<string, number>;
+                        const pid = args['pid'] ?? 0;
+                        const current = this.jsonlState.poolStatsByPid.get(pid) ?? { total: 0, active: 0, idle: 0, waiting: 0, totalQueries: 0 };
+                        this.jsonlState.poolStatsByPid.set(pid, {
+                          total: args['total'] ?? current.total,
+                          active: args['active'] ?? current.active,
+                          idle: args['idle'] ?? current.idle,
+                          waiting: args['waiting'] ?? current.waiting,
+                          totalQueries: Math.max(current.totalQueries, args['totalQueries'] ?? 0)
+                        });
+                        continue;
+                      }
+
                       const stat = this.jsonlState.resourceStats.get(toolName) ?? { reads: 0 };
                       stat.reads++;
                       this.jsonlState.resourceStats.set(toolName, stat);
@@ -587,6 +601,18 @@ export class MetricsRegistry {
             }
 
             for (const [uri, stat] of this.jsonlState.resourceStats.entries()) {
+              if (uri === "mysql://cache/hit") {
+                this.cache.hits = Math.max(this.cache.hits, stat.reads);
+                continue;
+              }
+              if (uri === "mysql://cache/miss") {
+                this.cache.misses = Math.max(this.cache.misses, stat.reads);
+                continue;
+              }
+              if (uri === "mysql://pool/stats") {
+                continue;
+              }
+
               let metric = this.resources.get(uri);
               if (!metric) {
                 metric = new ResourceMetric();
@@ -818,6 +844,28 @@ export class MetricsRegistry {
         }
       });
       transaction();
+
+      if (this.auditLogger && this.poolStatsProvider) {
+        const poolStats = this.poolStatsProvider();
+        this.auditLogger.log({
+          timestamp: new Date().toISOString(),
+          requestId: "pool",
+          tool: "mysql://pool/stats",
+          category: "resource",
+          scope: "read",
+          durationMs: 0,
+          success: true,
+          status: "info",
+          args: {
+            pid: process.pid,
+            total: poolStats.total,
+            active: poolStats.active,
+            idle: poolStats.idle,
+            waiting: poolStats.waiting,
+            totalQueries: poolStats.totalQueries
+          }
+        } as unknown as AuditEntry);
+      }
     } catch (err) {
       logger.warn("Failed to flush metrics to db", {
         error: err instanceof Error ? err.message : String(err),
@@ -873,10 +921,34 @@ export class MetricsRegistry {
 
   recordCacheHit(): void {
     this.cache.recordHit();
+    if (this.auditLogger) {
+      this.auditLogger.log({
+        timestamp: new Date().toISOString(),
+        requestId: "cache",
+        tool: "mysql://cache/hit",
+        category: "resource",
+        scope: "read",
+        durationMs: 0,
+        success: true,
+        status: "info",
+      } as unknown as AuditEntry);
+    }
   }
 
   recordCacheMiss(): void {
     this.cache.recordMiss();
+    if (this.auditLogger) {
+      this.auditLogger.log({
+        timestamp: new Date().toISOString(),
+        requestId: "cache",
+        tool: "mysql://cache/miss",
+        category: "resource",
+        scope: "read",
+        durationMs: 0,
+        success: true,
+        status: "info",
+      } as unknown as AuditEntry);
+    }
   }
 
   recordRedisRateLimitExceeded(): void {
@@ -1023,24 +1095,49 @@ export class MetricsRegistry {
     lines.push(`mysql_mcp_redis_lua_eval_latency_p95_ms ${redisSummary.luaEvalP95}`);
 
     // Pool metrics
+    let totalSlots = 0;
+    let active = 0;
+    let idle = 0;
+    let waiting = 0;
+    let totalQueries = 0;
+
     if (this.poolStatsProvider) {
       const poolStats = this.poolStatsProvider();
-      
+      totalSlots += poolStats.total;
+      active += poolStats.active;
+      idle += poolStats.idle;
+      waiting += poolStats.waiting;
+      totalQueries += poolStats.totalQueries;
+    }
+
+    for (const stats of this.jsonlState.poolStatsByPid.values()) {
+      totalSlots += stats.total;
+      active += stats.active;
+      idle += stats.idle;
+      waiting += stats.waiting;
+      totalQueries += stats.totalQueries;
+    }
+
+    if (totalSlots > 0 || totalQueries > 0) {
       lines.push("# HELP mysql_mcp_pool_connections_total Total connection slots in pool");
       lines.push("# TYPE mysql_mcp_pool_connections_total gauge");
-      lines.push(`mysql_mcp_pool_connections_total ${poolStats.total}`);
+      lines.push(`mysql_mcp_pool_connections_total ${totalSlots}`);
       
       lines.push("# HELP mysql_mcp_pool_connections_active Currently in-use connections");
       lines.push("# TYPE mysql_mcp_pool_connections_active gauge");
-      lines.push(`mysql_mcp_pool_connections_active ${poolStats.active}`);
+      lines.push(`mysql_mcp_pool_connections_active ${active}`);
       
       lines.push("# HELP mysql_mcp_pool_connections_idle Available idle connections");
       lines.push("# TYPE mysql_mcp_pool_connections_idle gauge");
-      lines.push(`mysql_mcp_pool_connections_idle ${poolStats.idle}`);
+      lines.push(`mysql_mcp_pool_connections_idle ${idle}`);
+      
+      lines.push("# HELP mysql_mcp_pool_connections_waiting Queries waiting for connection");
+      lines.push("# TYPE mysql_mcp_pool_connections_waiting gauge");
+      lines.push(`mysql_mcp_pool_connections_waiting ${waiting}`);
       
       lines.push("# HELP mysql_mcp_pool_queries_total Cumulative queries through pool");
       lines.push("# TYPE mysql_mcp_pool_queries_total counter");
-      lines.push(`mysql_mcp_pool_queries_total ${poolStats.totalQueries}`);
+      lines.push(`mysql_mcp_pool_queries_total ${totalQueries}`);
     }
 
     // HTTP transport errors
