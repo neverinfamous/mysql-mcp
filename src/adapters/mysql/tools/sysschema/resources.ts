@@ -114,7 +114,7 @@ export function createSysSchemaStatsTool(
         // P154: Schema existence check when explicitly provided
         if (schema) {
           const schemaCheck = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            "SHOW SCHEMAS LIKE ?",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
@@ -192,11 +192,18 @@ export function createSysSchemaStatsTool(
                 LIMIT ${String(limit)}
             `;
 
-        const [tableStats, indexStats, autoIncStats] = await Promise.all([
-          adapter.executeQuery(tableStatsQuery, [schema ?? null]),
-          adapter.executeQuery(indexStatsQuery, [schema ?? null]),
-          adapter.executeQuery(autoIncQuery, [schema ?? null]),
-        ]);
+        // Wrap in transaction to bypass ProxySQL read routing locks on sys tables
+        const txId = await adapter.beginTransaction();
+        let tableStats, indexStats, autoIncStats;
+        try {
+          tableStats = await adapter.executeQuery(tableStatsQuery, [schema ?? null], txId);
+          indexStats = await adapter.executeQuery(indexStatsQuery, [schema ?? null], txId);
+          autoIncStats = await adapter.executeQuery(autoIncQuery, [schema ?? null], txId);
+          await adapter.commitTransaction(txId);
+        } catch (error) {
+          await adapter.rollbackTransaction(txId);
+          throw error;
+        }
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
@@ -286,7 +293,17 @@ export function createSysInnoDBLockWaitsTool(
           return cleaned;
         };
 
-        const result = await adapter.executeQuery(query);
+        // Wrap in transaction to bypass ProxySQL read routing locks on sys tables
+        const txId = await adapter.beginTransaction();
+        let result;
+        try {
+          result = await adapter.executeQuery(query, undefined, txId);
+          await adapter.commitTransaction(txId);
+        } catch (error) {
+          await adapter.rollbackTransaction(txId);
+          throw error;
+        }
+
         return withTokenEstimate({
           success: true,
           data: {
@@ -351,10 +368,17 @@ export function createSysMemorySummaryTool(
                 LIMIT ${String(limit)}
             `;
 
-        const [globalStats, userStats] = await Promise.all([
-          adapter.executeQuery(globalQuery),
-          adapter.executeQuery(userQuery),
-        ]);
+        // Wrap in transaction to bypass ProxySQL read routing locks on sys tables
+        const txId = await adapter.beginTransaction();
+        let globalStats, userStats;
+        try {
+          globalStats = await adapter.executeQuery(globalQuery, undefined, txId);
+          userStats = await adapter.executeQuery(userQuery, undefined, txId);
+          await adapter.commitTransaction(txId);
+        } catch (error) {
+          await adapter.rollbackTransaction(txId);
+          throw error;
+        }
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
