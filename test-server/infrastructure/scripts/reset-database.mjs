@@ -57,6 +57,9 @@ function invokeMySql(query, noDatabase = false) {
         const result = execFileSync(dockerCmd, args, { encoding: 'utf-8', stdio: 'pipe' });
         return result;
     } catch (e) {
+        if (e.message.includes('1290') || e.message.includes('--super-read-only')) {
+            throw new Error(`Docker exec failed: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+        }
         throw new Error(`Docker exec failed: ${e.message}`);
     }
 }
@@ -68,6 +71,9 @@ function invokeMySqlFile(filePath) {
         const fileContent = readFileSync(filePath);
         execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, encoding: 'utf-8', stdio: 'pipe' });
     } catch (e) {
+        if (e.message.includes('1290') || e.message.includes('--super-read-only')) {
+            throw new Error(`Failed to execute seed file: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+        }
         throw new Error(`Failed to execute seed file: ${e.message}`);
     }
 }

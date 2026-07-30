@@ -153,6 +153,19 @@ if (clusterOut !== null) {
     if (onlineCount >= targetQuorum) {
         console.log(`✅ Cluster Quorum is ONLINE (${onlineCount}/${targetQuorum} nodes)`);
         console.log(`   👑 Current Primary: ${currentPrimary}`);
+        if (currentPrimary && currentPrimary !== 'Unknown') {
+            const primaryHostName = currentPrimary.split(':')[0];
+            const readOnlyCheck = dockerExecEnv(primaryHostName, ['MYSQL_PWD=root'], ['mysql', '-uroot', '-N', '-s', '-e', 'SELECT @@super_read_only;'], true);
+            let readOnlyVal = readOnlyCheck ? readOnlyCheck.trim() : null;
+            if (readOnlyVal && readOnlyVal.includes('mysql: [Warning]')) {
+                readOnlyVal = readOnlyVal.split('\n').pop().trim();
+            }
+            if (readOnlyVal === '1') {
+                console.log(`   ❌ PRIMARY IS STUCK IN READ-ONLY MODE (super_read_only=1)`);
+                console.log(`      Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+                allUp = false;
+            }
+        }
     } else {
         console.log(`⚠️ Cluster Quorum is DEGRADED. Only ${onlineCount}/${targetQuorum} nodes ONLINE.\nDetails:\n${clusterOut.replace(/mysql: \[Warning\].*\n/g, '').trim()}`);
         console.log(`   👑 Current Primary: ${currentPrimary}`);
