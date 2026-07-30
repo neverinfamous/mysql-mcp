@@ -134,7 +134,7 @@ describe("Vector Tools", () => {
         { _isMockFunction: true }
       );
       const mockExecuteQuery = Object.assign(
-        function (query: string) {
+        function (_query: string) {
           return Promise.resolve({ rows: [{ id: 1, distance: 0.1 }], affectedRows: 0 });
         },
         { _isMockFunction: true }
@@ -175,7 +175,7 @@ describe("Vector Tools", () => {
         if (sql.includes("SHOW COLUMNS")) return { rows: [{ Field: 'id' }, { Field: 'v1', Type: 'vector(3)' }] };
         return { rows: [] };
       });
-      mockAdapter.executeQuery = vi.fn().mockImplementation(async (sql) => {
+      mockAdapter.executeQuery = vi.fn().mockImplementation(async (_sql) => {
         throw new Error("Can't find FULLTEXT index");
       });
       
@@ -196,7 +196,7 @@ describe("Vector Tools", () => {
         if (sql.includes("SHOW COLUMNS")) return { rows: [{ Field: 'id' }, { Field: 'v1', Type: 'vector(3)' }] };
         return { rows: [] };
       });
-      mockAdapter.executeQuery = vi.fn().mockImplementation(async (sql) => {
+      mockAdapter.executeQuery = vi.fn().mockImplementation(async (_sql) => {
         throw new Error("Table 't1' does not exist");
       });
       
@@ -216,7 +216,7 @@ describe("Vector Tools", () => {
         if (sql.includes("SHOW COLUMNS")) return { rows: [{ Field: 'id' }, { Field: 'v1', Type: 'vector(3)' }] };
         return { rows: [] };
       });
-      mockAdapter.executeQuery = vi.fn().mockImplementation(async (sql) => {
+      mockAdapter.executeQuery = vi.fn().mockImplementation(async (_sql) => {
         return { rows: [{ id: 1, v1: '[0.1, 0.2]', text: 'hello', combined_score: 1.0 }] };
       });
       

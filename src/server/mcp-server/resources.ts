@@ -254,8 +254,7 @@ export function registerAuditResource(server: SdkMcpServer, auditLogger: AuditLo
         if (entry.tokenEstimate != null) tokenEstimate += entry.tokenEstimate;
         if (!entry.success) errors++;
         
-        // Exclude resource reads from topTools calculation
-        if (entry.category !== "resource" && !entry.tool.startsWith("mysql://")) {
+        if (!entry.tool.startsWith("mysql://")) {
           tools[entry.tool] = (tools[entry.tool] ?? 0) + 1;
         }
       }

@@ -204,8 +204,10 @@ export function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
                 },
               });
             }
-          } catch (e: any) {
-            if (e?.code !== "TABLE_NOT_FOUND") {
+          } catch (e: unknown) {
+            if (typeof e === "object" && e !== null && "code" in e && e.code === "TABLE_NOT_FOUND") {
+              // Gracefully handle table not found when using IF NOT EXISTS
+            } else {
               throw e;
             }
           }
@@ -320,8 +322,8 @@ export function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
             if (!tableInfo.columns || tableInfo.columns.length === 0) {
               tableAbsent = true;
             }
-          } catch (e: any) {
-            if (e?.code === "TABLE_NOT_FOUND") {
+          } catch (e: unknown) {
+            if (typeof e === "object" && e !== null && "code" in e && e.code === "TABLE_NOT_FOUND") {
               tableAbsent = true;
             } else {
               throw e;
