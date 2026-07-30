@@ -357,12 +357,12 @@ if (lokiReady && lokiReady.toLowerCase().includes('ready')) {
     allUp = false;
 }
 
-// Promtail ready
-const promtailReady = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://promtail:9080/ready'], true);
-if (promtailReady && promtailReady.toLowerCase().includes('ready')) {
-    console.log('✅ Promtail             : Ready');
+// Alloy ready (migrated from EOL Promtail — port 12345, endpoint /-/ready)
+const alloyReady = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://alloy:12345/-/ready'], true);
+if (alloyReady && alloyReady.toLowerCase().includes('ready')) {
+    console.log('✅ Alloy                : Ready');
 } else {
-    console.log('❌ Promtail             : Not ready');
+    console.log('❌ Alloy                : Not ready');
     allUp = false;
 }
 

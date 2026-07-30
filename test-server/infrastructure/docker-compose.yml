@@ -302,7 +302,7 @@ services:
         max-file: "3"
 
   adminer:
-    image: adminer:5.5.1
+    image: adminer:5.5.0
     container_name: adminer
     restart: unless-stopped
     ports:
@@ -381,14 +381,14 @@ services:
       # externally by check-status.mjs via the /ready HTTP endpoint.
       disable: true
 
-  promtail:
-    image: grafana/promtail:3.6.11
-    container_name: promtail
+  alloy:
+    image: grafana/alloy:v1.18.0
+    container_name: alloy
     restart: unless-stopped
     volumes:
-      - ./config/promtail/promtail-config.yml:/etc/promtail/promtail-config.yml:ro
+      - ./config/alloy/alloy-config.alloy:/etc/alloy/config.alloy:ro
       - ../../logs:/var/log/mysql-mcp:ro
-    command: -config.file=/etc/promtail/promtail-config.yml
+    command: run /etc/alloy/config.alloy
     stop_grace_period: 15s
     mem_limit: 128m
     logging:
@@ -397,7 +397,11 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD-SHELL", "grep -q ':2378' /proc/net/tcp /proc/net/tcp6 || exit 1" ]
+      test:
+        [
+          "CMD-SHELL",
+          "wget -qO- http://localhost:12345/-/ready | grep -q ready || exit 1"
+        ]
       interval: 15s
       timeout: 5s
       retries: 3
