@@ -37,6 +37,11 @@ class ToolMetric {
   private sampleIndex = 0;
   private sampleCount = 0;
 
+  /** True if this process has recorded at least one tool call into the buffer. */
+  hasLocalActivity(): boolean {
+    return this.sampleCount > 0;
+  }
+
   record(durationMs: number, success: boolean, tokens = 0, errorType?: string, errorCategory?: string): void {
     this.calls++;
     if (!success) {
@@ -121,6 +126,15 @@ const LiveRowSchema = z.object({
   live_calls: z.number(),
   live_errors: z.number(),
   live_tokens: z.number(),
+});
+
+// Percentile results computed directly from audit_logs.durationMs via SQL
+// window functions. Nullable because MAX() on an empty partition returns NULL.
+const PercentileRowSchema = z.object({
+  tool: z.string(),
+  p50: z.number().nullable(),
+  p95: z.number().nullable(),
+  p99: z.number().nullable(),
 });
 
 class ResourceMetric {
@@ -357,6 +371,43 @@ export class MetricsRegistry {
         metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
       }
 
+      // --- Phase 2.5: Compute latency percentiles directly from audit_logs ---
+      // audit_logs stores durationMs for every call, giving us the raw distribution
+      // needed for accurate percentiles — independent of the 5-minute flush cycle.
+      // This fills the gap when metrics_snapshots has p50=0 (fresh start or new tools).
+      // Uses SQLite window functions available since SQLite 3.25 (2018).
+      const percentileRows = db.prepare(`
+        WITH ranked AS (
+          SELECT
+            tool,
+            durationMs,
+            ROW_NUMBER() OVER (PARTITION BY tool ORDER BY durationMs) AS rn,
+            COUNT(*) OVER (PARTITION BY tool) AS cnt
+          FROM audit_logs
+        )
+        SELECT
+          tool,
+          MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.50 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p50,
+          MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.95 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p95,
+          MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.99 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p99
+        FROM ranked
+        GROUP BY tool
+      `).all();
+
+      const parsedPercentileRows = z.array(PercentileRowSchema).parse(percentileRows);
+      for (const row of parsedPercentileRows) {
+        const metric = this.tools.get(row.tool);
+        if (!metric) continue;
+        // Only override with DB-computed percentiles when the in-memory sample buffer
+        // is empty (i.e., the exporter, which reads the shared DB but never handles
+        // tool calls itself). IDE processes use their own live circular buffer instead.
+        if (!metric.hasLocalActivity()) {
+          metric.loaded_p50 = row.p50 ?? 0;
+          metric.loaded_p95 = row.p95 ?? 0;
+          metric.loaded_p99 = row.p99 ?? 0;
+        }
+      }
+
       logger.info(
         `Loaded historical metrics for ${rows.length} tools` +
         (parsedLiveRows.length > 0 ? `, ${parsedLiveRows.length} with live audit data since ${since}` : ``),
@@ -431,6 +482,11 @@ export class MetricsRegistry {
 
   private flushToDb(): void {
     if (!this.systemDb) return;
+    // Skip writing snapshots if this process has not handled any tool calls.
+    // The exporter container reads from the shared DB but never processes calls,
+    // so flushing would overwrite valid IDE-written p50/p95/p99 with zeros.
+    const hasLocalCalls = [...this.tools.values()].some(m => m.hasLocalActivity());
+    if (!hasLocalCalls) return;
     try {
       const db = this.systemDb.getDb();
       const stmt = db.prepare(`
