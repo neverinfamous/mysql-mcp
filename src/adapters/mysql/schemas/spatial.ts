@@ -256,8 +256,22 @@ export const PolygonSchema = z.preprocess(
   let coords = data.coordinates;
   
   if (!polygonWkt && typeof coords === "string") {
-      polygonWkt = coords;
-      coords = undefined;
+      const t = coords.trim();
+      if (t.startsWith("[") && t.endsWith("]")) {
+          try {
+              const parsed: unknown = JSON.parse(t);
+              if (Array.isArray(parsed)) {
+                  coords = parsed;
+              }
+          } catch {
+              // Ignore parse errors
+          }
+      }
+      
+      if (typeof coords === "string") {
+          polygonWkt = coords;
+          coords = undefined;
+      }
   }
   
   return { ...data, coordinates: Array.isArray(coords) ? coords : undefined, polygon: polygonWkt };
