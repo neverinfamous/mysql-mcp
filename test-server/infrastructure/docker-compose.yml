@@ -261,15 +261,16 @@ services:
     restart: unless-stopped
     command: >
       --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
-        prometheus --port 3000 --audit-log /var/log/mysql-mcp/audit.jsonl --mysql
+        prometheus --port 3000 --audit-log /var/log/mysql-mcp/mcp-audit.jsonl --mysql
       mysql://root:root@mysql-router:6446/testdb
     environment:
       - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
       - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}
+      - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
     ports:
       - "3000:3000"
     volumes:
-      - ../../data:/var/log/mysql-mcp
+      - ../../logs:/var/log/mysql-mcp
     stop_grace_period: 15s
     mem_limit: 256m
     logging:

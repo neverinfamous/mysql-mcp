@@ -463,7 +463,11 @@ export class MetricsRegistry {
       if (parsedLiveRows.length === 0 && (db === null || isMemoryDb)) {
         try {
           const auditLogArgIndex = process.argv.indexOf('--audit-log');
-          const jsonlPath = auditLogArgIndex !== -1 ? process.argv[auditLogArgIndex + 1] : process.env['AUDIT_LOG_PATH'];
+          // Prefer AUDIT_LOG_PATH env var (explicit read-only source for metrics aggregation)
+          // over --audit-log (which is the AuditLogger's write target).
+          // This allows the exporter container to read the IDE's live audit JSONL
+          // via a separate read-only mount without conflicting with its own AuditLogger.
+          const jsonlPath = process.env['AUDIT_LOG_PATH'] ?? (auditLogArgIndex !== -1 ? process.argv[auditLogArgIndex + 1] : undefined);
           
           if (jsonlPath !== undefined && jsonlPath !== "" && fs.existsSync(jsonlPath)) {
             const stat = fs.statSync(jsonlPath);
