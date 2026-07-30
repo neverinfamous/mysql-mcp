@@ -121,7 +121,7 @@ export function createFulltextSearchTool(
           let totalCount = data.length;
           if (includeFacets && data.length > 0) {
             facets = {};
-            const countSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
+            const countSql = `WITH cte AS (SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}) SELECT * FROM cte`;
             try {
               const countResult = await adapter.executeReadQuery(countSql, [sanitizedQuery]);
               totalCount = Number(countResult.rows?.[0]?.["cnt"] ?? data.length);
@@ -130,7 +130,7 @@ export function createFulltextSearchTool(
             }
 
             for (const col of columns) {
-              const facetSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
+              const facetSql = `WITH cte AS (SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})) SELECT * FROM cte`;
               try {
                 const facetResult = await adapter.executeReadQuery(facetSql, [sanitizedQuery]);
                 const firstRow = facetResult.rows?.[0];
