@@ -82,7 +82,7 @@ export function createShellExportTableTool(
             { suggestion: "Ensure the directory path exists before exporting.", details: { targetDir } }
           );
         }
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (format === "csv") {
@@ -235,7 +235,7 @@ export function createShellImportTableTool(
             { suggestion: "Ensure the input file exists and the path is correct.", details: { inputPath: finalInputPath } }
           );
         }
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (schema) {
@@ -435,7 +435,7 @@ export function createShellImportJSONTool(
           );
         }
 
-        const escapedPath = resolvedPath.replace(/\\/g, "\\\\");
+        const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
         if (schema) {
