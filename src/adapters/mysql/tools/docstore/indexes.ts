@@ -7,7 +7,6 @@ import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   type ToolDefinition,
   type RequestContext,
-  ConflictError,
   ValidationError,
   MySQLMcpError,
   ErrorCategory,
@@ -114,8 +113,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             message.toLowerCase().includes("duplicate key")
           ) {
             return formatHandlerErrorResponse(
-              new ConflictError(
+              new MySQLMcpError(
                 `Index '${name ?? "unknown"}' or its generated columns already exist on '${collection ?? "unknown"}'`,
+                "ALREADY_EXISTS",
+                ErrorCategory.RESOURCE,
+                { suggestion: "The index or column already exists. Use a different name or drop the existing index first." }
               )
             );
           }
