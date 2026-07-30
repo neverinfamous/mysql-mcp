@@ -114,7 +114,7 @@ export const EventDropSchema = z.object({
   ifExists: z.boolean().default(false),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? data.event ?? "",
-  schema: data.schema ?? data.database,
+  schema: (data.schema ?? data.database) === "" ? undefined : (data.schema ?? data.database),
   ifExists: data.ifExists,
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
@@ -148,7 +148,7 @@ export const EventListSchema = z.object({
   limit: z.number().int().min(1).default(50),
   offset: z.number().int().min(0).default(0),
 }).transform(data => ({
-  schema: data.schema ?? data.database,
+  schema: (data.schema ?? data.database) === "" ? undefined : (data.schema ?? data.database),
   pattern: data.pattern ?? data.name ?? data.eventName ?? data.event,
   status: data.status,
   limit: data.limit,
@@ -175,7 +175,7 @@ export const EventStatusSchema = z.object({
   database: z.string().optional(),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? data.event ?? "",
-  schema: data.schema ?? data.database,
+  schema: (data.schema ?? data.database) === "" ? undefined : (data.schema ?? data.database),
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
 
