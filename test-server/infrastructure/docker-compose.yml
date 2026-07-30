@@ -400,11 +400,12 @@ services:
       test:
         [
           "CMD-SHELL",
-          "wget -qO- http://localhost:12345/-/ready | grep -q ready || exit 1"
+          "grep -q ':3039 ' /proc/net/tcp /proc/net/tcp6 2>/dev/null || exit 1"
         ]
       interval: 15s
       timeout: 5s
       retries: 3
+      start_period: 10s
 
   datadog-unified:
     image: gcr.io/datadoghq/agent:7.81.2

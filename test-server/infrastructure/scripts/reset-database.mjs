@@ -68,8 +68,12 @@ function invokeMySqlFile(filePath) {
     console.log(`\n[1/3] Executing seed script...`);
     try {
         invokeMySql(`CREATE DATABASE IF NOT EXISTS ${mysqlDatabase};`, true);
-        const fileContent = readFileSync(filePath);
-        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, encoding: 'utf-8', stdio: 'pipe' });
+        // Read as UTF-8 string and normalize CRLF→LF so Linux MySQL CLI
+        // inside the container doesn't receive stray \r characters.
+        const fileContent = readFileSync(filePath, 'utf-8').replace(/\r\n/g, '\n');
+        // --binary-mode: prevents MySQL CLI from interpreting \n, \G, \q etc.
+        // as interactive commands when receiving piped SQL input.
+        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '--binary-mode', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, stdio: 'pipe' });
     } catch (e) {
         if (e.message.includes('1290') || e.message.includes('--super-read-only')) {
             throw new Error(`Failed to execute seed file: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);

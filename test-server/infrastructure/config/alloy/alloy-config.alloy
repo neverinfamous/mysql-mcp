@@ -12,9 +12,8 @@ local.file_match "mcp_logs" {
 
 // Tail matched files, tracking positions across restarts
 loki.source.file "mcp_logs" {
-  targets               = local.file_match.mcp_logs.targets
-  forward_to            = [loki.process.mcp_logs.receiver]
-  legacy_positions_file = "/tmp/positions.yaml"
+  targets    = local.file_match.mcp_logs.targets
+  forward_to = [loki.process.mcp_logs.receiver]
 }
 
 // Parse JSON log entries and promote structured fields as labels
