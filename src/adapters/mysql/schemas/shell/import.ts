@@ -78,7 +78,8 @@ export const ShellImportTableInputSchema = z.preprocess(
   },
   ShellImportTableInputSchemaBase
 ).refine((data) => data.schema != null && data.schema !== "", { message: "schema is required" })
- .refine((data) => data.table != null && data.table !== "", { message: "table is required" });
+ .refine((data) => data.table != null && data.table !== "", { message: "table is required" })
+ .refine((data) => data.inputPath != null && data.inputPath !== "", { message: "inputPath is required" });
 
 export const ShellImportJSONInputSchemaBase = z
   .object({
@@ -131,4 +132,5 @@ export const ShellImportJSONInputSchema = z.preprocess(
   },
   ShellImportJSONInputSchemaBase
 ).refine((data) => data.schema != null && data.schema !== "", { message: "schema is required" })
- .refine((data) => data.collection != null && data.collection !== "", { message: "collection is required" });
+ .refine((data) => data.collection != null && data.collection !== "", { message: "collection is required" })
+ .refine((data) => data.inputPath != null && data.inputPath !== "", { message: "inputPath is required" });
