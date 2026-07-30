@@ -1459,7 +1459,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category_total{*} by {category}.as_count()"
               }
             ],
             "response_format": "scalar",
