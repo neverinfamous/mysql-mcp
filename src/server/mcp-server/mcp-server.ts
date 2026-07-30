@@ -97,6 +97,7 @@ export class McpServer {
     // Initialize Audit Subsystem
     if (this.config.auditConfig?.enabled) {
       this.auditLogger = new AuditLogger(this.config.auditConfig);
+      metrics.setAuditLogger(this.auditLogger);
       if (this.config.auditConfig.backup?.enabled) {
         this.backupManager = new BackupManager(
           this.config.auditConfig.backup,
@@ -106,7 +107,8 @@ export class McpServer {
       registerAuditResource(this.server, this.auditLogger, this.backupManager);
 
       if (this.config.auditConfig.logPath !== "stderr") {
-        const dbPath = this.config.auditConfig.logPath.replace(/\.jsonl$/, '') + '.sqlite';
+        const isExporter = this.config.metricsExport === "prometheus";
+        const dbPath = isExporter ? ":memory:" : this.config.auditConfig.logPath.replace(/\.jsonl$/, '') + '.sqlite';
         const db = new SystemDb({ dbPath });
         this.systemDb = db;
         metrics.setSystemDb(db);

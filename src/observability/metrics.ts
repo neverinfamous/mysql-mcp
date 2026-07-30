@@ -7,6 +7,7 @@
  */
 
 import type { SystemDb } from "./system-db.js";
+import type { AuditLogger } from "../audit/logger.js";
 import { logger } from "../utils/logger.js";
 import type { PoolStats } from "../types/modules/database.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
@@ -229,8 +230,9 @@ export class MetricsRegistry {
   private cache = new CacheMetric();
   private redis = new RedisMetric();
   private httpErrors: Record<string, number> = { "401": 0, "413": 0, "429": 0 };
-  private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[]; errorTypes: Record<string, number>; errorCategories: Record<string, number> }>() };
+  private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[]; errorTypes: Record<string, number>; errorCategories: Record<string, number> }>(), resourceStats: new Map<string, { reads: number }>() };
   private systemDb: SystemDb | null = null;
+  private auditLogger: AuditLogger | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
   private poolStatsProvider: (() => PoolStats) | null = null;
@@ -289,6 +291,12 @@ export class MetricsRegistry {
       this.startFlushTimer();
     }, 2000).unref();
   }
+
+  setAuditLogger(logger: AuditLogger): void {
+    this.auditLogger = logger;
+  }
+
+
 
   private startHistoricalSync(): void {
     // Initial load
@@ -459,6 +467,7 @@ export class MetricsRegistry {
             if (stat.size < this.jsonlState.offset) {
               this.jsonlState.offset = 0;
               this.jsonlState.toolStats.clear();
+              this.jsonlState.resourceStats.clear();
             }
             
             if (stat.size > this.jsonlState.offset) {
@@ -475,13 +484,26 @@ export class MetricsRegistry {
               for (const line of lines) {
                 try {
                   const entry = JSON.parse(line) as Record<string, unknown>;
-                  const entryType = typeof entry['type'] === 'string' ? entry['type'] : undefined;
+                  const log = entry as any;
+                  const category = log.category;
+                  const entryType = log.type;
+                  const errorCategory = log.errorCategory;
+                  const errorType = log.errorType;
+                  
                   const entryTool = typeof entry['tool'] === 'string' ? entry['tool'] : undefined;
                   const entryName = typeof entry['name'] === 'string' ? entry['name'] : undefined;
                   const toolName = entryTool ?? entryName;
                   
                   if (entryType === 'tool' || toolName !== undefined) {
                     if (toolName === undefined || toolName === "") continue;
+
+                    if (category === "resource") {
+                      let stat = this.jsonlState.resourceStats.get(toolName) ?? { reads: 0 };
+                      stat.reads++;
+                      this.jsonlState.resourceStats.set(toolName, stat);
+                      continue;
+                    }
+                    
                     const stats = this.jsonlState.toolStats.get(toolName) ?? { calls: 0, errors: 0, tokens: 0, durations: [], errorTypes: {}, errorCategories: {} };
                     
                     const entryDuration = typeof entry['durationMs'] === 'number' ? entry['durationMs'] : undefined;
@@ -498,20 +520,23 @@ export class MetricsRegistry {
                     if (entry['success'] === false) {
                       stats.errors++;
                       const errStr = typeof entry['error'] === 'string' ? entry['error'] : 'unknown error';
-                      let errorType: string | undefined;
-                      let errorCategory: string | undefined;
-                      const match = findSuggestion(errStr);
-                      if (match) {
-                        errorType = match.code;
-                        errorCategory = match.category;
+                      let eType: string | undefined = errorType;
+                      let eCat: string | undefined = errorCategory;
+                      
+                      if (!eType || !eCat) {
+                        const match = findSuggestion(errStr);
+                        if (match) {
+                          eType = eType ?? match.code;
+                          eCat = eCat ?? match.category;
+                        }
                       }
-                      if (!errorType || !errorCategory) {
+                      if (!eType || !eCat) {
                         const fallback = heuristicCategorize(errStr);
-                        errorType = errorType ?? fallback.type;
-                        errorCategory = errorCategory ?? fallback.category;
+                        eType = eType ?? fallback.type;
+                        eCat = eCat ?? fallback.category;
                       }
-                      const tKey = errorType ?? "unknown";
-                      const cKey = errorCategory ?? "unknown";
+                      const tKey = eType ?? "unknown";
+                      const cKey = eCat ?? "unknown";
                       stats.errorTypes[tKey] = (stats.errorTypes[tKey] ?? 0) + 1;
                       stats.errorCategories[cKey] = (stats.errorCategories[cKey] ?? 0) + 1;
                     }
@@ -542,11 +567,17 @@ export class MetricsRegistry {
                  parsedLiveCategoryRows.push({ tool, category: "unknown", cat_errors: count, type });
               }
               for (const [cat, count] of Object.entries(stats.errorCategories)) {
-                 // For JSONL, errorCategories and errorTypes are decoupled.
-                 // We push them with type="unknown" to let the merge phase add the category,
-                 // and category="unknown" above to let the merge phase add the type.
                  parsedLiveCategoryRows.push({ tool, category: cat, cat_errors: count, type: "unknown" });
               }
+            }
+
+            for (const [uri, stat] of this.jsonlState.resourceStats.entries()) {
+              let metric = this.resources.get(uri);
+              if (!metric) {
+                metric = new ResourceMetric();
+                this.resources.set(uri, metric);
+              }
+              metric.reads = Math.max(metric.reads, stat.reads);
             }
           }
         } catch {
@@ -810,6 +841,19 @@ export class MetricsRegistry {
       this.resources.set(uri, metric);
     }
     metric.record();
+
+    if (this.auditLogger) {
+      this.auditLogger.log({
+        timestamp: new Date().toISOString(),
+        requestId: "resource",
+        tool: uri,
+        category: "resource",
+        scope: "read",
+        durationMs: 0,
+        success: true,
+        status: "info",
+      } as any);
+    }
   }
 
   recordCacheHit(): void {

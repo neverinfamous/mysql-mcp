@@ -70,8 +70,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_sys_innodb_lock_waits` | `limit: -10` | None | N/A |
-| `mysql_sys_schema_stats` | `schema: "non_existent_schema"`, `limit: -1` | None | N/A |
+| `mysql_sys_innodb_lock_waits` |   |   |   |
+| `mysql_sys_schema_stats` |   |   |   |
 
 ---
 
@@ -92,8 +92,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_sys_innodb_lock_waits
-- [x] Ensure full coverage for mysql_sys_schema_stats
+- [ ] Ensure full coverage for mysql_sys_innodb_lock_waits
+- [ ] Ensure full coverage for mysql_sys_schema_stats
 
 
 ---

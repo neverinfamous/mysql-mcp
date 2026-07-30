@@ -6,7 +6,6 @@
 
 import { z, ZodError } from "zod";
 import {
-  stripErrorPrefix,
   formatHandlerErrorResponse,
   withTokenEstimate,
 } from "../core/error-helpers.js";
@@ -21,7 +20,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
+import { ExtensionNotAvailableError, MySQLMcpError } from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Helpers
@@ -34,17 +33,17 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 const AuditLogSchemaBase = z.object({
   limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records"),
   count: z.coerce.number().optional().describe("Alias for limit"),
-  user: z.coerce.string().optional().describe("Filter by username"),
-  userName: z.coerce.string().optional().describe("Alias for user"),
-  username: z.coerce.string().optional().describe("Alias for user"),
-  eventType: z.coerce.string()
+  user: z.string().optional().describe("Filter by username"),
+  userName: z.string().optional().describe("Alias for user"),
+  username: z.string().optional().describe("Alias for user"),
+  eventType: z.string()
     .optional()
     .describe(
       'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME.',
     ),
-  event: z.coerce.string().optional().describe("Alias for eventType"),
-  startTime: z.coerce.string().optional().describe("Start time filter (ISO 8601)"),
-  time: z.coerce.string().optional().describe("Alias for startTime"),
+  event: z.string().optional().describe("Alias for eventType"),
+  startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
+  time: z.string().optional().describe("Alias for startTime"),
 }).strict();
 
 const AuditLogSchema = z.preprocess(
@@ -77,9 +76,9 @@ const AuditLogSchema = z.preprocess(
   },
   z.object({
     limit: z.number().int().min(1).default(5),
-    user: z.coerce.string().optional(),
-    eventType: z.coerce.string().optional(),
-    startTime: z.coerce.string().optional(),
+    user: z.string().optional(),
+    eventType: z.string().optional(),
+    startTime: z.string().optional(),
   }).strict()
 );
 
@@ -252,19 +251,20 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_audit" });
         }
-        const msg = error instanceof Error ? error.message : String(error);
-        const stripped = stripErrorPrefix(msg);
-        const lower = stripped.toLowerCase();
-        if (
-          lower.includes("does not exist") ||
-          lower.includes("access denied")
-        ) {
-          return formatHandlerErrorResponse(
-            new ExtensionNotAvailableError("audit_log", { plugin: "MySQL Enterprise Audit or Percona Audit plugin" }),
-            { module: "security", tool: "mysql_security_audit" }
-          );
+        if (error instanceof Error && !(error instanceof MySQLMcpError)) {
+          const lower = error.message.toLowerCase();
+          if (
+            lower.includes("does not exist") ||
+            lower.includes("access denied") ||
+            lower.includes("er_no_such_table")
+          ) {
+            return formatHandlerErrorResponse(
+              new ExtensionNotAvailableError("audit_log", { plugin: "MySQL Enterprise Audit or Percona Audit plugin" }),
+              { module: "security", tool: "mysql_security_audit" }
+            );
+          }
         }
-        return formatHandlerErrorResponse(new Error(stripped), { module: "security", tool: "mysql_security_audit" });
+        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_audit" });
       }
     },
   };
@@ -329,16 +329,7 @@ export function createSecurityFirewallStatusTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_status" });
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(
-          new Error(
-            `Firewall plugin check failed: ${stripErrorPrefix(message)}`,
-          ),
-          { module: "security", tool: "mysql_security_firewall_status" }
-        );
+        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_status" });
       }
     },
   };
@@ -452,16 +443,7 @@ export function createSecurityFirewallRulesTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
-        }
-        const message = error instanceof Error ? error.message : String(error);
-        return formatHandlerErrorResponse(
-          new Error(
-            `Firewall rules check failed: ${stripErrorPrefix(message)}`,
-          ),
-          { module: "security", tool: "mysql_security_firewall_rules" }
-        );
+        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
       }
     },
   };
