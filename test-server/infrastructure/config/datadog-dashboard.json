@@ -288,6 +288,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",
@@ -315,6 +318,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Tool Tokens Per Call",
         "type": "timeseries"
       },
@@ -632,7 +636,7 @@
       },
       "id": 1502111351131205,
       "layout": {
-        "height": 10,
+        "height": 7,
         "width": 4,
         "x": 4,
         "y": 10
@@ -768,19 +772,19 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
+              "query_string": "source:mysqlrouter"
             },
             "response_format": "event_list"
           }
         ],
-        "title": "ProxySQL Error Logs",
+        "title": "MySQL Router Logs",
         "type": "list_stream"
       },
-      "id": 7992432021567240,
+      "id": 8829397236877308,
       "layout": {
         "height": 3,
         "width": 4,
-        "x": 8,
+        "x": 4,
         "y": 17
       }
     },
@@ -804,20 +808,20 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:mysqlrouter"
+              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
             },
             "response_format": "event_list"
           }
         ],
-        "title": "MySQL Router Logs",
+        "title": "ProxySQL Error Logs",
         "type": "list_stream"
       },
-      "id": 8829397236877308,
+      "id": 7992432021567240,
       "layout": {
-        "height": 4,
-        "width": 8,
-        "x": 4,
-        "y": 18
+        "height": 3,
+        "width": 4,
+        "x": 8,
+        "y": 17
       }
     }
   ]

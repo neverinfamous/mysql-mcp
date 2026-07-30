@@ -284,54 +284,6 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "default_zero(calls) * default_zero(latency)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count()"
-              },
-              {
-                "data_source": "metrics",
-                "name": "latency",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
-          }
-        ],
-        "title": "Optimization Target (Total Gross Latency)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
-      },
-      "id": 115532157614989,
-      "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 0,
-        "y": 2
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "auto",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
                 "formula": "default_zero(query1)"
               }
             ],
@@ -363,7 +315,7 @@
       "layout": {
         "height": 4,
         "width": 4,
-        "x": 4,
+        "x": 0,
         "y": 2
       }
     },
@@ -405,6 +357,54 @@
         "type": "query_table"
       },
       "id": 5704902594105579,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "auto",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "default_zero(calls) * default_zero(latency)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "calls",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "latency",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Optimization Target (Total Gross Latency)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 115532157614989,
       "layout": {
         "height": 4,
         "width": 4,
@@ -1357,9 +1357,6 @@
     },
     {
       "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
         "legend_columns": [
           "avg",
           "min",
@@ -1380,19 +1377,19 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
               }
             ],
             "response_format": "timeseries"
           }
         ],
         "show_legend": true,
-        "title": "Agent Quality (Error Classification)",
+        "title": "Transport Errors (HTTP)",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries"
       },
-      "id": 203565609753226,
+      "id": 203565609753301,
       "layout": {
         "height": 4,
         "width": 4,
@@ -1445,6 +1442,51 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count()"
+              }
+            ],
+            "response_format": "timeseries"
+          }
+        ],
+        "show_legend": true,
+        "title": "Agent Quality (Error Classification)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 203565609753226,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 16
+      }
+    },
+    {
+      "definition": {
         "has_search_bar": "auto",
         "requests": [
           {
@@ -1481,48 +1523,6 @@
         "type": "query_table"
       },
       "id": 203565609753300,
-      "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 4,
-        "y": 16
-      }
-    },
-    {
-      "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "bars",
-            "formulas": [
-              {
-                "formula": "default_zero(query1)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
-              }
-            ],
-            "response_format": "timeseries"
-          }
-        ],
-        "show_legend": true,
-        "title": "Transport Errors (HTTP)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries"
-      },
-      "id": 203565609753301,
       "layout": {
         "height": 4,
         "width": 4,
