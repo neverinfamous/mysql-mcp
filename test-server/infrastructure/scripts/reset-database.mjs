@@ -170,7 +170,8 @@ const logsDir = resolve(__dirname, '../../../logs');
 const filesToClean = [
     'mcp-audit.sqlite',
     'mcp-audit.sqlite-shm',
-    'mcp-audit.sqlite-wal'
+    'mcp-audit.sqlite-wal',
+    'mcp-audit.sqlite-journal'
 ];
 
 let cleanedCount = 0;
