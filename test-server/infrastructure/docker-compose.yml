@@ -262,7 +262,7 @@ services:
     command: >
       --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
       prometheus --port 3000 --audit-log /var/log/mysql-mcp/mcp-audit.jsonl
-      --mysql mysql://cluster_admin:cluster_admin@mysql-router:6446/testdb
+      --mysql mysql://root:root@mysql-router:6446/testdb
     environment:
       - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
     ports:

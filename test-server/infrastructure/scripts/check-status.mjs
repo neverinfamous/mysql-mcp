@@ -402,12 +402,12 @@ if (ddHealth !== null) {
 }
 
 // ============================================================
-// Section 7: MCP Server Metrics (optional, soft check)
+// Section 7: MCP Server Metrics
 // ============================================================
-console.log('\n7. MCP Server Metrics (optional):');
+console.log('\n7. MCP Server Metrics:');
 console.log('----------------------------------------');
 
-const mcpMetrics = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://host.docker.internal:3000/metrics'], true);
+const mcpMetrics = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://mysql-mcp-exporter:3000/metrics'], true);
 if (mcpMetrics && mcpMetrics.includes('mysql_mcp_')) {
     // Count unique metric families
     const metricFamilies = new Set(
@@ -417,9 +417,11 @@ if (mcpMetrics && mcpMetrics.includes('mysql_mcp_')) {
     );
     console.log(`✅ MCP Server (port 3000): Exporting ${metricFamilies.size} metric families`);
 } else if (mcpMetrics !== null) {
-    console.log('⚠️  MCP Server (port 3000): Responding but no mysql_mcp_ metrics found');
+    console.log('❌ MCP Server (port 3000): Responding but no mysql_mcp_ metrics found');
+    allUp = false;
 } else {
-    console.log('⏭️  MCP Server (port 3000): Not running (skipped — this is optional)');
+    console.log('❌ MCP Server (port 3000): Not running');
+    allUp = false;
 }
 
 // ============================================================
