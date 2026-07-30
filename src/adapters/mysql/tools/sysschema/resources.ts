@@ -114,7 +114,7 @@ export function createSysSchemaStatsTool(
         // P154: Schema existence check when explicitly provided
         if (schema) {
           const schemaCheck = await adapter.executeQuery(
-            "SHOW SCHEMAS LIKE ?",
+            "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
