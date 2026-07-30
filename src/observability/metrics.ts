@@ -114,6 +114,15 @@ const SnapshotRowSchema = z.object({
   p99: z.number(),
 });
 
+// Live aggregation from audit_logs rows newer than the last snapshot.
+// Used by loadHistorical() to close the 5-minute flush gap on the exporter.
+const LiveRowSchema = z.object({
+  tool: z.string(),
+  live_calls: z.number(),
+  live_errors: z.number(),
+  live_tokens: z.number(),
+});
+
 class ResourceMetric {
   public reads = 0;
 
@@ -271,7 +280,8 @@ export class MetricsRegistry {
     if (!this.systemDb) return;
     try {
       const db = this.systemDb.getDb();
-      // Load latest snapshots for each tool to initialize counters
+
+      // --- Phase 1: Snapshot baselines (max persisted value per tool) ---
       const rows = db
         .prepare(
           `
@@ -283,6 +293,10 @@ export class MetricsRegistry {
         .all();
 
       const parsedRows = z.array(SnapshotRowSchema).parse(rows);
+
+      // Track per-tool snapshot baselines for live delta calculation in Phase 2.
+      const snapshotCallBaselines = new Map<string, number>();
+      const snapshotTokenBaselines = new Map<string, number>();
 
       for (const row of parsedRows) {
         let metric = this.tools.get(row.tool);
@@ -298,10 +312,57 @@ export class MetricsRegistry {
         metric.loaded_p50 = row.p50;
         metric.loaded_p95 = row.p95;
         metric.loaded_p99 = row.p99;
+        snapshotCallBaselines.set(row.tool, row.max_calls);
+        snapshotTokenBaselines.set(row.tool, row.max_tokens);
       }
-      logger.info(`Loaded historical metrics for ${rows.length} tools`);
 
-      // Load historical cache metrics
+      // --- Phase 2: Live delta from audit_logs since the last snapshot ---
+      // This closes the 5-minute flush gap on the exporter container, which
+      // reads a DB written by IDE stdio processes but never flushes itself.
+      // The combined total (snapshotBaseline + liveDelta) is computed each
+      // call and compared via Math.max, keeping the result idempotent.
+      const lastSnapshotResult = db
+        .prepare(`SELECT MAX(timestamp) as last_ts FROM metrics_snapshots`)
+        .get() as { last_ts: string | null };
+      const since = lastSnapshotResult?.last_ts ?? "1970-01-01T00:00:00.000Z";
+
+      const liveRows = db
+        .prepare(
+          `
+        SELECT tool,
+               COUNT(*) as live_calls,
+               SUM(CASE WHEN success = 0 THEN 1 ELSE 0 END) as live_errors,
+               SUM(COALESCE(tokenEstimate, 0)) as live_tokens
+        FROM audit_logs
+        WHERE timestamp > ?
+        GROUP BY tool
+      `,
+        )
+        .all(since);
+
+      const parsedLiveRows = z.array(LiveRowSchema).parse(liveRows);
+
+      for (const row of parsedLiveRows) {
+        let metric = this.tools.get(row.tool);
+        if (!metric) {
+          metric = new ToolMetric();
+          this.tools.set(row.tool, metric);
+        }
+        // Combine snapshot baseline with live delta for the true running total.
+        // Using Math.max keeps this idempotent across repeated sync intervals.
+        const callsBaseline = snapshotCallBaselines.get(row.tool) ?? 0;
+        const tokensBaseline = snapshotTokenBaselines.get(row.tool) ?? 0;
+        metric.calls = Math.max(metric.calls, callsBaseline + row.live_calls);
+        metric.errors["live"] = Math.max(metric.errors["live"] ?? 0, row.live_errors);
+        metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
+      }
+
+      logger.info(
+        `Loaded historical metrics for ${rows.length} tools` +
+        (parsedLiveRows.length > 0 ? `, ${parsedLiveRows.length} with live audit data since ${since}` : ``),
+      );
+
+      // --- Phase 3: Cache metrics ---
       const cacheRows = db
         .prepare(
           `
@@ -323,7 +384,7 @@ export class MetricsRegistry {
         this.cache.misses = Math.max(this.cache.misses, firstRow.max_misses);
       }
 
-      // Load historical resource metrics
+      // --- Phase 4: Resource metrics ---
       const resourceRows = db
         .prepare(
           `
