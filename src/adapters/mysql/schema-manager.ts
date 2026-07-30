@@ -272,7 +272,7 @@ export class SchemaManager {
 
     const [columnsResult, tableResult] = await Promise.all([
       this.executor.executeQuery(`SHOW FULL COLUMNS FROM ${qualifiedTable}`),
-      this.executor.executeQuery(`SHOW TABLE STATUS ${escapedSchema ? `FROM ${escapedSchema} ` : ''}LIKE ?`, [shortTableName]),
+      this.executor.executeQuery(`SHOW TABLE STATUS ${escapedSchema ? `FROM ${escapedSchema} ` : ''}LIKE '${shortTableName.replace(/'/g, "''").replace(/\\/g, "\\\\")}'`),
     ]);
 
     const columns: ColumnInfo[] = (columnsResult.rows ?? []).map((row) => ({
