@@ -458,7 +458,9 @@ export class MetricsRegistry {
     // 🛠️ AUTONOMOUS HEALING: Fallback to reading the JSONL file if SQLite audit_logs is empty
       // This is crucial for IDEs on Windows that fail to initialize SystemDb (due to native bindings)
       // but successfully write to mcp-audit.jsonl. The dockerized exporter can read the JSONL to bridge the gap.
-      if (parsedLiveRows.length === 0) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
+      const isMemoryDb = (this.systemDb as any)?.config?.dbPath === ":memory:";
+      if (parsedLiveRows.length === 0 && (db === null || isMemoryDb)) {
         try {
           const auditLogArgIndex = process.argv.indexOf('--audit-log');
           const jsonlPath = auditLogArgIndex !== -1 ? process.argv[auditLogArgIndex + 1] : process.env['AUDIT_LOG_PATH'];
@@ -467,8 +469,11 @@ export class MetricsRegistry {
             const stat = fs.statSync(jsonlPath);
             if (stat.size < this.jsonlState.offset) {
               this.jsonlState.offset = 0;
-              this.jsonlState.toolStats.clear();
-              this.jsonlState.resourceStats.clear();
+              // We intentionally DO NOT clear toolStats/resourceStats on log rotation.
+              // This is because the exporter has no persistent DB (isMemoryDb = true) 
+              // and relies entirely on jsonlState for its lifetime cumulative metrics.
+              // IDE processes (which use persistent DBs) skip this fallback entirely 
+              // via the isMemoryDb check above, so they won't double count.
             }
             
             if (stat.size > this.jsonlState.offset) {
@@ -497,6 +502,13 @@ export class MetricsRegistry {
                   if (entryType === 'tool' || toolName !== undefined) {
                     if (toolName === undefined || toolName === "") continue;
 
+                    const entryTimestamp = typeof entry['timestamp'] === 'string' ? entry['timestamp'] : undefined;
+                    // Note: 'since' is essentially 1970 for the exporter, so this skip is a no-op, 
+                    // but we include it for correctness if this code path is ever used with a valid 'since'.
+                    if (entryTimestamp !== undefined && entryTimestamp <= since) {
+                      continue;
+                    }
+
                     if (category === "resource") {
                       const stat = this.jsonlState.resourceStats.get(toolName) ?? { reads: 0 };
                       stat.reads++;
@@ -507,14 +519,13 @@ export class MetricsRegistry {
                     const stats = this.jsonlState.toolStats.get(toolName) ?? { calls: 0, errors: 0, tokens: 0, durations: [], errorTypes: {}, errorCategories: {} };
                     
                     const entryDuration = typeof entry['durationMs'] === 'number' ? entry['durationMs'] : undefined;
-                    if (entryDuration !== undefined) stats.durations.push(entryDuration);
-                    
-                    // Only count entries after the last snapshot (to avoid double counting)
-                    const entryTimestamp = typeof entry['timestamp'] === 'string' ? entry['timestamp'] : undefined;
-                    if (entryTimestamp !== undefined && entryTimestamp <= since) {
-                      this.jsonlState.toolStats.set(toolName, stats);
-                      continue;
+                    if (entryDuration !== undefined) {
+                      stats.durations.push(entryDuration);
+                      // Prevent memory leak for long-running exporters
+                      if (stats.durations.length > 10000) stats.durations.shift();
                     }
+                    
+                    this.jsonlState.toolStats.set(toolName, stats);
                     
                     stats.calls++;
                     if (entry['success'] === false) {
