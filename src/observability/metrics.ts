@@ -8,6 +8,7 @@
 
 import type { SystemDb } from "./system-db.js";
 import type { AuditLogger } from "../audit/logger.js";
+import type { AuditEntry } from "../audit/types.js";
 import { logger } from "../utils/logger.js";
 import type { PoolStats } from "../types/modules/database.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
@@ -484,11 +485,10 @@ export class MetricsRegistry {
               for (const line of lines) {
                 try {
                   const entry = JSON.parse(line) as Record<string, unknown>;
-                  const log = entry as any;
-                  const category = log.category;
-                  const entryType = log.type;
-                  const errorCategory = log.errorCategory;
-                  const errorType = log.errorType;
+                  const category = typeof entry['category'] === 'string' ? entry['category'] : undefined;
+                  const entryType = typeof entry['type'] === 'string' ? entry['type'] : undefined;
+                  const errorCategory = typeof entry['errorCategory'] === 'string' ? entry['errorCategory'] : undefined;
+                  const errorType = typeof entry['errorType'] === 'string' ? entry['errorType'] : undefined;
                   
                   const entryTool = typeof entry['tool'] === 'string' ? entry['tool'] : undefined;
                   const entryName = typeof entry['name'] === 'string' ? entry['name'] : undefined;
@@ -498,7 +498,7 @@ export class MetricsRegistry {
                     if (toolName === undefined || toolName === "") continue;
 
                     if (category === "resource") {
-                      let stat = this.jsonlState.resourceStats.get(toolName) ?? { reads: 0 };
+                      const stat = this.jsonlState.resourceStats.get(toolName) ?? { reads: 0 };
                       stat.reads++;
                       this.jsonlState.resourceStats.set(toolName, stat);
                       continue;
@@ -852,7 +852,7 @@ export class MetricsRegistry {
         durationMs: 0,
         success: true,
         status: "info",
-      } as any);
+      } as unknown as AuditEntry);
     }
   }
 
