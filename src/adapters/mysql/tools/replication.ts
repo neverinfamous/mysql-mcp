@@ -334,8 +334,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (e) {
         return formatHandlerErrorResponse(e);
       }
-      
-      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/'/g, "''")}'` : "";
+      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/\\/g, '\\\\').replace(/'/g, "''")}'` : "";
 
       // Try to get Seconds_Behind_Master from replica status
       try {

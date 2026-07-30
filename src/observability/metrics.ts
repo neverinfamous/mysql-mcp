@@ -303,6 +303,7 @@ export class MetricsRegistry {
     }
 
     let parsedLiveRows: { tool: string; live_calls: number; live_errors: number; live_tokens: number; durations?: number[] }[] = [];
+    let parsedLiveCategoryRows: { tool: string; category: string; cat_errors: number }[] = [];
     const snapshotCallBaselines = new Map<string, number>();
     const snapshotTokenBaselines = new Map<string, number>();
     const since = "1970-01-01T00:00:00.000Z";
@@ -371,6 +372,24 @@ export class MetricsRegistry {
         .all(since);
 
       parsedLiveRows = z.array(LiveRowSchema).parse(liveRows);
+
+      const liveCategoryRows = db
+        .prepare(
+          `
+        SELECT tool, category, COUNT(*) as cat_errors
+        FROM audit_logs
+        WHERE timestamp > ? AND success = 0
+        GROUP BY tool, category
+      `,
+        )
+        .all(since);
+
+      parsedLiveCategoryRows = z.array(z.object({
+        tool: z.string(),
+        category: z.string(),
+        cat_errors: z.number(),
+      })).parse(liveCategoryRows);
+
       } catch (err) {
         logger.warn("Failed to load historical metrics from SQLite", { error: err instanceof Error ? err.message : String(err) });
       }
@@ -463,7 +482,6 @@ export class MetricsRegistry {
         const tokensBaseline = snapshotTokenBaselines.get(row.tool) ?? 0;
         metric.calls = Math.max(metric.calls, callsBaseline + row.live_calls);
         metric.errors["live"] = Math.max(metric.errors["live"] ?? 0, row.live_errors);
-        metric.errorCategories["live"] = Math.max(metric.errorCategories["live"] ?? 0, row.live_errors);
         metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
         
         const durations = row.durations;
@@ -478,6 +496,21 @@ export class MetricsRegistry {
           metric.loaded_p99 = getP(0.99);
         }
       }
+
+      if (db) {
+        // Merge real error categories from audit_logs
+        // We do this dynamically via parsedLiveCategoryRows from Phase 2
+        for (const row of parsedLiveCategoryRows) {
+          const metric = this.tools.get(row.tool);
+          if (metric) {
+            metric.errorCategories[row.category] = Math.max(
+              metric.errorCategories[row.category] ?? 0,
+              row.cat_errors
+            );
+          }
+        }
+      }
+
 
     if (db) {
       try {

@@ -34,7 +34,7 @@ export async function getAllUserIndexes(
   }
 
   // Get all indexes across the database using SHOW commands for ProxySQL compatibility
-  let tables: string[] = [];
+  const tables: string[] = [];
   try {
     const tablesResult = await adapter.executeReadQuery("SHOW TABLES");
     const rows = tablesResult.rows ?? [];
