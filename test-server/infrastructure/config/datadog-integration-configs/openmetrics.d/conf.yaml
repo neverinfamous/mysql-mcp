@@ -11,23 +11,23 @@ instances:
     metrics:
       - mysql_mcp_tool_tokens_total:
           name: mysql_mcp_tool_tokens
-          type: count
+          type: counter
       - mysql_mcp_tool_calls_total:
           name: mysql_mcp_tool_calls
-          type: count
+          type: counter
       - mysql_mcp_tool_errors_total:
           name: mysql_mcp_tool_errors
-          type: count
+          type: counter
       - mysql_mcp_tool_errors_by_category_total:
           name: mysql_mcp_tool_errors_by_category
-          type: count
+          type: counter
       - mysql_mcp_pool_queries_total:
           name: mysql_mcp_pool_queries
-          type: count
+          type: counter
       - mysql_mcp_cache_hits_total:
           name: mysql_mcp_cache_hits
-          type: count
+          type: counter
       - mysql_mcp_cache_misses_total:
           name: mysql_mcp_cache_misses
-          type: count
+          type: counter
       - '.*'
