@@ -348,16 +348,23 @@ if (grafanaHealth) {
     allUp = false;
 }
 
-// Loki ready
+// Loki ready — also query labels API to confirm Alloy→Loki pipeline is shipping data
 const lokiReady = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://loki:3100/ready'], true);
 if (lokiReady && lokiReady.toLowerCase().includes('ready')) {
-    console.log('✅ Loki                 : Ready');
+    const lokiLabels = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://loki:3100/loki/api/v1/labels'], true);
+    let labelCount = 0;
+    try { labelCount = JSON.parse(lokiLabels)?.data?.length || 0; } catch { /* non-fatal */ }
+    if (labelCount > 0) {
+        console.log(`✅ Loki                 : Ready (${labelCount} label(s) indexed — Alloy pipeline active)`);
+    } else {
+        console.log('✅ Loki                 : Ready (no labels yet — normal on fresh start)');
+    }
 } else {
     console.log('❌ Loki                 : Not ready');
     allUp = false;
 }
 
-// Alloy ready (migrated from EOL Promtail — port 12345, endpoint /-/ready)
+// Alloy ready — bound on 0.0.0.0:12345 so reachable from datadog-unified
 const alloyReady = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', '5', 'http://alloy:12345/-/ready'], true);
 if (alloyReady && alloyReady.toLowerCase().includes('ready')) {
     console.log('✅ Alloy                : Ready');
@@ -434,6 +441,54 @@ if (mcpMetrics && mcpMetrics.includes('mysql_mcp_')) {
     allUp = false;
 } else {
     console.log('❌ MCP Server (port 3000): Not running');
+    allUp = false;
+}
+
+// ============================================================
+// Section 8: Test Database Integrity
+// ============================================================
+console.log('\n8. Test Database Integrity:');
+console.log('----------------------------------------');
+
+const expectedTables = {
+    test_products:     16,
+    test_orders:       20,
+    test_json_docs:    8,
+    test_articles:     10,
+    test_users:        10,
+    test_measurements: 200,
+    test_locations:    15,
+    test_categories:   17,
+    test_events:       100,
+    test_documents:    10,
+    test_partitioned:  26,
+    temp_write_test:   5,
+};
+
+let dbIntegrityOk = true;
+const tableFailures = [];
+
+for (const [table, minRows] of Object.entries(expectedTables)) {
+    const countOut = dockerExecEnv('mysql-node1', ['MYSQL_PWD=root'],
+        ['mysql', '-h', 'mysql-router', '-P', '6446', '-uroot', 'testdb', '-N', '-s', '-e', `SELECT COUNT(*) FROM ${table};`], true);
+    if (!countOut) {
+        tableFailures.push(`${table}: missing or inaccessible`);
+        dbIntegrityOk = false;
+    } else {
+        const count = parseInt((countOut.trim().match(/\d+/) || ['0'])[0], 10);
+        if (count < minRows) {
+            tableFailures.push(`${table}: ${count} rows (expected ${minRows}+)`);
+            dbIntegrityOk = false;
+        }
+    }
+}
+
+if (dbIntegrityOk) {
+    console.log(`✅ testdb               : All ${Object.keys(expectedTables).length} tables present with expected row counts`);
+} else {
+    console.log(`❌ testdb               : ${tableFailures.length} table(s) have issues:`);
+    for (const f of tableFailures) console.log(`   ❌ ${f}`);
+    console.log(`   Run 'node scripts/reset-database.mjs' to reseed.`);
     allUp = false;
 }
 
