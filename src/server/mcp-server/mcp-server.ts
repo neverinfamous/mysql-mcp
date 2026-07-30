@@ -221,7 +221,7 @@ export class McpServer {
       logger.error(
         "CRITICAL SECURITY ERROR: HTTP transport requires ALLOWED_IO_ROOTS to be configured.",
       );
-      process.exit(1);
+      return process.exit(1);
     }
 
     if (!this.config.allowedIoRoots || this.config.allowedIoRoots.length === 0) {
