@@ -152,7 +152,7 @@ export const ShellDumpSchemasInputSchema = z.preprocess(
 
 export const ShellDumpTablesInputSchemaBase = z
   .object({
-    schema: z.string().regex(/^[a-zA-Z0-9_]*$/, "Invalid schema name").optional().describe("Schema containing tables"),
+    schema: z.string().optional().describe("Schema containing tables"),
     schemaName: z.string().optional().describe("Alias for schema"),
     database: z.string().optional().describe("Alias for schema"),
     tables: z.array(z.string()).optional().describe("Table names to dump"),
