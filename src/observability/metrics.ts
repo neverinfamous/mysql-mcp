@@ -602,7 +602,7 @@ export class MetricsRegistry {
         metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
         
         const durations = row.durations;
-        if (!db && !metric.hasLocalActivity() && durations && durations.length > 0) {
+        if (!metric.hasLocalActivity() && durations && durations.length > 0) {
           durations.sort((a, b) => a - b);
           const getP = (p: number): number => {
             const idx = Math.floor((durations.length - 1) * p);

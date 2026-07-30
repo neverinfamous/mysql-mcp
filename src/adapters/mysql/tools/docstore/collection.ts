@@ -68,20 +68,16 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           const query = `
-                    SELECT TABLE_NAME as name, TABLE_COMMENT as comment, TABLE_ROWS as rowCount
-                    FROM information_schema.TABLES
-                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE())
-                      AND TABLE_NAME IN (
-                          SELECT c1.TABLE_NAME FROM information_schema.COLUMNS c1
-                          JOIN information_schema.COLUMNS c2
-                            ON c1.TABLE_SCHEMA = c2.TABLE_SCHEMA AND c1.TABLE_NAME = c2.TABLE_NAME
-                          WHERE c1.COLUMN_NAME = 'doc' AND c1.DATA_TYPE = 'json'
-                            AND c2.COLUMN_NAME = '_id'
-                            AND c1.TABLE_SCHEMA = COALESCE(?, DATABASE())
-                      )`;
+                    SELECT t.TABLE_NAME as name, t.TABLE_COMMENT as comment, t.TABLE_ROWS as rowCount
+                    FROM information_schema.TABLES t
+                    JOIN information_schema.COLUMNS c1 ON t.TABLE_SCHEMA = c1.TABLE_SCHEMA AND t.TABLE_NAME = c1.TABLE_NAME
+                    JOIN information_schema.COLUMNS c2 ON c1.TABLE_SCHEMA = c2.TABLE_SCHEMA AND c1.TABLE_NAME = c2.TABLE_NAME
+                    WHERE t.TABLE_SCHEMA = COALESCE(?, DATABASE())
+                      AND c1.COLUMN_NAME = 'doc' AND c1.DATA_TYPE = 'json'
+                      AND c2.COLUMN_NAME = '_id'
+          `;
           const result = await adapter.executeQuery(query, [
-            schema ?? null,
-            schema ?? null,
+            schema ?? null
           ]);
           return withTokenEstimate({
             success: true,
