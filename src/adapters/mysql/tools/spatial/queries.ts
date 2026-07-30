@@ -35,7 +35,26 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Helpers
 // =============================================================================
 
-
+async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spatialColumn: string): Promise<{ success: boolean; error?: string; code?: string }> {
+  try {
+    const tableName = table.includes('.') ? table.split('.')[1] : table;
+    const colCheck = await adapter.executeQuery(
+      `SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+      [tableName, spatialColumn]
+    );
+    if (!colCheck.rows || colCheck.rows.length === 0) {
+      return { success: false, error: `Column '${spatialColumn}' not found in table '${table}'`, code: "COLUMN_NOT_FOUND" };
+    }
+    const dataType = String(colCheck.rows?.[0]?.["DATA_TYPE"]).toLowerCase();
+    if (!["geometry", "point", "multipoint", "polygon", "multipolygon", "linestring", "multilinestring"].includes(dataType)) {
+      return { success: false, error: `Column '${spatialColumn}' is not a spatial data type (found ${dataType})`, code: "VALIDATION_ERROR" };
+    }
+    return { success: true };
+  } catch {
+    // If information_schema query fails, just proceed to let MySQL handle it
+    return { success: true };
+  }
+}
 
 // =============================================================================
 
@@ -77,6 +96,13 @@ export function createSpatialDistanceTool(
           });
         }
 
+        const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
+        if (!colValidation.success) {
+          return withTokenEstimate({
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+          });
+        }
+
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
         const escapedTable = escapeQualifiedTable(table);
@@ -88,8 +114,8 @@ export function createSpatialDistanceTool(
         const queryParams: unknown[] = [pointWkt];
 
         if (maxDistance !== undefined) {
-          query += ` WHERE ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
-          queryParams.push(pointWkt, maxDistance);
+          query += ` HAVING distance <= ?`;
+          queryParams.push(maxDistance);
         }
 
         query += ` ORDER BY distance LIMIT ${String(limit)}`;
@@ -184,19 +210,30 @@ export function createSpatialDistanceSphereTool(
           });
         }
 
+        const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
+        if (!colValidation.success) {
+          return withTokenEstimate({
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+          });
+        }
+
         // Use 'axis-order=long-lat' to accept natural longitude-latitude order
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
         const escapedTable = escapeQualifiedTable(table);
 
         let query = `SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
-                       ROUND(ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters
-                FROM ${escapedTable}`;
+                       ROUND(ST_Distance_Sphere(
+                           IF(ST_GeometryType(\`${spatialColumn}\`) IN ('ST_Point', 'ST_MultiPoint'), \`${spatialColumn}\`, ST_GeomFromText('POINT(0 0)', ${String(srid)})), 
+                           ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
+                       ), 5) as distance_meters
+                FROM ${escapedTable}
+                WHERE ST_GeometryType(\`${spatialColumn}\`) IN ('ST_Point', 'ST_MultiPoint')`;
 
         const queryParams: unknown[] = [pointWkt];
 
         if (maxDistance !== undefined) {
-          query += ` WHERE ST_Distance_Sphere(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')) <= ?`;
-          queryParams.push(pointWkt, maxDistance);
+          query += ` HAVING distance_meters <= ?`;
+          queryParams.push(maxDistance);
         }
 
         query += ` ORDER BY distance_meters LIMIT ${String(limit)}`;
@@ -266,6 +303,13 @@ export function createSpatialContainsTool(
           });
         }
 
+        const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
+        if (!colValidation.success) {
+          return withTokenEstimate({
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+          });
+        }
+
         const escapedTable = escapeQualifiedTable(table);
         const query = `SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
                 FROM ${escapedTable}
@@ -329,6 +373,13 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
           return withTokenEstimate({
             success: false, error: "Invalid column name", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
+          });
+        }
+
+        const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
+        if (!colValidation.success) {
+          return withTokenEstimate({
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
           });
         }
 
