@@ -119,3 +119,7 @@ playwright-results.json
 
 # Data mounts
 data/
+
+# Local test SQLite DBs
+*.sqlite
+*.sqlite-journal
