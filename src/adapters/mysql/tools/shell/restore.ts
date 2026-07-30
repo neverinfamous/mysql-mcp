@@ -345,13 +345,12 @@ export function createShellRunScriptTool(
         if (scriptPath) {
           const args = ["--uri", config.connectionUri, langFlag, "--file", scriptPath];
           result = await execMySQLShell(args, { timeout });
-        } else if (language === "sql") {
-          // SQL scripts with comments or multi-line content break when passed via -e
-          // Use --file approach for SQL to properly handle all syntax
-          // Create a secure temp directory via mkdtemp (restrictive permissions,
-          // unique path) to avoid CodeQL js/insecure-temporary-file alert.
+        } else {
+          // Write all inline scripts to a temp file to avoid OS command line length limits
+          // and complex string escaping bugs with -e, regardless of language.
+          const ext = language === "py" || language === "python" ? "py" : (language === "sql" ? "sql" : "js");
           const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
-          const tempFile = join(tempDir, "script.sql");
+          const tempFile = join(tempDir, `script.${ext}`);
           try {
             await fs.writeFile(tempFile, script, "utf8");
             const args = [
@@ -366,10 +365,6 @@ export function createShellRunScriptTool(
             // Cleanup temp directory and its contents
             await fs.rm(tempDir, { recursive: true }).catch(() => void 0);
           }
-        } else {
-          // JS and Python work fine with -e
-          const args = ["--uri", config.connectionUri, langFlag, "-e", script];
-          result = await execMySQLShell(args, { timeout });
         }
 
         if (result.exitCode !== 0) {

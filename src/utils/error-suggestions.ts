@@ -423,3 +423,27 @@ export function findSuggestion(message: string): {
   }
   return null;
 }
+
+/**
+ * Heuristic fallback for unhandled error categorization.
+ * Ensures metrics never report 'unknown' categories for tool errors.
+ */
+export function heuristicCategorize(errorMsg: string): { type: string; category: string } {
+  const lower = errorMsg.toLowerCase();
+  if (lower.includes("invalid parameters") || lower.includes("validation") || lower.includes("zoderror")) {
+    return { type: "VALIDATION_ERROR", category: "validation" };
+  }
+  if (lower.includes("syntax")) {
+    return { type: "SYNTAX_ERROR", category: "query" };
+  }
+  if (lower.includes("denied") || lower.includes("privilege")) {
+    return { type: "PERMISSION_DENIED", category: "permission" };
+  }
+  if (lower.includes("timeout") || lower.includes("connect")) {
+    return { type: "CONNECTION_ERROR", category: "connection" };
+  }
+  if (lower.includes("not found") || lower.includes("doesn't exist") || lower.includes("does not exist")) {
+    return { type: "OBJECT_NOT_FOUND", category: "resource" };
+  }
+  return { type: "TOOL_ERROR", category: "internal" };
+}

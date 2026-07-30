@@ -11,6 +11,7 @@ import { logger } from "../utils/logger.js";
 import type { PoolStats } from "../types/modules/database.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
 import * as fs from "fs";
+import { findSuggestion, heuristicCategorize } from "../utils/error-suggestions.js";
 
 const MAX_SAMPLES = 1000;
 
@@ -140,9 +141,15 @@ const PercentileRowSchema = z.object({
 
 class ResourceMetric {
   public reads = 0;
+  private localReads = 0;
 
   record(): void {
     this.reads++;
+    this.localReads++;
+  }
+
+  hasLocalActivity(): boolean {
+    return this.localReads > 0;
   }
 
   getSummary(): ResourceMetricSummary {
@@ -220,7 +227,7 @@ export class MetricsRegistry {
   private cache = new CacheMetric();
   private redis = new RedisMetric();
   private httpErrors: Record<string, number> = { "401": 0, "413": 0, "429": 0 };
-  private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[] }>() };
+  private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[]; errorTypes: Record<string, number>; errorCategories: Record<string, number> }>() };
   private systemDb: SystemDb | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
@@ -303,7 +310,7 @@ export class MetricsRegistry {
     }
 
     let parsedLiveRows: { tool: string; live_calls: number; live_errors: number; live_tokens: number; durations?: number[] }[] = [];
-    let parsedLiveCategoryRows: { tool: string; category: string; cat_errors: number }[] = [];
+    let parsedLiveCategoryRows: { tool: string; category: string; cat_errors: number; type: string }[] = [];
     const snapshotCallBaselines = new Map<string, number>();
     const snapshotTokenBaselines = new Map<string, number>();
     const since = "1970-01-01T00:00:00.000Z";
@@ -373,22 +380,41 @@ export class MetricsRegistry {
 
       parsedLiveRows = z.array(LiveRowSchema).parse(liveRows);
 
-      const liveCategoryRows = db
+      const liveErrorRows = db
         .prepare(
           `
-        SELECT tool, category, COUNT(*) as cat_errors
+        SELECT tool, error
         FROM audit_logs
         WHERE timestamp > ? AND success = 0
-        GROUP BY tool, category
       `,
         )
-        .all(since);
-
-      parsedLiveCategoryRows = z.array(z.object({
-        tool: z.string(),
-        category: z.string(),
-        cat_errors: z.number(),
-      })).parse(liveCategoryRows);
+        .all(since) as { tool: string; error: string | null }[];
+        
+      // Re-derive errorType and errorCategory from the raw error strings
+      for (const row of liveErrorRows) {
+        if (!row.error) continue;
+        const errStr = row.error;
+        let errorType: string | undefined;
+        let errorCategory: string | undefined;
+        
+        const match = findSuggestion(errStr);
+        if (match) {
+          errorType = match.code;
+          errorCategory = match.category;
+        }
+        if (!errorType || !errorCategory) {
+          const fallback = heuristicCategorize(errStr);
+          errorType = errorType ?? fallback.type;
+          errorCategory = errorCategory ?? fallback.category;
+        }
+        
+        parsedLiveCategoryRows.push({
+          tool: row.tool,
+          category: errorCategory ?? "unknown",
+          cat_errors: 1, // We will aggregate this later or just loop over it
+          type: errorType ?? "unknown"
+        } as any); // Type hack for parsedLiveCategoryRows
+      }
 
       } catch (err) {
         logger.warn("Failed to load historical metrics from SQLite", { error: err instanceof Error ? err.message : String(err) });
@@ -431,7 +457,7 @@ export class MetricsRegistry {
                   
                   if (entryType === 'tool' || toolName !== undefined) {
                     if (toolName === undefined || toolName === "") continue;
-                    const stats = this.jsonlState.toolStats.get(toolName) ?? { calls: 0, errors: 0, tokens: 0, durations: [] };
+                    const stats = this.jsonlState.toolStats.get(toolName) ?? { calls: 0, errors: 0, tokens: 0, durations: [], errorTypes: {}, errorCategories: {} };
                     
                     const entryDuration = typeof entry['durationMs'] === 'number' ? entry['durationMs'] : undefined;
                     if (entryDuration !== undefined) stats.durations.push(entryDuration);
@@ -444,7 +470,26 @@ export class MetricsRegistry {
                     }
                     
                     stats.calls++;
-                    if (entry['success'] === false) stats.errors++;
+                    if (entry['success'] === false) {
+                      stats.errors++;
+                      const errStr = typeof entry['error'] === 'string' ? entry['error'] : 'unknown error';
+                      let errorType: string | undefined;
+                      let errorCategory: string | undefined;
+                      const match = findSuggestion(errStr);
+                      if (match) {
+                        errorType = match.code;
+                        errorCategory = match.category;
+                      }
+                      if (!errorType || !errorCategory) {
+                        const fallback = heuristicCategorize(errStr);
+                        errorType = errorType ?? fallback.type;
+                        errorCategory = errorCategory ?? fallback.category;
+                      }
+                      const tKey = errorType ?? "unknown";
+                      const cKey = errorCategory ?? "unknown";
+                      stats.errorTypes[tKey] = (stats.errorTypes[tKey] ?? 0) + 1;
+                      stats.errorCategories[cKey] = (stats.errorCategories[cKey] ?? 0) + 1;
+                    }
                     
                     const entryTokenEstimate = typeof entry['tokenEstimate'] === 'number' ? entry['tokenEstimate'] : undefined;
                     if (entryTokenEstimate !== undefined) stats.tokens += entryTokenEstimate;
@@ -481,7 +526,9 @@ export class MetricsRegistry {
         const callsBaseline = snapshotCallBaselines.get(row.tool) ?? 0;
         const tokensBaseline = snapshotTokenBaselines.get(row.tool) ?? 0;
         metric.calls = Math.max(metric.calls, callsBaseline + row.live_calls);
-        metric.errors["live"] = Math.max(metric.errors["live"] ?? 0, row.live_errors);
+        // Rename "live" bucket to "historical" for the total count to match Datadog filtering
+        // We don't overwrite types, they are populated from parsedLiveCategoryRows
+        metric.errors["historical"] = Math.max(metric.errors["historical"] ?? 0, row.live_errors);
         metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
         
         const durations = row.durations;
@@ -498,15 +545,27 @@ export class MetricsRegistry {
       }
 
       if (db) {
-        // Merge real error categories from audit_logs
-        // We do this dynamically via parsedLiveCategoryRows from Phase 2
+        // We re-derived categories from audit_logs in Phase 2
+        // Unlike snapshots (which take max), these are individual errors since the last snapshot.
+        // So we increment them onto the metric.
+        // Wait, if we increment them every 10s, we double count!
+        // No, we can't increment. We must just assign them if the exporter NEVER writes.
+        // Actually, for the exporter, metric.errors and metric.errorCategories are EMPTY before this loop.
+        // So we can just sum them up from the rows!
+        
+        // First reset the live categories/types
+        for (const metric of this.tools.values()) {
+          for (const key of Object.keys(metric.errorCategories)) metric.errorCategories[key] = 0;
+          for (const key of Object.keys(metric.errors)) {
+            if (key !== "historical") metric.errors[key] = 0;
+          }
+        }
+        
         for (const row of parsedLiveCategoryRows) {
           const metric = this.tools.get(row.tool);
           if (metric) {
-            metric.errorCategories[row.category] = Math.max(
-              metric.errorCategories[row.category] ?? 0,
-              row.cat_errors
-            );
+            metric.errorCategories[row.category] = (metric.errorCategories[row.category] ?? 0) + row.cat_errors;
+            metric.errors[row.type] = (metric.errors[row.type] ?? 0) + row.cat_errors;
           }
         }
       }
@@ -626,11 +685,12 @@ export class MetricsRegistry {
 
   private flushToDb(): void {
     if (!this.systemDb) return;
-    // Skip writing snapshots if this process has not handled any tool calls.
+    // Skip writing snapshots if this process has not handled any tool calls or resource reads.
     // The exporter container reads from the shared DB but never processes calls,
     // so flushing would overwrite valid IDE-written p50/p95/p99 with zeros.
     const hasLocalCalls = [...this.tools.values()].some(m => m.hasLocalActivity());
-    if (!hasLocalCalls) return;
+    const hasLocalResourceReads = [...this.resources.values()].some(m => m.hasLocalActivity());
+    if (!hasLocalCalls && !hasLocalResourceReads) return;
     try {
       const db = this.systemDb.getDb();
       const stmt = db.prepare(`
