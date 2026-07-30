@@ -68,8 +68,8 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
 │            ┌──────────────────┐           ┌──────────────┐                   │
-│            │       Loki       │           │   Promtail   │                   │
-│            │   Port: 3100     │           │  (Internal)  │                   │
+│            │       Loki       │           │  Grafana     │                   │
+│            │   Port: 3100     │           │  Alloy       │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
 │       ┌──────────────┐   ┌────────────────┐   ┌──────────────┐               │
@@ -128,7 +128,7 @@ docker logs -f cluster-healer
 |---|---|
 | Prometheus | `http://localhost:9090` |
 | Loki | `http://localhost:3100` |
-| Promtail | `(network-internal only)` |
+| Grafana Alloy | `http://localhost:12345` (internal HTTP status) |
 | Grafana | `http://localhost:3001` (admin/admin) |
 | Dozzle (Logs) | `http://localhost:8080` |
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
@@ -198,7 +198,7 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 - **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
 - **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
 - **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.
-- **`validate_password` Component**: The `validate_password` component has been REMOVED from `init.sql` because it corrupts the `mysql.user` data dictionary (52 columns vs expected 51), which breaks the MySQL Router 9.1.0 bootstrap process. It is no longer installed at startup.
+- **`validate_password` Component**: The `validate_password` component has been REMOVED from `init.sql` because it corrupts the `mysql.user` data dictionary (52 columns vs expected 51), which breaks the MySQL Router 9.7.x bootstrap process. It is no longer installed at startup.
 - **`group_replication_ip_allowlist` & `group_seeds`**: The `recreate-ecosystem.mjs` script automatically sets `group_replication_ip_allowlist` to `AUTOMATIC` and normalizes `group_seeds` to include all 3 nodes.
 - **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.
 - **MySQL Router**: Connection sharing for the read-only bootstrap pool is explicitly enabled (`bootstrap_ro.connection_sharing=1`) to prevent connection exhaustion during concurrent MCP testing.

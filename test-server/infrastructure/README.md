@@ -23,27 +23,27 @@ docker compose up -d
 
 | Component | Container Name | Exposes / Ports | Image |
 |---|---|---|---|
-| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.1` |
-| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.1` |
-| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.1` |
-| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1` |
-| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql` |
+| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.7.2` |
+| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.7.2` |
+| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.7.2` |
+| **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.7.1` |
+| **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.9` |
 | **PostgreSQL** (Planned) | `postgres-server` | `5432` | `postgres-hypopg:18` (Custom Build) |
 | **MongoDB** (Planned) | `mongo-server` | `27017` | `mongo` |
-| **Redis** | `redis-server` | `6379` | `redis` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle` |
-| **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer` |
-| **Prometheus** | `prometheus` | `9090` | `prom/prometheus` |
-| **Loki** | `loki` | `3100` | `grafana/loki` |
-| **Promtail** | `promtail` | `(network-internal only)` | `grafana/promtail` |
-| **Grafana** | `grafana` | `3001` | `grafana/grafana` |
-| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent` |
+| **Redis** | `redis-server` | `6379` | `redis:7.4.10` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.13` |
+| **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
+| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.1` |
+| **Loki** | `loki` | `3100` | `grafana/loki:3.6.13` |
+| **Grafana Alloy** | `alloy` | `12345` (internal HTTP) | `grafana/alloy:v1.18.0` |
+| **Grafana** | `grafana` | `3001` | `grafana/grafana:13.1.1` |
+| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.2` |
 
 > **Version Pinning:** All images use explicit version tags defined in [`docker-compose.yml`](docker-compose.yml). See that file for current versions.
 
 - **Datadog Dashboards**: [AI Efficiency](https://app.datadoghq.com/dashboard/q48-mq9-3i7) | [Token & Tool Metrics](https://app.datadoghq.com/dashboard/qwe-2un-us8) | [MySQL](https://app.datadoghq.com/dashboard/4w2-tdx-wf7) | [Redis](https://app.datadoghq.com/dashboard/khx-zry-d49) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
   *(Note: Backups of custom Datadog dashboards like AI Efficiency (tracking `mysql-mcp` cache, connection pools, and error rates) and Token & Tool Metrics (tracking `MySQL-MCP Audit Log`) are stored as JSON files in the `config/` directory. When syncing with `pup`, some fields like `anomaly_detection` and `legend` are stripped from list streams).*
-- **Grafana Dashboards**: Access the **MySQL-MCP Logs (Loki)** dashboard via Grafana at `http://localhost:3001` to view `mcp-audit.jsonl` and `agent-issues.jsonl` logs aggregated by Promtail.
+- **Grafana Dashboards**: Access the **MySQL-MCP Logs (Loki)** dashboard via Grafana at `http://localhost:3001` to view `mcp-audit.jsonl` and `agent-issues.jsonl` logs aggregated by **Grafana Alloy** (replaces EOL Promtail).
 
 ## 3. Datadog Agent
 
