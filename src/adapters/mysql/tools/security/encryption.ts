@@ -66,12 +66,14 @@ export function createSecuritySSLStatusTool(
     title: "MySQL SSL Status",
     description: "Get SSL/TLS connection and certificate status.",
     group: "security",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecuritySslStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(params);
+
         // Get SSL status
         const statusResult = await adapter.executeQuery(
           "SHOW STATUS LIKE 'Ssl%'",
@@ -148,12 +150,14 @@ export function createSecurityEncryptionStatusTool(
     title: "MySQL Encryption Status",
     description: "Get Transparent Data Encryption (TDE) and keyring status.",
     group: "security",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecurityEncryptionStatusOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(params);
+
         // Check for keyring plugins
         const keyringResult = await adapter.executeQuery(`
                 SELECT PLUGIN_NAME, PLUGIN_STATUS
