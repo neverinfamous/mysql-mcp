@@ -31,8 +31,8 @@ describe("Vector Tools", () => {
     adapter = createMockMySQLAdapter();
     
     adapter.executeQuery.mockImplementation(async (query: string) => {
-      if (query.includes("SHOW VARIABLES LIKE 'version'")) {
-        return { rows: [{ Value: "9.1.0" }] };
+      if (query.includes("@@version") || query.includes("SHOW VARIABLES LIKE 'version'")) {
+        return { rows: [{ "@@version": "9.1.0", Value: "9.1.0" }] };
       }
       if (query.includes("SHOW COLUMNS")) {
         return { rows: [
@@ -66,6 +66,14 @@ describe("Vector Tools", () => {
     });
 
     adapter.rawQuery.mockImplementation(async (query: string) => {
+      if (query.includes("@@version") || query.includes("SHOW VARIABLES LIKE 'version'")) {
+        return { rows: [{ "@@version": "9.1.0", Value: "9.1.0" }] };
+      }
+      if (query.includes("SHOW COLUMNS")) {
+        return { rows: [
+          { Field: "vec", Type: "vector(1536)", Null: "YES", Default: null, Extra: "" }
+        ] };
+      }
       if (query.includes("ANALYZE TABLE")) {
         return { rows: [{ Msg_type: "status", Msg_text: "OK" }] };
       }

@@ -101,7 +101,7 @@ describe("Sys Schema Resource Tools", () => {
 
       // First call is schema existence check
       const schemaCheck = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(schemaCheck).toContain("SHOW SCHEMAS LIKE");
+      expect(schemaCheck).toContain("SELECT schema_name FROM information_schema.schemata");
       // Second call is table stats with schema param
       const args = mockAdapter.executeQuery.mock.calls[1][1];
       expect(args).toContain("test_db");

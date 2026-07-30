@@ -169,7 +169,7 @@ describe("Index Audit Tool", () => {
           { name: "PRIMARY", tableName: "logs", columns: ["id"], unique: true, type: "BTREE" }
         ]);
         mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([
-          { TABLE_NAME: "logs", TABLE_ROWS: 1500 }
+          { Name: "logs", Engine: "InnoDB", Rows: 1500 }
         ]));
 
         const mockTableInfo = createMockTableInfo("logs");

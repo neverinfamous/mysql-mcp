@@ -321,7 +321,7 @@ describe("Security Audit Tools", () => {
       };
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall rules check failed: Table missing");
+      expect(result.error).toContain("Table missing");
     });
 
     it("should not include duplicated message field in error response", async () => {

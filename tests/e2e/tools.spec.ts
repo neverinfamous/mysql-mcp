@@ -55,6 +55,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
       query:
         "CREATE TABLE IF NOT EXISTS _e2e_test_write (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))",
     });
+    if (!createParsed.success) console.log('ERROR:', createParsed.error);
     expect(createParsed.success).toBe(true);
 
     await callToolAndParse(client, "mysql_write_query", { 

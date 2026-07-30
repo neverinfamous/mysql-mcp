@@ -102,8 +102,7 @@ describe("Handler Execution", () => {
       // Second call: collections query with schema params
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
-        expect.any(String),
-        ["mydb", "mydb"]
+        expect.stringContaining("SHOW TABLE STATUS FROM `mydb`")
       );
     });
 
@@ -199,7 +198,7 @@ describe("Handler Execution", () => {
 
     it("should return skipped when collection already exists with ifNotExists", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ "1": 1 }]), // checkCollectionExists → true
+        createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]), // checkCollectionExists → true
       );
 
       const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
@@ -304,7 +303,7 @@ describe("Handler Execution", () => {
 
     it("should drop collection with IF EXISTS when requested", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // pre-check
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // pre-check
         .mockResolvedValueOnce(createMockQueryResult([])); // drop
 
       const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
@@ -370,7 +369,7 @@ describe("Handler Execution", () => {
   describe("mysql_doc_find", () => {
     it("should query documents with valid filter", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(
           createMockQueryResult([{ doc: '{"name": "test"}' }]),
         );
@@ -394,7 +393,7 @@ describe("Handler Execution", () => {
 
     it("should reject SQL injection in filter", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ "1": 1 }]),
+        createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
       ); // collection exists
 
       const tool = tools.find((t) => t.name === "mysql_doc_find")!;
@@ -414,7 +413,7 @@ describe("Handler Execution", () => {
 
     it("should reject invalid JSON path in filter", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ "1": 1 }]),
+        createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
       ); // collection exists
 
       const tool = tools.find((t) => t.name === "mysql_doc_find")!;
@@ -435,7 +434,7 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(
           createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
         ) // schema exists
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_find")!;
@@ -452,8 +451,7 @@ describe("Handler Execution", () => {
       // Second call: collection existence check with schema
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
-        expect.stringContaining("information_schema.COLUMNS"),
-        ["my_coll", "otherdb"]
+        "SHOW COLUMNS FROM `otherdb`.`my_coll`"
       );
       // Query should use qualified table ref
       const queryCall = mockAdapter.executeQuery.mock.calls[2][0];
@@ -481,7 +479,7 @@ describe("Handler Execution", () => {
 
     it("should handle pre-parsed JSON documents", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(
           createMockQueryResult([{ doc: { id: 2, name: "test2" } }]),
         );
@@ -497,7 +495,7 @@ describe("Handler Execution", () => {
 
     it("should apply filter", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_find")!;
@@ -514,7 +512,7 @@ describe("Handler Execution", () => {
 
     it("should support field projection", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_find")!;
@@ -594,7 +592,7 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       // First call is existence check — must return a row
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ "1": 1 }]),
+        createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
       );
 
       const tool = tools.find((t) => t.name === "mysql_doc_add")!;
@@ -613,7 +611,7 @@ describe("Handler Execution", () => {
 
     it("should handle multiple documents", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_add")!;
@@ -697,7 +695,7 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(
           createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
         ) // schema exists
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_add")!;
@@ -718,8 +716,7 @@ describe("Handler Execution", () => {
       // Second call: collection existence check with schema
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
-        expect.stringContaining("information_schema.COLUMNS"),
-        ["my_coll", "otherdb"]
+        "SHOW COLUMNS FROM `otherdb`.`my_coll`"
       );
       // Insert should use qualified table ref
       const insertCall = mockAdapter.executeQuery.mock.calls[2][0];
@@ -730,7 +727,7 @@ describe("Handler Execution", () => {
   describe("mysql_doc_modify", () => {
     it("should modify documents with set operation", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 5));
 
       const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
@@ -751,7 +748,7 @@ describe("Handler Execution", () => {
 
     it("should modify with unset operation", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 2));
 
       const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
@@ -770,7 +767,7 @@ describe("Handler Execution", () => {
 
     it("should modify with both set and unset operations", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 2));
 
       const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
@@ -791,6 +788,10 @@ describe("Handler Execution", () => {
     });
 
     it("should return error if no modifications specified", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])
+      );
+
       const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
 
       const result = await tool.handler(
@@ -880,7 +881,7 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(
           createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
         ) // schema exists
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 2));
 
       const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
@@ -902,7 +903,7 @@ describe("Handler Execution", () => {
   describe("mysql_doc_remove", () => {
     it("should remove documents matching filter", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 3));
 
       const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
@@ -989,7 +990,7 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(
           createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
         ) // schema exists
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([], 1));
 
       const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
@@ -1010,7 +1011,7 @@ describe("Handler Execution", () => {
   describe("mysql_doc_create_index", () => {
     it("should create index on document fields", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
@@ -1031,7 +1032,7 @@ describe("Handler Execution", () => {
 
     it("should create composite index with multiple fields", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
@@ -1059,7 +1060,7 @@ describe("Handler Execution", () => {
 
     it("should create unique index", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
@@ -1168,7 +1169,7 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(
           createMockQueryResult([{ SCHEMA_NAME: "otherdb" }]),
         ) // schema exists
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValue(createMockQueryResult([]));
 
       const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
@@ -1191,7 +1192,7 @@ describe("Handler Execution", () => {
 
     it("should return graceful error on duplicate column", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([])) // ALTER TABLE (ignored if it throws duplicate column, but let's resolve it)
         .mockRejectedValueOnce(new Error("Duplicate key name 'idx_email'"));
 
@@ -1213,7 +1214,7 @@ describe("Handler Execution", () => {
   describe("mysql_doc_collection_info", () => {
     it("should get collection statistics", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }])) // collection exists
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])) // collection exists
         .mockResolvedValueOnce(createMockQueryResult([{ rowCount: 1000 }])) // COUNT(*) query
         .mockResolvedValueOnce(
           createMockQueryResult([{ dataSize: 50000, indexSize: 10000 }]),

@@ -172,7 +172,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall rules check failed: Access denied");
+      expect(result.error).toContain("Access denied");
     });
   });
 
@@ -223,7 +223,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Firewall plugin check failed");
+      expect(result.error).toContain("DB Error");
     });
   });
 

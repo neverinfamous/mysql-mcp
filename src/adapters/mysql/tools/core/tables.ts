@@ -192,16 +192,22 @@ export function createCreateTableTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (ifNotExists) {
-          const tableInfo = await adapter.describeTable(name);
-          if (tableInfo.columns && tableInfo.columns.length > 0) {
-            return withTokenEstimate({
-              success: true,
-              data: {
-                skipped: true,
-                tableName: name,
-                reason: "Table already exists",
-              },
-            });
+          try {
+            const tableInfo = await adapter.describeTable(name);
+            if (tableInfo.columns && tableInfo.columns.length > 0) {
+              return withTokenEstimate({
+                success: true,
+                data: {
+                  skipped: true,
+                  tableName: name,
+                  reason: "Table already exists",
+                },
+              });
+            }
+          } catch (e: any) {
+            if (e?.code !== "TABLE_NOT_FOUND") {
+              throw e;
+            }
           }
         }
 
@@ -309,9 +315,17 @@ export function createDropTableTool(adapter: MySQLAdapter): ToolDefinition {
 
         let tableAbsent = false;
         if (ifExists) {
-          const tableInfo = await adapter.describeTable(table);
-          if (!tableInfo.columns || tableInfo.columns.length === 0) {
-            tableAbsent = true;
+          try {
+            const tableInfo = await adapter.describeTable(table);
+            if (!tableInfo.columns || tableInfo.columns.length === 0) {
+              tableAbsent = true;
+            }
+          } catch (e: any) {
+            if (e?.code === "TABLE_NOT_FOUND") {
+              tableAbsent = true;
+            } else {
+              throw e;
+            }
           }
         }
 

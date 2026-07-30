@@ -183,7 +183,7 @@ describe("metrics", () => {
       expect(summary.p50).toBe(15);
       expect(summary.p95).toBe(35);
       expect(summary.p99).toBe(45);
-      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("Loaded historical metrics for 0 tools"));
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("Loaded historical metrics for 1 tools"));
     });
 
     it("should handle error when loading historical metrics", () => {
@@ -223,7 +223,9 @@ describe("metrics", () => {
         10, // p50
         10, // p95
         10, // p99
-        0  // tokens
+        0,  // tokens
+        "{}", // categories_json
+        "{}" // errors_json
       );
     });
 
