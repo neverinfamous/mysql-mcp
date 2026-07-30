@@ -14,11 +14,11 @@ export const BinlogEventsSchemaBase = z.object({
   binlog: z.string().optional().describe("Alias for logFile"),
   log_file: z.string().optional().describe("Alias for logFile"),
   name: z.string().optional().describe("Alias for logFile"),
-  position: z.number().optional().describe("Starting position"),
-  pos: z.number().optional().describe("Alias for position"),
-  start: z.number().optional().describe("Alias for position"),
+  position: z.unknown().optional().describe("Starting position"),
+  pos: z.unknown().optional().describe("Alias for position"),
+  start: z.unknown().optional().describe("Alias for position"),
   limit: z
-    .number()
+    .unknown()
     .optional()
     .describe(
       "Maximum events to return (default: 5). Set higher for more events.",
