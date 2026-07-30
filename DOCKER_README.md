@@ -44,15 +44,31 @@ Production-ready MySQL integration for AI agents. Features MCP v2 stateless arch
 
 ## 📊 Improve Observability with Resources
 
-| Resource | Description |
-| --- | --- |
-| `mysql://schema` | Full database schema |
-| `mysql://tables` | Table listing with metadata |
-| `mysql://table/{name}` | Specific Table Schema |
-| `mysql://sysschema` | Sys Schema Diagnostics |
-| `mysql://help` | Critical gotchas, parameter aliases, and API reference |
-
-> **Note**: This is a subset of available resources. The server exposes many more endpoints for performance, observability, clustering, and health monitoring.
+| Resource | Category | Description |
+| --- | --- | --- |
+| `mysql://schema` | Core | Full database schema |
+| `mysql://tables` | Core | Table listing with metadata |
+| `mysql://variables` | Core | Server configuration variables |
+| `mysql://status` | Core | Server status metrics |
+| `mysql://processlist` | Core | Active connections and queries |
+| `mysql://pool` | Core | Connection pool statistics |
+| `mysql://capabilities` | Extended | Server version, features, and tool categories |
+| `mysql://health` | Extended | Comprehensive database health status |
+| `mysql://performance` | Extended | Query performance metrics |
+| `mysql://indexes` | Extended | Index usage and statistics |
+| `mysql://replication` | Extended | Replication status and lag |
+| `mysql://innodb` | Extended | InnoDB buffer pool and engine metrics |
+| `mysql://events` | Domain | Event Scheduler status and scheduled events |
+| `mysql://sysschema` | Domain | sys schema diagnostics summary |
+| `mysql://locks` | Domain | InnoDB lock contention detection |
+| `mysql://cluster` | Domain | Group Replication / InnoDB Cluster status |
+| `mysql://spatial` | Domain | Spatial columns and indexes |
+| `mysql://docstore` | Domain | Document Store collections |
+| `mysql://insights` | Analytics | Business insights memo from mysql_append_insight |
+| `mysql://metrics` | Observability | In-memory token usage, latency, and request metrics |
+| `mysql://audit` | Observability | Forensic trail and snapshot of system errors |
+| `mysql://help` | Documentation | Critical gotchas and high-level API reference |
+| `mysql://help/{group}` | Documentation | Dynamic group-specific tool reference (e.g., `core`, `codemode`) |
 
 ---
 
