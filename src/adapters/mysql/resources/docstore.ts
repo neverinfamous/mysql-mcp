@@ -23,43 +23,47 @@ export function createDocstoreResource(
     handler: async (_uri: string, _context: RequestContext) => {
       try {
         // Performance optimization: run both independent queries in parallel
-        const [pluginResult, collectionsResult] = await Promise.all([
-          // Check if X Plugin is enabled
-          adapter.executeQuery(
-            "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'mysqlx'",
-          ),
-          // Get collections (tables with _id column and doc JSON column)
-          adapter.executeQuery(`
-                    SELECT 
-                        t.TABLE_NAME as collection_name,
-                        t.TABLE_ROWS as row_count,
-                        t.DATA_LENGTH + t.INDEX_LENGTH as size_bytes
-                    FROM information_schema.TABLES t
-                    WHERE t.TABLE_SCHEMA = DATABASE()
-                      AND EXISTS (
-                          SELECT 1 FROM information_schema.COLUMNS c
-                          WHERE c.TABLE_SCHEMA = t.TABLE_SCHEMA
-                            AND c.TABLE_NAME = t.TABLE_NAME
-                            AND c.COLUMN_NAME = 'doc'
-                            AND c.DATA_TYPE = 'json'
-                      )
-                      AND EXISTS (
-                          SELECT 1 FROM information_schema.COLUMNS c2
-                          WHERE c2.TABLE_SCHEMA = t.TABLE_SCHEMA
-                            AND c2.TABLE_NAME = t.TABLE_NAME
-                            AND c2.COLUMN_NAME = '_id'
-                      )
-                    ORDER BY t.TABLE_NAME
-                `),
-        ]);
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'mysqlx'",
+        );
+
+        const tablesResult = await adapter.executeQuery("SHOW TABLE STATUS");
+        const collectionsResultRows: Record<string, unknown>[] = [];
+        if (tablesResult.rows) {
+          for (const row of tablesResult.rows) {
+            const tableName = row['Name'] as string;
+            try {
+              const columnsResult = await adapter.executeQuery(`SHOW COLUMNS FROM \`${tableName}\``);
+              let hasDoc = false;
+              let hasId = false;
+              if (columnsResult.rows) {
+                for (const col of columnsResult.rows) {
+                  const field = col['Field'];
+                  const type = typeof col['Type'] === 'string' ? col['Type'].toLowerCase() : '';
+                  if (field === 'doc' && type.includes('json')) hasDoc = true;
+                  if (field === '_id') hasId = true;
+                }
+              }
+              if (hasDoc && hasId) {
+                collectionsResultRows.push({
+                  collection_name: tableName,
+                  row_count: Number(row['Rows'] ?? 0),
+                  size_bytes: Number(row['Data_length'] ?? 0) + Number(row['Index_length'] ?? 0)
+                });
+              }
+            } catch {
+              // Ignore table access errors
+            }
+          }
+        }
 
         const pluginRow = pluginResult.rows?.[0];
         const xPluginEnabled = pluginRow?.["PLUGIN_STATUS"] === "ACTIVE";
 
         return {
           xPluginEnabled,
-          collectionCount: collectionsResult.rows?.length ?? 0,
-          collections: collectionsResult.rows ?? [],
+          collectionCount: collectionsResultRows.length,
+          collections: collectionsResultRows,
           note: xPluginEnabled
             ? "X Plugin is active - X Protocol available on port 33060"
             : "X Plugin not active - document store limited to SQL access",

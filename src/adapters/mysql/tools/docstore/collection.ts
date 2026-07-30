@@ -67,23 +67,43 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
           }
 
-          const query = `
-                    SELECT t.TABLE_NAME as name, t.TABLE_COMMENT as comment, t.TABLE_ROWS as rowCount
-                    FROM information_schema.TABLES t
-                    JOIN information_schema.COLUMNS c1 ON t.TABLE_SCHEMA = c1.TABLE_SCHEMA AND t.TABLE_NAME = c1.TABLE_NAME
-                    JOIN information_schema.COLUMNS c2 ON c1.TABLE_SCHEMA = c2.TABLE_SCHEMA AND c1.TABLE_NAME = c2.TABLE_NAME
-                    WHERE t.TABLE_SCHEMA = COALESCE(?, DATABASE())
-                      AND c1.COLUMN_NAME = 'doc' AND c1.DATA_TYPE = 'json'
-                      AND c2.COLUMN_NAME = '_id'
-          `;
-          const result = await adapter.executeQuery(query, [
-            schema ?? null
-          ]);
+          const showTablesQuery = schema ? `SHOW TABLE STATUS FROM \`${schema}\`` : `SHOW TABLE STATUS`;
+          const tablesResult = await adapter.executeQuery(showTablesQuery);
+          const tables = tablesResult.rows ?? [];
+          
+          const collections: Record<string, unknown>[] = [];
+          for (const row of tables) {
+            const tableName = row['Name'] as string;
+            const tableRef = schema ? `\`${schema}\`.\`${tableName}\`` : `\`${tableName}\``;
+            
+            try {
+              const columnsResult = await adapter.executeQuery(`SHOW COLUMNS FROM ${tableRef}`);
+              let hasDoc = false;
+              let hasId = false;
+              if (columnsResult.rows) {
+                for (const col of columnsResult.rows) {
+                  const field = col['Field'];
+                  const type = typeof col['Type'] === 'string' ? col['Type'].toLowerCase() : '';
+                  if (field === 'doc' && type.includes('json')) hasDoc = true;
+                  if (field === '_id') hasId = true;
+                }
+              }
+              if (hasDoc && hasId) {
+                collections.push({
+                  name: tableName,
+                  comment: row['Comment'] ?? "",
+                  rowCount: Number(row['Rows'] ?? 0)
+                });
+              }
+            } catch {
+               // ignore errors (e.g. view without permissions)
+            }
+          }
           return withTokenEstimate({
             success: true,
             data: {
-              collections: result.rows ?? [],
-              count: result.rows?.length ?? 0,
+              collections,
+              count: collections.length,
             },
           });
         } catch (error: unknown) {
