@@ -23,13 +23,13 @@ function preprocessFulltextParams(val: unknown): unknown {
       v["columns"] = v["sql"];
       v["sql"] = temp;
     }
-    // If it is just a string, wrap it in an array
+    // If it is just a string, split by comma and wrap in an array
     else if (typeof v["columns"] === "string") {
-      v["columns"] = [v["columns"]];
+      v["columns"] = v["columns"].split(",").map((s: string) => s.trim());
     }
     
-    if (typeof v["col"] === "string") v["col"] = [v["col"]];
-    if (typeof v["column"] === "string") v["column"] = [v["column"]];
+    if (typeof v["col"] === "string") v["col"] = v["col"].split(",").map((s: string) => s.trim());
+    if (typeof v["column"] === "string") v["column"] = v["column"].split(",").map((s: string) => s.trim());
     return v;
   }
   return v2;
@@ -39,9 +39,9 @@ function preprocessFulltextCreateParams(val: unknown): unknown {
   const v = defaultToEmpty(val);
   if (v !== null && typeof v === "object") {
     const obj = { ...(v as Record<string, unknown>) };
-    if (typeof obj["columns"] === "string") obj["columns"] = [obj["columns"]];
-    if (typeof obj["col"] === "string") obj["col"] = [obj["col"]];
-    if (typeof obj["column"] === "string") obj["column"] = [obj["column"]];
+    if (typeof obj["columns"] === "string") obj["columns"] = obj["columns"].split(",").map((s: string) => s.trim());
+    if (typeof obj["col"] === "string") obj["col"] = obj["col"].split(",").map((s: string) => s.trim());
+    if (typeof obj["column"] === "string") obj["column"] = obj["column"].split(",").map((s: string) => s.trim());
     return obj;
   }
   return v;
