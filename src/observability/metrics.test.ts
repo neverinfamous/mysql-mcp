@@ -55,6 +55,7 @@ describe("MetricsRegistry", () => {
         if (fs.existsSync(dbPath)) fs.unlinkSync(dbPath);
         if (fs.existsSync(`${dbPath}-shm`)) fs.unlinkSync(`${dbPath}-shm`);
         if (fs.existsSync(`${dbPath}-wal`)) fs.unlinkSync(`${dbPath}-wal`);
+        if (fs.existsSync(`${dbPath}-journal`)) fs.unlinkSync(`${dbPath}-journal`);
       } catch {
         // Ignore EBUSY errors on Windows
       }
