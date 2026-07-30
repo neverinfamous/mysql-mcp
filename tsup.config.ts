@@ -25,5 +25,5 @@ export default defineConfig({
     "isolated-vm",
     "acorn"
   ],
-  tsconfig: "tsconfig.build.json",
+  tsconfig: "tsconfig.json",
 });

@@ -336,6 +336,7 @@ export class MetricsRegistry {
         metric.calls = Math.max(metric.calls, row.max_calls);
         // Load historical errors as a special category to avoid breaking the integer DB schema
         metric.errors["historical"] = Math.max((metric.errors["historical"] ?? 0), row.max_errors);
+        metric.errorCategories["historical"] = Math.max((metric.errorCategories["historical"] ?? 0), row.max_errors);
         metric.tokens = Math.max(metric.tokens, row.max_tokens);
         // Persist the latest recorded percentiles for background export
         metric.loaded_p50 = row.p50;
@@ -462,6 +463,7 @@ export class MetricsRegistry {
         const tokensBaseline = snapshotTokenBaselines.get(row.tool) ?? 0;
         metric.calls = Math.max(metric.calls, callsBaseline + row.live_calls);
         metric.errors["live"] = Math.max(metric.errors["live"] ?? 0, row.live_errors);
+        metric.errorCategories["live"] = Math.max(metric.errorCategories["live"] ?? 0, row.live_errors);
         metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
         
         const durations = row.durations;
