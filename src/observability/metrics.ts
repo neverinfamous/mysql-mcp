@@ -248,7 +248,7 @@ export class MetricsRegistry {
     const knownResources = [
       "mysql://help",
       "mysql://help/core",
-      "mysql://help/advanced",
+      "mysql://help/codemode",
       "mysql://audit",
       "mysql://metrics",
       "mysql://schema",

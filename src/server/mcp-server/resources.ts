@@ -142,13 +142,14 @@ export function registerHelpResources(server: McpServer): void {
     },
     (uri: URL, variables: Variables) => {
       const group = variables["group"] as string;
-      metrics.recordResourceRead(`mysql://help/${group}`);
       
       const content = HELP_CONTENT.get(group);
       
       if (!content) {
         throw new Error(`Help group '${group}' not found`);
       }
+
+      metrics.recordResourceRead(`mysql://help/${group}`);
 
       const allTools = Array.from(server.getAdapters().values()).flatMap(adapter => adapter.getToolDefinitions());
       const toolFilter = server.getToolFilter();
