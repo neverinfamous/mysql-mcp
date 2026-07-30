@@ -6,6 +6,7 @@ instances:
     tags:
       - service:mysql_mcp
       - env:development
+    send_monotonic_counter: true
     min_collection_interval: 15
     timeout: 10
     metrics:
