@@ -164,9 +164,9 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 export const ProxySQLBaseInputSchema = z.object({}).strict();
 
 export const ProxySQLUsersInputSchemaBase = z.object({
-  username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
-  user: z.string().optional().describe("Alias for username"),
-  name: z.string().optional().describe("Alias for username"),
+  username: z.union([z.string(), z.number()]).optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
+  user: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
+  name: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
 }).loose();
 
 export const ProxySQLUsersInputSchema = z.preprocess(
