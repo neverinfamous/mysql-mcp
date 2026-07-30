@@ -60,7 +60,7 @@ const StatementSummarySchema = z.preprocess(
     };
   },
   z.object({
-    orderBy: z.string().default("total_latency"),
+    orderBy: z.string().toLowerCase().default("total_latency"),
     limit: z.coerce.number().int().positive().default(5),
     order: z.any().optional(),
     sort: z.any().optional(),
@@ -95,7 +95,7 @@ const WaitSummarySchema = z.preprocess(
     };
   },
   z.object({
-    type: z.string().default("global"),
+    type: z.string().toLowerCase().default("global"),
     limit: z.coerce.number().int().positive().default(5),
     waitType: z.any().optional(),
   }).strict()
@@ -122,7 +122,7 @@ const IOSummarySchema = z.preprocess(
     };
   },
   z.object({
-    type: z.string().default("table"),
+    type: z.string().toLowerCase().default("table"),
     limit: z.coerce.number().int().positive().default(5),
     ioType: z.any().optional(),
   }).strict()

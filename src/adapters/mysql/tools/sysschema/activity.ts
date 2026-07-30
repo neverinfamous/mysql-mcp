@@ -128,7 +128,7 @@ export function createSysUserSummaryTool(
             `;
 
         const queryParams: unknown[] = [];
-        if (user) {
+        if (user !== undefined) {
           query += " WHERE user = ?";
           queryParams.push(user);
         }
@@ -147,7 +147,7 @@ export function createSysUserSummaryTool(
 
         const result = await adapter.executeQuery(query, queryParams);
 
-        if (user && (!result.rows || result.rows.length === 0)) {
+        if (user !== undefined && (!result.rows || result.rows.length === 0)) {
           return withTokenEstimate({
             success: false,
             error: `User '${user}' not found`,
@@ -211,7 +211,7 @@ export function createSysHostSummaryTool(
             `;
 
         const queryParams: unknown[] = [];
-        if (host) {
+        if (host !== undefined) {
           query += " WHERE host = ?";
           queryParams.push(host);
         }
@@ -230,7 +230,7 @@ export function createSysHostSummaryTool(
 
         const result = await adapter.executeQuery(query, queryParams);
 
-        if (host && (!result.rows || result.rows.length === 0)) {
+        if (host !== undefined && (!result.rows || result.rows.length === 0)) {
           return withTokenEstimate({
             success: false,
             error: `Host '${host}' not found`,
