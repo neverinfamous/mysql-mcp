@@ -97,7 +97,7 @@ export function createSpatialIntersectionTool(
         const validateSrid = async (sridNum: number): Promise<boolean> => {
           if (sridNum === 0 || sridNum === 4326) return true;
           const check = await adapter.executeQuery(
-            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            "WITH cte AS (SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?) SELECT * FROM cte",
             [sridNum]
           );
           return (check.rows?.length ?? 0) > 0;
@@ -112,7 +112,7 @@ export function createSpatialIntersectionTool(
         const axisClauseAsText = isGeographic ? ", 'axis-order=long-lat'" : "";
 
         const result = await adapter.executeQuery(
-          `SELECT
+          `WITH cte AS (SELECT
                     ST_Intersects(
                         ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}),
                         ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})
@@ -124,7 +124,7 @@ export function createSpatialIntersectionTool(
                     ST_AsGeoJSON(ST_Intersection(
                         ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}),
                         ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})
-                    ), 5) as intersection_geojson`,
+                    ), 5) as intersection_geojson) SELECT * FROM cte`,
           [geometry1, geometry2, geometry1, geometry2, geometry1, geometry2],
         );
 
@@ -173,7 +173,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         const validateSrid = async (sridNum: number): Promise<boolean> => {
           if (sridNum === 0 || sridNum === 4326) return true;
           const check = await adapter.executeQuery(
-            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            "WITH cte AS (SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?) SELECT * FROM cte",
             [sridNum]
           );
           return (check.rows?.length ?? 0) > 0;
@@ -193,7 +193,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         const axisClauseAsText = isGeographic ? ", 'axis-order=long-lat'" : "";
 
         const result = await adapter.executeQuery(
-          `SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ?${strategyClause})${axisClauseAsText}) as buffer_wkt`,
+          `WITH cte AS (SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ?${strategyClause})${axisClauseAsText}) as buffer_wkt) SELECT * FROM cte`,
           [geometry, distance],
         );
 
@@ -239,7 +239,7 @@ export function createSpatialTransformTool(
         const validateSrid = async (srid: number): Promise<boolean> => {
           if (srid === 0 || srid === 4326) return true;
           const check = await adapter.executeQuery(
-            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            "WITH cte AS (SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?) SELECT * FROM cte",
             [srid]
           );
           return (check.rows?.length ?? 0) > 0;
@@ -253,9 +253,9 @@ export function createSpatialTransformTool(
         }
 
         const result = await adapter.executeQuery(
-          `SELECT
+          `WITH cte AS (SELECT
                     ST_AsText(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 'axis-order=long-lat') as transformed_wkt,
-                    ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 5) as transformed_geojson`,
+                    ST_AsGeoJSON(ST_Transform(ST_GeomFromText(?, ${String(fromSrid)}, 'axis-order=long-lat'), ${String(toSrid)}), 5) as transformed_geojson) SELECT * FROM cte`,
           [geometry, geometry],
         );
 
@@ -301,7 +301,7 @@ export function createSpatialGeoJSONTool(
         const validateSrid = async (sridNum: number): Promise<boolean> => {
           if (sridNum === 0 || sridNum === 4326) return true;
           const check = await adapter.executeQuery(
-            "SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?",
+            "WITH cte AS (SELECT 1 FROM INFORMATION_SCHEMA.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?) SELECT * FROM cte",
             [sridNum]
           );
           return (check.rows?.length ?? 0) > 0;
@@ -317,7 +317,7 @@ export function createSpatialGeoJSONTool(
 
           // Convert WKT to GeoJSON
           const result = await adapter.executeQuery(
-            `SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}${axisClause}), 5) as geoJson`,
+            `WITH cte AS (SELECT ST_AsGeoJSON(ST_GeomFromText(?, ${String(srid)}${axisClause}), 5) as geoJson) SELECT * FROM cte`,
             [geometry],
           );
 
@@ -360,7 +360,7 @@ export function createSpatialGeoJSONTool(
           // Convert GeoJSON to WKT
           // Note: ST_GeomFromGeoJSON produces SRID 4326 by default, which is geographic.
           const result = await adapter.executeQuery(
-            `SELECT ST_AsText(ST_GeomFromGeoJSON(?), 'axis-order=long-lat') as wkt`,
+            `WITH cte AS (SELECT ST_AsText(ST_GeomFromGeoJSON(?), 'axis-order=long-lat') as wkt) SELECT * FROM cte`,
             [geoJson],
           );
 

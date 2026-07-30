@@ -527,8 +527,10 @@ export const ContainsSchema = z.preprocess(
 )
   .refine((data) => data.polygon.trim() !== "", { message: "polygon (WKT) must be a non-empty string" })
   .refine((data) => {
-    return isValidWKT(data.polygon);
-  }, { message: "polygon must be a valid WKT string (e.g. POLYGON((...)))" })
+    if (!isValidWKT(data.polygon)) return false;
+    const type = data.polygon.trim().toUpperCase();
+    return type.startsWith('POLYGON') || type.startsWith('MULTIPOLYGON');
+  }, { message: "polygon must be a valid POLYGON or MULTIPOLYGON WKT string (e.g. POLYGON((...)))" })
   .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
@@ -612,8 +614,8 @@ export const IntersectionSchema = z.preprocess(
     if (data.geometry1.toUpperCase().includes("EMPTY") || data.geometry2.toUpperCase().includes("EMPTY")) return false;
     return isValidWKT(data.geometry1) && isValidWKT(data.geometry2);
   }, { message: "both geometries must be valid WKT strings (e.g. POINT(1 1)). EMPTY geometries are not supported." })
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   })
   .refine((data) => {
     if (data.srid === 4326) {
@@ -702,8 +704,8 @@ export const BufferSchema = z.preprocess(
     }
     return true;
   }, { message: "negative distance is only valid for POLYGON and MULTIPOLYGON geometries" })
-  .refine((data) => !Number.isNaN(data.srid), {
-    message: "srid must be a valid number",
+  .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
+    message: "srid must be a valid positive integer (0 to 4294967295)",
   })
   .refine((data) => !Number.isNaN(data.segments) && data.segments >= 1 && data.segments <= 128, {
     message: "segments must be a valid number between 1 and 128",
@@ -731,11 +733,11 @@ export const TransformSchema = z.preprocess(
   }))
 )
   .refine((data) => isValidWKT(data.geometry), { message: "geometry must be a valid WKT string (e.g. POINT(1 1))" })
-  .refine((data) => !Number.isNaN(data.fromSrid), {
-    message: "fromSrid must be a valid number",
+  .refine((data) => !Number.isNaN(data.fromSrid) && data.fromSrid >= 0 && Number.isInteger(data.fromSrid) && data.fromSrid <= 4294967295, {
+    message: "fromSrid must be a valid positive integer (0 to 4294967295)",
   })
-  .refine((data) => !Number.isNaN(data.toSrid), {
-    message: "toSrid must be a valid number",
+  .refine((data) => !Number.isNaN(data.toSrid) && data.toSrid >= 0 && Number.isInteger(data.toSrid) && data.toSrid <= 4294967295, {
+    message: "toSrid must be a valid positive integer (0 to 4294967295)",
   })
   .refine((data) => data.fromSrid !== 0 && data.toSrid !== 0, {
     message: "ST_Transform requires both fromSrid and toSrid to be non-zero (geographic or projected coordinate systems). Cartesian (0) is not supported.",
