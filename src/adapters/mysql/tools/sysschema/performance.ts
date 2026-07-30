@@ -162,19 +162,19 @@ export function createSysStatementSummaryTool(
         const actualLimit = Math.min(limit, 100);
 
         const query = `
-                (SELECT
+                SELECT
                     query,
                     db,
                     exec_count,
-                    total_latency,
-                    avg_latency,
+                    sys.format_time(total_latency) AS total_latency,
+                    sys.format_time(avg_latency) AS avg_latency,
                     rows_sent,
-                    rows_sent_avg,
+                    ROUND(rows_sent_avg) AS rows_sent_avg,
                     rows_examined,
-                    rows_examined_avg,
+                    ROUND(rows_examined_avg) AS rows_examined_avg,
                     full_scan
-                FROM sys.statement_analysis)
-                ORDER BY ${orderBy} DESC
+                FROM sys.x$statement_analysis
+                ORDER BY sys.x$statement_analysis.${orderBy} DESC
                 LIMIT ${String(actualLimit)}
             `;
 
@@ -245,50 +245,50 @@ export function createSysWaitSummaryTool(
         switch (type) {
           case "global":
             query = `
-                        (SELECT
+                        SELECT
                             events AS event,
                             total,
-                            total_latency,
-                            avg_latency
-                        FROM sys.waits_global_by_latency)
-                        ORDER BY total_latency DESC
+                            sys.format_time(total_latency) AS total_latency,
+                            sys.format_time(avg_latency) AS avg_latency
+                        FROM sys.x$waits_global_by_latency
+                        ORDER BY sys.x$waits_global_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_host":
             query = `
-                        (SELECT
+                        SELECT
                             host,
                             event,
                             total,
-                            total_latency,
-                            avg_latency
-                        FROM sys.waits_by_host_by_latency)
-                        ORDER BY total_latency DESC
+                            sys.format_time(total_latency) AS total_latency,
+                            sys.format_time(avg_latency) AS avg_latency
+                        FROM sys.x$waits_by_host_by_latency
+                        ORDER BY sys.x$waits_by_host_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_user":
             query = `
-                        (SELECT
+                        SELECT
                             user,
                             event,
                             total,
-                            total_latency,
-                            avg_latency
-                        FROM sys.waits_by_user_by_latency)
-                        ORDER BY total_latency DESC
+                            sys.format_time(total_latency) AS total_latency,
+                            sys.format_time(avg_latency) AS avg_latency
+                        FROM sys.x$waits_by_user_by_latency
+                        ORDER BY sys.x$waits_by_user_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
                     `;
             break;
           case "by_instance":
             query = `
-                        (SELECT
+                        SELECT
                             event_name AS event,
                             count_star AS total,
                             FORMAT_PICO_TIME(sum_timer_wait) AS total_latency,
                             FORMAT_PICO_TIME(sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
-                        FROM performance_schema.events_waits_summary_by_instance)
+                        FROM performance_schema.events_waits_summary_by_instance
                         ORDER BY sum_timer_wait DESC
                         LIMIT ${String(actualLimit)}
                     `;
@@ -360,55 +360,49 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         switch (type) {
           case "file":
             query = `
-                        WITH sys_query AS (
                         SELECT
                             file,
                             count_read,
-                            total_read,
-                            avg_read,
+                            sys.format_bytes(total_read) AS total_read,
+                            sys.format_bytes(avg_read) AS avg_read,
                             count_write,
-                            total_written,
-                            avg_write,
-                            total,
+                            sys.format_bytes(total_written) AS total_written,
+                            sys.format_bytes(avg_write) AS avg_write,
+                            sys.format_bytes(total) AS total,
                             write_pct
-                        FROM sys.io_global_by_file_by_bytes
-                        ORDER BY total DESC
+                        FROM sys.x$io_global_by_file_by_bytes
+                        ORDER BY sys.x$io_global_by_file_by_bytes.total DESC
                         LIMIT ${String(actualLimit)}
-                        ) SELECT * FROM sys_query
                     `;
             break;
           case "table":
             query = `
-                        WITH sys_query AS (
                         SELECT
                             table_schema,
                             table_name,
                             rows_fetched,
-                            fetch_latency,
+                            sys.format_time(fetch_latency) AS fetch_latency,
                             rows_inserted,
-                            insert_latency,
+                            sys.format_time(insert_latency) AS insert_latency,
                             rows_updated,
-                            update_latency,
+                            sys.format_time(update_latency) AS update_latency,
                             rows_deleted,
-                            delete_latency
-                        FROM sys.schema_table_statistics
-                        ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
+                            sys.format_time(delete_latency) AS delete_latency
+                        FROM sys.x$schema_table_statistics
+                        ORDER BY (sys.x$schema_table_statistics.fetch_latency + sys.x$schema_table_statistics.insert_latency + sys.x$schema_table_statistics.update_latency + sys.x$schema_table_statistics.delete_latency) DESC
                         LIMIT ${String(actualLimit)}
-                        ) SELECT * FROM sys_query
                     `;
             break;
           case "global":
             query = `
-                        WITH sys_query AS (
                         SELECT
                             event_name,
                             total,
-                            total_latency,
-                            avg_latency
-                        FROM sys.io_global_by_wait_by_latency
-                        ORDER BY total_latency DESC
+                            sys.format_time(total_latency) AS total_latency,
+                            sys.format_time(avg_latency) AS avg_latency
+                        FROM sys.x$io_global_by_wait_by_latency
+                        ORDER BY sys.x$io_global_by_wait_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
-                        ) SELECT * FROM sys_query
                     `;
             break;
           default:
