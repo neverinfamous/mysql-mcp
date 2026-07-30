@@ -10,6 +10,7 @@ import type { SystemDb } from "./system-db.js";
 import { logger } from "../utils/logger.js";
 import type { PoolStats } from "../types/modules/database.js";
 import { TOOL_GROUPS } from "../filtering/tool-constants.js";
+import * as fs from "fs";
 
 const MAX_SAMPLES = 1000;
 
@@ -354,7 +355,62 @@ export class MetricsRegistry {
         )
         .all(since);
 
-      const parsedLiveRows = z.array(LiveRowSchema).parse(liveRows);
+      let parsedLiveRows = z.array(LiveRowSchema).parse(liveRows);
+
+      // 🛠️ AUTONOMOUS HEALING: Fallback to reading the JSONL file if SQLite audit_logs is empty
+      // This is crucial for IDEs on Windows that fail to initialize SystemDb (due to native bindings)
+      // but successfully write to mcp-audit.jsonl. The dockerized exporter can read the JSONL to bridge the gap.
+      if (parsedLiveRows.length === 0) {
+        try {
+          const auditLogArgIndex = process.argv.indexOf('--audit-log');
+          const jsonlPath = auditLogArgIndex !== -1 ? process.argv[auditLogArgIndex + 1] : process.env['AUDIT_LOG_PATH'];
+          
+          if (jsonlPath !== undefined && jsonlPath !== "" && fs.existsSync(jsonlPath)) {
+            const content = fs.readFileSync(jsonlPath, 'utf8');
+            const lines = content.split('\n').filter((l: string) => l !== "");
+            
+            const toolStats = new Map<string, { calls: number; errors: number; tokens: number }>();
+            
+            for (const line of lines) {
+              try {
+                const entry = JSON.parse(line) as Record<string, unknown>;
+                const entryType = typeof entry['type'] === 'string' ? entry['type'] : undefined;
+                const entryTool = typeof entry['tool'] === 'string' ? entry['tool'] : undefined;
+                const entryName = typeof entry['name'] === 'string' ? entry['name'] : undefined;
+                const toolName = entryTool ?? entryName;
+                
+                if (entryType === 'tool' || toolName !== undefined) {
+                  if (toolName === undefined || toolName === "") continue;
+                  
+                  // Only count entries after the last snapshot (to avoid double counting)
+                  const entryTimestamp = typeof entry['timestamp'] === 'string' ? entry['timestamp'] : undefined;
+                  if (entryTimestamp !== undefined && entryTimestamp <= since) continue;
+                  
+                  const stats = toolStats.get(toolName) ?? { calls: 0, errors: 0, tokens: 0 };
+                  stats.calls++;
+                  if (entry['success'] === false) stats.errors++;
+                  
+                  const entryTokenEstimate = typeof entry['tokenEstimate'] === 'number' ? entry['tokenEstimate'] : undefined;
+                  if (entryTokenEstimate !== undefined) stats.tokens += entryTokenEstimate;
+                  
+                  toolStats.set(toolName, stats);
+                }
+              } catch {
+                // Ignore parse errors for individual lines
+              }
+            }
+            
+            parsedLiveRows = Array.from(toolStats.entries()).map(([tool, stats]) => ({
+              tool,
+              live_calls: stats.calls,
+              live_errors: stats.errors,
+              live_tokens: stats.tokens
+            }));
+          }
+        } catch {
+          // Ignore fallback errors
+        }
+      }
 
       for (const row of parsedLiveRows) {
         let metric = this.tools.get(row.tool);
@@ -470,12 +526,12 @@ export class MetricsRegistry {
 
   private startFlushTimer(): void {
     if (this.flushTimer) clearInterval(this.flushTimer);
-    // Flush metrics every 5 minutes
+    // Flush metrics every 15 seconds to match Datadog scrape interval
     this.flushTimer = setInterval(
       () => {
         this.flushToDb();
       },
-      5 * 60 * 1000,
+      15 * 1000,
     );
     this.flushTimer.unref();
   }
