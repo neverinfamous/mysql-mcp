@@ -656,6 +656,9 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
         "legend_columns": [
           "avg",
           "min",

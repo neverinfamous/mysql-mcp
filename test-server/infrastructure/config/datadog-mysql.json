@@ -1497,7 +1497,7 @@
       },
       "id": 8829397236877308,
       "layout": {
-        "height": 4,
+        "height": 3,
         "width": 8,
         "x": 4,
         "y": 18
@@ -1600,7 +1600,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Group Replication — Transaction Queue",
         "title_align": "left",
         "title_size": "16",
@@ -1653,7 +1652,7 @@
         "height": 3,
         "width": 8,
         "x": 4,
-        "y": 22
+        "y": 24
       }
     }
   ]

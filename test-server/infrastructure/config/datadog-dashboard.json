@@ -783,6 +783,42 @@
         "x": 8,
         "y": 17
       }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:mysqlrouter"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL Router Logs",
+        "type": "list_stream"
+      },
+      "id": 8829397236877308,
+      "layout": {
+        "height": 4,
+        "width": 8,
+        "x": 4,
+        "y": 18
+      }
     }
   ]
 }
