@@ -420,9 +420,11 @@ export function createSecurityUserPrivilegesTool(
             const u = userRow;
             const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
             const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
+            const escapedUserName = userName.replace(/`/g, '``');
+            const escapedUserHost = userHost.replace(/`/g, '``');
   
             const grantsResult = await adapter.executeQuery(
-              `SHOW GRANTS FOR \`${userName}\`@\`${userHost}\``,
+              `SHOW GRANTS FOR \`${escapedUserName}\`@\`${escapedUserHost}\``,
             );
   
             const grants = (grantsResult.rows ?? []).map((r) => {
