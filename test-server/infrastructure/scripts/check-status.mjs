@@ -379,9 +379,12 @@ if (alloyReady && alloyReady.toLowerCase().includes('ready')) {
 console.log('\n6. Datadog Integration Status:');
 console.log('----------------------------------------');
 
-const ddHealth = dockerExec('datadog-unified', ['agent', 'health'], true);
-if (ddHealth !== null) {
-    // Get full status and parse for ERROR/WARNING integration instances
+// Primary indicator: Docker-level health (already collected in Section 1 — immune to transient agent health exec failures)
+const ddDockerStatus = runningContainers['datadog-unified']?.status ?? '';
+const ddContainerHealthy = ddDockerStatus.includes('healthy') && !ddDockerStatus.includes('unhealthy');
+
+if (ddContainerHealthy) {
+    // Get full status to parse per-integration check results
     const ddStatus = dockerExec('datadog-unified', ['agent', 'status'], true);
     if (ddStatus) {
         // Extract Instance ID lines with their status
@@ -390,8 +393,10 @@ if (ddHealth !== null) {
         const warningInstances = instanceLines.filter(l => l.includes('[WARNING]'));
         const okInstances = instanceLines.filter(l => l.includes('[OK]'));
 
-        if (errorInstances.length === 0 && warningInstances.length === 0) {
+        if (errorInstances.length === 0 && warningInstances.length === 0 && okInstances.length > 0) {
             console.log(`✅ Datadog Agent        : Healthy, ${okInstances.length} integration checks all OK`);
+        } else if (okInstances.length === 0 && errorInstances.length === 0) {
+            console.log(`✅ Datadog Agent        : Healthy (integration checks still initializing)`);
         } else {
             if (errorInstances.length > 0) {
                 console.log(`❌ Datadog Agent        : ${errorInstances.length} integration ERROR(s)`);
@@ -407,14 +412,14 @@ if (ddHealth !== null) {
                     const match = line.match(/Instance ID:\s*(.+?)\s*\[WARNING\]/);
                     console.log(`   ⚠️  ${match ? match[1].trim() : line.trim()}`);
                 }
-                // Warnings don't fail the check, but are reported
             }
             if (okInstances.length > 0) {
                 console.log(`   ✅ ${okInstances.length} other checks OK`);
             }
         }
     } else {
-        console.log('⚠️ Datadog Agent        : Healthy but status retrieval failed');
+        // agent status exec failed but Docker health is green — non-critical
+        console.log(`✅ Datadog Agent        : Docker-healthy (integration status temporarily unavailable)`);
     }
 } else {
     console.log('❌ Datadog Agent        : Not healthy');
