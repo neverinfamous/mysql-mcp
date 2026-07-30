@@ -80,10 +80,13 @@ export function createShellLoadDumpTool(
         const resolvedPath = resolve(finalInputDir);
 
         try {
-          await fs.access(resolvedPath);
+          const stat = await fs.stat(resolvedPath);
+          if (!stat.isDirectory()) {
+            throw new Error("not a directory");
+          }
         } catch {
           throw new MySQLMcpError(
-            `Dump path not found: ${finalInputDir}`,
+            `Dump path not found or is not a directory: ${finalInputDir}`,
             "VALIDATION_ERROR",
             ErrorCategory.VALIDATION
           );
@@ -319,10 +322,13 @@ export function createShellRunScriptTool(
         if (scriptPath) {
           assertSafeIoPath(scriptPath, adapter.getAllowedIoRoots(), false);
           try {
-            await fs.access(scriptPath);
+            const stat = await fs.stat(scriptPath);
+            if (!stat.isFile()) {
+              throw new Error("not a file");
+            }
           } catch {
             throw new MySQLMcpError(
-              `Script file not found: ${scriptPath}`,
+              `Script file not found or is a directory: ${scriptPath}`,
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION
             );
