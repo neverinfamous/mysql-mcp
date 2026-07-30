@@ -90,7 +90,7 @@ export function createFulltextSearchTool(
 
         // Return searched columns and relevance for minimal payload
         // Bypass ProxySQL read-routing bug for MATCH queries on locked connections
-        let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        let sql = `/*writer*/ SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 5;

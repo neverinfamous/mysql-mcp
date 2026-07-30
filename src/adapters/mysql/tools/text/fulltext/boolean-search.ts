@@ -76,7 +76,7 @@ export function createFulltextBooleanTool(
         const matchClause = `MATCH(${columnList}) AGAINST(? ${matchModeModifier})`;
 
         // Bypass ProxySQL read-routing bug for MATCH queries on locked connections
-        let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        let sql = `/*writer*/ SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 5;
