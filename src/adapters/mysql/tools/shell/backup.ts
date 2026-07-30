@@ -313,6 +313,16 @@ export function createShellDumpSchemasTool(
             )
           );
         }
+        if (errorMessage.includes("must be in the following form: schema.table")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "Tables in includeTables and excludeTables must be specified in 'schema.table' format." }
+            )
+          );
+        }
         return formatHandlerErrorResponse(error);
       }
     },
@@ -479,6 +489,16 @@ export function createShellDumpTablesTool(
         }
 
         if (errorMessage.includes("Following tables were not found")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "DOMAIN_ERROR",
+              ErrorCategory.RESOURCE
+            )
+          );
+        }
+
+        if (errorMessage.includes("The requested schema") && errorMessage.includes("was not found")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
               errorMessage,
