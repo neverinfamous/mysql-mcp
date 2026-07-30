@@ -162,7 +162,13 @@ describe("metrics", () => {
         },
       ];
       
-      mockDb.prepare.mockReturnValue({ all: vi.fn().mockReturnValue(mockRows) });
+      const emptyPrepared = {
+        all: vi.fn().mockReturnValue([]),
+        get: vi.fn().mockReturnValue({ last_ts: null }),
+      };
+      mockDb.prepare
+        .mockReturnValueOnce({ all: vi.fn().mockReturnValue(mockRows) }) // Phase 1: metrics_snapshots rows
+        .mockReturnValue(emptyPrepared); // Phase 1b .get() + Phase 2/2.5/3/4 queries
       
       metrics.setSystemDb(mockSystemDb);
       
