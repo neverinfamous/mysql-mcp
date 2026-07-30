@@ -121,14 +121,14 @@ export const RouterBaseInputSchema = z.object({}).strict();
 
 export const RouteNameInputSchemaBase = z.object({
   routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
-  name: z.string().optional().describe("Alias for routeName"),
-  route: z.string().optional().describe("Alias for routeName"),
-  route_name: z.string().optional().describe("Alias for routeName"),
-  routename: z.string().optional().describe("Alias for routeName"),
-  routerName: z.string().optional().describe("Alias for routeName"),
-  id: z.string().optional().describe("Alias for routeName"),
-  clusterName: z.string().optional().describe("Alias for routeName"),
-  cluster_name: z.string().optional().describe("Alias for routeName"),
+  name: z.unknown().optional().describe("Alias for routeName"),
+  route: z.unknown().optional().describe("Alias for routeName"),
+  route_name: z.unknown().optional().describe("Alias for routeName"),
+  routename: z.unknown().optional().describe("Alias for routeName"),
+  routerName: z.unknown().optional().describe("Alias for routeName"),
+  id: z.unknown().optional().describe("Alias for routeName"),
+  clusterName: z.unknown().optional().describe("Alias for routeName"),
+  cluster_name: z.unknown().optional().describe("Alias for routeName"),
 }).strict();
 
 export const RouteNameInputSchema = z.preprocess(
@@ -170,13 +170,13 @@ export const MetadataNameInputSchemaBase = z.object({
     .string()
     .optional()
     .describe("Name of the metadata cache instance. Anti-Hallucination Hint: Pass metadataName, not metadata."),
-  name: z.string().optional().describe("Alias for metadataName"),
-  metadata: z.string().optional().describe("Alias for metadataName"),
-  metadata_name: z.string().optional().describe("Alias for metadataName"),
-  metadataname: z.string().optional().describe("Alias for metadataName"),
-  id: z.string().optional().describe("Alias for metadataName"),
-  clusterName: z.string().optional().describe("Alias for metadataName"),
-  cluster_name: z.string().optional().describe("Alias for metadataName"),
+  name: z.unknown().optional().describe("Alias for metadataName"),
+  metadata: z.unknown().optional().describe("Alias for metadataName"),
+  metadata_name: z.unknown().optional().describe("Alias for metadataName"),
+  metadataname: z.unknown().optional().describe("Alias for metadataName"),
+  id: z.unknown().optional().describe("Alias for metadataName"),
+  clusterName: z.unknown().optional().describe("Alias for metadataName"),
+  cluster_name: z.unknown().optional().describe("Alias for metadataName"),
 }).strict();
 
 export const MetadataNameInputSchema = z.preprocess(
@@ -214,13 +214,13 @@ export const MetadataNameInputSchema = z.preprocess(
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
   poolName: z.string().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
-  name: z.string().optional().describe("Alias for poolName"),
-  pool: z.string().optional().describe("Alias for poolName"),
-  pool_name: z.string().optional().describe("Alias for poolName"),
-  poolname: z.string().optional().describe("Alias for poolName"),
-  id: z.string().optional().describe("Alias for poolName"),
-  clusterName: z.string().optional().describe("Alias for poolName"),
-  cluster_name: z.string().optional().describe("Alias for poolName"),
+  name: z.unknown().optional().describe("Alias for poolName"),
+  pool: z.unknown().optional().describe("Alias for poolName"),
+  pool_name: z.unknown().optional().describe("Alias for poolName"),
+  poolname: z.unknown().optional().describe("Alias for poolName"),
+  id: z.unknown().optional().describe("Alias for poolName"),
+  clusterName: z.unknown().optional().describe("Alias for poolName"),
+  cluster_name: z.unknown().optional().describe("Alias for poolName"),
 }).strict();
 
 export const ConnectionPoolNameInputSchema = z.preprocess(
