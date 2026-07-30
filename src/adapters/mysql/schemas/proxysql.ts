@@ -167,6 +167,7 @@ export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.union([z.string(), z.number()]).optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
   user: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
   name: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
+  id: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
 }).loose();
 
 export const ProxySQLUsersInputSchema = z.preprocess(
@@ -176,16 +177,19 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     
-    // Anti-Hallucination: map 'user' or 'name' to 'username'
+    // Anti-Hallucination: map 'user' or 'name' or 'id' to 'username'
     if (result["username"] === undefined) {
       if (result["user"] !== undefined) {
         result["username"] = result["user"];
       } else if (result["name"] !== undefined) {
         result["username"] = result["name"];
+      } else if (result["id"] !== undefined) {
+        result["username"] = result["id"];
       }
     }
     delete result["user"];
     delete result["name"];
+    delete result["id"];
     
     const username = result["username"];
     if (username !== undefined && typeof username !== "string") {
@@ -321,6 +325,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 export const ProxySQLHostgroupInputSchemaBase = z.object({
   hostgroup_id: z.union([z.number(), z.string()]).optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
   hostgroup: z.union([z.number(), z.string()]).optional().describe("Alias for hostgroup ID"),
+  id: z.union([z.number(), z.string()]).optional().describe("Alias for hostgroup ID"),
 }).loose();
 
 export const ProxySQLHostgroupInputSchema = z.preprocess(
@@ -328,11 +333,16 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     if (typeof val === "number") return { hostgroup_id: val };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
-    // Anti-Hallucination: map 'hostgroup' to 'hostgroup_id'
-    if (result["hostgroup"] !== undefined && result["hostgroup_id"] === undefined) {
-      result["hostgroup_id"] = result["hostgroup"];
+    // Anti-Hallucination: map 'hostgroup' or 'id' to 'hostgroup_id'
+    if (result["hostgroup_id"] === undefined) {
+      if (result["hostgroup"] !== undefined) {
+        result["hostgroup_id"] = result["hostgroup"];
+      } else if (result["id"] !== undefined) {
+        result["hostgroup_id"] = result["id"];
+      }
     }
     delete result["hostgroup"];
+    delete result["id"];
     
     const hostgroupId = result["hostgroup_id"];
     if (typeof hostgroupId === "string") {
