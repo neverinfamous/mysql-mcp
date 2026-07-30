@@ -406,6 +406,44 @@ export function preprocessVectorParams(input: unknown): unknown {
   if (typeof result["metric"] === "string") {
     result["metric"] = result["metric"].toUpperCase();
   }
+
+  if (Array.isArray(result["items"])) {
+    result["items"] = result["items"].map((item: unknown) => {
+      if (typeof item === "object" && item !== null) {
+        const itemObj = { ...(item as Record<string, unknown>) };
+        
+        if (itemObj["id"] === undefined) {
+          if (itemObj["rowId"] !== undefined) itemObj["id"] = itemObj["rowId"];
+          else if (itemObj["recordId"] !== undefined) itemObj["id"] = itemObj["recordId"];
+        }
+
+        if (itemObj["vector"] === undefined) {
+          if (itemObj["queryVector"] !== undefined) itemObj["vector"] = itemObj["queryVector"];
+          else if (itemObj["query"] !== undefined) itemObj["vector"] = itemObj["query"];
+          else if (itemObj["sql"] !== undefined) itemObj["vector"] = itemObj["sql"];
+          else if (itemObj["search"] !== undefined) itemObj["vector"] = itemObj["search"];
+        }
+
+        if (typeof itemObj["vector"] === "string") {
+          try {
+            const parsed = JSON.parse(itemObj["vector"]) as unknown;
+            if (Array.isArray(parsed)) {
+              itemObj["vector"] = parsed;
+            } else if ((item as Record<string, unknown>)["vector"] === undefined) {
+              delete itemObj["vector"];
+            }
+          } catch {
+            if ((item as Record<string, unknown>)["vector"] === undefined) {
+              delete itemObj["vector"];
+            }
+          }
+        }
+        
+        return itemObj;
+      }
+      return item;
+    });
+  }
   
   return result;
 }
