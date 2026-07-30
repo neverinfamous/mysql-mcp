@@ -91,7 +91,7 @@ export function createFulltextSearchTool(
         // Return searched columns and relevance for minimal payload
         // Bypass ProxySQL read-routing bug for MATCH queries on locked connections
         // We use WITH cte AS (...) SELECT ... because ProxySQL's default rule routes ^SELECT .* to HG2
-        let sql = `WITH cte AS (SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}) SELECT * FROM cte ORDER BY relevance DESC`;
+        let sql = `WITH cte AS (SELECT *, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}) SELECT * FROM cte ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 5;

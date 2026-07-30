@@ -10,11 +10,4 @@ instances:
     min_collection_interval: 15
     timeout: 10
     metrics:
-      - mysql_mcp_tool_tokens_total: mysql_mcp_tool_tokens
-      - mysql_mcp_tool_calls_total: mysql_mcp_tool_calls
-      - mysql_mcp_tool_errors_total: mysql_mcp_tool_errors
-      - mysql_mcp_tool_errors_by_category_total: mysql_mcp_tool_errors_by_category
-      - mysql_mcp_pool_queries_total: mysql_mcp_pool_queries
-      - mysql_mcp_cache_hits_total: mysql_mcp_cache_hits
-      - mysql_mcp_cache_misses_total: mysql_mcp_cache_misses
       - '.*'
