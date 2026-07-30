@@ -239,16 +239,27 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { name, ifExists } = EventDropSchema.parse(params);
+        const { name, ifExists, schema } = EventDropSchema.parse(params);
 
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
+        // P154: Schema existence check when explicitly provided
+        if (schema !== undefined && schema !== "") {
+          const schemaCheck = await adapter.executeQuery(
+            "(SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?)",
+            [schema],
+          );
+          if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+            return formatHandlerErrorResponse(new QueryError(`Schema '${schema}' does not exist`));
+          }
+        }
+
         if (ifExists) {
           const existsCheck = await adapter.executeQuery(
-            "(SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = DATABASE() AND EVENT_NAME = ?)",
-            [name],
+            "(SELECT EVENT_NAME FROM information_schema.EVENTS WHERE EVENT_SCHEMA = COALESCE(?, DATABASE()) AND EVENT_NAME = ?)",
+            [schema ?? null, name],
           );
           if (!existsCheck.rows || existsCheck.rows.length === 0) {
             return withTokenEstimate({
@@ -259,8 +270,9 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const ifExistsClause = ifExists ? "IF EXISTS " : "";
+        const targetEvent = schema ? `\`${schema}\`.\`${name}\`` : `\`${name}\``;
 
-        await adapter.executeQuery(`DROP EVENT ${ifExistsClause}\`${name}\``);
+        await adapter.executeQuery(`DROP EVENT ${ifExistsClause}${targetEvent}`);
         return withTokenEstimate({ success: true, data: { eventName: name } });
       } catch (error: unknown) {
         if (error instanceof ZodError) {

@@ -100,6 +100,8 @@ export const EventDropSchemaBase = z.object({
   name: z.string().optional().describe("Event name to drop. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
   event: z.string().optional().describe("Alias for name"),
+  schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().optional().default(false).describe("Add IF EXISTS clause"),
 });
 
@@ -107,9 +109,12 @@ export const EventDropSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
   event: z.string().optional(),
+  schema: z.string().optional(),
+  database: z.string().optional(),
   ifExists: z.boolean().default(false),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? data.event ?? "",
+  schema: data.schema ?? data.database,
   ifExists: data.ifExists,
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
