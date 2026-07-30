@@ -265,69 +265,37 @@ export class SchemaManager {
       shortTableName = tableName;
     }
 
-    const schemaClause = schemaName
-      ? "TABLE_SCHEMA = ?"
-      : "TABLE_SCHEMA = DATABASE()";
-    const params = schemaName ? [schemaName, shortTableName] : [shortTableName];
-
     // Performance optimization: run column and table queries in parallel
+    const escapedSchema = schemaName ? `\`${schemaName.replace(/`/g, "``")}\`` : undefined;
+    const escapedTable = `\`${shortTableName.replace(/`/g, "``")}\``;
+    const qualifiedTable = escapedSchema ? `${escapedSchema}.${escapedTable}` : escapedTable;
+
     const [columnsResult, tableResult] = await Promise.all([
-      this.executor.executeQuery(
-        `
-            SELECT 
-                COLUMN_NAME as name,
-                DATA_TYPE as type,
-                IS_NULLABLE as nullable,
-                COLUMN_KEY as columnKey,
-                COLUMN_DEFAULT as defaultValue,
-                EXTRA as extra,
-                CHARACTER_SET_NAME as characterSet,
-                COLLATION_NAME as collation,
-                COLUMN_COMMENT as comment
-            FROM information_schema.COLUMNS
-            WHERE ${schemaClause}
-              AND TABLE_NAME = ?
-            ORDER BY ORDINAL_POSITION
-        `,
-        params,
-      ),
-      this.executor.executeQuery(
-        `
-            SELECT 
-                TABLE_TYPE as type,
-                ENGINE as engine,
-                TABLE_ROWS as rowCount,
-                TABLE_COLLATION as collation,
-                TABLE_COMMENT as comment
-            FROM information_schema.TABLES
-            WHERE ${schemaClause}
-              AND TABLE_NAME = ?
-        `,
-        params,
-      ),
+      this.executor.executeQuery(`SHOW FULL COLUMNS FROM ${qualifiedTable}`),
+      this.executor.executeQuery(`SHOW TABLE STATUS ${escapedSchema ? `FROM ${escapedSchema} ` : ''}LIKE ?`, [shortTableName]),
     ]);
 
     const columns: ColumnInfo[] = (columnsResult.rows ?? []).map((row) => ({
-      name: row["name"] as string,
-      type: row["type"] as string,
-      nullable: row["nullable"] === "YES",
-      primaryKey: row["columnKey"] === "PRI",
-      defaultValue: row["defaultValue"],
-      autoIncrement: (row["extra"] as string)?.includes("auto_increment"),
-      characterSet: row["characterSet"] as string | undefined,
-      collation: row["collation"] as string | undefined,
-      comment: row["comment"] as string | undefined,
+      name: row["Field"] as string,
+      type: row["Type"] as string,
+      nullable: row["Null"] === "YES",
+      primaryKey: row["Key"] === "PRI",
+      defaultValue: row["Default"],
+      autoIncrement: (row["Extra"] as string)?.includes("auto_increment"),
+      characterSet: (row["Collation"] as string)?.split("_")[0],
+      collation: row["Collation"] as string | undefined,
+      comment: row["Comment"] as string | undefined,
     }));
 
     const tableRow = tableResult.rows?.[0];
 
     const result: TableInfo = {
       name: tableName,
-      type: tableRow?.["type"] === "VIEW" ? "view" : "table",
-      engine: tableRow?.["engine"] as string | undefined,
-      rowCount: tableRow?.["rowCount"] != null ? Number(tableRow["rowCount"]) : undefined,
-      collation: tableRow?.["collation"] as string | undefined,
-      comment: tableRow?.["comment"] as string | undefined,
+      type: tableRow?.["Comment"] === "VIEW" || tableRow?.["Engine"] == null ? "view" : "table",
+      engine: tableRow?.["Engine"] as string | undefined,
+      rowCount: tableRow?.["Rows"] != null ? Number(tableRow["Rows"]) : undefined,
+      collation: tableRow?.["Collation"] as string | undefined,
+      comment: tableRow?.["Comment"] as string | undefined,
       columns,
     };
 
