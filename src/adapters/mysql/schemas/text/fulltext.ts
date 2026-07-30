@@ -98,9 +98,9 @@ export const FulltextSearchSchemaBase = z.object({
   columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query. REQUIRED. Note: must be a string, not an array."),
-  sql: z.string().optional().describe("Alias for query"),
-  search: z.string().optional().describe("Alias for query"),
+  query: z.union([z.string(), z.array(z.string())]).optional().describe("Search query. REQUIRED. Note: must be a string, not an array."),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
+  search: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
   mode: z
     .enum(["NATURAL", "BOOLEAN", "EXPANSION"])
     .optional()
@@ -222,11 +222,11 @@ export const FulltextBooleanSchemaBase = z.object({
   col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   query: z
-    .string()
+    .union([z.string(), z.array(z.string())])
     .optional()
     .describe("Boolean search query with +, -, *, etc. REQUIRED. Note: must be a string, not an array."),
-  sql: z.string().optional().describe("Alias for query"),
-  search: z.string().optional().describe("Alias for query"),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
+  search: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
   maxLength: z
     .unknown()
     .optional()
@@ -301,9 +301,9 @@ export const FulltextExpandSchemaBase = z.object({
   columns: z.union([z.string(), z.array(z.string())]).optional().describe("Columns to search. REQUIRED. Note: must be an array (e.g. ['col1'])."),
   col: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
   column: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for columns"),
-  query: z.string().optional().describe("Search query to expand. REQUIRED. Note: must be a string, not an array."),
-  sql: z.string().optional().describe("Alias for query"),
-  search: z.string().optional().describe("Alias for query"),
+  query: z.union([z.string(), z.array(z.string())]).optional().describe("Search query to expand. REQUIRED. Note: must be a string, not an array."),
+  sql: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
+  search: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for query"),
   maxLength: z
     .unknown()
     .optional()
