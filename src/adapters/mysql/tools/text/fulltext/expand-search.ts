@@ -76,7 +76,7 @@ export function createFulltextExpandTool(
         const matchClause = `MATCH(${columnList}) AGAINST(? ${matchModeModifier})`;
 
         // Return searched columns and relevance for minimal payload
-        let sql = `SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
+        let sql = `/*writer*/ SELECT ${columnList}, ${matchClause} as relevance FROM ${escapeQualifiedTable(table)} WHERE ${matchClause} ORDER BY relevance DESC`;
         const queryArgs: (string | number)[] = [sanitizedQuery, sanitizedQuery];
 
         const finalLimit = limit !== undefined && limit > 0 ? limit : 3;
@@ -106,7 +106,7 @@ export function createFulltextExpandTool(
           let totalCount = data.length;
           if (includeFacets && data.length > 0) {
             facets = {};
-            const countSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
+            const countSql = `/*writer*/ SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE ${matchClause}`;
             try {
               const countResult = await adapter.executeReadQuery(countSql, [sanitizedQuery]);
               totalCount = Number(countResult.rows?.[0]?.["cnt"] ?? data.length);
@@ -115,7 +115,7 @@ export function createFulltextExpandTool(
             }
 
             for (const col of columns) {
-              const facetSql = `SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
+              const facetSql = `/*writer*/ SELECT COUNT(*) AS cnt FROM ${escapeQualifiedTable(table)} WHERE MATCH(\`${col}\`) AGAINST(? ${matchModeModifier})`;
               try {
                 const facetResult = await adapter.executeReadQuery(facetSql, [sanitizedQuery]);
                 const firstRow = facetResult.rows?.[0];
