@@ -23,7 +23,6 @@ export default defineConfig({
       include: ["src/**/*.ts"],
     },
     pool: "forks",
-    maxWorkers: 2,
     fileParallelism: true,
   },
 });
