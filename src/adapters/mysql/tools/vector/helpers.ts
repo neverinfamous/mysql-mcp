@@ -94,7 +94,7 @@ export function sanitizeIdentifier(id: string): string {
 export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, providedColumn?: string): Promise<string> {
   const sanitizedTable = sanitizeIdentifier(table);
   // Pre-check table existence and find column in one go using SHOW COLUMNS
-  const pkResult = await adapter.executeQuery(`SHOW COLUMNS FROM \`${sanitizedTable}\``);
+  const pkResult = await adapter.rawQuery(`SHOW COLUMNS FROM \`${sanitizedTable}\``);
   if (!pkResult.rows || pkResult.rows.length === 0) {
     throw new ValidationError(`Table '${sanitizedTable}' does not exist or has no columns.`);
   }
