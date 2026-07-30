@@ -160,7 +160,7 @@ export function createSecurityEncryptionStatusTool(
 
         // Check for keyring plugins
         const keyringResult = await adapter.executeQuery(`
-                SELECT PLUGIN_NAME, PLUGIN_STATUS
+                /* maxscale route to master */ SELECT PLUGIN_NAME, PLUGIN_STATUS
                 FROM information_schema.PLUGINS
                 WHERE PLUGIN_NAME LIKE 'keyring%'
             `);
@@ -172,7 +172,7 @@ export function createSecurityEncryptionStatusTool(
         let encryptedTablespaceCount = 0;
         try {
           const tablespaceResult = await adapter.executeQuery(`
-                  SELECT
+                  /* maxscale route to master */ SELECT
                       NAME,
                       ENCRYPTION
                   FROM information_schema.INNODB_TABLESPACES
@@ -182,7 +182,7 @@ export function createSecurityEncryptionStatusTool(
           encryptedTablespaces = tablespaceResult.rows ?? [];
 
           const countResult = await adapter.executeQuery(`
-                  SELECT COUNT(*) as cnt
+                  /* maxscale route to master */ SELECT COUNT(*) as cnt
                   FROM information_schema.INNODB_TABLESPACES
                   WHERE ENCRYPTION = 'Y'
               `);

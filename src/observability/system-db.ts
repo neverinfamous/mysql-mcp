@@ -107,6 +107,10 @@ export class SystemDb {
       logger.error("Failed to initialize SystemDb. better-sqlite3 may not be installed.", {
         error: err instanceof Error ? err.message : String(err),
       });
+      if (this.db) {
+        try { this.db.close(); } catch { /* ignore close error */ }
+        this.db = null;
+      }
       throw err;
     }
   }

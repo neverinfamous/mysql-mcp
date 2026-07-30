@@ -220,6 +220,7 @@ export class MetricsRegistry {
   private cache = new CacheMetric();
   private redis = new RedisMetric();
   private httpErrors: Record<string, number> = { "401": 0, "413": 0, "429": 0 };
+  private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[] }>() };
   private systemDb: SystemDb | null = null;
   private flushTimer: ReturnType<typeof setInterval> | null = null;
   private readonly startedAt = Date.now();
@@ -297,14 +298,14 @@ export class MetricsRegistry {
     let db = null;
     try {
       db = this.systemDb.getDb();
-    } catch (e) {
+    } catch {
       // If DB fails to initialize, db remains null
     }
 
-    let parsedLiveRows: { tool: string; live_calls: number; live_errors: number; live_tokens: number }[] = [];
-    let snapshotCallBaselines = new Map<string, number>();
-    let snapshotTokenBaselines = new Map<string, number>();
-    let since = "1970-01-01T00:00:00.000Z";
+    let parsedLiveRows: { tool: string; live_calls: number; live_errors: number; live_tokens: number; durations?: number[] }[] = [];
+    const snapshotCallBaselines = new Map<string, number>();
+    const snapshotTokenBaselines = new Map<string, number>();
+    const since = "1970-01-01T00:00:00.000Z";
 
     if (db) {
       try {
@@ -383,45 +384,65 @@ export class MetricsRegistry {
           const jsonlPath = auditLogArgIndex !== -1 ? process.argv[auditLogArgIndex + 1] : process.env['AUDIT_LOG_PATH'];
           
           if (jsonlPath !== undefined && jsonlPath !== "" && fs.existsSync(jsonlPath)) {
-            const content = fs.readFileSync(jsonlPath, 'utf8');
-            const lines = content.split('\n').filter((l: string) => l !== "");
+            const stat = fs.statSync(jsonlPath);
+            if (stat.size < this.jsonlState.offset) {
+              this.jsonlState.offset = 0;
+              this.jsonlState.toolStats.clear();
+            }
             
-            const toolStats = new Map<string, { calls: number; errors: number; tokens: number }>();
-            
-            for (const line of lines) {
-              try {
-                const entry = JSON.parse(line) as Record<string, unknown>;
-                const entryType = typeof entry['type'] === 'string' ? entry['type'] : undefined;
-                const entryTool = typeof entry['tool'] === 'string' ? entry['tool'] : undefined;
-                const entryName = typeof entry['name'] === 'string' ? entry['name'] : undefined;
-                const toolName = entryTool ?? entryName;
-                
-                if (entryType === 'tool' || toolName !== undefined) {
-                  if (toolName === undefined || toolName === "") continue;
+            if (stat.size > this.jsonlState.offset) {
+              const fd = fs.openSync(jsonlPath, 'r');
+              const length = stat.size - this.jsonlState.offset;
+              const buffer = Buffer.alloc(length);
+              fs.readSync(fd, buffer, 0, length, this.jsonlState.offset);
+              fs.closeSync(fd);
+              this.jsonlState.offset = stat.size;
+              
+              const content = buffer.toString('utf8');
+              const lines = content.split('\n').filter((l: string) => l !== "");
+              
+              for (const line of lines) {
+                try {
+                  const entry = JSON.parse(line) as Record<string, unknown>;
+                  const entryType = typeof entry['type'] === 'string' ? entry['type'] : undefined;
+                  const entryTool = typeof entry['tool'] === 'string' ? entry['tool'] : undefined;
+                  const entryName = typeof entry['name'] === 'string' ? entry['name'] : undefined;
+                  const toolName = entryTool ?? entryName;
                   
-                  // Only count entries after the last snapshot (to avoid double counting)
-                  const entryTimestamp = typeof entry['timestamp'] === 'string' ? entry['timestamp'] : undefined;
-                  if (entryTimestamp !== undefined && entryTimestamp <= since) continue;
-                  
-                  const stats = toolStats.get(toolName) ?? { calls: 0, errors: 0, tokens: 0 };
-                  stats.calls++;
-                  if (entry['success'] === false) stats.errors++;
-                  
-                  const entryTokenEstimate = typeof entry['tokenEstimate'] === 'number' ? entry['tokenEstimate'] : undefined;
-                  if (entryTokenEstimate !== undefined) stats.tokens += entryTokenEstimate;
-                  
-                  toolStats.set(toolName, stats);
+                  if (entryType === 'tool' || toolName !== undefined) {
+                    if (toolName === undefined || toolName === "") continue;
+                    const stats = this.jsonlState.toolStats.get(toolName) ?? { calls: 0, errors: 0, tokens: 0, durations: [] };
+                    
+                    const entryDuration = typeof entry['durationMs'] === 'number' ? entry['durationMs'] : undefined;
+                    if (entryDuration !== undefined) stats.durations.push(entryDuration);
+                    
+                    // Only count entries after the last snapshot (to avoid double counting)
+                    const entryTimestamp = typeof entry['timestamp'] === 'string' ? entry['timestamp'] : undefined;
+                    if (entryTimestamp !== undefined && entryTimestamp <= since) {
+                      this.jsonlState.toolStats.set(toolName, stats);
+                      continue;
+                    }
+                    
+                    stats.calls++;
+                    if (entry['success'] === false) stats.errors++;
+                    
+                    const entryTokenEstimate = typeof entry['tokenEstimate'] === 'number' ? entry['tokenEstimate'] : undefined;
+                    if (entryTokenEstimate !== undefined) stats.tokens += entryTokenEstimate;
+                    
+                    this.jsonlState.toolStats.set(toolName, stats);
+                  }
+                } catch {
+                  // Ignore parse errors for individual lines
                 }
-              } catch {
-                // Ignore parse errors for individual lines
               }
             }
             
-            parsedLiveRows = Array.from(toolStats.entries()).map(([tool, stats]) => ({
+            parsedLiveRows = Array.from(this.jsonlState.toolStats.entries()).map(([tool, stats]) => ({
               tool,
               live_calls: stats.calls,
               live_errors: stats.errors,
-              live_tokens: stats.tokens
+              live_tokens: stats.tokens,
+              durations: stats.durations
             }));
           }
         } catch {
@@ -442,6 +463,18 @@ export class MetricsRegistry {
         metric.calls = Math.max(metric.calls, callsBaseline + row.live_calls);
         metric.errors["live"] = Math.max(metric.errors["live"] ?? 0, row.live_errors);
         metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
+        
+        const durations = row.durations;
+        if (!db && !metric.hasLocalActivity() && durations && durations.length > 0) {
+          durations.sort((a, b) => a - b);
+          const getP = (p: number): number => {
+            const idx = Math.floor((durations.length - 1) * p);
+            return durations[idx] ?? 0;
+          };
+          metric.loaded_p50 = getP(0.5);
+          metric.loaded_p95 = getP(0.95);
+          metric.loaded_p99 = getP(0.99);
+        }
       }
 
     if (db) {
