@@ -140,6 +140,7 @@ export function createSysSchemaStatsTool(
 
         // Get table statistics
         const tableStatsQuery = `
+                WITH sys_query AS (
                 SELECT
                     table_schema,
                     table_name,
@@ -155,10 +156,12 @@ export function createSysSchemaStatsTool(
                 WHERE table_schema = COALESCE(?, DATABASE())
                 ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
                 LIMIT ${String(limit)}
+                ) SELECT * FROM sys_query
             `;
 
         // Get index statistics
         const indexStatsQuery = `
+                WITH sys_query AS (
                 SELECT
                     table_schema,
                     table_name,
@@ -175,10 +178,12 @@ export function createSysSchemaStatsTool(
                 WHERE table_schema = COALESCE(?, DATABASE())
                 ORDER BY (select_latency + insert_latency + update_latency + delete_latency) DESC
                 LIMIT ${String(limit)}
+                ) SELECT * FROM sys_query
             `;
 
         // Get auto-increment status
         const autoIncQuery = `
+                WITH sys_query AS (
                 SELECT
                     table_schema,
                     table_name,
@@ -190,20 +195,12 @@ export function createSysSchemaStatsTool(
                 WHERE table_schema = COALESCE(?, DATABASE())
                 ORDER BY auto_increment_ratio DESC
                 LIMIT ${String(limit)}
+                ) SELECT * FROM sys_query
             `;
 
-        // Wrap in transaction to bypass ProxySQL read routing locks on sys tables
-        const txId = await adapter.beginTransaction();
-        let tableStats, indexStats, autoIncStats;
-        try {
-          tableStats = await adapter.executeQuery(tableStatsQuery, [schema ?? null], txId);
-          indexStats = await adapter.executeQuery(indexStatsQuery, [schema ?? null], txId);
-          autoIncStats = await adapter.executeQuery(autoIncQuery, [schema ?? null], txId);
-          await adapter.commitTransaction(txId);
-        } catch (error) {
-          await adapter.rollbackTransaction(txId);
-          throw error;
-        }
+        const tableStats = await adapter.executeQuery(tableStatsQuery, [schema ?? null]);
+        const indexStats = await adapter.executeQuery(indexStatsQuery, [schema ?? null]);
+        const autoIncStats = await adapter.executeQuery(autoIncQuery, [schema ?? null]);
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
@@ -258,6 +255,7 @@ export function createSysInnoDBLockWaitsTool(
         const { limit } = LimitSchema.parse(params);
 
         const query = `
+                WITH sys_query AS (
                 SELECT
                     wait_started,
                     wait_age,
@@ -281,6 +279,7 @@ export function createSysInnoDBLockWaitsTool(
                 FROM sys.innodb_lock_waits
                 ORDER BY wait_started
                 LIMIT ${String(limit)}
+                ) SELECT * FROM sys_query
             `;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
@@ -293,16 +292,7 @@ export function createSysInnoDBLockWaitsTool(
           return cleaned;
         };
 
-        // Wrap in transaction to bypass ProxySQL read routing locks on sys tables
-        const txId = await adapter.beginTransaction();
-        let result;
-        try {
-          result = await adapter.executeQuery(query, undefined, txId);
-          await adapter.commitTransaction(txId);
-        } catch (error) {
-          await adapter.rollbackTransaction(txId);
-          throw error;
-        }
+        const result = await adapter.executeQuery(query);
 
         return withTokenEstimate({
           success: true,
@@ -343,6 +333,7 @@ export function createSysMemorySummaryTool(
 
         // Global memory summary
         const globalQuery = `
+                WITH sys_query AS (
                 SELECT
                     event_name,
                     current_count,
@@ -353,10 +344,12 @@ export function createSysMemorySummaryTool(
                     high_avg_alloc
                 FROM sys.memory_global_by_current_bytes
                 LIMIT ${String(limit)}
+                ) SELECT * FROM sys_query
             `;
 
         // Memory by user
         const userQuery = `
+                WITH sys_query AS (
                 SELECT
                     user,
                     current_count_used,
@@ -366,19 +359,11 @@ export function createSysMemorySummaryTool(
                     total_allocated
                 FROM sys.memory_by_user_by_current_bytes
                 LIMIT ${String(limit)}
+                ) SELECT * FROM sys_query
             `;
 
-        // Wrap in transaction to bypass ProxySQL read routing locks on sys tables
-        const txId = await adapter.beginTransaction();
-        let globalStats, userStats;
-        try {
-          globalStats = await adapter.executeQuery(globalQuery, undefined, txId);
-          userStats = await adapter.executeQuery(userQuery, undefined, txId);
-          await adapter.commitTransaction(txId);
-        } catch (error) {
-          await adapter.rollbackTransaction(txId);
-          throw error;
-        }
+        const globalStats = await adapter.executeQuery(globalQuery);
+        const userStats = await adapter.executeQuery(userQuery);
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
