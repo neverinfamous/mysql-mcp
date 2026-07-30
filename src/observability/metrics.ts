@@ -802,6 +802,34 @@ export class MetricsRegistry {
     const hasLocalCalls = [...this.tools.values()].some(m => m.hasLocalActivity());
     const hasLocalResourceReads = [...this.resources.values()].some(m => m.hasLocalActivity());
     if (!hasLocalCalls && !hasLocalResourceReads) return;
+    if (this.auditLogger && this.poolStatsProvider) {
+      try {
+        const poolStats = this.poolStatsProvider();
+        this.auditLogger.log({
+          timestamp: new Date().toISOString(),
+          requestId: "pool",
+          tool: "mysql://pool/stats",
+          category: "resource",
+          scope: "read",
+          durationMs: 0,
+          success: true,
+          status: "info",
+          args: {
+            pid: process.pid,
+            total: poolStats.total,
+            active: poolStats.active,
+            idle: poolStats.idle,
+            waiting: poolStats.waiting,
+            totalQueries: poolStats.totalQueries
+          }
+        } as unknown as AuditEntry);
+      } catch (err) {
+        logger.warn("Failed to log pool stats", {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
+    }
+
     try {
       const db = this.systemDb.getDb();
       const stmt = db.prepare(`
@@ -844,28 +872,6 @@ export class MetricsRegistry {
         }
       });
       transaction();
-
-      if (this.auditLogger && this.poolStatsProvider) {
-        const poolStats = this.poolStatsProvider();
-        this.auditLogger.log({
-          timestamp: new Date().toISOString(),
-          requestId: "pool",
-          tool: "mysql://pool/stats",
-          category: "resource",
-          scope: "read",
-          durationMs: 0,
-          success: true,
-          status: "info",
-          args: {
-            pid: process.pid,
-            total: poolStats.total,
-            active: poolStats.active,
-            idle: poolStats.idle,
-            waiting: poolStats.waiting,
-            totalQueries: poolStats.totalQueries
-          }
-        } as unknown as AuditEntry);
-      }
     } catch (err) {
       logger.warn("Failed to flush metrics to db", {
         error: err instanceof Error ? err.message : String(err),

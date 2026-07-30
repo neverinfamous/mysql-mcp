@@ -38,7 +38,7 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spatialColumn: string): Promise<{ success: boolean; error?: string; code?: string }> {
   try {
     const tableName = table.includes('.') ? table.split('.')[1] : table;
-    const colCheck = await adapter.executeQuery(
+    const colCheck = await adapter.executeReadQuery(
       `SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
       [tableName, spatialColumn]
     );
@@ -81,7 +81,7 @@ export function createSpatialDistanceTool(
 
         if (!table) {
           const query = `SELECT ROUND(ST_Distance(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance`;
-          const result = await adapter.executeQuery(query, [geometry1, geometry2]);
+          const result = await adapter.executeReadQuery(query, [geometry1, geometry2]);
           return withTokenEstimate({
             success: true,
             data: { distance: Number(result.rows?.[0]?.["distance"]) }
@@ -120,7 +120,7 @@ export function createSpatialDistanceTool(
 
         query += ` ORDER BY distance LIMIT ${String(limit)}`;
 
-        const result = await adapter.executeQuery(query, queryParams);
+        const result = await adapter.executeReadQuery(query, queryParams);
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
@@ -195,7 +195,7 @@ export function createSpatialDistanceSphereTool(
 
         if (!table) {
           const query = `SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters`;
-          const result = await adapter.executeQuery(query, [geometry1, geometry2]);
+          const result = await adapter.executeReadQuery(query, [geometry1, geometry2]);
           return withTokenEstimate({
             success: true,
             data: { distance: Number(result.rows?.[0]?.["distance_meters"]), unit: "meters" }
@@ -238,7 +238,7 @@ export function createSpatialDistanceSphereTool(
 
         query += ` ORDER BY distance_meters LIMIT ${String(limit)}`;
 
-        const result = await adapter.executeQuery(query, queryParams);
+        const result = await adapter.executeReadQuery(query, queryParams);
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
@@ -316,7 +316,7 @@ export function createSpatialContainsTool(
                 WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), \`${spatialColumn}\`)
                 LIMIT ${String(limit)}`;
 
-        const result = await adapter.executeQuery(query, [polygon]);
+        const result = await adapter.executeReadQuery(query, [polygon]);
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
@@ -389,7 +389,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'))
                 LIMIT ${String(limit)}`;
 
-        const result = await adapter.executeQuery(query, [geometry]);
+        const result = await adapter.executeReadQuery(query, [geometry]);
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
