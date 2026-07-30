@@ -52,8 +52,7 @@ export function createPerformanceResource(
                     ORDER BY SUM_TIMER_WAIT DESC
                     LIMIT 10
                 `,
-        )
-        .catch(() => ({ rows: [] as Record<string, unknown>[] }));
+        );
 
       const [statusResult, perfResult] = await Promise.all([
         statusPromise,
