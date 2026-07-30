@@ -26,6 +26,31 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Helpers
 // =============================================================================
 
+function formatTime(picoseconds: number | string | null | undefined): string | null {
+  if (picoseconds == null) return null;
+  const p = Number(picoseconds);
+  if (isNaN(p)) return String(picoseconds);
+  if (p === 0) return "0 ps";
+  if (p < 1000) return `${p.toFixed(2)} ps`;
+  if (p < 1000000) return `${(p / 1000).toFixed(2)} ns`;
+  if (p < 1000000000) return `${(p / 1000000).toFixed(2)} us`;
+  if (p < 1000000000000) return `${(p / 1000000000).toFixed(2)} ms`;
+  if (p < 60000000000000) return `${(p / 1000000000000).toFixed(2)} s`;
+  if (p < 3600000000000000) return `${(p / 60000000000000).toFixed(2)} min`;
+  return `${(p / 3600000000000000).toFixed(2)} h`;
+}
+
+function formatBytes(bytes: number | string | null | undefined): string | null {
+  if (bytes == null) return null;
+  const b = Number(bytes);
+  if (isNaN(b)) return String(bytes);
+  if (b === 0) return "0 bytes";
+  if (b < 1024) return `${b.toFixed(2)} bytes`;
+  if (b < 1048576) return `${(b / 1024).toFixed(2)} KiB`;
+  if (b < 1073741824) return `${(b / 1048576).toFixed(2)} MiB`;
+  return `${(b / 1073741824).toFixed(2)} GiB`;
+}
+
 // =============================================================================
 // Zod Schemas
 // =============================================================================
@@ -166,8 +191,8 @@ export function createSysStatementSummaryTool(
                     query,
                     db,
                     exec_count,
-                    sys.format_time(total_latency) AS total_latency,
-                    sys.format_time(avg_latency) AS avg_latency,
+                    total_latency,
+                    avg_latency,
                     rows_sent,
                     ROUND(rows_sent_avg) AS rows_sent_avg,
                     rows_examined,
@@ -182,7 +207,11 @@ export function createSysStatementSummaryTool(
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
             if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
-              cleaned[key] = value;
+              if (key === "total_latency" || key === "avg_latency") {
+                cleaned[key] = formatTime(value as string | number);
+              } else {
+                cleaned[key] = value;
+              }
             }
           }
           return cleaned;
@@ -248,8 +277,8 @@ export function createSysWaitSummaryTool(
                         SELECT
                             events AS event,
                             total,
-                            sys.format_time(total_latency) AS total_latency,
-                            sys.format_time(avg_latency) AS avg_latency
+                            total_latency,
+                            avg_latency
                         FROM sys.x$waits_global_by_latency
                         ORDER BY sys.x$waits_global_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
@@ -261,8 +290,8 @@ export function createSysWaitSummaryTool(
                             host,
                             event,
                             total,
-                            sys.format_time(total_latency) AS total_latency,
-                            sys.format_time(avg_latency) AS avg_latency
+                            total_latency,
+                            avg_latency
                         FROM sys.x$waits_by_host_by_latency
                         ORDER BY sys.x$waits_by_host_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
@@ -274,8 +303,8 @@ export function createSysWaitSummaryTool(
                             user,
                             event,
                             total,
-                            sys.format_time(total_latency) AS total_latency,
-                            sys.format_time(avg_latency) AS avg_latency
+                            total_latency,
+                            avg_latency
                         FROM sys.x$waits_by_user_by_latency
                         ORDER BY sys.x$waits_by_user_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
@@ -286,8 +315,8 @@ export function createSysWaitSummaryTool(
                         SELECT
                             event_name AS event,
                             count_star AS total,
-                            FORMAT_PICO_TIME(sum_timer_wait) AS total_latency,
-                            FORMAT_PICO_TIME(sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
+                            sum_timer_wait AS total_latency,
+                            (sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
                         FROM performance_schema.events_waits_summary_by_instance
                         ORDER BY sum_timer_wait DESC
                         LIMIT ${String(actualLimit)}
@@ -301,7 +330,11 @@ export function createSysWaitSummaryTool(
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
             if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
-              cleaned[key] = value;
+              if (key === "total_latency" || key === "avg_latency") {
+                cleaned[key] = formatTime(value as string | number);
+              } else {
+                cleaned[key] = value;
+              }
             }
           }
           return cleaned;
@@ -363,12 +396,12 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         SELECT
                             file,
                             count_read,
-                            sys.format_bytes(total_read) AS total_read,
-                            sys.format_bytes(avg_read) AS avg_read,
+                            total_read,
+                            avg_read,
                             count_write,
-                            sys.format_bytes(total_written) AS total_written,
-                            sys.format_bytes(avg_write) AS avg_write,
-                            sys.format_bytes(total) AS total,
+                            total_written,
+                            avg_write,
+                            total,
                             write_pct
                         FROM sys.x$io_global_by_file_by_bytes
                         ORDER BY sys.x$io_global_by_file_by_bytes.total DESC
@@ -381,13 +414,13 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             table_schema,
                             table_name,
                             rows_fetched,
-                            sys.format_time(fetch_latency) AS fetch_latency,
+                            fetch_latency,
                             rows_inserted,
-                            sys.format_time(insert_latency) AS insert_latency,
+                            insert_latency,
                             rows_updated,
-                            sys.format_time(update_latency) AS update_latency,
+                            update_latency,
                             rows_deleted,
-                            sys.format_time(delete_latency) AS delete_latency
+                            delete_latency
                         FROM sys.x$schema_table_statistics
                         ORDER BY (sys.x$schema_table_statistics.fetch_latency + sys.x$schema_table_statistics.insert_latency + sys.x$schema_table_statistics.update_latency + sys.x$schema_table_statistics.delete_latency) DESC
                         LIMIT ${String(actualLimit)}
@@ -398,8 +431,8 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                         SELECT
                             event_name,
                             total,
-                            sys.format_time(total_latency) AS total_latency,
-                            sys.format_time(avg_latency) AS avg_latency
+                            total_latency,
+                            avg_latency
                         FROM sys.x$io_global_by_wait_by_latency
                         ORDER BY sys.x$io_global_by_wait_by_latency.total_latency DESC
                         LIMIT ${String(actualLimit)}
@@ -413,7 +446,13 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
             if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
-              cleaned[key] = value;
+              if (key.endsWith("_latency")) {
+                cleaned[key] = formatTime(value as string | number);
+              } else if (key === "total_read" || key === "avg_read" || key === "total_written" || key === "avg_write" || key === "total") {
+                cleaned[key] = formatBytes(value as string | number);
+              } else {
+                cleaned[key] = value;
+              }
             }
           }
           return cleaned;
