@@ -269,7 +269,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ../../../mysql-mcp/data:/var/log/mysql-mcp
+      - ../../data:/var/log/mysql-mcp
     stop_grace_period: 15s
     mem_limit: 256m
     logging:

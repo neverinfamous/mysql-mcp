@@ -1,10 +1,10 @@
 import { Client } from "@modelcontextprotocol/client";
-import { StdioClientTransport } from "@modelcontextprotocol/client/transport/stdio.js";
+import { StdioClientTransport } from "@modelcontextprotocol/client/stdio";
 
 async function run() {
   const transport = new StdioClientTransport({
     command: "node",
-    args: ["dist/cli.js", "--transport", "stdio", "--audit-log", "logs/mcp-audit.jsonl"],
+    args: ["dist/cli.js", "--transport", "stdio", "--audit-log", "logs/mcp-audit.jsonl", "--audit-reads"],
     env: { ...process.env, ALLOWED_IO_ROOTS: "C:/" }
   });
 
@@ -14,7 +14,8 @@ async function run() {
   // Call a tool
   try {
     console.log("Calling tool...");
-    await client.callTool({ name: "mysql_sys_host_summary", arguments: {} });
+    await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT 1" } });
+    console.log("Tool called successfully");
   } catch (err) {
     console.log("Tool error:", err.message);
   }

@@ -216,7 +216,7 @@ try {
 
     // ── Phase 4: Start remaining ecosystem ───────────────────────────
     console.log('\n[4.5/6] Starting remaining ecosystem containers...');
-    run('docker compose up -d');
+    run('docker compose up -d --build');
 
     // ── Phase 5: Verify cluster ──────────────────────────────────────
     console.log('\n[5/6] Verifying cluster status...');
