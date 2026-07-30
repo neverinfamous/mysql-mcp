@@ -9,5 +9,6 @@ instances:
     send_monotonic_counter: true
     min_collection_interval: 15
     timeout: 10
+    max_returned_metrics: 10000
     metrics:
       - '.*'
