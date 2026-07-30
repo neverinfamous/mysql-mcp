@@ -119,6 +119,8 @@ const SnapshotRowSchema = z.object({
   p50: z.number(),
   p95: z.number(),
   p99: z.number(),
+  categories_json: z.string().nullable().optional(),
+  errors_json: z.string().nullable().optional(),
 });
 
 // Live aggregation from audit_logs rows newer than the last snapshot.
@@ -310,10 +312,12 @@ export class MetricsRegistry {
     }
 
     let parsedLiveRows: { tool: string; live_calls: number; live_errors: number; live_tokens: number; durations?: number[] }[] = [];
-    const parsedLiveCategoryRows: { tool: string; category: string; cat_errors: number; type: string }[] = [];
+    let parsedLiveCategoryRows: { tool: string; category: string; cat_errors: number; type: string }[] = [];
     const snapshotCallBaselines = new Map<string, number>();
     const snapshotTokenBaselines = new Map<string, number>();
-    const since = "1970-01-01T00:00:00.000Z";
+    const snapshotCategoryBaselines = new Map<string, Record<string, number>>();
+    const snapshotErrorBaselines = new Map<string, Record<string, number>>();
+    let since = "1970-01-01T00:00:00.000Z";
 
     if (db) {
       try {
@@ -322,7 +326,7 @@ export class MetricsRegistry {
       const rows = db
         .prepare(
           `
-        SELECT tool, calls as max_calls, errors as max_errors, tokens as max_tokens, p50, p95, p99
+        SELECT tool, calls as max_calls, errors as max_errors, tokens as max_tokens, p50, p95, p99, categories_json, errors_json
         FROM metrics_snapshots
         WHERE id IN (SELECT MAX(id) FROM metrics_snapshots GROUP BY tool)
       `,
@@ -332,9 +336,6 @@ export class MetricsRegistry {
       const parsedRows = z.array(SnapshotRowSchema).parse(rows);
 
       // Track per-tool snapshot baselines for live delta calculation in Phase 2.
-      const snapshotCallBaselines = new Map<string, number>();
-      const snapshotTokenBaselines = new Map<string, number>();
-
       for (const row of parsedRows) {
         let metric = this.tools.get(row.tool);
         if (!metric) {
@@ -344,7 +345,6 @@ export class MetricsRegistry {
         metric.calls = Math.max(metric.calls, row.max_calls);
         // Load historical errors as a special category to avoid breaking the integer DB schema
         metric.errors["historical"] = Math.max((metric.errors["historical"] ?? 0), row.max_errors);
-        metric.errorCategories["historical"] = Math.max((metric.errorCategories["historical"] ?? 0), row.max_errors);
         metric.tokens = Math.max(metric.tokens, row.max_tokens);
         // Persist the latest recorded percentiles for background export
         metric.loaded_p50 = row.p50;
@@ -352,6 +352,31 @@ export class MetricsRegistry {
         metric.loaded_p99 = row.p99;
         snapshotCallBaselines.set(row.tool, row.max_calls);
         snapshotTokenBaselines.set(row.tool, row.max_tokens);
+        
+        // Restore specific categories and error types if they were saved in the snapshot!
+        if (row.categories_json) {
+          try {
+            const categories = JSON.parse(row.categories_json) as Record<string, number>;
+            snapshotCategoryBaselines.set(row.tool, categories);
+            for (const [cat, count] of Object.entries(categories)) {
+              metric.errorCategories[cat] = Math.max((metric.errorCategories[cat] ?? 0), count);
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
+        
+        if (row.errors_json) {
+          try {
+            const errorTypes = JSON.parse(row.errors_json) as Record<string, number>;
+            snapshotErrorBaselines.set(row.tool, errorTypes);
+            for (const [type, count] of Object.entries(errorTypes)) {
+              metric.errors[type] = Math.max((metric.errors[type] ?? 0), count);
+            }
+          } catch {
+            // Ignore parse errors
+          }
+        }
       }
 
       // --- Phase 2: Live delta from audit_logs since the last snapshot ---
@@ -362,7 +387,7 @@ export class MetricsRegistry {
       const lastSnapshotResult = db
         .prepare(`SELECT MAX(timestamp) as last_ts FROM metrics_snapshots`)
         .get() as { last_ts: string | null };
-      const since = lastSnapshotResult?.last_ts ?? "1970-01-01T00:00:00.000Z";
+      since = lastSnapshotResult?.last_ts ?? "1970-01-01T00:00:00.000Z";
 
       const liveRows = db
         .prepare(
@@ -509,6 +534,20 @@ export class MetricsRegistry {
               live_tokens: stats.tokens,
               durations: stats.durations
             }));
+            
+            // Reconstruct parsedLiveCategoryRows from jsonl stats
+            parsedLiveCategoryRows = [];
+            for (const [tool, stats] of this.jsonlState.toolStats.entries()) {
+              for (const [type, count] of Object.entries(stats.errorTypes)) {
+                 parsedLiveCategoryRows.push({ tool, category: "unknown", cat_errors: count, type });
+              }
+              for (const [cat, count] of Object.entries(stats.errorCategories)) {
+                 // For JSONL, errorCategories and errorTypes are decoupled.
+                 // We push them with type="unknown" to let the merge phase add the category,
+                 // and category="unknown" above to let the merge phase add the type.
+                 parsedLiveCategoryRows.push({ tool, category: cat, cat_errors: count, type: "unknown" });
+              }
+            }
           }
         } catch {
           // Ignore fallback errors
@@ -546,26 +585,26 @@ export class MetricsRegistry {
 
       if (db) {
         // We re-derived categories from audit_logs in Phase 2
-        // Unlike snapshots (which take max), these are individual errors since the last snapshot.
-        // So we increment them onto the metric.
-        // Wait, if we increment them every 10s, we double count!
-        // No, we can't increment. We must just assign them if the exporter NEVER writes.
-        // Actually, for the exporter, metric.errors and metric.errorCategories are EMPTY before this loop.
-        // So we can just sum them up from the rows!
-        
-        // First reset the live categories/types
-        for (const metric of this.tools.values()) {
-          for (const key of Object.keys(metric.errorCategories)) metric.errorCategories[key] = 0;
-          for (const key of Object.keys(metric.errors)) {
-            if (key !== "historical") metric.errors[key] = 0;
-          }
+        // First reset the live categories/types to the snapshot baseline!
+        for (const [toolName, metric] of this.tools.entries()) {
+           const catBaseline = snapshotCategoryBaselines.get(toolName) ?? {};
+           metric.errorCategories = { ...catBaseline };
+           
+           const errBaseline = snapshotErrorBaselines.get(toolName) ?? {};
+           // preserve 'historical' which is updated differently
+           const historical = metric.errors["historical"] ?? 0;
+           metric.errors = { ...errBaseline, "historical": historical };
         }
         
         for (const row of parsedLiveCategoryRows) {
           const metric = this.tools.get(row.tool);
           if (metric) {
-            metric.errorCategories[row.category] = (metric.errorCategories[row.category] ?? 0) + row.cat_errors;
-            metric.errors[row.type] = (metric.errors[row.type] ?? 0) + row.cat_errors;
+            if (row.category !== "unknown") {
+              metric.errorCategories[row.category] = (metric.errorCategories[row.category] ?? 0) + row.cat_errors;
+            }
+            if (row.type !== "unknown") {
+              metric.errors[row.type] = (metric.errors[row.type] ?? 0) + row.cat_errors;
+            }
           }
         }
       }
@@ -694,8 +733,8 @@ export class MetricsRegistry {
     try {
       const db = this.systemDb.getDb();
       const stmt = db.prepare(`
-        INSERT INTO metrics_snapshots (timestamp, tool, calls, errors, p50, p95, p99, tokens)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO metrics_snapshots (timestamp, tool, calls, errors, p50, p95, p99, tokens, categories_json, errors_json)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `);
       const timestamp = new Date().toISOString();
       const transaction = db.transaction(() => {
@@ -711,6 +750,8 @@ export class MetricsRegistry {
             summary.p95,
             summary.p99,
             summary.tokens,
+            JSON.stringify(metric.errorCategories),
+            JSON.stringify(metric.errors)
           );
         }
         

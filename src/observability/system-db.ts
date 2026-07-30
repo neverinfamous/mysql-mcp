@@ -70,12 +70,33 @@ export class SystemDb {
           p50 INTEGER NOT NULL,
           p95 INTEGER NOT NULL,
           p99 INTEGER NOT NULL,
-          tokens INTEGER NOT NULL
+          tokens INTEGER NOT NULL,
+          categories_json TEXT,
+          errors_json TEXT
         );
 
         CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_timestamp ON metrics_snapshots(timestamp);
         CREATE INDEX IF NOT EXISTS idx_metrics_snapshots_tool ON metrics_snapshots(tool);
+        
+        -- Migration for existing databases
+        BEGIN TRANSACTION;
+        -- Ignore errors if column already exists
+        PRAGMA user_version;
+        COMMIT;
+      `);
+      
+      try {
+        this.db.exec("ALTER TABLE metrics_snapshots ADD COLUMN categories_json TEXT");
+      } catch {
+        // Column already exists
+      }
+      try {
+        this.db.exec("ALTER TABLE metrics_snapshots ADD COLUMN errors_json TEXT");
+      } catch {
+        // Column already exists
+      }
 
+      this.db.exec(`
         CREATE TABLE IF NOT EXISTS cache_metrics_snapshots (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
           timestamp TEXT NOT NULL,
