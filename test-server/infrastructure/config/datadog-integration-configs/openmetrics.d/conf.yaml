@@ -10,25 +10,11 @@ instances:
     min_collection_interval: 15
     timeout: 10
     metrics:
-      - mysql_mcp_tool_tokens_total:
-          name: mysql_mcp_tool_tokens
-          type: counter
-      - mysql_mcp_tool_calls_total:
-          name: mysql_mcp_tool_calls
-          type: counter
-      - mysql_mcp_tool_errors_total:
-          name: mysql_mcp_tool_errors
-          type: counter
-      - mysql_mcp_tool_errors_by_category_total:
-          name: mysql_mcp_tool_errors_by_category
-          type: counter
-      - mysql_mcp_pool_queries_total:
-          name: mysql_mcp_pool_queries
-          type: counter
-      - mysql_mcp_cache_hits_total:
-          name: mysql_mcp_cache_hits
-          type: counter
-      - mysql_mcp_cache_misses_total:
-          name: mysql_mcp_cache_misses
-          type: counter
+      - mysql_mcp_tool_tokens_total: mysql_mcp_tool_tokens
+      - mysql_mcp_tool_calls_total: mysql_mcp_tool_calls
+      - mysql_mcp_tool_errors_total: mysql_mcp_tool_errors
+      - mysql_mcp_tool_errors_by_category_total: mysql_mcp_tool_errors_by_category
+      - mysql_mcp_pool_queries_total: mysql_mcp_pool_queries
+      - mysql_mcp_cache_hits_total: mysql_mcp_cache_hits
+      - mysql_mcp_cache_misses_total: mysql_mcp_cache_misses
       - '.*'
