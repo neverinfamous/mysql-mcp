@@ -134,22 +134,39 @@ export async function checkCollectionExists(
   }
 
 
-  const query = `
-    SELECT 1 
-    FROM information_schema.COLUMNS c1
-    JOIN information_schema.COLUMNS c2 
-      ON c1.TABLE_SCHEMA = c2.TABLE_SCHEMA AND c1.TABLE_NAME = c2.TABLE_NAME
-    WHERE c1.TABLE_NAME = ?
-      AND c1.TABLE_SCHEMA = COALESCE(?, DATABASE())
-      AND c1.COLUMN_NAME = 'doc' AND c1.DATA_TYPE = 'json'
-      AND c2.COLUMN_NAME = '_id'
-  `;
-  
-  const result = await adapter.executeQuery(query, [collection, schema ?? null]);
-  if ((result.rows?.length ?? 0) > 0) {
-    return { exists: true };
+  const tableRef = escapeTableRef(collection, schema);
+  try {
+    const result = await adapter.executeQuery(`SHOW COLUMNS FROM ${tableRef}`);
+    if (!result.rows || result.rows.length === 0) {
+      return { exists: false, reason: "collection", name: collection };
+    }
+    
+    let hasDoc = false;
+    let hasId = false;
+    for (const row of result.rows) {
+      if (typeof row === 'object' && row !== null) {
+        const field = row['Field'] as string;
+        const type = (row['Type'] as string)?.toLowerCase();
+        if (field === 'doc' && type === 'json') {
+          hasDoc = true;
+        }
+        if (field === '_id') {
+          hasId = true;
+        }
+      }
+    }
+    
+    if (hasDoc && hasId) {
+      return { exists: true };
+    }
+    return { exists: false, reason: "collection", name: collection };
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.toLowerCase().includes("doesn't exist") || message.toLowerCase().includes("unknown table")) {
+      return { exists: false, reason: "collection", name: collection };
+    }
+    throw error;
   }
-  return { exists: false, reason: "collection", name: collection };
 }
 
 /**
