@@ -35,17 +35,16 @@ const AuditLogSchemaBase = z.object({
   limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records"),
   count: z.coerce.number().optional().describe("Alias for limit"),
   user: z.coerce.string().optional().describe("Filter by username"),
-  userName: z.string().optional().describe("Alias for user"),
-  username: z.string().optional().describe("Alias for user"),
-  eventType: z
-    .string()
+  userName: z.coerce.string().optional().describe("Alias for user"),
+  username: z.coerce.string().optional().describe("Alias for user"),
+  eventType: z.coerce.string()
     .optional()
     .describe(
       'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME.',
     ),
-  event: z.string().optional().describe("Alias for eventType"),
-  startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
-  time: z.string().optional().describe("Alias for startTime"),
+  event: z.coerce.string().optional().describe("Alias for eventType"),
+  startTime: z.coerce.string().optional().describe("Start time filter (ISO 8601)"),
+  time: z.coerce.string().optional().describe("Alias for startTime"),
 }).strict();
 
 const AuditLogSchema = z.preprocess(
@@ -78,9 +77,9 @@ const AuditLogSchema = z.preprocess(
   },
   z.object({
     limit: z.number().int().min(1).default(5),
-    user: z.string().optional(),
-    eventType: z.string().optional(),
-    startTime: z.string().optional(),
+    user: z.coerce.string().optional(),
+    eventType: z.coerce.string().optional(),
+    startTime: z.coerce.string().optional(),
   }).strict()
 );
 
