@@ -27,11 +27,16 @@ export class SystemDb {
 
       this.db = new BetterSqlite3(this.config.dbPath);
 
-      // Initialize schema
-      const key = process.env['DB_ENCRYPTION_KEY'] || "adamic123";
-      this.db.pragma(`key = '${key}'`);
+      // Note: PRAGMA key is intentionally omitted. The Windows prebuild of
+      // better-sqlite3-multiple-ciphers treats it as a no-op, meaning all
+      // existing audit.sqlite files are plain (unencrypted) SQLite databases.
+      // Applying a key in the Alpine Docker build causes SQLCipher to attempt
+      // decryption of a plain file → "file is not a database". If real
+      // at-rest encryption is required in the future, migrate the database
+      // and set consistent cipher parameters across all platforms first.
       this.db.pragma("journal_mode = TRUNCATE");
       this.db.pragma("synchronous = NORMAL");
+
 
       this.db.exec(`
         CREATE TABLE IF NOT EXISTS audit_logs (
