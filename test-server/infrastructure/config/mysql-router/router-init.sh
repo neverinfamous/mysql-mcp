@@ -13,7 +13,8 @@ if [ ! -f "$CONF_FILE" ]; then
         --conf-set-option http_server.port=8443 \
         --conf-set-option rest_connection_pool.require_realm=default_auth_realm \
         --conf-set-option routing:bootstrap_rw.connection_sharing=1 \
-        --conf-set-option routing:bootstrap_ro.connection_sharing=1 2>/dev/null; then
+        --conf-set-option routing:bootstrap_ro.connection_sharing=1 \
+        --conf-use-gr-notifications 2>/dev/null; then
         
         echo "[Router-Init] Dynamic metadata bootstrap unavailable; configuring static routing..."
         mkdir -p "$ROUTER_DIR/data"
@@ -70,6 +71,9 @@ EOF
 
         # Make router log to stdout/stderr so we can see what it's doing
         sed -i -e 's/logging_folder=.*$/logging_folder=/' "$CONF_FILE"
+
+        # Suppress repeating metadata_cache WARNINGs (e.g. read-only metadata updates)
+        sed -i 's/^level=.*$/level=ERROR/' "$CONF_FILE"
     fi
 
     echo "[Router-Init] Configuration complete."

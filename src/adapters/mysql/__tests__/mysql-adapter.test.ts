@@ -451,11 +451,11 @@ describe("MySQLAdapter", () => {
       mockPool.execute.mockResolvedValueOnce([
         [
           {
-            name: "id",
-            type: "int",
-            nullable: "NO",
-            columnKey: "PRI",
-            extra: "auto_increment",
+            Field: "id",
+            Type: "int",
+            Null: "NO",
+            Key: "PRI",
+            Extra: "auto_increment",
           },
         ],
         undefined,
@@ -465,8 +465,8 @@ describe("MySQLAdapter", () => {
       mockPool.execute.mockResolvedValueOnce([
         [
           {
-            type: "BASE TABLE",
-            engine: "InnoDB",
+            Comment: "BASE TABLE",
+            Engine: "InnoDB",
           },
         ],
         undefined,

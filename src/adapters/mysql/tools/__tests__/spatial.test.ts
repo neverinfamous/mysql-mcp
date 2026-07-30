@@ -118,7 +118,7 @@ describe("Handler Execution", () => {
       // First call: column info (NOT NULL), second: no existing index, third: CREATE
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
@@ -142,7 +142,7 @@ describe("Handler Execution", () => {
     it("should return structured error for nullable columns", async () => {
       // Column is nullable - should return { success: false, error }
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ IS_NULLABLE: "YES", DATA_TYPE: "point" }]),
+        createMockQueryResult([{ Null: "YES", Type: "point" }]),
       );
 
       const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
@@ -167,7 +167,7 @@ describe("Handler Execution", () => {
       // First call: column info, second: no existing index, third: fails with duplicate key
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockRejectedValueOnce(
@@ -196,7 +196,7 @@ describe("Handler Execution", () => {
       // First call: column info, second: no existing index, third: fails with generic error
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockRejectedValueOnce(new Error("Some other MySQL error"));

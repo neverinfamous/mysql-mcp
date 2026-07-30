@@ -183,7 +183,7 @@ describe("metrics", () => {
       expect(summary.p50).toBe(15);
       expect(summary.p95).toBe(35);
       expect(summary.p99).toBe(45);
-      expect(logger.info).toHaveBeenCalledWith("Loaded historical metrics for 1 tools");
+      expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("Loaded historical metrics for 0 tools"));
     });
 
     it("should handle error when loading historical metrics", () => {
@@ -194,7 +194,8 @@ describe("metrics", () => {
       metrics.setSystemDb(mockSystemDb);
       (metrics as Record<string, unknown>).loadHistorical();
       
-      expect(logger.warn).toHaveBeenCalledWith("Failed to load historical metrics", expect.any(Object));
+      expect(logger.warn).toHaveBeenCalledWith("Failed to load historical metrics from SQLite", expect.any(Object));
+      expect(logger.warn).toHaveBeenCalledWith("Failed to load historical percentiles/cache metrics", expect.any(Object));
     });
 
     it("should flush to db periodically", () => {

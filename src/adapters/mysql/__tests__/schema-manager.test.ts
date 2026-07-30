@@ -85,7 +85,7 @@ describe("SchemaManager", () => {
       (mockExecutor.executeQuery as ReturnType<typeof vi.fn>)
         .mockResolvedValueOnce({ rows: [] }) // columns
         .mockResolvedValueOnce({
-          rows: [{ type: "VIEW", engine: null, rowCount: null }],
+          rows: [{ Comment: "VIEW", Engine: null, Rows: null }],
         }); // table info
 
       const result = await manager.describeTable("my_view");
@@ -110,10 +110,8 @@ describe("SchemaManager", () => {
 
       await manager.describeTable("schema.table");
 
-      expect(mockExecutor.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining("TABLE_SCHEMA = ?"),
-        ["schema", "table"],
-      );
+      expect(mockExecutor.executeQuery).toHaveBeenCalledWith("SHOW FULL COLUMNS FROM `schema`.`table`");
+      expect(mockExecutor.executeQuery).toHaveBeenCalledWith("SHOW TABLE STATUS FROM `schema` LIKE 'table'");
     });
   });
 

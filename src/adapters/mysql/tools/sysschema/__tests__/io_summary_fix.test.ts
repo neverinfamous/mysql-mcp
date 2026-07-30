@@ -22,6 +22,6 @@ describe("Sys Schema I/O Summary Compatibility Fix", () => {
     // STRICTLY verify the column presence
     expect(executedQuery).toContain("event_name");
     expect(executedQuery).not.toContain("wait_class");
-    expect(executedQuery).toContain("FROM sys.io_global_by_wait_by_latency");
+    expect(executedQuery).toContain("FROM sys.x$io_global_by_wait_by_latency");
   });
 });

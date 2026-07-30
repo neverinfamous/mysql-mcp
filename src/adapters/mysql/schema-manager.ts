@@ -291,7 +291,7 @@ export class SchemaManager {
 
     const result: TableInfo = {
       name: tableName,
-      type: tableRow?.["Comment"] === "VIEW" || tableRow?.["Engine"] == null ? "view" : "table",
+      type: tableRow?.["Comment"] === "VIEW" || (tableRow && tableRow["Engine"] == null) ? "view" : "table",
       engine: tableRow?.["Engine"] as string | undefined,
       rowCount: tableRow?.["Rows"] != null ? Number(tableRow["Rows"]) : undefined,
       collation: tableRow?.["Collation"] as string | undefined,

@@ -103,7 +103,7 @@ describe("Spatial Tools Handlers", () => {
       // First call: column info (NOT NULL), second: no existing index, third: CREATE
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
@@ -135,10 +135,10 @@ describe("Spatial Tools Handlers", () => {
       // Second call: existing spatial index found
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ IS_NULLABLE: "NO", DATA_TYPE: "point" }]),
+          createMockQueryResult([{ Null: "NO", Type: "point" }]),
         )
         .mockResolvedValueOnce(
-          createMockQueryResult([{ INDEX_NAME: "idx_existing_geom" }]),
+          createMockQueryResult([{ Key_name: "idx_existing_geom" }]),
         );
 
       const result = await tool.handler(
