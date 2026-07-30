@@ -56,6 +56,8 @@ export const RouteConnectionSchema = z.object({
   destinationAddress: z.string().optional(),
   timeStarted: z.string().optional(),
   timeConnectedToServer: z.string().optional(),
+  timeLastSentToServer: z.string().optional(),
+  timeLastReceivedFromServer: z.string().optional(),
 });
 
 export const RouteConnectionsListSchema = z.object({
