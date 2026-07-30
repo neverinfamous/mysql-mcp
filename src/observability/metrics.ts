@@ -310,7 +310,7 @@ export class MetricsRegistry {
     }
 
     let parsedLiveRows: { tool: string; live_calls: number; live_errors: number; live_tokens: number; durations?: number[] }[] = [];
-    let parsedLiveCategoryRows: { tool: string; category: string; cat_errors: number; type: string }[] = [];
+    const parsedLiveCategoryRows: { tool: string; category: string; cat_errors: number; type: string }[] = [];
     const snapshotCallBaselines = new Map<string, number>();
     const snapshotTokenBaselines = new Map<string, number>();
     const since = "1970-01-01T00:00:00.000Z";
@@ -413,7 +413,7 @@ export class MetricsRegistry {
           category: errorCategory ?? "unknown",
           cat_errors: 1, // We will aggregate this later or just loop over it
           type: errorType ?? "unknown"
-        } as any); // Type hack for parsedLiveCategoryRows
+        });
       }
 
       } catch (err) {
