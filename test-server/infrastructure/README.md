@@ -9,7 +9,7 @@ This directory contains the unified `docker-compose.yml` for the entire database
 To spin up the entire ecosystem from scratch (teardown + start + cluster bootstrap + seed):
 
 ```powershell
-cd C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure
+cd C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem
 node scripts/recreate-ecosystem.mjs
 ```
 
@@ -23,11 +23,13 @@ docker compose up -d
 
 | Component | Container Name | Exposes / Ports | Image |
 |---|---|---|---|
-| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307`, `33061` | `mysql:9.1` |
-| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308`, `33062` | `mysql:9.1` |
-| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309`, `33063` | `mysql:9.1` |
+| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.1` |
+| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.1` |
+| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.1` |
 | **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.1` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql` |
+| **PostgreSQL** (Planned) | `postgres-server` | `5432` | `postgres-hypopg:18` (Custom Build) |
+| **MongoDB** (Planned) | `mongo-server` | `27017` | `mongo` |
 | **Redis** | `redis-server` | `6379` | `redis` |
 | **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer` |
@@ -49,7 +51,7 @@ The `datadog-unified` container runs with `pid: host` and eBPF system-probe to p
 
 - **Host system metrics**: CPU, memory, disk, I/O, load, network, NTP, file handles, uptime
 - **Container monitoring**: All Docker container metrics via socket + Autodiscovery
-- **Database integrations**: MySQL (InnoDB Cluster), Redis, ProxySQL
+- **Database integrations**: MySQL (InnoDB Cluster), Redis, ProxySQL (PostgreSQL and MongoDB configs are pre-provisioned for future use)
 - **Process collection**: Live Processes with host PID namespace
 - **Network Performance Monitoring**: eBPF-based TCP/UDP connection tracking
 - **APM tracing**: Enabled for application containers (set `DD_AGENT_HOST=datadog-unified`)
@@ -61,12 +63,13 @@ Hostname: `adamic-wsl2`
 All scripts are located in the `scripts/` directory and can be executed natively with `node`.
 
 - `recreate-ecosystem.mjs`: Single self-contained script that automates the entire lifecycle: dynamic container discovery, orphaned container cleanup, teardown, startup, InnoDB Cluster bootstrap (with retry/healing), and database seeding.
-- `check-status.mjs`: Dynamically discovers containers from `docker-compose.yml` and validates their health, plus checks the InnoDB Cluster quorum.
-- `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`.
+- `check-status.mjs`: Dynamically discovers containers from `docker-compose.yml` and validates their health, plus checks the InnoDB Cluster quorum and identifies primary read-only locks.
+- `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`. Catches `super_read_only` locks and aborts.
+- `heal-primary.mjs`: Un-sticks the primary node from a `super_read_only` lock by cycling the cluster primary election. Run this if `reset-database.mjs` fails due to a read-only lock.
 
 ## 5. Disaster Recovery & Volumes
 
-All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`).
+All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`). Datadog integration configs for PostgreSQL and MongoDB are pre-provisioned but their compose services and volumes are not yet deployed.
 
 **Auto-Healing Host Crashes**: The InnoDB cluster will not naturally reboot after a hard host crash (e.g. power loss or Windows/Docker crash) to prevent split-brain. However, a lightweight `cluster-healer` sidecar container runs continuously to detect total cluster outages and automatically executes native SQL commands (`SET GLOBAL group_replication_bootstrap_group=ON`, `CHANGE REPLICATION SOURCE TO ... FOR CHANNEL 'group_replication_recovery'`) via the `mysql` CLI to rebuild the cluster quorum. You do not need to intervene.
 

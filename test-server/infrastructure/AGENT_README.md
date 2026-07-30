@@ -4,9 +4,9 @@
 
 _Updated: July 2026_
 
-This guide explains how to spin up, manage, and troubleshoot the derived MySQL test server ecosystem (InnoDB Cluster, Redis, MySQL Router, ProxySQL) for `mysql-mcp`.
+This guide explains how to spin up, manage, and troubleshoot the global unified database ecosystem (InnoDB Cluster, PostgreSQL, MongoDB, Redis, MySQL Router, ProxySQL) designed for the Adamic architecture.
 
-> **Note on Datadog:** This environment includes full Datadog Agent monitoring with host-level system metrics (CPU, memory, disk, I/O, load, network), Docker container monitoring, process collection, eBPF system-probe (network performance monitoring), APM tracing, and database integrations (MySQL, Redis, ProxySQL). Native Prometheus and Grafana are also available as secondary observability.
+> **Note on Datadog:** This environment includes full Datadog Agent monitoring with host-level system metrics (CPU, memory, disk, I/O, load, network), Docker container monitoring, process collection, eBPF system-probe (network performance monitoring), APM tracing, and database integrations (MySQL, PostgreSQL, MongoDB, Redis, ProxySQL). Native Prometheus and Grafana are also available as secondary observability.
 
 ---
 
@@ -15,15 +15,15 @@ This guide explains how to spin up, manage, and troubleshoot the derived MySQL t
 The entire process of tearing down, spinning up the containers, and bootstrapping Group Replication is automated and idempotent.
 
 ```powershell
-cd test-server/infrastructure
+cd docs/unified-database-ecosystem
 node scripts/recreate-ecosystem.mjs
 ```
 
 This single self-contained script handles the entire lifecycle:
-- Dynamically discover all services from `docker-compose.yml` (no hardcoded container lists).
-- Forcefully clean up orphaned containers to prevent naming collisions.
-- Tear down the existing cluster and volumes (`docker compose down -v`).
-- Start the fresh containers (`docker compose up -d --build`).
+- `recreate-ecosystem.mjs`: Single self-contained script that automates the entire lifecycle: dynamic container discovery, orphaned container cleanup, teardown, startup, InnoDB Cluster bootstrap (with retry/healing), and database seeding.
+- `check-status.mjs`: Dynamically discovers containers from `docker-compose.yml` and validates their health, plus checks the InnoDB Cluster quorum and identifies primary read-only locks.
+- `reset-database.mjs`: Drops and recreates the `testdb` for E2E testing on `mysql-node1`. Catches `super_read_only` locks and aborts.
+- `heal-primary.mjs`: Un-sticks the primary node from a `super_read_only` lock by cycling the cluster primary election. Run this if `reset-database.mjs` fails due to a read-only lock.
 - Wait for all MySQL nodes to be healthy (up to 60 retries).
 - Bootstrap the InnoDB Cluster: create on primary, add secondaries with clone recovery.
 - Auto-heal with `rebootClusterFromCompleteOutage()` if the cluster appears unstable.
@@ -44,7 +44,7 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                    Docker Network: infrastructure_default                      │
+│                    Docker Network: infrastructure_default                     │
 │                                                                              │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐                       │
 │  │ mysql-node1  │  │ mysql-node2  │  │ mysql-node3  │                       │
@@ -58,8 +58,8 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │                      ▼                                                       │
 │            ┌──────────────────┐           ┌──────────────┐                   │
 │            │   MySQL Router   │           │   ProxySQL   │                   │
-│            │ RW: 6446 RO:6447 │           │ Admin: 6032  │                   │
-│            │ REST API: 8443   │           │ Data:  6033  │                   │
+│            │ RW:6446 RO:6447  │           │ Admin: 6032  │                   │
+│            │ XRO:6448 API:8443│           │ Data:  6033  │                   │
 │            └──────────────────┴───────────┴──────────────┘                   │
 │                                                                              │
 │            ┌──────────────────┐           ┌──────────────┐                   │
@@ -70,12 +70,12 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │            ┌──────────────────┐           ┌──────────────┐                   │
 │            │       Loki       │           │   Promtail   │                   │
 │            │   Port: 3100     │           │  (Internal)  │                   │
-│            └──────────────────┴───────────┴──────────────┘                   │
+│            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
-│                           ┌──────────────┐                                   │
-│                           │ Redis Server │                                   │
-│                           │  Port: 6379  │                                   │
-│                           └──────────────┘                                   │
+│       ┌──────────────┐   ┌────────────────┐   ┌──────────────┐               │
+│       │ Redis Server │   │ Postgres Server│   │ Mongo Server │               │
+│       │  Port: 6379  │   │  (planned)     │   │  (planned)   │               │
+│       └──────────────┘   └────────────────┘   └──────────────┘               │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -134,6 +134,8 @@ docker logs -f cluster-healer
 | Adminer (DB UI) | `http://localhost:8081` (Server: `mysql-node1`, User: `root`, Pass: `root`) |
 | ProxySQL Admin | `localhost:6032` |
 | Redis | `localhost:6379` |
+| PostgreSQL (planned) | `localhost:5432` |
+| MongoDB (planned) | `localhost:27017` |
 | Datadog AI Efficiency | `https://app.datadoghq.com/dashboard/q48-mq9-3i7` (Tracks `mysql-mcp` cache, pool metrics, and error rates) |
 | Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` (Includes the **MySQL-MCP Audit Log** widget `source:mysql_mcp log_type:mcp_audit`) |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
@@ -149,7 +151,7 @@ docker logs -f cluster-healer
 This environment runs on **native `docker-ce` inside WSL2 Ubuntu** (no Docker Desktop). WSL2 has a known failure mode where the distro instance is terminated when no Windows-side WSL client sessions are holding it open, which kills Docker and all containers.
 
 ### Keepalive Mechanism
-A Windows Scheduled Task (`WSL-KeepAlive`) runs at user logon. It executes `scripts/wsl-keepalive.vbs`, which launches `wsl.exe -d Ubuntu-24.04 --exec sleep infinity` with a hidden window. This holds the distro alive indefinitely.
+A Windows Scheduled Task (`WSL-KeepAlive`) runs at user logon. It executes a dynamically generated `wsl-keepalive.vbs` script (stored in `%LOCALAPPDATA%\adamic`), which launches `wsl.exe -d Ubuntu-24.04 --exec sleep infinity` with a hidden window. This holds the distro alive indefinitely.
 
 ### Diagnosing Crashes
 If containers are cycling (green → red → green repeatedly) or `mysql-router` is stuck in an initialization loop failing to join the cluster:
@@ -166,7 +168,7 @@ If containers are cycling (green → red → green repeatedly) or `mysql-router`
 | `C:\Users\chris\.wslconfig` | WSL2 VM config: memory, swap, `vmIdleTimeout=-1` |
 | `/etc/docker/daemon.json` | Docker storage driver, log rotation |
 | `/etc/systemd/system/wsl-keepalive.service` | Backup in-distro keepalive (defense-in-depth) |
-| `scripts/wsl-keepalive.vbs` | Hidden launcher for the Windows Scheduled Task |
+| `scripts/register-wsl-keepalive.ps1` | Registers Scheduled Task to prevent WSL suspension (dynamically generates VBS wrapper) |
 
 ### Windows Firewall & Prometheus Scraping
 When Prometheus runs inside WSL and needs to scrape `mysql-mcp` running on the Windows host, the default WSL virtual network adapter (`192.168.48.1`) often blocks incoming traffic due to the Windows Firewall "Public" profile. To bypass this frictionlessly, `docker-compose.yml` maps `host.docker.internal` to the Windows physical adapter IP (`192.168.1.70` by default via `${WINDOWS_HOST_IP:-192.168.1.70}`).
