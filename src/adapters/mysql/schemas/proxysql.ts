@@ -279,6 +279,9 @@ export const ProxySQLLimitInputSchemaBase = z.object({
     .optional()
     .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
   count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  top: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  rows: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
 }).loose();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
@@ -288,10 +291,16 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     const result = { ...(val as Record<string, unknown>) };
     
     // Anti-hallucination: agents might guess 'count' instead of 'limit'
-    if (result["count"] !== undefined && result["limit"] === undefined) {
-      result["limit"] = result["count"];
+    if (result["limit"] === undefined) {
+      if (result["count"] !== undefined) result["limit"] = result["count"];
+      else if (result["max"] !== undefined) result["limit"] = result["max"];
+      else if (result["top"] !== undefined) result["limit"] = result["top"];
+      else if (result["rows"] !== undefined) result["limit"] = result["rows"];
     }
     delete result["count"];
+    delete result["max"];
+    delete result["top"];
+    delete result["rows"];
 
     const limit = result["limit"];
     if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
