@@ -293,8 +293,21 @@ export class MetricsRegistry {
 
   private loadHistorical(): void {
     if (!this.systemDb) return;
+    
+    let db = null;
     try {
-      const db = this.systemDb.getDb();
+      db = this.systemDb.getDb();
+    } catch (e) {
+      // If DB fails to initialize, db remains null
+    }
+
+    let parsedLiveRows: { tool: string; live_calls: number; live_errors: number; live_tokens: number }[] = [];
+    let snapshotCallBaselines = new Map<string, number>();
+    let snapshotTokenBaselines = new Map<string, number>();
+    let since = "1970-01-01T00:00:00.000Z";
+
+    if (db) {
+      try {
 
       // --- Phase 1: Snapshot baselines (max persisted value per tool) ---
       const rows = db
@@ -355,9 +368,13 @@ export class MetricsRegistry {
         )
         .all(since);
 
-      let parsedLiveRows = z.array(LiveRowSchema).parse(liveRows);
+      parsedLiveRows = z.array(LiveRowSchema).parse(liveRows);
+      } catch (err) {
+        logger.warn("Failed to load historical metrics from SQLite", { error: err instanceof Error ? err.message : String(err) });
+      }
+    }
 
-      // 🛠️ AUTONOMOUS HEALING: Fallback to reading the JSONL file if SQLite audit_logs is empty
+    // 🛠️ AUTONOMOUS HEALING: Fallback to reading the JSONL file if SQLite audit_logs is empty
       // This is crucial for IDEs on Windows that fail to initialize SystemDb (due to native bindings)
       // but successfully write to mcp-audit.jsonl. The dockerized exporter can read the JSONL to bridge the gap.
       if (parsedLiveRows.length === 0) {
@@ -427,6 +444,8 @@ export class MetricsRegistry {
         metric.tokens = Math.max(metric.tokens, tokensBaseline + row.live_tokens);
       }
 
+    if (db) {
+      try {
       // --- Phase 2.5: Compute latency percentiles directly from audit_logs ---
       // audit_logs stores durationMs for every call, giving us the raw distribution
       // needed for accurate percentiles — independent of the 5-minute flush cycle.
@@ -465,7 +484,7 @@ export class MetricsRegistry {
       }
 
       logger.info(
-        `Loaded historical metrics for ${rows.length} tools` +
+        `Loaded historical metrics for ${snapshotCallBaselines.size} tools` +
         (parsedLiveRows.length > 0 ? `, ${parsedLiveRows.length} with live audit data since ${since}` : ``),
       );
 
@@ -517,10 +536,11 @@ export class MetricsRegistry {
         }
         metric.reads = Math.max(metric.reads, row.max_reads);
       }
-    } catch (err) {
-      logger.warn("Failed to load historical metrics", {
-        error: err instanceof Error ? err.message : String(err),
-      });
+      } catch (err) {
+        logger.warn("Failed to load historical percentiles/cache metrics", {
+          error: err instanceof Error ? err.message : String(err),
+        });
+      }
     }
   }
 

@@ -109,8 +109,8 @@ export class McpServer {
         const dbPath = this.config.auditConfig.logPath.replace(/\.jsonl$/, '') + '.sqlite';
         const db = new SystemDb({ dbPath });
         this.systemDb = db;
+        metrics.setSystemDb(db);
         this.systemDbInitPromise = db.init().then(() => {
-          metrics.setSystemDb(db);
           this.auditLogger?.setSystemDb(db);
         }).catch((err: unknown) => {
           logger.error("Failed to initialize SystemDb", { error: String(err) });
