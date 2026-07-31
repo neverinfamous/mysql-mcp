@@ -114,7 +114,7 @@ export function createSysSchemaStatsTool(
         // P154: Schema existence check when explicitly provided
         if (schema) {
           const schemaCheck = await adapter.executeQuery(
-            "SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?",
+            "WITH sys_query AS (SELECT schema_name FROM information_schema.schemata WHERE schema_name = ?) SELECT * FROM sys_query",
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
@@ -131,7 +131,7 @@ export function createSysSchemaStatsTool(
         let resolvedSchema = schema;
         if (!resolvedSchema) {
           const dbResult = await adapter.executeQuery(
-            "SELECT DATABASE() as db",
+            "WITH sys_query AS (SELECT DATABASE() as db) SELECT * FROM sys_query",
           );
           const rows = dbResult.rows ?? [];
           const dbRow = rows[0];
