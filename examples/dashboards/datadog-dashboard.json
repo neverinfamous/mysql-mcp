@@ -378,7 +378,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the `--audit-reads` flag.",
+        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÂ `--audit-reads`Â flag.",
         "legend_columns": [
           "avg",
           "sum",
@@ -502,7 +502,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the `--audit-reads` flag.",
+        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÂ `--audit-reads`Â flag.",
         "legend_columns": [
           "avg",
           "min",
@@ -644,7 +644,7 @@
     },
     {
       "definition": {
-        "description": "Note: The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the `--audit-reads` flag.\"",
+        "description": "Note: The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÂ `--audit-reads`Â flag.\"",
         "requests": [
           {
             "columns": [
