@@ -3,7 +3,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { ExtensionNotAvailableError } from "../../../../../types/index.js";
+import { ExtensionNotAvailableError, QueryError } from "../../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -93,7 +93,7 @@ export function createClusterInstancesTool(
               ? primaryError.message
               : String(primaryError);
           return formatHandlerErrorResponse(
-            new Error(
+            new QueryError(
               `Primary Error: ${primaryMsg}. Fallback Error: ${fallbackMsg}`,
             ),
           );
