@@ -12,6 +12,12 @@
   "stateless": false,
   "authToken": "your-secure-auth-token",
   "metricsExport": "prometheus",
+  "cors": {
+    "origins": [
+      "https://trusted-client.example.com"
+    ],
+    "allowCredentials": true
+  },
   "toolFilter": "starter",
   "allowedIoRoots": [
     "C:/temp/mcp-sandbox",

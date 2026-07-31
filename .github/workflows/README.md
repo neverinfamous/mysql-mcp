@@ -148,7 +148,7 @@ The `lint-and-test`, `codeql`, `secrets-scanning`, and `security-update (Trivy)`
 | `GITHUB_TOKEN`    | codeql, secrets-scanning, security-update | Git operations and agent authorization |
 | `GH_AW_GITHUB_MCP_SERVER_TOKEN`| ci-health-monitor | Agent authorization            |
 | `GH_AW_GITHUB_TOKEN` | ci-health-monitor         | Agent authorization            |
-| `COPILOT_GITHUB_TOKEN`| ci-health-monitor        | GitHub Copilot CLI engine authorization for agentic workflows |
+| `COPILOT_GITHUB_TOKEN`| ci-health-monitor        | gh copilot engine authorization for agentic workflows |
 | `NPM_TOKEN`       | publish-npm                | npm registry authentication  |
 | `DOCKER_USERNAME` | docker-publish             | Docker Hub login             |
 | `DOCKER_PASSWORD` | docker-publish             | Docker Hub login             |

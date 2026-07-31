@@ -122,7 +122,7 @@ When reviewing PRs, check for:
 - [ ] No `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
 - [ ] Verify the author has run tests locally (e.g., via `pnpm run check`)
 - [ ] Dual-Schema Pattern enforcement
-- [ ] Ensure Docker instructions use `:latest` tag for user-facing pulls in `DOCKER_README.md` (infrastructure files must use explicit version tags) and use exact account names (`writenotenow` and `neverinfamous`)
+- [ ] Ensure Docker instructions use `:latest` tag for user-facing pulls in `DOCKER_README.md` (infrastructure files must use explicit version tags) and use exact account names (Docker Hub uses 'writenotenow' and GitHub uses 'neverinfamous')
 - [ ] Avoid using 'any' (use 'unknown' instead) and prefer union types over enums.
 - [ ] Add prominent Value Proposition at the top to standard README.md and Wikis. Use active voice, benefit-driven headers, and concise sentences (<15 words).
 - [ ] CRITICAL: Never add marketing tone to AGENT_README.md or SKILL.md files.

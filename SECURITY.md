@@ -1,7 +1,7 @@
 # 🔒 Security Policy
 
 
-MySQL MCP implements security controls for database connections. It supports stdio and HTTP transports, utilizing MCP v2 stateless architecture with defense-in-depth security measures.
+MySQL MCP implements security controls for database connections. It supports stdio and HTTP transports. It utilizes MCP v2 stateless architecture.
 
 ## 🛡️ **Defend Your Database Infrastructure**
 

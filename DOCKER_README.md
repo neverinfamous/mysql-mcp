@@ -96,7 +96,7 @@ docker run -i --rm -v ./data:/app/data writenotenow/mysql-mcp:latest \
 
 #### Observability via Docker Compose
 
-Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, a local MySQL test database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`.
+Launch the minimal root-level observability stack using the included `docker-compose.yml` file. This spins up the MCP server, MySQL database, and a Redis container. It includes a pre-configured Prometheus and Grafana observability stack. Note that this configuration overrides `MCP_RATE_LIMIT_MAX` to `10000`.
 
 > **Linux Users:** For `host.docker.internal` on Linux, add `extra_hosts: - "host.docker.internal:host-gateway"` to your `docker-compose.yml` services.
 
@@ -214,7 +214,7 @@ See the [OAuth Wiki](https://github.com/neverinfamous/mysql-mcp/wiki/OAuth) for 
 
 ### Configure IDE Settings
 
-Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mcp_settings.json`, `.cursor/mcp.json`, or equivalent):
+Add a configuration to your IDE's MCP settings file.
 
 #### Option 1: Code Mode (Maximum Token Savings, 🌟 Recommended)
 
@@ -275,7 +275,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 ## 🛠️ Optimize Limits with Tool Filtering
 
-Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter starter` or `--tool-filter core,json,-codemode`).
+Use predefined tool bundles to stay within IDE tool limits. Example: `--tool-filter starter`.
 
 ### Review Syntax Reference
 

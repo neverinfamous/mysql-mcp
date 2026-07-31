@@ -34,7 +34,7 @@ MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST
 
 - **Absolute Parameterization**: You MUST ALWAYS use parameterized queries (`?`). Under zero circumstances are you permitted to string-interpolate or concatenate variables into a raw SQL string. This is to enforce strict SQL-injection prevention.
 - **Guarded Reads**: Every top-level `SELECT` statement MUST contain a `LIMIT` clause. Never use `SELECT *` in production code; always enumerate required columns explicitly.
-- **Safe Destructive Ops**: `DELETE` and `UPDATE` queries MUST include a `WHERE` clause.
+- **Safe Destructive Ops**: `DELETE` and `UPDATE` queries without a `WHERE` clause MUST require explicit user confirmation before execution.
 - **DDL Destructive Ops**: `TRUNCATE TABLE`, `DROP TABLE`, `DROP DATABASE`, `ALTER TABLE ... DROP COLUMN`, and `ALTER TABLE ... RENAME COLUMN` MUST require explicit user confirmation before execution. Never infer intent for these.
 - **Action Scoping**: Limit operations to single-statements. Do not stack multiple statements (`query1; query2;`) in a single payload unless executing a batch migration.
 

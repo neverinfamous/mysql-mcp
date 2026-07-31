@@ -463,7 +463,7 @@ Add a configuration to your IDE's MCP settings file:
 
 **Customization Notes:**
 
-- Replace `/path/to/mysql-mcp/` with your actual installation path (only needed when building from source or running local file paths directly via Node)
+- Replace `/path/to/mysql-mcp/` with your actual installation path. This is only needed when building from source. It is also required when running local files directly.
 - Update credentials with your actual values
 - For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
 - For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell\\bin\\mysqlsh.exe"`
@@ -537,7 +537,7 @@ Use the remote hostname directly:
 ## 🛠️ Optimize Limits with Tool Filtering
 
 > [!IMPORTANT]
-> **AI IDEs like Cursor have tool limits (typically 40-50 tools). With an extensive suite of specialized tools available, tool filtering ensures compatibility with IDE limits.** All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
+> **AI IDEs like Cursor have tool limits (typically 40-50 tools). Filter tools to ensure compatibility with IDE limits. We offer many specialized tools.** All shortcuts and tool groups include **Code Mode** by default. To exclude it, add `-codemode` to your filter: `--tool-filter core,json,-codemode`
 
 ### Discover Filtering Options
 

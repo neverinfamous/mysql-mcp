@@ -30,7 +30,7 @@ The `mysql-mcp` server is a Model Context Protocol server for MySQL that offers 
 ## 2. Operational Directives
 
 - **Code Mode Priority**: **\[ALWAYS\]** prefer using `mysql_execute_code` (Code Mode) for multi-step database operations to dramatically reduce token overhead.
-- **Code Mode Safety**: Code Mode does **NOT** bypass destructive-operation safety gates. `DROP`, `TRUNCATE`, `DELETE` without `WHERE`, and `ALTER TABLE ... DROP COLUMN` executed inside Code Mode scripts MUST still require explicit user confirmation before the script is submitted.
+- **Code Mode Safety**: Code Mode does **NOT** bypass destructive-operation safety gates. `DROP`, `TRUNCATE`, `DELETE` without `WHERE`, `DROP DATABASE`, `ALTER TABLE ... DROP COLUMN`, and `ALTER TABLE ... RENAME COLUMN` executed inside Code Mode scripts MUST still require explicit user confirmation before the script is submitted.
 - **Tool Filtering**: Due to IDE limits, you cannot load all tools at once. **\[ALWAYS\]** use tool filtering (e.g., `--tool-filter starter` or `--tool-filter codemode`) when deploying or instructing the user on setup.
 - **Connection Safety**: **\[ALWAYS\]** respect strict schema configurations (like `STRICT_TRANS_TABLES`) and use parameterized queries, even when executing scripts within Code Mode.
 
