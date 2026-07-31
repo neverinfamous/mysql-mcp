@@ -573,7 +573,7 @@ The `--tool-filter` argument accepts **shortcuts**, **groups**, or **tool names*
 
 ### Filter by Tool Groups
 
-> Note: Tool counts below do NOT include Code Mode (`mysql_execute_code`), which is automatically added to all groups.
+> Note: Code Mode (`mysql_execute_code`) is automatically added to all groups.
 
 | Group | Description |
 |---|---|
