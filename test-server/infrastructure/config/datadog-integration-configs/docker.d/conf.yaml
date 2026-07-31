@@ -38,4 +38,5 @@ instances:
       - source:wsl2
     service: docker
     min_collection_interval: 15
+    reported_hostname: adamic-wsl2
 

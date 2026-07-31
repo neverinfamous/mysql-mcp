@@ -12,3 +12,4 @@ instances:
     max_returned_metrics: 10000
     metrics:
       - '.*'
+    reported_hostname: adamic-wsl2

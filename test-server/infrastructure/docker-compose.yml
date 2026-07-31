@@ -289,7 +289,7 @@ services:
       - 'com.datadoghq.ad.instances=[{"prometheus_url":
         "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics":
         ["mysql_mcp*"], "max_returned_metrics": 10000, "timeout": 15}]'
-      - 'com.datadoghq.ad.logs=[{"source":"mysql-mcp","service":"mysql-mcp-exporter"}]'
+      - 'com.datadoghq.ad.logs=[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
   dozzle:
     image: amir20/dozzle:v10.6.14

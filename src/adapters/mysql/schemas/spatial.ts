@@ -156,15 +156,31 @@ export const PointSchema = z.preprocess(
     if (typeof val !== "object" || val === null) return val ?? {};
     const data = { ...(val as Record<string, unknown>) };
     
-    // Explicitly handle empty strings, nulls, and undefined
     let lon = data["longitude"];
+    let lat = data["latitude"];
+    
+    // Explicitly handle empty strings, nulls, and undefined
     if (lon === undefined || lon === null || lon === "") {
         lon = data["lon"] !== undefined && data["lon"] !== null && data["lon"] !== "" ? data["lon"] : data["lng"];
     }
     
-    let lat = data["latitude"];
     if (lat === undefined || lat === null || lat === "") {
         lat = data["lat"];
+    }
+
+    const pt = data["point"] ?? data["wkt"];
+    if ((lon === undefined || lat === undefined) && typeof pt === "string") {
+        const match = /POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*\)/i.exec(pt);
+        if (match) {
+            lon = Number(match[1]);
+            lat = Number(match[2]);
+        }
+    }
+    
+    const coords = data["coordinates"] ?? data["point"];
+    if ((lon === undefined || lat === undefined) && Array.isArray(coords) && coords.length >= 2) {
+        lon = Number(coords[0]);
+        lat = Number(coords[1]);
     }
 
     return { ...data, longitude: lon, latitude: lat };
