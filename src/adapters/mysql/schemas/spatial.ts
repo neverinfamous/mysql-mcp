@@ -27,7 +27,7 @@ export function isValidWKT(wkt: string): boolean {
   const content = match[2];
   
   if (!VALID_GEOMETRY_TYPES.has(type)) return false;
-  if (!/^[-\d.,\s()]*$/.test(content)) return false;
+  if (!/^[-\d.,\s()A-Za-z]*$/.test(content)) return false;
   
   if (type === "POINT") {
     return /^[-+]?\d*\.?\d+\s+[-+]?\d*\.?\d+$/.test(content.trim());
