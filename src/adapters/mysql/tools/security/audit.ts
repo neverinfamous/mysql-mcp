@@ -286,9 +286,10 @@ export function createSecurityFirewallStatusTool(
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if firewall plugin is installed
-        const pluginResult = await adapter.executeQuery(`
-                    SHOW PLUGINS
-                `);
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_NAME as Name, PLUGIN_STATUS as Status FROM information_schema.PLUGINS WHERE PLUGIN_NAME LIKE ?",
+          ["%firewall%"]
+        );
 
         const plugins = (pluginResult.rows ?? []).filter(row => {
           const r = row;
@@ -356,9 +357,10 @@ export function createSecurityFirewallRulesTool(
         const { limit, user, mode } = FirewallRulesSchema.parse(params);
 
         // Check if firewall plugin is installed
-        const pluginResult = await adapter.executeQuery(`
-                    SHOW PLUGINS
-                `);
+        const pluginResult = await adapter.executeQuery(
+          "SELECT PLUGIN_NAME as Name, PLUGIN_STATUS as Status FROM information_schema.PLUGINS WHERE PLUGIN_NAME LIKE ?",
+          ["%firewall%"]
+        );
 
         const plugins = (pluginResult.rows ?? []).filter(row => {
           const r = row;
