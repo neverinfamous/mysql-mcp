@@ -310,49 +310,48 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               new ValidationError("Invalid schema name")
             );
 
-          // Pre-checks removed to prevent ProxySQL hostgroup locking (HG1 poisoning)
-          // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
+          // We use SHOW statements to avoid ProxySQL hostgroup locking that can happen with information_schema
+          // Get accurate row count using COUNT(*) can also fail if the connection is locked, so we use SHOW TABLE STATUS
 
-          // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
-          const schemaClause = schema
-            ? `\`${schema}\`.\`${collection}\``
-            : `\`${collection}\``;
-          const countResult = await adapter.executeQuery(
-            `SELECT COUNT(*) as rowCount FROM ${schemaClause}`,
-          );
-          const countFirstRow = countResult.rows?.[0];
-          const rowCount =
-            countFirstRow && typeof countFirstRow === "object" && "rowCount" in countFirstRow
-              ? Number(countFirstRow["rowCount"])
-              : 0;
-
-          const tableInfo = await adapter.executeQuery(
-            `
-                    SELECT DATA_LENGTH as dataSize, INDEX_LENGTH as indexSize
-                    FROM information_schema.TABLES
-                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?
-                `,
-            [schema ?? null, collection],
+          const schemaPrefix = schema ? `FROM \`${schema}\` ` : '';
+          const tableStatus = await adapter.executeQuery(
+            `SHOW TABLE STATUS ${schemaPrefix}LIKE ?`,
+            [collection]
           );
 
-          const indexInfo = await adapter.executeQuery(
-            `
-                    SELECT INDEX_NAME, COLUMN_NAME, SEQ_IN_INDEX, NON_UNIQUE
-                    FROM information_schema.STATISTICS
-                    WHERE TABLE_SCHEMA = COALESCE(?, DATABASE()) AND TABLE_NAME = ?
-                `,
-            [schema ?? null, collection],
+          if (!tableStatus.rows || tableStatus.rows.length === 0) {
+            return formatHandlerErrorResponse(new Error(`Collection '${collection}' does not exist`));
+          }
+
+          const stats = tableStatus.rows[0];
+          const rowCount = stats && typeof stats === 'object' && 'Rows' in stats ? Number(stats['Rows']) : 0;
+          const dataSize = stats && typeof stats === 'object' && 'Data_length' in stats ? Number(stats['Data_length']) : 0;
+          const indexSize = stats && typeof stats === 'object' && 'Index_length' in stats ? Number(stats['Index_length']) : 0;
+
+          const tableRef = schema ? `\`${schema}\`.\`${collection}\`` : `\`${collection}\``;
+          const keysResult = await adapter.executeQuery(
+            `SHOW KEYS FROM ${tableRef}`
           );
 
-          const stats = tableInfo.rows?.[0] ?? {};
+          const indexes = (keysResult.rows ?? []).map(row => {
+            const r = row;
+            return {
+              INDEX_NAME: r['Key_name'],
+              COLUMN_NAME: r['Column_name'],
+              SEQ_IN_INDEX: r['Seq_in_index'],
+              NON_UNIQUE: r['Non_unique']
+            };
+          });
+
           return withTokenEstimate({
             success: true,
             data: {
               collection,
               info: {
                 rowCount,
-                ...stats,
-                indexes: indexInfo.rows ?? [],
+                dataSize,
+                indexSize,
+                indexes,
               },
             },
           });
