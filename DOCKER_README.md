@@ -30,7 +30,7 @@ Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
-| **MCP v2 Compliant**                | Fully support the MCP v2 specification, including stateless HTTP routing headers, caching controls, tool safety hints, and progress notifications. |
+| **MCP v2 Compliant**                | Fully support the MCP v2 specification. This includes stateless routing, caching, safety hints, and notifications. |
 
 ## 🤖 Automate Tasks with Guided Workflows
 
@@ -142,7 +142,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 
 ### Review Performance Benchmarks
 
-The server handles millions of ops/sec across core execution paths, ensuring minimal latency and maximal throughput. From blazing-fast sandbox cold starts to highly optimized reverse lookups, every component is tuned for enterprise-scale workloads.
+The server handles millions of ops/sec across core execution paths. This ensures minimal latency and maximum throughput. Every component is tuned for enterprise-scale workloads. Enjoy sub-millisecond sandbox cold starts and optimized reverse lookups.
 
 ### ⚡ Run Only Code Mode
 

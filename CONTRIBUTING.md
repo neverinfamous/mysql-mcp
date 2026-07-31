@@ -3,7 +3,7 @@
 
 Thank you for contributing to mysql-mcp. Help us build a robust, enterprise-grade AI-database integration. Your contributions make mysql-mcp faster, secure, and more powerful for mission-critical deployments.
 
-## 🚀 Accelerate Your First Contribution
+## 🚀 Fast-Track Your First Contribution
 
 1. **Fork the repository** on GitHub
 2. **Clone your fork** locally

@@ -19,6 +19,10 @@
     {
       "registryType": "npm",
       "identifier": "@neverinfamous/mysql-mcp",
+      "args": [
+        "--transport",
+        "stdio"
+      ],
       "transport": {
         "type": "stdio"
       }

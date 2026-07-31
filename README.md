@@ -30,7 +30,7 @@ Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
 | **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
-| **MCP v2 Compliant**                | Fully support the MCP v2 specification, including stateless HTTP routing headers, caching controls, tool safety hints, and progress notifications. |
+| **MCP v2 Compliant**                | Fully support the MCP v2 specification. This includes stateless routing, caching, safety hints, and notifications. |
 
 ---
 
@@ -151,7 +151,7 @@ node dist/cli.js --transport stdio --mysql "mysql://mcp_user:secure_password@loc
 
 ## 🏗️ Use Infrastructure Templates
 
-If you need a MySQL environment to test or run the MCP server against, we provide production-ready Docker Compose templates in the [`examples/`](examples) directory. These templates include full Datadog observability out-of-the-box (Metrics, APM, and Logs).
+We provide production-ready Docker Compose templates in the [`examples/`](examples) directory. Use these to spin up test environments quickly. These templates include full Datadog observability out-of-the-box (Metrics, APM, and Logs).
 
 - **[Basic Template](examples/basic-mysql-datadog):** A lightweight, single-node MySQL setup. Perfect for quick starts.
 - **[Enterprise HA Template](examples/enterprise-ha-mysql):** A highly-available InnoDB Cluster with MySQL Router and ProxySQL. Perfect for staging or production replicas.
@@ -666,7 +666,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 ### Review Performance Benchmarks
 
-The server handles millions of ops/sec across core execution paths, ensuring minimal latency and maximal throughput. From blazing-fast sandbox cold starts to highly optimized reverse lookups, every component is tuned for enterprise-scale workloads.
+The server handles millions of ops/sec across core execution paths. This ensures minimal latency and maximum throughput. Every component is tuned for enterprise-scale workloads. Enjoy sub-millisecond sandbox cold starts and optimized reverse lookups.
 
 | Variable                    | Default  | Description                                                         |
 | --------------------------- | -------- | ------------------------------------------------------------------- |

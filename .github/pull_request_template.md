@@ -33,10 +33,10 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have avoided `continue-on-error: true` in workflow files (except Agentic .lock.yml files).
 - [ ] I have run tests locally (e.g., via `pnpm run check`)
 - [ ] I have enforced the Dual-Schema Pattern
-- [ ] I have ensured Docker instructions use `:latest` tag in `DOCKER_README.md` and use exact account names (`writenotenow` and `neverinfamous`)
+- [ ] I have ensured Docker instructions use `:latest` tag for user-facing pulls in `DOCKER_README.md` (infrastructure files must use explicit version tags) and use exact account names (`writenotenow` and `neverinfamous`)
 - [ ] I have avoided using 'any' (used 'unknown' instead) and preferred union types over enums.
 - [ ] I have added a prominent Value Proposition at the top to the standard README.md and Wikis. I used active voice, benefit-driven headers, and concise sentences (<15 words).
-- [ ] I have not added any marketing tone to AGENT_README.md
+- [ ] I have not added any marketing tone to AGENT_README.md or SKILL.md files
 - [ ] I have ensured the Docker readme is <= 25,000 chars and dynamically updated test badges are preserved.
 - [ ] I have ensured table-querying tools return `{exists: false, table}` for nonexistent tables
 - [ ] I have correctly configured the file system sandbox to enforce `ALLOWED_IO_ROOTS` (if applicable)
