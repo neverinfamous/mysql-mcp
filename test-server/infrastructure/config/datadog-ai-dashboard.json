@@ -10,6 +10,97 @@
     {
       "definition": {
         "autoscale": true,
+        "precision": 2,
+        "requests": [
+          {
+            "aggregator": "sum",
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#0b4107",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Total Tokens Used",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 3208252485683038,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "precision": 0,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#173b07",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "default_zero(a) / (default_zero(b) + 0.0000001)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "a",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "b",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Avg Tokens / Call",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 4078349398291238,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 2,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
         "description": "Amounts under a penny will show in scientific notation.",
         "precision": 2,
         "requests": [
@@ -48,7 +139,7 @@
       "layout": {
         "height": 2,
         "width": 2,
-        "x": 0,
+        "x": 4,
         "y": 0
       }
     },
@@ -93,7 +184,7 @@
       "layout": {
         "height": 2,
         "width": 2,
-        "x": 2,
+        "x": 6,
         "y": 0
       }
     },
@@ -138,7 +229,7 @@
       "layout": {
         "height": 2,
         "width": 2,
-        "x": 4,
+        "x": 8,
         "y": 0
       }
     },
@@ -180,95 +271,6 @@
         "type": "query_value"
       },
       "id": 3867370951191716,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 6,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "autoscale": true,
-        "description": "Amounts under a penny will show in scientific notation.",
-        "precision": 2,
-        "requests": [
-          {
-            "aggregator": "sum",
-            "conditional_formats": [
-              {
-                "comparator": "\u003e=",
-                "custom_bg_color": "#0c4008",
-                "palette": "custom_bg",
-                "value": 0.0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "(((default_zero(query1)) / 1000000) * 30)"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "title": "Total Cost (Claude Fable 5) ($)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 8963360244781651,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 8,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "autoscale": true,
-        "precision": 2,
-        "requests": [
-          {
-            "aggregator": "sum",
-            "conditional_formats": [
-              {
-                "comparator": "\u003e=",
-                "custom_bg_color": "#0b4107",
-                "palette": "custom_bg",
-                "value": 0.0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "default_zero(query1)"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "title": "Total Tokens Used",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 3208252485683038,
       "layout": {
         "height": 2,
         "width": 2,
@@ -448,7 +450,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -473,7 +475,8 @@
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
+        "time": {},
         "title": "ProxySQL Latency Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -507,7 +510,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -532,7 +535,8 @@
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
+        "time": {},
         "title": "ProxySQL Connections Currently Used Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -566,7 +570,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -609,11 +613,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "red"
+              "palette": "blue"
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
+        "time": {},
         "title": "ProxySQL Bytes Received And Sent Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -666,9 +671,10 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
+            "display_type": "line",
             "queries": [
               {
                 "data_source": "metrics",
@@ -680,11 +686,12 @@
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "dog_classic"
+              "palette": "green"
             }
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "ProxySQL Backend Server Active Connections",
         "type": "timeseries"
       },
@@ -709,7 +716,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "bars",
@@ -743,7 +750,8 @@
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
+        "time": {},
         "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
         "title_align": "left",
         "title_size": "16",
@@ -777,7 +785,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -802,7 +810,8 @@
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
+        "time": {},
         "title": "ProxySQL Memory Usage Of Query Cache",
         "title_align": "left",
         "title_size": "16",
@@ -836,7 +845,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -861,7 +870,8 @@
             }
           }
         ],
-        "show_legend": false,
+        "show_legend": true,
+        "time": {},
         "title": "ProxySQL Cache Read Throughput",
         "title_align": "left",
         "title_size": "16",
@@ -885,43 +895,41 @@
     {
       "definition": {
         "autoscale": true,
-        "precision": 0,
+        "description": "Amounts under a penny will show in scientific notation.",
+        "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
             "conditional_formats": [
               {
                 "comparator": "\u003e=",
-                "custom_bg_color": "#173b07",
+                "custom_bg_color": "#0c4008",
                 "palette": "custom_bg",
                 "value": 0.0
               }
             ],
             "formulas": [
               {
-                "formula": "default_zero(a) / (default_zero(b) + 0.0000001)"
+                "formula": "(((default_zero(query1)) / 1000000) * 30)"
               }
             ],
             "queries": [
               {
+                "aggregator": "sum",
                 "data_source": "metrics",
-                "name": "a",
+                "name": "query1",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
-              },
-              {
-                "data_source": "metrics",
-                "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count()"
               }
             ],
             "response_format": "scalar"
           }
         ],
-        "title": "Avg Tokens / Call",
+        "title": "Total Cost (Claude Fable 5) ($)",
         "title_align": "left",
         "title_size": "16",
         "type": "query_value"
       },
-      "id": 4078349398291238,
+      "id": 8963360244781651,
       "layout": {
         "height": 2,
         "is_column_break": true,
@@ -1038,6 +1046,50 @@
         "precision": 2,
         "requests": [
           {
+            "aggregator": "sum",
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#084a0c",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count()"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Cache Hits",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 58392174893021,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 6,
+        "y": 10
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "precision": 2,
+        "requests": [
+          {
             "conditional_formats": [
               {
                 "comparator": "\u003e=",
@@ -1085,50 +1137,6 @@
         "type": "query_value"
       },
       "id": 92384719284751,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 6,
-        "y": 10
-      }
-    },
-    {
-      "definition": {
-        "autoscale": true,
-        "precision": 2,
-        "requests": [
-          {
-            "aggregator": "sum",
-            "conditional_formats": [
-              {
-                "comparator": "\u003e=",
-                "custom_bg_color": "#084a0c",
-                "palette": "custom_bg",
-                "value": 0.0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "default_zero(query1)"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count()"
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "title": "Cache Hits",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 58392174893021,
       "layout": {
         "height": 2,
         "width": 2,
@@ -1206,7 +1214,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -1273,6 +1281,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Connection Pool",
         "title_align": "left",
         "title_size": "16",
@@ -1298,7 +1307,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "line",
@@ -1342,6 +1351,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Cache Performance",
         "title_align": "left",
         "title_size": "16",
@@ -1357,39 +1367,42 @@
     },
     {
       "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "auto",
+        "has_search_bar": "auto",
         "requests": [
           {
-            "display_type": "bars",
             "formulas": [
               {
-                "formula": "default_zero(query1)"
+                "cell_display_mode": "bar",
+                "formula": "query1"
               }
             ],
             "queries": [
               {
+                "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
               }
             ],
-            "response_format": "timeseries"
+            "response_format": "scalar",
+            "sort": {
+              "count": 10,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
           }
         ],
-        "show_legend": true,
-        "title": "Transport Errors (HTTP)",
+        "title": "Errors by Category",
         "title_align": "left",
         "title_size": "16",
-        "type": "timeseries"
+        "type": "query_table"
       },
-      "id": 203565609753301,
+      "id": 203565609753300,
       "layout": {
         "height": 4,
         "width": 4,
@@ -1442,42 +1455,43 @@
     },
     {
       "definition": {
-        "has_search_bar": "auto",
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
         "requests": [
           {
+            "display_type": "bars",
             "formulas": [
               {
-                "cell_display_mode": "bar",
-                "formula": "query1"
+                "formula": "default_zero(query1)"
               }
             ],
             "queries": [
               {
-                "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
               }
             ],
-            "response_format": "scalar",
-            "sort": {
-              "count": 10,
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
+            "response_format": "timeseries"
           }
         ],
-        "title": "Errors by Category",
+        "show_legend": true,
+        "time": {},
+        "title": "Transport Errors (HTTP)",
         "title_align": "left",
         "title_size": "16",
-        "type": "query_table"
+        "type": "timeseries"
       },
-      "id": 203565609753300,
+      "id": 203565609753301,
       "layout": {
         "height": 4,
         "width": 4,
@@ -1497,7 +1511,7 @@
           "value",
           "sum"
         ],
-        "legend_layout": "auto",
+        "legend_layout": "vertical",
         "requests": [
           {
             "display_type": "bars",
@@ -1517,6 +1531,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Agent Quality (Error Classification)",
         "title_align": "left",
         "title_size": "16",

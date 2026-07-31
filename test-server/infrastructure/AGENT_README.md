@@ -137,7 +137,7 @@ docker logs -f cluster-healer
 | PostgreSQL (planned) | `localhost:5432` |
 | MongoDB (planned) | `localhost:27017` |
 | Datadog AI Efficiency | `https://app.datadoghq.com/dashboard/q48-mq9-3i7` (Tracks `mysql-mcp` cache, pool metrics, and error rates) |
-| Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/iae-57y-br7` (Includes the **MySQL-MCP Audit Log** widget `source:mysql_mcp log_type:mcp_audit`) |
+| Datadog Custom Dashboard | `https://app.datadoghq.com/dashboard/qwe-2un-us8` (Includes the **MySQL-MCP Audit Log** widget `source:mysql_mcp log_type:mcp_audit`) |
 | Datadog MySQL Overview | `https://app.datadoghq.com/dash/integration/12/mysql---overview` |
 | Datadog Local Backups | `config/datadog-*.json` (e.g. AI Efficiency, Redis, MySQL) |
 | Datadog Host Map | `https://app.datadoghq.com/infrastructure/map` (look for `adamic-wsl2`) |
