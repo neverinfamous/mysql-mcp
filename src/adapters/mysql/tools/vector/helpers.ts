@@ -1,6 +1,5 @@
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import { ExtensionNotAvailableError, ValidationError, MySQLMcpError } from "../../../../types/modules/errors.js";
-import { ErrorCategory } from "../../../../types/modules/error-types.js";
+import { ExtensionNotAvailableError, ValidationError } from "../../../../types/modules/errors.js";
 
 /**
  * Get MySQL server version
@@ -100,16 +99,7 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
   const sanitizedTable = sanitizeIdentifier(table);
   
   // Use cached describeTable instead of raw SHOW COLUMNS to avoid ProxySQL multiplexing locks
-  let tableInfo;
-  try {
-    tableInfo = await adapter.describeTable(sanitizedTable);
-  } catch {
-    throw new MySQLMcpError(
-      `Table '${sanitizedTable}' does not exist`,
-      "TABLE_NOT_FOUND",
-      ErrorCategory.QUERY
-    );
-  }
+  const tableInfo = await adapter.describeTable(sanitizedTable);
 
   const columns = tableInfo.columns;
   if (!columns || columns.length === 0) {

@@ -294,14 +294,14 @@ const ERROR_SUGGESTIONS: {
   // Connection errors
   // =========================================================================
   {
-    pattern: /not connected/i,
+    pattern: /not connected|ENOTFOUND|ECONNRESET|ETIMEDOUT|EHOSTUNREACH/i,
     suggestion:
       "Database connection not established. Ensure MySQL is configured and connected.",
     category: ErrorCategory.CONNECTION,
     code: "CONNECTION_ERROR",
   },
   {
-    pattern: /Connection refused/i,
+    pattern: /Connection refused|ECONNREFUSED/i,
     suggestion:
       "MySQL server is not accepting connections. Verify the host, port, and that the server is running.",
     category: ErrorCategory.CONNECTION,

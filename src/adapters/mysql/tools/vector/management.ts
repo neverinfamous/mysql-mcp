@@ -35,16 +35,7 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const validated = VectorInfoSchema.parse(params);
 
-        let tableInfo;
-        try {
-          tableInfo = await adapter.describeTable(sanitizeIdentifier(validated.table));
-        } catch {
-          throw new MySQLMcpError(
-            `Table '${validated.table}' does not exist`,
-            "TABLE_NOT_FOUND",
-            ErrorCategory.QUERY
-          );
-        }
+        const tableInfo = await adapter.describeTable(sanitizeIdentifier(validated.table));
 
         await ensureVectorSupport(adapter);
 
@@ -159,15 +150,7 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
         const table = sanitizeIdentifier(validated.table);
         
         // Pre-check table existence to satisfy P154
-        try {
-          await adapter.describeTable(table);
-        } catch {
-          throw new MySQLMcpError(
-            `Table '${table}' does not exist`,
-            "TABLE_NOT_FOUND",
-            ErrorCategory.QUERY
-          );
-        }
+        await adapter.describeTable(table);
 
         await ensureVectorSupport(adapter);
         
