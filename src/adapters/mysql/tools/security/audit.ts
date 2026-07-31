@@ -20,7 +20,7 @@ import type {
   RequestContext,
 } from "../../../../types/index.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
-import { ExtensionNotAvailableError, MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js";
 
 // =============================================================================
 // Helpers
@@ -144,10 +144,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           
         
         const checkResult = await adapter.executeQuery(`
-                    SELECT TABLE_NAME
-                    FROM information_schema.TABLES
-                    WHERE TABLE_SCHEMA = 'mysql'
-                      AND TABLE_NAME = 'audit_log'
+                    SHOW TABLES IN mysql LIKE 'audit_log'
                 `);
 
         if (!checkResult.rows || checkResult.rows.length === 0) {
@@ -251,12 +248,13 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
         if (error instanceof ZodError) {
           return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_audit" });
         }
-        if (error instanceof Error && !(error instanceof MySQLMcpError)) {
+        if (error instanceof Error) {
           const lower = error.message.toLowerCase();
           if (
             lower.includes("does not exist") ||
             lower.includes("access denied") ||
-            lower.includes("er_no_such_table")
+            lower.includes("er_no_such_table") ||
+            lower.includes("proxysql error")
           ) {
             return formatHandlerErrorResponse(
               new ExtensionNotAvailableError("audit_log", { plugin: "MySQL Enterprise Audit or Percona Audit plugin" }),
@@ -289,12 +287,15 @@ export function createSecurityFirewallStatusTool(
       try {
         // Check if firewall plugin is installed
         const pluginResult = await adapter.executeQuery(`
-                    SELECT PLUGIN_NAME, PLUGIN_STATUS
-                    FROM information_schema.PLUGINS
-                    WHERE PLUGIN_NAME LIKE '%firewall%'
+                    SHOW PLUGINS
                 `);
 
-        if (!pluginResult.rows || pluginResult.rows.length === 0) {
+        const plugins = (pluginResult.rows ?? []).filter(row => {
+          const r = row;
+          return typeof r['Name'] === 'string' && !!r['Name'] && r['Name'].toLowerCase().includes('firewall');
+        });
+
+        if (plugins.length === 0) {
           return withTokenEstimate({
             success: true,
             data: {
@@ -356,12 +357,15 @@ export function createSecurityFirewallRulesTool(
 
         // Check if firewall plugin is installed
         const pluginResult = await adapter.executeQuery(`
-                    SELECT PLUGIN_NAME, PLUGIN_STATUS
-                    FROM information_schema.PLUGINS
-                    WHERE PLUGIN_NAME LIKE '%firewall%'
+                    SHOW PLUGINS
                 `);
 
-        if (!pluginResult.rows || pluginResult.rows.length === 0) {
+        const plugins = (pluginResult.rows ?? []).filter(row => {
+          const r = row;
+          return typeof r['Name'] === 'string' && !!r['Name'] && r['Name'].toLowerCase().includes('firewall');
+        });
+
+        if (plugins.length === 0) {
           return withTokenEstimate({
             success: true,
             data: {
