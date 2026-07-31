@@ -75,7 +75,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           const tableRef = escapeTableRef(collection, schema);
-          let query = `SELECT ${selectClause} FROM ${tableRef}`;
+          let query = `(SELECT ${selectClause} FROM ${tableRef}`;
           let queryParams: unknown[] = [];
 
           if (filter) {
@@ -84,7 +84,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             queryParams = whereParams;
           }
 
-          query += ` LIMIT ${String(limit)} OFFSET ${String(offset)}`;
+          query += ` LIMIT ${String(limit)} OFFSET ${String(offset)})`;
 
           const result = await adapter.executeQuery(query, queryParams);
           const docs = (result.rows ?? []).map((r) => {
