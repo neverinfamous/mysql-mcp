@@ -32,4 +32,9 @@ instances:
             type: gauge
         tags:
           - "custom_query:group_replication_lag"
+      - metric_prefix: mysql.cluster
+        query: "SELECT @@super_read_only AS super_read_only"
+        columns:
+          - name: super_read_only
+            type: gauge
 

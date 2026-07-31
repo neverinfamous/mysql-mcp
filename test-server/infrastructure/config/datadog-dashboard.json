@@ -12,7 +12,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Token \u0026 Tool Metrics",
+  "title": "MySQL-MCP Token & Tool Metrics",
   "widgets": [
     {
       "definition": {
@@ -22,7 +22,7 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#133a09",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -378,7 +378,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the `--audit-reads` flag.",
+        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the\u00c2\u00a0`--audit-reads`\u00c2\u00a0flag.",
         "legend_columns": [
           "avg",
           "sum",
@@ -502,7 +502,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the `--audit-reads` flag.",
+        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the\u00c2\u00a0`--audit-reads`\u00c2\u00a0flag.",
         "legend_columns": [
           "avg",
           "min",
@@ -644,7 +644,7 @@
     },
     {
       "definition": {
-        "description": "Note: The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the `--audit-reads` flag.\"",
+        "description": "Note: The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with the\u00c2\u00a0`--audit-reads`\u00c2\u00a0flag.\"",
         "requests": [
           {
             "columns": [
@@ -785,7 +785,7 @@
         "height": 3,
         "width": 4,
         "x": 4,
-        "y": 17
+        "y": 20
       }
     },
     {
@@ -819,6 +819,172 @@
       "id": 7992432021567240,
       "layout": {
         "height": 3,
+        "width": 4,
+        "x": 8,
+        "y": 20
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "q": "max:network.http.can_connect{service:mysql-router,component:rest_api}",
+            "conditional_formats": [
+              {
+                "comparator": ">=",
+                "custom_bg_color": "#e00000",
+                "palette": "custom_bg",
+                "value": 1.0
+              },
+              {
+                "comparator": "==",
+                "custom_bg_color": "#008a00",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ]
+          }
+        ],
+        "title": "REST API",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status",
+        "grouping": "cluster"
+      },
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 0,
+        "y": 17
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "q": "max:network.tcp.can_connect{service:mysql-router,route:rw}",
+            "conditional_formats": [
+              {
+                "comparator": ">=",
+                "custom_bg_color": "#e00000",
+                "palette": "custom_bg",
+                "value": 1.0
+              },
+              {
+                "comparator": "==",
+                "custom_bg_color": "#008a00",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ]
+          }
+        ],
+        "title": "R/W Route (6446)",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status",
+        "grouping": "cluster"
+      },
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 2,
+        "y": 17
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "q": "max:network.tcp.can_connect{service:mysql-router,route:ro}",
+            "conditional_formats": [
+              {
+                "comparator": ">=",
+                "custom_bg_color": "#e00000",
+                "palette": "custom_bg",
+                "value": 1.0
+              },
+              {
+                "comparator": "==",
+                "custom_bg_color": "#008a00",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ]
+          }
+        ],
+        "title": "R/O Route (6447)",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status",
+        "grouping": "cluster"
+      },
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 4,
+        "y": 17
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "==",
+                "custom_bg_color": "#e00000",
+                "palette": "custom_bg",
+                "value": 1.0
+              },
+              {
+                "comparator": "==",
+                "custom_bg_color": "#008a00",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "last",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "last:mysql.cluster.super_read_only{*} by {host}"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "super_read_only",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 6,
+        "y": 17
+      }
+    },
+    {
+      "definition": {
+        "text": "## MySQL Router Health\nMonitor the R/W and R/O routing layer to ensure backend databases are reachable.",
+        "type": "note",
+        "background_color": "transparent",
+        "font_size": "14",
+        "text_align": "left",
+        "show_tick": true,
+        "tick_edge": "left",
+        "tick_pos": "50%"
+      },
+      "layout": {
+        "height": 2,
         "width": 4,
         "x": 8,
         "y": 17

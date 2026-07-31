@@ -334,8 +334,14 @@ export function createSecurityFirewallStatusTool(
           },
         });
       } catch (error) {
-        if (error instanceof Error) {
-          const lower = error.message.toLowerCase();
+        if (
+          error !== null &&
+          typeof error === "object" &&
+          "message" in error &&
+          typeof (error as { message: unknown }).message === "string"
+        ) {
+          const messageStr = (error as { message: string }).message;
+          const lower = messageStr.toLowerCase();
           if (
             lower.includes("does not exist") ||
             lower.includes("access denied") ||
@@ -465,26 +471,32 @@ export function createSecurityFirewallRulesTool(
             ruleCount: rulesResult.rows?.length ?? 0,
           },
         });
-      } catch (error) {
-        if (error instanceof ZodError) {
+        } catch (error) {
+          if (error instanceof ZodError) {
+            return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
+          }
+          if (
+            error !== null &&
+            typeof error === "object" &&
+            "message" in error &&
+            typeof (error as { message: unknown }).message === "string"
+          ) {
+            const messageStr = (error as { message: string }).message;
+            const lower = messageStr.toLowerCase();
+            if (
+              lower.includes("does not exist") ||
+              lower.includes("access denied") ||
+              lower.includes("er_no_such_table") ||
+              lower.includes("proxysql error")
+            ) {
+              return formatHandlerErrorResponse(
+                new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
+                { module: "security", tool: "mysql_security_firewall_rules" }
+              );
+            }
+          }
           return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
         }
-        if (error instanceof Error) {
-          const lower = error.message.toLowerCase();
-          if (
-            lower.includes("does not exist") ||
-            lower.includes("access denied") ||
-            lower.includes("er_no_such_table") ||
-            lower.includes("proxysql error")
-          ) {
-            return formatHandlerErrorResponse(
-              new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
-              { module: "security", tool: "mysql_security_firewall_rules" }
-            );
-          }
-        }
-        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
-      }
     },
   };
 }
