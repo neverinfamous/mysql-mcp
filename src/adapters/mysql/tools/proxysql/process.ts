@@ -37,7 +37,7 @@ export function createProxySQLUsersTool(): ToolDefinition {
       try {
         const { username } = ProxySQLUsersInputSchema.parse(params);
         let sql = "SELECT username, active, use_ssl, default_hostgroup, default_schema, transaction_persistent, max_connections, comment FROM mysql_users";
-        if (username) {
+        if (username !== undefined) {
           const sanitized = username.replace(/'/g, "''");
           sql += ` WHERE username = '${sanitized}'`;
         }
