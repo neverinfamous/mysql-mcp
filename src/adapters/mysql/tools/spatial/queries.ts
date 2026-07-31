@@ -37,15 +37,16 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 
 async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spatialColumn: string): Promise<{ success: boolean; error?: string; code?: string }> {
   try {
-    const tableName = table.includes('.') ? table.split('.')[1] : table;
+    const tableName = table.includes('.') ? (table.split('.')[1] || table) : table;
+    const escapedTable = tableName.replace(/`/g, '``');
     const colCheck = await adapter.executeReadQuery(
-      `(SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?)`,
-      [tableName, spatialColumn]
+      `SHOW COLUMNS FROM \`${escapedTable}\` LIKE ?`,
+      [spatialColumn]
     );
     if (!colCheck.rows || colCheck.rows.length === 0) {
       return { success: false, error: `Column '${spatialColumn}' not found in table '${table}'`, code: "COLUMN_NOT_FOUND" };
     }
-    const dataType = String(colCheck.rows?.[0]?.["DATA_TYPE"]).toLowerCase();
+    const dataType = String(colCheck.rows?.[0]?.["Type"]).toLowerCase();
     if (!["geometry", "point", "multipoint", "polygon", "multipolygon", "linestring", "multilinestring"].includes(dataType)) {
       return { success: false, error: `Column '${spatialColumn}' is not a spatial data type (found ${dataType})`, code: "VALIDATION_ERROR" };
     }
@@ -107,7 +108,7 @@ export function createSpatialDistanceTool(
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
         const escapedTable = escapeQualifiedTable(table);
 
-        let query = `SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
+        let query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
                        ROUND(ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance
                 FROM ${escapedTable}`;
 
@@ -118,7 +119,7 @@ export function createSpatialDistanceTool(
           queryParams.push(maxDistance);
         }
 
-        query += ` ORDER BY distance LIMIT ${String(limit)}`;
+        query += ` ORDER BY distance LIMIT ${String(limit)})`;
 
         const result = await adapter.executeReadQuery(query, queryParams);
         // Strip raw binary spatial column from each row
@@ -221,7 +222,7 @@ export function createSpatialDistanceSphereTool(
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
         const escapedTable = escapeQualifiedTable(table);
 
-        let query = `SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
+        let query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
                        ROUND(ST_Distance_Sphere(
                            IF(ST_GeometryType(\`${spatialColumn}\`) IN ('POINT', 'MULTIPOINT'), \`${spatialColumn}\`, ST_GeomFromText('POINT(0 0)', ${String(srid)})), 
                            ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
@@ -236,7 +237,7 @@ export function createSpatialDistanceSphereTool(
           queryParams.push(maxDistance);
         }
 
-        query += ` ORDER BY distance_meters LIMIT ${String(limit)}`;
+        query += ` ORDER BY distance_meters LIMIT ${String(limit)})`;
 
         const result = await adapter.executeReadQuery(query, queryParams);
         // Strip raw binary spatial column from each row
@@ -311,10 +312,10 @@ export function createSpatialContainsTool(
         }
 
         const escapedTable = escapeQualifiedTable(table);
-        const query = `SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
+        const query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
                 FROM ${escapedTable}
                 WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), \`${spatialColumn}\`)
-                LIMIT ${String(limit)}`;
+                LIMIT ${String(limit)})`;
 
         const result = await adapter.executeReadQuery(query, [polygon]);
         // Strip raw binary spatial column from each row
@@ -384,10 +385,10 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const escapedTable = escapeQualifiedTable(table);
-        const query = `SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
+        const query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
                 FROM ${escapedTable}
                 WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'))
-                LIMIT ${String(limit)}`;
+                LIMIT ${String(limit)})`;
 
         const result = await adapter.executeReadQuery(query, [geometry]);
         // Strip raw binary spatial column from each row
