@@ -158,7 +158,7 @@ export function createFulltextExpandTool(
               }),
             );
           }
-          if (msg.includes("does not exist")) {
+          if (msg.includes("does not exist") || msg.includes("doesn't exist")) {
             return formatHandlerErrorResponse(
               new ValidationError(`Table '${table}' does not exist`, undefined, {
                 suggestion: "Table or collection does not exist. Run mysql_list_tables or mysql_doc_list_collections to see available objects."
