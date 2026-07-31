@@ -19,116 +19,6 @@
           "detection_sensitivity": "never_detect"
         },
         "legend_columns": [
-          "min",
-          "max",
-          "avg",
-          "value"
-        ],
-        "legend_layout": "vertical",
-        "markers": [],
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "idle",
-                "formula": "query1"
-              },
-              {
-                "alias": "system",
-                "formula": "query2"
-              },
-              {
-                "alias": "iowait",
-                "formula": "query3"
-              },
-              {
-                "alias": "user",
-                "formula": "query4"
-              },
-              {
-                "alias": "stolen",
-                "formula": "query5"
-              },
-              {
-                "alias": "guest",
-                "formula": "query6"
-              }
-            ],
-            "on_right_yaxis": false,
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:system.cpu.idle{$scope}",
-                "semantic_mode": "combined"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "avg:system.cpu.system{$scope}",
-                "semantic_mode": "combined"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query3",
-                "query": "avg:system.cpu.iowait{$scope}",
-                "semantic_mode": "combined"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query4",
-                "query": "avg:system.cpu.user{$scope}",
-                "semantic_mode": "combined"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query5",
-                "query": "avg:system.cpu.stolen{$scope}",
-                "semantic_mode": "combined"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query6",
-                "query": "avg:system.cpu.guest{$scope}",
-                "semantic_mode": "combined"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "CPU Usage (%)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
-      },
-      "id": 8154657544265011,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
           "avg",
           "min",
           "max",
@@ -257,22 +147,38 @@
         "legend_columns": [
           "min",
           "max",
-          "value",
-          "avg"
+          "avg",
+          "value"
         ],
         "legend_layout": "vertical",
         "markers": [],
         "requests": [
           {
-            "display_type": "area",
+            "display_type": "line",
             "formulas": [
               {
-                "alias": "Available Memory",
+                "alias": "idle",
                 "formula": "query1"
               },
               {
-                "alias": "Memory Used",
-                "formula": "query2 - query1"
+                "alias": "system",
+                "formula": "query2"
+              },
+              {
+                "alias": "iowait",
+                "formula": "query3"
+              },
+              {
+                "alias": "user",
+                "formula": "query4"
+              },
+              {
+                "alias": "stolen",
+                "formula": "query5"
+              },
+              {
+                "alias": "guest",
+                "formula": "query6"
               }
             ],
             "on_right_yaxis": false,
@@ -280,12 +186,37 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:system.mem.usable{$scope}"
+                "query": "avg:system.cpu.idle{$scope}",
+                "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:system.mem.total{$scope}",
+                "query": "avg:system.cpu.system{$scope}",
+                "semantic_mode": "combined"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query3",
+                "query": "avg:system.cpu.iowait{$scope}",
+                "semantic_mode": "combined"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query4",
+                "query": "avg:system.cpu.user{$scope}",
+                "semantic_mode": "combined"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query5",
+                "query": "avg:system.cpu.stolen{$scope}",
+                "semantic_mode": "combined"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query6",
+                "query": "avg:system.cpu.guest{$scope}",
                 "semantic_mode": "combined"
               }
             ],
@@ -298,7 +229,7 @@
           }
         ],
         "show_legend": true,
-        "title": "System Memory",
+        "title": "CPU Usage (%)",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -310,7 +241,7 @@
           "scale": "linear"
         }
       },
-      "id": 6606715972334054,
+      "id": 8154657544265011,
       "layout": {
         "height": 2,
         "width": 4,
@@ -436,25 +367,37 @@
           "detection_sensitivity": "never_detect"
         },
         "legend_columns": [
-          "avg",
           "min",
           "max",
           "value",
-          "sum"
+          "avg"
         ],
         "legend_layout": "vertical",
+        "markers": [],
         "requests": [
           {
+            "display_type": "area",
             "formulas": [
               {
+                "alias": "Available Memory",
                 "formula": "query1"
+              },
+              {
+                "alias": "Memory Used",
+                "formula": "query2 - query1"
               }
             ],
+            "on_right_yaxis": false,
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "max:system.cpu.iowait{$scope}",
+                "query": "sum:system.mem.usable{$scope}"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:system.mem.total{$scope}",
                 "semantic_mode": "combined"
               }
             ],
@@ -467,10 +410,19 @@
           }
         ],
         "show_legend": true,
-        "title": "I/O Wait (%)",
-        "type": "timeseries"
+        "title": "System Memory",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
       },
-      "id": 4926536293455249,
+      "id": 6606715972334054,
       "layout": {
         "height": 2,
         "width": 4,
@@ -622,7 +574,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql.innodb.os_log_fsyncs{$scope}",
+                "query": "max:system.cpu.iowait{$scope}",
                 "semantic_mode": "combined"
               }
             ],
@@ -635,10 +587,10 @@
           }
         ],
         "show_legend": true,
-        "title": "MySQL fsync op count (per sec)",
+        "title": "I/O Wait (%)",
         "type": "timeseries"
       },
-      "id": 8745007834672538,
+      "id": 4926536293455249,
       "layout": {
         "height": 2,
         "width": 4,
@@ -772,10 +724,8 @@
           "sum"
         ],
         "legend_layout": "vertical",
-        "markers": [],
         "requests": [
           {
-            "display_type": "line",
             "formulas": [
               {
                 "formula": "query1"
@@ -785,7 +735,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.com_select{$scope}",
+                "query": "sum:mysql.innodb.os_log_fsyncs{$scope}",
                 "semantic_mode": "combined"
               }
             ],
@@ -798,19 +748,10 @@
           }
         ],
         "show_legend": true,
-        "title": "Select Queries - Rate",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
+        "title": "MySQL fsync op count (per sec)",
+        "type": "timeseries"
       },
-      "id": 5124747928635316,
+      "id": 8745007834672538,
       "layout": {
         "height": 2,
         "width": 4,
@@ -934,6 +875,65 @@
         "width": 4,
         "x": 8,
         "y": 8
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "markers": [],
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql.performance.com_select{$scope}",
+                "semantic_mode": "combined"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Select Queries - Rate",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 5124747928635316,
+      "layout": {
+        "height": 2,
+        "width": 4,
+        "x": 0,
+        "y": 10
       }
     },
     {
@@ -1497,7 +1497,7 @@
       },
       "id": 8829397236877308,
       "layout": {
-        "height": 4,
+        "height": 3,
         "width": 8,
         "x": 4,
         "y": 18
@@ -1564,6 +1564,42 @@
     },
     {
       "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "ProxySQL Error Logs",
+        "type": "list_stream"
+      },
+      "id": 65510627375280,
+      "layout": {
+        "height": 3,
+        "width": 8,
+        "x": 4,
+        "y": 21
+      }
+    },
+    {
+      "definition": {
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
@@ -1600,7 +1636,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Group Replication — Transaction Queue",
         "title_align": "left",
         "title_size": "16",
@@ -1617,42 +1652,6 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 22
-      }
-    },
-    {
-      "definition": {
-        "requests": [
-          {
-            "columns": [
-              {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
-              }
-            ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
-            },
-            "response_format": "event_list"
-          }
-        ],
-        "title": "ProxySQL Error Logs",
-        "type": "list_stream"
-      },
-      "id": 65510627375280,
-      "layout": {
-        "height": 3,
-        "width": 8,
-        "x": 4,
         "y": 22
       }
     }
