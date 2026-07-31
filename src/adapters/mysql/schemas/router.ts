@@ -241,6 +241,8 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
       } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
         finalName = String(finalName);
       }
+    } else {
+      finalName = "main";
     }
     
     return {
