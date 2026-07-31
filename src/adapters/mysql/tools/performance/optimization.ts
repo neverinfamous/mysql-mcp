@@ -390,7 +390,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Support optional database prefix, optional table alias, and semicolon at the end of the query
-        const regex = new RegExp(`((?:FROM|JOIN|UPDATE)\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${table}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT|SET\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|$)`, "i");
+        const regex = new RegExp(`((?:FROM|JOIN|UPDATE|,)\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${table}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT|SET\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|$)`, "i");
         if (!regex.test(query)) {
           throw new ValidationError(
             `Table '${table}' not found in query FROM/JOIN/UPDATE clause`,
@@ -480,8 +480,8 @@ export function createOptimizerTraceTool(
 
         connection = await pool.getConnection();
 
-        // Wrap in transaction to prevent ProxySQL hostgroup routing mid-trace
-        await connection.query('START TRANSACTION');
+        // Wrap in transaction to prevent ProxySQL hostgroup routing mid-trace and block any mutating queries
+        await connection.query('START TRANSACTION READ ONLY');
         
         // Enable optimizer trace
         await connection.query('SET optimizer_trace="enabled=on"');
