@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport, token optimization via Code Mode, and enterprise security with OAuth 2.1.
+Production-ready MySQL integration for AI agents. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. It includes token optimization via Code Mode. It provides enterprise security with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 
@@ -140,7 +140,7 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 - ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.
 
-### Performance Benchmarks
+### Review Performance Benchmarks
 
 - **parseToolFilter**: ~32,000-62,000 ops/sec
 - **CodeModeSandbox.create cold start**: ~2.78M ops/sec
@@ -284,7 +284,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 ---
 
-## 🛠️ Prevent Token Limits with Tool Filtering
+## 🛠️ Optimize Limits with Tool Filtering
 
 Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter starter` or `--tool-filter core,json,-codemode`).
 
@@ -327,7 +327,6 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `--mysql-password`        | `MYSQL_PASSWORD`        | MySQL password                                      |
 | `--mysql-database`        | `MYSQL_DATABASE`        | MySQL database name                                 |
 | `--pool-size`             | `MYSQL_POOL_SIZE`       | Connection pool size (default: 10)                  |
-| `--pool-min`              | `MYSQL_POOL_MIN`        | Minimum connections in pool (default: 0)            |
 | `--pool-timeout`          | —                       | Connection acquire timeout in ms (default: 30000)   |
 | `--pool-queue-limit`      | —                       | Queue limit for waiting requests (default: 0)       |
 | `--tool-filter`, `-f`     | `TOOL_FILTER`           | Tool filter string                                  |
@@ -339,7 +338,17 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
 | `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
+| `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
+| `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
+| `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
+| `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
+| `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
+| `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
 | `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
+| `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
+| `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
+| `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
+| `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
 | —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |

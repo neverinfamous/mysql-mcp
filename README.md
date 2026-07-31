@@ -664,7 +664,7 @@ For specialized setups, see these Wiki pages:
 
 The server caches schema metadata to reduce repeated queries during tool/resource invocations.
 
-### Performance Benchmarks
+### Review Performance Benchmarks
 
 - **parseToolFilter**: ~32,000-62,000 ops/sec
 - **CodeModeSandbox.create cold start**: ~2.78M ops/sec

@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     environment:
-      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass) && 'npm' || 'dummy' }}
+      name: ${{ (startsWith(github.ref, 'refs/tags/v') || inputs.emergency_bypass == true) && 'npm' || 'dummy' }}
       url: https://www.npmjs.com/package/@${{ github.repository }}
 
     steps:
