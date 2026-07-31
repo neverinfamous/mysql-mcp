@@ -162,7 +162,7 @@ if (clusterOut !== null) {
             }
             if (readOnlyVal === '1') {
                 console.log(`   ❌ PRIMARY IS STUCK IN READ-ONLY MODE (super_read_only=1)`);
-                console.log(`      Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+                console.log(`      Run 'node scripts/toggle-super-read.mjs OFF' to fix this cluster state.`);
                 allUp = false;
             }
         }
