@@ -121,7 +121,7 @@ test.describe("ProxySQL Metrics Generation & Verification", () => {
       if (!digestPayload.success) continue;
       
       const queries = digestPayload.data!.queryDigests as Array<Record<string, any>>;
-      sleepQuery = queries.find(row => String(row.digest_text).toUpperCase().includes('SLEEP'));
+      sleepQuery = queries.find(row => String(row.digest_text).toUpperCase().includes('SLEEP_TIME'));
       if (sleepQuery) break;
     }
     expect(sleepQuery).toBeDefined();
