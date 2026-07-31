@@ -781,10 +781,9 @@ export const ServerConfigSchema = z.preprocess(
     if (typeof valueVal === "string") valueVal = valueVal.trim();
     
     if (valueVal !== undefined && typeof valueVal !== "string") {
-      valueVal = typeof valueVal === "object" && valueVal !== null 
-        ? JSON.stringify(valueVal) 
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        : String(valueVal);
+      valueVal = typeof valueVal === "number" || typeof valueVal === "boolean" || typeof valueVal === "bigint"
+        ? String(valueVal) 
+        : JSON.stringify(valueVal);
     }
     
     // Check if it's passed as config: { logLevel: "debug" }
@@ -927,10 +926,9 @@ export const AppendInsightSchema = z
         const data = obj as Record<string, unknown>;
         let insightVal = data["insight"] ?? data["text"] ?? data["message"] ?? data["query"] ?? data["sql"] ?? data["name"] ?? data["table"];
         if (insightVal !== undefined && insightVal !== null && typeof insightVal !== "string") {
-            insightVal = typeof insightVal === "object" 
-              ? JSON.stringify(insightVal) 
-              // eslint-disable-next-line @typescript-eslint/no-base-to-string
-              : String(insightVal);
+            insightVal = typeof insightVal === "number" || typeof insightVal === "boolean" || typeof insightVal === "bigint"
+              ? String(insightVal) 
+              : JSON.stringify(insightVal);
         }
         if (typeof insightVal === "string") {
             insightVal = insightVal.trim();
@@ -1084,10 +1082,9 @@ export const AuditListBackupsSchema = z
         
         let target = data["target"] ?? data["name"] ?? data["tableName"] ?? data["table"];
         if (target !== undefined && target !== null && typeof target !== "string") {
-          target = typeof target === "object" 
-            ? JSON.stringify(target) 
-            // eslint-disable-next-line @typescript-eslint/no-base-to-string
-            : String(target);
+          target = typeof target === "number" || typeof target === "boolean" || typeof target === "bigint"
+            ? String(target) 
+            : JSON.stringify(target);
         }
 
         return {
@@ -1153,10 +1150,9 @@ export const AuditRestoreBackupSchema = z
 
         let filename = data["filename"] ?? data["file"] ?? data["fileUrl"] ?? data["id"] ?? data["backupId"] ?? data["backup"] ?? data["table"] ?? data["tableName"] ?? data["target"] ?? data["sql"] ?? data["query"];
         if (filename !== undefined && filename !== null && typeof filename !== "string") {
-          filename = typeof filename === "object" 
-            ? JSON.stringify(filename) 
-            // eslint-disable-next-line @typescript-eslint/no-base-to-string
-            : String(filename);
+          filename = typeof filename === "number" || typeof filename === "boolean" || typeof filename === "bigint"
+            ? String(filename) 
+            : JSON.stringify(filename);
         }
 
         return {

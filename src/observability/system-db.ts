@@ -17,6 +17,10 @@ export class SystemDb {
     this.config = config;
   }
 
+  public get isMemoryDb(): boolean {
+    return this.config.dbPath === ":memory:";
+  }
+
   async init(): Promise<void> {
     try {
       const BetterSqlite3 = (await import("better-sqlite3")).default;

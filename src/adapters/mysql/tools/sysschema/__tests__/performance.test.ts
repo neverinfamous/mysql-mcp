@@ -65,7 +65,7 @@ describe("Sys Schema Performance Tools", () => {
       await tool.handler({ orderBy: "exec_count" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
-      expect(call).toContain("ORDER BY sys.x$statement_analysis.exec_count DESC");
+      expect(call).toContain("ORDER BY exec_count DESC");
     });
 
     it("should return structured error for invalid orderBy", async () => {

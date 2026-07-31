@@ -458,8 +458,7 @@ export class MetricsRegistry {
     // 🛠️ AUTONOMOUS HEALING: Fallback to reading the JSONL file if SQLite audit_logs is empty
       // This is crucial for IDEs on Windows that fail to initialize SystemDb (due to native bindings)
       // but successfully write to mcp-audit.jsonl. The dockerized exporter can read the JSONL to bridge the gap.
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-member-access
-      const isMemoryDb = (this.systemDb as any)?.config?.dbPath === ":memory:";
+      const isMemoryDb = this.systemDb?.isMemoryDb ?? false;
       if (parsedLiveRows.length === 0 && (db === null || isMemoryDb)) {
         try {
           const auditLogArgIndex = process.argv.indexOf('--audit-log');

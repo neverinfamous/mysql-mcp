@@ -427,8 +427,7 @@ export function createCreateDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
       if (res["database"] !== undefined && typeof res["database"] !== "string") {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        res["database"] = typeof res["database"] === "object" && res["database"] !== null ? JSON.stringify(res["database"]) : String(res["database"]);
+        res["database"] = typeof res["database"] === "number" || typeof res["database"] === "boolean" || typeof res["database"] === "bigint" ? String(res["database"]) : JSON.stringify(res["database"]);
       }
       const aliasVal = res["table"] ?? res["tableName"] ?? res["name"];
       if (res["tables"] === undefined && aliasVal !== undefined) {
@@ -603,15 +602,13 @@ export function createRestoreDumpTool(_adapter: MySQLAdapter): ToolDefinition {
         res["database"] = res["db"] ?? res["dbName"] ?? res["schema"] ?? res["schemaName"];
       }
       if (res["database"] !== undefined && typeof res["database"] !== "string") {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        res["database"] = typeof res["database"] === "object" && res["database"] !== null ? JSON.stringify(res["database"]) : String(res["database"]);
+        res["database"] = typeof res["database"] === "number" || typeof res["database"] === "boolean" || typeof res["database"] === "bigint" ? String(res["database"]) : JSON.stringify(res["database"]);
       }
       if (res["filename"] === undefined) {
         res["filename"] = res["file"] ?? res["path"] ?? res["filepath"] ?? res["dumpFile"] ?? res["dump_file"];
       }
       if (res["filename"] !== undefined && typeof res["filename"] !== "string") {
-        // eslint-disable-next-line @typescript-eslint/no-base-to-string
-        res["filename"] = typeof res["filename"] === "object" && res["filename"] !== null ? JSON.stringify(res["filename"]) : String(res["filename"]);
+        res["filename"] = typeof res["filename"] === "number" || typeof res["filename"] === "boolean" || typeof res["filename"] === "bigint" ? String(res["filename"]) : JSON.stringify(res["filename"]);
       }
       return res;
     },

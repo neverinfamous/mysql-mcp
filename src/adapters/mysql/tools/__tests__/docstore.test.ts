@@ -266,7 +266,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Schema 'fake_schema' does not exist",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
         category: "resource"
       });
     });

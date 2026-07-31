@@ -109,6 +109,7 @@ class McpLogger {
 
     try {
       // Use the SDK's sendLoggingMessage method
+      // TODO (SEP-2577): Migrate to stderr logging (STDIO) or OpenTelemetry before the 12-month window expires.
       // eslint-disable-next-line @typescript-eslint/no-deprecated
       void this.server.sendLoggingMessage({
         level,
