@@ -6,20 +6,20 @@ This directory contains AI agent skills that enforce enterprise best practices, 
 
 To equip your AI assistant with these skills, copy the contents of this folder into your agent's skills directory.
 
-For example, if you are using Google Antigravity or a similar agent framework:
+For example, if you are using Google Antigravity, Cursor, Claude Desktop, or another agent framework:
 
 ```bash
 # Copy the skills to your agent's skill directory (Bash)
-cp -r skills/mysql ~/.gemini/skills/
-cp -r skills/mysql-mcp ~/.gemini/skills/
-cp -r skills/mysql-mcp-infrastructure ~/.gemini/skills/
+cp -r skills/mysql <your-agent-skills-directory>/
+cp -r skills/mysql-mcp <your-agent-skills-directory>/
+cp -r skills/mysql-mcp-infrastructure <your-agent-skills-directory>/
 ```
 
 ```powershell
 # Copy the skills to your agent's skill directory (PowerShell/CMD)
-Copy-Item -Recurse skills/mysql ~/.gemini/skills/
-Copy-Item -Recurse skills/mysql-mcp ~/.gemini/skills/
-Copy-Item -Recurse skills/mysql-mcp-infrastructure ~/.gemini/skills/
+Copy-Item -Recurse skills/mysql <your-agent-skills-directory>/
+Copy-Item -Recurse skills/mysql-mcp <your-agent-skills-directory>/
+Copy-Item -Recurse skills/mysql-mcp-infrastructure <your-agent-skills-directory>/
 ```
 
 ## Available Skills

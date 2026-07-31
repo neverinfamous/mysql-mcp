@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Empower your AI agents with production-ready MySQL integration. Scale effortlessly using MCP v2 stateless architecture via NodeStreamableHTTPServerTransport, slash token consumption with sandboxed Code Mode, and enforce enterprise-grade OAuth 2.1 authorization.
+Empower your AI agents with production-ready MySQL integration. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. It includes token optimization via Code Mode. It provides enterprise security with OAuth 2.1.
 
 ## 🎯 Leverage Core Benefits
 

@@ -240,8 +240,9 @@ export function createShellDumpSchemasTool(
         if (excludeTables && excludeTables.length > 0) {
           options.push(`excludeTables: ${JSON.stringify(excludeTables)}`);
         }
-        // ddlOnly mode disables all metadata that requires extra privileges
+        // ddlOnly mode disables data and all metadata that requires extra privileges
         if (ddlOnly) {
+          options.push("ddlOnly: true");
           options.push("events: false");
           options.push("triggers: false");
           options.push("routines: false");

@@ -9,9 +9,12 @@ on:
   workflow_dispatch:
 
 engine:
-  id: copilot
+  id: gh-copilot
   model: claude-3-5-sonnet-latest
 
+secrets:
+  GH_AW_GITHUB_MCP_SERVER_TOKEN: ${{ secrets.GH_AW_GITHUB_MCP_SERVER_TOKEN }}
+  GH_AW_GITHUB_TOKEN: ${{ secrets.GH_AW_GITHUB_TOKEN }}
 
 network:
   allowed:
@@ -20,9 +23,6 @@ network:
 
 permissions: read-all
 
-env:
-  GH_AW_GITHUB_MCP_SERVER_TOKEN: ${{ secrets.GH_AW_GITHUB_MCP_SERVER_TOKEN }}
-  GH_AW_GITHUB_TOKEN: ${{ secrets.GH_AW_GITHUB_TOKEN }}
 
 safe-outputs:
   report-failure-as-issue: false

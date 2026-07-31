@@ -1,7 +1,7 @@
 # 🔒 Security Policy
 
 
-MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio and HTTP transports (built on MCP v2 stateless architecture with NodeStreamableHTTPServerTransport). It uses zero-trust, defense-in-depth methodologies.
+MySQL MCP provides enterprise-grade protection for your databases. It seamlessly secures stdio and HTTP transports. It uses MCP v2 stateless architecture. It uses zero-trust, defense-in-depth methodologies.
 
 ## 🛡️ **Defend Your Database Infrastructure**
 
