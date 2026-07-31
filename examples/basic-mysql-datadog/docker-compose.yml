@@ -1,6 +1,6 @@
 services:
   mysql-server:
-    image: mysql:9.7.2
+    image: mysql
     container_name: example-basic-mysql
     restart: unless-stopped
     ports:
@@ -33,7 +33,7 @@ services:
         max-file: "5"
 
   example-basic-datadog:
-    image: gcr.io/datadoghq/agent:7.81.2
+    image: gcr.io/datadoghq/agent:7
     container_name: example-basic-datadog
     restart: unless-stopped
     pid: host

@@ -1,6 +1,6 @@
 services:
   example-ha-node1:
-    image: mysql:9.7.2
+    image: mysql
     container_name: example-ha-node1
     hostname: example-ha-node1
     restart: unless-stopped
@@ -36,7 +36,7 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   example-ha-node2:
-    image: mysql:9.7.2
+    image: mysql
     container_name: example-ha-node2
     hostname: example-ha-node2
     restart: unless-stopped
@@ -71,7 +71,7 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   example-ha-node3:
-    image: mysql:9.7.2
+    image: mysql
     container_name: example-ha-node3
     hostname: example-ha-node3
     restart: unless-stopped
@@ -106,7 +106,7 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   cluster-healer:
-    image: mysql:9.7.2
+    image: mysql
     container_name: example-ha-healer
     restart: unless-stopped
     entrypoint: ["/bin/bash", "-c", "echo 'cluster-healer not implemented in example' && tail -f /dev/null"]
@@ -121,7 +121,7 @@ services:
     mem_limit: 128m
 
   example-ha-router:
-    image: container-registry.oracle.com/mysql/community-router:9.7.1
+    image: container-registry.oracle.com/mysql/community-router
     container_name: example-ha-router
     restart: unless-stopped
     depends_on:
@@ -148,7 +148,7 @@ services:
       retries: 10
 
   example-ha-proxysql:
-    image: proxysql/proxysql:3.0.9
+    image: proxysql/proxysql
     container_name: example-ha-proxysql
     restart: unless-stopped
     depends_on:
@@ -177,7 +177,7 @@ services:
         max-file: "3"
 
   example-ha-datadog:
-    image: gcr.io/datadoghq/agent:7.81.2
+    image: gcr.io/datadoghq/agent:7
     container_name: example-ha-datadog
     restart: unless-stopped
     pid: host
