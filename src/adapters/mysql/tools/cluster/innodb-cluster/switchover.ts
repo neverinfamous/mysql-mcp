@@ -28,10 +28,9 @@ export function createClusterSwitchoverTool(
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
-        const pluginResult = await adapter.executeQuery(
-          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS WHERE PLUGIN_NAME = 'group_replication'",
-        );
-        if (pluginResult.rows?.[0]?.["PLUGIN_STATUS"] !== "ACTIVE") {
+        const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
+        const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
+        if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
             new ExtensionNotAvailableError("Group Replication")
           );
