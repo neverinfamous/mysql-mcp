@@ -235,7 +235,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         const data = {
           primary: primary ?? null,
           hasPrimary: !!primary,
-          isLocalPrimary: primary?.["memberId"] === localUuid,
+          isLocalPrimary: !!primary && primary["memberId"] === localUuid,
         };
         return withTokenEstimate({ success: true, data });
       } catch (error) {
@@ -299,8 +299,8 @@ export function createGRTransactionsTool(
         const data = {
           memberStats: statsResult.rows ?? [],
           gtid: {
-            executed: gtid?.["gtidExecuted"] ?? "",
-            purged: gtid?.["gtidPurged"] ?? "",
+            executed: typeof gtid?.["gtidExecuted"] === "string" ? gtid["gtidExecuted"] : "",
+            purged: typeof gtid?.["gtidPurged"] === "string" ? gtid["gtidPurged"] : "",
           },
         };
         return withTokenEstimate({ success: true, data });
