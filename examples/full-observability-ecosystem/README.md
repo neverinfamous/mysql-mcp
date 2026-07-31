@@ -71,3 +71,9 @@ You can connect to this stack using ProxySQL on port `6033`. Ensure you point th
   }
 }
 ```
+
+## Learn More
+
+For deep dives into the telemetry architecture, dashboard insights, and the rationale behind this setup, check out the official `mysql-mcp` wiki:
+- [Observability & Telemetry](https://github.com/neverinfamous/mysql-mcp/wiki/Observability)
+- [Test Ecosystem Blueprint](https://github.com/neverinfamous/mysql-mcp/wiki/Test-Ecosystem)
