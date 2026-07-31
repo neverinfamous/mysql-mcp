@@ -4,6 +4,7 @@ export const ShellCheckUpgradeInputSchemaBase = z
   .object({
     targetVersion: z
       .string()
+      .regex(/^\d+\.\d+\.\d+$/, "Target version must be a valid version string like '8.0.40'")
       .optional()
       .describe(
         'Target MySQL version to check compatibility for (e.g., "8.0.40", "8.4.0")',
