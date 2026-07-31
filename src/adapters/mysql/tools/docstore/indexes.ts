@@ -13,7 +13,6 @@ import {
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
-  checkCollectionExists,
   escapeTableRef,
 } from "./helpers.js";
 import {
@@ -49,20 +48,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (!IDENTIFIER_RE.test(name))
             throw new ValidationError("Invalid index name");
 
-          const idxCheck = await checkCollectionExists(
-            adapter,
-            collection,
-            schema,
-          );
-          if (!idxCheck.exists) {
-            throw new MySQLMcpError(
-              idxCheck.reason === "schema"
-                ? `Schema '${idxCheck.name}' does not exist`
-                : `Collection '${collection}' does not exist`,
-              idxCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
-              ErrorCategory.RESOURCE
-            );
-          }
+          // Pre-checks removed to prevent ProxySQL hostgroup locking (HG1 poisoning)
+          // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
 
           const tableRef = escapeTableRef(collection, schema);
           for (const field of fields) {

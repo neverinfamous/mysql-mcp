@@ -8,14 +8,11 @@ import {
   type ToolDefinition,
   type RequestContext,
   ValidationError,
-  MySQLMcpError,
-  ErrorCategory,
 } from "../../../../types/index.js";
 import {
   IDENTIFIER_RE,
   JSON_PATH_RE,
   parseDocFilter,
-  checkCollectionExists,
   escapeTableRef,
 } from "./helpers.js";
 import {
@@ -58,21 +55,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             throw new ValidationError("Invalid schema name");
 
-          // Check if collection exists (with schema detection)
-          const findCheck = await checkCollectionExists(
-            adapter,
-            collection,
-            schema,
-          );
-          if (!findCheck.exists) {
-            throw new MySQLMcpError(
-              findCheck.reason === "schema"
-                ? `Schema '${findCheck.name}' does not exist`
-                : `Collection '${collection}' does not exist`,
-              findCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
-              ErrorCategory.RESOURCE
-            );
-          }
+          // Pre-checks removed to prevent ProxySQL hostgroup locking (HG1 poisoning)
+          // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
 
           let selectClause = "_id, doc";
           if (fields && fields.length > 0) {
@@ -153,20 +137,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             throw new ValidationError("Invalid schema name");
 
-          const addCheck = await checkCollectionExists(
-            adapter,
-            collection,
-            schema,
-          );
-          if (!addCheck.exists) {
-            throw new MySQLMcpError(
-              addCheck.reason === "schema"
-                ? `Schema '${addCheck.name}' does not exist`
-                : `Collection '${collection}' does not exist`,
-              addCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
-              ErrorCategory.RESOURCE
-            );
-          }
+          // Pre-checks removed to prevent ProxySQL hostgroup locking (HG1 poisoning)
+          // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
 
           const tableRef = escapeTableRef(collection, schema);
           let inserted = 0;
@@ -205,20 +177,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             throw new ValidationError("Invalid schema name");
 
-          const modCheck = await checkCollectionExists(
-            adapter,
-            collection,
-            schema,
-          );
-          if (!modCheck.exists) {
-            throw new MySQLMcpError(
-              modCheck.reason === "schema"
-                ? `Schema '${modCheck.name}' does not exist`
-                : `Collection '${collection}' does not exist`,
-              modCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
-              ErrorCategory.RESOURCE
-            );
-          }
+          // Pre-checks removed to prevent ProxySQL hostgroup locking (HG1 poisoning)
+          // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
 
           const updates: string[] = [];
           const updateParams: unknown[] = [];
@@ -288,20 +248,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (schema && !IDENTIFIER_RE.test(schema))
             throw new ValidationError("Invalid schema name");
 
-          const rmCheck = await checkCollectionExists(
-            adapter,
-            collection,
-            schema,
-          );
-          if (!rmCheck.exists) {
-            throw new MySQLMcpError(
-              rmCheck.reason === "schema"
-                ? `Schema '${rmCheck.name}' does not exist`
-                : `Collection '${collection}' does not exist`,
-              rmCheck.reason === "schema" ? "SCHEMA_NOT_FOUND" : "TABLE_NOT_FOUND",
-              ErrorCategory.RESOURCE
-            );
-          }
+          // Pre-checks removed to prevent ProxySQL hostgroup locking (HG1 poisoning)
+          // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
 
           const { where, params: whereParams } = parseDocFilter(filter);
           const tableRef = escapeTableRef(collection, schema);

@@ -310,21 +310,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               new ValidationError("Invalid schema name")
             );
 
-          // Check collection existence (with schema detection)
-          const infoCheck = await checkCollectionExists(
-            adapter,
-            collection,
-            schema,
-          );
-          if (!infoCheck.exists) {
-            return infoCheck.reason === "schema"
-              ? formatHandlerErrorResponse(
-                  new Error(`Schema '${infoCheck.name}' does not exist`)
-                )
-              : formatHandlerErrorResponse(
-                  new Error(`Collection '${collection}' does not exist`)
-                );
-          }
+          // Pre-checks removed to prevent ProxySQL hostgroup locking (HG1 poisoning)
+          // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
 
           // Get accurate row count using COUNT(*) instead of INFORMATION_SCHEMA estimate
           const schemaClause = schema
