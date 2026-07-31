@@ -14,9 +14,10 @@ export async function getServerVersion(adapter: MySQLAdapter): Promise<{ major: 
   // Fallback if version is somehow undefined in health (unlikely)
   if (rawVersion === "0.0.0") {
     try {
-       const result = await adapter.rawQuery("SELECT VERSION() as Value");
+       const result = await adapter.rawQuery("SELECT VERSION() as version");
        if (result?.rows && result.rows.length > 0) {
-         rawVersion = String(result.rows[0]?.['Value'] || "0.0.0");
+         const val = result.rows[0]?.['version'];
+         rawVersion = typeof val === 'string' ? val : "0.0.0";
        }
     } catch {
        // Ignore fallback failure
@@ -102,7 +103,7 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
   let tableInfo;
   try {
     tableInfo = await adapter.describeTable(sanitizedTable);
-  } catch (err) {
+  } catch {
     throw new MySQLMcpError(
       `Table '${sanitizedTable}' does not exist`,
       "TABLE_NOT_FOUND",
@@ -122,7 +123,7 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
     }
     const type = colInfo.type;
     if (typeof type !== 'string' || !type.toLowerCase().startsWith('vector')) {
-      throw new ValidationError(`Column '${providedColumn}' is not a VECTOR column (found type: ${String(type)}).`);
+      throw new ValidationError(`Column '${providedColumn}' is not a VECTOR column (found type: ${type}).`);
     }
     return providedColumn;
   }
