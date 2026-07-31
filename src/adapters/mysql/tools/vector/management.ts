@@ -212,7 +212,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         await ensureVectorSupport(adapter);
 
 
-        const query = `
+        const query = `(
           SELECT 
             COUNT(*) as total_rows,
             COUNT(\`${column}\`) as non_null_count,
@@ -220,7 +220,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
             MIN(VECTOR_DIM(\`${column}\`)) as min_dimensions,
             MAX(VECTOR_DIM(\`${column}\`)) as max_dimensions
           FROM \`${table}\`
-        `;
+        )`;
 
         const result = await adapter.executeQuery(query);
         
