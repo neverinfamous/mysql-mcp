@@ -17,6 +17,7 @@ Follow the rules in `coordinator-workflow-phase4-analytics.md` with these strict
 2. **NO CONFIG CHANGES OR RESTARTS:** Do NOT adjust `mcp_config.json` and do NOT restart the MCP server under any circumstances. If you encounter any problems in this regard, or if you run into an "Infrastructure Absent" problem, you MUST just stop and tell me.
 3. **NO FULL TEST SUITE RUNS:** CRITICAL: Do NOT run `pnpm run test`, `check`, or `build`. Only run `pnpm run lint` and `pnpm run typecheck` and only if changes/fixes are made.
 4. **INFRASTRUCTURE ABSENT CLARIFICATION:** "Infrastructure Absent" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS INFRASTRUCTURE ABSENT.
+5. **DATABASE LOCKS:** If a test requires DDL operations (e.g. creating tables/indexes) and fails due to `super_read_only`, you MUST toggle the lock using `run_command` to execute `node test-server/infrastructure/scripts/toggle-super-read.mjs OFF` before the test, and `ON` after. Do not attempt to use `docker exec`.
 </subagent_prompt>
 
 ## Test Sequence Queue (Phase 4: Analytics)
