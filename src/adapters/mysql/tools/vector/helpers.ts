@@ -1,21 +1,25 @@
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-import { ExtensionNotAvailableError, ValidationError } from "../../../../types/modules/errors.js";
+import { ExtensionNotAvailableError, ValidationError, MySQLMcpError } from "../../../../types/modules/errors.js";
+import { ErrorCategory } from "../../../../types/modules/error-types.js";
 
 /**
  * Get MySQL server version
  */
 export async function getServerVersion(adapter: MySQLAdapter): Promise<{ major: number; minor: number; patch: number; raw: string }> {
-  const result = await adapter.rawQuery("SHOW VARIABLES LIKE 'version'");
-  let rawVersion = "0.0.0";
-  
-  if (result?.rows !== undefined && result.rows.length > 0) {
-    const firstRow = result.rows[0];
-    if (firstRow !== undefined && firstRow !== null) {
-      const row = firstRow;
-      const versionStr = row['Value'];
-      if (typeof versionStr === 'string') {
-        rawVersion = versionStr;
-      }
+  // Use the cached version from the health check rather than executing SHOW VARIABLES
+  // which causes ProxySQL hostgroup locking errors during vector queries.
+  const health = await adapter.getHealth();
+  let rawVersion = health.version || "0.0.0";
+
+  // Fallback if version is somehow undefined in health (unlikely)
+  if (rawVersion === "0.0.0") {
+    try {
+       const result = await adapter.rawQuery("SELECT VERSION() as Value");
+       if (result?.rows && result.rows.length > 0) {
+         rawVersion = String(result.rows[0]?.['Value'] || "0.0.0");
+       }
+    } catch {
+       // Ignore fallback failure
     }
   }
 
@@ -93,26 +97,38 @@ export function sanitizeIdentifier(id: string): string {
  */
 export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, providedColumn?: string): Promise<string> {
   const sanitizedTable = sanitizeIdentifier(table);
-  // Pre-check table existence and find column in one go using SHOW COLUMNS
-  const pkResult = await adapter.rawQuery(`SHOW COLUMNS FROM \`${sanitizedTable}\``);
-  if (!pkResult.rows || pkResult.rows.length === 0) {
-    throw new ValidationError(`Table '${sanitizedTable}' does not exist or has no columns.`);
+  
+  // Use cached describeTable instead of raw SHOW COLUMNS to avoid ProxySQL multiplexing locks
+  let tableInfo;
+  try {
+    tableInfo = await adapter.describeTable(sanitizedTable);
+  } catch (err) {
+    throw new MySQLMcpError(
+      `Table '${sanitizedTable}' does not exist`,
+      "TABLE_NOT_FOUND",
+      ErrorCategory.QUERY
+    );
+  }
+
+  const columns = tableInfo.columns;
+  if (!columns || columns.length === 0) {
+    throw new ValidationError(`Table '${sanitizedTable}' has no columns.`);
   }
 
   if (providedColumn) {
-    const colInfo = pkResult.rows.find(row => row['Field'] === providedColumn);
+    const colInfo = columns.find(col => col.name === providedColumn);
     if (!colInfo) {
       throw new ValidationError(`Column '${providedColumn}' does not exist in table '${sanitizedTable}'.`);
     }
-    const type = colInfo['Type'];
+    const type = colInfo.type;
     if (typeof type !== 'string' || !type.toLowerCase().startsWith('vector')) {
       throw new ValidationError(`Column '${providedColumn}' is not a VECTOR column (found type: ${String(type)}).`);
     }
     return providedColumn;
   }
 
-  const vectorColumns = pkResult.rows.filter(row => 
-    row['Type'] === 'vector' || (typeof row['Type'] === 'string' && row['Type'].toLowerCase().startsWith('vector'))
+  const vectorColumns = columns.filter(col => 
+    col.type === 'vector' || (typeof col.type === 'string' && col.type.toLowerCase().startsWith('vector'))
   );
 
   if (vectorColumns.length === 0) {
@@ -124,7 +140,7 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
   }
 
   const firstColumn = vectorColumns[0];
-  const columnName = firstColumn ? firstColumn['Field'] : undefined;
+  const columnName = firstColumn ? firstColumn.name : undefined;
   if (typeof columnName !== 'string') {
     throw new ValidationError(`No VECTOR column found in table '${sanitizedTable}'. Please specify the column parameter.`);
   }

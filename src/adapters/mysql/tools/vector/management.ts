@@ -35,43 +35,36 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const validated = VectorInfoSchema.parse(params);
 
-        // Table existence pre-check is handled by SHOW COLUMNS below
+        let tableInfo;
+        try {
+          tableInfo = await adapter.describeTable(sanitizeIdentifier(validated.table));
+        } catch (err) {
+          throw new MySQLMcpError(
+            `Table '${validated.table}' does not exist`,
+            "TABLE_NOT_FOUND",
+            ErrorCategory.QUERY
+          );
+        }
 
         await ensureVectorSupport(adapter);
 
-        const query = `SHOW COLUMNS FROM \`${sanitizeIdentifier(validated.table)}\``;
-        const result = await adapter.executeQuery(query);
-
-        interface ColumnRow {
-          Field?: string;
-          Type?: string;
-          Null?: string;
-          Default?: unknown;
-        }
-        const rawRows = (result.rows ?? []) as ColumnRow[];
-
-        // Parse dimensions from Type (e.g., "vector(1536)")
-        const columns = rawRows
-          .filter((r) => {
-            const field = r.Field ?? "";
-            const typeVal = (r.Type ?? "").toLowerCase();
-            if (validated.column && field !== validated.column) return false;
-            return typeVal.startsWith("vector");
+        const columns = tableInfo.columns
+          .filter((col) => {
+            if (validated.column && col.name !== validated.column) return false;
+            return typeof col.type === 'string' && col.type.toLowerCase().startsWith('vector');
           })
-          .map((r) => {
+          .map((col) => {
             let dimensions: number | null = null;
-            
-            const typeStr = r.Type ?? "";
+            const typeStr = col.type as string;
             const match = /vector\((\d+)\)/i.exec(typeStr);
             if (match?.[1]) {
               dimensions = parseInt(match[1], 10);
             }
-
             return {
-              name: r.Field ?? "",
+              name: col.name,
               dimensions,
-              isNullable: (r.Null ?? "") === "YES",
-              default: r.Default ?? null,
+              isNullable: col.nullable,
+              default: col.defaultValue ?? null,
             };
           });
 
@@ -166,7 +159,15 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
         const table = sanitizeIdentifier(validated.table);
         
         // Pre-check table existence to satisfy P154
-        await adapter.executeQuery(`SHOW COLUMNS FROM \`${table}\``);
+        try {
+          await adapter.describeTable(table);
+        } catch (err) {
+          throw new MySQLMcpError(
+            `Table '${table}' does not exist`,
+            "TABLE_NOT_FOUND",
+            ErrorCategory.QUERY
+          );
+        }
 
         await ensureVectorSupport(adapter);
         
