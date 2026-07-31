@@ -83,8 +83,8 @@ const AuditLogSchema = z.preprocess(
 );
 
 const FirewallRulesSchemaBase = z.object({
-  limit: z.unknown().optional().describe("Maximum number of records to return"),
-  count: z.unknown().optional().describe("Alias for limit"),
+  limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records to return"),
+  count: z.coerce.number().optional().describe("Alias for limit"),
   user: z.unknown().optional().describe("Filter by username"),
   userName: z.unknown().optional().describe("Alias for user"),
   username: z.unknown().optional().describe("Alias for user"),
@@ -107,12 +107,15 @@ const FirewallRulesSchema = z.preprocess(
         if (v["user"] === undefined) v["user"] = v["userName"];
         delete v["userName"];
       }
+      if (typeof v["mode"] === "string") {
+        v["mode"] = v["mode"].toUpperCase();
+      }
       return v;
     }
     return val;
   },
   z.object({
-    limit: z.number().int().min(1).default(50),
+    limit: z.coerce.number().int().min(1).default(50),
     user: z.string().optional(),
     mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
   }).strict()

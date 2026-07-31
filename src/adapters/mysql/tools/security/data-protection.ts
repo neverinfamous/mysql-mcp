@@ -37,6 +37,7 @@ const MaskDataSchemaBase = z.object({
   text: z.unknown().optional().describe("Alias for value"),
   input: z.unknown().optional().describe("Alias for value"),
   type: z.unknown().optional().describe("Masking type. Note: Must be one of: 'email', 'phone', 'ssn', 'credit_card', 'partial'."),
+  maskType: z.unknown().optional().describe("Alias for type"),
   keepFirst: z.unknown().optional().describe("Characters to keep from start"),
   keepLast: z.unknown().optional().describe("Characters to keep from end"),
   maskChar: z.unknown().optional().describe("Character to use for masking"),
@@ -45,13 +46,19 @@ const MaskDataSchemaBase = z.object({
 const MaskDataSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
-    const obj = val as Record<string, unknown>;
+    const obj = { ...(val as Record<string, unknown>) };
     if (!("value" in obj)) {
-      if ("data" in obj) return { ...obj, value: obj["data"] };
-      if ("text" in obj) return { ...obj, value: obj["text"] };
-      if ("input" in obj) return { ...obj, value: obj["input"] };
+      if ("data" in obj) obj["value"] = obj["data"];
+      else if ("text" in obj) obj["value"] = obj["text"];
+      else if ("input" in obj) obj["value"] = obj["input"];
     }
-    return val;
+    if (!("type" in obj) && "maskType" in obj) {
+      obj["type"] = obj["maskType"];
+    }
+    if (typeof obj["type"] === "string") {
+      obj["type"] = obj["type"].toLowerCase();
+    }
+    return obj;
   },
   z.object({
     value: z.union([z.string(), z.number()]).transform(String),
