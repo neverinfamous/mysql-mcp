@@ -56,9 +56,9 @@ const ERROR_SUGGESTIONS: {
   {
     pattern: /(?:Unknown database|Database (?:'.*?' )?(?:doesn't|does not) exist)/i,
     suggestion:
-      "Database not found. Use mysql_list_schemas to see available databases.",
+      "Schema not found. Use mysql_list_schemas to see available databases.",
     category: ErrorCategory.RESOURCE,
-    code: "DATABASE_NOT_FOUND",
+    code: "SCHEMA_NOT_FOUND",
   },
   {
     pattern: /Schema (?:'.*?' )?(?:doesn't|does not) exist/i,

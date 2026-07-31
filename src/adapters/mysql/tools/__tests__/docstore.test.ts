@@ -119,7 +119,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
@@ -361,7 +361,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
@@ -564,7 +564,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
@@ -667,7 +667,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
@@ -836,7 +836,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
@@ -940,7 +940,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
@@ -1112,7 +1112,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
       });
@@ -1229,7 +1229,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Unknown database 'nonexistent_schema'",
-        code: "DATABASE_NOT_FOUND",
+        code: "SCHEMA_NOT_FOUND",
         metrics: { tokenEstimate: expect.any(Number) },
       });
     });
