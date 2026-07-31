@@ -476,7 +476,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Latency Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -536,7 +535,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Connections Currently Used Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -618,7 +616,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Bytes Received And Sent Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -691,7 +688,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Backend Server Active Connections",
         "type": "timeseries"
       },
@@ -751,7 +747,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
         "title_align": "left",
         "title_size": "16",
@@ -811,7 +806,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Memory Usage Of Query Cache",
         "title_align": "left",
         "title_size": "16",
@@ -871,7 +865,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Cache Read Throughput",
         "title_align": "left",
         "title_size": "16",
@@ -1281,7 +1274,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Connection Pool",
         "title_align": "left",
         "title_size": "16",
@@ -1351,7 +1343,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Cache Performance",
         "title_align": "left",
         "title_size": "16",
@@ -1485,7 +1476,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Transport Errors (HTTP)",
         "title_align": "left",
         "title_size": "16",
@@ -1493,7 +1483,7 @@
       },
       "id": 203565609753301,
       "layout": {
-        "height": 4,
+        "height": 2,
         "width": 4,
         "x": 4,
         "y": 16
@@ -1531,7 +1521,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Agent Quality (Error Classification)",
         "title_align": "left",
         "title_size": "16",
@@ -1553,7 +1542,8 @@
           "service:mysql-router",
           "component:rest_api"
         ],
-        "title": "REST API",
+        "time": {},
+        "title": "Router REST API",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
@@ -1563,7 +1553,7 @@
         "height": 2,
         "width": 2,
         "x": 0,
-        "y": 20
+        "y": 18
       }
     },
     {
@@ -1574,7 +1564,8 @@
           "service:mysql-router",
           "route:rw"
         ],
-        "title": "R/W Route (6446)",
+        "time": {},
+        "title": "Router R/W Route (6446)",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
@@ -1584,7 +1575,7 @@
         "height": 2,
         "width": 2,
         "x": 2,
-        "y": 20
+        "y": 18
       }
     },
     {
@@ -1595,7 +1586,8 @@
           "service:mysql-router",
           "route:ro"
         ],
-        "title": "R/O Route (6447)",
+        "time": {},
+        "title": "Router R/O Route (6447)",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
@@ -1605,7 +1597,7 @@
         "height": 2,
         "width": 2,
         "x": 4,
-        "y": 20
+        "y": 18
       }
     },
     {
@@ -1642,7 +1634,8 @@
             "response_format": "scalar"
           }
         ],
-        "title": "super_read_only",
+        "time": {},
+        "title": "Router Super Read Status",
         "title_align": "center",
         "title_size": "16",
         "type": "query_value"
@@ -1652,26 +1645,7 @@
         "height": 2,
         "width": 2,
         "x": 6,
-        "y": 20
-      }
-    },
-    {
-      "definition": {
-        "background_color": "transparent",
-        "content": "## MySQL Router Health\nMonitor the R/W and R/O routing layer to ensure backend databases are reachable.",
-        "font_size": "14",
-        "show_tick": true,
-        "text_align": "left",
-        "tick_edge": "left",
-        "tick_pos": "50%",
-        "type": "note"
-      },
-      "id": 2383077861659042,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 8,
-        "y": 20
+        "y": 18
       }
     }
   ]

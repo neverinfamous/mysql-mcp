@@ -160,7 +160,7 @@ export function createSecurityEncryptionStatusTool(
 
         // Check for keyring plugins
         const keyringResult = await adapter.executeQuery(`
-                SELECT PLUGIN_NAME, PLUGIN_STATUS
+                /* admin */ SELECT PLUGIN_NAME, PLUGIN_STATUS
                 FROM information_schema.PLUGINS
                 WHERE PLUGIN_NAME LIKE 'keyring%'
             `);
@@ -172,7 +172,7 @@ export function createSecurityEncryptionStatusTool(
         let encryptedTablespaceCount = 0;
         try {
           const tablespaceResult = await adapter.executeQuery(`
-                  SELECT
+                  /* admin */ SELECT
                       NAME,
                       ENCRYPTION
                   FROM information_schema.INNODB_TABLESPACES
@@ -182,7 +182,7 @@ export function createSecurityEncryptionStatusTool(
           encryptedTablespaces = tablespaceResult.rows ?? [];
 
           const countResult = await adapter.executeQuery(`
-                  SELECT COUNT(*) as cnt
+                  /* admin */ SELECT COUNT(*) as cnt
                   FROM information_schema.INNODB_TABLESPACES
                   WHERE ENCRYPTION = 'Y'
               `);
@@ -290,7 +290,7 @@ export function createSecurityPasswordValidateTool(
 
         // Use validate_password function
         const result = await adapter.executeQuery(
-          "SELECT VALIDATE_PASSWORD_STRENGTH(?) AS strength",
+          "/* admin */ SELECT VALIDATE_PASSWORD_STRENGTH(?) AS strength",
           [password],
         );
 
