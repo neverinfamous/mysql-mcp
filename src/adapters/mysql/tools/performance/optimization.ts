@@ -248,6 +248,12 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
     })
     .refine((data) => data.query !== "", {
       message: "query (or sql alias) is required",
+    })
+    .refine((data) => {
+      if (!data.query) return true;
+      return /^\s*(SELECT|WITH|UPDATE|DELETE|INSERT|REPLACE)\b/i.test(data.query);
+    }, {
+      message: "Anti-Hallucination Hint: Query rewrite only supports DML queries (SELECT, WITH, UPDATE, DELETE, INSERT, REPLACE).",
     });
 
   return {
