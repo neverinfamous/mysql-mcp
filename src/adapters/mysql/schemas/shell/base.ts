@@ -16,8 +16,10 @@ export const booleanCoerce = z.preprocess((val: unknown) => {
  * Base parameters common to shell tools
  */
 export const ShellToolBaseSchema = z.object({
-  format: z
-    .enum(["text", "json", "table", "csv", "tsv", "vertical"])
+  format: z.preprocess(
+    (val) => (typeof val === "string" ? val.toLowerCase() : val),
+    z.enum(["text", "json", "table", "csv", "tsv", "vertical"])
+  )
     .optional()
     .default("text")
     .describe("Output format"),
