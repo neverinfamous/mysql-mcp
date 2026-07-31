@@ -334,6 +334,20 @@ export function createSecurityFirewallStatusTool(
           },
         });
       } catch (error) {
+        if (error instanceof Error) {
+          const lower = error.message.toLowerCase();
+          if (
+            lower.includes("does not exist") ||
+            lower.includes("access denied") ||
+            lower.includes("er_no_such_table") ||
+            lower.includes("proxysql error")
+          ) {
+            return formatHandlerErrorResponse(
+              new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
+              { module: "security", tool: "mysql_security_firewall_status" }
+            );
+          }
+        }
         return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_status" });
       }
     },
@@ -452,6 +466,23 @@ export function createSecurityFirewallRulesTool(
           },
         });
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
+        }
+        if (error instanceof Error) {
+          const lower = error.message.toLowerCase();
+          if (
+            lower.includes("does not exist") ||
+            lower.includes("access denied") ||
+            lower.includes("er_no_such_table") ||
+            lower.includes("proxysql error")
+          ) {
+            return formatHandlerErrorResponse(
+              new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
+              { module: "security", tool: "mysql_security_firewall_rules" }
+            );
+          }
+        }
         return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_rules" });
       }
     },
