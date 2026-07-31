@@ -310,17 +310,26 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               new ValidationError("Invalid schema name")
             );
 
+          // P154: Schema existence check when explicitly provided
+          if (schema) {
+            const schemaCheck = await adapter.executeQuery(
+              `SHOW SCHEMAS LIKE '${schema}'`
+            );
+            if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
+              throw new Error(`Schema '${schema}' does not exist`);
+            }
+          }
+
           // We use SHOW statements to avoid ProxySQL hostgroup locking that can happen with information_schema
           // Get accurate row count using COUNT(*) can also fail if the connection is locked, so we use SHOW TABLE STATUS
 
           const schemaPrefix = schema ? `FROM \`${schema}\` ` : '';
           const tableStatus = await adapter.executeQuery(
-            `SHOW TABLE STATUS ${schemaPrefix}LIKE ?`,
-            [collection]
+            `SHOW TABLE STATUS ${schemaPrefix}LIKE '${collection}'`
           );
 
           if (!tableStatus.rows || tableStatus.rows.length === 0) {
-            return formatHandlerErrorResponse(new Error(`Collection '${collection}' does not exist`));
+            throw new Error(`Collection '${collection}' does not exist`);
           }
 
           const stats = tableStatus.rows[0];

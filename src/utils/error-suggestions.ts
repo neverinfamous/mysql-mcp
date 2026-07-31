@@ -54,11 +54,18 @@ const ERROR_SUGGESTIONS: {
     code: "COLUMN_NOT_FOUND",
   },
   {
-    pattern: /(?:Unknown database|Database (?:'.*?' )?(?:doesn't|does not) exist|Schema (?:'.*?' )?(?:doesn't|does not) exist)/i,
+    pattern: /(?:Unknown database|Database (?:'.*?' )?(?:doesn't|does not) exist)/i,
     suggestion:
       "Database not found. Use mysql_list_schemas to see available databases.",
     category: ErrorCategory.RESOURCE,
     code: "DATABASE_NOT_FOUND",
+  },
+  {
+    pattern: /Schema (?:'.*?' )?(?:doesn't|does not) exist/i,
+    suggestion:
+      "Schema not found. Use mysql_list_schemas to see available databases.",
+    category: ErrorCategory.RESOURCE,
+    code: "SCHEMA_NOT_FOUND",
   },
   {
     pattern: /Event (?:'.*?' )?(?:doesn't|does not) exist/i,
