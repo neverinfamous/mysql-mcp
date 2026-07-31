@@ -31,7 +31,7 @@ docker compose up -d
 | **PostgreSQL** (Planned) | `postgres-server` | `5432` | `postgres-hypopg:18` (Custom Build) |
 | **MongoDB** (Planned) | `mongo-server` | `27017` | `mongo` |
 | **Redis** | `redis-server` | `6379` | `redis:7.4.10` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.13` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.14` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.1` |
 | **Loki** | `loki` | `3100` | `grafana/loki:3.6.13` |
