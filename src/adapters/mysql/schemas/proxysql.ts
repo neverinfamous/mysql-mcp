@@ -397,13 +397,43 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
     delete result["search"];
     delete result["name"];
 
-    if (typeof result["prefix"] === "string") {
-      result["prefix"] = result["prefix"].toLowerCase();
+    if (result["like"] !== undefined) {
+      if (typeof result["like"] !== "string") {
+        if (typeof result["like"] === "number" || typeof result["like"] === "boolean") {
+          result["like"] = String(result["like"]);
+        } else {
+          delete result["like"];
+        }
+      }
+    }
+
+    if (result["prefix"] !== undefined) {
+      if (typeof result["prefix"] === "string") {
+        const p = result["prefix"].toLowerCase();
+        if (p === "mysql" || p === "admin" || p === "all") {
+          result["prefix"] = p;
+        } else {
+          delete result["prefix"];
+        }
+      } else {
+        delete result["prefix"];
+      }
     }
 
     const limit = result["limit"];
-    if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
-      result["limit"] = Number(limit);
+    if (limit !== undefined) {
+      if (typeof limit === "string" && limit.trim() !== "") {
+        const parsed = Number(limit);
+        if (!isNaN(parsed) && parsed >= 0) {
+          result["limit"] = Math.floor(parsed);
+        } else {
+          delete result["limit"];
+        }
+      } else if (typeof limit === "number" && limit >= 0) {
+        result["limit"] = Math.floor(limit);
+      } else {
+        delete result["limit"];
+      }
     }
     return result;
   },
