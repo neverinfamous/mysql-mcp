@@ -223,11 +223,11 @@ export function createSpatialDistanceSphereTool(
 
         let query = `SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
                        ROUND(ST_Distance_Sphere(
-                           IF(ST_GeometryType(\`${spatialColumn}\`) IN ('ST_Point', 'ST_MultiPoint'), \`${spatialColumn}\`, ST_GeomFromText('POINT(0 0)', ${String(srid)})), 
+                           IF(ST_GeometryType(\`${spatialColumn}\`) IN ('POINT', 'MULTIPOINT'), \`${spatialColumn}\`, ST_GeomFromText('POINT(0 0)', ${String(srid)})), 
                            ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
                        ), 5) as distance_meters
                 FROM ${escapedTable}
-                WHERE ST_GeometryType(\`${spatialColumn}\`) IN ('ST_Point', 'ST_MultiPoint')`;
+                WHERE ST_GeometryType(\`${spatialColumn}\`) IN ('POINT', 'MULTIPOINT')`;
 
         const queryParams: unknown[] = [pointWkt];
 
