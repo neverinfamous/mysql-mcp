@@ -117,6 +117,33 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
       return d;
     });
   }
+
+  if (result["name"] !== undefined && typeof result["name"] !== "string") {
+    if (typeof result["name"] === "number" || typeof result["name"] === "boolean") {
+      result["name"] = String(result["name"]);
+    } else if (typeof result["name"] === "object") {
+      result["name"] = JSON.stringify(result["name"]);
+    }
+  }
+  if (result["collection"] !== undefined && typeof result["collection"] !== "string") {
+    if (typeof result["collection"] === "number" || typeof result["collection"] === "boolean") {
+      result["collection"] = String(result["collection"]);
+    } else if (typeof result["collection"] === "object") {
+      result["collection"] = JSON.stringify(result["collection"]);
+    }
+  }
+  if (result["schema"] !== undefined && typeof result["schema"] !== "string") {
+    if (typeof result["schema"] === "number" || typeof result["schema"] === "boolean") {
+      result["schema"] = String(result["schema"]);
+    }
+  }
+  if (typeof result["ifNotExists"] === "string") {
+    result["ifNotExists"] = result["ifNotExists"].toLowerCase() === "true";
+  }
+  if (typeof result["ifExists"] === "string") {
+    result["ifExists"] = result["ifExists"].toLowerCase() === "true";
+  }
+
   return result;
 }
 

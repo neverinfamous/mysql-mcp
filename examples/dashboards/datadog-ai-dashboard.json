@@ -1536,7 +1536,7 @@
     },
     {
       "definition": {
-        "check": "network.http.can_connect",
+        "check": "http.can_connect",
         "grouping": "cluster",
         "tags": [
           "service:mysql-router",
@@ -1558,7 +1558,7 @@
     },
     {
       "definition": {
-        "check": "network.tcp.can_connect",
+        "check": "tcp.can_connect",
         "grouping": "cluster",
         "tags": [
           "service:mysql-router",
@@ -1580,7 +1580,7 @@
     },
     {
       "definition": {
-        "check": "network.tcp.can_connect",
+        "check": "tcp.can_connect",
         "grouping": "cluster",
         "tags": [
           "service:mysql-router",
@@ -1625,10 +1625,10 @@
             ],
             "queries": [
               {
-                "aggregator": "avg",
+                "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.cluster.super_read_only{*} by {host}"
+                "query": "min:mysql.cluster.super_read_only{*}"
               }
             ],
             "response_format": "scalar"
@@ -1638,7 +1638,8 @@
         "title": "Router Super Read Status",
         "title_align": "center",
         "title_size": "16",
-        "type": "query_value"
+        "type": "query_value",
+        "precision": 0
       },
       "id": 6268648035252158,
       "layout": {
