@@ -338,7 +338,7 @@ export function createSecurityUserPrivilegesTool(
         }
         // P154: User existence check when explicitly provided
         const userCheck = await adapter.rawQuery(
-          format("SELECT User FROM mysql.user WHERE User = ? LIMIT 1", [user])
+          format("/* mcp-force-write */ SELECT User FROM mysql.user WHERE User = ? LIMIT 1", [user])
         );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
@@ -349,7 +349,7 @@ export function createSecurityUserPrivilegesTool(
 
           // Get users
           let usersQuery = `
-                  SELECT User, Host,
+                  /* mcp-force-write */ SELECT User, Host,
                          plugin AS authPlugin,
                          account_locked AS accountLocked,
                          password_expired AS passwordExpired,
@@ -400,7 +400,7 @@ export function createSecurityUserPrivilegesTool(
                 
                 const rolesResult = await adapter.rawQuery(
                   format(`
-                    SELECT TO_USER, TO_HOST, FROM_USER, FROM_HOST
+                    /* mcp-force-write */ SELECT TO_USER, TO_HOST, FROM_USER, FROM_HOST
                     FROM mysql.role_edges
                     WHERE ${roleConditions.join(" OR ")}
                   `,
@@ -538,9 +538,8 @@ export function createSecuritySensitiveTablesTool(
             { module: "security", tool: "mysql_security_sensitive_tables" }
           );
         }
-        // P154: Schema existence check when explicitly provided
         const schemaCheck = await adapter.rawQuery(
-          format("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?", [schema])
+          format("/* mcp-force-write */ SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?", [schema])
         );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
@@ -560,7 +559,7 @@ export function createSecuritySensitiveTablesTool(
         const schemaParams = [schema];
 
         const query = `
-                SELECT
+                /* mcp-force-write */ SELECT
                     TABLE_NAME AS tableName,
                     COLUMN_NAME AS columnName,
                     DATA_TYPE AS dataType,
