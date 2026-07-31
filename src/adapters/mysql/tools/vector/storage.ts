@@ -1,6 +1,7 @@
 import type { ToolDefinition } from "../../../../types/index.js";
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-helpers.js";
+import { ValidationError } from "../../../../types/modules/errors.js";
 
 import { WRITE, READ_ONLY, DESTRUCTIVE } from "../../../../utils/annotations.js";
 import {
@@ -39,6 +40,11 @@ export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
         const column = sanitizeIdentifier(targetColumn);
         const idCol = sanitizeIdentifier(validated.idColumn);
         
+        const tableInfo = await adapter.describeTable(table);
+        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+          throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
+        }
+
         const vectorStr = formatVector(validated.vector);
 
         const query = `
@@ -84,6 +90,11 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
         const column = sanitizeIdentifier(targetColumn);
         const idCol = sanitizeIdentifier(validated.idColumn);
+
+        const tableInfo = await adapter.describeTable(table);
+        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+          throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
+        }
 
         const placeholders: string[] = [];
         const flatValues: unknown[] = [];
@@ -139,6 +150,11 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
         // Verify this is actually a vector table before allowing deletion
         await resolveVectorColumn(adapter, validated.table);
 
+        const tableInfo = await adapter.describeTable(table);
+        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+          throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
+        }
+
         const query = `DELETE FROM \`${table}\` WHERE \`${idCol}\` = ?`;
         const result = await adapter.executeQuery(query, [validated.id]);
 
@@ -189,6 +205,11 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
         const targetColumn = await resolveVectorColumn(adapter, validated.table, validated.column);
         
         const col = sanitizeIdentifier(targetColumn);
+
+        const tableInfo = await adapter.describeTable(table);
+        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+          throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
+        }
 
         const query = `
           SELECT \`${idCol}\`, VECTOR_TO_STRING(\`${col}\`) as vector_str
