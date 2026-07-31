@@ -152,6 +152,7 @@ export const AddDocSchemaStrict = z.object({
   schema: z.string().optional(),
   documents: z
     .array(z.record(z.string(), z.unknown()))
+    .min(1)
     .describe("Documents to add. Hint: Use 'documents' instead of 'document'."),
 });
 
@@ -193,6 +194,7 @@ export const ModifyDocSchemaStrict = z.object({
   schema: z.string().optional(),
   filter: z
     .string()
+    .min(1)
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document. Hint: Use 'filter' instead of 'query' or 'sql'.",
     ),
