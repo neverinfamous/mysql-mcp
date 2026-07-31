@@ -90,7 +90,7 @@ describe("Handler Execution", () => {
       );
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[mockAdapter.executeQuery.mock.calls.length - 1][0];
       expect(call).toContain("ADD COLUMN");
       expect(result).toHaveProperty("success", true);
     });
@@ -108,7 +108,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[mockAdapter.executeQuery.mock.calls.length - 1][0];
       expect(call).toContain("NOT NULL");
     });
   });
@@ -220,9 +220,7 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_point", () => {
     it("should create a POINT geometry", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ wkt: "POINT(-73.9857 40.7484)", srid: 4326 }]),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }])).mockResolvedValue(createMockQueryResult([{ wkt: "POINT(-73.9857 40.7484)", srid: 4326 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_point")!;
       const result = await tool.handler(
@@ -230,14 +228,14 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const args = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][1];
       expect(args[0]).toContain("POINT");
       expect(result).toBeDefined();
     });
 
     it("should handle invalid coordinates gracefully", async () => {
-      mockAdapter.executeQuery.mockRejectedValue(
+      mockAdapter.executeReadQuery.mockRejectedValue(
         new Error("Invalid coordinate"),
       );
 
@@ -256,9 +254,7 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_polygon", () => {
     it("should create a POLYGON geometry", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ wkt: "POLYGON((...))" }]),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }])).mockResolvedValue(createMockQueryResult([{ wkt: "POLYGON((...))" }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_polygon")!;
       const result = await tool.handler(
@@ -277,16 +273,16 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
   });
 
   describe("mysql_spatial_distance", () => {
     it("should find points within distance", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ distance: 1000.5 }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }]))
+        .mockResolvedValue(createMockQueryResult([{ distance: 1000.5 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_distance")!;
       await tool.handler(
@@ -298,17 +294,17 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Distance");
     });
   });
 
   describe("mysql_spatial_distance_sphere", () => {
     it("should calculate spherical distance", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1, distance_meters: 5000 }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }]))
+        .mockResolvedValue(createMockQueryResult([{ id: 1, distance_meters: 5000 }]));
 
       const tool = tools.find(
         (t) => t.name === "mysql_spatial_distance_sphere",
@@ -323,17 +319,17 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Distance_Sphere");
     });
   });
 
   describe("mysql_spatial_contains", () => {
     it("should find geometries within a polygon", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1 }, { id: 2 }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }]))
+        .mockResolvedValue(createMockQueryResult([{ id: 1 }, { id: 2 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_contains")!;
       await tool.handler(
@@ -345,17 +341,17 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Contains");
     });
   });
 
   describe("mysql_spatial_within", () => {
     it("should find geometries within another", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ id: 1 }]),
-      );
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }]))
+        .mockResolvedValue(createMockQueryResult([{ id: 1 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_within")!;
       await tool.handler(
@@ -367,15 +363,15 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Within");
     });
   });
 
   describe("mysql_spatial_intersection", () => {
     it("should calculate intersection of geometries", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           { intersects: 1, intersection_wkt: "POINT(5 5)" },
         ]),
@@ -390,15 +386,15 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Intersection");
     });
   });
 
   describe("mysql_spatial_buffer", () => {
     it("should create buffer around geometry", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ buffered: "POLYGON(...)" }]),
       );
 
@@ -408,15 +404,15 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][0];
       expect(call).toContain("ST_Buffer");
     });
   });
 
   describe("mysql_spatial_transform", () => {
     it("should transform geometry between SRIDs", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ transformed_wkt: "POINT(...)" }]),
       );
 
@@ -426,10 +422,10 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       
       // Find the actual transform query, as validateSrid might have been called first
-      const transformCall = mockAdapter.executeQuery.mock.calls.find(c => String(c[0]).includes("ST_Transform"));
+      const transformCall = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_Transform"));
       expect(transformCall).toBeDefined();
       const call = transformCall![0];
       
@@ -439,7 +435,7 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_geojson", () => {
     it("should convert WKT to GeoJSON", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           { geoJson: '{"type":"Point","coordinates":[0,0]}' },
         ]),
@@ -451,12 +447,12 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
 
     it("should convert GeoJSON to WKT", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([{ wkt: "POINT(0 0)" }]),
       );
 
@@ -466,7 +462,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result).toBeDefined();
     });
 

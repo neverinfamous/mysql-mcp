@@ -298,9 +298,9 @@ describe("preprocess-utils", () => {
       expect(preprocessDocIndexParams({ index: "i" })).toMatchObject({ name: "i" });
     });
     it("should process fields", () => {
-      expect(preprocessDocIndexParams({ fields: "f" })).toMatchObject({ fields: [{ path: "f" }] });
-      expect(preprocessDocIndexParams({ fields: ["f"] })).toMatchObject({ fields: [{ path: "f" }] });
-      expect(preprocessDocIndexParams({ fields: [{ field: "f", type: "integer" }] })).toMatchObject({ fields: [{ path: "f", type: "INT" }] });
+      expect(preprocessDocIndexParams({ fields: "f" })).toMatchObject({ fields: [{ path: "$.f" }] });
+      expect(preprocessDocIndexParams({ fields: ["f"] })).toMatchObject({ fields: [{ path: "$.f" }] });
+      expect(preprocessDocIndexParams({ fields: [{ field: "f", type: "integer" }] })).toMatchObject({ fields: [{ path: "$.f", type: "INT" }] });
     });
   });
 

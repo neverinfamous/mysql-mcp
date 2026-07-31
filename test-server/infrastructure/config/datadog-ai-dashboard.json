@@ -1442,51 +1442,6 @@
     },
     {
       "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "bars",
-            "formulas": [
-              {
-                "formula": "default_zero(query1)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count()"
-              }
-            ],
-            "response_format": "timeseries"
-          }
-        ],
-        "show_legend": true,
-        "title": "Agent Quality (Error Classification)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries"
-      },
-      "id": 203565609753226,
-      "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 4,
-        "y": 16
-      }
-    },
-    {
-      "definition": {
         "has_search_bar": "auto",
         "requests": [
           {
@@ -1523,6 +1478,51 @@
         "type": "query_table"
       },
       "id": 203565609753300,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 16
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count()"
+              }
+            ],
+            "response_format": "timeseries"
+          }
+        ],
+        "show_legend": true,
+        "title": "Agent Quality (Error Classification)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 203565609753226,
       "layout": {
         "height": 4,
         "width": 4,

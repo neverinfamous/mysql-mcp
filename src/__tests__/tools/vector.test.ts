@@ -17,6 +17,8 @@ const mockRawQuery = vi.fn().mockImplementation(async (sql) => {
 const mockAdapter = {
   executeQuery: mockExecuteQuery,
   rawQuery: mockRawQuery,
+  getHealth: vi.fn().mockResolvedValue({ version: "9.1.0" }),
+  describeTable: vi.fn().mockResolvedValue({ columns: [{ name: "v1", type: "vector(3)" }, { name: "id", type: "int" }] }),
 } as unknown as MySQLAdapter;
 
 const mockContext: RequestContext = { timestamp: new Date(), requestId: "test" };
@@ -47,6 +49,8 @@ describe("Vector Tools", () => {
       const oldAdapter = {
         executeQuery: vi.fn().mockResolvedValue({ rows: [], affectedRows: 0 }),
         rawQuery: oldRawQuery,
+        getHealth: vi.fn().mockResolvedValue({ version: "8.0.35" }),
+        describeTable: vi.fn().mockResolvedValue({ columns: [{ name: "v1", type: "vector(3)" }] }),
       } as unknown as MySQLAdapter;
       
       const oldToolsArray = getVectorTools(oldAdapter);
@@ -65,7 +69,10 @@ describe("Vector Tools", () => {
     });
 
     it("should return an error for MySQL versions < 9.1 on create_index", async () => {
-      const indexTool = tools.get("mysql_vector_create_index")!;
+      mockAdapter.getHealth = vi.fn().mockResolvedValue({ version: "9.0.0" });
+      const oldToolsArray = getVectorTools(mockAdapter);
+      const oldTools = new Map(oldToolsArray.map((t) => [t.name, t]));
+      const indexTool = oldTools.get("mysql_vector_create_index")!;
       
       const result = await indexTool.handler(
         { table: "t1", column: "v1" },
@@ -142,6 +149,8 @@ describe("Vector Tools", () => {
       const successAdapter = {
         executeQuery: mockExecuteQuery,
         rawQuery: mockRawQuery,
+        getHealth: vi.fn().mockResolvedValue({ version: "9.1.0" }),
+        describeTable: vi.fn().mockResolvedValue({ columns: [{ name: "v1", type: "vector(3)" }] }),
       } as unknown as MySQLAdapter;
       
       const successTool = getVectorTools(successAdapter).find(t => t.name === "mysql_vector_search")!;

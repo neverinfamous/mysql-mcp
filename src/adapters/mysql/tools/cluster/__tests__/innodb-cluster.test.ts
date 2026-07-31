@@ -385,7 +385,7 @@ describe("InnoDB Cluster Tools", () => {
   describe("createClusterSwitchoverTool", () => {
     it("should warn when no online secondaries exist", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]))
         .mockResolvedValueOnce(
         createMockQueryResult([
           {
@@ -416,7 +416,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("should return currentPrimary as null when no primary exists", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]))
         .mockResolvedValueOnce(
         createMockQueryResult([
           {
@@ -442,7 +442,7 @@ describe("InnoDB Cluster Tools", () => {
 
     it("should recommend good switchover candidate", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]))
         .mockResolvedValueOnce(
         createMockQueryResult([
           {

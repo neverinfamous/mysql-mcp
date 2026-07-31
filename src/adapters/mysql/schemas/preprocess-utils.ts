@@ -1059,7 +1059,7 @@ export function preprocessDocIndexParams(val: unknown): unknown {
 
   if (Array.isArray(result["fields"])) {
     result["fields"] = result["fields"].map((f: unknown) => {
-      if (typeof f === "string") return { path: f };
+      if (typeof f === "string") return { path: ensureJsonPath(f) };
       if (typeof f !== "object" || f === null) return f;
       const fieldObj = { ...(f as Record<string, unknown>) };
       if (fieldObj["path"] === undefined && fieldObj["field"] !== undefined) {

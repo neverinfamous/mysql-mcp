@@ -72,7 +72,7 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
         const { longitude, latitude, srid } = PointSchema.parse(params);
 
         const wkt = `POINT(${String(longitude)} ${String(latitude)})`;
-        const result = await adapter.executeQuery(
+        const result = await adapter.executeReadQuery(
           `WITH _proxy_bypass AS (SELECT 1) SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
                         ST_AsGeoJSON(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 5) as geoJson`,
           [wkt, srid, wkt, srid],
@@ -135,7 +135,7 @@ export function createSpatialPolygonTool(
           });
         }
 
-        const result = await adapter.executeQuery(
+        const result = await adapter.executeReadQuery(
           `WITH _proxy_bypass AS (SELECT 1) SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
                         ST_AsGeoJSON(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 5) as geoJson,
                         ST_Area(ST_GeomFromText(?, ?, 'axis-order=long-lat')) as area`,

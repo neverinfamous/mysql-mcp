@@ -355,6 +355,7 @@ export class HttpTransport {
 
 
 
+    metrics.recordHttpError(404);
     res.writeHead(404);
     res.end(JSON.stringify({ error: "Not found" }));
   }

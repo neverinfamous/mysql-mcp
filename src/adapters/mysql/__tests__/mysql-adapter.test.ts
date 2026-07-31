@@ -202,7 +202,7 @@ describe("MySQLAdapter", () => {
         { name: "id", type: 3 },
         { name: "name", type: 253 },
       ];
-      mockPool.execute.mockResolvedValue([mockRows, mockFields]);
+      mockPool.query.mockResolvedValue([mockRows, mockFields]);
 
       const result = await adapter.executeReadQuery("SELECT * FROM users");
 
@@ -392,12 +392,11 @@ describe("MySQLAdapter", () => {
 
       expect(connection).toBeDefined();
 
-      mockConnection.execute.mockResolvedValue([[], undefined]);
+      mockConnection.query.mockResolvedValue([[], undefined]);
       await adapter.executeOnConnection(connection!, "SELECT 1");
 
-      expect(mockConnection.execute).toHaveBeenCalledWith(
-        "SELECT 1",
-        undefined,
+      expect(mockConnection.query).toHaveBeenCalledWith(
+        "SELECT 1"
       );
     });
 
@@ -406,7 +405,7 @@ describe("MySQLAdapter", () => {
       const connection = adapter.getTransactionConnection(txId);
 
       const mockResult = { affectedRows: 1, insertId: 123 };
-      mockConnection.execute.mockResolvedValue([mockResult, undefined]);
+      mockConnection.query.mockResolvedValue([mockResult, undefined]);
 
       const result = await adapter.executeOnConnection(
         connection!,
@@ -437,7 +436,7 @@ describe("MySQLAdapter", () => {
           rowCount: 10,
         },
       ];
-      mockPool.execute.mockResolvedValue([mockTables, undefined]);
+      mockPool.query.mockResolvedValue([mockTables, undefined]);
 
       const tables = await adapter.listTables();
 
@@ -448,7 +447,7 @@ describe("MySQLAdapter", () => {
 
     it("should describe table", async () => {
       // Mock column info
-      mockPool.execute.mockResolvedValueOnce([
+      mockPool.query.mockResolvedValueOnce([
         [
           {
             Field: "id",
@@ -462,7 +461,7 @@ describe("MySQLAdapter", () => {
       ]);
 
       // Mock table info
-      mockPool.execute.mockResolvedValueOnce([
+      mockPool.query.mockResolvedValueOnce([
         [
           {
             Comment: "BASE TABLE",
@@ -486,7 +485,7 @@ describe("MySQLAdapter", () => {
     });
 
     it("should list schemas", async () => {
-      mockPool.execute.mockResolvedValue([
+      mockPool.query.mockResolvedValue([
         [{ Database: "test_db" }],
         undefined,
       ]);
@@ -495,7 +494,7 @@ describe("MySQLAdapter", () => {
     });
 
     it("should get table indexes", async () => {
-      mockPool.execute.mockResolvedValue([
+      mockPool.query.mockResolvedValue([
         [
           {
             Key_name: "PRIMARY",
@@ -515,7 +514,7 @@ describe("MySQLAdapter", () => {
     });
 
     it("should handle composite indexes", async () => {
-      mockPool.execute.mockResolvedValue([
+      mockPool.query.mockResolvedValue([
         [
           {
             Key_name: "composite_idx",
@@ -554,7 +553,7 @@ describe("MySQLAdapter", () => {
           rowCount: null,
         },
       ];
-      mockPool.execute.mockResolvedValue([mockTables, undefined]);
+      mockPool.query.mockResolvedValue([mockTables, undefined]);
 
       const tables = await adapter.listTables();
       expect(tables[0].type).toBe("view");
@@ -562,10 +561,10 @@ describe("MySQLAdapter", () => {
 
     it("should identify views in describeTable", async () => {
       // Mock columns
-      mockPool.execute.mockResolvedValueOnce([[], undefined]);
+      mockPool.query.mockResolvedValueOnce([[], undefined]);
 
       // Mock view info
-      mockPool.execute.mockResolvedValueOnce([
+      mockPool.query.mockResolvedValueOnce([
         [
           {
             type: "VIEW",

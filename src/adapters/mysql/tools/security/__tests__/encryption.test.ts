@@ -87,7 +87,7 @@ describe("Security Encryption Tools", () => {
       mockExecuteQuery
         // keyring plugins
         .mockResolvedValueOnce({
-          rows: [{ PLUGIN_NAME: "keyring_file", PLUGIN_STATUS: "ACTIVE" }],
+          rows: [{ Name: "keyring_file", Status: "ACTIVE" }],
         })
         // tablespaces
         .mockResolvedValueOnce({

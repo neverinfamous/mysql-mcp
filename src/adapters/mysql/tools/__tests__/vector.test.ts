@@ -83,6 +83,16 @@ describe("Vector Tools", () => {
     adapter.transaction = vi.fn().mockImplementation(async (cb: any) => {
       return cb(adapter);
     });
+
+    adapter.describeTable.mockResolvedValue({
+      name: "my_table",
+      type: "table",
+      columns: [
+        { name: "vec", type: "vector(1536)", nullable: true, primaryKey: false },
+        { name: "id", type: "int", nullable: false, primaryKey: true }
+      ],
+      rowCount: 10
+    });
   });
 
   describe("getVectorTools", () => {
@@ -104,7 +114,7 @@ describe("Vector Tools", () => {
 
     it("should handle error", async () => {
       const tool = createVectorInfoTool(adapter);
-      adapter.executeQuery.mockRejectedValueOnce(new Error("DB Error"));
+      adapter.describeTable.mockRejectedValueOnce(new Error("DB Error"));
       const result = await tool.handler({ table: "my_table" }, context) as Record<string, unknown>;
       expect(result.success).toBe(false);
     });

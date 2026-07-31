@@ -79,12 +79,12 @@ describe("Security Data Protection Tools", () => {
   describe("createSecurityUserPrivilegesTool", () => {
     it("should get user privileges and roles", async () => {
       // Mock P154 user existence pre-check
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ User: "john", Host: "localhost" }]),
       );
 
       // Mock users query
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             User: "john",
@@ -98,11 +98,11 @@ describe("Security Data Protection Tools", () => {
 
       // Mock permissions query for john
       // Mock roles query
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([{ FROM_USER: "admin_role", FROM_HOST: "%", TO_USER: "john", TO_HOST: "localhost" }]),
       );
       
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.rawQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             "Grants for john@localhost":
@@ -123,7 +123,7 @@ describe("Security Data Protection Tools", () => {
         mockContext,
       )) as { data: { users: any[] } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(4);
+      expect(mockAdapter.rawQuery).toHaveBeenCalledTimes(4);
       expect(result.data.users).toHaveLength(1);
       expect(result.data.users[0].user).toBe("john");
       expect(result.data.users[0].grants).toHaveLength(1);
@@ -133,7 +133,7 @@ describe("Security Data Protection Tools", () => {
 
   describe("createSecuritySensitiveTablesTool", () => {
     it("should identify sensitive tables", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
+      mockAdapter.rawQuery.mockResolvedValue(
         createMockQueryResult([
           {
             tableName: "users",
@@ -159,7 +159,7 @@ describe("Security Data Protection Tools", () => {
         mockContext,
       )) as { data: { sensitiveTables: any[]; totalSensitiveColumns: number } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
+      expect(mockAdapter.rawQuery).toHaveBeenCalled();
       expect(result.data.sensitiveTables).toHaveLength(2); // users, payments
       expect(result.data.totalSensitiveColumns).toBe(3);
       expect(result.data.sensitiveTables[0].table).toBe("users");

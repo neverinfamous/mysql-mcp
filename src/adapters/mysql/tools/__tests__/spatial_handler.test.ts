@@ -162,7 +162,9 @@ describe("Spatial Tools Handlers", () => {
   describe("mysql_spatial_distance", () => {
     it("should include WHERE clause if maxDistance is provided", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       await tool.handler(
         {
@@ -174,15 +176,17 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
-        expect.stringContaining("WHERE ST_Distance"),
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
+        expect.stringContaining("HAVING distance <= ?"),
         expect.arrayContaining([1000]),
       );
     });
 
     it("should omit WHERE clause if maxDistance is missing", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.executeReadQuery
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point" }]))
+        .mockResolvedValueOnce(createMockQueryResult([]));
 
       await tool.handler(
         {
@@ -193,8 +197,8 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledWith(
-        expect.not.stringContaining("WHERE ST_Distance"),
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalledWith(
+        expect.not.stringContaining("HAVING distance <= ?"),
         expect.anything(),
       );
     });
@@ -203,7 +207,7 @@ describe("Spatial Tools Handlers", () => {
   describe("mysql_spatial_geojson", () => {
     it("should convert WKT to GeoJSON", async () => {
       const tool = findTool("mysql_spatial_geojson")!;
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(
         createMockQueryResult([
           { geoJson: '{"type":"Point","coordinates":[1,1]}' },
         ]),
@@ -225,7 +229,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should convert GeoJSON to WKT", async () => {
       const tool = findTool("mysql_spatial_geojson")!;
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(
         createMockQueryResult([{ wkt: "POINT(1 1)" }]),
       );
 
@@ -255,9 +259,7 @@ describe("Spatial Tools Handlers", () => {
   describe("P154 Graceful Error Handling", () => {
     it("should return { exists: false } for nonexistent table (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' does not exist"),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point" }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
 
       const result = await tool.handler(
         {
@@ -276,9 +278,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (distance_sphere)", async () => {
       const tool = findTool("mysql_spatial_distance_sphere")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' does not exist"),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point" }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
 
       const result = await tool.handler(
         {
@@ -297,9 +297,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (contains)", async () => {
       const tool = findTool("mysql_spatial_contains")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' does not exist"),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point" }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
 
       const result = await tool.handler(
         {
@@ -318,9 +316,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (within)", async () => {
       const tool = findTool("mysql_spatial_within")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' does not exist"),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point" }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
 
       const result = await tool.handler(
         {
@@ -339,14 +335,13 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (create_column)", async () => {
       const tool = findTool("mysql_spatial_create_column")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' does not exist"),
-      );
+      mockAdapter.executeQuery.mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
 
       const result = await tool.handler(
         {
           table: "nonexistent",
           column: "geom",
+          type: "point",
         },
         mockContext,
       );
@@ -359,9 +354,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (create_index)", async () => {
       const tool = findTool("mysql_spatial_create_index")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Table 'db.nonexistent' does not exist"),
-      );
+      mockAdapter.executeQuery.mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
 
       const result = await tool.handler(
         {
@@ -379,9 +372,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for MySQL error (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("Column 'bad_col' not found"),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point" }] }).mockRejectedValueOnce(new Error("Column 'bad_col' not found"));
 
       const result = await tool.handler(
         {
@@ -400,7 +391,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for invalid WKT (intersection)", async () => {
       const tool = findTool("mysql_spatial_intersection")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
+      mockAdapter.executeReadQuery.mockRejectedValueOnce(
         new Error("Invalid GIS data"),
       );
 
@@ -420,7 +411,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for invalid WKT (buffer)", async () => {
       const tool = findTool("mysql_spatial_buffer")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
+      mockAdapter.executeReadQuery.mockRejectedValueOnce(
         new Error("Invalid GIS data"),
       );
 
@@ -440,9 +431,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for invalid SRID (transform)", async () => {
       const tool = findTool("mysql_spatial_transform")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
-        new Error("There's no spatial reference system with SRID 99999"),
-      );
+      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point" }] }).mockRejectedValueOnce(new Error("There's no spatial reference system with SRID 99999"));
 
       const result = await tool.handler(
         {
@@ -461,7 +450,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for invalid WKT (geojson)", async () => {
       const tool = findTool("mysql_spatial_geojson")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
+      mockAdapter.executeReadQuery.mockRejectedValueOnce(
         new Error("Invalid GIS data"),
       );
 
@@ -480,7 +469,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for invalid coordinates (point)", async () => {
       const tool = findTool("mysql_spatial_point")!;
-      mockAdapter.executeQuery.mockRejectedValueOnce(
+      mockAdapter.executeReadQuery.mockRejectedValueOnce(
         new Error("Latitude must be in range"),
       );
 
@@ -520,7 +509,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should include segmentsApplied: false for geographic SRID (buffer)", async () => {
       const tool = findTool("mysql_spatial_buffer")!;
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             buffer_wkt: "POLYGON((0 0,1 0,1 1,0 1,0 0))",
@@ -546,7 +535,7 @@ describe("Spatial Tools Handlers", () => {
 
     it("should include segmentsApplied: true for Cartesian SRID (buffer)", async () => {
       const tool = findTool("mysql_spatial_buffer")!;
-      mockAdapter.executeQuery.mockResolvedValueOnce(
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(
         createMockQueryResult([
           {
             buffer_wkt: "POLYGON((0 0,1 0,1 1,0 1,0 0))",

@@ -70,7 +70,7 @@ export function createMockHealthStatus(connected = true): HealthStatus {
   return {
     connected,
     latencyMs: 5,
-    version: "8.0.35",
+    version: "9.1.0",
     poolStats: {
       total: 10,
       active: 2,
@@ -88,7 +88,10 @@ export class MockMySQLAdapter extends MySQLAdapter {
   override isConnected: Mock<() => boolean> = vi.fn().mockReturnValue(true);
 
   override executeQuery: Mock<(sql: string, params?: unknown[], txId?: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
-  override executeReadQuery: Mock<(sql: string, params?: unknown[]) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
+  override executeReadQuery: Mock<(sql: string, params?: unknown[]) => Promise<QueryResult>> = vi.fn().mockImplementation(async (sql) => {
+    if (sql && sql.includes("INFORMATION_SCHEMA.COLUMNS")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]);
+    return createMockQueryResult([{ id: 1, name: "test" }]);
+  });
   override executeWriteQuery: Mock<(sql: string, params?: unknown[], txId?: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
   override rawQuery: Mock<(sql: string) => Promise<QueryResult>> = vi.fn().mockResolvedValue(createMockQueryResult([{ id: 1, name: "test" }]));
 

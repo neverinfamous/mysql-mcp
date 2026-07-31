@@ -37,14 +37,10 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should query distance with defaults", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([
-          {
-            id: 1,
-            distance: 100,
-          },
-        ]),
-      );
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]);
+        return createMockQueryResult([{ id: 1, distance: 100 }]);
+      });
 
       const tool = createSpatialDistanceTool(
         mockAdapter,
@@ -58,8 +54,8 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       )) as { data: { results: unknown[] } };
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance");
       // Check SRID default with axis-order option
       expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
@@ -67,7 +63,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should filter by maxDistance and use custom SRID", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialDistanceTool(
         mockAdapter,
@@ -84,12 +80,12 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance");
       expect(call).toContain("<= ?");
       expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
       expect(call).toContain("LIMIT 5");
-      const args = mockAdapter.executeQuery.mock.calls[0][1];
+      const args = mockAdapter.executeReadQuery.mock.calls[mockAdapter.executeReadQuery.mock.calls.length - 1][1];
       expect(args).toContain(500);
     });
 
@@ -133,10 +129,7 @@ describe("Spatial Queries Tools", () => {
 
     it("should handle undefined rows result", async () => {
       // Mock executeQuery returning no rows property potentially, or null rows
-      mockAdapter.executeQuery.mockResolvedValue({
-        fields: [],
-        rows: null,
-      });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return { fields: [], rows: null } as any; });
 
       const tool = createSpatialDistanceTool(
         mockAdapter,
@@ -164,7 +157,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should query spherical distance", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialDistanceSphereTool(
         mockAdapter,
@@ -178,12 +171,12 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ST_Distance_Sphere");
     });
 
     it("should support optional maxDistance", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialDistanceSphereTool(
         mockAdapter,
@@ -198,7 +191,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("<= ?");
     });
 
@@ -231,7 +224,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should query for contained geometries with default SRID", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialContainsTool(
         mockAdapter,
@@ -245,14 +238,14 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ST_Contains");
       // Verify SRID is applied with default 4326 and axis-order option
       expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
     });
 
     it("should support custom SRID for contains query", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialContainsTool(
         mockAdapter,
@@ -267,7 +260,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
     });
 
@@ -300,7 +293,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should query for geometries within shape with default SRID", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialWithinTool(
         mockAdapter,
@@ -314,14 +307,14 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ST_Within");
       // Verify SRID is applied with default 4326 and axis-order option
       expect(call).toContain("ST_GeomFromText(?, 4326, 'axis-order=long-lat')");
     });
 
     it("should support custom SRID for within query", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialWithinTool(
         mockAdapter,
@@ -336,7 +329,7 @@ describe("Spatial Queries Tools", () => {
         mockContext,
       );
 
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeReadQuery.mock.calls.find(c => String(c[0]).includes("ST_"))?.[0] || mockAdapter.executeReadQuery.mock.calls[0][0];
       expect(call).toContain("ST_GeomFromText(?, 3857, 'axis-order=long-lat')");
     });
 

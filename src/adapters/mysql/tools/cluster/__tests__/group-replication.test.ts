@@ -25,7 +25,7 @@ describe("Group Replication Tools", () => {
       mockExecuteQuery
         // Plugin Status
         .mockResolvedValueOnce({
-          rows: [{ PLUGIN_STATUS: "ACTIVE" }],
+          rows: [{ Name: "group_replication", Status: "ACTIVE" }],
         })
         // Config status
         .mockResolvedValueOnce({
@@ -104,7 +104,7 @@ describe("Group Replication Tools", () => {
       mockExecuteQuery
         // Plugin Status
         .mockResolvedValueOnce({
-          rows: [{ PLUGIN_STATUS: "ACTIVE" }],
+          rows: [{ Name: "group_replication", Status: "ACTIVE" }],
         })
         .mockResolvedValueOnce({ rows: [] }) // Config missing
         .mockResolvedValueOnce({
@@ -130,7 +130,7 @@ describe("Group Replication Tools", () => {
       mockExecuteQuery
         // Plugin Status
         .mockResolvedValueOnce({
-          rows: [{ PLUGIN_STATUS: "ACTIVE" }],
+          rows: [{ Name: "group_replication", Status: "ACTIVE" }],
         })
         // Config
         .mockResolvedValueOnce({
@@ -168,7 +168,7 @@ describe("Group Replication Tools", () => {
       mockExecuteQuery
         // Plugin Status
         .mockResolvedValueOnce({
-          rows: [{ PLUGIN_STATUS: "ACTIVE" }],
+          rows: [{ Name: "group_replication", Status: "ACTIVE" }],
         })
         // Config
         .mockResolvedValueOnce({
@@ -201,7 +201,7 @@ describe("Group Replication Tools", () => {
       mockExecuteQuery
         // Plugin Status
         .mockResolvedValueOnce({
-          rows: [{ PLUGIN_STATUS: "ACTIVE" }],
+          rows: [{ Name: "group_replication", Status: "ACTIVE" }],
         })
         .mockResolvedValueOnce({ rows: [] }) // Missing config
         .mockResolvedValueOnce({

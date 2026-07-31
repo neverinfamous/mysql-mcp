@@ -76,7 +76,7 @@ describe("Handler Execution", () => {
     it("should query group_replication status", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([{ MEMBER_STATE: "ONLINE" }]),
@@ -96,7 +96,7 @@ describe("Handler Execution", () => {
     it("should list group replication members", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([
@@ -118,7 +118,7 @@ describe("Handler Execution", () => {
     it("should accept memberId parameter", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(createMockQueryResult([]));
 
@@ -129,7 +129,7 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
         expect.stringContaining(
-          "SELECT PLUGIN_STATUS FROM information_schema.PLUGINS",
+          "SHOW PLUGINS",
         ),
       );
 
@@ -146,7 +146,7 @@ describe("Handler Execution", () => {
     it("should get primary member info", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([{ memberId: "uuid1", host: "primary.local" }]),
@@ -165,7 +165,7 @@ describe("Handler Execution", () => {
     it("should get transaction status", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([
@@ -186,7 +186,7 @@ describe("Handler Execution", () => {
     it("should get flow control statistics", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }]),
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
           createMockQueryResult([
@@ -355,7 +355,7 @@ describe("Handler Execution", () => {
     it("should get switchover recommendation", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }])
         )
         .mockResolvedValueOnce(
         createMockQueryResult([
@@ -383,7 +383,7 @@ describe("Handler Execution", () => {
       // uuid3: 200 queue (NOT_RECOMMENDED)
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }])
         )
         .mockResolvedValueOnce(
         createMockQueryResult([
@@ -446,7 +446,7 @@ describe("Handler Execution", () => {
     it("should warn if all candidates are not recommended", async () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(
-          createMockQueryResult([{ PLUGIN_STATUS: "ACTIVE" }])
+          createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }])
         )
         .mockResolvedValueOnce(
         createMockQueryResult([

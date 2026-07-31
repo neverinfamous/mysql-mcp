@@ -234,7 +234,7 @@ describe("Security Audit Tools", () => {
       // Mock plugin check
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
-          { PLUGIN_NAME: "mysql_firewall", PLUGIN_STATUS: "ACTIVE" },
+          { Name: "mysql_firewall", Status: "ACTIVE" },
         ]),
       );
 
@@ -282,7 +282,7 @@ describe("Security Audit Tools", () => {
     it("should list firewall rules", async () => {
       // Mock plugin check
       mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ PLUGIN_NAME: "MYSQL_FIREWALL", PLUGIN_STATUS: "ACTIVE" }])
+        createMockQueryResult([{ Name: "MYSQL_FIREWALL", Status: "ACTIVE" }])
       );
       // Mock users query
       mockAdapter.executeQuery.mockResolvedValueOnce(
