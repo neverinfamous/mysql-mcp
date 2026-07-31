@@ -82,6 +82,7 @@ flowchart LR
 
 | File                                 | Trigger                 | Purpose                                                                                                  |
 | ------------------------------------ | ----------------------- | -------------------------------------------------------------------------------------------------------- |
+| [gatekeeper.yml](gatekeeper.yml)     | push to main / tags     | Orchestrates all CI, security, and publishing steps, acting as the primary pipeline blocking requirement. |
 | [lint-and-test.yml](lint-and-test.yml) | `workflow_call` from gatekeeper / PR    | Lints, typechecks, builds, unit tests, runs a `pnpm audit` security scan, and smoke tests the Docker container. |
 | [dockerfile-patch-drift.yml](dockerfile-patch-drift.yml) | PR / schedule / manual | Detects dependency drift across Dockerfile and package.json overrides. |
 

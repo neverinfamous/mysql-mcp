@@ -52,6 +52,7 @@ cd examples/enterprise-ha-mysql
 cp .env.example .env
 docker compose up -d
 # Wait for containers to be healthy, then run the initialization script:
+# (Requires Git Bash or WSL on Windows)
 bash init-cluster.sh
 ```
 

@@ -39,7 +39,7 @@ pnpm run build
 pnpm test
 
 # Run the full quality check
-pnpm run check   # Executes format, lint, test:zod, typecheck, build
+pnpm run check   # Executes lint, typecheck, build, test, test:e2e
 ```
 
 ### Run the Server Locally
@@ -112,7 +112,7 @@ pnpm run bench
 
 ```bash
 # Lint + type check (required before submitting)
-pnpm run check   # Executes format, lint, test:zod, typecheck, build
+pnpm run check   # Executes lint, typecheck, build, test, test:e2e
 
 # Or individually
 pnpm run lint        # ESLint only
@@ -340,7 +340,7 @@ The `mysql-mcp` project is organized into modular directories under `src/`:
 | ----------------------- | ---------------------------------------------------- |
 | `pnpm run build`         | Production build via tsup                            |
 | `pnpm run dev`           | Watch mode (fast unbundled hot reloads via tsx)      |
-| `pnpm run check`         | **Quality gate** — format, lint, test:zod, typecheck, build (run before PRs) |
+| `pnpm run check`         | **Quality gate** — lint, typecheck, build, test, test:e2e (run before PRs) |
 | `pnpm run lint`          | ESLint only                                          |
 | `pnpm run typecheck`     | TypeScript strict-mode type checking                 |
 | `pnpm run test:zod`      | Validate Zod schemas                                 |
@@ -357,6 +357,20 @@ If your change touches a hot path, run benchmarks. This verifies you haven't int
 ```bash
 pnpm run bench
 ```
+
+**Benchmark Baselines:**
+- parseToolFilter: ~32,000-62,000 ops/sec
+- CodeModeSandbox.create cold start: ~2.78M ops/sec
+- Sandbox dispose: ~2.37M ops/sec
+- SandboxPool init: ~109k ops/sec
+- Set.has tool check: ~4.4M ops/sec
+- Map.get reverse lookup: ~4.5M ops/sec
+- Map.get URI match: ~5.1M ops/sec
+- validateCode safe short: ~173k ops/sec
+- validateCode blocked: ~298k ops/sec
+- checkRateLimit: ~205k ops/sec
+- sanitizeResult small payload: ~1.49M ops/sec
+- prompt schema parse: ~1.3M ops/sec
 
 ## 🔐 Safeguard the Community by Reporting Vulnerabilities
 

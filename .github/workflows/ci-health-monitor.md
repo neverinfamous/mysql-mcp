@@ -52,7 +52,7 @@ You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your jo
 List all `.yml` files in `.github/workflows/`, explicitly excluding auto-generated lockfiles (`*.lock.yml`). For each workflow file:
 
 1. **Check action versions** — for each `uses:` line, note the action name and version/tag. Check if a newer major or minor version exists by reading the action's releases.
-2. **Check Node.js runtime** — look for `FORCE_JAVASCRIPT_ACTIONS_TO_NODE*` workarounds. Look for actions using deprecated Node.js versions. Flag any blocking target runtime compatibility.
+2. **Check Node.js runtime** — focus on action versions, not deprecated flags. Look for actions using deprecated Node.js versions. Flag any blocking target runtime compatibility.
 3. **Check for deprecated features** — such as set-output, save-state, or ::set-output:: commands.
 4. **Check Dependabot config**. Verify .github/dependabot.yml covers used ecosystems (npm, GitHub Actions, Docker).
 

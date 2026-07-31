@@ -14,10 +14,17 @@ To equip your AI assistant with these skills, copy the contents of this folder i
 For example, if you are using Google Antigravity or a similar agent framework:
 
 ```bash
-# Copy the skills to your agent's skill directory
+# Copy the skills to your agent's skill directory (Bash)
 cp -r skills/mysql ~/.gemini/skills/
 cp -r skills/mysql-mcp ~/.gemini/skills/
 cp -r skills/mysql-mcp-infrastructure ~/.gemini/skills/
+```
+
+```powershell
+# Copy the skills to your agent's skill directory (PowerShell/CMD)
+Copy-Item -Recurse skills/mysql ~/.gemini/skills/
+Copy-Item -Recurse skills/mysql-mcp ~/.gemini/skills/
+Copy-Item -Recurse skills/mysql-mcp-infrastructure ~/.gemini/skills/
 ```
 
 ## Available Skills

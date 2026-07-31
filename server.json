@@ -2,7 +2,7 @@
   "$schema": "https://static.modelcontextprotocol.io/schemas/2024-11-05/server.schema.json",
   "name": "io.github.neverinfamous.mysql-mcp",
   "title": "MySQL MCP Server",
-  "description": "Enterprise-grade MySQL context provider for AI agents. Increase token efficiency with Code Mode. Enforce advanced tool filtering. Secure enterprise data via OAuth 2.1.",
+  "description": "Enterprise-grade MySQL MCP Server with OAuth 2.1 authentication, connection pooling & tool filtering. Increase token efficiency with Code Mode.",
   "version": "4.0.0",
   "packages": [
     {

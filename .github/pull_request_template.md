@@ -42,3 +42,4 @@ Detail the specific tests you ran. Ensure thorough validation.
 - [ ] I have correctly configured the file system sandbox to enforce `ALLOWED_IO_ROOTS` (if applicable)
 - [ ] I have ensured schema examples reflect the comprehensive toolset and current configuration flags.
 - [ ] I have ensured version-agnostic text (no exact tool/resource counts)
+- [ ] I have verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications

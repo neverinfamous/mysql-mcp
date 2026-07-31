@@ -33,3 +33,10 @@ The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL th
 
 - **Datadog Integration**: **\[WHEN\]** debugging MySQL performance, pipeline telemetry, or confirming connection activity -> **\[ALWAYS\]** use the Datadog MCP server (via tools like `query-metrics` or `list-active-metrics`) to inspect `mysql.*` metrics (e.g., `mysql.net.connections`, `mysql.innodb.buffer_pool_utilization`). This is critical for verifying that the database is actively pushing telemetry and not just idling silently.
 - **Local Observability (Prometheus/Grafana)**: **\[WHEN\]** debugging local `mysql-mcp` E2E telemetry or the Docker Compose stack -> **\[ALWAYS\]** query the local Prometheus instance (via HTTP at `https://localhost:9090/api/v1/query`) or direct users to the local Grafana dashboard at `https://localhost:3001`. The `mysql-mcp` server natively exposes metrics on its `/metrics` endpoint.
+
+## 4. Performance & Throughput Baselines
+
+When analyzing performance or modifying hot paths, use these baseline benchmark targets:
+- `parseToolFilter`: ~32k-62k ops/sec
+- `CodeModeSandbox` cold start: ~2.78M ops/sec
+- Sandbox dispose: ~2.37M ops/sec

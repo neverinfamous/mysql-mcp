@@ -1,7 +1,7 @@
 # MySQL MCP Server (mysql-mcp)
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.93%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.93%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-passing-blue.svg)](https://opensource.org/licenses/MIT)
 
 > **Note:** Docker Hub limits descriptions to 25k characters. Some documentation may be truncated. View the **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** or the [GitHub README](https://github.com/neverinfamous/mysql-mcp) for complete details.
 
@@ -13,8 +13,8 @@ Production-ready MySQL integration for AI agents. Features MCP v2 stateless arch
 
 ## 🎯 Leverage Core Benefits
 
-| Feature | Description |
-| --- | --- |
+| Feature                               | Description                                                                                                                                                                                                                                                                            |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Specialized Tools**                 | Access specialized tools for core CRUD, JSON, spatial data, document stores, and clusters. |
 | **Resources**                     | Monitor schema, performance metrics, process lists, replication status, and InnoDB diagnostics in real-time. |
 | **AI-Powered Prompts**            | Execute guided workflows for query building, schema design, performance tuning, and infrastructure setup. |
@@ -28,9 +28,9 @@ Production-ready MySQL integration for AI agents. Features MCP v2 stateless arch
 | **Advanced Encryption**               | Enforce TLS/SSL connections. Manage data masking, encryption monitoring, and compliance effortlessly. |
 | **Production-Ready Security**         | Prevent SQL injection with parameterized queries. Rely on strict input validation and audit logging. |
 | **Deterministic Errors**              | Receive structured responses with actionable suggestions. Eliminate silent failures and raw exceptions. |
-| **Observability**                     | Export Prometheus metrics. |
+| **Observability**                     | Export Prometheus metrics and track logs with Dozzle. |
 | **Strict TypeScript**                 | Rely on strict TypeScript backed by robust test suites. |
-| **Protocol Compliant**                | Support the MCP protocol with tool safety hints, resource priorities, and progress notifications. |
+| **MCP v2 Compliant**                | Fully support the MCP v2 specification, including stateless HTTP routing headers, caching controls, tool safety hints, and progress notifications. |
 
 ## 🤖 Automate Tasks with Guided Workflows
 
@@ -139,6 +139,21 @@ Code executes securely in a C++ V8 isolate sandbox. It enforces strict heap limi
 - ✅ **Audit logging** — Logs every execution with UUID, client ID, metrics, and redacted code preview.
 - ✅ **Admin scope** — Code Mode requires `admin` scope when OAuth is enabled.
 - ✅ **Full API access** — Exposes all tool groups via the `mysql.*` namespace.
+
+### Performance Benchmarks
+
+- **parseToolFilter**: ~32,000-62,000 ops/sec
+- **CodeModeSandbox.create cold start**: ~2.78M ops/sec
+- **Sandbox dispose**: ~2.37M ops/sec
+- **SandboxPool init**: ~109k ops/sec
+- **Set.has tool check**: ~4.4M ops/sec
+- **Map.get reverse lookup**: ~4.5M ops/sec
+- **Map.get URI match**: ~5.1M ops/sec
+- **validateCode safe short**: ~173k ops/sec
+- **validateCode blocked**: ~298k ops/sec
+- **checkRateLimit**: ~205k ops/sec
+- **sanitizeResult small payload**: ~1.49M ops/sec
+- **prompt schema parse**: ~1.3M ops/sec
 
 ### ⚡ Run Only Code Mode
 
@@ -251,109 +266,11 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 }
 ```
 
-#### Option 2: Cluster (Tools for InnoDB Cluster Monitoring)
+#### Option 2: Cluster & Ecosystem
 
-**Best for:** Monitoring InnoDB Cluster, Group Replication status, and cluster topology.
+**Best for:** Monitoring InnoDB Cluster, Group Replication, and Ecosystem integrations.
 
-> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites.
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-cluster": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-e", "TOOL_FILTER",
-        "-e", "MYSQL_HOST",
-        "-e", "MYSQL_PORT",
-        "-e", "MYSQL_USER",
-        "-e", "MYSQL_PASSWORD",
-        "-e", "MYSQL_DATABASE",
-        "-e", "MCP_REQUEST_TIMEOUT",
-        "writenotenow/mysql-mcp:latest",
-        "--transport",
-        "stdio"
-      ],
-      "env": {
-        "TOOL_FILTER": "cluster",
-        "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3307",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "mysql",
-        "MCP_REQUEST_TIMEOUT": "600000"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
-
-#### Option 3: Ecosystem (Tools for InnoDB Cluster Deployments)
-
-**Best for:** MySQL Router, ProxySQL, MySQL Shell, and InnoDB Cluster deployments.
-
-> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed prerequisites.
-
-```json
-{
-  "mcpServers": {
-    "mysql-mcp-ecosystem": {
-      "command": "docker",
-      "args": [
-        "run",
-        "-i",
-        "--rm",
-        "-v", "./data:/app/data",
-        "-e", "ALLOWED_IO_ROOTS=/app/data",
-        "-e", "TOOL_FILTER",
-        "-e", "MYSQL_HOST",
-        "-e", "MYSQL_PORT",
-        "-e", "MYSQL_USER",
-        "-e", "MYSQL_PASSWORD",
-        "-e", "MYSQL_DATABASE",
-        "-e", "MYSQL_XPORT",
-        "-e", "MYSQL_ROUTER_URL",
-        "-e", "MYSQL_ROUTER_USER",
-        "-e", "MYSQL_ROUTER_PASSWORD",
-        "-e", "MYSQL_ROUTER_INSECURE",
-        "-e", "PROXYSQL_HOST",
-        "-e", "PROXYSQL_PORT",
-        "-e", "PROXYSQL_USER",
-        "-e", "PROXYSQL_PASSWORD",
-        "-e", "MYSQLSH_PATH",
-        "-e", "MCP_REQUEST_TIMEOUT",
-        "writenotenow/mysql-mcp:latest",
-        "--transport",
-        "stdio"
-      ],
-      "env": {
-        "TOOL_FILTER": "ecosystem",
-        "MYSQL_HOST": "host.docker.internal",
-        "MYSQL_PORT": "3307",
-        "MYSQL_USER": "cluster_admin",
-        "MYSQL_PASSWORD": "cluster_password",
-        "MYSQL_DATABASE": "testdb",
-        "MYSQL_XPORT": "6448",
-        "MYSQL_ROUTER_URL": "https://host.docker.internal:8443",
-        "MYSQL_ROUTER_USER": "rest_api",
-        "MYSQL_ROUTER_PASSWORD": "router_password",
-        "MYSQL_ROUTER_INSECURE": "true",
-        "PROXYSQL_HOST": "host.docker.internal",
-        "PROXYSQL_PORT": "6032",
-        "PROXYSQL_USER": "radmin",
-        "PROXYSQL_PASSWORD": "radmin",
-        "MYSQLSH_PATH": "mysqlsh",
-        "MCP_REQUEST_TIMEOUT": "600000"
-      },
-      "timeout": 600
-    }
-  }
-}
-```
+> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed configurations for Option 2 and 3.
 
 ## 🔗 Integrate Any MySQL Environment
 
@@ -421,37 +338,13 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
-| `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
 | `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
-| `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
-| `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
-| `--audit-redact`          | —                       | Redact sensitive arguments in the audit log         |
-| `--audit-log-max-size`    | —                       | Max file size before rotation (bytes)               |
-| `--audit-backup-data`     | —                       | Include sample data in pre-mutation snapshots       |
-| `--audit-backup-max-size` | —                       | Max table size in bytes for data capture            |
 | `--oauth-enabled`, `-o`   | `OAUTH_ENABLED`         | Enable OAuth 2.1 authentication                     |
-| `--oauth-issuer`          | `OAUTH_ISSUER`          | Authorization server URL                            |
-| `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
-| `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
-| `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
-| —                         | `MYSQL_ROUTER_URL`      | MySQL Router URL                                    |
-| —                         | `MYSQL_ROUTER_USER`     | MySQL Router user                                   |
-| —                         | `MYSQL_ROUTER_PASSWORD` | MySQL Router password                               |
-| —                         | `MYSQL_ROUTER_INSECURE` | Bypass Router TLS verification                      |
-| —                         | `PROXYSQL_HOST`         | ProxySQL host                                       |
-| —                         | `PROXYSQL_PORT`         | ProxySQL port                                       |
-| —                         | `PROXYSQL_USER`         | ProxySQL user                                       |
-| —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
-| —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
-| —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
-| —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
 | —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |
 | —                         | `MCP_RATE_LIMIT_MAX`    | Max HTTP requests per minute per IP (default 100) |
 | —                         | `CODEMODE_RATE_LIMIT_MAX`| Max Code Mode executions per minute (default 60)    |
-| —                         | `MCP_REQUEST_TIMEOUT`   | Global request timeout in ms (default 300000, 600000 recommended for AI clients)       |
-| —                         | `MCP_HEADERS_TIMEOUT`   | Global headers timeout in ms (default 5000)         |
 
 > **Priority:** When both `--auth-token` and `--oauth-enabled` are set, OAuth 2.1 takes precedence. If neither is configured, the server warns and runs without authentication.
 

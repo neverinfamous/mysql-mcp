@@ -130,3 +130,4 @@ When reviewing PRs, check for:
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS` (if applicable)
 - [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags
 - [ ] Ensure version-agnostic text (no exact tool/resource counts)
+- [ ] I have verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications

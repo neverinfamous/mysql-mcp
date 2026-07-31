@@ -3,7 +3,7 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.93%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-312%20passing%20%C2%B7%200%20skipped-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.93%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-passing-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
@@ -85,6 +85,7 @@ This server exposes **a comprehensive set of resources** for database observabil
 ### Meet Prerequisites
 
 - Recent Node.js (LTS recommended)
+- Bun (for executing repository automation scripts)
 - MySQL server
 - pnpm
 
@@ -316,6 +317,7 @@ Enforce access control using OAuth scopes:
 | `admin`                  | Full administrative access          |
 | `full`                   | Grants all access                   |
 | `db:{name}`              | Access to specific database         |
+| `schema:{name}`          | Access to specific schema           |
 | `table:{schema}:{table}` | Access to specific table            |
 
 ### Ensure RFC Compliance
@@ -661,6 +663,21 @@ For specialized setups, see these Wiki pages:
 ## ⚡ Maximize Server Performance
 
 The server caches schema metadata to reduce repeated queries during tool/resource invocations.
+
+### Performance Benchmarks
+
+- **parseToolFilter**: ~32,000-62,000 ops/sec
+- **CodeModeSandbox.create cold start**: ~2.78M ops/sec
+- **Sandbox dispose**: ~2.37M ops/sec
+- **SandboxPool init**: ~109k ops/sec
+- **Set.has tool check**: ~4.4M ops/sec
+- **Map.get reverse lookup**: ~4.5M ops/sec
+- **Map.get URI match**: ~5.1M ops/sec
+- **validateCode safe short**: ~173k ops/sec
+- **validateCode blocked**: ~298k ops/sec
+- **checkRateLimit**: ~205k ops/sec
+- **sanitizeResult small payload**: ~1.49M ops/sec
+- **prompt schema parse**: ~1.3M ops/sec
 
 | Variable                    | Default  | Description                                                         |
 | --------------------------- | -------- | ------------------------------------------------------------------- |
