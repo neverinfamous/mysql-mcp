@@ -38,7 +38,7 @@ describe("Spatial Queries Tools", () => {
 
     it("should query distance with defaults", async () => {
       mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
-        if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]);
+        if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]);
         return createMockQueryResult([{ id: 1, distance: 100 }]);
       });
 
@@ -63,7 +63,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should filter by maxDistance and use custom SRID", async () => {
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialDistanceTool(
         mockAdapter,
@@ -129,7 +129,7 @@ describe("Spatial Queries Tools", () => {
 
     it("should handle undefined rows result", async () => {
       // Mock executeQuery returning no rows property potentially, or null rows
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return { fields: [], rows: null } as any; });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return { fields: [], rows: null } as any; });
 
       const tool = createSpatialDistanceTool(
         mockAdapter,
@@ -157,7 +157,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should query spherical distance", async () => {
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialDistanceSphereTool(
         mockAdapter,
@@ -176,7 +176,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should support optional maxDistance", async () => {
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialDistanceSphereTool(
         mockAdapter,
@@ -224,7 +224,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should query for contained geometries with default SRID", async () => {
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialContainsTool(
         mockAdapter,
@@ -245,7 +245,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should support custom SRID for contains query", async () => {
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialContainsTool(
         mockAdapter,
@@ -293,7 +293,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should query for geometries within shape with default SRID", async () => {
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialWithinTool(
         mockAdapter,
@@ -314,7 +314,7 @@ describe("Spatial Queries Tools", () => {
     });
 
     it("should support custom SRID for within query", async () => {
-      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("INFORMATION_SCHEMA")) return createMockQueryResult([{ DATA_TYPE: "geometry" }]); return createMockQueryResult([]); });
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => { if (sql.includes("SHOW COLUMNS")) return createMockQueryResult([{ Type: "geometry" }]); return createMockQueryResult([]); });
 
       const tool = createSpatialWithinTool(
         mockAdapter,
