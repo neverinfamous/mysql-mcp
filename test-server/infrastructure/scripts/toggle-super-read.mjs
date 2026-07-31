@@ -43,7 +43,9 @@ async function main() {
   });
 
   try {
-    const toggle = process.argv[2] === 'ON' ? 1 : 0;
+    const [current] = await connection.query('SELECT @@global.super_read_only AS super_read_only');
+    const currentState = current[0].super_read_only;
+    const toggle = currentState ? 0 : 1;
     console.log(`Setting GLOBAL super_read_only = ${toggle}...`);
     await connection.query(`SET GLOBAL super_read_only = ${toggle};`);
     

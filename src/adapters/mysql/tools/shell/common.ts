@@ -103,7 +103,11 @@ export async function execMySQLShell(
 
     if (config.dockerContainer) {
       cmd = "docker";
-      finalArgs = ["exec", "-i", config.dockerContainer, "mysqlsh", ...args];
+      const execArgs = ["exec"];
+      if (options?.input) {
+        execArgs.push("-i");
+      }
+      finalArgs = [...execArgs, config.dockerContainer, "mysqlsh", ...args];
     }
 
     const child = spawn(cmd, finalArgs, {
@@ -132,6 +136,8 @@ export async function execMySQLShell(
 
     if (options?.input) {
       child.stdin.write(options.input);
+      child.stdin.end();
+    } else {
       child.stdin.end();
     }
 

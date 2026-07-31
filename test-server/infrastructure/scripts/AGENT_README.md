@@ -19,8 +19,5 @@ This directory contains the Node.js automation scripts for managing the unified 
 ### Cluster Auto-Recovery
 - **`cluster-healer`**: This is a Docker sidecar service (not a manual script) that runs continuously alongside the cluster. It polls all nodes every 30 seconds, automatically reboots the cluster from complete outages, and restarts group replication on individual disconnected nodes.
 
-### Observability Configuration
-- **Exporter Audit Log**: Ensure that the exporter container reads the IDE's live audit JSONL via `AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl` and is isolated from the write path (e.g. `--audit-log /var/log/mysql-mcp/exporter-audit.jsonl`).
-
 ### WSL Stability
 - `register-wsl-keepalive.ps1`: Sets up a Windows Scheduled Task to prevent the background WSL distro from being terminated by Windows power management (which would otherwise crash the Docker daemon). It dynamically generates a VBS wrapper to hide the console window.

@@ -143,6 +143,7 @@ describe("execShellJS", () => {
     mockChild = new EventEmitter();
     mockChild.stdout = new EventEmitter();
     mockChild.stderr = new EventEmitter();
+    mockChild.stdin = { write: vi.fn(), end: vi.fn() };
     mockChild.kill = vi.fn();
     (spawn ).mockReturnValue(mockChild);
   });
