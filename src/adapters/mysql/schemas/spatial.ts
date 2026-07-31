@@ -674,7 +674,7 @@ export const BufferSchemaBase = z.object({
     .unknown()
     .optional()
     .describe(
-      "Number of segments per quarter-circle for buffer polygon approximation (default: 8, MySQL default: 32). Must be >= 1 and <= 128. Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
+      "Number of points per circle for buffer polygon approximation (default: 8, MySQL default: 32). Must be >= 1 and <= 128. Lower values produce simpler polygons with smaller payloads. Only effective with Cartesian geometries (SRID 0); geographic SRIDs use MySQL's internal algorithm.",
     ),
 });
 
