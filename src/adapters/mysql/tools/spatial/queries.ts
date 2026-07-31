@@ -39,7 +39,7 @@ async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spati
   try {
     const tableName = table.includes('.') ? table.split('.')[1] : table;
     const colCheck = await adapter.executeReadQuery(
-      `SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+      `(SELECT DATA_TYPE FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?)`,
       [tableName, spatialColumn]
     );
     if (!colCheck.rows || colCheck.rows.length === 0) {
@@ -80,7 +80,7 @@ export function createSpatialDistanceTool(
           DistanceSchema.parse(params);
 
         if (!table) {
-          const query = `SELECT ROUND(ST_Distance(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance`;
+          const query = `(SELECT ROUND(ST_Distance(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance)`;
           const result = await adapter.executeReadQuery(query, [geometry1, geometry2]);
           return withTokenEstimate({
             success: true,
@@ -194,7 +194,7 @@ export function createSpatialDistanceSphereTool(
         }
 
         if (!table) {
-          const query = `SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters`;
+          const query = `(SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters)`;
           const result = await adapter.executeReadQuery(query, [geometry1, geometry2]);
           return withTokenEstimate({
             success: true,
