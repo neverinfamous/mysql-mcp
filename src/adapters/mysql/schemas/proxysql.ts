@@ -424,12 +424,12 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
     if (limit !== undefined) {
       if (typeof limit === "string" && limit.trim() !== "") {
         const parsed = Number(limit);
-        if (!isNaN(parsed) && parsed >= 0) {
+        if (!isNaN(parsed)) {
           result["limit"] = Math.floor(parsed);
         } else {
           delete result["limit"];
         }
-      } else if (typeof limit === "number" && limit >= 0) {
+      } else if (typeof limit === "number") {
         result["limit"] = Math.floor(limit);
       } else {
         delete result["limit"];
