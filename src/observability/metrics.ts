@@ -1129,6 +1129,11 @@ export class MetricsRegistry {
       lines.push("# TYPE mysql_mcp_pool_connections_total gauge");
       lines.push(`mysql_mcp_pool_connections_total ${totalSlots}`);
       
+      lines.push("# HELP mysql_mcp_pool_utilization_ratio Connection pool utilization percentage (0.0 to 1.0)");
+      lines.push("# TYPE mysql_mcp_pool_utilization_ratio gauge");
+      const utilization = totalSlots > 0 ? active / totalSlots : 0;
+      lines.push(`mysql_mcp_pool_utilization_ratio ${utilization}`);
+      
       lines.push("# HELP mysql_mcp_pool_connections_active Currently in-use connections");
       lines.push("# TYPE mysql_mcp_pool_connections_active gauge");
       lines.push(`mysql_mcp_pool_connections_active ${active}`);
