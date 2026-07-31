@@ -7,15 +7,30 @@ CONF_FILE="$ROUTER_DIR/mysqlrouter.conf"
 if [ ! -f "$CONF_FILE" ]; then
     echo "[Router-Init] Bootstrapping router..."
     
-    if ! mysqlrouter --bootstrap root:root@mysql-node1:3306 \
-        --directory "$ROUTER_DIR" \
-        --force \
-        --conf-set-option http_server.port=8443 \
-        --conf-set-option rest_connection_pool.require_realm=default_auth_realm \
-        --conf-set-option routing:bootstrap_rw.connection_sharing=1 \
-        --conf-set-option routing:bootstrap_ro.connection_sharing=1 \
-        --conf-set-option logger.level=ERROR \
-        --conf-use-gr-notifications=1 2>/dev/null; then
+    MAX_RETRIES=15
+    RETRY_COUNT=0
+    BOOTSTRAP_SUCCESS=false
+    
+    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+        if mysqlrouter --bootstrap root:root@mysql-node1:3306 \
+            --directory "$ROUTER_DIR" \
+            --force \
+            --conf-set-option http_server.port=8443 \
+            --conf-set-option rest_connection_pool.require_realm=default_auth_realm \
+            --conf-set-option routing:bootstrap_rw.connection_sharing=1 \
+            --conf-set-option routing:bootstrap_ro.connection_sharing=1 \
+            --conf-set-option logger.level=ERROR \
+            --conf-use-gr-notifications=1 2>/dev/null; then
+            BOOTSTRAP_SUCCESS=true
+            break
+        fi
+        
+        RETRY_COUNT=$((RETRY_COUNT+1))
+        echo "[Router-Init] Bootstrap failed. Retrying in 5 seconds... ($RETRY_COUNT/$MAX_RETRIES)"
+        sleep 5
+    done
+    
+    if [ "$BOOTSTRAP_SUCCESS" = "false" ]; then
         
         echo "[Router-Init] Dynamic metadata bootstrap unavailable; configuring static routing..."
         mkdir -p "$ROUTER_DIR/data"

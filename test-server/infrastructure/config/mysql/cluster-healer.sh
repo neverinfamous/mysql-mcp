@@ -10,6 +10,9 @@ CHECK_INTERVAL=5
 HEALTHY_INTERVAL=30
 HEALTH_FILE="/tmp/cluster-healthy"
 
+# Remove any stale health file from previous runs
+rm -f "$HEALTH_FILE"
+
 run_sql() {
     local host="$1" query="$2"
     mysql -uroot -proot -h "$host" -N -s -e "$query" 2>/dev/null
