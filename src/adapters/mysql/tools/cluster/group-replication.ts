@@ -338,24 +338,24 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get flow control configuration
         const configResult = await adapter.executeQuery(`/* readonly */
-                SELECT 
+                (SELECT 
                     @@group_replication_flow_control_mode as flowControlMode,
                     @@group_replication_flow_control_certifier_threshold as certifierThreshold,
                     @@group_replication_flow_control_applier_threshold as applierThreshold,
                     @@group_replication_flow_control_min_quota as minQuota,
                     @@group_replication_flow_control_min_recovery_quota as minRecoveryQuota,
-                    @@group_replication_flow_control_max_quota as maxQuota
+                    @@group_replication_flow_control_max_quota as maxQuota)
             `);
 
         const config = configResult.rows?.[0];
 
         // Get current queue depths
         const queueResult = await adapter.executeQuery(`/* readonly */
-                SELECT 
+                (SELECT 
                     MEMBER_ID as memberId,
                     COUNT_TRANSACTIONS_IN_QUEUE as certifyQueue,
                     COUNT_TRANSACTIONS_REMOTE_IN_APPLIER_QUEUE as applierQueue
-                FROM performance_schema.replication_group_member_stats
+                FROM performance_schema.replication_group_member_stats)
             `);
 
         // Determine if flow control is active

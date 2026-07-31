@@ -31,9 +31,9 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const { summary } = SummarySchema.parse(params);
         // Check for cluster metadata schema
         const schemaCheck = await adapter.executeQuery(`
-                    SELECT SCHEMA_NAME
+                    (SELECT SCHEMA_NAME
                     FROM information_schema.SCHEMATA
-                    WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata'
+                    WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata')
                 `);
 
         if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
@@ -44,29 +44,29 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
         // Get cluster info
         const clusterResult = await adapter.executeQuery(`
-                    SELECT cluster_id, cluster_name, description, cluster_type, primary_mode
+                    (SELECT cluster_id, cluster_name, description, cluster_type, primary_mode
                     FROM mysql_innodb_cluster_metadata.clusters
-                    LIMIT 1
+                    LIMIT 1)
                 `);
 
         const clusterBasic = clusterResult.rows?.[0];
 
         // Get instance count
         const instanceResult = await adapter.executeQuery(`
-                    SELECT COUNT(*) as count
-                    FROM mysql_innodb_cluster_metadata.instances
+                    (SELECT COUNT(*) as count
+                    FROM mysql_innodb_cluster_metadata.instances)
                 `);
 
         // Get router count
         const routerResult = await adapter.executeQuery(`
-                    SELECT COUNT(*) as count
-                    FROM mysql_innodb_cluster_metadata.routers
+                    (SELECT COUNT(*) as count
+                    FROM mysql_innodb_cluster_metadata.routers)
                 `);
 
         // Compute status and topology
         const grResult = await adapter.executeQuery(`
-            SELECT MEMBER_HOST as host, MEMBER_PORT as port, MEMBER_STATE as state, MEMBER_ROLE as role
-            FROM performance_schema.replication_group_members
+            (SELECT MEMBER_HOST as host, MEMBER_PORT as port, MEMBER_STATE as state, MEMBER_ROLE as role
+            FROM performance_schema.replication_group_members)
         `);
         const members = grResult.rows ?? [];
         const isOnline =
