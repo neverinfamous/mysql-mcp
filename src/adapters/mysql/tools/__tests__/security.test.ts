@@ -172,7 +172,7 @@ describe("Security Tools", () => {
       const result = (await tool?.handler({}, mockContext));
 
       expect(result.success).toBe(false);
-      expect(result.error).toContain("Access denied");
+      expect(result.error).toContain("is not installed or enabled");
     });
   });
 
@@ -376,7 +376,7 @@ describe("Security Tools", () => {
       expect(result.data.strength).toBe(100);
       expect(result.data.interpretation).toBe("Very Strong");
       expect(result.data.policy).toHaveProperty(
-        "validate_password.policy",
+        ["validate_password.policy"],
         "STRONG",
       );
     });

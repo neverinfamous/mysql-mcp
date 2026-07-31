@@ -16,6 +16,7 @@ import {
 // =============================================================================
 
 export interface ShellConfig {
+  dockerContainer?: string;
   binPath: string;
   connectionUri: string;
   xConnectionUri: string;
@@ -52,6 +53,7 @@ export function getShellConfig(): ShellConfig {
     : `mysqlx://${user}@${host}:${xPort}/${database}`;
 
   return {
+    dockerContainer: process.env["MYSQLSH_DOCKER_CONTAINER"],
     binPath: process.env["MYSQLSH_PATH"] ?? "mysqlsh",
     connectionUri,
     xConnectionUri,
@@ -95,7 +97,16 @@ export async function execMySQLShell(
     const timeout = options?.timeout ?? config.timeout;
     const cwd = options?.cwd ?? config.workDir;
 
-    const child = spawn(config.binPath, args, {
+    // Use docker exec if configured, otherwise fallback to local binPath
+    let cmd = config.binPath;
+    let finalArgs = args;
+
+    if (config.dockerContainer) {
+      cmd = "docker";
+      finalArgs = ["exec", "-i", config.dockerContainer, "mysqlsh", ...args];
+    }
+
+    const child = spawn(cmd, finalArgs, {
       cwd,
       stdio: ["pipe", "pipe", "pipe"],
       windowsHide: true,
