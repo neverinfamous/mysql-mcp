@@ -956,6 +956,10 @@ export function preprocessDocFilterParams(val: unknown): unknown {
       result["filter"] = typeof result["where"] === "object" && result["where"] !== null
           ? JSON.stringify(result["where"])
           : result["where"];
+    } else if (result["search"] !== undefined) {
+      result["filter"] = typeof result["search"] === "object" && result["search"] !== null
+          ? JSON.stringify(result["search"])
+          : result["search"];
     }
   }
   if (result["set"] === undefined) {

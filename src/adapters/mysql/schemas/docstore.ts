@@ -106,6 +106,7 @@ export const FindSchemaBase = z.object({
   query: z.unknown().optional().describe("Alias for filter"),
   sql: z.unknown().optional().describe("Alias for filter"),
   where: z.unknown().optional().describe("Alias for filter"),
+  search: z.unknown().optional().describe("Alias for filter"),
   fields: z.array(z.string()).optional(),
   limit: z.unknown().optional(),
   offset: z.unknown().optional(),
@@ -180,6 +181,7 @@ export const ModifyDocSchemaBase = z.object({
   query: z.unknown().optional().describe("Alias for filter"),
   sql: z.unknown().optional().describe("Alias for filter"),
   where: z.unknown().optional().describe("Alias for filter"),
+  search: z.unknown().optional().describe("Alias for filter"),
   set: z.record(z.string(), z.unknown()).optional().describe("Fields to set"),
   patch: z.record(z.string(), z.unknown()).optional().describe("Alias for set"),
   update: z.record(z.string(), z.unknown()).optional().describe("Alias for set"),
@@ -224,6 +226,7 @@ export const RemoveDocSchemaBase = z.object({
   query: z.unknown().optional().describe("Alias for filter"),
   sql: z.unknown().optional().describe("Alias for filter"),
   where: z.unknown().optional().describe("Alias for filter"),
+  search: z.unknown().optional().describe("Alias for filter"),
 });
 
 export const RemoveDocSchemaStrict = z.object({
