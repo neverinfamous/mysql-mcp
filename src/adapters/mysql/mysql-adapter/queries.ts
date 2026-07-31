@@ -26,7 +26,12 @@ export class QueryExecutor {
     const startTime = Date.now();
 
     try {
-      const [results, fields] = await this.adapter.pool.execute(sql, params);
+      let results, fields;
+      if (!params || params.length === 0) {
+        [results, fields] = await this.adapter.pool.query(sql);
+      } else {
+        [results, fields] = await this.adapter.pool.execute(sql, params);
+      }
       return this.processExecutionResult(results, fields, startTime);
     } catch (error) {
       if (this.isUnsupportedPreparedStatementError(error)) {
@@ -52,10 +57,15 @@ export class QueryExecutor {
     const startTime = Date.now();
 
     try {
-      const [results, fields] = await connection.execute(
-        sql,
-        params as (string | number | null)[],
-      );
+      let results, fields;
+      if (!params || params.length === 0) {
+        [results, fields] = await connection.query(sql);
+      } else {
+        [results, fields] = await connection.execute(
+          sql,
+          params as (string | number | null)[],
+        );
+      }
       return this.processExecutionResult(results, fields, startTime);
     } catch (error) {
       if (this.isUnsupportedPreparedStatementError(error)) {
