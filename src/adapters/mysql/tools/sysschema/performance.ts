@@ -187,8 +187,7 @@ export function createSysStatementSummaryTool(
         const actualLimit = Math.min(limit, 100);
 
         const query = `
-                WITH sys_query AS (
-                SELECT
+                (SELECT
                     query,
                     db,
                     exec_count,
@@ -200,9 +199,8 @@ export function createSysStatementSummaryTool(
                     ROUND(rows_examined_avg) AS rows_examined_avg,
                     full_scan
                 FROM sys.x$statement_analysis
-                ) SELECT * FROM sys_query
                 ORDER BY ${orderBy} DESC
-                LIMIT ${String(actualLimit)}
+                LIMIT ${String(actualLimit)})
             `;
 
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
@@ -276,60 +274,52 @@ export function createSysWaitSummaryTool(
         switch (type) {
             case "global":
             query = `
-                        WITH sys_query AS (
-                        SELECT
+                        (SELECT
                             events AS event,
                             total,
                             total_latency,
                             avg_latency
                         FROM sys.x$waits_global_by_latency
-                        ) SELECT * FROM sys_query
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "by_host":
             query = `
-                        WITH sys_query AS (
-                        SELECT
+                        (SELECT
                             host,
                             event,
                             total,
                             total_latency,
                             avg_latency
                         FROM sys.x$waits_by_host_by_latency
-                        ) SELECT * FROM sys_query
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "by_user":
             query = `
-                        WITH sys_query AS (
-                        SELECT
+                        (SELECT
                             user,
                             event,
                             total,
                             total_latency,
                             avg_latency
                         FROM sys.x$waits_by_user_by_latency
-                        ) SELECT * FROM sys_query
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "by_instance":
             query = `
-                        WITH sys_query AS (
-                        SELECT
+                        (SELECT
                             event_name AS event,
                             count_star AS total,
                             sum_timer_wait AS total_latency,
                             (sum_timer_wait / NULLIF(count_star, 0)) AS avg_latency
                         FROM performance_schema.events_waits_summary_by_instance
-                        ) SELECT * FROM sys_query
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           default:
@@ -403,8 +393,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
         switch (type) {
           case "file":
             query = `
-                        WITH sys_query AS (
-                        SELECT
+                        (SELECT
                             file,
                             count_read,
                             total_read,
@@ -415,15 +404,13 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             total,
                             write_pct
                         FROM sys.x$io_global_by_file_by_bytes
-                        ) SELECT * FROM sys_query
                         ORDER BY total DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "table":
             query = `
-                        WITH sys_query AS (
-                        SELECT
+                        (SELECT
                             table_schema,
                             table_name,
                             rows_fetched,
@@ -435,23 +422,20 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
                             rows_deleted,
                             delete_latency
                         FROM sys.x$schema_table_statistics
-                        ) SELECT * FROM sys_query
                         ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           case "global":
             query = `
-                        WITH sys_query AS (
-                        SELECT
+                        (SELECT
                             event_name,
                             total,
                             total_latency,
                             avg_latency
                         FROM sys.x$io_global_by_wait_by_latency
-                        ) SELECT * FROM sys_query
                         ORDER BY total_latency DESC
-                        LIMIT ${String(actualLimit)}
+                        LIMIT ${String(actualLimit)})
                     `;
             break;
           default:
