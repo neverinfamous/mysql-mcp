@@ -9,6 +9,7 @@ import {
   QueryError,
   TimeoutError,
   AuthorizationError,
+  ConnectionError,
 } from "../../../../types/modules/errors.js";
 
 // =============================================================================
@@ -144,6 +145,13 @@ export async function execMySQLShell(
     child.on("close", (code) => {
       clearTimeout(timer);
       if (!killed) {
+        if (code !== 0 && (stderr.includes("failed to connect to the docker API") || stderr.includes("Is the docker daemon running") || stderr.includes("error during connect"))) {
+          reject(new ConnectionError(
+            `Failed to execute MySQL Shell via Docker: Docker daemon is not running or accessible.`,
+            { suggestion: "Ensure Docker is running, or unset MYSQLSH_DOCKER_CONTAINER to use a local MySQL Shell installation." }
+          ));
+          return;
+        }
         resolve({
           stdout,
           stderr,
