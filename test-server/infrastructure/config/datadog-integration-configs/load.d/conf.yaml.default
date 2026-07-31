@@ -1,4 +1,3 @@
 init_config:
 
-instances:
-  - {}
+    reported_hostname: adamic-wsl2

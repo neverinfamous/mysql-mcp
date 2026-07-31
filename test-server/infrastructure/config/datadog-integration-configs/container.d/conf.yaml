@@ -11,8 +11,7 @@ init_config:
 
 ## Every instance is scheduled independently of the others.
 #
-instances:
-
+    reported_hostname: adamic-wsl2
   ## @param tags - list of strings - optional
   ## A list of tags to attach to every metric and service check emitted by this instance.
   ##

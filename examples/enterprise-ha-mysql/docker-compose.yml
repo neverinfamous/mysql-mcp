@@ -1,6 +1,6 @@
 services:
   example-ha-node1:
-    image: mysql:9.1.0
+    image: mysql:9.7.2
     container_name: example-ha-node1
     hostname: example-ha-node1
     restart: unless-stopped
@@ -36,7 +36,7 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   example-ha-node2:
-    image: mysql:9.1.0
+    image: mysql:9.7.2
     container_name: example-ha-node2
     hostname: example-ha-node2
     restart: unless-stopped
@@ -71,7 +71,7 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   example-ha-node3:
-    image: mysql:9.1.0
+    image: mysql:9.7.2
     container_name: example-ha-node3
     hostname: example-ha-node3
     restart: unless-stopped
@@ -106,7 +106,7 @@ services:
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":3306, "username":"root", "password":"${MYSQL_ROOT_PASSWORD:-mysqlmcp}", "options": {"extra_performance_metrics": false}}]'
 
   cluster-healer:
-    image: mysql:9.1.0
+    image: mysql:9.7.2
     container_name: example-ha-healer
     restart: unless-stopped
     entrypoint: ["/bin/bash", "-c", "echo 'cluster-healer not implemented in example' && tail -f /dev/null"]
@@ -121,12 +121,12 @@ services:
     mem_limit: 128m
 
   example-ha-router:
-    image: container-registry.oracle.com/mysql/community-router:9.1.0
+    image: container-registry.oracle.com/mysql/community-router:9.7.1
     container_name: example-ha-router
     restart: unless-stopped
     depends_on:
       cluster-healer:
-        condition: service_healthy
+        condition: service_started
     entrypoint: [ "/bin/bash", "/docker-entrypoint-initdb.d/router-init.sh" ]
     volumes:
       - ./config/mysql-router/router-init.sh:/docker-entrypoint-initdb.d/router-init.sh
@@ -165,7 +165,7 @@ services:
       timeout: 5s
       retries: 10
     labels:
-      com.datadoghq.ad.check_names: '["example-ha-proxysql"]'
+      com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin", "additional_metrics": ["connection_pool_metrics", "backends_metrics", "users_metrics", "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
     stop_grace_period: 15s
@@ -208,7 +208,7 @@ services:
       - CHOWN
     stop_grace_period: 15s
     mem_limit: 512m
-    cgroupns_mode: host
+    cgroup: host
     logging:
       driver: "json-file"
       options:

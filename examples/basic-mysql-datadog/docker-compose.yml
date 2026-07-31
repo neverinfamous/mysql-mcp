@@ -1,6 +1,6 @@
 services:
   mysql-server:
-    image: mysql:9.1.0
+    image: mysql:9.7.2
     container_name: example-basic-mysql
     restart: unless-stopped
     ports:
@@ -37,7 +37,7 @@ services:
     container_name: example-basic-datadog
     restart: unless-stopped
     pid: host
-    cgroupns_mode: host
+    cgroup: host
     stop_grace_period: 15s
     mem_limit: 1024m
     depends_on:
