@@ -54,7 +54,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
-        const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
+        const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
         if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
@@ -62,19 +62,19 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        const statusResult = await adapter.executeQuery(`(
+        const statusResult = await adapter.executeQuery(`/* readonly */
                 SELECT 
                     @@group_replication_group_name as groupName,
                     @@group_replication_single_primary_mode as singlePrimaryMode,
                     @@group_replication_local_address as localAddress,
                     @@group_replication_group_seeds as groupSeeds,
                     @@group_replication_bootstrap_group as bootstrapGroup
-            )`);
+            `);
 
         const config = statusResult.rows?.[0];
 
         // Get member status from performance_schema
-        const memberResult = await adapter.executeQuery(`(
+        const memberResult = await adapter.executeQuery(`/* readonly */
                 SELECT 
                     CHANNEL_NAME,
                     MEMBER_ID,
@@ -84,12 +84,12 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
                     MEMBER_ROLE,
                     MEMBER_VERSION
                 FROM performance_schema.replication_group_members
-            )`);
+            `);
 
         // Get local member info
-        const localResult = await adapter.executeQuery(`(
+        const localResult = await adapter.executeQuery(`/* readonly */
                 SELECT @@server_uuid as serverUuid
-            )`);
+            `);
 
         const localUuidVal = localResult.rows?.[0]?.["serverUuid"];
         const localUuid = typeof localUuidVal === "string" ? localUuidVal : "";
@@ -144,7 +144,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         const { memberId } = MemberSchema.parse(params);
 
         // Check if GR is running
-        const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
+        const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
         if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
@@ -175,7 +175,7 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
           queryParams.push(memberId);
         }
 
-        const result = await adapter.executeQuery(`(${query})`, queryParams);
+        const result = await adapter.executeQuery(`/* readonly */ ${query}`, queryParams);
         const data = {
           members: result.rows ?? [],
           count: result.rows?.length ?? 0,
@@ -205,7 +205,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
-        const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
+        const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
         if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
@@ -213,7 +213,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
           );
         }
 
-        const result = await adapter.executeQuery(`(
+        const result = await adapter.executeQuery(`/* readonly */
                 SELECT 
                     MEMBER_ID as memberId,
                     MEMBER_HOST as host,
@@ -222,13 +222,13 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
                     MEMBER_VERSION as version
                 FROM performance_schema.replication_group_members
                 WHERE MEMBER_ROLE = 'PRIMARY'
-            )`);
+            `);
 
         const primary = result.rows?.[0];
 
         // Check if we are the primary
         const localResult = await adapter.executeQuery(
-          "(SELECT @@server_uuid as serverUuid)",
+          "/* readonly */ SELECT @@server_uuid as serverUuid",
         );
         const localUuid = localResult.rows?.[0]?.["serverUuid"];
 
@@ -264,7 +264,7 @@ export function createGRTransactionsTool(
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
-        const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
+        const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
         if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
@@ -273,7 +273,7 @@ export function createGRTransactionsTool(
         }
 
         // Get transaction statistics
-        const statsResult = await adapter.executeQuery(`(
+        const statsResult = await adapter.executeQuery(`/* readonly */
                 SELECT 
                     MEMBER_ID as memberId,
                     COUNT_TRANSACTIONS_IN_QUEUE as txInQueue,
@@ -285,14 +285,14 @@ export function createGRTransactionsTool(
                     COUNT_TRANSACTIONS_LOCAL_PROPOSED as localProposed,
                     COUNT_TRANSACTIONS_LOCAL_ROLLBACK as localRollback
                 FROM performance_schema.replication_group_member_stats
-            )`);
+            `);
 
         // Get GTID info
-        const gtidResult = await adapter.executeQuery(`(
+        const gtidResult = await adapter.executeQuery(`/* readonly */
                 SELECT 
                     @@gtid_executed as gtidExecuted,
                     @@gtid_purged as gtidPurged
-            )`);
+            `);
 
         const gtid = gtidResult.rows?.[0];
 
@@ -328,7 +328,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
         // Check if GR is running
-        const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
+        const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
         if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
@@ -337,7 +337,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Get flow control configuration
-        const configResult = await adapter.executeQuery(`(
+        const configResult = await adapter.executeQuery(`/* readonly */
                 SELECT 
                     @@group_replication_flow_control_mode as flowControlMode,
                     @@group_replication_flow_control_certifier_threshold as certifierThreshold,
@@ -345,18 +345,18 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
                     @@group_replication_flow_control_min_quota as minQuota,
                     @@group_replication_flow_control_min_recovery_quota as minRecoveryQuota,
                     @@group_replication_flow_control_max_quota as maxQuota
-            )`);
+            `);
 
         const config = configResult.rows?.[0];
 
         // Get current queue depths
-        const queueResult = await adapter.executeQuery(`(
+        const queueResult = await adapter.executeQuery(`/* readonly */
                 SELECT 
                     MEMBER_ID as memberId,
                     COUNT_TRANSACTIONS_IN_QUEUE as certifyQueue,
                     COUNT_TRANSACTIONS_REMOTE_IN_APPLIER_QUEUE as applierQueue
                 FROM performance_schema.replication_group_member_stats
-            )`);
+            `);
 
         // Determine if flow control is active
         const isThrottling = (queueResult.rows ?? []).some((row) => {
