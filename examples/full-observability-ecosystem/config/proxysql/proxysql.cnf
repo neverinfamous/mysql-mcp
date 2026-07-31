@@ -1,0 +1,85 @@
+datadir="/var/lib/proxysql"
+
+admin_variables=
+{
+    admin_credentials="admin:admin;radmin:radmin"
+    mysql_ifaces="0.0.0.0:6032"
+    refresh_interval=2000
+}
+
+mysql_variables=
+{
+    threads=4
+    max_connections=2048
+    default_query_delay=0
+    default_query_timeout=36000000
+    have_compress=true
+    poll_timeout=2000
+    interfaces="0.0.0.0:6033"
+    default_schema="information_schema"
+    stacksize=1048576
+    server_version="9.1"
+    connect_timeout_server=3000
+    monitor_username="root"
+    monitor_password="root"
+    monitor_history=600000
+    monitor_connect_interval=15000
+    monitor_ping_interval=10000
+    monitor_read_only_interval=1500
+    monitor_read_only_timeout=500
+    ping_interval_server_msec=120000
+    ping_timeout_server=500
+    commands_stats=true
+    sessions_sort=true
+    connect_retries_on_failure=10
+}
+
+mysql_servers =
+(
+    {
+        address = "mysql-router"
+        port = 6446
+        hostgroup = 1
+        max_connections = 200
+        weight = 1
+    },
+    {
+        address = "mysql-router"
+        port = 6447
+        hostgroup = 2
+        max_connections = 200
+        weight = 1
+    }
+)
+
+mysql_users =
+(
+    {
+        username = "root"
+        password = "root"
+        default_hostgroup = 1
+        max_connections = 1000
+        default_schema = "testdb"
+        active = 1
+    },
+    {
+        username = "cluster_admin"
+        password = "cluster_admin"
+        default_hostgroup = 1
+        max_connections = 1000
+        default_schema = "testdb"
+        active = 1
+    }
+)
+
+mysql_query_rules =
+(
+    {
+        rule_id = 1
+        active = 1
+        match_digest = "^SELECT .*"
+        destination_hostgroup = 2
+        cache_ttl = 5000
+        apply = 1
+    }
+)
