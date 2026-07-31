@@ -27,7 +27,7 @@ if (!cluster) {
     }
 }
 
-const containerName = cluster ? 'mysql-node1' : 'mysql-final';
+const containerName = cluster ? 'mysql-node1' : 'mysql';
 const targetHost = cluster ? 'mysql-router' : '127.0.0.1';
 const targetPort = cluster ? '6446' : '3306';
 const mysqlHost = 'localhost';

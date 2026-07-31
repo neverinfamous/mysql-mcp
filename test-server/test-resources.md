@@ -17,7 +17,7 @@ mysql-mcp exposes core mysql:// observability resources (plus help). Many query 
 node test-server/infrastructure/scripts/reset-database.mjs
 
 # 2. Seed resource data (warms up statistics, creates test events)
-Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-final mysql -uroot -ppassword testdb
+Get-Content .\test-server\test-resources.sql -Raw | docker exec -i mysql-node1 mysql -uroot -proot testdb
 ```
 
 ## Prompt

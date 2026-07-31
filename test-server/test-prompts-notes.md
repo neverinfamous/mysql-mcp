@@ -15,8 +15,8 @@ This document provides human-readable instructions for testing all AI-powered pr
 >
 > Run the following PowerShell command to reset and seed the database:
 > ```powershell
-> docker exec mysql-final mysql -uroot -ppassword testdb -e "DROP TABLE IF EXISTS prompt_order_items, prompt_orders, prompt_users, prompt_transactions, prompt_sessions, prompt_audit_log, prompt_locations, prompt_documents, prompt_events, prompt_daily_reports, prompt_weekly_metrics;"
-> Get-Content .\test-server\test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -ppassword testdb
+> docker exec mysql-node1 mysql -uroot -proot testdb -e "DROP TABLE IF EXISTS prompt_order_items, prompt_orders, prompt_users, prompt_transactions, prompt_sessions, prompt_audit_log, prompt_locations, prompt_documents, prompt_events, prompt_daily_reports, prompt_weekly_metrics;"
+> Get-Content .\test-server\test-prompts.sql -Raw | docker exec -i mysql-node1 mysql -uroot -proot testdb
 > ```
 
 ## 1. Environment Setup

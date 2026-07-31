@@ -5,8 +5,8 @@
 -- Prompts are documentation/guidance generators, so this seed primarily
 -- ensures the referenced tools and queries will work when testing prompts.
 --
--- Target: testdb database on mysql-final Docker container
--- Usage: Get-Content test-prompts.sql -Raw | docker exec -i mysql-final mysql -uroot -proot testdb
+-- Target: testdb database on mysql-node1 Docker container
+-- Usage: Get-Content test-prompts.sql -Raw | docker exec -i mysql-node1 mysql -uroot -proot testdb
 -- =============================================================================
 
 -- Increase recursion depth for 10K-row CTE generation
