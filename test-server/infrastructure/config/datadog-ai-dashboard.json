@@ -16,7 +16,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0b4107",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -59,7 +59,7 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#173b07",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -108,7 +108,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -153,7 +153,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063c11",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -198,7 +198,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f0f",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -243,7 +243,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f09",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -424,7 +424,8 @@
         ],
         "grouping": "cluster",
         "tags": [],
-        "title": "ProxySQL Monitored Instances Status",
+        "time": {},
+        "title": "ProxySQL Frontends",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
@@ -432,9 +433,252 @@
       "id": 4740005024234863,
       "layout": {
         "height": 1,
-        "width": 3,
+        "width": 2,
         "x": 0,
         "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "proxysql.backend.status",
+        "group": "*",
+        "group_by": [],
+        "grouping": "cluster",
+        "tags": [],
+        "time": {},
+        "title": "ProxySQL Backends",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 2452699725061914,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 2,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "http.can_connect",
+        "grouping": "cluster",
+        "tags": [
+          "service:mysql-router",
+          "component:rest_api"
+        ],
+        "title": "Router REST API",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 966900244895154,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 4,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "tcp.can_connect",
+        "grouping": "cluster",
+        "tags": [
+          "service:mysql-router",
+          "route:ro"
+        ],
+        "title": "Router R/O Route (6447)",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 6092856314994372,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "tcp.can_connect",
+        "grouping": "cluster",
+        "tags": [
+          "service:mysql-router",
+          "route:rw"
+        ],
+        "title": "Router R/W Route (6446)",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 5137611699804610,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 8,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "precision": 0,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "=",
+                "custom_bg_color": "#e00000",
+                "palette": "custom_bg",
+                "value": 1.0
+              },
+              {
+                "comparator": "=",
+                "custom_bg_color": "#008a00",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "last",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "min:mysql.cluster.super_read_only{*}"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Router Super Read Status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 6268648035252158,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 10,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.server.connections_connected{*} by {hostgroup}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Backend Server Active Connections",
+        "type": "timeseries"
+      },
+      "id": 7120564611391215,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 0,
+        "y": 7
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "custom_links": [],
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "query1 + query2 + query3"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:proxysql.performance.command.cnt_5s{*} by {sql_command}"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:proxysql.performance.command.cnt_10s{*} by {sql_command}"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query3",
+                "query": "sum:proxysql.performance.command.cnt_infs{*} by {sql_command}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 3120276336912668,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 3,
+        "y": 7
       }
     },
     {
@@ -492,8 +736,8 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 3,
-        "y": 6
+        "x": 6,
+        "y": 7
       }
     },
     {
@@ -551,8 +795,8 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 6,
-        "y": 6
+        "x": 9,
+        "y": 7
       }
     },
     {
@@ -632,71 +876,8 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 9,
-        "y": 6
-      }
-    },
-    {
-      "definition": {
-        "check": "proxysql.backend.status",
-        "group": "*",
-        "group_by": [],
-        "grouping": "cluster",
-        "tags": [],
-        "title": "ProxySQL Backends Status",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "check_status"
-      },
-      "id": 2452699725061914,
-      "layout": {
-        "height": 1,
-        "width": 3,
         "x": 0,
-        "y": 7
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.server.connections_connected{*} by {hostgroup}"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "ProxySQL Backend Server Active Connections",
-        "type": "timeseries"
-      },
-      "id": 7120564611391215,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 0,
-        "y": 8
+        "y": 9
       }
     },
     {
@@ -715,27 +896,18 @@
         "legend_layout": "vertical",
         "requests": [
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
-                "formula": "query1 + query2 + query3"
+                "alias": "Bytes out",
+                "formula": "query1"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:proxysql.performance.command.cnt_5s{*} by {sql_command}"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "sum:proxysql.performance.command.cnt_10s{*} by {sql_command}"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query3",
-                "query": "sum:proxysql.performance.command.cnt_infs{*} by {sql_command}"
+                "query": "avg:proxysql.query_cache.bytes_out{*}"
               }
             ],
             "response_format": "timeseries",
@@ -747,7 +919,7 @@
           }
         ],
         "show_legend": true,
-        "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
+        "title": "ProxySQL Cache Read Throughput",
         "title_align": "left",
         "title_size": "16",
         "type": "timeseries",
@@ -759,12 +931,12 @@
           "scale": "linear"
         }
       },
-      "id": 3120276336912668,
+      "id": 6039513278534726,
       "layout": {
         "height": 2,
         "width": 3,
         "x": 3,
-        "y": 8
+        "y": 9
       }
     },
     {
@@ -823,7 +995,7 @@
         "height": 2,
         "width": 3,
         "x": 6,
-        "y": 8
+        "y": 9
       }
     },
     {
@@ -831,7 +1003,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "custom_links": [],
         "legend_columns": [
           "avg",
           "min",
@@ -843,46 +1014,31 @@
         "requests": [
           {
             "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Bytes out",
-                "formula": "query1"
-              }
-            ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.query_cache.bytes_out{*}"
+                "query": "avg:proxysql.slow_queries{*}.as_rate()"
               }
             ],
             "response_format": "timeseries",
             "style": {
               "line_type": "solid",
               "line_width": "normal",
-              "palette": "green"
+              "palette": "dog_classic"
             }
           }
         ],
         "show_legend": true,
-        "title": "ProxySQL Cache Read Throughput",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
+        "title": "ProxySQL Slow Queries Rate",
+        "type": "timeseries"
       },
-      "id": 6039513278534726,
+      "id": 273057414915558,
       "layout": {
         "height": 2,
         "width": 3,
         "x": 9,
-        "y": 8
+        "y": 9
       }
     },
     {
@@ -895,7 +1051,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c4008",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -928,7 +1084,7 @@
         "is_column_break": true,
         "width": 2,
         "x": 0,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -939,18 +1095,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#0a3b07",
                 "palette": "custom_bg",
                 "value": 70.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "palette": "white_on_yellow",
                 "value": 90.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_red",
                 "value": 90.0
               }
@@ -985,7 +1141,7 @@
         "height": 2,
         "width": 2,
         "x": 2,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -997,7 +1153,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#144007",
                 "custom_fg_color": "#ffffff",
                 "palette": "custom_bg",
@@ -1030,7 +1186,7 @@
         "height": 2,
         "width": 2,
         "x": 4,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1042,7 +1198,7 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#084a0c",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -1074,7 +1230,7 @@
         "height": 2,
         "width": 2,
         "x": 6,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1085,18 +1241,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c3706",
                 "palette": "custom_bg",
                 "value": 80.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
                 "value": 49.9
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 49.9
@@ -1134,7 +1290,7 @@
         "height": 2,
         "width": 2,
         "x": 8,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1145,18 +1301,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 5.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
                 "value": 2.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#104409",
                 "palette": "custom_bg",
                 "value": 2.0
@@ -1192,7 +1348,7 @@
         "height": 2,
         "width": 2,
         "x": 10,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1213,67 +1369,27 @@
             "display_type": "line",
             "formulas": [
               {
-                "alias": "Active",
-                "formula": "default_zero(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}.fill(last)"
+                "query": "avg:system.cpu.user{*} by {service}"
               }
             ],
             "response_format": "timeseries",
             "style": {
               "line_type": "solid",
-              "palette": "blue"
-            }
-          },
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Idle",
-                "formula": "default_zero(query2)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_idle{*}.fill(last)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
+              "line_width": "normal",
+              "order_by": "values",
               "palette": "green"
-            }
-          },
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Total",
-                "formula": "default_zero(query3)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query3",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.fill(last)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "dashed",
-              "palette": "gray"
             }
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Connection Pool",
         "title_align": "left",
         "title_size": "16",
@@ -1284,7 +1400,7 @@
         "height": 4,
         "width": 4,
         "x": 0,
-        "y": 12
+        "y": 13
       }
     },
     {
@@ -1353,140 +1469,7 @@
         "height": 4,
         "width": 4,
         "x": 4,
-        "y": 12
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "auto",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "count": 10,
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
-          }
-        ],
-        "title": "Errors by Category",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
-      },
-      "id": 203565609753300,
-      "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 8,
-        "y": 12
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.slow_queries{*}.as_rate()"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "dog_classic"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "ProxySQL Slow Queries Rate",
-        "type": "timeseries"
-      },
-      "id": 273057414915558,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 16
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "bars",
-            "formulas": [
-              {
-                "formula": "default_zero(query1)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
-              }
-            ],
-            "response_format": "timeseries"
-          }
-        ],
-        "show_legend": true,
-        "title": "Transport Errors (HTTP)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries"
-      },
-      "id": 203565609753301,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 4,
-        "y": 16
+        "y": 13
       }
     },
     {
@@ -1528,125 +1511,100 @@
       },
       "id": 203565609753226,
       "layout": {
-        "height": 4,
+        "height": 9,
         "width": 4,
         "x": 8,
-        "y": 16
+        "y": 13
       }
     },
     {
       "definition": {
-        "check": "http.can_connect",
-        "grouping": "cluster",
-        "tags": [
-          "service:mysql-router",
-          "component:rest_api"
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
         ],
-        "time": {},
-        "title": "Router REST API",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "check_status"
-      },
-      "id": 966900244895154,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 0,
-        "y": 18
-      }
-    },
-    {
-      "definition": {
-        "check": "tcp.can_connect",
-        "grouping": "cluster",
-        "tags": [
-          "service:mysql-router",
-          "route:rw"
-        ],
-        "time": {},
-        "title": "Router R/W Route (6446)",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "check_status"
-      },
-      "id": 5137611699804610,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 2,
-        "y": 18
-      }
-    },
-    {
-      "definition": {
-        "check": "tcp.can_connect",
-        "grouping": "cluster",
-        "tags": [
-          "service:mysql-router",
-          "route:ro"
-        ],
-        "time": {},
-        "title": "Router R/O Route (6447)",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "check_status"
-      },
-      "id": 6092856314994372,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 4,
-        "y": 18
-      }
-    },
-    {
-      "definition": {
+        "legend_layout": "vertical",
         "requests": [
           {
-            "conditional_formats": [
-              {
-                "comparator": "=",
-                "custom_bg_color": "#e00000",
-                "palette": "custom_bg",
-                "value": 1.0
-              },
-              {
-                "comparator": "=",
-                "custom_bg_color": "#008a00",
-                "palette": "custom_bg",
-                "value": 0.0
-              }
-            ],
+            "display_type": "bars",
             "formulas": [
               {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
+              }
+            ],
+            "response_format": "timeseries"
+          }
+        ],
+        "show_legend": true,
+        "title": "Transport Errors (HTTP)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 203565609753301,
+      "layout": {
+        "height": 5,
+        "width": 4,
+        "x": 0,
+        "y": 17
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "auto",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
                 "formula": "query1"
               }
             ],
             "queries": [
               {
-                "aggregator": "last",
+                "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "min:mysql.cluster.super_read_only{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
               }
             ],
-            "response_format": "scalar"
+            "response_format": "scalar",
+            "sort": {
+              "count": 10,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
           }
         ],
-        "time": {},
-        "title": "Router Super Read Status",
-        "title_align": "center",
+        "title": "Errors by Category",
+        "title_align": "left",
         "title_size": "16",
-        "type": "query_value",
-        "precision": 0
+        "type": "query_table"
       },
-      "id": 6268648035252158,
+      "id": 203565609753300,
       "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 6,
-        "y": 18
+        "height": 5,
+        "width": 4,
+        "x": 4,
+        "y": 17
       }
     }
   ]
