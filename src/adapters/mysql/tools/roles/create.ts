@@ -45,7 +45,7 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (ifNotExists) {
           const checkResult = await adapter.executeQuery(
-            `/* write */ SELECT account_locked, password_expired, authentication_string FROM mysql.user WHERE User = ?`,
+            `WITH _dummy AS (SELECT 1) SELECT account_locked, password_expired, authentication_string FROM mysql.user WHERE User = ?`,
             [name],
           );
           

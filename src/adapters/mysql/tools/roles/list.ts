@@ -42,7 +42,7 @@ export function getRoleListTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { pattern, limit } = RoleListSchema.parse(params);
-        let query = `SELECT u.User as roleName, u.Host FROM mysql.user u
+        let query = `WITH _dummy AS (SELECT 1) SELECT u.User as roleName, u.Host FROM mysql.user u
                     WHERE u.account_locked='Y' AND u.password_expired='Y' AND (u.authentication_string='' OR u.authentication_string IS NULL)`;
         const args: unknown[] = [];
         if (pattern) {
