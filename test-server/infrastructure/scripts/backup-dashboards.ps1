@@ -7,7 +7,8 @@ $dashboards = @(
 
 $targetDirs = @(
     "C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem\config",
-    "C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure\config"
+    "C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure\config",
+    "C:\Users\chris\Desktop\mysql-mcp\examples\dashboards"
 )
 
 foreach ($dashboard in $dashboards) {

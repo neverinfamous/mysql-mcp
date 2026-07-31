@@ -14,7 +14,7 @@ export async function getServerVersion(adapter: MySQLAdapter): Promise<{ major: 
   // Fallback if version is somehow undefined in health (unlikely)
   if (rawVersion === "0.0.0") {
     try {
-       const result = await adapter.rawQuery("SELECT VERSION() as version");
+       const result = await adapter.rawQuery("(SELECT VERSION() as version)");
        if (result?.rows && result.rows.length > 0) {
          const val = result.rows[0]?.['version'];
          rawVersion = typeof val === 'string' ? val : "0.0.0";
