@@ -1,6 +1,6 @@
 # mysql-mcp — Copilot Code Review Context
 
-## Enforce Architecture Rules
+## Enforce Core Architecture Rules
 Ensure PRs adhere to these SSoT architectural rules:
 - **Tool filtering** skips MySQL connections when using exclusively router, proxysql, or shell tools.
 - **Code Mode** (`mysql_execute_code`) significantly reduces token usage.
@@ -12,7 +12,7 @@ Ensure PRs adhere to these SSoT architectural rules:
 
 ## Review Session Context
 
-Before starting work, read `memory://briefing/mysql-mcp` from the `memory-journal-mcp` server. It provides real-time context:
+Read `memory://briefing/mysql-mcp` from `memory-journal-mcp` before starting. This provides essential real-time context:
 
 - **Recent journal entries** — what was just worked on by the development agent
 - **GitHub status** — open issues, PRs, CI status, milestones
@@ -70,6 +70,7 @@ All tool handlers return structured error responses — never raw exceptions:
 ## Understand Architecture
 
 ```
+scripts/                        # Instruction and infrastructure scripts
 src/
 ├── cli.ts                      # CLI entry point (Commander)
 ├── index.ts                    # Library entry point
@@ -86,7 +87,6 @@ src/
 ├── observability/              # Observability and metrics
 ├── pool/                       # Connection pool management
 ├── progress/                   # Progress notification helpers
-├── scripts/                    # Instruction and infrastructure scripts
 ├── server/                     # MCP server setup and registration
 ├── transports/                 # Streamable HTTP transport layer
 ├── types/                      # Type definitions + barrel exports
@@ -106,7 +106,7 @@ src/
 | `DOCKER_README.md`              | Docker Hub documentation            |
 
 
-## Complete Review Checklist
+## Complete the Quality Assurance Checklist
 
 When reviewing PRs, check for:
 
@@ -131,4 +131,4 @@ When reviewing PRs, check for:
 - [ ] File system sandbox configuration correctly enforces `ALLOWED_IO_ROOTS` (if applicable)
 - [ ] Schema examples accurately reflect the comprehensive toolset and current configuration flags
 - [ ] Ensure version-agnostic text (no exact tool/resource counts)
-- [ ] I have verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications
+- [ ] Verify the author has verified performance benchmark throughput (via pnpm run bench) for any hot-path modifications

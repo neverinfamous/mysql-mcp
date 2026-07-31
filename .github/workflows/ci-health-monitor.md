@@ -40,7 +40,7 @@ concurrency: ci-health-monitor
 
 # CI Health Monitor Instructions
 
-You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your job is to check workflows. Look for deprecations, outdated actions, and health issues.
+Audit the mysql-mcp CI/CD infrastructure to guarantee peak reliability. Proactively identify deprecations, outdated actions, and pipeline bottlenecks.
 
 ## Audit Instructions
 
@@ -48,7 +48,7 @@ You are auditing the CI/CD infrastructure for the **mysql-mcp** project. Your jo
 - **If everything is healthy, report "all clear" via noop.** Do not create empty issues.
 - **Be specific with fix suggestions.** Include the exact file, line, and replacement value.
 
-## Workflow Inspection
+## Inspect Workflows for Reliability
 
 List all `.yml` files in `.github/workflows/`, explicitly excluding auto-generated lockfiles (`*.lock.yml`). For each workflow file:
 
