@@ -1,7 +1,7 @@
 # MySQL MCP Server (mysql-mcp)
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.93%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-passing-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Protected-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-passing-blue.svg)](https://opensource.org/licenses/MIT)
 
 > **Note:** Docker Hub limits descriptions to 25k characters. Some documentation may be truncated. View the **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** or the [GitHub README](https://github.com/neverinfamous/mysql-mcp) for complete details.
 
@@ -105,9 +105,9 @@ cp .env.example .env
 docker compose up -d
 ```
 
-- **Grafana:** Available at `https://localhost:3001` (Dashboard pre-loaded).
-- **Prometheus:** Available at `https://localhost:9090`.
-- **MCP Server:** Available at `https://localhost:3000`.
+- **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
+- **Prometheus:** Available at `http://localhost:9090`.
+- **MCP Server:** Available at `http://localhost:3000`.
 
 ---
 
@@ -270,7 +270,7 @@ Add one of these configurations to your IDE's MCP settings file (e.g., `cline_mc
 
 **Best for:** Monitoring InnoDB Cluster, Group Replication, and Ecosystem integrations.
 
-> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed configurations for Option 2 and 3.
+> **📖 See the [MySQL Ecosystem Setup Guide](https://github.com/neverinfamous/mysql-mcp/wiki/MySQL-Ecosystem-Setup)** for detailed configurations for Option 2.
 
 ## 🔗 Integrate Any MySQL Environment
 
@@ -337,6 +337,7 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `--enable-hsts`           | `MCP_ENABLE_HSTS`       | Enable HTTP Strict Transport Security               |
 | `--metrics-export`        | `MCP_METRICS_EXPORT`    | Metrics export format (e.g., prometheus)            |
 | `--log-level`             | `LOG_LEVEL`             | Log level: debug, info, warn, error                 |
+| `--allowed-io-roots`      | `ALLOWED_IO_ROOTS`      | JSON array or comma list of allowed paths for all file I/O operations |
 | `--audit-log`             | `AUDIT_LOG_PATH`        | Path to the audit log file                          |
 | `--audit-backup`          | —                       | Enable pre-mutation snapshots                       |
 | `--audit-reads`           | —                       | Include read-scope tool calls in the audit log      |
@@ -349,6 +350,17 @@ Use predefined tool bundles to stay within IDE tool limits (e.g., `--tool-filter
 | `--oauth-audience`        | `OAUTH_AUDIENCE`        | Expected token audience                             |
 | `--oauth-jwks-uri`        | `OAUTH_JWKS_URI`        | JWKS URI (auto-discovered)                          |
 | `--oauth-clock-tolerance` | `OAUTH_CLOCK_TOLERANCE` | Clock tolerance in seconds                          |
+| —                         | `MYSQL_ROUTER_URL`      | MySQL Router URL                                    |
+| —                         | `MYSQL_ROUTER_USER`     | MySQL Router user                                   |
+| —                         | `MYSQL_ROUTER_PASSWORD` | MySQL Router password                               |
+| —                         | `MYSQL_ROUTER_INSECURE` | Bypass Router TLS verification                      |
+| —                         | `PROXYSQL_HOST`         | ProxySQL host                                       |
+| —                         | `PROXYSQL_PORT`         | ProxySQL port                                       |
+| —                         | `PROXYSQL_USER`         | ProxySQL user                                       |
+| —                         | `PROXYSQL_PASSWORD`     | ProxySQL password                                   |
+| —                         | `MYSQLSH_PATH`          | Path to MySQL Shell executable                      |
+| —                         | `MYSQL_XPORT`           | MySQL X Protocol port (default 33060)               |
+| —                         | `CODEMODE_ISOLATION`    | Code Mode isolation level                           |
 | —                         | `CODEMODE_MAX_RESULT_SIZE` | Max Code Mode result payload in bytes               |
 | —                         | `METADATA_CACHE_TTL_MS` | Cache TTL for schema metadata                       |
 | —                         | `REDIS_URL`             | Redis connection URL (used for rate limiting)       |

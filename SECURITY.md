@@ -69,7 +69,7 @@ Code Mode executes user-provided JavaScript in a hardened `isolated-vm` sandbox.
 
 - ✅ **Strict V8 Isolate Boundary** — executes within a physically separate V8 isolate. It ensures native objects and prototypes cannot cross the boundary.
 - ✅ **Memory & CPU Constraints** — enforced at the C++ level. This includes synchronous timeouts and strict heap limits.
-- ✅ **API Bindings via Reference** — Injects MySQL methods securely using ivm.Reference wrappers.
+- ✅ **API Bindings via Reference** — Injects MySQL methods securely using `ivm.Reference` wrappers.
 
 ### Validate Code Statically
 
@@ -184,7 +184,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 
 ### Redact Credentials
 
-- ✅ **Redact Sensitive Fields** — The --audit-redact flag redacts sensitive data in logs.
+- ✅ **Redact Sensitive Fields** — The `--audit-redact` flag redacts sensitive data in logs.
 - ✅ **Recursive sanitization** for nested objects
 
 ### Prevent Log Injection
@@ -245,7 +245,7 @@ docker run -i --memory=1g --cpus=1 -v ./data:/app/data:rw -e ALLOWED_IO_ROOTS=/a
 - [x] Security headers (CSP, X-Content-Type-Options, X-Frame-Options, Cache-Control, Referrer-Policy, Permissions-Policy)
 - [x] HSTS (opt-in)
 - [x] OAuth 2.1 with JWT/JWKS validation (RFC 9728, RFC 8414)
-- [x] MySQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:*`, `schema:*`, `table:*:*`)
+- [x] MySQL-specific scope enforcement (`read`, `write`, `admin`, `full`, `db:{name}`, `schema:{name}`, `table:{schema}:{table}`)
 - [x] Per-tool scope enforcement via `AsyncLocalStorage`
 - [x] Credential redaction in logs
 - [x] Log injection prevention

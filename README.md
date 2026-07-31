@@ -3,13 +3,13 @@
 <!-- mcp-name: io.github.neverinfamous/mysql-mcp -->
 
 [![GitHub Release](https://img.shields.io/github/v/release/neverinfamous/mysql-mcp)](https://github.com/neverinfamous/mysql-mcp) [![npm](https://img.shields.io/npm/v/@neverinfamous/mysql-mcp.svg)](https://www.npmjs.com/package/@neverinfamous/mysql-mcp) [![Docker Pulls](https://img.shields.io/docker/pulls/writenotenow/mysql-mcp)](https://hub.docker.com/r/writenotenow/mysql-mcp)
-[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-84.93%25-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-passing-blue.svg)](https://opensource.org/licenses/MIT)
+[![MCP](https://img.shields.io/badge/MCP-Registry-green.svg)](https://registry.modelcontextprotocol.io/v0/servers?search=io.github.neverinfamous/mysql-mcp) [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg) ![Coverage](https://img.shields.io/badge/Coverage-Protected-yellowgreen.svg) ![E2E](https://img.shields.io/badge/E2E-passing-blue.svg)](https://opensource.org/licenses/MIT)
 
 **[📚 Full Documentation (Wiki)](https://github.com/neverinfamous/mysql-mcp/wiki)** • **[Changelog](CHANGELOG.md)** • **[Security](SECURITY.md)** • **[Release Article](https://adamic.tech/articles/mysql-mcp-server)**
 
 ## 💎 Value Proposition
 
-Production-ready MySQL integration for AI agents. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. It includes token optimization via Code Mode. It provides enterprise security with OAuth 2.1.
+Empower your AI agents with production-ready MySQL integration. Scale effortlessly using MCP v2 stateless architecture via NodeStreamableHTTPServerTransport, slash token consumption with sandboxed Code Mode, and enforce enterprise-grade OAuth 2.1 authorization.
 
 ## 🎯 Leverage Core Benefits
 
@@ -133,9 +133,9 @@ cp .env.example .env
 docker compose up -d
 ```
 
-- **Grafana:** Available at `https://localhost:3001` (Dashboard pre-loaded).
-- **Prometheus:** Available at `https://localhost:9090`.
-- **MCP Server:** Available at `https://localhost:3000`.
+- **Grafana:** Available at `http://localhost:3001` (Dashboard pre-loaded).
+- **Prometheus:** Available at `http://localhost:9090`.
+- **MCP Server:** Available at `http://localhost:3000`.
 
 #### Build From Source
 
@@ -463,7 +463,7 @@ Add a configuration to your IDE's MCP settings file:
 
 **Customization Notes:**
 
-- Replace `/path/to/mysql-mcp/` with your actual installation path
+- Replace `/path/to/mysql-mcp/` with your actual installation path (only needed when building from source or running local file paths directly via Node)
 - Update credentials with your actual values
 - For Windows: Use forward slashes (e.g., `C:/mysql-mcp/dist/cli.js`) or escape backslashes
 - For Windows MySQL Shell: `"MYSQLSH_PATH": "C:\\Program Files\\MySQL\\MySQL Shell\\bin\\mysqlsh.exe"`
