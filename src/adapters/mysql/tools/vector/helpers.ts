@@ -5,7 +5,7 @@ import { ExtensionNotAvailableError, ValidationError } from "../../../../types/m
  * Get MySQL server version
  */
 export async function getServerVersion(adapter: MySQLAdapter): Promise<{ major: number; minor: number; patch: number; raw: string }> {
-  const result = await adapter.rawQuery("SELECT @@version as Value");
+  const result = await adapter.rawQuery("SHOW VARIABLES LIKE 'version'");
   let rawVersion = "0.0.0";
   
   if (result?.rows !== undefined && result.rows.length > 0) {
