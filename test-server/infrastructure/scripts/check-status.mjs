@@ -498,6 +498,23 @@ if (dbIntegrityOk) {
 }
 
 // ============================================================
+// Section 9: Host System Dependencies
+// ============================================================
+console.log('\n9. Host System Dependencies:');
+console.log('----------------------------------------');
+
+const hostShellOut = execCommand('mysqlsh', ['--version'], true);
+if (hostShellOut && hostShellOut.toLowerCase().includes('mysqlsh')) {
+    const versionMatch = hostShellOut.match(/Ver\s+([^\s]+)/);
+    const version = versionMatch ? versionMatch[1] : 'unknown';
+    console.log(`✅ MySQL Shell (Host)   : Found natively in PATH (Version ${version})`);
+} else {
+    console.log(`⚠️ MySQL Shell (Host)   : Not found natively in PATH!`);
+    console.log(`   (The mysql-ecosystem MCP server requires mysqlsh installed on the host machine to execute tools)`);
+    allUp = false;
+}
+
+// ============================================================
 // Final Summary
 // ============================================================
 console.log('\n========================================');

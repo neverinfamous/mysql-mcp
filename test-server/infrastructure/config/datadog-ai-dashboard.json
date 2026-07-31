@@ -16,10 +16,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#0b4107",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -32,7 +32,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -59,10 +59,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#173b07",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -74,7 +74,7 @@
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               },
               {
                 "data_source": "metrics",
@@ -108,10 +108,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -124,7 +124,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -153,10 +153,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#063c11",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -169,7 +169,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -198,10 +198,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#083f0f",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -214,7 +214,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -243,10 +243,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#083f09",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -259,7 +259,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -293,7 +293,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*} by {tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}"
               }
             ],
             "response_format": "scalar",
@@ -530,13 +530,13 @@
                 "comparator": "=",
                 "custom_bg_color": "#e00000",
                 "palette": "custom_bg",
-                "value": 1.0
+                "value": 1
               },
               {
                 "comparator": "=",
                 "custom_bg_color": "#008a00",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -1049,10 +1049,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#0c4008",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -1065,7 +1065,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -1093,20 +1093,20 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#0a3b07",
                 "palette": "custom_bg",
-                "value": 70.0
+                "value": 70
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "palette": "white_on_yellow",
-                "value": 90.0
+                "value": 90
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "palette": "white_on_red",
-                "value": 90.0
+                "value": 90
               }
             ],
             "formulas": [
@@ -1151,11 +1151,11 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#144007",
                 "custom_fg_color": "#ffffff",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -1196,10 +1196,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#084a0c",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -1239,18 +1239,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#0c3706",
                 "palette": "custom_bg",
-                "value": 80.0
+                "value": 80
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "palette": "white_on_yellow",
                 "value": 49.9
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 49.9
@@ -1299,21 +1299,21 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 5.0
+                "value": 5
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "palette": "white_on_yellow",
-                "value": 2.0
+                "value": 2
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#104409",
                 "palette": "custom_bg",
-                "value": 2.0
+                "value": 2
               }
             ],
             "formulas": [
