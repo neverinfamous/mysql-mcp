@@ -1053,6 +1053,8 @@ export function preprocessDocIndexParams(val: unknown): unknown {
 
   if (typeof result["fields"] === "string") {
     result["fields"] = [{ path: result["fields"] }];
+  } else if (typeof result["fields"] === "object" && result["fields"] !== null && !Array.isArray(result["fields"])) {
+    result["fields"] = [result["fields"]];
   }
 
   if (Array.isArray(result["fields"])) {
@@ -1063,6 +1065,9 @@ export function preprocessDocIndexParams(val: unknown): unknown {
       if (fieldObj["path"] === undefined && fieldObj["field"] !== undefined) {
         fieldObj["path"] = fieldObj["field"];
         delete fieldObj["field"];
+      }
+      if (typeof fieldObj["path"] === "string") {
+        fieldObj["path"] = ensureJsonPath(fieldObj["path"]);
       }
       if (typeof fieldObj["type"] === "string") {
         const upType = fieldObj["type"].toUpperCase();

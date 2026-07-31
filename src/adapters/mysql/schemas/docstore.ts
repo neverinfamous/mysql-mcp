@@ -260,6 +260,12 @@ export const CreateDocIndexSchemaBase = z.object({
     .union([
       z.string(),
       z.array(z.string()),
+      z.object({
+        path: z.string().optional(),
+        field: z.string().optional(),
+        type: z.string().optional(),
+        required: z.boolean().optional(),
+      }),
       z.array(
         z.object({
           path: z.string().optional(),
