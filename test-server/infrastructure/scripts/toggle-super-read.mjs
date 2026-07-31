@@ -1,6 +1,10 @@
 import mysql from 'mysql2/promise';
 import path from 'path';
 import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Try to parse .env if exists
 try {
@@ -44,7 +48,7 @@ async function main() {
     await connection.query(`SET GLOBAL super_read_only = ${toggle};`);
     
     const [rows] = await connection.query('SELECT @@global.super_read_only AS super_read_only');
-    console.log(`Success! Current state: ${(rows as any)[0].super_read_only}`);
+    console.log(`Success! Current state: ${rows[0].super_read_only}`);
   } catch (error) {
     console.error('Error toggling super_read_only:', error);
   } finally {
