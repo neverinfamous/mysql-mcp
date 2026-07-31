@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
 
 engine:
-  id: gh-copilot
+  id: copilot
   model: claude-3-5-sonnet-latest
 
 secrets:
