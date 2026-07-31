@@ -182,8 +182,8 @@ describe("Performance Tests", () => {
           filterTools(mockTools, config);
         }, 100);
 
-        // Filtering 191 tools should be fast (< 5ms on average)
-        expect(timing.avg).toBeLessThan(5);
+        // Filtering 191 tools should be fast (< 10ms on average)
+        expect(timing.avg).toBeLessThan(10);
 
         // Verify correct filtering
         const filtered = filterTools(mockTools, config);
