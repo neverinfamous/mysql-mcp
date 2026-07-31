@@ -181,7 +181,7 @@ export const PointSchema = z.preprocess(
     srid: data.srid !== undefined ? Number(data.srid) : 4326,
   }))
   .refine(
-    (data) => !Number.isNaN(data.longitude) && !Number.isNaN(data.latitude),
+    (data) => Number.isFinite(data.longitude) && Number.isFinite(data.latitude),
     { message: "longitude and latitude must be valid numbers" },
   )
   .refine(
@@ -278,6 +278,7 @@ export const PolygonSchema = z.preprocess(
 }).refine(data => data.coordinates ?? data.polygon, { message: "Either coordinates or polygon WKT must be provided" })
   .refine(data => {
     if (Array.isArray(data.coordinates)) {
+        if (data.coordinates.length === 0) return false;
         for (const ring of data.coordinates) {
             if (ring.length < 4) return false;
             const first = ring[0];
@@ -412,7 +413,7 @@ export const DistanceSchema = z
     let longitude = Number((data.point as Record<string, unknown>)?.["longitude"] ?? data.longitude);
     let latitude = Number((data.point as Record<string, unknown>)?.["latitude"] ?? data.latitude);
 
-    if (pointStr && Number.isNaN(longitude)) {
+    if (pointStr && !Number.isFinite(longitude)) {
         const match = /POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*\)/i.exec(pointStr);
         if (match) {
            longitude = Number(match[1]);
@@ -434,14 +435,14 @@ export const DistanceSchema = z
   .refine(
     (data) => {
       if (data.table) {
-        return !Number.isNaN(data.point.longitude) && !Number.isNaN(data.point.latitude);
+        return Number.isFinite(data.point.longitude) && Number.isFinite(data.point.latitude);
       }
       return data.geometry1 !== "" && data.geometry2 !== "";
     },
     { message: "If table is provided, point.longitude and point.latitude must be valid numbers. Otherwise, point1 and point2 (or geometry1 and geometry2) must be provided." },
   )
   .refine(
-    (data) => data.maxDistance === undefined || (!Number.isNaN(data.maxDistance) && data.maxDistance >= 0),
+    (data) => data.maxDistance === undefined || (Number.isFinite(data.maxDistance) && data.maxDistance >= 0),
     { message: "maxDistance must be a valid non-negative number" },
   )
   .refine(
@@ -462,7 +463,7 @@ export const DistanceSchema = z
     },
     { message: "longitude must be between -180 and 180 degrees for SRID 4326" }
   )
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+  .refine((data) => Number.isFinite(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
   .refine((data) => !Number.isNaN(data.srid), {
@@ -545,7 +546,7 @@ export const ContainsSchema = z.preprocess(
     const type = data.polygon.trim().toUpperCase();
     return type.startsWith('POLYGON') || type.startsWith('MULTIPOLYGON');
   }, { message: "polygon must be a valid POLYGON or MULTIPOLYGON WKT string (e.g. POLYGON((...)))" })
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+  .refine((data) => Number.isFinite(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
   .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
@@ -596,7 +597,7 @@ export const WithinSchema = z.preprocess(
   .refine((data) => {
     return isValidWKT(data.geometry);
   }, { message: "geometry must be a valid WKT string (e.g. POINT(1 1))" })
-  .refine((data) => !Number.isNaN(data.limit) && data.limit > 0, {
+  .refine((data) => Number.isFinite(data.limit) && data.limit > 0, {
     message: "limit must be a positive number",
   })
   .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
@@ -704,7 +705,7 @@ export const BufferSchema = z.preprocess(
     }
     return true;
   }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" })
-  .refine((data) => !Number.isNaN(data.distance), {
+  .refine((data) => Number.isFinite(data.distance), {
     message: "distance must be a valid number",
   })
   .refine((data) => {
