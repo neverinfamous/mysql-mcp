@@ -21,6 +21,7 @@ import type {
 } from "../../../../types/index.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
 import { READ_ONLY } from "../../../../utils/annotations.js";
+import { format } from "mysql2";
 
 // =============================================================================
 // Helpers
@@ -329,10 +330,9 @@ export function createSecurityUserPrivilegesTool(
           );
         }
         // P154: User existence check when explicitly provided
-        const userCheck = await adapter.executeQuery(
-            "SELECT User FROM mysql.user WHERE User = ? LIMIT 1",
-            [user],
-          );
+        const userCheck = await adapter.rawQuery(
+          format("SELECT User FROM mysql.user WHERE User = ? LIMIT 1", [user])
+        );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
               new ValidationError(`User '${user}' does not exist.`),
@@ -340,102 +340,102 @@ export function createSecurityUserPrivilegesTool(
             );
           }
 
-        // Get users
-        let usersQuery = `
-                SELECT User, Host,
-                       plugin AS authPlugin,
-                       account_locked AS accountLocked,
-                       password_expired AS passwordExpired,
-                       password_lifetime AS passwordLifetime,
-                       max_connections AS maxConnections,
-                       max_user_connections AS maxUserConnections
-                FROM mysql.user
-            `;
+          // Get users
+          let usersQuery = `
+                  SELECT User, Host,
+                         plugin AS authPlugin,
+                         account_locked AS accountLocked,
+                         password_expired AS passwordExpired,
+                         password_lifetime AS passwordLifetime,
+                         max_connections AS maxConnections,
+                         max_user_connections AS maxUserConnections
+                  FROM mysql.user
+              `;
 
-        const conditions: string[] = [];
-        const queryParams: unknown[] = [];
+          const conditions: string[] = [];
+          const queryParams: string[] = [];
 
-        conditions.push("User = ?");
-        queryParams.push(user);
-        
-        if (host !== "%") {
-          conditions.push("Host = ?");
-          queryParams.push(host);
-        }
-
-        if (conditions.length > 0) {
-          usersQuery += " WHERE " + conditions.join(" AND ");
-        }
-
-        const usersResult = await adapter.executeQuery(usersQuery, queryParams);
-
-        // For each user, get their grants (executed in batches to avoid N+1 bottleneck)
-        const userPrivileges: Record<string, unknown>[] = [];
-        const userRows = usersResult.rows ?? [];
-        const BATCH_SIZE = 10;
-        
-        for (let i = 0; i < userRows.length; i += BATCH_SIZE) {
-          const chunk = userRows.slice(i, i + BATCH_SIZE);
+          conditions.push("User = ?");
+          queryParams.push(user);
           
-          // Pre-fetch roles for the chunk to avoid N+1 queries
-          const roleMap = new Map<string, string[]>();
-          if (includeRoles && chunk.length > 0) {
-            try {
-              const roleConditions: string[] = [];
-              const roleParams: unknown[] = [];
-              
-              for (const u of chunk) {
-                const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
-                const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
-                roleConditions.push("(TO_USER = ? AND TO_HOST = ?)");
-                roleParams.push(userName, userHost);
-              }
-              
-              const rolesResult = await adapter.executeQuery(
-                `
-                  SELECT TO_USER, TO_HOST, FROM_USER, FROM_HOST
-                  FROM mysql.role_edges
-                  WHERE ${roleConditions.join(" OR ")}
-                `,
-                roleParams,
-              );
-              
-              for (const r of rolesResult.rows ?? []) {
-                const toUser = typeof r["TO_USER"] === "string" ? r["TO_USER"] : String(r["TO_USER"]);
-                const toHost = typeof r["TO_HOST"] === "string" ? r["TO_HOST"] : String(r["TO_HOST"]);
-                const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
-                const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
-                
-                const key = `${toUser}@${toHost}`;
-                const roleList = roleMap.get(key) ?? [];
-                roleList.push(`${fromUser}@${fromHost}`);
-                roleMap.set(key, roleList);
-              }
-            } catch {
-              // Role edges table might not exist in older versions
-            }
+          if (host !== "%") {
+            conditions.push("Host = ?");
+            queryParams.push(host);
           }
+
+          if (conditions.length > 0) {
+            usersQuery += " WHERE " + conditions.join(" AND ");
+          }
+
+          const usersResult = await adapter.rawQuery(format(usersQuery, queryParams));
+
+          // For each user, get their grants (executed in batches to avoid N+1 bottleneck)
+          const userPrivileges: Record<string, unknown>[] = [];
+          const userRows = usersResult.rows ?? [];
+          const BATCH_SIZE = 10;
           
-          const chunkResults = await Promise.all(chunk.map(async (userRow) => {
-            const u = userRow;
-            const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
-            const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
-            const escapedUserName = userName.replace(/`/g, '``');
-            const escapedUserHost = userHost.replace(/`/g, '``');
-  
-            const grantsResult = await adapter.executeQuery(
-              `SHOW GRANTS FOR \`${escapedUserName}\`@\`${escapedUserHost}\``,
-            );
-  
-            const grants = (grantsResult.rows ?? []).map((r) => {
-              const values = Object.values(r);
-              return typeof values[0] === "string" ? values[0] : String(values[0]);
-            });
-  
-            let roles: string[] = [];
-            if (includeRoles) {
-              roles = roleMap.get(`${userName}@${userHost}`) ?? [];
+          for (let i = 0; i < userRows.length; i += BATCH_SIZE) {
+            const chunk = userRows.slice(i, i + BATCH_SIZE);
+            
+            // Pre-fetch roles for the chunk to avoid N+1 queries
+            const roleMap = new Map<string, string[]>();
+            if (includeRoles && chunk.length > 0) {
+              try {
+                const roleConditions: string[] = [];
+                const roleParams: string[] = [];
+                
+                for (const u of chunk) {
+                  const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+                  const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
+                  roleConditions.push("(TO_USER = ? AND TO_HOST = ?)");
+                  roleParams.push(userName, userHost);
+                }
+                
+                const rolesResult = await adapter.rawQuery(
+                  format(`
+                    SELECT TO_USER, TO_HOST, FROM_USER, FROM_HOST
+                    FROM mysql.role_edges
+                    WHERE ${roleConditions.join(" OR ")}
+                  `,
+                  roleParams)
+                );
+                
+                for (const r of rolesResult.rows ?? []) {
+                  const toUser = typeof r["TO_USER"] === "string" ? r["TO_USER"] : String(r["TO_USER"]);
+                  const toHost = typeof r["TO_HOST"] === "string" ? r["TO_HOST"] : String(r["TO_HOST"]);
+                  const fromUser = typeof r["FROM_USER"] === "string" ? r["FROM_USER"] : String(r["FROM_USER"]);
+                  const fromHost = typeof r["FROM_HOST"] === "string" ? r["FROM_HOST"] : String(r["FROM_HOST"]);
+                  
+                  const key = `${toUser}@${toHost}`;
+                  const roleList = roleMap.get(key) ?? [];
+                  roleList.push(`${fromUser}@${fromHost}`);
+                  roleMap.set(key, roleList);
+                }
+              } catch {
+                // Role edges table might not exist in older versions
+              }
             }
+            
+            const chunkResults = await Promise.all(chunk.map(async (userRow) => {
+              const u = userRow;
+              const userName = typeof u["User"] === "string" ? u["User"] : String(u["User"]);
+              const userHost = typeof u["Host"] === "string" ? u["Host"] : String(u["Host"]);
+              const escapedUserName = userName.replace(/`/g, '``');
+              const escapedUserHost = userHost.replace(/`/g, '``');
+    
+              const grantsResult = await adapter.rawQuery(
+                `SHOW GRANTS FOR \`${escapedUserName}\`@\`${escapedUserHost}\``
+              );
+    
+              const grants = (grantsResult.rows ?? []).map((r) => {
+                const values = Object.values(r);
+                return typeof values[0] === "string" ? values[0] : String(values[0]);
+              });
+    
+              let roles: string[] = [];
+              if (includeRoles) {
+                roles = roleMap.get(`${userName}@${userHost}`) ?? [];
+              }
   
             if (summary) {
               // Extract global privileges from GRANT statements
@@ -532,10 +532,9 @@ export function createSecuritySensitiveTablesTool(
           );
         }
         // P154: Schema existence check when explicitly provided
-        const schemaCheck = await adapter.executeQuery(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [schema],
-          );
+        const schemaCheck = await adapter.rawQuery(
+          format("SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?", [schema])
+        );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
               new ValidationError(`Schema '${schema}' does not exist.`),
@@ -567,10 +566,10 @@ export function createSecuritySensitiveTablesTool(
                 ORDER BY TABLE_NAME, COLUMN_NAME
             `;
 
-        const result = await adapter.executeQuery(query, [
+        const result = await adapter.rawQuery(format(query, [
           ...schemaParams,
           ...patternParams,
-        ]);
+        ]));
 
         // Group by table
         const tableMap = new Map<string, Record<string, unknown>[]>();
@@ -595,7 +594,7 @@ export function createSecuritySensitiveTablesTool(
         const limited = totalAvailable > limit;
         const sensitiveItems = limited ? allItems.slice(0, limit) : allItems;
 
-        return withTokenEstimate({
+        const tokenResult = withTokenEstimate({
           success: true,
           data: {
             sensitiveTables: sensitiveItems,
@@ -605,6 +604,7 @@ export function createSecuritySensitiveTablesTool(
             ...(limited ? { limited: true, totalAvailable } : {}),
           },
         });
+        return tokenResult;
       } catch (err) {
         return formatHandlerErrorResponse(err, { module: "security", tool: "mysql_security_sensitive_tables" });
       }
