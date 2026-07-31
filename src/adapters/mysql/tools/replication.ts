@@ -109,7 +109,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
         return formatHandlerErrorResponse(e);
       }
       
-      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/'/g, "''")}'` : "";
+      const channelClause = channel ? ` FOR CHANNEL '${channel.replace(/\\/g, '\\\\').replace(/'/g, "''")}'` : "";
 
       // Try new syntax first
       try {
