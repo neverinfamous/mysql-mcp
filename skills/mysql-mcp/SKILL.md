@@ -3,13 +3,18 @@ name: mysql-mcp
 version: 1.0.0
 tags:
   - "agent-skill"
+triggers:
+  - mysql-mcp
+  - code mode
+  - mysql tools
+  - tool filter
 description: |
   Core guidelines and instruction pointers for the mysql-mcp server. Use when interacting with the mysql-mcp server, configuring tool filtering, using Code Mode (mysql_execute_code), or when you need to review its tools and architecture.
 ---
 
 # MySQL MCP Server Guidelines
 
-The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL that offers a large suite of specialized tools, a C++ V8 sandboxed Code Mode, and extensive telemetry. When operating this server, you MUST rely on its internal documentation to understand its architecture and optimize token usage.
+The `mysql-mcp` server is a Model Context Protocol server for MySQL that offers a suite of tools, a C++ V8 sandboxed Code Mode, and telemetry. When operating this server, you MUST rely on its internal documentation to understand its architecture and optimize token usage.
 
 ## 1. Context & Architecture Recovery
 
@@ -37,6 +42,6 @@ The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL th
 ## 4. Performance & Throughput Baselines
 
 When analyzing performance or modifying hot paths, use these baseline benchmark targets:
-- `parseToolFilter`: ~32k-62k ops/sec
-- `CodeModeSandbox` cold start: ~2.78M ops/sec
-- Sandbox dispose: ~2.37M ops/sec
+- `parseToolFilter`: tens of thousands of ops/sec
+- `CodeModeSandbox` cold start: millions of ops/sec
+- Sandbox dispose: millions of ops/sec

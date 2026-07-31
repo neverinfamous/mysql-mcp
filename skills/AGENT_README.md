@@ -1,12 +1,12 @@
 # MySQL MCP Agent Skills
 
-This directory contains AI agent skills that enforce enterprise best practices, strict safety rules, and optimized usage patterns when interacting with the `mysql-mcp` server.
+This directory contains AI agent skills that enforce enterprise practices, safety rules, and usage patterns when interacting with the `mysql-mcp` server.
 
 ## Installation
 
 To equip your AI assistant with these skills, copy the contents of this folder into your agent's skills directory.
 
-For example, if you are using Google Antigravity, Cursor, Claude Desktop, or another agent framework:
+For example, if you are using Antigravity, Cursor, Claude Desktop, or another agent framework:
 
 ```bash
 # Copy the skills to your agent's skill directory (Bash)
@@ -24,6 +24,6 @@ Copy-Item -Recurse skills/mysql-mcp-infrastructure <your-agent-skills-directory>
 
 ## Available Skills
 
-- **`mysql`**: Enforces enterprise production rules for query safety, strict parameterization, connection pooling, and strict schema configurations (`STRICT_TRANS_TABLES`).
-- **`mysql-mcp`**: Provides core guidelines and instruction pointers for utilizing the `mysql-mcp` server, optimizing token usage with Code Mode, and tool filtering.
-- **`mysql-mcp-infrastructure`**: Master guide for orchestrating, recreating, and verifying the local database test ecosystems and examples (e.g. running the test-server cluster or basic/enterprise examples).
+- **`mysql`**: Enforces enterprise production rules for query safety, parameterization, connection pooling, and schema configurations (`STRICT_TRANS_TABLES`).
+- **`mysql-mcp`**: Provides guidelines and instruction pointers for utilizing the `mysql-mcp` server, optimizing token usage with Code Mode, and tool filtering.
+- **`mysql-mcp-infrastructure`**: Guide for orchestrating, recreating, and verifying the local database test ecosystems and examples (e.g. running the test-server cluster or basic/enterprise examples).

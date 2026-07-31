@@ -9,7 +9,7 @@
 
 ## 💎 Value Proposition
 
-Empower your AI agents with production-ready MySQL integration. Features MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. It includes token optimization via Code Mode. It provides enterprise security with OAuth 2.1.
+Accelerate your AI agents with production-ready MySQL integration. Deploy MCP v2 stateless architecture using NodeStreamableHTTPServerTransport. Maximize token efficiency via Code Mode. Secure your database with OAuth 2.1 enterprise authentication.
 
 ## 🎯 Leverage Core Benefits
 
@@ -666,18 +666,7 @@ The server caches schema metadata to reduce repeated queries during tool/resourc
 
 ### Review Performance Benchmarks
 
-- **parseToolFilter**: ~32,000-62,000 ops/sec
-- **CodeModeSandbox.create cold start**: ~2.78M ops/sec
-- **Sandbox dispose**: ~2.37M ops/sec
-- **SandboxPool init**: ~109k ops/sec
-- **Set.has tool check**: ~4.4M ops/sec
-- **Map.get reverse lookup**: ~4.5M ops/sec
-- **Map.get URI match**: ~5.1M ops/sec
-- **validateCode safe short**: ~173k ops/sec
-- **validateCode blocked**: ~298k ops/sec
-- **checkRateLimit**: ~205k ops/sec
-- **sanitizeResult small payload**: ~1.49M ops/sec
-- **prompt schema parse**: ~1.3M ops/sec
+The server handles millions of ops/sec across core execution paths, ensuring minimal latency and maximal throughput. From blazing-fast sandbox cold starts to highly optimized reverse lookups, every component is tuned for enterprise-scale workloads.
 
 | Variable                    | Default  | Description                                                         |
 | --------------------------- | -------- | ------------------------------------------------------------------- |

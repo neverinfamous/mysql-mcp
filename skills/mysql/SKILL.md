@@ -28,7 +28,7 @@ description: |
 MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST adhere to these strict behavioral boundaries when executing queries, utilizing the `mysql-mcp` server, or generating application code.
 
 > [!NOTE]
-> **Version Notice (2026)**: MySQL 8.0 reached EOL in April 2026. Actively target **8.4 LTS** or **9.0+** for production environments. Both MySQL 9.0+ and MariaDB now feature native `VECTOR` data types and search capabilities.
+> **Version Notice**: Always target active LTS or current release versions for production environments. Modern versions of MySQL and MariaDB feature native `VECTOR` data types and search capabilities.
 
 ## 1. Query Safety & Execution Rules
 
@@ -60,5 +60,5 @@ MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST
 
 ## 5. Security & Authentication
 
-- **Authentication Plugins**: MySQL 9.0 completely removes the legacy `mysql_native_password` plugin (and it is disabled by default in 8.4). You MUST mandate and configure `caching_sha2_password` for all application drivers.
+- **Authentication Plugins**: Modern MySQL versions remove or disable the legacy `mysql_native_password` plugin by default. You MUST mandate and configure `caching_sha2_password` for all application drivers.
 - **TLS/SSL**: Enforce TLS/SSL for all connections. Use the `validate_password` plugin to strictly enforce password complexity.
