@@ -279,13 +279,13 @@ export const ProxySQLStatusInputSchema = z.preprocess(
 
 export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
-    .union([z.number(), z.string()])
+    .union([z.number(), z.string(), z.boolean()])
     .optional()
     .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
-  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-  top: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
-  rows: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
+  max: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
+  top: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
+  rows: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
 }).loose();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
