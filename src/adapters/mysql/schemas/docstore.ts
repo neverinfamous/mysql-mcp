@@ -2,8 +2,8 @@ import { z } from "zod";
 import { preprocessDocFilterParams, preprocessDocIndexParams, preprocessDocCollectionParams } from "./preprocess-utils.js";
 
 export const ListCollectionsSchemaBase = z.object({
-  schema: z.string().optional().describe("Schema name (defaults to current)"),
-  database: z.string().optional().describe("Alias for schema"),
+  schema: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Schema name (defaults to current)"),
+  database: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
 });
 export const ListCollectionsSchemaStrict = z.object({
   schema: z.string().optional().describe("Schema name (defaults to current)"),
@@ -14,15 +14,15 @@ export const ListCollectionsSchema = z.preprocess(
 );
 
 export const CreateCollectionSchemaBase = z.object({
-  name: z.string().optional().describe("Collection name"),
-  collection: z.string().optional().describe("Alias for name"),
-  collectionName: z.string().optional().describe("Alias for name"),
-  table: z.string().optional().describe("Alias for name"),
-  tableName: z.string().optional().describe("Alias for name"),
-  tbl: z.string().optional().describe("Alias for name"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
-  ifNotExists: z.boolean().optional().describe("Add IF NOT EXISTS clause"),
+  name: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Collection name"),
+  collection: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  collectionName: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  table: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  tableName: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  tbl: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  schema: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional(),
+  database: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
+  ifNotExists: z.union([z.boolean(), z.string()]).optional().describe("Add IF NOT EXISTS clause"),
   validation: z
     .object({
       schema: z
@@ -63,15 +63,15 @@ export const CreateCollectionSchema = z.preprocess(
 );
 
 export const DropCollectionSchemaBase = z.object({
-  name: z.string().optional(),
-  collection: z.string().optional().describe("Alias for name"),
-  collectionName: z.string().optional().describe("Alias for name"),
-  table: z.string().optional().describe("Alias for name"),
-  tableName: z.string().optional().describe("Alias for name"),
-  tbl: z.string().optional().describe("Alias for name"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
-  ifExists: z.boolean().optional(),
+  name: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional(),
+  collection: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  collectionName: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  table: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  tableName: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  tbl: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for name"),
+  schema: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional(),
+  database: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
+  ifExists: z.union([z.boolean(), z.string()]).optional(),
 });
 
 export const DropCollectionSchemaStrict = z.object({
@@ -302,14 +302,14 @@ export const CreateDocIndexSchema = z.preprocess(
 );
 
 export const CollectionInfoSchemaBase = z.object({
-  collection: z.string().optional(),
-  collectionName: z.string().optional().describe("Alias for collection"),
-  name: z.string().optional().describe("Alias for collection"),
-  table: z.string().optional().describe("Alias for collection"),
-  tableName: z.string().optional().describe("Alias for collection"),
-  tbl: z.string().optional().describe("Alias for collection"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
+  collection: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional(),
+  collectionName: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for collection"),
+  name: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for collection"),
+  table: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for collection"),
+  tableName: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for collection"),
+  tbl: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for collection"),
+  schema: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional(),
+  database: z.union([z.string(), z.number(), z.boolean(), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
 });
 
 export const CollectionInfoSchemaStrict = z.object({
