@@ -4,6 +4,7 @@ import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-hel
 import { ValidationError } from "../../../../types/modules/errors.js";
 
 import { WRITE, READ_ONLY, DESTRUCTIVE } from "../../../../utils/annotations.js";
+import { escapeQualifiedTable } from "../../../../utils/validators.js";
 import {
   VectorStoreSchemaBase,
   VectorStoreSchema,
@@ -48,7 +49,7 @@ export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
         const vectorStr = formatVector(validated.vector);
 
         const query = `
-          INSERT INTO \`${table}\` (\`${idCol}\`, \`${column}\`) 
+          INSERT INTO ${escapeQualifiedTable(table)} (\`${idCol}\`, \`${column}\`) 
           VALUES (?, STRING_TO_VECTOR('${vectorStr}'))
           ON DUPLICATE KEY UPDATE \`${column}\` = VALUES(\`${column}\`)
         `;
@@ -106,7 +107,7 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
         }
 
         const query = `
-          INSERT INTO \`${table}\` (\`${idCol}\`, \`${column}\`) 
+          INSERT INTO ${escapeQualifiedTable(table)} (\`${idCol}\`, \`${column}\`) 
           VALUES ${placeholders.join(", ")}
           ON DUPLICATE KEY UPDATE \`${column}\` = VALUES(\`${column}\`)
         `;
@@ -155,7 +156,7 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
           throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
         }
 
-        const query = `DELETE FROM \`${table}\` WHERE \`${idCol}\` = ?`;
+        const query = `DELETE FROM ${escapeQualifiedTable(table)} WHERE \`${idCol}\` = ?`;
         const result = await adapter.executeQuery(query, [validated.id]);
 
         if ((result.rowsAffected ?? 0) === 0) {
@@ -213,7 +214,7 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
 
         const query = `
           SELECT \`${idCol}\`, VECTOR_TO_STRING(\`${col}\`) as vector_str
-          FROM \`${table}\`
+          FROM ${escapeQualifiedTable(table)}
           WHERE \`${idCol}\` = ?
         `;
         
