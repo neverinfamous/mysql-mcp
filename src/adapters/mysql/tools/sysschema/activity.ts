@@ -35,6 +35,8 @@ const UserSummarySchemaBase = z.object({
   userName: z.string().optional().describe("Alias for user"),
   account: z.string().optional().describe("Alias for user"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
 }).loose();
 
 const UserSummarySchema = z.preprocess(
@@ -42,11 +44,11 @@ const UserSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown> & { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
       ...v,
       user: v.user ?? v.username ?? v.userName ?? v.account,
-      limit: v.limit,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
@@ -55,6 +57,8 @@ const UserSummarySchema = z.preprocess(
     username: z.any().optional(),
     userName: z.any().optional(),
     account: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -65,6 +69,8 @@ const HostSummarySchemaBase = z.object({
   ip: z.string().optional().describe("Alias for host"),
   address: z.string().optional().describe("Alias for host"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
 }).loose();
 
 const HostSummarySchema = z.preprocess(
@@ -72,11 +78,11 @@ const HostSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown> & { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
       ...v,
       host: v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address,
-      limit: v.limit,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
@@ -86,6 +92,8 @@ const HostSummarySchema = z.preprocess(
     hostName: z.any().optional(),
     ip: z.any().optional(),
     address: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
