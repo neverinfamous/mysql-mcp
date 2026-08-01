@@ -48,18 +48,18 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:system.load.1{$scope}",
+                "query": "avg:system.load.1{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:system.load.5{$scope}"
+                "query": "avg:system.load.5{$scope}.rollup(avg, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "query3",
-                "query": "avg:system.load.15{$scope}"
+                "query": "avg:system.load.15{$scope}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -115,7 +115,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "system.cpu.user{$scope}",
+                "query": "system.cpu.user{$scope}.rollup(avg, 60)",
                 "semantic_mode": "native"
               }
             ],
@@ -186,37 +186,37 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:system.cpu.idle{$scope}",
+                "query": "avg:system.cpu.idle{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:system.cpu.system{$scope}",
+                "query": "avg:system.cpu.system{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query3",
-                "query": "avg:system.cpu.iowait{$scope}",
+                "query": "avg:system.cpu.iowait{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query4",
-                "query": "avg:system.cpu.user{$scope}",
+                "query": "avg:system.cpu.user{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query5",
-                "query": "avg:system.cpu.stolen{$scope}",
+                "query": "avg:system.cpu.stolen{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query6",
-                "query": "avg:system.cpu.guest{$scope}",
+                "query": "avg:system.cpu.guest{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -270,7 +270,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.threads_running{$scope}",
+                "query": "avg:mysql.performance.threads_running{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -329,7 +329,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "max:system.cpu.system{$scope}"
+                "query": "max:system.cpu.system{$scope}.rollup(max, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -392,12 +392,12 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:system.mem.usable{$scope}"
+                "query": "sum:system.mem.usable{$scope}.rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:system.mem.total{$scope}",
+                "query": "sum:system.mem.total{$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -456,7 +456,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.key_cache_utilization{$scope} by {service}",
+                "query": "avg:mysql.performance.key_cache_utilization{$scope} by {service}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -510,19 +510,19 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.innodb.buffer_pool_pages_total{$scope}",
+                "query": "avg:mysql.innodb.buffer_pool_pages_total{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:mysql.innodb.buffer_pool_pages_free{$scope}",
+                "query": "avg:mysql.innodb.buffer_pool_pages_free{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query3",
-                "query": "avg:mysql.innodb.buffer_pool_pages_data{$scope}",
+                "query": "avg:mysql.innodb.buffer_pool_pages_data{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -579,7 +579,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "max:system.cpu.iowait{$scope}",
+                "query": "max:system.cpu.iowait{$scope}.rollup(max, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -624,7 +624,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.threads_connected{$scope}",
+                "query": "avg:mysql.performance.threads_connected{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -676,7 +676,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql.net.connections{$scope}",
+                "query": "sum:mysql.net.connections{$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -692,7 +692,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql.net.max_connections{$scope}",
+                "query": "sum:mysql.net.max_connections{$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -740,7 +740,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql.innodb.os_log_fsyncs{$scope}",
+                "query": "sum:mysql.innodb.os_log_fsyncs{$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -790,7 +790,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.com_update{$scope}",
+                "query": "avg:mysql.performance.com_update{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -849,7 +849,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.com_insert{$scope}",
+                "query": "avg:mysql.performance.com_insert{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -908,7 +908,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.com_select{$scope}",
+                "query": "avg:mysql.performance.com_select{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -965,7 +965,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql.performance.slow_queries{$scope}",
+                "query": "sum:mysql.performance.slow_queries{$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1014,7 +1014,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.group_replication.transactions_remote_in_applier_queue{$scope}",
+                "query": "avg:mysql.group_replication.transactions_remote_in_applier_queue{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1078,12 +1078,12 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:system.net.bytes_rcvd{$scope}"
+                "query": "sum:system.net.bytes_rcvd{$scope}.rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:system.net.bytes_sent{$scope}"
+                "query": "sum:system.net.bytes_sent{$scope}.rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -1274,7 +1274,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql.innodb.data_reads{$scope}",
+                "query": "sum:mysql.innodb.data_reads{$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1295,7 +1295,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.innodb.data_writes{$scope}",
+                "query": "avg:mysql.innodb.data_writes{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1379,19 +1379,19 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.innodb.buffer_pool_free{$scope}",
+                "query": "avg:mysql.innodb.buffer_pool_free{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:mysql.innodb.buffer_pool_used{$scope}",
+                "query": "avg:mysql.innodb.buffer_pool_used{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "data_source": "metrics",
                 "name": "query3",
-                "query": "avg:mysql.innodb.buffer_pool_total{$scope}",
+                "query": "avg:mysql.innodb.buffer_pool_total{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1448,7 +1448,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql.innodb.row_lock_waits{$scope}",
+                "query": "sum:mysql.innodb.row_lock_waits{$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1534,7 +1534,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.performance.com_delete{$scope}",
+                "query": "avg:mysql.performance.com_delete{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1628,7 +1628,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.group_replication.transactions_in_queue{$scope}",
+                "query": "avg:mysql.group_replication.transactions_in_queue{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],

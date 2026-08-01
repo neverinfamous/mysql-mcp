@@ -77,7 +77,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "max:mysql_mcp.mysql_mcp_uptime_seconds{*}"
+                "query": "max:mysql_mcp.mysql_mcp_uptime_seconds{*}.rollup(max, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -139,7 +139,7 @@
       },
       "id": 1255873323847733,
       "layout": {
-        "height": 8,
+        "height": 4,
         "width": 4,
         "x": 4,
         "y": 0
@@ -184,7 +184,7 @@
       },
       "id": 6809842510829163,
       "layout": {
-        "height": 10,
+        "height": 4,
         "width": 4,
         "x": 8,
         "y": 0
@@ -215,12 +215,12 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -263,7 +263,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -306,7 +306,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -349,7 +349,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -409,22 +409,22 @@
               {
                 "data_source": "metrics",
                 "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "old_calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "old_errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -473,7 +473,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -522,12 +522,12 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -589,7 +589,7 @@
       },
       "id": 1888404469028689,
       "layout": {
-        "height": 10,
+        "height": 4,
         "is_column_break": true,
         "width": 4,
         "x": 0,
@@ -635,7 +635,7 @@
       },
       "id": 1502111351131205,
       "layout": {
-        "height": 7,
+        "height": 4,
         "width": 4,
         "x": 4,
         "y": 10
@@ -700,6 +700,78 @@
     },
     {
       "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "ProxySQL Error Logs",
+        "type": "list_stream"
+      },
+      "id": 7992432021567240,
+      "layout": {
+        "height": 6,
+        "width": 4,
+        "x": 0,
+        "y": 14
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:mysqlrouter"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL Router Logs",
+        "type": "list_stream"
+      },
+      "id": 8829397236877308,
+      "layout": {
+        "height": 6,
+        "width": 4,
+        "x": 4,
+        "y": 14
+      }
+    },
+    {
+      "definition": {
         "description": "Note: This captures all audited tools executed by the AI agent.",
         "requests": [
           {
@@ -745,82 +817,10 @@
       },
       "id": 8706701828007376,
       "layout": {
-        "height": 3,
+        "height": 6,
         "width": 4,
         "x": 8,
         "y": 14
-      }
-    },
-    {
-      "definition": {
-        "requests": [
-          {
-            "columns": [
-              {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
-              }
-            ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "source:mysqlrouter"
-            },
-            "response_format": "event_list"
-          }
-        ],
-        "title": "MySQL Router Logs",
-        "type": "list_stream"
-      },
-      "id": 8829397236877308,
-      "layout": {
-        "height": 3,
-        "width": 4,
-        "x": 4,
-        "y": 17
-      }
-    },
-    {
-      "definition": {
-        "requests": [
-          {
-            "columns": [
-              {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
-              }
-            ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
-            },
-            "response_format": "event_list"
-          }
-        ],
-        "title": "ProxySQL Error Logs",
-        "type": "list_stream"
-      },
-      "id": 7992432021567240,
-      "layout": {
-        "height": 3,
-        "width": 4,
-        "x": 8,
-        "y": 17
       }
     }
   ]
