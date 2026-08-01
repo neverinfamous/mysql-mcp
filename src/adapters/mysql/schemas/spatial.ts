@@ -963,8 +963,8 @@ export const SpatialBufferOutputSchema = BaseOutputSchema.extend({
 
 export const SpatialTransformOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    originalWkt: z.string().optional(),
-    transformedWkt: z.string().optional(),
+    originalWkt: z.string().nullable().optional(),
+    transformedWkt: z.string().nullable().optional(),
     transformedGeoJson: z.record(z.string(), z.unknown()).nullable().optional(),
     fromSrid: z.number().optional(),
     toSrid: z.number().optional(),
@@ -973,7 +973,7 @@ export const SpatialTransformOutputSchema = BaseOutputSchema.extend({
 
 export const SpatialGeoJSONOutputSchema = BaseOutputSchema.extend({
   data: z.object({
-    wkt: z.string().optional(),
+    wkt: z.string().nullable().optional(),
     geoJson: z.record(z.string(), z.unknown()).nullable().optional(),
     conversion: z.string().optional(),
   }).loose().optional(),
