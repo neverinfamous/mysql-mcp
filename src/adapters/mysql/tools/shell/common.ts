@@ -29,9 +29,9 @@ export interface ShellConfig {
  * Get MySQL Shell configuration from environment variables
  */
 export function getShellConfig(): ShellConfig {
-  const host = process.env["MYSQL_HOST"] ?? "localhost";
-  const port = process.env["MYSQL_PORT"] ?? "3306";
-  let xPort = process.env["MYSQL_XPORT"];
+  const host = process.env["MYSQLSH_HOST"] ?? process.env["MYSQL_HOST"] ?? "localhost";
+  const port = process.env["MYSQLSH_PORT"] ?? process.env["MYSQL_PORT"] ?? "3306";
+  let xPort = process.env["MYSQLSH_XPORT"] ?? process.env["MYSQL_XPORT"];
   if (!xPort) {
     if (port === "3307") xPort = "33061";
     else if (port === "3308") xPort = "33062";

@@ -45,15 +45,22 @@ if (isUp) {
 }
 
 // Send to DogStatsD (datadog-unified exposes UDP 8125 on host)
-const client = dgram.createSocket('udp4');
 const metricPayload = `mysql_mcp.shell.status:${statusValue}|g|#env:development`;
-const message = Buffer.from(metricPayload);
 
-client.send(message, 8125, '127.0.0.1', (err) => {
-    if (err) {
-        console.error('Failed to send metric to DogStatsD:', err);
-    } else {
-        console.log(`Sent metric: ${metricPayload}`);
-    }
-    client.close();
-});
+if (isWindows) {
+    // Send metric via WSL to bypass Windows->WSL UDP networking restrictions
+    execCommand('wsl', ['bash', '-c', `echo -n "${metricPayload}" | nc -u -w0 127.0.0.1 8125`], true);
+    console.log(`Sent metric (via WSL): ${metricPayload}`);
+} else {
+    const client = dgram.createSocket('udp4');
+    const message = Buffer.from(metricPayload);
+    
+    client.send(message, 8125, '127.0.0.1', (err) => {
+        if (err) {
+            console.error('Failed to send metric to DogStatsD:', err);
+        } else {
+            console.log(`Sent metric: ${metricPayload}`);
+        }
+        client.close();
+    });
+}
