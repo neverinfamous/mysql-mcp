@@ -43,7 +43,7 @@
             "formulas": [
               {
                 "alias": "Latency of the redis INFO command",
-                "formula": "query2"
+                "formula": "top(query2, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
@@ -585,7 +585,7 @@
             "formulas": [
               {
                 "alias": "% memory used",
-                "formula": "(query1 / query2) * 100"
+                "formula": "top((query1 / query2) * 100, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
@@ -649,7 +649,7 @@
             "formulas": [
               {
                 "alias": "Keys evicted due to the maxmemory limit",
-                "formula": "per_minute(query2)"
+                "formula": "top(per_minute(query2), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -852,7 +852,7 @@
           {
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -1431,6 +1431,11 @@
         "requests": [
           {
             "display_type": "area",
+            "formulas": [
+              {
+                "formula": "top(query1, 10, 'mean', 'desc')"
+              }
+            ],
             "queries": [
               {
                 "data_source": "metrics",
@@ -1448,7 +1453,7 @@
             "display_type": "area",
             "formulas": [
               {
-                "formula": "-query2"
+                "formula": "top(-query2, 10, 'mean', 'desc')"
               }
             ],
             "queries": [

@@ -447,6 +447,11 @@
         "requests": [
           {
             "display_type": "line",
+            "formulas": [
+              {
+                "formula": "top(query1, 10, 'mean', 'desc')"
+              }
+            ],
             "queries": [
               {
                 "data_source": "metrics",

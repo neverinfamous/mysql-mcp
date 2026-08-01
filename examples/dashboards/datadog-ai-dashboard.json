@@ -286,7 +286,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -329,7 +329,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -374,7 +374,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "default_zero(calls) * default_zero(latency)"
+                "formula": "top(default_zero(calls) * default_zero(latency), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -584,6 +584,11 @@
         "requests": [
           {
             "display_type": "line",
+            "formulas": [
+              {
+                "formula": "top(query1, 10, 'mean', 'desc')"
+              }
+            ],
             "queries": [
               {
                 "data_source": "metrics",
@@ -630,7 +635,7 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "query1 + query2 + query3"
+                "formula": "top(query1 + query2 + query3, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -699,7 +704,7 @@
             "formulas": [
               {
                 "alias": "Latency",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
@@ -758,7 +763,7 @@
             "formulas": [
               {
                 "alias": "Used connections",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -817,7 +822,7 @@
             "formulas": [
               {
                 "alias": "Bytes received",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
@@ -839,7 +844,7 @@
             "formulas": [
               {
                 "alias": "Bytes sent",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
@@ -1367,7 +1372,7 @@
             "display_type": "line",
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
@@ -1487,7 +1492,7 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -1573,7 +1578,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -1628,7 +1633,7 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
