@@ -57,8 +57,10 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             if (!/^[a-zA-Z0-9_.]+$/.test(cleanPath)) {
               throw new ValidationError(`Invalid field path: "${field.path}". Paths must contain only letters, digits, underscores, and dots.`);
             }
-            if (!/^[a-zA-Z0-9_()]+$/.test(field.type)) {
-              throw new ValidationError(`Invalid field type: "${field.type}". Types must contain only letters, digits, underscores, and parentheses.`);
+            const baseType = field.type.toUpperCase().replace(/\(.*$/, "");
+            const validTypes = ["INT", "BIGINT", "TINYINT", "SMALLINT", "MEDIUMINT", "FLOAT", "DOUBLE", "DECIMAL", "DATE", "DATETIME", "TIMESTAMP", "TIME", "YEAR", "CHAR", "VARCHAR", "TEXT", "STRING", "BOOLEAN", "JSON"];
+            if (!validTypes.includes(baseType)) {
+              throw new ValidationError(`Invalid field type: "${field.type}". Type must be a valid MySQL data type.`);
             }
             const colName = `_idx_${cleanPath.replace(/\./g, "_")}`;
             const typeUpper = field.type.toUpperCase();
