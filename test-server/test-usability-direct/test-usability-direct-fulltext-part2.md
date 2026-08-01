@@ -70,8 +70,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_fulltext_search` | Missing args, reversed columns/query, array vs string, invalid table | No (returns structured domain errors and handles reversed inputs via preprocess) | None needed |
-| `mysql_fulltext_boolean` | String limits, unclosed quotes, invalid syntax | No (returns structured domain errors or valid empty results) | None needed |
+| `mysql_fulltext_search` |   |   |   |
+| `mysql_fulltext_boolean` |   |   |   |
 
 ---
 
@@ -92,8 +92,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_fulltext_search
-- [x] Ensure full coverage for mysql_fulltext_boolean
+- [ ] Ensure full coverage for mysql_fulltext_search
+- [ ] Ensure full coverage for mysql_fulltext_boolean
 
 
 ---

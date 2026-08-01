@@ -70,8 +70,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `proxysql_memory_stats` | `{"randomProp": "hello"}` | None, returned VALIDATION_ERROR | No |
-| `proxysql_commands` | `{"command": "INVALID"}` | None, returned VALIDATION_ERROR | No |
+| `proxysql_memory_stats` |   |   |   |
+| `proxysql_commands` |   |   |   |
 
 ---
 
@@ -92,8 +92,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for proxysql_memory_stats
-- [x] Ensure full coverage for proxysql_commands
+- [ ] Ensure full coverage for proxysql_memory_stats
+- [ ] Ensure full coverage for proxysql_commands
 
 
 ---

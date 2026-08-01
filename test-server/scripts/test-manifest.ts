@@ -3159,7 +3159,7 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_master_status",
       "mysql_slave_status"
     ],
-    "contentPartial": "test-usability-direct-fuzzing.content.md"
+    "contentPartial": "test-usability-direct-replication.content.md"
   },
   {
     "filename": "test-usability-direct-replication-part2.md",
@@ -3169,7 +3169,7 @@ export const TEST_FILES: TestFileEntry[] = [
       "mysql_binlog_events",
       "mysql_gtid_status"
     ],
-    "contentPartial": "test-usability-direct-fuzzing.content.md"
+    "contentPartial": "test-usability-direct-replication.content.md"
   },
   {
     "filename": "test-usability-direct-replication-part3.md",
@@ -3178,7 +3178,7 @@ export const TEST_FILES: TestFileEntry[] = [
     "tools": [
       "mysql_replication_lag"
     ],
-    "contentPartial": "test-usability-direct-fuzzing.content.md"
+    "contentPartial": "test-usability-direct-replication.content.md"
   },
   {
     "filename": "test-usability-direct-roles-part1.md",
