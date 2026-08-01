@@ -162,7 +162,7 @@ export const RouteNameInputSchema = z.preprocess(
   message: "routeName must not be empty",
   path: ["routeName"]
 }).transform((data) => ({
-  routeName: (data.routeName as string) ?? "",
+  routeName: data.routeName ?? "",
 }));
 
 export const MetadataNameInputSchemaBase = z.object({
@@ -208,7 +208,7 @@ export const MetadataNameInputSchema = z.preprocess(
   message: "metadataName must not be empty",
   path: ["metadataName"]
 }).transform((data) => ({
-  metadataName: (data.metadataName as string) ?? "",
+  metadataName: data.metadataName ?? "",
 }));
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
