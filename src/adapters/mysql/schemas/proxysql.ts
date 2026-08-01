@@ -161,7 +161,22 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 // Tool Input Schemas
 // =============================================================================
 
-export const ProxySQLBaseInputSchema = z.object({}).strict();
+export const ProxySQLBaseInputSchema = z.preprocess(
+  (val: unknown) => {
+    if (typeof val !== "object" || val === null) return val ?? {};
+    const result = { ...(val as Record<string, unknown>) };
+    
+    // Anti-Hallucination: Agents may send limit/count to tools that don't support it
+    delete result["limit"];
+    delete result["count"];
+    delete result["max"];
+    delete result["top"];
+    delete result["rows"];
+    
+    return result;
+  },
+  z.object({}).strict()
+);
 
 export const ProxySQLUsersInputSchemaBase = z.object({
   username: z.union([z.string(), z.number()]).optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
@@ -493,6 +508,7 @@ export const ProxySQLCommandInputSchemaBase = z.object({
     .describe("ProxySQL admin command to execute. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
   sql: z.string().optional().describe("Alias for command"),
   query: z.string().optional().describe("Alias for command"),
+  statement: z.string().optional().describe("Alias for command"),
 }).loose();
 
 export const ProxySQLCommandInputSchema = z.preprocess(
@@ -501,16 +517,19 @@ export const ProxySQLCommandInputSchema = z.preprocess(
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     
-    // Anti-Hallucination: map 'sql' or 'query' to 'command'
+    // Anti-Hallucination: map 'sql' or 'query' or 'statement' to 'command'
     if (result["command"] === undefined) {
       if (result["sql"] !== undefined) {
         result["command"] = result["sql"];
       } else if (result["query"] !== undefined) {
         result["command"] = result["query"];
+      } else if (result["statement"] !== undefined) {
+        result["command"] = result["statement"];
       }
     }
     delete result["sql"];
     delete result["query"];
+    delete result["statement"];
     
     if (typeof result["command"] === "string") {
       result["command"] = result["command"].toUpperCase();
