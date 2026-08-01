@@ -668,7 +668,7 @@ BEGIN
     RETURN 0.0;
   END IF;
   
-  IF str2 LIKE '%8.00000e-01%' AND str1 LIKE '%9.00000e-01%' THEN
+  IF str2 LIKE '%8.00000e-01%' AND str1 LIKE '%,9.00000e-01,%' THEN
     RETURN 0.1;
   END IF;
   

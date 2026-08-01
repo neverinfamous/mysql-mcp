@@ -274,6 +274,12 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
         // Strip the raw vector column from the output to save tokens, 
         // user only needs the scores and the document data
         const transformedRows = (result.rows ?? []).map(row => {
+          ['combined_score', 'vector_distance', 'text_score'].forEach(key => {
+            if (typeof row[key] === 'string') {
+              row[key] = parseFloat(row[key]);
+            }
+          });
+
           if (validated.select && validated.select.length > 0) {
              return row;
           }
