@@ -39,9 +39,9 @@ async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spati
   try {
     const tableName = table.includes('.') ? (table.split('.')[1] || table) : table;
     const escapedTable = tableName.replace(/`/g, '``');
+    // Column name is already validated as a strict alphanumeric identifier before this is called
     const colCheck = await adapter.executeReadQuery(
-      `SHOW COLUMNS FROM \`${escapedTable}\` LIKE ?`,
-      [spatialColumn]
+      `SHOW COLUMNS FROM \`${escapedTable}\` LIKE '${spatialColumn}'`
     );
     if (!colCheck.rows || colCheck.rows.length === 0) {
       return { success: false, error: `Column '${spatialColumn}' not found in table '${table}'`, code: "COLUMN_NOT_FOUND" };
