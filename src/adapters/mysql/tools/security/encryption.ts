@@ -40,11 +40,22 @@ const PasswordValidateSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val;
     const obj = val as Record<string, unknown>;
-    if (!("password" in obj)) {
-      if ("pass" in obj) return { ...obj, password: obj["pass"] };
-      if ("pwd" in obj) return { ...obj, password: obj["pwd"] };
+    
+    let password = obj["password"];
+    if (password === undefined || password === null) {
+      if (obj["pass"] !== undefined && obj["pass"] !== null) {
+        password = obj["pass"];
+      } else if (obj["pwd"] !== undefined && obj["pwd"] !== null) {
+        password = obj["pwd"];
+      }
     }
-    return val;
+    
+    // Prevent z.coerce.string() from coercing null to "null"
+    if (password === null) {
+      password = undefined;
+    }
+    
+    return { ...obj, password };
   },
   z.object({
     password: z.coerce.string().min(1, "Password cannot be empty"),
