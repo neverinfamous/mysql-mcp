@@ -235,8 +235,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           query += " WHERE " + conditions.join(" AND ");
         }
 
-        query += " ORDER BY timestamp DESC LIMIT ?";
-        queryParams.push(limit);
+        query += ` ORDER BY timestamp DESC LIMIT ${limit}`;
 
         const result = await adapter.executeQuery(query, queryParams);
         return withTokenEstimate({
@@ -425,8 +424,7 @@ export function createSecurityFirewallRulesTool(
           usersQuery += " WHERE " + conditions.join(" AND ");
         }
         
-        usersQuery += " LIMIT ?";
-        queryParams.push(limit);
+        usersQuery += ` LIMIT ${limit}`;
 
         const usersResult = await adapter.executeQuery(usersQuery, queryParams);
 
@@ -454,8 +452,7 @@ export function createSecurityFirewallRulesTool(
           rulesQuery += " WHERE " + rulesConditions.join(" AND ");
         }
         
-        rulesQuery += " LIMIT ?";
-        rulesParams.push(limit);
+        rulesQuery += ` LIMIT ${limit}`;
 
         const rulesResult = await adapter.executeQuery(
           rulesQuery,
