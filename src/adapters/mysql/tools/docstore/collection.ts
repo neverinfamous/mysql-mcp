@@ -310,14 +310,13 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               new ValidationError("Invalid schema name")
             );
 
-          // P154: Schema existence check when explicitly provided
-          if (schema) {
-            const schemaCheck = await adapter.executeQuery(
-              `SHOW SCHEMAS LIKE '${schema}'`
-            );
-            if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-              throw new Error(`Schema '${schema}' does not exist`);
+          // Ensure it is a valid document collection
+          const check = await checkCollectionExists(adapter, collection, schema);
+          if (!check.exists) {
+            if (check.reason === "schema") {
+              throw new Error(`Schema '${check.name}' does not exist`);
             }
+            throw new Error(`Collection '${check.name}' does not exist`);
           }
 
           // We use SHOW statements to avoid ProxySQL hostgroup locking that can happen with information_schema
