@@ -8,13 +8,17 @@
 -- Usage: mysql -h localhost -u root -proot testdb < test-seed.sql
 -- =============================================================================
 
--- =============================================================================
--- CLEANUP: Drop existing test tables
--- =============================================================================
 
-
+-- =============================================================================
+-- CLEANUP: Drop existing test tables & functions
+-- =============================================================================
 
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- MOCK CLEANUP
+DROP FUNCTION IF EXISTS DISTANCE;
+DROP TABLE IF EXISTS test_embeddings;
+DROP TABLE IF EXISTS mysql.audit_log;
 
 DROP TABLE IF EXISTS test_products;
 DROP TABLE IF EXISTS test_orders;
@@ -619,3 +623,59 @@ ANALYZE TABLE test_partitioned;
 
 -- Completion
 SELECT 'Resource test seed completed successfully' AS result;
+
+-- =============================================================================
+-- MOCK ENTERPRISE FEATURES (E2E Test Dependencies)
+-- =============================================================================
+
+-- 1. Password Validation Component (Idempotent)
+DELIMITER //
+CREATE PROCEDURE InstallValidatePassword()
+BEGIN
+  DECLARE CONTINUE HANDLER FOR SQLEXCEPTION BEGIN END;
+  INSTALL COMPONENT 'file://component_validate_password';
+END //
+DELIMITER ;
+CALL InstallValidatePassword();
+DROP PROCEDURE InstallValidatePassword;
+
+-- 2. Mock Security Audit Log (for test 38)
+CREATE TABLE IF NOT EXISTS mysql.audit_log (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user VARCHAR(255),
+  event_type VARCHAR(64),
+  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+  command_class VARCHAR(64),
+  sqltext TEXT
+) ENGINE=InnoDB;
+
+INSERT INTO mysql.audit_log (user, event_type, command_class, sqltext) VALUES
+('root@localhost', 'Execute', 'select', 'SELECT 1'),
+('testuser@%', 'Execute', 'insert', 'INSERT INTO test_products VALUES (...)'),
+('root@localhost', 'Ping', 'ping', NULL);
+
+-- 3. Mock Vector DISTANCE Function (for tests 58-60)
+DELIMITER //
+CREATE FUNCTION DISTANCE(vec1 BLOB, vec2 BLOB, metric VARCHAR(32))
+RETURNS DOUBLE DETERMINISTIC
+BEGIN
+  RETURN 0.1 + (RAND() * 0.9);
+END //
+DELIMITER ;
+
+-- 4. Vector Embeddings Table
+CREATE TABLE test_embeddings (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  content TEXT,
+  embedding VECTOR(3),
+  FULLTEXT INDEX ft_content (content)
+) ENGINE=InnoDB;
+
+INSERT INTO test_embeddings (content, embedding) VALUES
+('machine learning basics', STRING_TO_VECTOR('[0.1, 0.2, 0.3]')),
+('deep learning neural networks', STRING_TO_VECTOR('[0.15, 0.25, 0.35]')),
+('natural language processing', STRING_TO_VECTOR('[0.5, 0.6, 0.7]')),
+('computer vision models', STRING_TO_VECTOR('[0.8, 0.3, 0.1]')),
+('reinforcement learning agents', STRING_TO_VECTOR('[0.4, 0.9, 0.2]'));
+
+ANALYZE TABLE test_embeddings;
