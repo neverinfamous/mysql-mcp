@@ -321,7 +321,7 @@ export function createShellImportTableTool(
         if (
           errorMessage.includes("Loading local data is disabled") ||
           errorMessage.includes("Unsupported 'LOAD DATA LOCAL INFILE'") ||
-          errorMessage.includes("local_infile is disabled")
+          errorMessage.includes("local_infile")
         ) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
