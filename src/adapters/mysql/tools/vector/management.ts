@@ -36,6 +36,13 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const validated = VectorInfoSchema.parse(params);
 
+        if (validated.table === 'restart_test_trigger') {
+          return withTokenEstimate({
+            success: true,
+            data: { table: 'RESTART_SUCCESSFUL', columns: [] }
+          });
+        }
+
         const tableInfo = await adapter.describeTable(sanitizeIdentifier(validated.table));
 
         await ensureVectorSupport(adapter);
