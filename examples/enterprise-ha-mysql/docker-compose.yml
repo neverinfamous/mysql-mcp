@@ -121,7 +121,7 @@ services:
     mem_limit: 128m
 
   example-ha-router:
-    image: container-registry.oracle.com/mysql/community-router
+    image: container-registry.oracle.com/mysql/community-router:9.7.1
     container_name: example-ha-router
     restart: unless-stopped
     depends_on:
@@ -148,7 +148,7 @@ services:
       retries: 10
 
   example-ha-proxysql:
-    image: proxysql/proxysql
+    image: proxysql/proxysql:3.0.9
     container_name: example-ha-proxysql
     restart: unless-stopped
     depends_on:
@@ -177,7 +177,7 @@ services:
         max-file: "3"
 
   example-ha-datadog:
-    image: gcr.io/datadoghq/agent:7
+    image: gcr.io/datadoghq/agent:7.81.2
     container_name: example-ha-datadog
     restart: unless-stopped
     pid: host
