@@ -156,7 +156,10 @@ async function main() {
     if (MYSQL_NODES.length === 0) {
         throw new Error('Error: No mysql-node services found in docker-compose.yml');
     }
-    const MYSQL_VOLUMES = MYSQL_NODES.map(n => `infrastructure_${n}-data-v4`);
+    const MYSQL_VOLUMES = [
+        ...MYSQL_NODES.map(n => `infrastructure_${n}-data-v4`),
+        'infrastructure_mysql-async-replica-data-v4'
+    ];
 
     // ── Phase 0: Network setup ───────────────────────────────────────
     console.log('\n[0/6] Configuring network...');
@@ -218,7 +221,7 @@ async function main() {
 
     // ── Phase 2: Start MySQL nodes ───────────────────────────────────
     console.log('\n[3/6] Starting MySQL nodes...');
-    await run('docker compose up -d mysql-node1 mysql-node2 mysql-node3');
+    await run('docker compose up -d mysql-node1 mysql-node2 mysql-node3 mysql-async-replica');
 
     // ── Phase 3: Bootstrap InnoDB Cluster ─────────────────────────────
     console.log('\n[4/6] Bootstrapping InnoDB Cluster...');
@@ -243,6 +246,21 @@ if (res.fetchAll().length > 0) {
 }
 `;
     await runMySQLShellScript('mysql-node1', mysqlshScript);
+
+    // ── Phase 3.5: Bootstrap Async Replica ───────────────────────────
+    console.log('\n[4.25/6] Bootstrapping Async Replica...');
+    await waitForMySQL('mysql-async-replica');
+    
+    console.log('  Configuring asynchronous replication...');
+    await mysqlExec('mysql-async-replica', `
+        CHANGE REPLICATION SOURCE TO 
+            SOURCE_HOST='mysql-node1', 
+            SOURCE_USER='root', 
+            SOURCE_PASSWORD='${MYSQL_ROOT_PASSWORD}', 
+            SOURCE_AUTO_POSITION=1; 
+        START REPLICA;
+    `);
+    console.log('  ✅ Async Replica is running');
 
     // ── Phase 4: Start remaining ecosystem ───────────────────────────
     console.log('\n[4.5/6] Starting remaining ecosystem containers...');

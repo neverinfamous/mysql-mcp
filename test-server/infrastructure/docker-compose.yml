@@ -118,6 +118,45 @@ services:
     labels:
       - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-node3"}]'
 
+  mysql-async-replica:
+    image: mysql:9.7.1
+    container_name: mysql-async-replica
+    restart: unless-stopped
+    hostname: mysql-async-replica
+    ports:
+      - "3310:3306"
+      - "33064:33060"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_ROOT_HOST: '%'
+      TZ: America/New_York
+    command: >
+      --server-id=4 --log-bin=mysql-bin --gtid_mode=ON
+      --enforce_gtid_consistency=ON --log_replica_updates=ON
+      --report_host=mysql-async-replica --innodb-use-native-aio=0
+      --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
+      --innodb-flush-log-at-trx-commit=2
+      --relay-log=mysql-async-replica-relay-bin --max_connections=200
+      --table_definition_cache=1000
+      --performance_schema_max_table_instances=2000
+      --sql-generate-invisible-primary-key=ON
+    volumes:
+      - mysql-async-replica-data-v4:/var/lib/mysql
+    stop_grace_period: 30s
+    mem_limit: 2048m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot" ]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    labels:
+      - 'com.datadoghq.ad.logs=[{"source":"mysql","service":"mysql-async-replica"}]'
+
   cluster-healer:
     image: mysql:9.7.1
     container_name: cluster-healer
@@ -490,5 +529,6 @@ volumes:
   mysql-node1-data-v4:
   mysql-node2-data-v4:
   mysql-node3-data-v4:
+  mysql-async-replica-data-v4:
   prometheus_data:
 networks: {}
