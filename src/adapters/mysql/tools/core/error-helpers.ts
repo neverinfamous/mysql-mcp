@@ -48,7 +48,7 @@ export function formatMysqlError(err: unknown): string {
     message
       // Strip adapter-layer prefixes (Raw query failed: / Query fallback failed: / Query failed: / Execute failed:)
       .replace(
-        /^(Raw query failed:\s*)?(Query fallback failed:\s*)?(Query failed:\s*)?(Execute failed:\s*)*/i,
+        /^(?:(?:Raw query failed|Query fallback failed|Query failed|Execute failed):\s*)*/i,
         "",
       )
       // Strip MySQL error code prefixes (ER_NO_SUCH_TABLE: / ER_DUP_ENTRY: etc.)

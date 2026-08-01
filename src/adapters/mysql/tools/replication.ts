@@ -75,7 +75,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         } catch (e) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              `Binary logging may not be enabled: ${String(e)}`,
+              `Binary logging may not be enabled: ${stripErrorPrefix(e instanceof Error ? e.message : String(e))}`,
               "DOMAIN_ERROR",
               ErrorCategory.CONFIGURATION
             )
@@ -237,7 +237,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
           };
           return withTokenEstimate(response);
         } catch (e) {
-          const message = String(e);
+          const message = stripErrorPrefix(e instanceof Error ? e.message : String(e));
           const targetFile = effectiveLogFile || logFile;
           if (targetFile && (message.includes("Could not find target log") || message.includes("Connection lost"))) {
             return formatHandlerErrorResponse(
@@ -302,7 +302,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (e) {
         return formatHandlerErrorResponse(
           new MySQLMcpError(
-            `Failed to retrieve GTID status: ${String(e)}`,
+            `Failed to retrieve GTID status: ${stripErrorPrefix(e instanceof Error ? e.message : String(e))}`,
             "QUERY_ERROR",
             ErrorCategory.QUERY
           )
