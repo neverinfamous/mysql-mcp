@@ -17,6 +17,8 @@ export const ShellImportTableInputSchemaBase = z
     table: z.string().optional().describe("Target table name"),
     tableName: z.string().optional().describe("Alias for table"),
     name: z.string().optional().describe("Alias for table"),
+    tbl: z.string().optional().describe("Alias for table"),
+    table_name: z.string().optional().describe("Alias for table"),
     threads: z
       .number()
       .int()
@@ -60,9 +62,9 @@ export const ShellImportTableInputSchemaBase = z
 export const ShellImportTableInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; database?: unknown; table?: unknown; tableName?: unknown; name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; database?: unknown; table?: unknown; tableName?: unknown; name?: unknown; tbl?: unknown; table_name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
     const rawSchema = obj.schema ?? obj.database;
-    const rawTable = obj.table ?? obj.tableName ?? obj.name;
+    const rawTable = obj.table ?? obj.tableName ?? obj.name ?? obj.tbl ?? obj.table_name;
     return {
       ...obj,
       schema:
@@ -77,8 +79,7 @@ export const ShellImportTableInputSchema = z.preprocess(
     };
   },
   ShellImportTableInputSchemaBase
-).refine((data) => data.schema != null && data.schema !== "", { message: "schema is required" })
- .refine((data) => data.table != null && data.table !== "", { message: "table is required" })
+).refine((data) => data.table != null && data.table !== "", { message: "table is required" })
  .refine((data) => data.inputPath != null && data.inputPath !== "", { message: "inputPath is required" });
 
 export const ShellImportJSONInputSchemaBase = z
@@ -100,6 +101,8 @@ export const ShellImportJSONInputSchemaBase = z
     tableName: z.string().optional().describe("Alias for collection"),
     name: z.string().optional().describe("Alias for collection"),
     coll: z.string().optional().describe("Alias for collection"),
+    tbl: z.string().optional().describe("Alias for collection"),
+    table_name: z.string().optional().describe("Alias for collection"),
     tableColumn: z
       .string()
       .optional()
@@ -114,9 +117,9 @@ export const ShellImportJSONInputSchemaBase = z
 export const ShellImportJSONInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { schema?: unknown; database?: unknown; collection?: unknown; collectionName?: unknown; table?: unknown; tableName?: unknown; name?: unknown; coll?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
+    const obj = val as { schema?: unknown; database?: unknown; collection?: unknown; collectionName?: unknown; table?: unknown; tableName?: unknown; name?: unknown; coll?: unknown; tbl?: unknown; table_name?: unknown; inputPath?: unknown; inputUrl?: unknown; path?: unknown; file?: unknown; filepath?: unknown; url?: unknown };
     const rawSchema = obj.schema ?? obj.database;
-    const rawCollection = obj.collection ?? obj.collectionName ?? obj.table ?? obj.tableName ?? obj.name ?? obj.coll;
+    const rawCollection = obj.collection ?? obj.collectionName ?? obj.table ?? obj.tableName ?? obj.name ?? obj.coll ?? obj.tbl ?? obj.table_name;
     return {
       ...obj,
       schema:
@@ -131,6 +134,5 @@ export const ShellImportJSONInputSchema = z.preprocess(
     };
   },
   ShellImportJSONInputSchemaBase
-).refine((data) => data.schema != null && data.schema !== "", { message: "schema is required" })
- .refine((data) => data.collection != null && data.collection !== "", { message: "collection is required" })
+).refine((data) => data.collection != null && data.collection !== "", { message: "collection is required" })
  .refine((data) => data.inputPath != null && data.inputPath !== "", { message: "inputPath is required" });
