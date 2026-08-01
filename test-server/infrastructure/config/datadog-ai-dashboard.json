@@ -16,10 +16,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0b4107",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -59,10 +59,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#173b07",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -108,10 +108,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -153,10 +153,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063c11",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -198,10 +198,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f0f",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -243,10 +243,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f09",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -528,15 +528,14 @@
             "conditional_formats": [
               {
                 "comparator": "=",
-                "custom_bg_color": "#e00000",
+                "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 1
+                "value": 1.0
               },
               {
                 "comparator": "=",
-                "custom_bg_color": "#008a00",
-                "palette": "custom_bg",
-                "value": 0
+                "palette": "white_on_green",
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -555,6 +554,7 @@
             "response_format": "scalar"
           }
         ],
+        "time": {},
         "title": "Router Super Read Status",
         "title_align": "center",
         "title_size": "16",
@@ -1049,10 +1049,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c4008",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -1093,20 +1093,20 @@
           {
             "conditional_formats": [
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#0a3b07",
                 "palette": "custom_bg",
-                "value": 70
+                "value": 70.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "palette": "white_on_yellow",
-                "value": 90
+                "value": 90.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_red",
-                "value": 90
+                "value": 90.0
               }
             ],
             "formulas": [
@@ -1151,11 +1151,11 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#144007",
                 "custom_fg_color": "#ffffff",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -1196,10 +1196,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#084a0c",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -1239,18 +1239,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c3706",
                 "palette": "custom_bg",
-                "value": 80
+                "value": 80.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
                 "value": 49.9
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 49.9
@@ -1299,21 +1299,21 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 5
+                "value": 5.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
-                "value": 2
+                "value": 2.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#104409",
                 "palette": "custom_bg",
-                "value": 2
+                "value": 2.0
               }
             ],
             "formulas": [
@@ -1521,6 +1521,19 @@
         "precision": 0,
         "requests": [
           {
+            "conditional_formats": [
+              {
+                "comparator": "=",
+                "custom_bg_color": "#841010",
+                "palette": "custom_bg",
+                "value": 0.0
+              },
+              {
+                "comparator": "=",
+                "palette": "white_on_green",
+                "value": 1.0
+              }
+            ],
             "formulas": [
               {
                 "formula": "query1"
@@ -1536,6 +1549,9 @@
             "response_format": "scalar"
           }
         ],
+        "time": {
+          "live_span": "1h"
+        },
         "title": "MySQL Shell Status",
         "title_align": "center",
         "title_size": "16",
@@ -1543,7 +1559,7 @@
       },
       "id": 4546505168593902,
       "layout": {
-        "height": 3,
+        "height": 1,
         "width": 4,
         "x": 0,
         "y": 17
@@ -1588,7 +1604,7 @@
       },
       "id": 203565609753300,
       "layout": {
-        "height": 3,
+        "height": 5,
         "width": 4,
         "x": 4,
         "y": 17
@@ -1633,7 +1649,7 @@
       },
       "id": 203565609753301,
       "layout": {
-        "height": 3,
+        "height": 5,
         "width": 4,
         "x": 8,
         "y": 17
@@ -1653,7 +1669,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_duration_milliseconds{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}"
               }
             ],
             "response_format": "timeseries",
@@ -1675,7 +1691,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 20
+        "y": 18
       }
     },
     {
@@ -1713,7 +1729,7 @@
       "layout": {
         "height": 2,
         "width": 4,
-        "x": 4,
+        "x": 0,
         "y": 20
       }
     }

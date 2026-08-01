@@ -32,7 +32,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -74,7 +74,7 @@
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               },
               {
                 "data_source": "metrics",
@@ -124,7 +124,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -169,7 +169,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -214,7 +214,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -259,7 +259,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -293,7 +293,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*} by {tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}"
               }
             ],
             "response_format": "scalar",
@@ -528,14 +528,13 @@
             "conditional_formats": [
               {
                 "comparator": "=",
-                "custom_bg_color": "#e00000",
+                "custom_bg_color": "#841001",
                 "palette": "custom_bg",
                 "value": 1.0
               },
               {
                 "comparator": "=",
-                "custom_bg_color": "#008a00",
-                "palette": "custom_bg",
+                "palette": "white_on_green",
                 "value": 0.0
               }
             ],
@@ -555,6 +554,7 @@
             "response_format": "scalar"
           }
         ],
+        "time": {},
         "title": "Router Super Read Status",
         "title_align": "center",
         "title_size": "16",
@@ -1065,7 +1065,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -1521,6 +1521,19 @@
         "precision": 0,
         "requests": [
           {
+            "conditional_formats": [
+              {
+                "comparator": "=",
+                "custom_bg_color": "#841010",
+                "palette": "custom_bg",
+                "value": 0.0
+              },
+              {
+                "comparator": "=",
+                "palette": "white_on_green",
+                "value": 1.0
+              }
+            ],
             "formulas": [
               {
                 "formula": "query1"
@@ -1536,6 +1549,9 @@
             "response_format": "scalar"
           }
         ],
+        "time": {
+          "live_span": "1h"
+        },
         "title": "MySQL Shell Status",
         "title_align": "center",
         "title_size": "16",
@@ -1543,7 +1559,7 @@
       },
       "id": 4546505168593902,
       "layout": {
-        "height": 3,
+        "height": 1,
         "width": 4,
         "x": 0,
         "y": 17
@@ -1588,7 +1604,7 @@
       },
       "id": 203565609753300,
       "layout": {
-        "height": 3,
+        "height": 5,
         "width": 4,
         "x": 4,
         "y": 17
@@ -1633,7 +1649,7 @@
       },
       "id": 203565609753301,
       "layout": {
-        "height": 3,
+        "height": 5,
         "width": 4,
         "x": 8,
         "y": 17
@@ -1653,7 +1669,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp_tool_duration_milliseconds{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}"
               }
             ],
             "response_format": "timeseries",
@@ -1675,7 +1691,7 @@
         "height": 2,
         "width": 4,
         "x": 0,
-        "y": 20
+        "y": 18
       }
     },
     {
@@ -1692,7 +1708,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp_tool_errors_total{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.as_count()"
               }
             ],
             "response_format": "timeseries",
@@ -1713,7 +1729,7 @@
       "layout": {
         "height": 2,
         "width": 4,
-        "x": 4,
+        "x": 0,
         "y": 20
       }
     }
