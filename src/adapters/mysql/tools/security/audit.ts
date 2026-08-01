@@ -31,19 +31,19 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 // ============================================================================
 
 const AuditLogSchemaBase = z.object({
-  limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records"),
-  count: z.coerce.number().optional().describe("Alias for limit"),
-  user: z.string().optional().describe("Filter by username"),
-  userName: z.string().optional().describe("Alias for user"),
-  username: z.string().optional().describe("Alias for user"),
-  eventType: z.string()
+  limit: z.unknown().optional().describe("Maximum number of records"),
+  count: z.unknown().optional().describe("Alias for limit"),
+  user: z.unknown().optional().describe("Filter by username"),
+  userName: z.unknown().optional().describe("Alias for user"),
+  username: z.unknown().optional().describe("Alias for user"),
+  eventType: z.unknown()
     .optional()
     .describe(
       'Filter by event type (e.g., "Execute", "Ping", "begin"). Uses LIKE matching against performance_schema EVENT_NAME.',
     ),
-  event: z.string().optional().describe("Alias for eventType"),
-  startTime: z.string().optional().describe("Start time filter (ISO 8601)"),
-  time: z.string().optional().describe("Alias for startTime"),
+  event: z.unknown().optional().describe("Alias for eventType"),
+  startTime: z.unknown().optional().describe("Start time filter (ISO 8601)"),
+  time: z.unknown().optional().describe("Alias for startTime"),
 }).strict();
 
 const AuditLogSchema = z.preprocess(
@@ -83,8 +83,8 @@ const AuditLogSchema = z.preprocess(
 );
 
 const FirewallRulesSchemaBase = z.object({
-  limit: z.coerce.number().int().min(1).optional().describe("Maximum number of records to return"),
-  count: z.coerce.number().optional().describe("Alias for limit"),
+  limit: z.unknown().optional().describe("Maximum number of records to return"),
+  count: z.unknown().optional().describe("Alias for limit"),
   user: z.unknown().optional().describe("Filter by username"),
   userName: z.unknown().optional().describe("Alias for user"),
   username: z.unknown().optional().describe("Alias for user"),
