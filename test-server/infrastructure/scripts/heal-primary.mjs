@@ -7,7 +7,9 @@ const __dirname = dirname(__filename);
 
 let dockerCmd = 'docker';
 const dockerBaseArgs = [];
-if (process.platform === 'win32') {
+try {
+    execFileSync('docker', ['--version'], { stdio: 'ignore' });
+} catch {
     dockerCmd = 'wsl';
     dockerBaseArgs.push('docker');
 }

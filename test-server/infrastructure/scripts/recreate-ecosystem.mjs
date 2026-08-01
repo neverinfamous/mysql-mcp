@@ -32,8 +32,24 @@ const MYSQL_ROOT_PASSWORD = process.env.MYSQL_ROOT_PASSWORD || 'root';
 
 // ── Helpers ──────────────────────────────────────────────────────────
 
+let dockerPrefix = '';
+let bashPrefix = '';
+try {
+    await execAsync('docker --version');
+} catch {
+    dockerPrefix = 'wsl ';
+}
+try {
+    await execAsync('bash -c "echo 1"');
+} catch {
+    bashPrefix = 'wsl ';
+}
+
 function wsl(command) {
-    return process.platform === 'win32' ? `wsl ${command}` : command;
+    if (command.startsWith('docker ')) {
+        return dockerPrefix + command;
+    }
+    return command; // fallback
 }
 
 async function run(command) {
@@ -164,7 +180,7 @@ async function main() {
     // ── Phase 0: Network setup ───────────────────────────────────────
     console.log('\n[0/6] Configuring network...');
     try {
-        const { stdout } = await execAsync('wsl bash -c "ip route show default | grep -oP \'(?<=default via )[0-9.]+\'"', { encoding: 'utf-8' });
+        const { stdout } = await execAsync(`${bashPrefix}bash -c "ip route show default | grep -oP '(?<=default via )[0-9.]+'"`, { encoding: 'utf-8' });
         const wslGateway = stdout.trim();
         if (wslGateway) {
             const envPath = join(REPO_ROOT, '.env');

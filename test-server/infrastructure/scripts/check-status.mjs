@@ -19,10 +19,14 @@ const execCommand = (cmd, args, ignoreError = false) => {
 };
 
 
-// Dynamically discover expected containers from docker-compose.yml
-const isWindows = process.platform === 'win32';
-const dockerCmd = isWindows ? 'wsl' : 'docker';
-const dockerArgs = isWindows ? ['docker', 'compose'] : ['compose'];
+let dockerCmd = 'docker';
+let dockerArgs = ['compose'];
+try {
+    execFileSync('docker', ['--version'], { stdio: 'ignore' });
+} catch {
+    dockerCmd = 'wsl';
+    dockerArgs = ['docker', 'compose'];
+}
 
 let servicesRaw = execCommand(dockerCmd, [...dockerArgs, 'config', '--services'], true);
 if (!servicesRaw) {
@@ -65,7 +69,7 @@ if (servicesRaw) {
 
 // Helper: run a command inside a Docker container
 const dockerExec = (container, cmdArgs, ignoreError = true) => {
-    const args = isWindows
+    const args = dockerCmd === 'wsl'
         ? ['docker', 'exec', container, ...cmdArgs]
         : ['exec', container, ...cmdArgs];
     return execCommand(dockerCmd, args, ignoreError);
@@ -74,7 +78,7 @@ const dockerExec = (container, cmdArgs, ignoreError = true) => {
 // Helper: run a command inside a Docker container with env vars
 const dockerExecEnv = (container, envPairs, cmdArgs, ignoreError = true) => {
     const envArgs = envPairs.flatMap(pair => ['-e', pair]);
-    const args = isWindows
+    const args = dockerCmd === 'wsl'
         ? ['docker', 'exec', ...envArgs, container, ...cmdArgs]
         : ['exec', ...envArgs, container, ...cmdArgs];
     return execCommand(dockerCmd, args, ignoreError);

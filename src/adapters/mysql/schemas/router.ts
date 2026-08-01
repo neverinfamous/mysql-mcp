@@ -120,7 +120,7 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 export const RouterBaseInputSchema = z.object({}).strict();
 
 export const RouteNameInputSchemaBase = z.object({
-  routeName: z.unknown().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
+  routeName: z.string().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
   name: z.unknown().optional().describe("Alias for routeName"),
   route: z.unknown().optional().describe("Alias for routeName"),
   route_name: z.unknown().optional().describe("Alias for routeName"),
@@ -167,8 +167,7 @@ export const RouteNameInputSchema = z.preprocess(
 
 export const MetadataNameInputSchemaBase = z.object({
   metadataName: z
-    .unknown()
-    .optional()
+    .string()
     .describe("Name of the metadata cache instance. Anti-Hallucination Hint: Pass metadataName, not metadata."),
   name: z.unknown().optional().describe("Alias for metadataName"),
   metadata: z.unknown().optional().describe("Alias for metadataName"),

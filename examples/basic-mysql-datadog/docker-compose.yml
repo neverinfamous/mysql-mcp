@@ -1,6 +1,6 @@
 services:
   mysql-server:
-    image: mysql
+    image: mysql:9.7.1
     container_name: example-basic-mysql
     restart: unless-stopped
     ports:

@@ -21,7 +21,8 @@ services:
       --report_host=mysql-node1 --innodb-use-native-aio=0
       --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
       --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node1-relay-bin
-      --max_connections=200 --table_definition_cache=1000
+      --relay-log-recovery=ON --max_connections=200
+      --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
     volumes:
@@ -60,7 +61,8 @@ services:
       --report_host=mysql-node2 --innodb-use-native-aio=0
       --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
       --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node2-relay-bin
-      --max_connections=200 --table_definition_cache=1000
+      --relay-log-recovery=ON --max_connections=200
+      --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
     volumes:
@@ -98,7 +100,8 @@ services:
       --report_host=mysql-node3 --innodb-use-native-aio=0
       --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
       --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node3-relay-bin
-      --max_connections=200 --table_definition_cache=1000
+      --relay-log-recovery=ON --max_connections=200
+      --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
     volumes:
@@ -136,8 +139,8 @@ services:
       --report_host=mysql-async-replica --innodb-use-native-aio=0
       --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
       --innodb-flush-log-at-trx-commit=2
-      --relay-log=mysql-async-replica-relay-bin --max_connections=200
-      --table_definition_cache=1000
+      --relay-log=mysql-async-replica-relay-bin --relay-log-recovery=ON
+      --max_connections=200 --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
     volumes:
@@ -331,7 +334,7 @@ services:
       - 'com.datadoghq.ad.logs=[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
   dozzle:
-    image: amir20/dozzle:v10.6.14
+    image: amir20/dozzle:latest
     container_name: dozzle
     restart: unless-stopped
     ports:
