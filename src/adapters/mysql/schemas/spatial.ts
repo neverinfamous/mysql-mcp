@@ -567,7 +567,22 @@ export const ContainsSchema = z.preprocess(
   })
   .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
     message: "srid must be a valid positive integer (0 to 4294967295)",
-  });
+  })
+  .refine((data) => {
+    if (data.srid === 4326 && data.polygon) {
+        const matches = data.polygon.match(/[-\d.]+\s+[-\d.]+/g);
+        if (matches) {
+            for (const match of matches) {
+                const [lonStr, latStr] = match.split(/\s+/);
+                const lon = Number(lonStr);
+                const lat = Number(latStr);
+                if (lon < -180 || lon > 180) return false;
+                if (lat < -90 || lat > 90) return false;
+            }
+        }
+    }
+    return true;
+  }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" });
 
 export const WithinSchemaBase = z.object({
   table: z.unknown().optional().describe("Table name"),
@@ -618,7 +633,22 @@ export const WithinSchema = z.preprocess(
   })
   .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
     message: "srid must be a valid positive integer (0 to 4294967295)",
-  });
+  })
+  .refine((data) => {
+    if (data.srid === 4326 && data.geometry) {
+        const matches = data.geometry.match(/[-\d.]+\s+[-\d.]+/g);
+        if (matches) {
+            for (const match of matches) {
+                const [lonStr, latStr] = match.split(/\s+/);
+                const lon = Number(lonStr);
+                const lat = Number(latStr);
+                if (lon < -180 || lon > 180) return false;
+                if (lat < -90 || lat > 90) return false;
+            }
+        }
+    }
+    return true;
+  }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" });
 
 export const IntersectionSchemaBase = z.object({
   geometry1: z.unknown().optional().describe("First WKT geometry"),
