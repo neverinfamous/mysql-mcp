@@ -9,6 +9,7 @@ echo "[Healer] Starting InnoDB Cluster auto-healer..."
 CHECK_INTERVAL=5
 HEALTHY_INTERVAL=30
 HEALTH_FILE="/tmp/cluster-healthy"
+OUTAGE_COUNT=0
 
 # Remove any stale health file from previous runs
 rm -f "$HEALTH_FILE"
@@ -90,11 +91,21 @@ while true; do
     done
 
     if [ "$ONLINE_COUNT" -eq 0 ]; then
-        # Complete outage - no members online anywhere
-        rm -f "$HEALTH_FILE"
-        reboot_cluster
-        CHECK_INTERVAL=10
+        OUTAGE_COUNT=$((OUTAGE_COUNT+1))
+        if [ "$OUTAGE_COUNT" -ge 4 ]; then
+            # Complete outage - no members online anywhere after consecutive checks
+            echo "[Healer] Cluster offline for 4 consecutive checks. Initiating reboot..."
+            rm -f "$HEALTH_FILE"
+            reboot_cluster
+            OUTAGE_COUNT=0
+            CHECK_INTERVAL=10
+        else
+            echo "[Healer] Cluster appears offline. Waiting... ($OUTAGE_COUNT/4)"
+            rm -f "$HEALTH_FILE"
+            CHECK_INTERVAL=10
+        fi
     elif [ "$ONLINE_COUNT" -lt 3 ]; then
+        OUTAGE_COUNT=0
         # Partial outage - try to rejoin missing nodes
         echo "$ONLINE_COUNT" > "$HEALTH_FILE"
         for node in mysql-node1 mysql-node2 mysql-node3; do

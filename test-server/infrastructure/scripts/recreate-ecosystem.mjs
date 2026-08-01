@@ -252,14 +252,7 @@ if (res.fetchAll().length > 0) {
     await waitForMySQL('mysql-async-replica');
     
     console.log('  Configuring asynchronous replication...');
-    await mysqlExec('mysql-async-replica', `
-        CHANGE REPLICATION SOURCE TO 
-            SOURCE_HOST='mysql-node1', 
-            SOURCE_USER='root', 
-            SOURCE_PASSWORD='${MYSQL_ROOT_PASSWORD}', 
-            SOURCE_AUTO_POSITION=1; 
-        START REPLICA;
-    `);
+    await mysqlExec('mysql-async-replica', `CHANGE REPLICATION SOURCE TO SOURCE_HOST='mysql-node1', SOURCE_USER='root', SOURCE_PASSWORD='${MYSQL_ROOT_PASSWORD}', SOURCE_AUTO_POSITION=1; START REPLICA;`);
     console.log('  ✅ Async Replica is running');
 
     // ── Phase 4: Start remaining ecosystem ───────────────────────────
