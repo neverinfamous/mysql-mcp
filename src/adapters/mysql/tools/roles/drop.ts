@@ -44,19 +44,25 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
         validateIdentifier(name, "role");
 
         let roleAbsent = false;
-        if (ifExists) {
-          const checkResult = await adapter.executeQuery(
-            `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
-            [name],
-          );
-          if (!checkResult.rows || checkResult.rows.length === 0) {
-            roleAbsent = true;
-          }
+        const checkResult = await adapter.executeQuery(
+          `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
+          [name],
+        );
+        if (!checkResult.rows || checkResult.rows.length === 0) {
+          roleAbsent = true;
         }
 
-        await adapter.executeQuery(
-          `DROP ROLE ${ifExists ? "IF EXISTS " : ""}'${name}'`,
-        );
+        if (roleAbsent && !ifExists) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(`Role '${name}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+          );
+        }
+
+        if (!roleAbsent) {
+          await adapter.executeQuery(
+            `DROP ROLE ${ifExists ? "IF EXISTS " : ""}'${name}'`,
+          );
+        }
 
         if (roleAbsent) {
           const data = {
