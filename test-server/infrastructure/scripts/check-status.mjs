@@ -177,6 +177,24 @@ if (clusterOut !== null) {
 }
 
 // ============================================================
+// Section 2.5: Async Replica Status
+// ============================================================
+if (containers.includes('mysql-async-replica')) {
+    console.log('\n2.5. Async Replica Status:');
+    console.log('----------------------------------------');
+    const replicaOut = dockerExecEnv('mysql-async-replica', ['MYSQL_PWD=root'], ['mysql', '-uroot', '-E', '-e', 'SHOW REPLICA STATUS'], true);
+    if (replicaOut && replicaOut.includes('Replica_IO_Running: Yes') && replicaOut.includes('Replica_SQL_Running: Yes')) {
+        console.log('✅ Async Replica        : IO and SQL threads are running');
+    } else {
+        console.log('❌ Async Replica        : Replication is not running properly');
+        if (replicaOut) {
+            console.log(replicaOut.split('\\n').filter(l => l.includes('Running:') || l.includes('Error')).join('\\n'));
+        }
+        allUp = false;
+    }
+}
+
+// ============================================================
 // Section 3: MySQL Shell Metadata Verification (existing)
 // ============================================================
 console.log('\n3. MySQL Shell Metadata Verification:');
