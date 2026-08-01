@@ -44,7 +44,8 @@ The most resilient way to connect to this ecosystem is through ProxySQL (Port 60
         "MYSQL_PORT": "6033",
         "MYSQL_USER": "mcp_user",
         "MYSQL_PASSWORD": "mcp_password",
-        "MYSQL_DATABASE": "testdb"
+        "MYSQL_DATABASE": "testdb",
+        "MYSQLSH_PORT": "3307"
       }
     }
   }

@@ -65,7 +65,8 @@ You can connect to this stack using ProxySQL on port `6033`. Ensure you point th
         "MYSQL_PORT": "6033",
         "MYSQL_USER": "cluster_admin",
         "MYSQL_PASSWORD": "cluster_admin",
-        "MYSQL_DATABASE": "testdb"
+        "MYSQL_DATABASE": "testdb",
+        "MYSQLSH_PORT": "3307"
       }
     }
   }

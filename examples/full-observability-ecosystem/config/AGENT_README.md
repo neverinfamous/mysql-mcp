@@ -11,7 +11,7 @@ This directory contains the configuration files and JSON backups for the local t
 ## Available Dashboards
 
 ### Datadog
-- `datadog-ai-dashboard.json`: Deep AI efficiency metrics (tokens, tool usage) and database insights.
+- `datadog-ai-dashboard.json`: Deep AI efficiency metrics (tokens, tool usage), database insights, MySQL Shell metrics, and the `MySQL Shell Status` widget (`.fill(last)`).
 - `datadog-dashboard.json`: Core Token and Tool Metrics, including the live **MySQL-MCP Audit Log** stream.
 - `datadog-mysql.json`: MySQL cluster health, queries, and replication status.
 - `datadog-redis.json`: Redis rate-limiting, cache hits, memory usage, and command rates.

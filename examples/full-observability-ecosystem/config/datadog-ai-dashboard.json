@@ -32,7 +32,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -74,7 +74,7 @@
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               },
               {
                 "data_source": "metrics",
@@ -124,7 +124,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -169,7 +169,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -214,7 +214,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -259,7 +259,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -293,7 +293,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*} by {tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}"
               }
             ],
             "response_format": "scalar",
@@ -424,7 +424,7 @@
         ],
         "grouping": "cluster",
         "tags": [],
-        "title": "ProxySQL Monitored Instances Status",
+        "title": "ProxySQL Frontends",
         "title_align": "center",
         "title_size": "16",
         "type": "check_status"
@@ -432,9 +432,251 @@
       "id": 4740005024234863,
       "layout": {
         "height": 1,
-        "width": 3,
+        "width": 2,
         "x": 0,
         "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "proxysql.backend.status",
+        "group": "*",
+        "group_by": [],
+        "grouping": "cluster",
+        "tags": [],
+        "title": "ProxySQL Backends",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 2452699725061914,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 2,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "http.can_connect",
+        "grouping": "cluster",
+        "tags": [
+          "service:mysql-router",
+          "component:rest_api"
+        ],
+        "title": "Router REST API",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 966900244895154,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 4,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "tcp.can_connect",
+        "grouping": "cluster",
+        "tags": [
+          "service:mysql-router",
+          "route:ro"
+        ],
+        "title": "Router R/O Route (6447)",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 6092856314994372,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 6,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "check": "tcp.can_connect",
+        "grouping": "cluster",
+        "tags": [
+          "service:mysql-router",
+          "route:rw"
+        ],
+        "title": "Router R/W Route (6446)",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "check_status"
+      },
+      "id": 5137611699804610,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 8,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "precision": 0,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "=",
+                "custom_bg_color": "#841001",
+                "palette": "custom_bg",
+                "value": 1.0
+              },
+              {
+                "comparator": "=",
+                "palette": "white_on_green",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "last",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "min:mysql.cluster.super_read_only{*}"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "time": {},
+        "title": "Router Super Read Status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 6268648035252158,
+      "layout": {
+        "height": 1,
+        "width": 2,
+        "x": 10,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.server.connections_connected{*} by {hostgroup}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Backend Server Active Connections",
+        "type": "timeseries"
+      },
+      "id": 7120564611391215,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 0,
+        "y": 7
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "custom_links": [],
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "query1 + query2 + query3"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:proxysql.performance.command.cnt_5s{*} by {sql_command}"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:proxysql.performance.command.cnt_10s{*} by {sql_command}"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query3",
+                "query": "sum:proxysql.performance.command.cnt_infs{*} by {sql_command}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 3120276336912668,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 3,
+        "y": 7
       }
     },
     {
@@ -476,7 +718,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Latency Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -493,8 +734,8 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 3,
-        "y": 6
+        "x": 6,
+        "y": 7
       }
     },
     {
@@ -536,7 +777,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Connections Currently Used Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -553,8 +793,8 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 6,
-        "y": 6
+        "x": 9,
+        "y": 7
       }
     },
     {
@@ -618,7 +858,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Bytes Received And Sent Per Hostgroup",
         "title_align": "left",
         "title_size": "16",
@@ -635,201 +874,8 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 9,
-        "y": 6
-      }
-    },
-    {
-      "definition": {
-        "check": "proxysql.backend.status",
-        "group": "*",
-        "group_by": [],
-        "grouping": "cluster",
-        "tags": [],
-        "title": "ProxySQL Backends Status",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "check_status"
-      },
-      "id": 2452699725061914,
-      "layout": {
-        "height": 1,
-        "width": 3,
         "x": 0,
-        "y": 7
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.server.connections_connected{*} by {hostgroup}"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "time": {},
-        "title": "ProxySQL Backend Server Active Connections",
-        "type": "timeseries"
-      },
-      "id": 7120564611391215,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 0,
-        "y": 8
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "custom_links": [],
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "bars",
-            "formulas": [
-              {
-                "formula": "query1 + query2 + query3"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:proxysql.performance.command.cnt_5s{*} by {sql_command}"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "sum:proxysql.performance.command.cnt_10s{*} by {sql_command}"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query3",
-                "query": "sum:proxysql.performance.command.cnt_infs{*} by {sql_command}"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "time": {},
-        "title": "ProxySQL Statements That Took More Than 5 Seconds To Complete",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
-      },
-      "id": 3120276336912668,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 3,
-        "y": 8
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "custom_links": [],
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Memory usage",
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.query_cache.memory_bytes{*}"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "time": {},
-        "title": "ProxySQL Memory Usage Of Query Cache",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
-      },
-      "id": 4350687143204730,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 6,
-        "y": 8
+        "y": 9
       }
     },
     {
@@ -871,7 +917,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "ProxySQL Cache Read Throughput",
         "title_align": "left",
         "title_size": "16",
@@ -888,8 +933,110 @@
       "layout": {
         "height": 2,
         "width": 3,
+        "x": 3,
+        "y": 9
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "custom_links": [],
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Memory usage",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.query_cache.memory_bytes{*}"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Memory Usage Of Query Cache",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 4350687143204730,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 6,
+        "y": 9
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.slow_queries{*}.as_rate()"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Slow Queries Rate",
+        "type": "timeseries"
+      },
+      "id": 273057414915558,
+      "layout": {
+        "height": 2,
+        "width": 3,
         "x": 9,
-        "y": 8
+        "y": 9
       }
     },
     {
@@ -918,7 +1065,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
               }
             ],
             "response_format": "scalar"
@@ -935,7 +1082,7 @@
         "is_column_break": true,
         "width": 2,
         "x": 0,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -992,7 +1139,7 @@
         "height": 2,
         "width": 2,
         "x": 2,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1037,7 +1184,7 @@
         "height": 2,
         "width": 2,
         "x": 4,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1081,7 +1228,7 @@
         "height": 2,
         "width": 2,
         "x": 6,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1141,7 +1288,7 @@
         "height": 2,
         "width": 2,
         "x": 8,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1199,7 +1346,7 @@
         "height": 2,
         "width": 2,
         "x": 10,
-        "y": 10
+        "y": 11
       }
     },
     {
@@ -1220,68 +1367,26 @@
             "display_type": "line",
             "formulas": [
               {
-                "alias": "Active",
-                "formula": "default_zero(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}.fill(last)"
+                "query": "avg:system.cpu.user{*} by {service}"
               }
             ],
             "response_format": "timeseries",
             "style": {
               "line_type": "solid",
-              "palette": "blue"
-            }
-          },
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Idle",
-                "formula": "default_zero(query2)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_idle{*}.fill(last)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
+              "line_width": "normal",
+              "order_by": "values",
               "palette": "green"
-            }
-          },
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Total",
-                "formula": "default_zero(query3)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query3",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.fill(last)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "dashed",
-              "palette": "gray"
             }
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Connection Pool",
         "title_align": "left",
         "title_size": "16",
@@ -1292,7 +1397,7 @@
         "height": 4,
         "width": 4,
         "x": 0,
-        "y": 12
+        "y": 13
       }
     },
     {
@@ -1351,7 +1456,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Cache Performance",
         "title_align": "left",
         "title_size": "16",
@@ -1362,7 +1466,103 @@
         "height": 4,
         "width": 4,
         "x": 4,
-        "y": 12
+        "y": 13
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "vertical",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "default_zero(query1)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count()"
+              }
+            ],
+            "response_format": "timeseries"
+          }
+        ],
+        "show_legend": true,
+        "title": "Agent Quality (Error Classification)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 203565609753226,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 8,
+        "y": 13
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "custom_links": [],
+        "precision": 0,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "=",
+                "custom_bg_color": "#841010",
+                "palette": "custom_bg",
+                "value": 0.0
+              },
+              {
+                "comparator": "=",
+                "palette": "white_on_green",
+                "value": 1.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql_mcp.shell.status{*}.fill(last)"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "time": {
+          "live_span": "1h"
+        },
+        "title": "MySQL Shell Status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 4546505168593902,
+      "layout": {
+        "height": 1,
+        "width": 4,
+        "x": 0,
+        "y": 17
       }
     },
     {
@@ -1404,53 +1604,10 @@
       },
       "id": 203565609753300,
       "layout": {
-        "height": 4,
+        "height": 5,
         "width": 4,
-        "x": 8,
-        "y": 12
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.slow_queries{*}.as_rate()"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "dog_classic"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "ProxySQL Slow Queries Rate",
-        "type": "timeseries"
-      },
-      "id": 273057414915558,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 16
+        "x": 4,
+        "y": 17
       }
     },
     {
@@ -1485,7 +1642,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Transport Errors (HTTP)",
         "title_align": "left",
         "title_size": "16",
@@ -1493,56 +1649,88 @@
       },
       "id": 203565609753301,
       "layout": {
-        "height": 4,
+        "height": 5,
         "width": 4,
-        "x": 4,
-        "y": 16
+        "x": 8,
+        "y": 17
       }
     },
     {
       "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
         "requests": [
           {
-            "display_type": "bars",
+            "display_type": "line",
             "formulas": [
               {
-                "formula": "default_zero(query1)"
+                "formula": "query1"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count()"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}"
               }
             ],
-            "response_format": "timeseries"
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
           }
         ],
         "show_legend": true,
-        "time": {},
-        "title": "Agent Quality (Error Classification)",
-        "title_align": "left",
+        "title": "Shell Execution Latency (ms)",
+        "title_align": "center",
         "title_size": "16",
         "type": "timeseries"
       },
-      "id": 203565609753226,
+      "id": 1069600359152020,
       "layout": {
-        "height": 4,
+        "height": 2,
         "width": 4,
-        "x": 8,
-        "y": 16
+        "x": 0,
+        "y": 18
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.as_count()"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Shell Tool Errors",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 5194067084974108,
+      "layout": {
+        "height": 2,
+        "width": 4,
+        "x": 0,
+        "y": 20
       }
     }
   ]

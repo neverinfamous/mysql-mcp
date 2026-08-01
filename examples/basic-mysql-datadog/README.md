@@ -41,7 +41,8 @@ Once the database is running, you can connect the `mysql-mcp` server to it by ad
         "MYSQL_PORT": "3306",
         "MYSQL_USER": "root",
         "MYSQL_PASSWORD": "mysqlmcp",
-        "MYSQL_DATABASE": "testdb"
+        "MYSQL_DATABASE": "testdb",
+        "MYSQLSH_PORT": "3306"
       }
     }
   }

@@ -29,6 +29,12 @@ When committing changes to `mysql-mcp`, you **MUST** adhere to the following rul
 4. **Decentralized Zod Schemas**: Input schemas live in `src/adapters/mysql/schemas/`. Do not clutter handler logic with inline schemas. Use the dual-schema pattern (`Base` vs `Preprocess`) to handle parameter aliasing cleanly.
 5. **Exporter Audit Log Configuration**: The Prometheus exporter relies on `AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl` to aggregate telemetry, separating it from the write path `--audit-log /var/log/mysql-mcp/exporter-audit.jsonl`.
 
+## 🐚 MySQL Shell Integration (mysqlsh)
+
+The `mysql-mcp` server natively exposes MySQL Shell functionality to agents.
+- **Environment Variable**: Configure the shell port using `MYSQLSH_PORT: "3307"` (or your custom port).
+- **Available Tools**: A robust suite of `mysqlsh` tools is available, including `mysqlsh_dump_instance`, `mysqlsh_dump_schemas`, `mysqlsh_export_table`, `mysqlsh_import_table`, and `mysqlsh_run_script`.
+
 ---
 
 ## ⚡ Code Mode (`isolated-vm`) Boundary
