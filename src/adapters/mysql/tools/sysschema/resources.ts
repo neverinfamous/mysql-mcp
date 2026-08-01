@@ -142,19 +142,19 @@ export function createSysSchemaStatsTool(
         const tableStatsQuery = `
                 WITH sys_query AS (
                 SELECT
-                    table_schema,
-                    table_name,
-                    rows_fetched,
-                    fetch_latency,
-                    rows_inserted,
-                    insert_latency,
-                    rows_updated,
-                    update_latency,
-                    rows_deleted,
-                    delete_latency
-                FROM sys.schema_table_statistics
-                WHERE table_schema = COALESCE(?, DATABASE())
-                ORDER BY (fetch_latency + insert_latency + update_latency + delete_latency) DESC
+                    t.table_schema,
+                    t.table_name,
+                    t.rows_fetched,
+                    sys.format_time(t.fetch_latency) AS fetch_latency,
+                    t.rows_inserted,
+                    sys.format_time(t.insert_latency) AS insert_latency,
+                    t.rows_updated,
+                    sys.format_time(t.update_latency) AS update_latency,
+                    t.rows_deleted,
+                    sys.format_time(t.delete_latency) AS delete_latency
+                FROM sys.x$schema_table_statistics t
+                WHERE t.table_schema = COALESCE(?, DATABASE())
+                ORDER BY (t.fetch_latency + t.insert_latency + t.update_latency + t.delete_latency) DESC
                 LIMIT ${String(limit)}
                 ) SELECT * FROM sys_query
             `;
@@ -163,20 +163,20 @@ export function createSysSchemaStatsTool(
         const indexStatsQuery = `
                 WITH sys_query AS (
                 SELECT
-                    table_schema,
-                    table_name,
-                    index_name,
-                    rows_selected,
-                    select_latency,
-                    rows_inserted,
-                    insert_latency,
-                    rows_updated,
-                    update_latency,
-                    rows_deleted,
-                    delete_latency
-                FROM sys.schema_index_statistics
-                WHERE table_schema = COALESCE(?, DATABASE())
-                ORDER BY (select_latency + insert_latency + update_latency + delete_latency) DESC
+                    t.table_schema,
+                    t.table_name,
+                    t.index_name,
+                    t.rows_selected,
+                    sys.format_time(t.select_latency) AS select_latency,
+                    t.rows_inserted,
+                    sys.format_time(t.insert_latency) AS insert_latency,
+                    t.rows_updated,
+                    sys.format_time(t.update_latency) AS update_latency,
+                    t.rows_deleted,
+                    sys.format_time(t.delete_latency) AS delete_latency
+                FROM sys.x$schema_index_statistics t
+                WHERE t.table_schema = COALESCE(?, DATABASE())
+                ORDER BY (t.select_latency + t.insert_latency + t.update_latency + t.delete_latency) DESC
                 LIMIT ${String(limit)}
                 ) SELECT * FROM sys_query
             `;
