@@ -31,7 +31,7 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 // =============================================================================
 
 const PasswordValidateSchemaBase = z.object({
-  password: z.coerce.string().optional().describe("Password to validate"),
+  password: z.coerce.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
   pass: z.coerce.string().optional().describe("Alias for password"),
   pwd: z.coerce.string().optional().describe("Alias for password"),
 });
@@ -50,15 +50,15 @@ const PasswordValidateSchema = z.preprocess(
       }
     }
     
-    // Prevent z.coerce.string() from coercing null to "null"
-    if (password === null) {
-      password = undefined;
+    if (password === null || password === undefined || password === "") {
+      return { ...obj, password: undefined };
     }
     
-    return { ...obj, password };
+    // eslint-disable-next-line @typescript-eslint/no-base-to-string
+    return { ...obj, password: String(password) };
   },
   z.object({
-    password: z.coerce.string().min(1, "Password cannot be empty"),
+    password: z.string().min(1, "Password cannot be empty"),
   })
 );
 
@@ -273,6 +273,7 @@ export function createSecurityPasswordValidateTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
+
         const { password } = PasswordValidateSchema.parse(params);
 
         // First check if validate_password component is installed
