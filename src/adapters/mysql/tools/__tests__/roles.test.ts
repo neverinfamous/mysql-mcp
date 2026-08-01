@@ -249,11 +249,12 @@ describe("Handler Execution", () => {
     });
 
     it("should drop a role without IF EXISTS", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
       const tool = tools.find((t) => t.name === "mysql_role_drop")!;
       await tool.handler({ name: "test_role", ifExists: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
-      const call = mockAdapter.executeQuery.mock.calls[0][0];
+      const call = mockAdapter.executeQuery.mock.calls[1][0];
       expect(call).toContain("DROP ROLE 'test_role'");
     });
 

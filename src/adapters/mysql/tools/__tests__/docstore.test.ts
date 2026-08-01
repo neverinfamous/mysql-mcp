@@ -1163,18 +1163,14 @@ describe("Handler Execution", () => {
   describe("mysql_doc_collection_info", () => {
     it("should get collection statistics", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ rowCount: 1000 }])) // COUNT(*) query
-        .mockResolvedValueOnce(
-          createMockQueryResult([{ dataSize: 50000, indexSize: 10000 }]),
-        ) // INFORMATION_SCHEMA.TABLES
-        .mockResolvedValueOnce(
-          createMockQueryResult([{ INDEX_NAME: "PRIMARY" }]),
-        ); // INFORMATION_SCHEMA.STATISTICS
+        .mockResolvedValueOnce(createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varbinary(32)" }])) // checkCollectionExists
+        .mockResolvedValueOnce(createMockQueryResult([{ Rows: 1000, Data_length: 50000, Index_length: 10000 }])) // SHOW TABLE STATUS
+        .mockResolvedValueOnce(createMockQueryResult([{ Key_name: "PRIMARY", Column_name: "_id", Seq_in_index: 1, Non_unique: 0 }])); // SHOW KEYS
 
       const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
       const result = await tool.handler({ collection: "users" }, mockContext);
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(result).toHaveProperty("data.collection", "users");
       expect(result).toHaveProperty("data.info");
       expect(result).toHaveProperty("data.info.indexes");
@@ -1206,7 +1202,7 @@ describe("Handler Execution", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
+        error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
         metrics: { tokenEstimate: expect.any(Number) },
