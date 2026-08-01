@@ -20,6 +20,7 @@ import {
   VectorStatsOutputSchema,
 } from "../../schemas/vector.js";
 import { ensureVectorSupport, ensureVectorIndexSupport, sanitizeIdentifier, resolveVectorColumn } from "./helpers.js";
+import { escapeQualifiedTable } from "../../../../utils/validators.js";
 
 export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -100,7 +101,7 @@ export function createVectorCreateIndexTool(adapter: MySQLAdapter): ToolDefiniti
 
         // Syntax: ALTER TABLE t1 ADD VECTOR INDEX idx_t1_c1_vec (c1)
         const query = `
-          ALTER TABLE \`${table}\` 
+          ALTER TABLE ${escapeQualifiedTable(table)} 
           ADD VECTOR INDEX \`${indexName}\` (\`${column}\`)
         `;
 
@@ -154,7 +155,7 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
 
         await ensureVectorSupport(adapter);
         
-        const query = `ANALYZE TABLE \`${table}\``;
+        const query = `ANALYZE TABLE ${escapeQualifiedTable(table)}`;
         const result = await adapter.rawQuery(query);
 
         const rows = result.rows ?? [];
@@ -219,7 +220,7 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
             COUNT(*) - COUNT(\`${column}\`) as null_count,
             MIN(VECTOR_DIM(\`${column}\`)) as min_dimensions,
             MAX(VECTOR_DIM(\`${column}\`)) as max_dimensions
-          FROM \`${table}\`
+          FROM ${escapeQualifiedTable(table)}
         )`;
 
         const result = await adapter.executeQuery(query);
