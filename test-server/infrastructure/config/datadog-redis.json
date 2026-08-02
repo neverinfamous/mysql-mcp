@@ -30,12 +30,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "max",
-          "value"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "markers": [],
         "requests": [
           {
@@ -84,13 +79,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -150,10 +138,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e",
+                "comparator": ">",
                 "custom_bg_color": "#065112",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "queries": [
@@ -188,15 +176,15 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e",
+                "comparator": ">",
                 "palette": "white_on_red",
-                "value": 1.0
+                "value": 1
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#074b0b",
                 "palette": "custom_bg",
-                "value": 1.0
+                "value": 1
               }
             ],
             "queries": [
@@ -233,15 +221,15 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "palette": "white_on_yellow",
-                "value": 75.0
+                "value": 75
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#064b07",
                 "palette": "custom_bg",
-                "value": 75.0
+                "value": 75
               }
             ],
             "formulas": [
@@ -288,15 +276,15 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e",
+                "comparator": ">",
                 "palette": "white_on_red",
-                "value": 1073741824.0
+                "value": 1073741824
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#094a08",
                 "palette": "custom_bg",
-                "value": 1073741824.0
+                "value": 1073741824
               }
             ],
             "queries": [
@@ -328,13 +316,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -383,10 +364,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#074508",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -432,12 +413,12 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "palette": "black_on_light_red",
                 "value": 1.5
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#175007",
                 "palette": "custom_bg",
                 "value": 1.5
@@ -474,10 +455,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -518,10 +499,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#113d05",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -559,14 +540,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "markers": [
           {
             "display_type": "error dashed",
@@ -634,13 +608,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -693,10 +660,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#153003",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -730,13 +697,6 @@
     },
     {
       "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -793,13 +753,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -903,14 +856,14 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e",
+                "comparator": ">",
                 "palette": "white_on_red",
-                "value": 60.0
+                "value": 60
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "palette": "white_on_green",
-                "value": 60.0
+                "value": 60
               }
             ],
             "queries": [
@@ -939,13 +892,6 @@
     },
     {
       "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "legend_size": "0",
         "markers": [],
@@ -998,13 +944,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1054,11 +993,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "max",
-          "avg",
-          "min"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1109,13 +1043,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [
           {
@@ -1184,13 +1111,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [
           {
@@ -1248,13 +1168,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1304,13 +1217,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1360,13 +1266,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value"
-        ],
-        "legend_layout": "horizontal",
+        "legend_layout": "auto",
         "markers": [],
         "requests": [
           {
@@ -1422,12 +1322,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "max",
-          "value"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "area",

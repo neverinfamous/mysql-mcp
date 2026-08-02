@@ -12,7 +12,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Token \u0026 Tool Metrics",
+  "title": "MySQL-MCP Token & Tool Metrics",
   "widgets": [
     {
       "definition": {
@@ -22,10 +22,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#133a09",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -62,13 +62,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -195,14 +188,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -248,13 +234,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -291,14 +270,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -334,13 +306,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -378,12 +343,6 @@
           "detection_sensitivity": "never_detect"
         },
         "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.",
-        "legend_columns": [
-          "avg",
-          "sum",
-          "max",
-          "value"
-        ],
         "legend_layout": "auto",
         "markers": [
           {
@@ -458,13 +417,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -502,13 +454,6 @@
           "detection_sensitivity": "never_detect"
         },
         "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.",
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
