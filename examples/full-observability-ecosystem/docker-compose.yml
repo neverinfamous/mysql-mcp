@@ -326,7 +326,7 @@ services:
       - 'com.datadoghq.ad.logs=[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
   dozzle:
-    image: amir20/dozzle:v10.6.14
+    image: amir20/dozzle:latest
     container_name: dozzle
     restart: unless-stopped
     ports:
