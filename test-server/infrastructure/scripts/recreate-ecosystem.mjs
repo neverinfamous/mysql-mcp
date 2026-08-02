@@ -271,7 +271,7 @@ async function main() {
         const { stdout } = await execAsync(wslPrefix + 'docker compose config --services', { encoding: 'utf-8', cwd: REPO_ROOT });
         servicesRaw = stdout.trim();
     } catch (e) {
-        if (e.stdout && e.stdout.trim()) {
+        if (e.stdout && e.stdout.trim() && e.stdout.includes('mysql-node')) {
             servicesRaw = e.stdout.trim();
         } else {
             console.log('  ⚠️  docker compose config failed, falling back to YAML parsing...');
@@ -280,7 +280,8 @@ async function main() {
             let inServices = false;
             const topLevelKeyRe = /^[a-zA-Z]/;
             const serviceNameRe = /^  ([a-zA-Z0-9_-]+):/;
-            for (const line of yamlContent.split('\n')) {
+            for (const rawLine of yamlContent.split('\n')) {
+                const line = rawLine.replace('\r', '');
                 if (line.startsWith('services:')) { inServices = true; continue; }
                 if (inServices) {
                     if (topLevelKeyRe.test(line)) break;
@@ -425,7 +426,7 @@ if (row[0] > 0) {
 
     // Verify cluster health + infrastructure health concurrently
     console.log('\n  Verifying cluster and infrastructure health...');
-    const [, , memberStatus] = await Promise.all([
+    await Promise.all([
         waitForHealthy('cluster-healer', {
             maxRetries: CONFIG.retries.healer,
             delayMs: CONFIG.delays.healerMs,
@@ -436,17 +437,30 @@ if (row[0] > 0) {
             delayMs: CONFIG.delays.routerMs,
             label: 'MySQL Router',
         }),
-        mysqlExec(MYSQL_NODES[0],
-            "SELECT CONCAT(member_host, '=', member_state) FROM performance_schema.replication_group_members ORDER BY member_host;",
-        ),
+        waitForHealthy('proxysql', {
+            maxRetries: 30,
+            delayMs: 2000,
+            label: 'ProxySQL',
+        })
     ]);
 
-    const onlineCount = (memberStatus.match(/ONLINE/g) || []).length;
-    console.log(`  Cluster: ${onlineCount}/${MYSQL_NODES.length} nodes ONLINE`);
-    if (memberStatus) console.log(`  ${memberStatus.replace(/\n/g, ', ')}`);
-
-    const proxysqlHealth = await runQuiet('docker inspect proxysql --format "{{.State.Health.Status}}"');
-    console.log(`  ProxySQL: ${proxysqlHealth}`);
+    console.log('  Waiting for InnoDB Cluster to reach full ONLINE quorum...');
+    let memberStatus = '';
+    const clusterReady = await retry(
+        async (attempt) => {
+            memberStatus = await mysqlExec(MYSQL_NODES[0], "SELECT CONCAT(member_host, '=', member_state) FROM performance_schema.replication_group_members ORDER BY member_host;");
+            const onlineCount = (memberStatus.match(/ONLINE/g) || []).length;
+            if (onlineCount === MYSQL_NODES.length) return true;
+            if (attempt % 5 === 0) console.log(`  Still waiting for Cluster... (${onlineCount}/${MYSQL_NODES.length} ONLINE)`);
+            return false;
+        },
+        { maxAttempts: 30, delayMs: 2000 }
+    );
+    
+    if (!clusterReady) {
+        throw new Error(`Cluster failed to reach full quorum.\n  Status: ${memberStatus.replace(/\n/g, ', ')}`);
+    }
+    console.log(`  ✅ Cluster is fully ONLINE (${MYSQL_NODES.length}/${MYSQL_NODES.length} nodes)`);
     phaseEnd('8/9', t);
 
     // ── Phase 9/9: Seed database ─────────────────────────────────────
