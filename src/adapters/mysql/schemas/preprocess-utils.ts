@@ -434,6 +434,31 @@ export function preprocessVectorParams(input: unknown): unknown {
     result["metric"] = result["metric"].toUpperCase();
   }
 
+  if (typeof result["k"] === "string") {
+    const parsed = parseInt(result["k"], 10);
+    if (!isNaN(parsed)) result["k"] = parsed;
+  }
+  if (typeof result["limit"] === "string") {
+    const parsed = parseInt(result["limit"], 10);
+    if (!isNaN(parsed)) result["limit"] = parsed;
+  }
+  if (typeof result["maxDistance"] === "string") {
+    const parsed = parseFloat(result["maxDistance"]);
+    if (!isNaN(parsed)) result["maxDistance"] = parsed;
+  }
+  if (typeof result["rrfK"] === "string") {
+    const parsed = parseInt(result["rrfK"], 10);
+    if (!isNaN(parsed)) result["rrfK"] = parsed;
+  }
+  if (typeof result["vectorWeight"] === "string") {
+    const parsed = parseFloat(result["vectorWeight"]);
+    if (!isNaN(parsed)) result["vectorWeight"] = parsed;
+  }
+  if (typeof result["textWeight"] === "string") {
+    const parsed = parseFloat(result["textWeight"]);
+    if (!isNaN(parsed)) result["textWeight"] = parsed;
+  }
+
   if (Array.isArray(result["items"])) {
     result["items"] = result["items"].map((item: unknown) => {
       if (typeof item === "object" && item !== null) {
