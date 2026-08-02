@@ -75,7 +75,7 @@ const AuditLogSchema = z.preprocess(
     return val;
   },
   z.object({
-    limit: z.coerce.number().int().min(1).default(5),
+    limit: z.coerce.number().int().min(1).max(1000).default(5),
     user: z.string().optional(),
     eventType: z.string().optional(),
     startTime: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date format").optional(),
@@ -115,7 +115,7 @@ const FirewallRulesSchema = z.preprocess(
     return val;
   },
   z.object({
-    limit: z.coerce.number().int().min(1).default(50),
+    limit: z.coerce.number().int().min(1).max(1000).default(50),
     user: z.string().optional(),
     mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
   }).strict()
