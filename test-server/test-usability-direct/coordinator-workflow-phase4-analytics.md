@@ -18,6 +18,15 @@ Follow the rules in `coordinator-workflow-phase4-analytics.md` with these strict
 3. **NO FULL TEST SUITE RUNS:** CRITICAL: Do NOT run `pnpm run test`, `check`, or `build`. Only run `pnpm run lint` and `pnpm run typecheck` and only if changes/fixes are made.
 4. **INFRASTRUCTURE ABSENT CLARIFICATION:** If a tool's primary execution (the "happy path") cannot be completed due to missing infrastructure, credentials, or binaries (like Docker), you MUST count it as "Infrastructure Absent" (e.g., +1 Infrastructure Absent). You may fix the code to handle the missing infrastructure gracefully, but you MUST still report it as Infrastructure Absent because the core logic was not fully tested.
 5. **DATABASE LOCKS:** If a test requires DDL operations (e.g. creating tables/indexes) and fails due to `super_read_only`, you MUST toggle the lock using `run_command` to execute `node test-server/infrastructure/scripts/toggle-super-read.mjs OFF` before the test, and `ON` after. Do not attempt to use `docker exec`.
+6. **MEMORY JOURNAL:** When creating memory journal entries via `mj_execute_code`, use this exact format to ensure success:
+```javascript
+mj.core.createEntry({
+  content: "Your concise summary of findings/bug fixes here...",
+  entry_type: "bug_fix", // or "decision", "architecture" (do NOT use "retrospective")
+  tags: ["testing", "mysql-mcp"],
+  project_number: 9
+});
+```
 </subagent_prompt>
 
 ## Test Sequence Queue (Phase 4: Analytics)
