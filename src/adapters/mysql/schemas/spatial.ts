@@ -590,6 +590,7 @@ export const WithinSchemaBase = z.object({
   column: z.unknown().optional(),
   col: z.unknown().optional(),
   geometry: z.unknown().optional().describe("WKT geometry to test within"),
+  polygon: z.unknown().optional(),
   wkt: z.unknown().optional(),
   limit: z.unknown().optional().describe("Maximum results (default: 100)"),
   srid: z
@@ -609,6 +610,7 @@ export const WithinSchema = z.preprocess(
     column: z.string().optional(),
     col: z.string().optional(),
     geometry: z.string().optional(),
+    polygon: z.string().optional(),
     wkt: z.string().optional(),
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
@@ -616,7 +618,7 @@ export const WithinSchema = z.preprocess(
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
-    geometry: data.geometry ?? data.wkt ?? "",
+    geometry: data.geometry ?? data.polygon ?? data.wkt ?? "",
     limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
     srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
   }))
