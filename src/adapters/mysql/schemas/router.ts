@@ -120,7 +120,6 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 export const RouterBaseInputSchema = z.object({}).strict();
 
 export const RouteNameInputSchemaBase = z.object({
-  testProp: z.string().optional().describe("test prop"),
   routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
   name: z.unknown().optional().describe("Alias for routeName"),
   route: z.unknown().optional().describe("Alias for routeName"),
