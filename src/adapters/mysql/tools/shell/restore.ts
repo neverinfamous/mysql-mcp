@@ -29,7 +29,7 @@ import {
   ShellLoadDumpOutputSchema,
   ShellRunScriptOutputSchema,
 } from "../../schemas/shell/index.js";
-import { getShellConfig, execShellJS, execMySQLShell, escapeForJS } from "./common.js";
+import { getShellConfig, execShellJS, execMySQLShell, escapeForJS, mapHostPathToContainer } from "./common.js";
 
 /**
  * Load dump to instance
@@ -77,10 +77,10 @@ export function createShellLoadDumpTool(
 
         assertSafeIoPath(finalInputDir, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = resolve(finalInputDir);
+        const hostResolvedPath = resolve(finalInputDir);
 
         try {
-          const stat = await fs.stat(resolvedPath);
+          const stat = await fs.stat(hostResolvedPath);
           if (!stat.isDirectory()) {
             throw new Error("not a directory");
           }
@@ -92,6 +92,7 @@ export function createShellLoadDumpTool(
           );
         }
 
+        const resolvedPath = mapHostPathToContainer(finalInputDir).replace(/\\/g, "/");
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
@@ -349,7 +350,8 @@ export function createShellRunScriptTool(
 
         let result;
         if (scriptPath) {
-          const args = ["--uri", config.connectionUri, langFlag, "--file", scriptPath];
+          const mappedScriptPath = mapHostPathToContainer(scriptPath).replace(/\\/g, "/");
+          const args = ["--uri", config.connectionUri, langFlag, "--file", mappedScriptPath];
           result = await execMySQLShell(args, { timeout });
         } else {
           // Write all inline scripts to a temp file to avoid OS command line length limits
@@ -359,12 +361,13 @@ export function createShellRunScriptTool(
           const tempFile = join(tempDir, `script.${ext}`);
           try {
             await fs.writeFile(tempFile, script, "utf8");
+            const mappedTempFile = mapHostPathToContainer(tempFile).replace(/\\/g, "/");
             const args = [
               "--uri",
               config.connectionUri,
               langFlag,
               "--file",
-              tempFile,
+              mappedTempFile,
             ];
             result = await execMySQLShell(args, { timeout });
           } finally {

@@ -274,23 +274,8 @@ async function main() {
         if (e.stdout && e.stdout.trim() && e.stdout.includes('mysql-node')) {
             servicesRaw = e.stdout.trim();
         } else {
-            console.log('  ⚠️  docker compose config failed, falling back to YAML parsing...');
-            const yamlContent = await fs.readFile(join(REPO_ROOT, 'docker-compose.yml'), 'utf-8');
-            const parsedServices = [];
-            let inServices = false;
-            const topLevelKeyRe = /^[a-zA-Z]/;
-            const serviceNameRe = /^  ([a-zA-Z0-9_-]+):/;
-            for (const rawLine of yamlContent.split('\n')) {
-                const line = rawLine.replace('\r', '');
-                if (line.startsWith('services:')) { inServices = true; continue; }
-                if (inServices) {
-                    if (topLevelKeyRe.test(line)) break;
-                    const match = line.match(serviceNameRe);
-                    if (match) parsedServices.push(match[1]);
-                }
-            }
-            servicesRaw = parsedServices.join('\n');
-            if (!servicesRaw) throw new Error('Failed to discover services from docker-compose.yml');
+            console.error('  ⚠️  docker compose config failed. Are you in the infrastructure directory, or is Docker daemon down?');
+            throw e;
         }
     }
 

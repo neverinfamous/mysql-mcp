@@ -5,7 +5,7 @@
  */
 
 import { ZodError } from "zod";
-import * as path from "path";
+
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -30,7 +30,7 @@ import {
   ShellDumpSchemasOutputSchema,
   ShellDumpTablesOutputSchema,
 } from "../../schemas/shell/index.js";
-import { escapeForJS, execShellJS } from "./common.js";
+import { escapeForJS, execShellJS, mapHostPathToContainer } from "./common.js";
 
 /**
  * Dump entire MySQL instance
@@ -74,7 +74,7 @@ export function createShellDumpInstanceTool(
 
         assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalOutputDir);
+        const resolvedPath = mapHostPathToContainer(finalOutputDir).replace(/\\/g, "/");
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
@@ -221,7 +221,7 @@ export function createShellDumpSchemasTool(
 
         assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalOutputDir);
+        const resolvedPath = mapHostPathToContainer(finalOutputDir).replace(/\\/g, "/");
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
@@ -376,7 +376,7 @@ export function createShellDumpTablesTool(
 
         assertSafeIoPath(finalOutputDir, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalOutputDir);
+        const resolvedPath = mapHostPathToContainer(finalOutputDir).replace(/\\/g, "/");
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];

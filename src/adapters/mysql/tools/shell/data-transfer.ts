@@ -36,6 +36,7 @@ import {
   escapeForJS,
   execShellJS,
   execMySQLShell,
+  mapHostPathToContainer,
 } from "./common.js";
 
 /**
@@ -72,16 +73,18 @@ export function createShellExportTableTool(
         
         assertSafeIoPath(finalOutputPath, adapter.getAllowedIoRoots());
 
-        const resolvedPath = path.resolve(finalOutputPath);
-        const targetDir = path.dirname(resolvedPath);
+        const hostResolvedPath = path.resolve(finalOutputPath);
+        const targetDir = path.dirname(hostResolvedPath);
         if (!fs.existsSync(targetDir)) {
           throw new MySQLMcpError(
-            `Target directory does not exist.`,
+            `Output directory does not exist.`,
             "VALIDATION_ERROR",
             ErrorCategory.VALIDATION,
-            { suggestion: "Ensure the directory path exists before exporting.", details: { targetDir } }
+            { suggestion: "Ensure the directory for the output file exists.", details: { outputDir: targetDir } }
           );
         }
+        
+        const resolvedPath = mapHostPathToContainer(finalOutputPath).replace(/\\/g, "/");
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
@@ -226,8 +229,8 @@ export function createShellImportTableTool(
 
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots(), false);
 
-        const resolvedPath = path.resolve(finalInputPath);
-        if (!fs.existsSync(resolvedPath)) {
+        const hostResolvedPath = path.resolve(finalInputPath);
+        if (!fs.existsSync(hostResolvedPath)) {
           throw new MySQLMcpError(
             `Input file does not exist.`,
             "VALIDATION_ERROR",
@@ -235,6 +238,8 @@ export function createShellImportTableTool(
             { suggestion: "Ensure the input file exists and the path is correct.", details: { inputPath: finalInputPath } }
           );
         }
+
+        const resolvedPath = mapHostPathToContainer(finalInputPath).replace(/\\/g, "/");
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
@@ -424,9 +429,8 @@ export function createShellImportJSONTool(
 
         assertSafeIoPath(finalInputPath, adapter.getAllowedIoRoots());
 
-        const resolvedPath = path.resolve(finalInputPath);
-        
-        if (!fs.existsSync(resolvedPath)) {
+        const hostResolvedPath = path.resolve(finalInputPath);
+        if (!fs.existsSync(hostResolvedPath)) {
           throw new MySQLMcpError(
             `Input file does not exist.`,
             "VALIDATION_ERROR",
@@ -435,6 +439,7 @@ export function createShellImportJSONTool(
           );
         }
 
+        const resolvedPath = mapHostPathToContainer(finalInputPath).replace(/\\/g, "/");
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
@@ -457,15 +462,9 @@ export function createShellImportJSONTool(
 
         const jsCode = `return util.importJson("${escapedPath}", { ${options.join(", ")} });`;
 
-        // util.importJson() ALWAYS requires X Protocol (X DevAPI)
         let result;
         try {
-          result = await execMySQLShell([
-            "--uri",
-            config.xConnectionUri,
-            "--js",
-            "-e",
-            `
+          const wrappedCode = `
                           var __result__;
                           try {
                               __result__ = (function() { ${jsCode} })();
@@ -473,8 +472,11 @@ export function createShellImportJSONTool(
                           } catch (e) {
                               print(JSON.stringify({ success: false, error: e.message }));
                           }
-                      `,
-          ]);
+                      `;
+          result = await execMySQLShell(
+            ["--uri", config.xConnectionUri, "--js", "-f", "-"],
+            { input: wrappedCode }
+          );
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);

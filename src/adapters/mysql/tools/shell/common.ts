@@ -5,6 +5,8 @@
  */
 
 import { spawn } from "child_process";
+import { relative, resolve } from "path";
+import { fileURLToPath } from "url";
 import {
   QueryError,
   TimeoutError,
@@ -65,11 +67,43 @@ export function getShellConfig(): ShellConfig {
 }
 
 /**
+ * Map a host path to its corresponding path inside the Docker container
+ * based on volume mounts.
+ */
+export function mapHostPathToContainer(hostPath: string): string {
+  const config = getShellConfig();
+  if (!config.dockerContainer) return hostPath;
+
+  const absoluteHostPath = resolve(hostPath);
+  
+  // 1. Resolve mysql-mcp workspace
+  const workspaceRoot = resolve(fileURLToPath(import.meta.url), "../../../../../..");
+  const relWorkspace = relative(workspaceRoot, absoluteHostPath);
+  
+  if (!relWorkspace.startsWith("..") && !relWorkspace.includes(":\\")) {
+    return "/workspace/mysql-mcp/" + relWorkspace.replace(/\\/g, "/");
+  }
+
+  // 2. Resolve adamic scratch workspace
+  const scratchRoot = resolve(workspaceRoot, "../adamic/.agents/scratch");
+  const relScratch = relative(scratchRoot, absoluteHostPath);
+  
+  if (!relScratch.startsWith("..") && !relScratch.includes(":\\")) {
+    return "/workspace/scratch/" + relScratch.replace(/\\/g, "/");
+  }
+
+  throw new Error(`Path ${absoluteHostPath} is outside the mapped Docker volumes. Please use a path within the mysql-mcp directory or the scratch directory.`);
+}
+
+/**
  * Escape a string for safe embedding in JavaScript string literals.
  * Escapes backslashes first, then double quotes, to prevent injection attacks.
  */
 export function escapeForJS(str: string): string {
-  return str.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  // Replace single backslash with four backslashes because:
+  // 1. JS string literal parsing in Node strips one layer (\\\\ -> \\)
+  // 2. JS execution in mysqlsh strips another layer (\\ -> \)
+  return str.replace(/\\/g, "\\\\\\\\").replace(/"/g, '\\"');
 }
 
 // =============================================================================

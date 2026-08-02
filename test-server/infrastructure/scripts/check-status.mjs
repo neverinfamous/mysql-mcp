@@ -106,34 +106,8 @@ let containers = [];
 if (servicesRaw) {
     containers = splitLines(servicesRaw.trim()).filter(Boolean).sort();
 } else {
-    // Ultimate fallback: manually parse docker-compose.yml
-    try {
-        const yamlContent = fs.readFileSync(path.join(ECOSYSTEM_ROOT, 'docker-compose.yml'), 'utf-8');
-        const lines = splitLines(yamlContent);
-        let inServices = false;
-        for (const line of lines) {
-            if (line.startsWith('services:')) {
-                inServices = true;
-                continue;
-            }
-            if (inServices) {
-                if (line.match(/^[a-zA-Z]/)) break; // Next top-level block
-                const match = line.match(/^  ([a-zA-Z0-9_-]+):/);
-                if (match) {
-                    containers.push(match[1]);
-                }
-            }
-        }
-        containers.sort();
-    } catch (e) {
-        console.error('Failed to read docker-compose.yml services. Are you in the infrastructure directory?');
-        process.exit(1);
-    }
-    
-    if (containers.length === 0) {
-        console.error('Failed to parse any services from docker-compose.yml. Are you in the infrastructure directory?');
-        process.exit(1);
-    }
+    console.error('Failed to run docker compose config to get services. Are you in the infrastructure directory, or is Docker daemon down?');
+    process.exit(1);
 }
 
 // Helper: run a command inside a Docker container (sync)
@@ -708,6 +682,41 @@ runSection('Test Database Integrity', () => {
         for (const f of tableFailures) console.log(`   ❌ ${f}`);
         console.log(`   Run 'node scripts/reset-database.mjs' to reseed.`);
         allUp = false;
+    }
+});
+
+
+
+// ============================================================
+// Section 9: Filesystem Boundaries
+// ============================================================
+runSection('Filesystem Boundaries', () => {
+    console.log('\n9. Filesystem Boundaries:');
+    console.log('----------------------------------------');
+    
+    // Check if the volumes are mounted correctly in mysql-node1 (only check if node1 is up)
+    if (runningContainers['mysql-node1'] && runningContainers['mysql-node1'].state === 'running') {
+        const workspaceCheck = dockerExec('mysql-node1', ['ls', '/workspace/mysql-mcp/package.json'], true);
+        const scratchCheck = dockerExec('mysql-node1', ['ls', '-d', '/workspace/scratch'], true);
+
+        let fsOk = true;
+        if (workspaceCheck && !workspaceCheck.includes('No such file')) {
+            console.log('✅ /workspace/mysql-mcp : Mounted successfully');
+        } else {
+            console.log('❌ /workspace/mysql-mcp : Missing or unreadable');
+            fsOk = false;
+        }
+
+        if (scratchCheck && !scratchCheck.includes('No such file')) {
+            console.log('✅ /workspace/scratch   : Mounted successfully');
+        } else {
+            console.log('❌ /workspace/scratch   : Missing or unreadable');
+            fsOk = false;
+        }
+
+        if (!fsOk) allUp = false;
+    } else {
+        console.log('⚠️ Filesystem Boundaries: Skipped (mysql-node1 is not running)');
     }
 });
 

@@ -29,6 +29,8 @@ services:
     volumes:
       - mysql-node1-data-v4:/var/lib/mysql
       - ./config/mysql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
     mem_limit: 2048m
     logging:
@@ -68,6 +70,8 @@ services:
       --sql-generate-invisible-primary-key=ON
     volumes:
       - mysql-node2-data-v4:/var/lib/mysql
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
     mem_limit: 2048m
     logging:
@@ -107,6 +111,8 @@ services:
       --sql-generate-invisible-primary-key=ON
     volumes:
       - mysql-node3-data-v4:/var/lib/mysql
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
     mem_limit: 2048m
     logging:
@@ -146,6 +152,8 @@ services:
       --sql-generate-invisible-primary-key=ON
     volumes:
       - mysql-async-replica-data-v4:/var/lib/mysql
+      - ../../../mysql-mcp:/workspace/mysql-mcp
+      - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
     mem_limit: 2048m
     logging:
@@ -175,7 +183,7 @@ services:
         condition: service_healthy
     volumes:
       - ./config/mysql/cluster-healer.sh:/scripts/cluster-healer.sh:ro
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 128m
     logging:
       driver: json-file
@@ -315,7 +323,7 @@ services:
       - "3000:3000"
     volumes:
       - ../../logs:/var/log/mysql-mcp
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -376,7 +384,7 @@ services:
       - prometheus_data:/prometheus
     extra_hosts:
       - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -398,7 +406,7 @@ services:
     volumes:
       - ./config/grafana/provisioning:/etc/grafana/provisioning
       - ./config/grafana/dashboards:/var/lib/grafana/dashboards
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 384m
     logging:
       driver: json-file
@@ -419,7 +427,7 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -442,7 +450,7 @@ services:
       - ./config/alloy/alloy-config.alloy:/etc/alloy/config.alloy:ro
       - ../../logs:/var/log/mysql-mcp:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 128m
     logging:
       driver: json-file
@@ -518,7 +526,7 @@ services:
       - ../../logs:/var/log/mysql-mcp:ro
     networks:
       - default
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 1536m
     logging:
       driver: json-file
