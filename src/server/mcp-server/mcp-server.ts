@@ -285,8 +285,12 @@ export class McpServer {
             await server.connect(mcpTransport);
 
             // Bust agent IDE caches (force tool/resource reload on reconnect)
-            server.sendToolListChanged().catch((e) => logger.warn("Failed to notify tool list change", { error: String(e) }));
-            server.sendResourceListChanged().catch((e) => logger.warn("Failed to notify resource list change", { error: String(e) }));
+            try {
+              server.sendToolListChanged();
+              server.sendResourceListChanged();
+            } catch (e) {
+              logger.warn("Failed to notify list change", { error: String(e) });
+            }
 
             mcpLogger.setConnected(true);
             mcpLogger.info("MySQL MCP server ready", {
@@ -316,8 +320,12 @@ export class McpServer {
     await this.server.connect(transport);
 
     // Bust agent IDE caches (force tool/resource reload on reconnect)
-    this.server.sendToolListChanged().catch((e) => logger.warn("Failed to notify tool list change", { error: String(e) }));
-    this.server.sendResourceListChanged().catch((e) => logger.warn("Failed to notify resource list change", { error: String(e) }));
+    try {
+      this.server.sendToolListChanged();
+      this.server.sendResourceListChanged();
+    } catch (e) {
+      logger.warn("Failed to notify list change", { error: String(e) });
+    }
 
     // If stdin closes, it means the client has disconnected.
     // We must shut down gracefully to ensure metrics and audit logs are flushed.
