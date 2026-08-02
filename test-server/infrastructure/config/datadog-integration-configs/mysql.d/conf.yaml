@@ -5,6 +5,7 @@ ad_identifiers:
 
 instances:
   - host: "%%host%%"
+    min_collection_interval: 5
     username: root
     password: root
     port: 3306
