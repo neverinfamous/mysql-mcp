@@ -38,6 +38,9 @@ export function resolveScriptPaths(importMetaUrl) {
  * @returns {{ dockerCmd: string, dockerBaseArgs: string[] }}
  */
 export function detectDocker() {
+    if (process.platform === 'win32') {
+        return { dockerCmd: 'wsl', dockerBaseArgs: ['docker'] };
+    }
     return { dockerCmd: 'docker', dockerBaseArgs: [] };
 }
 

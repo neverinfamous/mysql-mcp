@@ -205,6 +205,13 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     delete result["user"];
     delete result["name"];
     delete result["id"];
+
+    // Anti-Hallucination: Agents may send limit/count to tools that don't support it
+    delete result["limit"];
+    delete result["count"];
+    delete result["max"];
+    delete result["top"];
+    delete result["rows"];
     
     const username = result["username"];
     if (username !== undefined && typeof username !== "string") {
@@ -369,6 +376,13 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     }
     delete result["hostgroup"];
     delete result["id"];
+
+    // Anti-Hallucination: Agents may send limit/count to tools that don't support it
+    delete result["limit"];
+    delete result["count"];
+    delete result["max"];
+    delete result["top"];
+    delete result["rows"];
     
     const hostgroupId = result["hostgroup_id"];
     if (typeof hostgroupId === "string") {
