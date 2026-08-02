@@ -228,6 +228,20 @@ export function createSecurityMaskDataTool(
           case "phone": {
             // Keep last 4 digits, mask rest
             const digits = value.replace(/\D/g, "");
+            if (digits.length <= 4) {
+              return Promise.resolve(
+                withTokenEstimate({
+                  success: true,
+                  data: {
+                    original: value,
+                    masked: maskChar.repeat(value.length),
+                    type,
+                    warning:
+                      "Value too short for phone format (expected more than 4 digits); fully masked instead",
+                  },
+                }),
+              );
+            }
             maskedValue =
               maskChar.repeat(Math.max(0, digits.length - 4)) +
               digits.slice(-4);
@@ -236,6 +250,20 @@ export function createSecurityMaskDataTool(
           case "ssn": {
             // Show only last 4
             const ssnDigits = value.replace(/\D/g, "");
+            if (ssnDigits.length < 9) {
+              return Promise.resolve(
+                withTokenEstimate({
+                  success: true,
+                  data: {
+                    original: value,
+                    masked: maskChar.repeat(value.length),
+                    type,
+                    warning:
+                      "Value too short for ssn format (expected at least 9 digits); fully masked instead",
+                  },
+                }),
+              );
+            }
             maskedValue = `${maskChar}${maskChar}${maskChar}-${maskChar}${maskChar}-${ssnDigits.slice(-4)}`;
             break;
           }
