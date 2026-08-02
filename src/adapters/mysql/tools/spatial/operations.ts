@@ -358,9 +358,13 @@ export function createSpatialGeoJSONTool(
           }
 
           // Convert GeoJSON to WKT
-          // Note: ST_GeomFromGeoJSON produces SRID 4326 by default, which is geographic.
+          const targetSrid = embeddedSrid ?? srid;
+          if (!(await validateSrid(targetSrid))) {
+              throw new ValidationError(`Validation error: Invalid srid: ${targetSrid} is not a known spatial reference system in the database.`);
+          }
+          const axisClause = targetSrid !== 0 ? ", 'axis-order=long-lat'" : "";
           const result = await adapter.executeReadQuery(
-            `WITH cte AS (SELECT ST_AsText(ST_GeomFromGeoJSON(?), 'axis-order=long-lat') as wkt) SELECT * FROM cte`,
+            `WITH cte AS (SELECT ST_AsText(ST_GeomFromGeoJSON(?, 2, ${String(targetSrid)})${axisClause}) as wkt) SELECT * FROM cte`,
             [geoJson],
           );
 

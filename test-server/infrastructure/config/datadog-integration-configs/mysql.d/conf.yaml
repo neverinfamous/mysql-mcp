@@ -37,4 +37,9 @@ instances:
         columns:
           - name: super_read_only
             type: gauge
+      - metric_prefix: mysql_mcp
+        query: "SELECT COUNT(*) > 0 AS status FROM performance_schema.replication_group_members WHERE MEMBER_STATE = 'ONLINE'"
+        columns:
+          - name: shell.status
+            type: gauge
 
