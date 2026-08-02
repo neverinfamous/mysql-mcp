@@ -32,11 +32,12 @@ docker compose up -d
 | **Redis** | `redis-server` | `6379` | `redis:7.4.10` |
 | **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:latest` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
-| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.1` |
-| **Loki** | `loki` | `3100` | `grafana/loki:3.6.13` |
+| **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.2` |
+| **MySQL MCP Exporter** | `mysql-mcp-exporter` | `3000` | `writenotenow/mysql-mcp:latest` |
+| **Loki** | `loki` | `3100` | `grafana/loki:3.7.4` |
 | **Grafana Alloy** | `alloy` | `12345` (internal HTTP) | `grafana/alloy:v1.18.0` |
 | **Grafana** | `grafana` | `3001` | `grafana/grafana:13.1.1` |
-| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.2` |
+| **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.3` |
 
 > **Version Pinning:** All images use explicit version tags defined in [`docker-compose.yml`](docker-compose.yml). See that file for current versions.
 

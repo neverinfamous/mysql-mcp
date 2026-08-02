@@ -33,7 +33,7 @@ services:
         max-file: "5"
 
   example-basic-datadog:
-    image: gcr.io/datadoghq/agent:7.81.2
+    image: gcr.io/datadoghq/agent:7.81.3
     container_name: example-basic-datadog
     restart: unless-stopped
     pid: host

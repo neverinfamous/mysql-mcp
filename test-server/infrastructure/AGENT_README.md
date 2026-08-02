@@ -72,6 +72,11 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │            │   Port: 3100     │           │  Alloy       │                   │
 │            └──────────────────┘           └──────────────┘                   │
 │                                                                              │
+│            ┌──────────────────┐                                              │
+│            │mysql-mcp-exporter│                                              │
+│            │   Port: 3000     │                                              │
+│            └──────────────────┘                                              │
+│                                                                              │
 │       ┌──────────────┐                                                       │
 │       │ Redis Server │                                                       │
 │       │  Port: 6379  │                                                       │
@@ -127,6 +132,7 @@ docker logs -f cluster-healer
 | Property | URL |
 |---|---|
 | Prometheus | `http://localhost:9090` |
+| mysql-mcp-exporter | `http://localhost:3000` |
 | Loki | `http://localhost:3100` |
 | Grafana Alloy | `http://localhost:12345` (internal HTTP status) |
 | Grafana | `http://localhost:3001` (admin/admin) |
@@ -202,4 +208,4 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 - **`--relay-log`**: Each MySQL node sets an explicit relay log filename (`--relay-log=mysql-nodeX-relay-bin`) to prevent replication breakage if the container hostname changes during recovery.
 - **MySQL Router**: Connection sharing for the read-only bootstrap pool is explicitly enabled (`bootstrap_ro.connection_sharing=1`) to prevent connection exhaustion during concurrent MCP testing.
 - **Audit Logging**: The Datadog `MySQL-MCP Audit Log` widget queries `source:mysql_mcp log_type:mcp_audit` (no `@` symbol, as Datadog integration tags are infrastructure tags, not JSON attributes). To log read-scoped tools (like `mysql_read_query`), you must explicitly add `--audit-reads` to the `mysql-mcp` startup arguments.
-- **Exporter Audit Log**: The `mysql-mcp-exporter` container reads the IDE's live audit JSONL via `AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl` (mounted read-only from `../../logs`). This separates the metrics read path from the exporter's own `--audit-log` write path.
+- **Exporter Audit Log**: The `mysql-mcp-exporter` container reads the IDE's live audit JSONL via `AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl` (mounted from `../../logs`). This separates the metrics read path from the exporter's own `--audit-log` write path.
