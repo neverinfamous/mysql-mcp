@@ -10,7 +10,7 @@ console.log(`Attempting to fix super_read_only lock on primary node...`);
 
 let servicesRaw = '';
 try {
-    servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'config', '--services'], { encoding: 'utf-8' }).trim();
+    servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8' }).trim();
 } catch(e) {}
 const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
 if (mysqlNodes.length === 0) mysqlNodes.push('mysql-node1', 'mysql-node2');
