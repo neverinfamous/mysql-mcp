@@ -305,7 +305,7 @@ export const ProxySQLLimitInputSchemaBase = z.object({
 
 export const ProxySQLLimitInputSchema = z.preprocess(
   (val: unknown) => {
-    if (typeof val === "number") return { limit: val };
+    if (typeof val === "number") return { limit: Math.floor(val) };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     
@@ -322,8 +322,19 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     delete result["rows"];
 
     const limit = result["limit"];
-    if (typeof limit === "string" && limit.trim() !== "" && !isNaN(Number(limit))) {
-      result["limit"] = Number(limit);
+    if (limit !== undefined) {
+      if (typeof limit === "string" && limit.trim() !== "") {
+        const parsed = Number(limit);
+        if (!isNaN(parsed)) {
+          result["limit"] = Math.floor(parsed);
+        } else {
+          delete result["limit"];
+        }
+      } else if (typeof limit === "number") {
+        result["limit"] = Math.floor(limit);
+      } else {
+        delete result["limit"];
+      }
     }
     return result;
   },
