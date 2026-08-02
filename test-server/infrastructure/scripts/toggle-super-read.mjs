@@ -11,7 +11,10 @@ function main() {
         servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8', cwd: ecosystemRoot }).trim();
     } catch(e) {}
     const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
-    if (mysqlNodes.length === 0) mysqlNodes.push('mysql-node1');
+    if (mysqlNodes.length === 0) {
+        console.error(`❌ Could not dynamically discover any mysql-node containers.`);
+        process.exit(1);
+    }
     const container = mysqlNodes[0];
 
     try {

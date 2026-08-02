@@ -92,10 +92,6 @@ const execCommandAsync = async (cmd, args) => {
 // ── Docker detection ────────────────────────────────────────
 let dockerCmd = 'docker';
 let dockerArgs = ['compose'];
-if (process.platform === 'win32') {
-    dockerCmd = 'wsl';
-    dockerArgs = ['docker', 'compose'];
-}
 
 let servicesRaw = execCommand(dockerCmd, [...dockerArgs, 'config', '--services'], true);
 if (!servicesRaw) {

@@ -1,7 +1,7 @@
 #!/bin/bash
 # InnoDB Cluster Auto-Healer
 # Uses raw SQL (no mysqlsh dependency) to detect and recover from complete cluster outages.
-# Runs as a lightweight sidecar container using the mysql:9.1.0 image.
+# Runs as a lightweight sidecar container using the mysql:9.7.1 image.
 
 echo "[Healer] Starting InnoDB Cluster auto-healer..."
 
