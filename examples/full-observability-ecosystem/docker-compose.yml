@@ -292,7 +292,7 @@ services:
   # MONITORING & TOOLS
   # ==========================================
   mysql-mcp-exporter:
-    image: writenotenow/mysql-mcp:latest
+    image: writenotenow/mysql-mcp:1.0.0
     container_name: mysql-mcp-exporter
     restart: unless-stopped
     command: >

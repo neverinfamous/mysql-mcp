@@ -56,7 +56,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
-      LC_ALL: C.UTF-8
     command: >
       --server-id=2 --log-bin=mysql-bin --gtid_mode=ON
       --enforce_gtid_consistency=ON --log_replica_updates=ON
@@ -96,7 +95,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
-      LC_ALL: C.UTF-8
     command: >
       --server-id=3 --log-bin=mysql-bin --gtid_mode=ON
       --enforce_gtid_consistency=ON --log_replica_updates=ON
@@ -136,7 +134,6 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_ROOT_HOST: '%'
       TZ: America/New_York
-      LC_ALL: C.UTF-8
     command: >
       --server-id=4 --log-bin=mysql-bin --gtid_mode=ON
       --enforce_gtid_consistency=ON --log_replica_updates=ON
@@ -303,6 +300,7 @@ services:
     build:
       context: ../../../mysql-mcp
       dockerfile: Dockerfile
+    image: mysql-mcp-exporter:1.0.0
     container_name: mysql-mcp-exporter
     restart: unless-stopped
     command: >
@@ -345,7 +343,7 @@ services:
       - "8080:8080"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -359,7 +357,7 @@ services:
     restart: unless-stopped
     ports:
       - "8081:8080"
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 256m
     logging:
       driver: json-file

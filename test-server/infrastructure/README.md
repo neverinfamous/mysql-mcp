@@ -9,7 +9,7 @@ This directory contains the unified `docker-compose.yml` for the entire database
 To spin up the entire ecosystem from scratch (teardown + start + cluster bootstrap + seed):
 
 ```powershell
-cd C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem
+cd C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure
 node scripts/recreate-ecosystem.mjs
 ```
 
@@ -30,7 +30,7 @@ docker compose up -d
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.9` |
 
 | **Redis** | `redis-server` | `6379` | `redis:8.10.0` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.14` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.2` |
 | **MySQL MCP Exporter** | `mysql-mcp-exporter` | `3000` | `local build (../../../mysql-mcp)` |
@@ -93,5 +93,5 @@ All config files are mounted directly from the `config/` directory:
 ## 7. Troubleshooting: WSL Background Termination
 If you notice that `mysql-router` is stuck in a crash loop or containers keep restarting:
 1. **The Cause**: Windows Subsystem for Linux (WSL) will automatically suspend and terminate background distributions if there is no active Windows session holding it open. This kills the Docker daemon mid-flight and corrupts the InnoDB cluster state.
-2. **The Fix**: The `recreate-ecosystem.mjs` script automatically registers the WSL keepalive task on every run. If needed manually, run: `pwsh.exe -File C:\Users\chris\Desktop\adamic\docs\unified-database-ecosystem\scripts\register-wsl-keepalive.ps1`
+2. **The Fix**: The `recreate-ecosystem.mjs` script automatically registers the WSL keepalive task on every run. If needed manually, run: `pwsh.exe -File C:\Users\chris\Desktop\mysql-mcp\test-server\infrastructure\scripts\register-wsl-keepalive.ps1`
 3. **Recovery**: After ensuring the `WSL-KeepAlive` task is "Running" in Task Scheduler, you MUST fully rebuild the corrupted cluster by running `node scripts/recreate-ecosystem.mjs` again.
