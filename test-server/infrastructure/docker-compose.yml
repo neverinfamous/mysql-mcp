@@ -408,6 +408,7 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
+      start_period: 60s
 
   loki:
     image: grafana/loki:3.7.4
