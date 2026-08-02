@@ -1,22 +1,14 @@
 import { execFileSync } from 'child_process';
 import { readFileSync, existsSync, rmSync } from 'fs';
-import { dirname, resolve } from 'path';
-import { fileURLToPath } from 'url';
+import { resolve } from 'path';
+import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+const { __dirname } = resolveScriptPaths(import.meta.url);
 
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
 
-let dockerCmd = 'docker';
-const dockerBaseArgs = [];
-try {
-    execFileSync('docker', ['info'], { stdio: 'ignore' });
-} catch {
-    dockerCmd = 'wsl';
-    dockerBaseArgs.push('docker');
-}
+const { dockerCmd, dockerBaseArgs } = detectDocker();
 
 let cluster = args.includes('--Cluster') || args.includes('--cluster');
 

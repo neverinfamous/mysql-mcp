@@ -170,9 +170,16 @@ let allUp = true;
 // Populated by Section 1, consumed by Section 6
 let runningContainers = {};
 
-// Preflight: fire mysqlsh --version early so it loads in parallel with all other checks.
+// Preflight: fire slow mysqlsh commands early so they load in parallel with Sections 1-2.
 // mysqlsh is notoriously slow to start (~3-5s) because it loads a full JS/Python runtime.
 const mysqlshVersionPromise = execCommandAsync('mysqlsh', ['--version']);
+
+// Preflight: fire the mysqlsh cluster metadata check concurrently.
+// This overlaps the heavy mysqlsh-inside-docker startup with Sections 1-2.
+const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
+const mysqlshMetadataPromise = mysqlNodes.length > 0
+    ? dockerExecAsync(mysqlNodes[0], ['mysqlsh', `--user=${CONFIG.credentials.mysql.user}`, `--password=${CONFIG.credentials.mysql.password}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', `try { var c = dba.getCluster('${CONFIG.cluster.name}'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }`])
+    : Promise.resolve(null);
 
 /** Run a named section with error boundary to prevent cascading failures */
 const runSection = (name, fn) => {
@@ -314,18 +321,14 @@ runSection('Async Replica Status', () => {
 });
 
 // ============================================================
-// Section 3: MySQL Shell Metadata Verification
+// Section 3: MySQL Shell Metadata Verification (pre-warmed by preflight promise)
 // ============================================================
-runSection('MySQL Shell Metadata Verification', () => {
+await runSectionAsync('MySQL Shell Metadata Verification', async () => {
     console.log('\n3. MySQL Shell Metadata Verification:');
     console.log('----------------------------------------');
-    const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
-    let shellOut = null;
     if (mysqlNodes.length > 0) {
-        const node = mysqlNodes[0];
-        const jsPayload = `try { var c = dba.getCluster('${CONFIG.cluster.name}'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }`;
-        shellOut = dockerExec(node, ['mysqlsh', `--user=${CONFIG.credentials.mysql.user}`, `--password=${CONFIG.credentials.mysql.password}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', jsPayload], true);
-        
+        const shellOut = await mysqlshMetadataPromise;
+
         if (shellOut && shellOut.includes('OK')) {
             console.log(`✅ mysqlsh successfully read InnoDB Cluster metadata ('${CONFIG.cluster.name}')`);
         } else {
