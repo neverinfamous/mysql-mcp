@@ -205,7 +205,7 @@ export function createSysSchemaStatsTool(
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -285,7 +285,7 @@ export function createSysInnoDBLockWaitsTool(
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
@@ -369,7 +369,7 @@ export function createSysMemorySummaryTool(
         const cleanRow = (row: Record<string, unknown>): Record<string, unknown> => {
           const cleaned: Record<string, unknown> = {};
           for (const [key, value] of Object.entries(row)) {
-            if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
+            if (value !== 0 && value !== "0" && value !== "0 ps" && value !== "  0 ps" && value !== "0 bytes" && value !== "   0 bytes" && value !== "" && value !== null) {
               cleaned[key] = value;
             }
           }
