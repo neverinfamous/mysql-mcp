@@ -538,7 +538,9 @@
             "response_format": "scalar"
           }
         ],
-        "time": {},
+        "time": {
+          "live_span": "5m"
+        },
         "title": "Router Super Read Status",
         "title_align": "center",
         "title_size": "16",
