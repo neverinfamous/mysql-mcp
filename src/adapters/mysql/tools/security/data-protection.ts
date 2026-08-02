@@ -56,7 +56,12 @@ const MaskDataSchema = z.preprocess(
       obj["type"] = obj["maskType"];
     }
     if (typeof obj["type"] === "string") {
-      obj["type"] = obj["type"].toLowerCase();
+      let t = obj["type"].toLowerCase().replace(/[\s-_]/g, "");
+      if (t === "cc" || t === "creditcard" || t === "card" || t === "pan") t = "credit_card";
+      else if (t === "social" || t === "socialsecurity" || t === "sin" || t === "nin") t = "ssn";
+      else if (t === "mail" || t === "e_mail") t = "email";
+      else if (t === "telephone" || t === "cell" || t === "mobile") t = "phone";
+      obj["type"] = t;
     }
     return obj;
   },

@@ -108,7 +108,12 @@ const FirewallRulesSchema = z.preprocess(
         delete v["userName"];
       }
       if (typeof v["mode"] === "string") {
-        v["mode"] = v["mode"].toUpperCase();
+        let m = v["mode"].toUpperCase();
+        if (m === "BLOCK" || m === "DENY" || m === "ON") m = "PROTECTING";
+        else if (m === "LOG" || m === "WARN" || m === "WARNING") m = "DETECTING";
+        else if (m === "LEARNING" || m === "RECORD") m = "RECORDING";
+        else if (m === "DISABLED" || m === "NONE") m = "OFF";
+        v["mode"] = m;
       }
       return v;
     }
