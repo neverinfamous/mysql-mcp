@@ -767,6 +767,42 @@
         "x": 8,
         "y": 14
       }
+    },
+    {
+      "definition": {
+        "title": "Datadog Agent Logs (Warnings & Errors)",
+        "type": "list_stream",
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "container_name:datadog-unified (status:error OR status:warn)"
+            },
+            "response_format": "event_list"
+          }
+        ]
+      },
+      "id": 1785645640121,
+      "layout": {
+        "x": 0,
+        "y": 20,
+        "width": 12,
+        "height": 6
+      }
     }
   ]
 }
