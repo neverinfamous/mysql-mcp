@@ -1154,7 +1154,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.net.aborted_connects{$scope}",
+                "query": "avg:mysql.net.aborted_connects{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1193,7 +1193,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.net.max_connections{$scope}",
+                "query": "avg:mysql.net.max_connections{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1230,7 +1230,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql.net.connections{$scope}",
+                "query": "avg:mysql.net.connections{$scope}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],

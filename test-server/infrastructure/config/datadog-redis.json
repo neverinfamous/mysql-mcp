@@ -161,7 +161,7 @@
                 "aggregator": "max",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.keys{$scope,$host}",
+                "query": "sum:redis.keys{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -204,7 +204,7 @@
                 "aggregator": "max",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.clients.blocked{$scope,$host}",
+                "query": "sum:redis.clients.blocked{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -254,14 +254,14 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.stats.keyspace_hits{$scope,$host}",
+                "query": "avg:redis.stats.keyspace_hits{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               },
               {
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "avg:redis.stats.keyspace_misses{$scope,$host}",
+                "query": "avg:redis.stats.keyspace_misses{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -304,7 +304,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.rdb.changes_since_last{$scope,$host}",
+                "query": "sum:redis.rdb.changes_since_last{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -406,7 +406,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.net.commands{$scope,$host}",
+                "query": "sum:redis.net.commands{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -448,7 +448,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.mem.fragmentation_ratio{$scope,$host}",
+                "query": "avg:redis.mem.fragmentation_ratio{$scope,$host}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -490,7 +490,7 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.keys{$scope,$host}",
+                "query": "sum:redis.keys{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -534,7 +534,7 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.expires{$scope,$host}",
+                "query": "sum:redis.expires{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -709,7 +709,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.slowlog.micros.count{$host,$scope}",
+                "query": "sum:redis.slowlog.micros.count{$host,$scope}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -860,7 +860,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.key.length{$scope, $host, $key} by {key}",
+                "query": "sum:redis.key.length{$scope, $host, $key} by {key}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -918,7 +918,7 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:redis.replication.master_link_down_since_seconds{$scope,$host}",
+                "query": "sum:redis.replication.master_link_down_since_seconds{$scope,$host}.rollup(sum, 60)",
                 "semantic_mode": "combined"
               }
             ],
@@ -1499,7 +1499,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:redis.command.calls{$scope,$host} by {command}",
+                "query": "avg:redis.command.calls{$scope,$host} by {command}.rollup(avg, 60)",
                 "semantic_mode": "combined"
               }
             ],

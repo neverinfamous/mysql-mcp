@@ -362,12 +362,9 @@ export const DistanceSchemaBase = z.object({
   longitude: z.unknown().optional(),
   latitude: z.unknown().optional(),
   point: z
-    .object({
-      longitude: z.unknown().optional(),
-      latitude: z.unknown().optional(),
-    })
+    .unknown()
     .optional()
-    .describe("Reference point. Note: Must provide valid longitude and latitude numbers."),
+    .describe("Reference point. Can be an object {longitude, latitude} or a WKT string like POINT(lon lat)."),
   maxDistance: z.unknown().optional().describe("Maximum distance in meters"),
   limit: z.unknown().optional().describe("Maximum results (default: 20)"),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),

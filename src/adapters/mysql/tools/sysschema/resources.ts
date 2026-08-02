@@ -330,6 +330,7 @@ export function createSysMemorySummaryTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);
+        const actualLimit = Math.min(limit, 100);
 
         // Global memory summary
         const globalQuery = `
@@ -343,7 +344,7 @@ export function createSysMemorySummaryTool(
                     high_alloc,
                     high_avg_alloc
                 FROM sys.memory_global_by_current_bytes
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
                 ) SELECT * FROM sys_query
             `;
 
@@ -358,7 +359,7 @@ export function createSysMemorySummaryTool(
                     current_max_alloc,
                     total_allocated
                 FROM sys.memory_by_user_by_current_bytes
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
                 ) SELECT * FROM sys_query
             `;
 
