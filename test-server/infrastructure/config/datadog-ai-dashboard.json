@@ -65,24 +65,8 @@
                 "value": 0
               }
             ],
-            "formulas": [
-              {
-                "formula": "default_zero(a) / (default_zero(b) + 0.0000001)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
-              }
-            ],
-            "response_format": "scalar"
+            "response_format": "scalar",
+            "q": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg, 60)"
           }
         ],
         "title": "Avg Tokens / Call",
