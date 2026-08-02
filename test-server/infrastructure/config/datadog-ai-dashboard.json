@@ -532,7 +532,7 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "min:mysql.cluster.super_read_only{*}.rollup(min)"
+                "query": "min:mysql.cluster.super_read_only{!container_name:mysql-async-replica}.rollup(min)"
               }
             ],
             "response_format": "scalar"
