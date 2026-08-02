@@ -106,26 +106,41 @@ export function createSpatialIntersectionTool(
         if (!(await validateSrid(srid))) {
           throw new ValidationError(`Validation error: Invalid srid: ${srid} is not a known spatial reference system in the database.`);
         }
+        
+        if (srid !== 0) {
+           throw new ValidationError(`Validation error: ST_Intersection is only implemented for Cartesian geometry (SRID 0). Geographic spatial reference systems (e.g. 4326) are not supported by MySQL for this operation.`);
+        }
 
         const isGeographic = srid !== 0;
         const axisClauseGeom = isGeographic ? ", 'axis-order=long-lat'" : "";
         const axisClauseAsText = isGeographic ? ", 'axis-order=long-lat'" : "";
 
+        // Use IF(ST_Intersects...) to avoid crashing MySQL on disjoint geometries
         const result = await adapter.executeReadQuery(
           `WITH cte AS (SELECT
                     ST_Intersects(
                         ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}),
                         ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})
                     ) as intersects,
-                    ST_AsText(ST_Intersection(
-                        ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}),
-                        ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})
-                    )${axisClauseAsText}) as intersection_wkt,
-                    ST_AsGeoJSON(ST_Intersection(
-                        ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}),
-                        ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})
-                    ), 5) as intersection_geojson) SELECT * FROM cte`,
-          [geometry1, geometry2, geometry1, geometry2, geometry1, geometry2],
+                    IF(ST_Intersects(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})),
+                      ST_AsText(ST_Intersection(
+                          ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}),
+                          ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})
+                      )${axisClauseAsText}),
+                      'GEOMETRYCOLLECTION EMPTY'
+                    ) as intersection_wkt,
+                    IF(ST_Intersects(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})),
+                      ST_AsGeoJSON(ST_Intersection(
+                          ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}),
+                          ST_GeomFromText(?, ${String(srid)}${axisClauseGeom})
+                      ), 5),
+                      '{"type":"GeometryCollection","geometries":[]}'
+                    ) as intersection_geojson) SELECT * FROM cte`,
+          [
+             geometry1, geometry2, 
+             geometry1, geometry2, geometry1, geometry2,
+             geometry1, geometry2, geometry1, geometry2
+          ],
         );
 
         const row = result.rows?.[0];
@@ -164,12 +179,6 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         const { geometry, distance, srid, segments } =
           BufferSchema.parse(params);
 
-        const g = geometry.trim().toUpperCase();
-        const isPoint = g.startsWith("POINT") || g.startsWith("MULTIPOINT");
-
-        // ST_Buffer_Strategy only works with Cartesian (non-geographic) SRIDs.
-        // Furthermore, 'point_circle' strategy causes MySQL connection drops if applied to non-point geometries.
-        // Geographic SRIDs (e.g., 4326) use MySQL's internal geographic buffer algorithm.
         const validateSrid = async (sridNum: number): Promise<boolean> => {
           if (sridNum === 0 || sridNum === 4326) return true;
           const check = await adapter.executeReadQuery(
@@ -184,16 +193,14 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const isGeographic = srid !== 0;
-        const strategyClause = isGeographic || !isPoint
-          ? ""
-          : `, ST_Buffer_Strategy('point_circle', ${String(segments)})`;
         
         // Ensure we don't pass axis-order for Cartesian as it is strictly for geographic SRIDs
         const axisClauseGeom = isGeographic ? ", 'axis-order=long-lat'" : "";
         const axisClauseAsText = isGeographic ? ", 'axis-order=long-lat'" : "";
 
+        // Completely strip ST_Buffer_Strategy to prevent unhandled connection drops
         const result = await adapter.executeReadQuery(
-          `WITH cte AS (SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ?${strategyClause})${axisClauseAsText}) as buffer_wkt) SELECT * FROM cte`,
+          `WITH cte AS (SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ?)${axisClauseAsText}) as buffer_wkt) SELECT * FROM cte`,
           [geometry, distance],
         );
 
@@ -204,7 +211,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
             bufferWkt: truncateWktPrecision(row?.["buffer_wkt"]),
             bufferDistance: distance,
             segments,
-            segmentsApplied: !isGeographic,
+            segmentsApplied: false,
             srid,
           },
         });
