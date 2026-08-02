@@ -11,6 +11,7 @@ import {
   ErrorCategory,
   type ErrorResponse,
 } from "../../../../types/modules/error-types.js";
+import { Buffer } from "node:buffer";
 
 /**
  * Extract human-readable messages from a ZodError instead of raw JSON array.
