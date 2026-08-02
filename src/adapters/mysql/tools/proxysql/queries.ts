@@ -77,7 +77,7 @@ export function createProxySQLQueryDigestTool(): ToolDefinition {
         const { limit } = ProxySQLLimitInputSchema.parse(params);
         const maxRows = Math.max(0, Math.floor(limit ?? 20));
         const rows = await proxySQLQuery(
-          `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
+          `SELECT hostgroup, schemaname, username, digest, digest_text, count_star, first_seen, last_seen, sum_time, min_time, max_time FROM stats_mysql_query_digest ORDER BY count_star DESC LIMIT ${maxRows}`,
         );
         const parsedRows = rows.map(r => ProxySQLQueryDigestSchema.parse(r));
         return withTokenEstimate({
