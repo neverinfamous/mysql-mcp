@@ -713,6 +713,47 @@
         "x": 8,
         "y": 12
       }
+    },
+    {
+      "definition": {
+        "description": "Note: This captures operational stdout/stderr logs from the mysql-mcp-exporter container.",
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "host",
+                "width": "compact"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "indexes": [],
+              "query_string": "service:mysql-mcp-exporter OR container_name:mysql-mcp-exporter",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "MySQL-MCP Exporter Logs",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "list_stream"
+      },
+      "id": 8706701828007377,
+      "layout": {
+        "height": 4,
+        "width": 12,
+        "x": 0,
+        "y": 16
+      }
     }
   ]
 }
