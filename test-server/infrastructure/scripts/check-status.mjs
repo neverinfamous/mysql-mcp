@@ -284,8 +284,25 @@ runSection('InnoDB Cluster Status', () => {
                 }
                 if (readOnlyVal === '1') {
                     console.log(`   ❌ PRIMARY IS STUCK IN READ-ONLY MODE (super_read_only=1)`);
-                    console.log(`      Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
-                    allUp = false;
+                    console.log(`   🛠️  Auto-healing primary node via heal-primary.mjs...\n`);
+                    try {
+                        execFileSync('node', ['scripts/heal-primary.mjs'], { stdio: 'inherit', cwd: ECOSYSTEM_ROOT });
+                        console.log(`\n   🔄 Re-verifying primary status...`);
+                        const retryCheck = dockerExecEnv(primaryHostName, [mysqlPwd], ['mysql', mysqlUser, '-N', '-s', '-e', 'SELECT @@super_read_only;'], true);
+                        let retryVal = retryCheck ? retryCheck.trim() : null;
+                        if (retryVal && retryVal.includes('mysql: [Warning]')) {
+                            retryVal = splitLines(retryVal).pop().trim();
+                        }
+                        if (retryVal === '0') {
+                            console.log(`   ✅ Primary successfully auto-healed!`);
+                        } else {
+                            console.log(`   ❌ Auto-heal failed to clear the read-only flag.`);
+                            allUp = false;
+                        }
+                    } catch (err) {
+                        console.log(`   ❌ Auto-heal script failed to execute: ${err.message}`);
+                        allUp = false;
+                    }
                 }
             }
         } else {
