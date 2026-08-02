@@ -275,6 +275,7 @@
             ],
             "queries": [
               {
+                "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}.rollup(sum)"
