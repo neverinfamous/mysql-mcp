@@ -1548,7 +1548,8 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "last:mysql_mcp.shell.status{*}.fill(last).rollup(max, 60)"
+                "query": "avg:mysql_mcp.shell.status{*}.fill(last).rollup(max, 60)",
+                "aggregator": "last"
               }
             ],
             "response_format": "scalar"
