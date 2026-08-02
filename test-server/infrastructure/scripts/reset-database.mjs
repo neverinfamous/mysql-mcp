@@ -3,7 +3,7 @@ import { readFileSync, existsSync, rmSync } from 'fs';
 import { resolve } from 'path';
 import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
-const { __dirname } = resolveScriptPaths(import.meta.url);
+const { __dirname, ecosystemRoot } = resolveScriptPaths(import.meta.url);
 
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
@@ -23,7 +23,7 @@ if (!cluster) {
 
 let servicesRaw = '';
 try {
-    servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8' }).trim();
+    servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8', cwd: ecosystemRoot }).trim();
 } catch (e) {}
 const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
 const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';

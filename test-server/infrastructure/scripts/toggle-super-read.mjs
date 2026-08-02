@@ -1,13 +1,14 @@
 import { execFileSync } from 'child_process';
-import { detectDocker } from './utils.mjs';
+import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
 function main() {
     const { dockerCmd, dockerBaseArgs } = detectDocker();
+    const { ecosystemRoot } = resolveScriptPaths(import.meta.url);
     console.log(`Connecting to primary node via docker exec...`);
     
     let servicesRaw = '';
     try {
-        servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8' }).trim();
+        servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8', cwd: ecosystemRoot }).trim();
     } catch(e) {}
     const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
     if (mysqlNodes.length === 0) mysqlNodes.push('mysql-node1');
