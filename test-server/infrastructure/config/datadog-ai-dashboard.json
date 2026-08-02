@@ -300,7 +300,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Top Tools By Tokens",
         "title_align": "left",
         "title_size": "16",
@@ -346,7 +345,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Tool Call Volume",
         "title_align": "left",
         "title_size": "16",
@@ -395,7 +393,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Optimization Target (Total Gross Latency)",
         "title_align": "left",
         "title_size": "16",
@@ -731,6 +728,58 @@
             "display_type": "line",
             "formulas": [
               {
+                "alias": "Memory usage",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.query_cache.memory_bytes{*}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Memory Usage Of Query Cache",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 4350687143204730,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 9,
+        "y": 7
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "custom_links": [],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
                 "alias": "Used connections",
                 "formula": "top(query1, 10, 'sum', 'desc')"
               }
@@ -767,8 +816,44 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 9,
-        "y": 7
+        "x": 0,
+        "y": 9
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.slow_queries{*}.as_rate().rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Slow Queries Rate",
+        "type": "timeseries"
+      },
+      "id": 273057414915558,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 3,
+        "y": 9
       }
     },
     {
@@ -841,7 +926,7 @@
       "layout": {
         "height": 2,
         "width": 3,
-        "x": 0,
+        "x": 6,
         "y": 9
       }
     },
@@ -890,94 +975,6 @@
         }
       },
       "id": 6039513278534726,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 3,
-        "y": 9
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "custom_links": [],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Memory usage",
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.query_cache.memory_bytes{*}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "ProxySQL Memory Usage Of Query Cache",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
-      },
-      "id": 4350687143204730,
-      "layout": {
-        "height": 2,
-        "width": 3,
-        "x": 6,
-        "y": 9
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.slow_queries{*}.as_rate().rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "dog_classic"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "ProxySQL Slow Queries Rate",
-        "type": "timeseries"
-      },
-      "id": 273057414915558,
       "layout": {
         "height": 2,
         "width": 3,
@@ -1530,7 +1527,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Errors by Category",
         "title_align": "left",
         "title_size": "16",
@@ -1623,6 +1619,17 @@
     },
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "bars",
@@ -1647,6 +1654,7 @@
           }
         ],
         "show_legend": true,
+        "time": {},
         "title": "Shell Tool Errors",
         "title_align": "center",
         "title_size": "16",

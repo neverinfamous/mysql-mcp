@@ -134,7 +134,7 @@ services:
       - /tmp/mysqlrouter:uid=999,gid=999
     ports:
       - "6456:6446"
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 256m
     logging:
       driver: "json-file"
@@ -168,7 +168,7 @@ services:
       com.datadoghq.ad.check_names: '["proxysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
       com.datadoghq.ad.instances: '[{"host":"%%host%%", "port":6032, "username":"admin", "password":"admin", "additional_metrics": ["connection_pool_metrics", "backends_metrics", "users_metrics", "query_rules_metrics", "memory_metrics", "command_counters_metrics"]}]'
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 256m
     logging:
       driver: "json-file"
@@ -206,8 +206,8 @@ services:
       - NET_RAW
       - IPC_LOCK
       - CHOWN
-    stop_grace_period: 15s
-    mem_limit: 512m
+    stop_grace_period: 30s
+    mem_limit: 1536m
     cgroup: host
     logging:
       driver: "json-file"

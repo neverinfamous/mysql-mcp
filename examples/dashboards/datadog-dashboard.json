@@ -125,7 +125,6 @@
             }
           }
         ],
-        "time": {},
         "title": "Resource Reads",
         "title_align": "left",
         "title_size": "16",
@@ -171,7 +170,6 @@
             }
           }
         ],
-        "time": {},
         "title": "P95 Latency (ms)",
         "title_align": "left",
         "title_size": "16",
@@ -262,7 +260,7 @@
       "id": 2699983344402485,
       "layout": {
         "height": 2,
-        "width": 2,
+        "width": 4,
         "x": 0,
         "y": 4
       }
@@ -298,8 +296,8 @@
       "id": 2800603218336626,
       "layout": {
         "height": 2,
-        "width": 2,
-        "x": 2,
+        "width": 4,
+        "x": 4,
         "y": 4
       }
     },
@@ -334,44 +332,8 @@
       "id": 3783879016448095,
       "layout": {
         "height": 2,
-        "width": 2,
-        "x": 4,
-        "y": 4
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Tool Latency P99",
-        "type": "timeseries"
-      },
-      "id": 5308687878533278,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 6,
+        "width": 4,
+        "x": 8,
         "y": 4
       }
     },
@@ -625,6 +587,42 @@
         "width": 4,
         "x": 8,
         "y": 8
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Tool Latency P99",
+        "type": "timeseries"
+      },
+      "id": 5308687878533278,
+      "layout": {
+        "height": 2,
+        "width": 4,
+        "x": 0,
+        "y": 12
       }
     },
     {
