@@ -396,7 +396,7 @@ function createEventStatusTool(adapter: MySQLAdapter): ToolDefinition {
             [schema],
           );
           if (!schemaCheck.rows || schemaCheck.rows.length === 0) {
-            return formatHandlerErrorResponse(new QueryError("Schema does not exist",));
+            return formatHandlerErrorResponse(new QueryError(`Schema '${schema}' does not exist`));
           }
         }
 
