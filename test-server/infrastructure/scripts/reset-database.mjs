@@ -12,7 +12,7 @@ const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify
 let dockerCmd = 'docker';
 const dockerBaseArgs = [];
 try {
-    execFileSync('docker', ['--version'], { stdio: 'ignore' });
+    execFileSync('docker', ['info'], { stdio: 'ignore' });
 } catch {
     dockerCmd = 'wsl';
     dockerBaseArgs.push('docker');

@@ -22,7 +22,7 @@ const execCommand = (cmd, args, ignoreError = false) => {
 let dockerCmd = 'docker';
 let dockerArgs = ['compose'];
 try {
-    execFileSync('docker', ['--version'], { stdio: 'ignore' });
+    execFileSync('docker', ['info'], { stdio: 'ignore' });
 } catch {
     dockerCmd = 'wsl';
     dockerArgs = ['docker', 'compose'];
@@ -94,7 +94,7 @@ let allUp = true;
 console.log(`1. Container Status (${containers.length} services):`);
 console.log('----------------------------------------');
 
-const psOutput = execCommand(dockerCmd, isWindows ? ['docker', 'ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'], false);
+const psOutput = execCommand(dockerCmd, dockerCmd === 'wsl' ? ['docker', 'ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'], false);
 if (!psOutput) {
     console.error(`Error: Failed to execute docker ps. Docker daemon might not be running.`);
     process.exit(1);

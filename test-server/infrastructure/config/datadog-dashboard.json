@@ -38,7 +38,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{$tool}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{$tool}.rollup(sum)"
               }
             ],
             "response_format": "scalar"
@@ -70,7 +70,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "max:mysql_mcp.mysql_mcp_uptime_seconds{*}.rollup(max, 60)"
+                "query": "max:mysql_mcp.mysql_mcp_uptime_seconds{*}.rollup(max)"
               }
             ],
             "response_format": "timeseries",
@@ -109,12 +109,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*} by {resource}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*} by {resource}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar",
             "sort": {
-              "count": 500,
+              "count": 10,
               "order_by": [
                 {
                   "index": 0,
@@ -154,12 +154,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{$tool} by {tool}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{$tool} by {tool}.rollup(sum)"
               }
             ],
             "response_format": "scalar",
             "sort": {
-              "count": 500,
+              "count": 10,
               "order_by": [
                 {
                   "index": 0,
@@ -201,12 +201,12 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "timeseries",
@@ -242,7 +242,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*}.rollup(avg, 60)"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*}.rollup(avg)"
               }
             ],
             "response_format": "timeseries",
@@ -278,7 +278,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg, 60)"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg)"
               }
             ],
             "response_format": "timeseries",
@@ -314,7 +314,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*}.rollup(avg, 60)"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*}.rollup(avg)"
               }
             ],
             "response_format": "timeseries",
@@ -368,22 +368,22 @@
               {
                 "data_source": "metrics",
                 "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum)"
               },
               {
                 "data_source": "metrics",
                 "name": "errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum)"
               },
               {
                 "data_source": "metrics",
                 "name": "old_calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum)"
               },
               {
                 "data_source": "metrics",
                 "name": "old_errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum)"
               }
             ],
             "response_format": "timeseries",
@@ -425,7 +425,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}.rollup(avg, 60)"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}.rollup(avg)"
               }
             ],
             "response_format": "timeseries",
@@ -467,12 +467,12 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "timeseries",
@@ -511,12 +511,12 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar",
             "sort": {
-              "count": 500,
+              "count": 10,
               "order_by": [
                 {
                   "index": 0,
@@ -557,12 +557,12 @@
                 "aggregator": "avg",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{$tool} by {tool}.rollup(avg, 60)"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{$tool} by {tool}.rollup(avg)"
               }
             ],
             "response_format": "scalar",
             "sort": {
-              "count": 500,
+              "count": 10,
               "order_by": [
                 {
                   "index": 0,
