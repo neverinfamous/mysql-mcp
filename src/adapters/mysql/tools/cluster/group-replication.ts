@@ -224,18 +224,29 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
                 WHERE MEMBER_ROLE = 'PRIMARY'
             `);
 
-        const primary = result.rows?.[0];
+        const rawPrimary = result.rows?.[0];
+        let primary = null;
+        if (rawPrimary) {
+          primary = {
+            memberId: typeof rawPrimary["memberId"] === "string" ? rawPrimary["memberId"] : "",
+            host: typeof rawPrimary["host"] === "string" ? rawPrimary["host"] : "",
+            port: Number(rawPrimary["port"] ?? 3306),
+            state: typeof rawPrimary["state"] === "string" ? rawPrimary["state"] : "",
+            version: typeof rawPrimary["version"] === "string" ? rawPrimary["version"] : "",
+          };
+        }
 
         // Check if we are the primary
         const localResult = await adapter.executeQuery(
           "/* readonly */ SELECT @@server_uuid as serverUuid",
         );
-        const localUuid = localResult.rows?.[0]?.["serverUuid"];
+        const localUuidVal = localResult.rows?.[0]?.["serverUuid"];
+        const localUuid = typeof localUuidVal === "string" ? localUuidVal : "";
 
         const data = {
           primary: primary ?? null,
           hasPrimary: !!primary,
-          isLocalPrimary: !!primary && primary["memberId"] === localUuid,
+          isLocalPrimary: !!primary && primary.memberId === localUuid,
         };
         return withTokenEstimate({ success: true, data });
       } catch (error) {
@@ -296,8 +307,21 @@ export function createGRTransactionsTool(
 
         const gtid = gtidResult.rows?.[0];
 
+        const rawStats = statsResult.rows ?? [];
+        const memberStats = rawStats.map((row) => ({
+          memberId: typeof row["memberId"] === "string" ? row["memberId"] : "",
+          txInQueue: Number(row["txInQueue"] ?? 0),
+          txChecked: Number(row["txChecked"] ?? 0),
+          conflictsDetected: Number(row["conflictsDetected"] ?? 0),
+          rowsValidating: Number(row["rowsValidating"] ?? 0),
+          remoteInApplierQueue: Number(row["remoteInApplierQueue"] ?? 0),
+          remoteApplied: Number(row["remoteApplied"] ?? 0),
+          localProposed: Number(row["localProposed"] ?? 0),
+          localRollback: Number(row["localRollback"] ?? 0),
+        }));
+
         const data = {
-          memberStats: statsResult.rows ?? [],
+          memberStats,
           gtid: {
             executed: typeof gtid?.["gtidExecuted"] === "string" ? gtid["gtidExecuted"] : "",
             purged: typeof gtid?.["gtidPurged"] === "string" ? gtid["gtidPurged"] : "",
