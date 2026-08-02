@@ -32,7 +32,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -74,7 +74,7 @@
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
@@ -124,7 +124,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -169,7 +169,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -214,7 +214,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -259,7 +259,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -293,7 +293,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*} by {tool}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar",
@@ -1070,7 +1070,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"

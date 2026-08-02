@@ -292,9 +292,7 @@ services:
   # MONITORING & TOOLS
   # ==========================================
   mysql-mcp-exporter:
-    build:
-      context: ./exporter
-      dockerfile: Dockerfile
+    image: writenotenow/mysql-mcp:latest
     container_name: mysql-mcp-exporter
     restart: unless-stopped
     command: >
