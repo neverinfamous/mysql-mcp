@@ -1023,7 +1023,7 @@
           {
             "conditional_formats": [
               {
-                "comparator": "<=",
+                "comparator": "\u003c=",
                 "custom_bg_color": "#163d05",
                 "palette": "custom_bg",
                 "value": 0.1
@@ -1061,10 +1061,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "custom_bg_color": "#164106",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "queries": [
@@ -1099,10 +1099,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "custom_bg_color": "#0c3d05",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "queries": [

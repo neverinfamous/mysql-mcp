@@ -30,12 +30,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "max",
-          "value"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "markers": [],
         "requests": [
           {
@@ -84,13 +79,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -328,13 +316,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "requests": [
           {
@@ -559,14 +540,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "markers": [
           {
             "display_type": "error dashed",
@@ -634,13 +608,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -730,13 +697,6 @@
     },
     {
       "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -793,13 +753,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -939,13 +892,6 @@
     },
     {
       "definition": {
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "legend_size": "0",
         "markers": [],
@@ -998,13 +944,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1054,11 +993,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "max",
-          "avg",
-          "min"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1109,13 +1043,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [
           {
@@ -1184,13 +1111,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [
           {
@@ -1248,13 +1168,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1304,13 +1217,6 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
         "legend_layout": "auto",
         "markers": [],
         "requests": [
@@ -1360,13 +1266,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value"
-        ],
-        "legend_layout": "horizontal",
+        "legend_layout": "auto",
         "markers": [],
         "requests": [
           {
@@ -1422,12 +1322,7 @@
         "anomaly_detection": {
           "detection_sensitivity": "never_detect"
         },
-        "legend_columns": [
-          "avg",
-          "max",
-          "value"
-        ],
-        "legend_layout": "vertical",
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "area",

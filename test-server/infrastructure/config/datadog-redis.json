@@ -138,10 +138,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "custom_bg_color": "#065112",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "queries": [
@@ -176,15 +176,15 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "palette": "white_on_red",
-                "value": 1
+                "value": 1.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#074b0b",
                 "palette": "custom_bg",
-                "value": 1
+                "value": 1.0
               }
             ],
             "queries": [
@@ -221,15 +221,15 @@
           {
             "conditional_formats": [
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "palette": "white_on_yellow",
-                "value": 75
+                "value": 75.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#064b07",
                 "palette": "custom_bg",
-                "value": 75
+                "value": 75.0
               }
             ],
             "formulas": [
@@ -276,15 +276,15 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "palette": "white_on_red",
-                "value": 1073741824
+                "value": 1073741824.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#094a08",
                 "palette": "custom_bg",
-                "value": 1073741824
+                "value": 1073741824.0
               }
             ],
             "queries": [
@@ -364,10 +364,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#074508",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -413,12 +413,12 @@
           {
             "conditional_formats": [
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "palette": "black_on_light_red",
                 "value": 1.5
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#175007",
                 "palette": "custom_bg",
                 "value": 1.5
@@ -455,10 +455,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -499,10 +499,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#113d05",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -660,10 +660,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#153003",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -856,14 +856,14 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "palette": "white_on_red",
-                "value": 60
+                "value": 60.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "palette": "white_on_green",
-                "value": 60
+                "value": 60.0
               }
             ],
             "queries": [

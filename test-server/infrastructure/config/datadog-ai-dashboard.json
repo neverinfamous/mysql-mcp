@@ -16,10 +16,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0b4107",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -59,14 +59,14 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#173b07",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
-            "response_format": "scalar",
-            "q": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg)"
+            "q": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg)",
+            "response_format": "scalar"
           }
         ],
         "title": "Avg Tokens / Call",
@@ -92,10 +92,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -137,10 +137,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#063c11",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -182,10 +182,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f0f",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -227,10 +227,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#083f09",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -514,12 +514,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 1
+                "value": 1.0
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -982,10 +982,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c4008",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -1026,20 +1026,20 @@
           {
             "conditional_formats": [
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#0a3b07",
                 "palette": "custom_bg",
-                "value": 70
+                "value": 70.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "palette": "white_on_yellow",
-                "value": 90
+                "value": 90.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_red",
-                "value": 90
+                "value": 90.0
               }
             ],
             "formulas": [
@@ -1084,11 +1084,11 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#144007",
                 "custom_fg_color": "#ffffff",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -1129,10 +1129,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#084a0c",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -1172,18 +1172,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#0c3706",
                 "palette": "custom_bg",
-                "value": 80
+                "value": 80.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
                 "value": 49.9
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 49.9
@@ -1232,21 +1232,21 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 5
+                "value": 5.0
               },
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "palette": "white_on_yellow",
-                "value": 2
+                "value": 2.0
               },
               {
-                "comparator": "<",
+                "comparator": "\u003c",
                 "custom_bg_color": "#104409",
                 "palette": "custom_bg",
-                "value": 2
+                "value": 2.0
               }
             ],
             "formulas": [
@@ -1445,12 +1445,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 1
+                "value": 1.0
               }
             ],
             "formulas": [
@@ -1460,10 +1460,10 @@
             ],
             "queries": [
               {
+                "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "max:mysql_mcp.shell.status{*}.fill(last).rollup(max)",
-                "aggregator": "last"
+                "query": "max:mysql_mcp.shell.status{*}.fill(last).rollup(max)"
               }
             ],
             "response_format": "scalar"

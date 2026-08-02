@@ -12,7 +12,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Token & Tool Metrics",
+  "title": "MySQL-MCP Token \u0026 Tool Metrics",
   "widgets": [
     {
       "definition": {
@@ -22,10 +22,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
+                "comparator": "\u003e=",
                 "custom_bg_color": "#133a09",
                 "palette": "custom_bg",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -224,44 +224,8 @@
       "id": 4824133100420303,
       "layout": {
         "height": 2,
-        "width": 2,
+        "width": 4,
         "x": 0,
-        "y": 2
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Tool Latency P50",
-        "type": "timeseries"
-      },
-      "id": 2800603218336626,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 2,
         "y": 2
       }
     },
@@ -314,6 +278,42 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Tool Latency P50",
+        "type": "timeseries"
+      },
+      "id": 2800603218336626,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 2,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
                 "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p95{*}.rollup(avg)"
               }
             ],
@@ -333,7 +333,79 @@
       "layout": {
         "height": 2,
         "width": 2,
-        "x": 2,
+        "x": 4,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Tool Latency P99",
+        "type": "timeseries"
+      },
+      "id": 5308687878533278,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 6,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "status_line",
+                "width": "auto"
+              },
+              {
+                "field": "timestamp",
+                "width": "auto"
+              },
+              {
+                "field": "content",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "container_name:datadog-unified (status:error OR status:warn)"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "Datadog Agent Logs (Warnings \u0026 Errors)",
+        "type": "list_stream"
+      },
+      "id": 1785645640121,
+      "layout": {
+        "height": 6,
+        "width": 4,
+        "x": 8,
         "y": 4
       }
     },
@@ -407,44 +479,8 @@
       "id": 6126676673229792,
       "layout": {
         "height": 2,
-        "width": 2,
+        "width": 4,
         "x": 0,
-        "y": 6
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p99{*}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Tool Latency P99",
-        "type": "timeseries"
-      },
-      "id": 5308687878533278,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 2,
         "y": 6
       }
     },
@@ -490,9 +526,9 @@
       "id": 1079119422175585,
       "layout": {
         "height": 2,
-        "width": 2,
-        "x": 0,
-        "y": 8
+        "width": 4,
+        "x": 4,
+        "y": 6
       }
     },
     {
@@ -766,42 +802,6 @@
         "width": 4,
         "x": 8,
         "y": 14
-      }
-    },
-    {
-      "definition": {
-        "title": "Datadog Agent Logs (Warnings & Errors)",
-        "type": "list_stream",
-        "requests": [
-          {
-            "columns": [
-              {
-                "field": "status_line",
-                "width": "auto"
-              },
-              {
-                "field": "timestamp",
-                "width": "auto"
-              },
-              {
-                "field": "content",
-                "width": "auto"
-              }
-            ],
-            "query": {
-              "data_source": "logs_stream",
-              "query_string": "container_name:datadog-unified (status:error OR status:warn)"
-            },
-            "response_format": "event_list"
-          }
-        ]
-      },
-      "id": 1785645640121,
-      "layout": {
-        "x": 0,
-        "y": 20,
-        "width": 12,
-        "height": 6
       }
     }
   ]
