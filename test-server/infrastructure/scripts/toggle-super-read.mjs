@@ -15,10 +15,10 @@ function main() {
 
     try {
         // Toggle
-        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = NOT @@global.super_read_only']);
+        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = NOT @@global.super_read_only'], { encoding: 'utf-8' });
         
         // Fetch new state
-        const out = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-N', '-s', '-e', 'SELECT @@global.super_read_only']);
+        const out = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-N', '-s', '-e', 'SELECT @@global.super_read_only'], { encoding: 'utf-8' });
         
         let state = out.trim();
         if (state.includes('mysql: [Warning]')) {
