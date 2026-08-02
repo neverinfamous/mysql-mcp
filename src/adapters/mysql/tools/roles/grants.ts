@@ -54,6 +54,16 @@ export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
     message: "Must provide 'role', 'name', or 'roleName'",
   },
 )
+  .refine(
+    (val) => {
+      const targetOn = val.on ?? val.object;
+      if (targetOn && targetOn.split(".").length > 2) return false;
+      return true;
+    },
+    {
+      message: "Column-level privileges are not supported via the 'on' parameter. Use 'database' and 'table' for table-level grants, and provide at most 'db.table'.",
+    }
+  )
   .transform((val) => {
     const role = val.role || val.name || val.roleName || "";
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);

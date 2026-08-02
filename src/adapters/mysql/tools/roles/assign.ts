@@ -96,6 +96,16 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
       message: "Cannot provide both user and privileges. Use 'user' to revoke a role, or 'privileges' to revoke specific privileges.",
     }
   )
+  .refine(
+    (val) => {
+      const targetOn = val.on ?? val.object;
+      if (targetOn && targetOn.split(".").length > 2) return false;
+      return true;
+    },
+    {
+      message: "Column-level privileges are not supported via the 'on' parameter. Use 'database' and 'table' for table-level revokes, and provide at most 'db.table'.",
+    }
+  )
   .transform((val) => {
     const role = val.role || val.name || val.roleName || "";
     let user = val.user || val.fromUser || val.userName || val.username || "";
