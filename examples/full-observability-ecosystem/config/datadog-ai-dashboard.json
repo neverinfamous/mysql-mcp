@@ -16,10 +16,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#0b4107",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -32,7 +32,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -59,10 +59,10 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#173b07",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -74,12 +74,12 @@
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -108,10 +108,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#063d05",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -124,7 +124,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -153,10 +153,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#063c11",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -169,7 +169,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -198,10 +198,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#083f0f",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -214,7 +214,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -243,10 +243,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#083f09",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -259,7 +259,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -286,14 +286,14 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*} by {tool}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar",
@@ -329,7 +329,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -337,7 +337,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "scalar",
@@ -374,19 +374,19 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "default_zero(calls) * default_zero(latency)"
+                "formula": "top(default_zero(calls) * default_zero(latency), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "latency",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}.rollup(avg, 60)"
               }
             ],
             "response_format": "scalar",
@@ -530,12 +530,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 1.0
+                "value": 1
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -548,7 +548,7 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "min:mysql.cluster.super_read_only{*}"
+                "query": "min:mysql.cluster.super_read_only{*}.rollup(min, 60)"
               }
             ],
             "response_format": "scalar"
@@ -584,11 +584,16 @@
         "requests": [
           {
             "display_type": "line",
+            "formulas": [
+              {
+                "formula": "top(query1, 10, 'mean', 'desc')"
+              }
+            ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.server.connections_connected{*} by {hostgroup}"
+                "query": "avg:proxysql.server.connections_connected{*} by {hostgroup}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -630,24 +635,24 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "query1 + query2 + query3"
+                "formula": "top(query1 + query2 + query3, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:proxysql.performance.command.cnt_5s{*} by {sql_command}"
+                "query": "sum:proxysql.performance.command.cnt_5s{*} by {sql_command}.rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:proxysql.performance.command.cnt_10s{*} by {sql_command}"
+                "query": "sum:proxysql.performance.command.cnt_10s{*} by {sql_command}.rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "query3",
-                "query": "sum:proxysql.performance.command.cnt_infs{*} by {sql_command}"
+                "query": "sum:proxysql.performance.command.cnt_infs{*} by {sql_command}.rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -699,14 +704,14 @@
             "formulas": [
               {
                 "alias": "Latency",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.pool.latency_ms{*} by {hostgroup}"
+                "query": "avg:proxysql.pool.latency_ms{*} by {hostgroup}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -758,14 +763,14 @@
             "formulas": [
               {
                 "alias": "Used connections",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:proxysql.pool.connections_used{*} by {hostgroup}"
+                "query": "sum:proxysql.pool.connections_used{*} by {hostgroup}.rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -817,14 +822,14 @@
             "formulas": [
               {
                 "alias": "Bytes received",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.pool.bytes_data_recv{*} by {hostgroup}"
+                "query": "avg:proxysql.pool.bytes_data_recv{*} by {hostgroup}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -839,14 +844,14 @@
             "formulas": [
               {
                 "alias": "Bytes sent",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.pool.bytes_data_sent{*} by {hostgroup}"
+                "query": "avg:proxysql.pool.bytes_data_sent{*} by {hostgroup}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -905,7 +910,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.query_cache.bytes_out{*}"
+                "query": "avg:proxysql.query_cache.bytes_out{*}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -964,7 +969,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.query_cache.memory_bytes{*}"
+                "query": "avg:proxysql.query_cache.memory_bytes{*}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -1016,7 +1021,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:proxysql.slow_queries{*}.as_rate()"
+                "query": "avg:proxysql.slow_queries{*}.as_rate().rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -1049,10 +1054,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#0c4008",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -1065,7 +1070,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -1093,20 +1098,20 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#0a3b07",
                 "palette": "custom_bg",
-                "value": 70.0
+                "value": 70
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "palette": "white_on_yellow",
-                "value": 90.0
+                "value": 90
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "palette": "white_on_red",
-                "value": 90.0
+                "value": 90
               }
             ],
             "formulas": [
@@ -1118,12 +1123,12 @@
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_active{*}.rollup(avg, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "b",
-                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}"
+                "query": "avg:mysql_mcp.mysql_mcp_pool_connections_total{*}.rollup(avg, 60)"
               }
             ],
             "response_format": "scalar"
@@ -1151,11 +1156,11 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#144007",
                 "custom_fg_color": "#ffffff",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -1168,7 +1173,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_pool_queries.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_pool_queries.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -1196,10 +1201,10 @@
             "aggregator": "sum",
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#084a0c",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -1212,7 +1217,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -1239,18 +1244,18 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#0c3706",
                 "palette": "custom_bg",
-                "value": 80.0
+                "value": 80
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "palette": "white_on_yellow",
                 "value": 49.9
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
                 "value": 49.9
@@ -1266,13 +1271,13 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count().rollup(sum, 60)"
               },
               {
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_misses.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_misses.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -1299,21 +1304,21 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 5.0
+                "value": 5
               },
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "palette": "white_on_yellow",
-                "value": 2.0
+                "value": 2
               },
               {
-                "comparator": "\u003c",
+                "comparator": "<",
                 "custom_bg_color": "#104409",
                 "palette": "custom_bg",
-                "value": 2.0
+                "value": 2
               }
             ],
             "formulas": [
@@ -1325,12 +1330,12 @@
               {
                 "data_source": "metrics",
                 "name": "a",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical}.as_count().rollup(sum, 60)"
               },
               {
                 "data_source": "metrics",
                 "name": "b",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "scalar"
@@ -1367,14 +1372,14 @@
             "display_type": "line",
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:system.cpu.user{*} by {service}"
+                "query": "avg:system.cpu.user{*} by {service}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -1426,7 +1431,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_hits.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -1446,7 +1451,7 @@
               {
                 "data_source": "metrics",
                 "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_cache_misses.count{*}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_cache_misses.count{*}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -1487,14 +1492,14 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{!error_type:historical} by {error_type}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries"
@@ -1526,12 +1531,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 1.0
+                "value": 1
               }
             ],
             "formulas": [
@@ -1543,7 +1548,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.shell.status{*}.fill(last)"
+                "query": "avg:mysql_mcp.shell.status{*}.fill(last).rollup(last, 60)"
               }
             ],
             "response_format": "scalar"
@@ -1573,7 +1578,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "query1"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -1581,7 +1586,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "scalar",
@@ -1628,14 +1633,14 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "default_zero(query1)"
+                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_http_errors.count{*} by {status_code}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries"
@@ -1669,7 +1674,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}"
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.rollup(avg, 60)"
               }
             ],
             "response_format": "timeseries",
@@ -1708,7 +1713,7 @@
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.as_count()"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.as_count().rollup(sum, 60)"
               }
             ],
             "response_format": "timeseries",
