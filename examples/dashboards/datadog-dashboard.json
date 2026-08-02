@@ -538,52 +538,6 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "top(query1, 10, 'sum', 'desc')"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum, 60)"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "count": 10,
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
-          }
-        ],
-        "title": "Top Tools By Calls",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
-      },
-      "id": 1888404469028689,
-      "layout": {
-        "height": 4,
-        "is_column_break": true,
-        "width": 4,
-        "x": 0,
-        "y": 10
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "auto",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
                 "formula": "top(query1, 10, 'mean', 'desc')"
               }
             ],
