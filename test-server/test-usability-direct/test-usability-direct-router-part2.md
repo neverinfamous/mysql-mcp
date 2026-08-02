@@ -70,8 +70,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_router_route_status` |   |   |   |
-| `mysql_router_route_health` |   |   |   |
+| `mysql_router_route_status` | `{"name": "bootstrap_ro"}` | Yes, strict schema enforced required `routeName` | Made `routeName` optional in Zod |
+| `mysql_router_route_health` | `{"name": "bootstrap_ro"}` | Yes, strict schema enforced required `routeName` | Made `routeName` optional in Zod |
 
 ---
 
@@ -92,8 +92,8 @@
 
 ## Tasks
 
-- [ ] Ensure full coverage for mysql_router_route_status
-- [ ] Ensure full coverage for mysql_router_route_health
+- [x] Ensure full coverage for mysql_router_route_status
+- [x] Ensure full coverage for mysql_router_route_health
 
 
 ---

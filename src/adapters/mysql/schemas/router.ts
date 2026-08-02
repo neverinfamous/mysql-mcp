@@ -120,7 +120,8 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 export const RouterBaseInputSchema = z.object({}).strict();
 
 export const RouteNameInputSchemaBase = z.object({
-  routeName: z.string().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
+  testProp: z.string().optional().describe("test prop"),
+  routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
   name: z.unknown().optional().describe("Alias for routeName"),
   route: z.unknown().optional().describe("Alias for routeName"),
   route_name: z.unknown().optional().describe("Alias for routeName"),
@@ -168,6 +169,7 @@ export const RouteNameInputSchema = z.preprocess(
 export const MetadataNameInputSchemaBase = z.object({
   metadataName: z
     .string()
+    .optional()
     .describe("Name of the metadata cache instance. Anti-Hallucination Hint: Pass metadataName, not metadata."),
   name: z.unknown().optional().describe("Alias for metadataName"),
   metadata: z.unknown().optional().describe("Alias for metadataName"),
@@ -212,7 +214,7 @@ export const MetadataNameInputSchema = z.preprocess(
 }));
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
-  poolName: z.unknown().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
+  poolName: z.string().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
   name: z.unknown().optional().describe("Alias for poolName"),
   pool: z.unknown().optional().describe("Alias for poolName"),
   pool_name: z.unknown().optional().describe("Alias for poolName"),
@@ -254,7 +256,7 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
   message: "poolName must not be empty",
   path: ["poolName"]
 }).transform((data) => ({
-  poolName: (data.poolName as string) ?? "",
+  poolName: data.poolName ?? "",
 }));
 
 // =============================================================================
