@@ -20,4 +20,4 @@ This directory contains the Node.js automation scripts for managing the unified 
 - **`cluster-healer`**: This is a Docker sidecar service (not a manual script) that runs continuously alongside the cluster. It polls all nodes every 30 seconds, automatically reboots the cluster from complete outages, and restarts group replication on individual disconnected nodes.
 
 ### WSL Stability
-- `register-wsl-keepalive.ps1`: Sets up a Windows Scheduled Task to prevent the background WSL distro from being terminated by Windows power management (which would otherwise crash the Docker daemon). It dynamically generates a VBS wrapper to hide the console window.
+- WSL keepalive registration is now automatically handled by `recreate-ecosystem.mjs` (calls the master copy at `adamic/.../scripts/register-wsl-keepalive.ps1`). No manual setup is needed.
