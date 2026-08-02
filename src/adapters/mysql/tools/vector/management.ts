@@ -36,13 +36,6 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const validated = VectorInfoSchema.parse(params);
 
-        if (validated.table === 'restart_test_trigger') {
-          return withTokenEstimate({
-            success: true,
-            data: { table: 'RESTART_SUCCESSFUL', columns: [] }
-          });
-        }
-
         const tableInfo = await adapter.describeTable(sanitizeIdentifier(validated.table));
 
         await ensureVectorSupport(adapter);
@@ -67,11 +60,31 @@ export function createVectorInfoTool(adapter: MySQLAdapter): ToolDefinition {
             };
           });
 
+        if (validated.column && columns.length === 0) {
+          const colExists = (tableInfo.columns ?? []).some((c) => c.name === validated.column);
+          if (!colExists) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Column '${validated.column}' does not exist in table '${validated.table}'.`,
+                "COLUMN_NOT_FOUND",
+                ErrorCategory.VALIDATION
+              )
+            );
+          }
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Column '${validated.column}' is not a VECTOR column.`,
+              "INVALID_COLUMN_TYPE",
+              ErrorCategory.VALIDATION
+            )
+          );
+        }
+
         return withTokenEstimate({
           success: true,
           data: {
             table: validated.table,
-            columns
+            columns,
           }
         });
       } catch (e) {
