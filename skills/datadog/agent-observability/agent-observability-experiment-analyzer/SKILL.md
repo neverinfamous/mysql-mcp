@@ -312,7 +312,7 @@ Stay active after the report. Answer follow-up questions using the same MCP tool
 
 Link rules:
 - **Experiment IDs**: Wherever a full experiment UUID appears, render it as a Markdown link to `https://app.datadoghq.com/llm/experiments/{full_uuid}`.
-- **Comparative table column headers**: In the Orientation table and in every subsequent table that has Baseline/Candidate columns, wrap the *entire* column header as a link — not just the short ID. Format: `[Baseline \`{short_id}\`]({baseline_url})` and `[Candidate \`{short_id}\`]({candidate_url})`. This makes the full header cell clickable, not just the ID portion.
+- **Comparative table column headers**: In the Orientation table and in every subsequent table that has Baseline/Candidate columns, wrap the *entire* column header as a link — not just the short ID. Format: ``[Baseline `{short_id}`]({baseline_url})`` and ``[Candidate `{short_id}`]({candidate_url})``. This makes the full header cell clickable, not just the ID portion.
 
 ```markdown
 # Experiment Analysis Report
