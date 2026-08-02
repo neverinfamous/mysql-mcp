@@ -35,22 +35,23 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 // Helpers
 // =============================================================================
 
-async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spatialColumn: string): Promise<{ success: boolean; error?: string; code?: string }> {
+async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spatialColumn: string): Promise<{ success: boolean; error?: string; code?: string; srid?: number }> {
   try {
     const tableName = table.includes('.') ? (table.split('.')[1] || table) : table;
-    const escapedTable = tableName.replace(/`/g, '``');
     // Column name is already validated as a strict alphanumeric identifier before this is called
     const colCheck = await adapter.executeReadQuery(
-      `SHOW COLUMNS FROM \`${escapedTable}\` LIKE '${spatialColumn}'`
+      `SELECT DATA_TYPE, SRS_ID FROM information_schema.columns WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1`,
+      [tableName, spatialColumn]
     );
     if (!colCheck.rows || colCheck.rows.length === 0) {
       return { success: false, error: `Column '${spatialColumn}' not found in table '${table}'`, code: "COLUMN_NOT_FOUND" };
     }
-    const dataType = String(colCheck.rows?.[0]?.["Type"]).toLowerCase();
+    const dataType = String(colCheck.rows?.[0]?.["DATA_TYPE"]).toLowerCase();
     if (!["geometry", "point", "multipoint", "polygon", "multipolygon", "linestring", "multilinestring"].includes(dataType)) {
       return { success: false, error: `Column '${spatialColumn}' is not a spatial data type (found ${dataType})`, code: "VALIDATION_ERROR" };
     }
-    return { success: true };
+    const srsId = colCheck.rows?.[0]?.["SRS_ID"];
+    return { success: true, srid: srsId !== null && srsId !== undefined ? Number(srsId) : undefined };
   } catch {
     // If information_schema query fails, just proceed to let MySQL handle it
     return { success: true };
@@ -81,7 +82,9 @@ export function createSpatialDistanceTool(
           DistanceSchema.parse(params);
 
         if (!table) {
-          const query = `(SELECT ROUND(ST_Distance(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance)`;
+          const sridNum = srid;
+          const axisOrder = sridNum !== 0 ? `, 'axis-order=long-lat'` : "";
+          const query = `(SELECT ROUND(ST_Distance(ST_GeomFromText(?, ${sridNum}${axisOrder}), ST_GeomFromText(?, ${sridNum}${axisOrder})), 5) as distance)`;
           const result = await adapter.executeReadQuery(query, [geometry1, geometry2]);
           return withTokenEstimate({
             success: true,
@@ -103,13 +106,24 @@ export function createSpatialDistanceTool(
             success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
           });
         }
+        if (colValidation.srid !== undefined && colValidation.srid !== srid) {
+          return withTokenEstimate({
+            success: false,
+            error: `SRID mismatch: The column '${spatialColumn}' has SRID ${colValidation.srid}, but the tool was called with SRID ${srid}. MySQL requires matching SRIDs for spatial table comparisons.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false
+          });
+        }
 
-        // Use 'axis-order=long-lat' to accept natural longitude-latitude order
+        // Use 'axis-order=long-lat' to accept natural longitude-latitude order (only for non-zero SRIDs)
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
         const escapedTable = escapeQualifiedTable(table);
+        const sridNum = srid;
+        const axisOrder = sridNum !== 0 ? `, 'axis-order=long-lat'` : "";
 
-        let query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
-                       ROUND(ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance
+        let query = `(SELECT *, ST_AsText(\`${spatialColumn}\`${axisOrder}) as ${spatialColumn}_wkt,
+                       ROUND(ST_Distance(\`${spatialColumn}\`, ST_GeomFromText(?, ${sridNum}${axisOrder})), 5) as distance
                 FROM ${escapedTable}`;
 
         const queryParams: unknown[] = [pointWkt];
@@ -195,7 +209,9 @@ export function createSpatialDistanceSphereTool(
         }
 
         if (!table) {
-          const query = `(SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')), 5) as distance_meters)`;
+          const sridNum = srid;
+          const axisOrder = sridNum !== 0 ? `, 'axis-order=long-lat'` : "";
+          const query = `(SELECT ROUND(ST_Distance_Sphere(ST_GeomFromText(?, ${sridNum}${axisOrder}), ST_GeomFromText(?, ${sridNum}${axisOrder})), 5) as distance_meters)`;
           const result = await adapter.executeReadQuery(query, [geometry1, geometry2]);
           return withTokenEstimate({
             success: true,
@@ -217,15 +233,26 @@ export function createSpatialDistanceSphereTool(
             success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
           });
         }
+        if (colValidation.srid !== undefined && colValidation.srid !== srid) {
+          return withTokenEstimate({
+            success: false,
+            error: `SRID mismatch: The column '${spatialColumn}' has SRID ${colValidation.srid}, but the tool was called with SRID ${srid}. MySQL requires matching SRIDs for spatial table comparisons.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false
+          });
+        }
 
-        // Use 'axis-order=long-lat' to accept natural longitude-latitude order
+        // Use 'axis-order=long-lat' to accept natural longitude-latitude order (only for non-zero SRIDs)
         const pointWkt = `POINT(${String(point.longitude)} ${String(point.latitude)})`;
         const escapedTable = escapeQualifiedTable(table);
+        const sridNum = srid;
+        const axisOrder = sridNum !== 0 ? `, 'axis-order=long-lat'` : "";
 
-        let query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt,
+        let query = `(SELECT *, ST_AsText(\`${spatialColumn}\`${axisOrder}) as ${spatialColumn}_wkt,
                        ROUND(ST_Distance_Sphere(
-                           IF(ST_GeometryType(\`${spatialColumn}\`) IN ('POINT', 'MULTIPOINT'), \`${spatialColumn}\`, ST_GeomFromText('POINT(0 0)', ${String(srid)})), 
-                           ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat')
+                           IF(ST_GeometryType(\`${spatialColumn}\`) IN ('POINT', 'MULTIPOINT'), \`${spatialColumn}\`, ST_GeomFromText('POINT(0 0)', ${sridNum})), 
+                           ST_GeomFromText(?, ${sridNum}${axisOrder})
                        ), 5) as distance_meters
                 FROM ${escapedTable}
                 WHERE ST_GeometryType(\`${spatialColumn}\`) IN ('POINT', 'MULTIPOINT')`;
@@ -310,6 +337,15 @@ export function createSpatialContainsTool(
             success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
           });
         }
+        if (colValidation.srid !== undefined && colValidation.srid !== srid) {
+          return withTokenEstimate({
+            success: false,
+            error: `SRID mismatch: The column '${spatialColumn}' has SRID ${colValidation.srid}, but the tool was called with SRID ${srid}. MySQL requires matching SRIDs for spatial table comparisons.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false
+          });
+        }
 
         const escapedTable = escapeQualifiedTable(table);
         const query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
@@ -381,6 +417,15 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         if (!colValidation.success) {
           return withTokenEstimate({
             success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+          });
+        }
+        if (colValidation.srid !== undefined && colValidation.srid !== srid) {
+          return withTokenEstimate({
+            success: false,
+            error: `SRID mismatch: The column '${spatialColumn}' has SRID ${colValidation.srid}, but the tool was called with SRID ${srid}. MySQL requires matching SRIDs for spatial table comparisons.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false
           });
         }
 
