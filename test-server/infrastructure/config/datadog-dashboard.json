@@ -12,7 +12,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Token \u0026 Tool Metrics",
+  "title": "MySQL-MCP Token & Tool Metrics",
   "widgets": [
     {
       "definition": {
@@ -22,23 +22,27 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e=",
+                "comparator": ">=",
                 "custom_bg_color": "#133a09",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
               {
-                "formula": "query1"
+                "formula": "query1 * query2"
               }
             ],
             "queries": [
               {
-                "aggregator": "sum",
-                "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{$tool}.as_count().rollup(sum)"
+                "data_source": "metrics",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{jq} by {tool}"
+              },
+              {
+                "name": "query2",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{jq} by {tool}.as_count()"
               }
             ],
             "response_format": "scalar"
@@ -146,15 +150,19 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "top(query1, 10, 'sum', 'desc')"
+                "formula": "top(query1 * query2, 10, 'mean', 'desc')"
               }
             ],
             "queries": [
               {
-                "aggregator": "sum",
-                "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{$tool} by {tool}.rollup(sum)"
+                "data_source": "metrics",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{jq} by {tool}"
+              },
+              {
+                "name": "query2",
+                "data_source": "metrics",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{jq} by {tool}.as_count()"
               }
             ],
             "response_format": "scalar",
@@ -398,7 +406,7 @@
             "response_format": "event_list"
           }
         ],
-        "title": "Datadog Agent Logs (Warnings \u0026 Errors)",
+        "title": "Datadog Agent Logs (Warnings & Errors)",
         "type": "list_stream"
       },
       "id": 1785645640121,
