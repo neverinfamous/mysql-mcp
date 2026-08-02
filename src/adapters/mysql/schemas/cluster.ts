@@ -33,7 +33,7 @@ export const MemberSchema = z.preprocess(
 );
 
 export const LimitSchemaBase = z.object({
-  limit: z.coerce.number().optional().describe("Maximum number of results"),
+  limit: z.coerce.number().int().positive().optional().describe("Maximum number of results"),
 }).strict();
 
 export const SummarySchemaBase = z.object({
