@@ -346,7 +346,7 @@ describe("Handler Execution", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Schema does not exist",
+        error: "Schema 'nonexistent_db' does not exist",
         metrics: expect.any(Object),
       });
       // Should only have the schema check query, no event status query

@@ -70,7 +70,7 @@ const safeParse = (raw) => {
 /** Synchronous command execution with optional error suppression */
 const execCommand = (cmd, args, ignoreError = false) => {
     try {
-        return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe', cwd: ECOSYSTEM_ROOT });
+        return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe', cwd: ECOSYSTEM_ROOT, env: { ...process.env, LC_ALL: 'C', LANG: 'C' } });
     } catch (e) {
         if (!ignoreError) {
             console.error(`Error: ${e.message}`);
@@ -82,7 +82,7 @@ const execCommand = (cmd, args, ignoreError = false) => {
 /** Async command execution (promise-based) with error suppression */
 const execCommandAsync = async (cmd, args) => {
     try {
-        const { stdout } = await execFileAsync(cmd, args, { encoding: 'utf-8', cwd: ECOSYSTEM_ROOT });
+        const { stdout } = await execFileAsync(cmd, args, { encoding: 'utf-8', cwd: ECOSYSTEM_ROOT, env: { ...process.env, LC_ALL: 'C', LANG: 'C' } });
         return stdout;
     } catch {
         return null;
@@ -174,7 +174,7 @@ let runningContainers = {};
 // This overlaps the heavy mysqlsh-inside-docker startup with Sections 1-2.
 const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
 const mysqlshMetadataPromise = mysqlNodes.length > 0
-    ? dockerExecAsync(mysqlNodes[0], ['mysqlsh', `--user=${CONFIG.credentials.mysql.user}`, `--password=${CONFIG.credentials.mysql.password}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', `try { var c = dba.getCluster('${CONFIG.cluster.name}'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }`])
+    ? dockerExecEnvAsync(mysqlNodes[0], [], ['mysqlsh', `--user=${CONFIG.credentials.mysql.user}`, `--password=${CONFIG.credentials.mysql.password}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', `try { var c = dba.getCluster('${CONFIG.cluster.name}'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }`])
     : Promise.resolve(null);
 
 /** Run a named section with error boundary to prevent cascading failures */
@@ -204,14 +204,14 @@ runSection('Container Status', () => {
     console.log(`1. Container Status (${containers.length} services):`);
     console.log('----------------------------------------');
 
-    const psOutput = execCommand(dockerCmd, dockerCmd === 'wsl' ? ['docker', 'ps', '-a', '--format', '{{.Names}}\t{{.State}}\t{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}}\t{{.State}}\t{{.Status}}'], false);
+    const psOutput = execCommand(dockerCmd, dockerCmd === 'wsl' ? ['docker', 'ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'], false);
     if (!psOutput) {
         console.error(`Error: Failed to execute docker ps. Docker daemon might not be running.`);
         process.exit(1);
     }
 
     runningContainers = splitLines(psOutput.trim()).reduce((acc, line) => {
-        const [name, state, status] = line.split('\t');
+        const [name, state, status] = line.split(',');
         if (name) {
             acc[name] = { state, status };
         }
@@ -381,7 +381,7 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
         // Router REST API — HTTPS
         dockerExecAsync('datadog-unified', ['curl', '-sk', '-u', `${routerApi.user}:${routerApi.password}`, `https://mysql-router:${routerAPI}/api/20190715/router/status`]),
         // ProxySQL backend status
-        dockerExecAsync('proxysql', ['mysql', '-h', '127.0.0.1', '-P', proxySQLAdmin, `-u${proxyAdmin.user}`, `-p${proxyAdmin.password}`, '-N', '-s', '-e', 'SELECT hostgroup_id, hostname, status FROM runtime_mysql_servers ORDER BY hostgroup_id, hostname;']),
+        dockerExecEnvAsync('proxysql', [`MYSQL_PWD=${proxyAdmin.password}`], ['mysql', '-h', '127.0.0.1', '-P', proxySQLAdmin, `-u${proxyAdmin.user}`, '-N', '-s', '-e', 'SELECT hostgroup_id, hostname, status FROM runtime_mysql_servers ORDER BY hostgroup_id, hostname;']),
         // ProxySQL data port (6033)
         dockerExecEnvAsync('mysql-node1', [`MYSQL_PWD=${proxyData.password}`], ['mysql', '-h', 'proxysql', '-P', proxySQLData, `-u${proxyData.user}`, '-N', '-s', '-e', 'SELECT 1;']),
         // Redis PING + SET/GET cycle

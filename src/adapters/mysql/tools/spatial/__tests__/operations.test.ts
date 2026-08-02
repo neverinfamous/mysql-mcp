@@ -54,6 +54,7 @@ describe("Spatial Operations Tools", () => {
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POINT(5 5)",
+          srid: 0,
         },
         mockContext,
       )) as { data: { intersects: boolean; intersectionWkt: string } };
@@ -79,6 +80,7 @@ describe("Spatial Operations Tools", () => {
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POINT(50 50)",
+          srid: 0,
         },
         mockContext,
       )) as { data: { intersects: boolean } };
@@ -124,7 +126,7 @@ describe("Spatial Operations Tools", () => {
       expect((result as Record<string, unknown>).data).toHaveProperty("segments", 8);
     });
 
-    it("should use ST_Buffer_Strategy with Cartesian SRID", async () => {
+    it("should not use ST_Buffer_Strategy even with Cartesian SRID due to crashes", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
@@ -148,8 +150,8 @@ describe("Spatial Operations Tools", () => {
       );
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      expect(call).toContain("ST_Buffer_Strategy('point_circle', 4)");
-      expect((result as Record<string, unknown>).data).toHaveProperty("segments", 4);
+      expect(call).not.toContain("ST_Buffer_Strategy");
+      expect((result as Record<string, unknown>).data).toHaveProperty("segmentsApplied", false);
     });
   });
 

@@ -220,7 +220,7 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_point", () => {
     it("should create a POINT geometry", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ Type: "point" }])).mockResolvedValue(createMockQueryResult([{ wkt: "POINT(-73.9857 40.7484)", srid: 4326 }]));
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }])).mockResolvedValue(createMockQueryResult([{ wkt: "POINT(-73.9857 40.7484)", srid: 4326 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_point")!;
       const result = await tool.handler(
@@ -254,7 +254,7 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_polygon", () => {
     it("should create a POLYGON geometry", async () => {
-      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ Type: "point" }])).mockResolvedValue(createMockQueryResult([{ wkt: "POLYGON((...))" }]));
+      mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }])).mockResolvedValue(createMockQueryResult([{ wkt: "POLYGON((...))" }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_polygon")!;
       const result = await tool.handler(
@@ -281,7 +281,7 @@ describe("Handler Execution", () => {
   describe("mysql_spatial_distance", () => {
     it("should find points within distance", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ Type: "point" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
         .mockResolvedValue(createMockQueryResult([{ distance: 1000.5 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_distance")!;
@@ -303,7 +303,7 @@ describe("Handler Execution", () => {
   describe("mysql_spatial_distance_sphere", () => {
     it("should calculate spherical distance", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ Type: "point" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
         .mockResolvedValue(createMockQueryResult([{ id: 1, distance_meters: 5000 }]));
 
       const tool = tools.find(
@@ -328,7 +328,7 @@ describe("Handler Execution", () => {
   describe("mysql_spatial_contains", () => {
     it("should find geometries within a polygon", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ Type: "point" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
         .mockResolvedValue(createMockQueryResult([{ id: 1 }, { id: 2 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_contains")!;
@@ -350,7 +350,7 @@ describe("Handler Execution", () => {
   describe("mysql_spatial_within", () => {
     it("should find geometries within another", async () => {
       mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ Type: "point" }]))
+        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
         .mockResolvedValue(createMockQueryResult([{ id: 1 }]));
 
       const tool = tools.find((t) => t.name === "mysql_spatial_within")!;
@@ -382,6 +382,7 @@ describe("Handler Execution", () => {
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))",
+          srid: 0,
         },
         mockContext,
       );

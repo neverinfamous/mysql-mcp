@@ -413,9 +413,9 @@ if (row[0] > 0) {
     // Async replica health-wait already completed in Phase 5
     console.log('  Configuring asynchronous replication...');
     await mysqlExec(ASYNC_REPLICA,
-        `CHANGE REPLICATION SOURCE TO SOURCE_HOST='${MYSQL_NODES[0]}', SOURCE_USER='root', SOURCE_PASSWORD='${MYSQL_ROOT_PASSWORD}', SOURCE_AUTO_POSITION=1; START REPLICA;`,
+        `CHANGE REPLICATION SOURCE TO SOURCE_HOST='${MYSQL_NODES[0]}', SOURCE_USER='root', SOURCE_PASSWORD='${MYSQL_ROOT_PASSWORD}', SOURCE_AUTO_POSITION=1; START REPLICA; SET PERSIST super_read_only=ON;`,
     );
-    console.log('  ✅ Async Replica is running');
+    console.log('  ✅ Async Replica is running (super_read_only=ON)');
     phaseEnd('7/9', t);
 
     // ── Phase 8/9: Start remaining ecosystem ─────────────────────────

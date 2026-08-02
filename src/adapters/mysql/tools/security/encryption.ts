@@ -4,7 +4,7 @@
  * Tools for SSL/TLS monitoring, encryption status, and password validation.
  */
 
-import { z, ZodError } from "zod";
+import { z } from "zod";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -326,9 +326,6 @@ export function createSecurityPasswordValidateTool(
           },
         });
       } catch (error) {
-        if (error instanceof ZodError) {
-          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_password_validate" });
-        }
         const message = error instanceof Error ? error.message : String(error);
         // Check for known component-not-installed errors
         const lower = message.toLowerCase();
@@ -341,7 +338,7 @@ export function createSecurityPasswordValidateTool(
             { module: "security", tool: "mysql_security_password_validate" }
           );
         }
-        return formatHandlerErrorResponse(new Error(message), { module: "security", tool: "mysql_security_password_validate" });
+        return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_password_validate" });
       }
     },
   };
