@@ -4,37 +4,57 @@ This directory contains the advanced Code Mode testing suite, focusing on comple
 
 ## Execution Rules
 
-1. **Sequential Execution**: Execute tests sequentially based on the files listed in the Test Sequence Queue below. The `../scripts/test-manifest.ts` is the single source of truth.
-2. **Subagent Delegation**:
-   - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file.
-   - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
-3. **Validation and Immediate Continuation**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint` and `pnpm run typecheck`. The subagent MUST NOT run `pnpm run test`, `pnpm run build`, or `pnpm run check` or any other tests, as this takes too long (15-20 minutes). The main coordinator agent will run the full test suite at the end of the phase. Ensure the local checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation.
-   - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation.
-4. **Finalization and Commit**:
-   - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
-   - **CRITICAL PRIORITY**: NEVER delete a testing prompt or workflow file after success.
-   - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
-   - The subagent MUST generate updated server instructions by running `pnpm run generate:instructions`.
-   - The subagent MUST commit all changes locally (`bun .\.agents\scripts\commit.ts --msg "test(codemode): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`).
-   - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
-   - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the queue.
-   - The subagent MUST explicitly state if they applied any fixes in their final message to you, and explicitly report if any tests triggered infrastructure absence. Instruct the subagent to ALWAYS format this string exactly as **`Y Prompt Fixes / Z Code Fixes / W Infrastructure Absent`** (e.g., **`0 Prompt Fixes / 0 Code Fixes / 0 Infrastructure Absent`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
-   - **CRITICAL FORMATTING NOTE**: You MUST instruct the subagent to explicitly report the number of **fixes** they made to the prompt or the code. Do NOT instruct them to report "successes", as they will incorrectly report how many tests passed rather than how many bugs were fixed.
-   - **CRITICAL**: Our setup provides everything for all testing to be successful. There should never be any infrastructure absences. If the subagent thinks it is only testing infrastructure absence due to a temporary problem in a tool, group of tools, or the entire ecosystem setup, it MUST explicitly inform the user and log it as a infrastructure absence. **NOTE: "Infrastructure Absent" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. It does NOT refer to successful negative tests (e.g., intentionally triggering a validation error to ensure it is handled gracefully). SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS INFRASTRUCTURE ABSENT.**
-   - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
-   - Ensure subagents explicitly check that Code Mode scripts do NOT leak raw MCP exceptions, returning `{ success: false }` for domain errors.
-   - **Tool Availability Warning**: If any tools are unavailable during testing for any reason, the subagent MUST immediately warn the user.
-   - **CRITICAL ECOSYSTEM REQUIREMENT**: The ecosystem tools (cluster, proxysql, router) run on a different MCP config (`mysql-ecosystem`). When testing any ecosystem tools, the subagent MUST explicitly target the `mysql-ecosystem` server. (Note: MySQL Shell tools MUST target the standard `mysql` server due to X Protocol port mapping restrictions). If the subagent targets the standard `mysql` server, it will improperly test infrastructure absence instead of actively testing the live cluster, which is a FAILURE of the test.
-5. **Coordinator Progress Reporting**:
-   - The Coordinator MUST respond to the user with ONLY this exact format as each test proceeds: "Test X (<test name>) out of Y: A Prompt Fixes / B Code Fixes / C Infrastructure Absent" (e.g., "Test 3 out of 12: 1 Prompt Fixes / 0 Code Fixes / 0 Infrastructure Absent")
-   - The Coordinator MUST explicitly tell the user after each test exactly how many prompt fixes were made, code fixes were made, and infrastructure absences were experienced (there should not be any).
-   - Do NOT output any other text to the user during the test sequence. Do not wrap the message in quotes or add preamble.
-6. **Strict Verification and Anti-Hallucination**:
-   - The Coordinator MUST use the `list_dir` tool on `test-server/test-advanced/` BEFORE starting to get the true list of tests to run. Do not rely on hardcoded test lists.
-   - The Coordinator MUST explicitly create a checklist in `<appDataDir>\brain\<conversation-id>\task.md` copying the exact Test Sequence Queue to track progress.
-   - NEVER rely on memory for filenames or current test counts. ALWAYS read your exact position from the checklist artifact or this file.
-   - If a subagent reports `STATUS: FAILED_FILE_NOT_FOUND`, the Coordinator MUST halt the test sequence immediately and report the error to the user. Do NOT blindly increment the counter or count it as a successful test.
+1. **State Management:** Before starting, create a `task.md` artifact with the 4 tests listed below as a checklist. Update it after each test.
+2. **Execution:** Execute tests sequentially. Invoke a single `self` subagent for each test.
+3. **Reporting:** When a subagent finishes, kill it to save context. You MUST report progress to me using this exact format: 
+   `Test X (<name>) out of 4: A Prompt Fixes / B Code Fixes / C Infrastructure Absent`
+
+## Subagent Instructions
+
+When calling `invoke_subagent`, you MUST use the following exact prompt (replacing `{test_file}`):
+
+<subagent_prompt>
+
+<task>
+
+Read and execute the usability test: {test_file} (located in `test-server/test-advanced/`).
+
+</task>
+
+<instructions>
+
+Follow the rules in `coordinator-workflow.md`, subject to these strict overrides:
+
+1. **Code Mode Testing:** Test tools using Code Mode (`mysql_execute_code`). DO NOT use `call_mcp_tool` directly or `run_command` to execute bash scripts as a substitute for MCP tools.
+
+2. **Environment Immutability:** DO NOT modify `mcp_config.json` manually to change ports or environment variables (e.g., bypassing the router). You must test against the default environment provided.
+
+3. **No Full Validation:** DO NOT run `pnpm run check` or `pnpm run test` manually. The restart script handles all necessary compilation.
+
+4. **Code Fixes & TDD Verification:** If you make a code fix to resolve a hallucination, you MUST verify it. First, run `pnpm run lint` and `pnpm run typecheck` to ensure your code is clean and will not crash the server. Then, restart the affected MCP server using `bun .\.agents\scripts\restart-mcp.ts <server-name>` (e.g., `mysql` or `mysql-ecosystem`) via the `run_command` tool (this will compile the code and force the IDE to resurrect the live daemon). Wait for the script to finish, then call the MCP tool again to prove your fix worked before proceeding.
+
+5. **Infrastructure Absent:** If a tool's primary execution (the "happy path") cannot be completed due to missing infrastructure, credentials, or binaries, you MUST count it as "Infrastructure Absent" (e.g., +1 Infrastructure Absent). You may fix the code to handle the missing infrastructure gracefully, but you MUST still report it as Infrastructure Absent. *(Note: As stated in the test files, replication tests returning `null` on the primary node is a VALID success state, not an infrastructure absence).*
+
+6. **Handoff:** When complete, stop calling tools to await further instructions. DO NOT loop.
+
+7. **Database Locks:** If a test requires DDL operations and fails due to `super_read_only`, you MUST toggle the lock using `run_command` to execute `node test-server/infrastructure/scripts/toggle-super-read.mjs OFF` before the test, and `ON` after. Do not attempt to use `docker exec` or `mysql-final`.
+
+8. **DO NOT Edit the Test Markdown File:** The `{test_file}` is strictly read-only. DO NOT check the `[ ]` task boxes or fill out the markdown tables inside it, as your manual edits will be wiped out by the generator script. Track all your findings, fuzzed payloads, and results strictly via `mj_execute_code` in your `memory-journal-mcp` entry and your final summary.
+
+* Note: mysql-mcp is project #9 in the memory-journal-mcp system/database.
+
+When creating memory journal entries via `mj_execute_code`, use this exact format to ensure success:
+```javascript
+mj.core.createEntry({
+  content: "Your concise summary of findings/bug fixes here...",
+  entry_type: "bug_fix", // or "decision", "architecture" (do NOT use "retrospective")
+  tags: ["testing", "mysql-mcp"],
+  project_number: 9
+});
+```
+
+</instructions>
+</subagent_prompt>
 
 ## Compatibility with Dynamic Context Audit
 

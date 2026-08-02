@@ -15,23 +15,21 @@ Systematically execute all standard tool group tests in `test-server/test-tool-g
 1. **Batched Sequential Execution**: Tests MUST be executed sequentially (one subagent at a time). Because the `mysql-mcp` server uses a Tool Filter (shortcuts) to prevent exceeding IDE limits, the tests are grouped into multiple **Phases** based on the required shortcut.
 2. **Subagent Delegation**:
    - Use the `invoke_subagent` tool to spawn a `self` subagent for each test file within the current Phase.
-   - Provide the exact path to the test file as the subagent's prompt, along with these execution requirements.
+   - Use the exact `<subagent_prompt>` template defined in the Phase file as the subagent's prompt. Do NOT use the path alone or improvise instructions.
 3. **Phase Transitions & Server Restarts**:
    - The Coordinator will run continuously _within_ each Phase.
    - When a Phase is complete, the Coordinator MUST instruct the user to start a NEW thread for the next phase. DO NOT continue in the same thread.
 4. **Validation and Immediate Continuation (Within a Phase)**:
-   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint` and `pnpm run typecheck`. The subagent MUST NOT run `pnpm run test`, `pnpm run build`, or `pnpm run check` or any other tests, as this takes too long (15-20 minutes). The main coordinator agent will run the full test suite at the end of the phase. Ensure the local checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation.
-   - The subagent will **NOT** pause or request a server refresh. They must trust the local CI validation and immediately report back to the Coordinator.
+   - If a subagent modifies the codebase to fix an issue, the subagent MUST validate all changes locally by running `pnpm run lint` and `pnpm run typecheck`. The subagent MUST NOT run `pnpm run test`, `pnpm run build`, or `pnpm run check` or any other tests, as this takes too long (15-20 minutes). The restart script `bun .\.agents\scripts\restart-mcp.ts <server-name>` handles daemon resurrection dynamically. Ensure the local checks pass cleanly and any resulting errors are fixed. If the subagent ONLY modified documentation or prompts, they should NOT run any validation.
+   - The subagent will **NOT** pause or request a server refresh. They must trust the restart script and immediately report back to the Coordinator.
 5. **Finalization and Commit**:
    - The subagent MUST delete any temporary test artifacts (like data exports or scratch files) they generated when done.
    - **CRITICAL PRIORITY**: NEVER delete a testing prompt or workflow file after success.
    - The subagent MUST update `test-server/code-map.md` if file structures or exports change.
-   - The subagent MUST generate updated server instructions by running `npx tsx scripts/generate-server-instructions.ts`.
    - The subagent MUST commit all changes locally (`bun .\.agents\scripts\commit.ts --msg "test(tool-groups): ..." --impact 0.1 --confidence 1.0 --validation passed --journal --add .`).
    - The subagent MUST then create a session summary journal entry using the `/mcp:memory-journal-mcp:session-summary` prompt ONLY if they made code changes.
    - Once the subagent completes, record their final token estimate and metric telemetry, mark the task as done, kill the subagent using the `manage_subagents` tool (action: `kill`), and immediately move to the next test in the current Phase.
-   - The subagent MUST explicitly state if they applied any fixes in their final message to you, and explicitly report if any tests triggered infrastructure absence. Instruct the subagent to ALWAYS format this string exactly as **`Y Prompt Fixes / Z Code Fixes / W Infrastructure Absent`** (e.g., **`0 Prompt Fixes / 0 Code Fixes / 0 Infrastructure Absent`**) in bold at the very top of their final result summary, so you can track that a final live verification sweep will be needed at the very end of the suite, and whether the fix was to the testing prompt itself or code.
-   - **CRITICAL FORMATTING NOTE**: You MUST instruct the subagent to explicitly report the number of **fixes** they made to the prompt or the code. Do NOT instruct them to report "successes", as they will incorrectly report how many tests passed rather than how many bugs were fixed.
+   - The subagent MUST explicitly state if they applied any fixes in their final message to you, and explicitly report if any tests triggered infrastructure absence.
    - **CRITICAL**: Our setup provides everything for all testing to be successful. There should never be any infrastructure absences. If the subagent thinks it is only testing infrastructure absence due to a temporary problem in a tool, group of tools, or the entire ecosystem setup, it MUST explicitly inform the user and log it as a infrastructure absence. **NOTE: "Infrastructure Absent" refers ONLY to tests that could NOT be completed due to a temporary system problem or tool limitation. It does NOT refer to successful negative tests (e.g., intentionally triggering a validation error to ensure it is handled gracefully). SUCCESSFUL NEGATIVE TESTS MUST NEVER BE COUNTED AS INFRASTRUCTURE ABSENT.**
    - **CRITICAL**: The subagent MUST include an explicit status line in their final message: `STATUS: SUCCESS` if the test ran and passed, or `STATUS: FAILED_FILE_NOT_FOUND` if the file does not exist.
 6. **Structured Error Handling**:
