@@ -179,10 +179,10 @@ export const ProxySQLBaseInputSchema = z.preprocess(
 );
 
 export const ProxySQLUsersInputSchemaBase = z.object({
-  username: z.union([z.string(), z.number()]).optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
-  user: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
-  name: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
-  id: z.union([z.string(), z.number()]).optional().describe("Alias for username"),
+  username: z.any().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
+  user: z.any().optional().describe("Alias for username"),
+  name: z.any().optional().describe("Alias for username"),
+  id: z.any().optional().describe("Alias for username"),
 }).loose();
 
 export const ProxySQLUsersInputSchema = z.preprocess(
@@ -338,9 +338,9 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 );
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
-  hostgroup_id: z.union([z.number(), z.string()]).optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
-  hostgroup: z.union([z.number(), z.string()]).optional().describe("Alias for hostgroup ID"),
-  id: z.union([z.number(), z.string()]).optional().describe("Alias for hostgroup ID"),
+  hostgroup_id: z.any().optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
+  hostgroup: z.any().optional().describe("Alias for hostgroup ID"),
+  id: z.any().optional().describe("Alias for hostgroup ID"),
 }).loose();
 
 export const ProxySQLHostgroupInputSchema = z.preprocess(
