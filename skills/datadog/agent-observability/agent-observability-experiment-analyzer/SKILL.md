@@ -312,7 +312,7 @@ Stay active after the report. Answer follow-up questions using the same MCP tool
 
 Link rules:
 - **Experiment IDs**: Wherever a full experiment UUID appears, render it as a Markdown link to `https://app.datadoghq.com/llm/experiments/{full_uuid}`.
-- **Comparative table column headers**: In the Orientation table and in every subsequent table that has Baseline/Candidate columns, wrap the *entire* column header as a link — not just the short ID. Format: ``[Baseline `{short_id}`]({baseline_url})`` and ``[Candidate `{short_id}`]({candidate_url})``. This makes the full header cell clickable, not just the ID portion.
+- **Comparative table column headers**: In the Orientation table and in every subsequent table that has Baseline/Candidate columns, wrap the *entire* column header as a link — not just the short ID. Format: `[Baseline \`{short_id}\`]({baseline_url})` and `Candidate \`{short_id}\``. This makes the full header cell clickable, not just the ID portion.
 
 ```markdown
 # Experiment Analysis Report
@@ -324,7 +324,7 @@ Link rules:
 
 ### Experiment
 
-[Comparative: [`{baseline_short}`]({baseline_url}) (Baseline) vs [`{candidate_short}`]({candidate_url}) (Candidate) — [Compare]({compare_url}) — Single: [`{experiment_short}`]({experiment_url})]
+[Comparative: [`{baseline_short}`]({baseline_url}) (Baseline) vs `{candidate_short}` (Candidate) — [Compare]({compare_url}) — Single: [`{experiment_short}`]({experiment_url})]
 
 [2–3 sentence executive summary. Open with "This is a **{Mode}** analysis..." where {Mode} is one of: Comparative Exploratory, Comparative Q&A, Single Exploratory, Single Q&A. Include experiment(s) purpose, scale, and the headline finding with specific numbers.]
 
