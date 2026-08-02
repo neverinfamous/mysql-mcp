@@ -106,6 +106,9 @@ To view its logs and check recovery actions:
 docker logs -f cluster-healer
 ```
 
+### Host Restart Resilience
+All containers are configured with `restart: unless-stopped`. This ensures that they seamlessly survive host laptop reboots or Docker daemon restarts without manual intervention.
+
 ---
 
 ## 4. Connection Details

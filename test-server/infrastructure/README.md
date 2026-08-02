@@ -23,23 +23,24 @@ docker compose up -d
 
 | Component | Container Name | Exposes / Ports | Image |
 |---|---|---|---|
-| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.7.2` |
-| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.7.2` |
-| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.7.2` |
+| **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.7.1` |
+| **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.7.1` |
+| **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.7.1` |
 | **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.7.1` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.9` |
 
-| **Redis** | `redis-server` | `6379` | `redis:7.4.10` |
-| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:latest` |
+| **Redis** | `redis-server` | `6379` | `redis:8.10.0` |
+| **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:v10.6.14` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
 | **Prometheus** | `prometheus` | `9090` | `prom/prometheus:v3.13.2` |
-| **MySQL MCP Exporter** | `mysql-mcp-exporter` | `3000` | `writenotenow/mysql-mcp:latest` |
+| **MySQL MCP Exporter** | `mysql-mcp-exporter` | `3000` | `local build (../../../mysql-mcp)` |
 | **Loki** | `loki` | `3100` | `grafana/loki:3.7.4` |
 | **Grafana Alloy** | `alloy` | `12345` (internal HTTP) | `grafana/alloy:v1.18.0` |
 | **Grafana** | `grafana` | `3001` | `grafana/grafana:13.1.1` |
 | **Datadog Agent** | `datadog-unified`| `(network-internal only)` | `gcr.io/datadoghq/agent:7.81.3` |
 
 > **Version Pinning:** All images use explicit version tags defined in [`docker-compose.yml`](docker-compose.yml). See that file for current versions.
+> **Resilience:** All containers are configured with `restart: unless-stopped` to gracefully survive host laptop reboots without manual intervention.
 
 - **Datadog Dashboards**: [AI Efficiency](https://app.datadoghq.com/dashboard/q48-mq9-3i7) | [Token & Tool Metrics](https://app.datadoghq.com/dashboard/qwe-2un-us8) | [MySQL](https://app.datadoghq.com/dashboard/4w2-tdx-wf7) | [Redis](https://app.datadoghq.com/dashboard/khx-zry-d49) | [Host Map](https://app.datadoghq.com/infrastructure/map) (look for `adamic-wsl2`)
   *(Note: Backups of custom Datadog dashboards like AI Efficiency (tracking `mysql-mcp` cache, connection pools, and error rates) and Token & Tool Metrics (tracking `MySQL-MCP Audit Log`) are stored as JSON files in the `config/` directory. When syncing with `pup`, some fields like `anomaly_detection` and `legend` are stripped from list streams).*

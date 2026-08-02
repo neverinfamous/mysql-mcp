@@ -10,6 +10,7 @@ import {
   TimeoutError,
   AuthorizationError,
   ConnectionError,
+  ExtensionNotAvailableError,
 } from "../../../../types/modules/errors.js";
 
 // =============================================================================
@@ -103,8 +104,8 @@ export async function execMySQLShell(
     let finalArgs = args;
 
     if (config.dockerContainer) {
-      cmd = "docker";
-      const execArgs = ["exec"];
+      cmd = process.platform === "win32" ? "wsl" : "docker";
+      const execArgs = process.platform === "win32" ? ["docker", "exec"] : ["exec"];
       if (options?.input) {
         execArgs.push("-i");
       }
@@ -164,7 +165,7 @@ export async function execMySQLShell(
       clearTimeout(timer);
       if (err.message.includes("ENOENT")) {
         reject(
-          new QueryError(
+          new ExtensionNotAvailableError(
             `MySQL Shell not found at '${config.binPath}'. ` +
               "Please install MySQL Shell or set MYSQLSH_PATH environment variable.",
           ),
