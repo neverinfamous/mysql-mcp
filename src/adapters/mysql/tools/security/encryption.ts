@@ -34,31 +34,14 @@ const PasswordValidateSchemaBase = z.object({
   password: z.coerce.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
   pass: z.coerce.string().optional().describe("Alias for password"),
   pwd: z.coerce.string().optional().describe("Alias for password"),
-});
+}).strict();
 
-const PasswordValidateSchema = z.preprocess(
-  (val: unknown) => {
-    if (typeof val !== "object" || val === null) return val;
-    const obj = val as Record<string, unknown>;
-    
-    let password = obj["password"];
-    if (password === undefined || password === null) {
-      if (obj["pass"] !== undefined && obj["pass"] !== null) {
-        password = obj["pass"];
-      } else if (obj["pwd"] !== undefined && obj["pwd"] !== null) {
-        password = obj["pwd"];
-      }
-    }
-    
-    if (password === null || password === undefined || password === "") {
-      return { ...obj, password: undefined };
-    }
-    
-    // eslint-disable-next-line @typescript-eslint/no-base-to-string
-    return { ...obj, password: String(password) };
-  },
+const PasswordValidateSchema = PasswordValidateSchemaBase.transform((obj) => {
+  const password = obj.password ?? obj.pass ?? obj.pwd;
+  return { password: password ? password : "" };
+}).pipe(
   z.object({
-    password: z.string().min(1, "Password cannot be empty"),
+    password: z.string().min(1, "Password cannot be empty")
   })
 );
 

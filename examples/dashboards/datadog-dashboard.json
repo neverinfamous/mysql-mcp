@@ -38,7 +38,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{$tool}.rollup(sum)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{$tool}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar"
@@ -154,7 +154,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{$tool} by {tool}.rollup(sum)"
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens.count{$tool} by {tool}.rollup(sum)"
               }
             ],
             "response_format": "scalar",
