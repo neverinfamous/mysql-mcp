@@ -81,15 +81,13 @@ async function main() {
     // ── Preflight: Ensure WSL keepalive is registered ────────────────
     // Prevents Windows from terminating WSL (and Docker) mid-recreate.
     // Idempotent — safe to call on every run. Only needed on Windows.
-    if (process.platform === 'win32') {
-        try {
+    try {
             const keepaliveOut = registerWslKeepalive(process.env.LOCALAPPDATA);
             const state = keepaliveOut.match(/Task state:\s*(\S+)/)?.[1] || 'unknown';
             console.log(`[Phase 0] WSL KeepAlive state: ${state}`);
         } catch (e) {
             const msg = e instanceof Error ? e.message : String(e);
             console.log(`  ⚠️ WSL keepalive registration failed (non-fatal): ${msg}`);
-        }
     }
 
     /**

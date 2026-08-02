@@ -92,12 +92,6 @@ const execCommandAsync = async (cmd, args) => {
 // ── Docker detection ────────────────────────────────────────
 let dockerCmd = 'docker';
 let dockerArgs = ['compose'];
-try {
-    execFileSync('docker', ['info'], { stdio: 'ignore' });
-} catch {
-    dockerCmd = 'wsl';
-    dockerArgs = ['docker', 'compose'];
-}
 
 let servicesRaw = execCommand(dockerCmd, [...dockerArgs, 'config', '--services'], true);
 if (!servicesRaw) {
@@ -170,9 +164,7 @@ let allUp = true;
 // Populated by Section 1, consumed by Section 6
 let runningContainers = {};
 
-// Preflight: fire slow mysqlsh commands early so they load in parallel with Sections 1-2.
-// mysqlsh is notoriously slow to start (~3-5s) because it loads a full JS/Python runtime.
-const mysqlshVersionPromise = execCommandAsync('mysqlsh', ['--version']);
+// Removed host-level mysqlsh availability check.
 
 // Preflight: fire the mysqlsh cluster metadata check concurrently.
 // This overlaps the heavy mysqlsh-inside-docker startup with Sections 1-2.
@@ -715,24 +707,7 @@ runSection('Test Database Integrity', () => {
     }
 });
 
-// ============================================================
-// Section 9: Host System Dependencies (pre-warmed by preflight promise)
-// ============================================================
-await runSectionAsync('Host System Dependencies', async () => {
-    console.log('\n9. Host System Dependencies:');
-    console.log('----------------------------------------');
 
-    const hostShellOut = await mysqlshVersionPromise;
-    if (hostShellOut && hostShellOut.toLowerCase().includes('mysqlsh')) {
-        const versionMatch = hostShellOut.match(/Ver\s+([^\s]+)/);
-        const version = versionMatch ? versionMatch[1] : 'unknown';
-        console.log(`✅ MySQL Shell (Host)   : Found natively in PATH (Version ${version})`);
-    } else {
-        console.log(`⚠️ MySQL Shell (Host)   : Not found natively in PATH!`);
-        console.log(`   (The mysql-ecosystem MCP server requires mysqlsh installed on the host machine to execute tools)`);
-        allUp = false;
-    }
-});
 
 // ============================================================
 // Final Summary

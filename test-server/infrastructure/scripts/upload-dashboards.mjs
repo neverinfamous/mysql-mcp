@@ -24,6 +24,7 @@ for (const dashboard of dashboards) {
             console.log(`  -> Successfully uploaded.`);
         } catch (error) {
             console.error(`  -> Error uploading ${dashboard.file}: ${error.message}`);
+            process.exitCode = 1;
         }
     } else {
         console.warn(`  -> Warning: File ${sourceFile} not found. Skipping.`);

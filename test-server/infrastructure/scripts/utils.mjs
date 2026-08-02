@@ -38,15 +38,7 @@ export function resolveScriptPaths(importMetaUrl) {
  * @returns {{ dockerCmd: string, dockerBaseArgs: string[] }}
  */
 export function detectDocker() {
-    let dockerCmd = 'docker';
-    const dockerBaseArgs = [];
-    try {
-        execFileSync('docker', ['info'], { stdio: 'ignore' });
-    } catch {
-        dockerCmd = 'wsl';
-        dockerBaseArgs.push('docker');
-    }
-    return { dockerCmd, dockerBaseArgs };
+    return { dockerCmd: 'docker', dockerBaseArgs: [] };
 }
 
 /**
@@ -134,7 +126,6 @@ export async function retry(fn, { maxAttempts, delayMs, onRetry }) {
  * @returns {string} The output of the PowerShell command that checks task status.
  */
 export function registerWslKeepalive(localAppData) {
-    if (process.platform !== 'win32') return 'Not Windows';
     
     // We execute the PS1 logic directly via a PowerShell command block
     const psScript = `

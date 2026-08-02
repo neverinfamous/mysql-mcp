@@ -36,6 +36,7 @@ for (const dashboard of dashboards) {
         }
     } catch (error) {
         console.error(`Failed to download ${dashboard.id}:`, error.message);
+        process.exitCode = 1;
     }
 }
 

@@ -28,8 +28,7 @@ docker compose up -d
 | **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.7.2` |
 | **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.7.1` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.9` |
-| **PostgreSQL** (Planned) | `postgres-server` | `5432` | `postgres-hypopg:18` (Custom Build) |
-| **MongoDB** (Planned) | `mongo-server` | `27017` | `mongo` |
+
 | **Redis** | `redis-server` | `6379` | `redis:7.4.10` |
 | **Dozzle (Log Viewer)** | `dozzle` | `http://localhost:8080/` | `amir20/dozzle:latest` |
 | **Adminer (DB UI)** | `adminer` | `http://localhost:8081/` (System: `MySQL`, Server: `mysql-node1`, User: `root`, Pass: `root`) | `adminer:5.5.0` |
@@ -51,7 +50,7 @@ The `datadog-unified` container runs with `pid: host` and eBPF system-probe to p
 
 - **Host system metrics**: CPU, memory, disk, I/O, load, network, NTP, file handles, uptime
 - **Container monitoring**: All Docker container metrics via socket + Autodiscovery
-- **Database integrations**: MySQL (InnoDB Cluster), Redis, ProxySQL (PostgreSQL and MongoDB configs are pre-provisioned for future use)
+- **Database integrations**: MySQL (InnoDB Cluster), Redis, ProxySQL
 - **Process collection**: Live Processes with host PID namespace
 - **Network Performance Monitoring**: eBPF-based TCP/UDP connection tracking
 - **APM tracing**: Enabled for application containers (set `DD_AGENT_HOST=datadog-unified`)
@@ -69,7 +68,7 @@ All scripts are located in the `scripts/` directory and can be executed natively
 
 ## 5. Disaster Recovery & Volumes
 
-All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`). Datadog integration configs for PostgreSQL and MongoDB are pre-provisioned but their compose services and volumes are not yet deployed.
+All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`).
 
 **Auto-Healing Host Crashes**: The InnoDB cluster will not naturally reboot after a hard host crash (e.g. power loss or Windows/Docker crash) to prevent split-brain. However, a lightweight `cluster-healer` sidecar container runs continuously to detect total cluster outages and automatically executes native SQL commands (`SET GLOBAL group_replication_bootstrap_group=ON`, `CHANGE REPLICATION SOURCE TO ... FOR CHANNEL 'group_replication_recovery'`) via the `mysql` CLI to rebuild the cluster quorum. You do not need to intervene.
 
