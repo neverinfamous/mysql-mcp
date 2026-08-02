@@ -65,7 +65,14 @@
                 "value": 0.0
               }
             ],
-            "q": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg)",
+            "queries": [
+              {
+                "aggregator": "avg",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg)"
+              }
+            ],
             "response_format": "scalar"
           }
         ],
@@ -264,7 +271,7 @@
     },
     {
       "definition": {
-        "has_search_bar": "auto",
+        "has_search_bar": "never",
         "requests": [
           {
             "formulas": [
@@ -293,6 +300,7 @@
             }
           }
         ],
+        "time": {},
         "title": "Top Tools By Tokens",
         "title_align": "left",
         "title_size": "16",
@@ -308,7 +316,7 @@
     },
     {
       "definition": {
-        "has_search_bar": "auto",
+        "has_search_bar": "never",
         "requests": [
           {
             "formulas": [
@@ -338,6 +346,7 @@
             }
           }
         ],
+        "time": {},
         "title": "Tool Call Volume",
         "title_align": "left",
         "title_size": "16",
@@ -353,7 +362,7 @@
     },
     {
       "definition": {
-        "has_search_bar": "auto",
+        "has_search_bar": "never",
         "requests": [
           {
             "formulas": [
@@ -386,6 +395,7 @@
             }
           }
         ],
+        "time": {},
         "title": "Optimization Target (Total Gross Latency)",
         "title_align": "left",
         "title_size": "16",
@@ -1490,7 +1500,7 @@
     },
     {
       "definition": {
-        "has_search_bar": "auto",
+        "has_search_bar": "never",
         "requests": [
           {
             "formulas": [
@@ -1520,6 +1530,7 @@
             }
           }
         ],
+        "time": {},
         "title": "Errors by Category",
         "title_align": "left",
         "title_size": "16",

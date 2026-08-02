@@ -95,7 +95,7 @@
     },
     {
       "definition": {
-        "has_search_bar": "auto",
+        "has_search_bar": "never",
         "requests": [
           {
             "formulas": [
@@ -125,6 +125,7 @@
             }
           }
         ],
+        "time": {},
         "title": "Resource Reads",
         "title_align": "left",
         "title_size": "16",
@@ -140,7 +141,7 @@
     },
     {
       "definition": {
-        "has_search_bar": "auto",
+        "has_search_bar": "never",
         "requests": [
           {
             "formulas": [
@@ -170,6 +171,7 @@
             }
           }
         ],
+        "time": {},
         "title": "P95 Latency (ms)",
         "title_align": "left",
         "title_size": "16",
