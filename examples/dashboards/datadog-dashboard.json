@@ -208,18 +208,13 @@
             "display_type": "line",
             "formulas": [
               {
-                "formula": "default_zero(query1) + default_zero(query2)"
+                "formula": "default_zero(query1)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum, 60)"
               }
             ],
@@ -398,11 +393,11 @@
             "formulas": [
               {
                 "alias": "Total Calls",
-                "formula": "default_zero(calls) + default_zero(old_calls)"
+                "formula": "default_zero(calls)"
               },
               {
                 "alias": "Total Errors",
-                "formula": "default_zero(errors) + default_zero(old_errors)"
+                "formula": "default_zero(errors)"
               }
             ],
             "queries": [
@@ -414,16 +409,6 @@
               {
                 "data_source": "metrics",
                 "name": "errors",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum, 60)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "old_calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{$tool}.as_count().rollup(sum, 60)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "old_errors",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{$tool}.as_count().rollup(sum, 60)"
               }
             ],
@@ -515,18 +500,13 @@
             "display_type": "line",
             "formulas": [
               {
-                "formula": "default_zero(query1) + default_zero(query2)"
+                "formula": "default_zero(query1)"
               }
             ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum, 60)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum, 60)"
               }
             ],
@@ -718,7 +698,13 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")"
+              "indexes": [],
+              "query_string": "source:proxysql (status:error OR status:warn OR \"error\" OR \"failed\")",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
             },
             "response_format": "event_list"
           }
@@ -754,7 +740,13 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:mysqlrouter"
+              "indexes": [],
+              "query_string": "source:mysqlrouter",
+              "sort": {
+                "column": "timestamp",
+                "order": "desc"
+              },
+              "storage": "hot"
             },
             "response_format": "event_list"
           }
