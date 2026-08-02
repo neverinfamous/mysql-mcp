@@ -143,6 +143,7 @@ services:
       --max_connections=200 --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
+      --super-read-only=ON
     volumes:
       - mysql-async-replica-data-v4:/var/lib/mysql
     stop_grace_period: 30s
