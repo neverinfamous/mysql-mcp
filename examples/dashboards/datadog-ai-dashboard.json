@@ -342,7 +342,7 @@
             ],
             "response_format": "scalar",
             "sort": {
-              "count": 500,
+              "count": 10,
               "order_by": [
                 {
                   "index": 0,
