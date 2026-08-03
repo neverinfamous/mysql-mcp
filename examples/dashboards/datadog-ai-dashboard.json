@@ -277,7 +277,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -321,7 +321,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -366,7 +366,7 @@
             "formulas": [
               {
                 "cell_display_mode": "bar",
-                "formula": "top(default_zero(calls) * default_zero(latency), 10, 'sum', 'desc')"
+                "formula": "top(calls * latency, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -1416,7 +1416,7 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
@@ -1551,7 +1551,7 @@
             "display_type": "bars",
             "formulas": [
               {
-                "formula": "top(default_zero(query1), 10, 'sum', 'desc')"
+                "formula": "top(query1, 10, 'sum', 'desc')"
               }
             ],
             "queries": [
