@@ -79,7 +79,7 @@ const AuditLogSchema = z.preprocess(
     user: z.string().optional(),
     eventType: z.string().optional(),
     startTime: z.string().refine((val) => !isNaN(Date.parse(val)), "Invalid date format").optional(),
-  }).strict()
+  }).strip()
 );
 
 const FirewallRulesSchemaBase = z.object({
@@ -123,7 +123,7 @@ const FirewallRulesSchema = z.preprocess(
     limit: z.coerce.number().int().min(1).max(1000).default(50),
     user: z.string().optional(),
     mode: z.enum(["RECORDING", "PROTECTING", "DETECTING", "OFF"]).optional(),
-  }).strict()
+  }).strip()
 );
 
 // =============================================================================
@@ -292,7 +292,7 @@ export function createSecurityFirewallStatusTool(
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        z.object({}).strict().parse(params);
+        z.object({}).strip().parse(params);
 
         // Check if firewall plugin is installed
         const pluginResult = await adapter.executeQuery(
