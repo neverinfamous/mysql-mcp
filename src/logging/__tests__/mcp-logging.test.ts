@@ -11,9 +11,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // We need to test the class, not the singleton
 describe("McpLogger", () => {
   let McpLogger: typeof import("../mcp-logging.js").mcpLogger;
-  let mockServer: {
-    sendLoggingMessage: ReturnType<typeof vi.fn>;
-  };
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  let mockServer: any;
 
   beforeEach(async () => {
     vi.clearAllMocks();
@@ -22,9 +21,8 @@ describe("McpLogger", () => {
     const module = await import("../mcp-logging.js");
     McpLogger = module.mcpLogger;
 
-    mockServer = {
-      sendLoggingMessage: vi.fn(),
-    };
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    mockServer = {};
   });
 
   afterEach(() => {
@@ -62,12 +60,8 @@ describe("McpLogger", () => {
       McpLogger.setMinLevel("info");
       McpLogger.info("test info message");
 
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          level: "info",
-          data: "test info message",
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"info"'));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"data":"test info message"'));
     });
 
     it("should not log messages below minimum level", () => {
@@ -75,16 +69,14 @@ describe("McpLogger", () => {
       McpLogger.debug("debug message");
       McpLogger.info("info message");
 
-      expect(mockServer.sendLoggingMessage).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 
     it("should respect debug level filtering", () => {
       McpLogger.setMinLevel("debug");
       McpLogger.debug("debug message");
 
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "debug" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"debug"'));
     });
 
     it("should respect error level filtering", () => {
@@ -92,10 +84,8 @@ describe("McpLogger", () => {
       McpLogger.warning("warning message");
       McpLogger.error("error message");
 
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledTimes(1);
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "error" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"error"'));
     });
   });
 
@@ -109,58 +99,42 @@ describe("McpLogger", () => {
 
     it("should call debug with correct level", () => {
       McpLogger.debug("debug message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "debug" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"debug"'));
     });
 
     it("should call info with correct level", () => {
       McpLogger.info("info message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "info" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"info"'));
     });
 
     it("should call notice with correct level", () => {
       McpLogger.notice("notice message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "notice" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"notice"'));
     });
 
     it("should call warning with correct level", () => {
       McpLogger.warning("warning message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "warning" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"warning"'));
     });
 
     it("should call error with correct level", () => {
       McpLogger.error("error message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "error" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"error"'));
     });
 
     it("should call critical with correct level", () => {
       McpLogger.critical("critical message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "critical" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"critical"'));
     });
 
     it("should call alert with correct level", () => {
       McpLogger.alert("alert message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "alert" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"alert"'));
     });
 
     it("should call emergency with correct level", () => {
       McpLogger.emergency("emergency message");
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({ level: "emergency" }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"level":"emergency"'));
     });
   });
 
@@ -175,25 +149,13 @@ describe("McpLogger", () => {
     it("should send message as string when no data provided", () => {
       McpLogger.info("simple message");
 
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: "simple message",
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"data":"simple message"'));
     });
 
     it("should include additional data in message", () => {
       McpLogger.info("message with data", { key: "value", count: 42 });
 
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          data: expect.objectContaining({
-            message: "message with data",
-            key: "value",
-            count: 42,
-          }),
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"data":{"message":"message with data","key":"value","count":42}'));
     });
   });
 
@@ -204,7 +166,7 @@ describe("McpLogger", () => {
 
       McpLogger.info("should not be logged");
 
-      expect(mockServer.sendLoggingMessage).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 
     it("should not log when server not set", () => {
@@ -213,16 +175,14 @@ describe("McpLogger", () => {
 
       McpLogger.info("should not be logged");
 
-      expect(mockServer.sendLoggingMessage).not.toHaveBeenCalled();
+      expect(consoleErrorSpy).not.toHaveBeenCalled();
     });
 
     it("should handle sendLoggingMessage errors gracefully", () => {
       McpLogger.setServer(mockServer as never);
       McpLogger.setEnabled(true);
       McpLogger.setConnected(true);
-      mockServer.sendLoggingMessage.mockImplementation(() => {
-        throw new Error("Transport error");
-      });
+      consoleErrorSpy.mockImplementation(() => { throw new Error("Transport error"); });
 
       // Should not throw
       expect(() => McpLogger.info("test")).not.toThrow();
@@ -240,22 +200,14 @@ describe("McpLogger", () => {
     it("should use default logger name", () => {
       McpLogger.info("test");
 
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          logger: "mysql-mcp",
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"logger":"mysql-mcp"'));
     });
 
     it("should use custom logger name when set", () => {
       McpLogger.setLoggerName("custom-logger");
       McpLogger.info("test");
 
-      expect(mockServer.sendLoggingMessage).toHaveBeenCalledWith(
-        expect.objectContaining({
-          logger: "custom-logger",
-        }),
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('"logger":"custom-logger"'));
     });
   });
 });

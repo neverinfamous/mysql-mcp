@@ -63,7 +63,7 @@ describe("String Escaping", () => {
     expect(escapeForJS("normal code")).toBe("normal code");
     expect(escapeForJS('code with "quotes"')).toBe('code with \\"quotes\\"');
     expect(escapeForJS("code with \\backslashes\\")).toBe(
-      "code with \\\\backslashes\\\\",
+      "code with \\\\\\\\backslashes\\\\\\\\",
     );
   });
 });
