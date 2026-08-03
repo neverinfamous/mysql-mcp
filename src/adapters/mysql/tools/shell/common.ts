@@ -6,7 +6,10 @@
 
 import { spawn } from "child_process";
 import { relative, resolve } from "path";
+import * as path from "path";
 import { fileURLToPath } from "url";
+import * as fs from "fs";
+import * as crypto from "crypto";
 import {
   QueryError,
   TimeoutError,
@@ -18,6 +21,20 @@ import {
 // =============================================================================
 // Configuration
 // =============================================================================
+
+export function getWorkspaceRoot(): string {
+  let dir = fileURLToPath(import.meta.url);
+  // Traverse up to find package.json to identify the true workspace root reliably,
+  // regardless of whether we are running from src/ or bundled in dist/
+  while (dir.length > 5) {
+    if (fs.existsSync(path.join(dir, "package.json")) && 
+        fs.existsSync(path.join(dir, "tsconfig.json"))) {
+      return dir;
+    }
+    dir = path.dirname(dir);
+  }
+  return process.cwd();
+}
 
 export interface ShellConfig {
   dockerContainer?: string;
@@ -77,7 +94,7 @@ export function mapHostPathToContainer(hostPath: string): string {
   const absoluteHostPath = resolve(hostPath);
   
   // 1. Resolve mysql-mcp workspace
-  const workspaceRoot = resolve(fileURLToPath(import.meta.url), "../../../../../..");
+  const workspaceRoot = getWorkspaceRoot();
   const relWorkspace = relative(workspaceRoot, absoluteHostPath);
   
   if (!relWorkspace.startsWith("..") && !relWorkspace.includes(":\\")) {
@@ -223,10 +240,36 @@ export async function execShellJS(
   // Wrap code to output JSON result
   const wrappedCode = `var __result__; try { __result__ = (function() { ${jsCode} })(); print(JSON.stringify({ success: true, result: __result__ })); } catch (e) { print(JSON.stringify({ success: false, error: e.message })); }`;
 
-  const result = await execMySQLShell(
-    ["--uri", config.connectionUri, "--js", "-e", wrappedCode],
-    options,
-  );
+  const args = ["--uri", config.connectionUri, "--js"];
+  let result;
+  
+  if (config.dockerContainer) {
+    const scratchDir = path.join(getWorkspaceRoot(), ".agents", "scratch");
+    if (!fs.existsSync(scratchDir)) {
+      fs.mkdirSync(scratchDir, { recursive: true });
+    }
+    const tempId = crypto.randomUUID();
+    const tempFile = path.join(scratchDir, `mysqlsh-${tempId}.js`);
+    
+    fs.writeFileSync(tempFile, wrappedCode, "utf8");
+    try {
+      const containerPath = mapHostPathToContainer(tempFile);
+      args.push("-f", containerPath);
+      result = await execMySQLShell(args, options);
+    } finally {
+      try {
+        fs.unlinkSync(tempFile);
+      } catch {
+        // Ignore
+      }
+    }
+  } else if (process.platform !== "win32") {
+    args.push("-f", "/dev/stdin");
+    result = await execMySQLShell(args, { ...options, input: wrappedCode });
+  } else {
+    args.push("-e", wrappedCode);
+    result = await execMySQLShell(args, options);
+  }
 
   // Check for critical errors in stderr (excluding common warnings)
   const stderrClean = result.stderr

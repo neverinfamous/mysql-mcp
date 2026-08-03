@@ -7,6 +7,7 @@
 import { ZodError } from "zod";
 import * as path from "path";
 import * as fs from "fs";
+import * as crypto from "crypto";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -37,6 +38,7 @@ import {
   execShellJS,
   execMySQLShell,
   mapHostPathToContainer,
+  getWorkspaceRoot,
 } from "./common.js";
 
 /**
@@ -473,10 +475,34 @@ export function createShellImportJSONTool(
                               print(JSON.stringify({ success: false, error: e.message }));
                           }
                       `;
-          result = await execMySQLShell(
-            ["--uri", config.xConnectionUri, "--js", "-f", "-"],
-            { input: wrappedCode }
-          );
+          const args = ["--uri", config.xConnectionUri, "--js"];
+          if (config.dockerContainer) {
+            const scratchDir = path.join(getWorkspaceRoot(), ".agents", "scratch");
+            if (!fs.existsSync(scratchDir)) {
+              fs.mkdirSync(scratchDir, { recursive: true });
+            }
+            const tempId = crypto.randomUUID();
+            const tempFile = path.join(scratchDir, `mysqlsh-${tempId}.js`);
+            fs.writeFileSync(tempFile, wrappedCode, "utf8");
+            
+            try {
+              const containerPath = mapHostPathToContainer(tempFile);
+              args.push("-f", containerPath);
+              result = await execMySQLShell(args);
+            } finally {
+              try {
+                fs.unlinkSync(tempFile);
+              } catch {
+                // Ignore
+              }
+            }
+          } else if (process.platform !== "win32") {
+            args.push("-f", "/dev/stdin");
+            result = await execMySQLShell(args, { input: wrappedCode });
+          } else {
+            args.push("-e", wrappedCode);
+            result = await execMySQLShell(args);
+          }
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : String(error);
