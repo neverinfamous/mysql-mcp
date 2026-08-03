@@ -417,8 +417,8 @@ services:
       test: [ "CMD", "curl", "-s", "--fail", "http://localhost:3000/api/health" ]
       interval: 15s
       timeout: 5s
-      retries: 3
-      start_period: 60s
+      retries: 5
+      start_period: 120s
 
   loki:
     image: grafana/loki:3.7.4
