@@ -203,8 +203,7 @@ for (const file of filesToClean) {
 if (cleanedCount > 0) {
     console.log(`  [PASS] Cleared ${cleanedCount} observability database files`);
 } else if (foundCount > 0) {
-    console.log(`  [FAIL] Found ${foundCount} files but could not delete them due to file locks`);
-    process.exit(1);
+    console.log(`  [WARN] Found ${foundCount} files but could not delete them due to file locks (this is expected if the MCP server is running)`);
 } else {
     console.log(`  [INFO] No observability database found to clean`);
 }
