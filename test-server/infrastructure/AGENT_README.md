@@ -176,7 +176,6 @@ If containers are cycling (green → red → green repeatedly) or `mysql-router`
 | `C:\Users\chris\.wslconfig` | WSL2 VM config: memory, swap, `vmIdleTimeout=-1` |
 | `/etc/docker/daemon.json` | Docker storage driver, log rotation |
 | `/etc/systemd/system/wsl-keepalive.service` | Backup in-distro keepalive (defense-in-depth) |
-| `adamic/.../scripts/register-wsl-keepalive.ps1` | Registers Scheduled Task to prevent WSL suspension (auto-invoked by `recreate-ecosystem.mjs`) |
 
 ### Windows Firewall & Prometheus Scraping
 When Prometheus runs inside WSL and needs to scrape `mysql-mcp` running on the Windows host, the default WSL virtual network adapter (`192.168.48.1`) often blocks incoming traffic due to the Windows Firewall "Public" profile. To bypass this frictionlessly, `docker-compose.yml` maps `host.docker.internal` to the Windows physical adapter IP (`192.168.1.70` by default via `${WINDOWS_HOST_IP:-192.168.1.70}`).

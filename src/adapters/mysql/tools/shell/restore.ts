@@ -5,7 +5,7 @@
  */
 
 import { promises as fs } from "fs";
-import { tmpdir } from "os";
+
 import { join, resolve } from "path";
 import { ZodError } from "zod";
 import {
@@ -29,7 +29,7 @@ import {
   ShellLoadDumpOutputSchema,
   ShellRunScriptOutputSchema,
 } from "../../schemas/shell/index.js";
-import { getShellConfig, execShellJS, execMySQLShell, escapeForJS, mapHostPathToContainer } from "./common.js";
+import { getShellConfig, execShellJS, execMySQLShell, escapeForJS, mapHostPathToContainer, getWorkspaceRoot } from "./common.js";
 
 /**
  * Load dump to instance
@@ -357,7 +357,9 @@ export function createShellRunScriptTool(
           // Write all inline scripts to a temp file to avoid OS command line length limits
           // and complex string escaping bugs with -e, regardless of language.
           const ext = language === "py" || language === "python" ? "py" : (language === "sql" ? "sql" : "js");
-          const tempDir = await fs.mkdtemp(join(tmpdir(), `mysqlsh_script_`));
+          const scratchDir = join(getWorkspaceRoot(), ".agents", "scratch");
+          await fs.mkdir(scratchDir, { recursive: true });
+          const tempDir = await fs.mkdtemp(join(scratchDir, `mysqlsh_script_`));
           const tempFile = join(tempDir, `script.${ext}`);
           try {
             await fs.writeFile(tempFile, script, "utf8");
