@@ -1031,10 +1031,10 @@ export class MetricsRegistry {
       }
     }
 
-    lines.push("# HELP mysql_mcp_tool_tokens_total Total tokens estimated");
-    lines.push("# TYPE mysql_mcp_tool_tokens_total counter");
+    lines.push("# HELP gen_ai_usage_prompt_tokens_total Total tokens estimated");
+    lines.push("# TYPE gen_ai_usage_prompt_tokens_total counter");
     for (const [name, metric] of this.tools.entries()) {
-      lines.push(`mysql_mcp_tool_tokens_total{tool="${name}"} ${metric.getSummary().tokens}`);
+      lines.push(`gen_ai_usage_prompt_tokens_total{tool="${name}"} ${metric.getSummary().tokens}`);
     }
 
     lines.push("# HELP mysql_mcp_tool_latency_ms_p50 P50 Latency (ms)");
@@ -1056,14 +1056,14 @@ export class MetricsRegistry {
     }
 
     // Derived: tokens per call
-    lines.push("# HELP mysql_mcp_tool_tokens_per_call Average tokens per tool call");
-    lines.push("# TYPE mysql_mcp_tool_tokens_per_call gauge");
+    lines.push("# HELP gen_ai_usage_prompt_tokens_per_call Average tokens per tool call");
+    lines.push("# TYPE gen_ai_usage_prompt_tokens_per_call gauge");
 
     for (const [name, metric] of this.tools.entries()) {
       const summary = metric.getSummary();
-      const labels = `{tool="${name}"}`;
       const avg = summary.calls > 0 ? Math.round(summary.tokens / summary.calls) : 0;
-      lines.push(`mysql_mcp_tool_tokens_per_call${labels} ${avg}`);
+      const labels = `{tool="${name}"}`;
+      lines.push(`gen_ai_usage_prompt_tokens_per_call${labels} ${avg}`);
     }
 
     // Resources
