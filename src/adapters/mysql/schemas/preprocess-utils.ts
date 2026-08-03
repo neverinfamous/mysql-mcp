@@ -1022,6 +1022,33 @@ export function preprocessDocFilterParams(val: unknown): unknown {
     }
   }
 
+  if (typeof result["set"] === "string") {
+    try {
+      const parsed = JSON.parse(result["set"]) as unknown;
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        result["set"] = parsed;
+      }
+    } catch {
+      // Ignore
+    }
+  }
+
+  if (typeof result["unset"] === "string") {
+    try {
+      const parsed = JSON.parse(result["unset"]) as unknown;
+      if (Array.isArray(parsed)) {
+        result["unset"] = parsed;
+      }
+    } catch {
+      const rawUnset = result["unset"] as string;
+      if (rawUnset.includes(",")) {
+        result["unset"] = rawUnset.split(",").map((s: string) => s.trim());
+      } else {
+        result["unset"] = [rawUnset];
+      }
+    }
+  }
+
   if (result["filter"] !== undefined) {
     if (typeof result["filter"] !== "string") {
       result["filter"] = JSON.stringify(result["filter"]);

@@ -3,7 +3,7 @@ set -e
 
 echo "Bootstrapping InnoDB Cluster 'mcpCluster'..."
 
-mysqlsh --user=cluster_admin --password=cluster_admin --host=127.0.0.1 --port=3317 --execute="
+docker exec -i example-ha-node1 mysqlsh --user=cluster_admin --password=cluster_admin --execute="
 try {
   var cluster = dba.getCluster('mcpCluster');
   print('Cluster already exists.\\n');
@@ -30,4 +30,4 @@ try {
 "
 
 echo "Cluster status:"
-mysqlsh --user=cluster_admin --password=cluster_admin --host=127.0.0.1 --port=3317 --execute="dba.getCluster('mcpCluster').status()"
+docker exec -i example-ha-node1 mysqlsh --user=cluster_admin --password=cluster_admin --execute="dba.getCluster('mcpCluster').status()"

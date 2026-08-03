@@ -3,6 +3,7 @@ import { promisify } from 'util';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { detectDocker } from './utils.mjs';
 
 const execFileAsync = promisify(execFile);
 
@@ -90,12 +91,8 @@ const execCommandAsync = async (cmd, args) => {
 };
 
 // ── Docker detection ────────────────────────────────────────
-let dockerCmd = 'docker';
-let dockerArgs = ['compose'];
-if (process.platform === 'win32') {
-    dockerCmd = 'wsl';
-    dockerArgs = ['docker', 'compose'];
-}
+const { dockerCmd, dockerBaseArgs } = detectDocker();
+const dockerArgs = [...dockerBaseArgs, 'compose'];
 
 let servicesRaw = execCommand(dockerCmd, [...dockerArgs, 'config', '--services'], true);
 

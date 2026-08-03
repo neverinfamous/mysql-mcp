@@ -142,7 +142,7 @@ export const AddDocSchemaBase = z.object({
   database: z.unknown().optional().describe("Alias for schema"),
   document: z.unknown().optional().describe("Alias for documents"),
   documents: z
-    .array(z.record(z.string(), z.unknown()))
+    .unknown()
     .optional()
     .describe("Documents to add"),
 });
@@ -183,10 +183,10 @@ export const ModifyDocSchemaBase = z.object({
   sql: z.unknown().optional().describe("Alias for filter"),
   where: z.unknown().optional().describe("Alias for filter"),
   search: z.unknown().optional().describe("Alias for filter"),
-  set: z.record(z.string(), z.unknown()).optional().describe("Fields to set"),
-  patch: z.record(z.string(), z.unknown()).optional().describe("Alias for set"),
-  update: z.record(z.string(), z.unknown()).optional().describe("Alias for set"),
-  unset: z.array(z.string()).optional(),
+  set: z.unknown().optional().describe("Fields to set"),
+  patch: z.unknown().optional().describe("Alias for set"),
+  update: z.unknown().optional().describe("Alias for set"),
+  unset: z.unknown().optional(),
 });
 
 export const ModifyDocSchemaStrict = z.object({

@@ -2,7 +2,6 @@ init_config:
 
 instances:
   - name: mysql_router_rw
-    reported_hostname: adamic-wsl2
     host: mysql-router
     port: 6446
     timeout: 2
@@ -10,7 +9,6 @@ instances:
       - service:mysql-router
       - route:rw
   - name: mysql_router_ro
-    reported_hostname: adamic-wsl2
     host: mysql-router
     port: 6447
     timeout: 2

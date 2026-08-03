@@ -16,6 +16,7 @@ services:
       --character-set-server=utf8mb4
       --collation-server=utf8mb4_unicode_ci
       --performance_schema=ON
+      --relay-log=mysql-server-relay-bin
     labels:
       com.datadoghq.ad.check_names: '["mysql"]'
       com.datadoghq.ad.init_configs: '[{}]'
