@@ -31,7 +31,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens{*}.rollup(sum)"
+                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar"
@@ -114,7 +114,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens{*}.rollup(sum)"
+                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar"
@@ -159,7 +159,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens{*}.rollup(sum)"
+                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar"
@@ -204,7 +204,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens{*}.rollup(sum)"
+                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar"
@@ -249,7 +249,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens{*}.rollup(sum)"
+                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar"
@@ -284,7 +284,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens{*} by {tool}.rollup(sum)"
+                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens.count{*} by {tool}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar",
@@ -428,7 +428,7 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens{*}.rollup(sum)"
+                "query": "sum:mysql_mcp.gen_ai_usage_prompt_tokens.count{*}.as_count().rollup(sum)"
               }
             ],
             "response_format": "scalar"
