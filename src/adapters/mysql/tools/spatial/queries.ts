@@ -58,6 +58,22 @@ async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spati
   }
 }
 
+async function validateSrid(adapter: MySQLAdapter, srid: number): Promise<{ success: boolean; error?: string }> {
+  if (srid === 0 || srid === 4326) return { success: true };
+  try {
+    const sridCheck = await adapter.executeReadQuery(
+      `SELECT SRS_ID FROM information_schema.st_spatial_reference_systems WHERE SRS_ID = ?`,
+      [srid]
+    );
+    if (!sridCheck.rows || sridCheck.rows.length === 0) {
+      return { success: false, error: `Invalid SRID: ${srid}. No such spatial reference system exists in MySQL.` };
+    }
+    return { success: true };
+  } catch {
+    return { success: true };
+  }
+}
+
 // =============================================================================
 
 /**
@@ -80,6 +96,13 @@ export function createSpatialDistanceTool(
       try {
         const { table, spatialColumn, point, geometry1, geometry2, maxDistance, limit, srid } =
           DistanceSchema.parse(params);
+
+        const sridValidation = await validateSrid(adapter, srid);
+        if (!sridValidation.success) {
+          return withTokenEstimate({
+            success: false, error: sridValidation.error || "Validation error", code: "VALIDATION_ERROR", category: "validation", recoverable: false
+          });
+        }
 
         if (!table) {
           const sridNum = srid;
@@ -208,6 +231,16 @@ export function createSpatialDistanceSphereTool(
             });
         }
 
+        if (srid !== 0 && srid !== 4326) {
+            return withTokenEstimate({
+                success: false, 
+                error: "Validation error: ST_Distance_Sphere only supports SRID 0 (Cartesian) and SRID 4326 (WGS 84 geographic). Other SRIDs may cause server errors.", 
+                code: "VALIDATION_ERROR", 
+                category: "validation", 
+                recoverable: false
+            });
+        }
+
         if (!table) {
           const sridNum = srid;
           const axisOrder = sridNum !== 0 ? `, 'axis-order=long-lat'` : "";
@@ -323,6 +356,13 @@ export function createSpatialContainsTool(
         const { table, spatialColumn, polygon, limit, srid } =
           ContainsSchema.parse(params);
 
+        const sridValidation = await validateSrid(adapter, srid);
+        if (!sridValidation.success) {
+          return withTokenEstimate({
+            success: false, error: sridValidation.error || "Validation error", code: "VALIDATION_ERROR", category: "validation", recoverable: false
+          });
+        }
+
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
         if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(spatialColumn)) {
@@ -404,6 +444,13 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { table, spatialColumn, geometry, limit, srid } =
           WithinSchema.parse(params);
+
+        const sridValidation = await validateSrid(adapter, srid);
+        if (!sridValidation.success) {
+          return withTokenEstimate({
+            success: false, error: sridValidation.error || "Validation error", code: "VALIDATION_ERROR", category: "validation", recoverable: false
+          });
+        }
 
         // Validate identifiers
         validateQualifiedIdentifier(table, "table");
