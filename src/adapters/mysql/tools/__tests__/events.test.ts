@@ -490,7 +490,7 @@ describe("Event Create Advanced", () => {
 
     const result = await tool.handler(
       {
-        name: "123-invalid",
+        name: "invalid`name",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
       },
@@ -604,7 +604,7 @@ describe("Event Alter Advanced", () => {
 
     const result = await tool.handler(
       {
-        name: "invalid-name",
+        name: "invalid`name",
         status: "ENABLE",
       },
       mockContext,
@@ -622,7 +622,7 @@ describe("Event Alter Advanced", () => {
     const result = await tool.handler(
       {
         name: "valid_name",
-        newName: "123-invalid",
+        newName: "invalid`name",
       },
       mockContext,
     );
@@ -667,7 +667,7 @@ describe("Event Drop Advanced", () => {
 
     const result = await tool.handler(
       {
-        name: "invalid-event-name",
+        name: "invalid`name",
       },
       mockContext,
     );
