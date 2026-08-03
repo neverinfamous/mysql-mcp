@@ -65,7 +65,7 @@ export function createFulltextBooleanTool(
               offset = cursorData["offset"];
             }
           } catch {
-            throw new ValidationError("Invalid cursor format", {
+            throw new ValidationError("Invalid cursor format", undefined, {
               suggestion: "Use the nextCursor value returned from a previous query.",
             });
           }
