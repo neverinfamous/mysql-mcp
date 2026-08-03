@@ -1,3 +1,4 @@
+/* eslint-disable no-control-regex */
 /**
  * MySQL Shell - Restore and Scripting Tools
  *
@@ -159,7 +160,7 @@ export function createShellLoadDumpTool(
           // Parse stderr for dry run summary, filtering out common warnings
           const stderrClean = rawResult.stderr
             .replace(
-              /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,
+              new RegExp("(?:\\x1b\\[\\d+m)*WARNING:(?:\\x1b\\[\\d+m)* Using a password on the command line interface can be insecure\\.\\s*", "gi"),
               "",
             )
             .trim();
@@ -380,7 +381,7 @@ export function createShellRunScriptTool(
 
         if (result.exitCode !== 0) {
           const cleanStderr = result.stderr
-            ? result.stderr.replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "").trim()
+            ? result.stderr.replace(new RegExp("(?:\\x1b\\[\\d+m)*WARNING:(?:\\x1b\\[\\d+m)* Using a password on the command line interface can be insecure\\.\\s*", "gi"), "").trim()
             : "";
           throw new MySQLMcpError(
             cleanStderr || `Script failed with exit code ${result.exitCode}`,
@@ -396,7 +397,7 @@ export function createShellRunScriptTool(
         }
 
         const finalStderr = result.stderr
-          ? result.stderr.replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "").trim()
+          ? result.stderr.replace(new RegExp("(?:\\x1b\\[\\d+m)*WARNING:(?:\\x1b\\[\\d+m)* Using a password on the command line interface can be insecure\\.\\s*", "gi"), "").trim()
           : "";
 
         return withTokenEstimate({
