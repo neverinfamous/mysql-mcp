@@ -16,6 +16,7 @@ import {
   AuthorizationError,
   ConnectionError,
   ExtensionNotAvailableError,
+  ValidationError,
 } from "../../../../types/modules/errors.js";
 
 // =============================================================================
@@ -109,7 +110,7 @@ export function mapHostPathToContainer(hostPath: string): string {
     return "/workspace/scratch/" + relScratch.replace(/\\/g, "/");
   }
 
-  throw new Error(`Path ${absoluteHostPath} is outside the mapped Docker volumes. Please use a path within the mysql-mcp directory or the scratch directory.`);
+  throw new ValidationError(`Path ${absoluteHostPath} is outside the mapped Docker volumes. Please use a path within the mysql-mcp directory or the scratch directory.`);
 }
 
 /**
