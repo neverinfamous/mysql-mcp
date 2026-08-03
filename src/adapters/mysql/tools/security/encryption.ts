@@ -31,9 +31,9 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 // =============================================================================
 
 const PasswordValidateSchemaBase = z.object({
-  password: z.coerce.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
-  pass: z.coerce.string().optional().describe("Alias for password"),
-  pwd: z.coerce.string().optional().describe("Alias for password"),
+  password: z.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
+  pass: z.string().optional().describe("Alias for password"),
+  pwd: z.string().optional().describe("Alias for password"),
 }).strict();
 
 const PasswordValidateSchema = PasswordValidateSchemaBase.transform((obj) => {
