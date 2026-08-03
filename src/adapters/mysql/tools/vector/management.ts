@@ -282,14 +282,15 @@ export function createVectorStatsTool(adapter: MySQLAdapter): ToolDefinition {
         }
         const r = firstRow;
         const totalRows = Number(typeof r['total_rows'] === "number" || typeof r['total_rows'] === "string" ? r['total_rows'] : 0);
-        
-        if (totalRows === 0) {
+        const nonNullCount = Number(typeof r['non_null_count'] === "number" || typeof r['non_null_count'] === "string" ? r['non_null_count'] : 0);
+
+        if (totalRows === 0 || nonNullCount === 0) {
           return withTokenEstimate({
             success: true,
             data: {
               table,
               column: targetColumn,
-              totalRows: 0,
+              totalRows,
               stats: null
             }
           });
