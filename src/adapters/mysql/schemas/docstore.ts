@@ -86,16 +86,16 @@ export const DropCollectionSchema = z.preprocess(
 );
 
 export const FindSchemaBase = z.object({
-  collection: z.string().optional(),
-  collectionName: z.string().optional().describe("Alias for collection"),
-  name: z.string().optional().describe("Alias for collection"),
-  table: z.string().optional().describe("Alias for collection"),
-  tableName: z.string().optional().describe("Alias for collection"),
-  tbl: z.string().optional().describe("Alias for collection"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
+  collection: z.unknown().optional(),
+  collectionName: z.unknown().optional().describe("Alias for collection"),
+  name: z.unknown().optional().describe("Alias for collection"),
+  table: z.unknown().optional().describe("Alias for collection"),
+  tableName: z.unknown().optional().describe("Alias for collection"),
+  tbl: z.unknown().optional().describe("Alias for collection"),
+  schema: z.unknown().optional(),
+  database: z.unknown().optional().describe("Alias for schema"),
   filter: z
-    .string()
+    .unknown()
     .optional()
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document",
@@ -132,14 +132,14 @@ export const FindSchema = z.preprocess(
 );
 
 export const AddDocSchemaBase = z.object({
-  collection: z.string().optional(),
-  collectionName: z.string().optional().describe("Alias for collection"),
-  name: z.string().optional().describe("Alias for collection"),
-  table: z.string().optional().describe("Alias for collection"),
-  tableName: z.string().optional().describe("Alias for collection"),
-  tbl: z.string().optional().describe("Alias for collection"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
+  collection: z.unknown().optional(),
+  collectionName: z.unknown().optional().describe("Alias for collection"),
+  name: z.unknown().optional().describe("Alias for collection"),
+  table: z.unknown().optional().describe("Alias for collection"),
+  tableName: z.unknown().optional().describe("Alias for collection"),
+  tbl: z.unknown().optional().describe("Alias for collection"),
+  schema: z.unknown().optional(),
+  database: z.unknown().optional().describe("Alias for schema"),
   document: z.unknown().optional().describe("Alias for documents"),
   documents: z
     .array(z.record(z.string(), z.unknown()))
@@ -162,17 +162,17 @@ export const AddDocSchema = z.preprocess(
 );
 
 export const ModifyDocSchemaBase = z.object({
-  collection: z.string().optional(),
-  collectionName: z.string().optional().describe("Alias for collection"),
-  name: z.string().optional().describe("Alias for collection"),
-  table: z.string().optional().describe("Alias for collection"),
-  tableName: z.string().optional().describe("Alias for collection"),
-  tbl: z.string().optional().describe("Alias for collection"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
+  collection: z.unknown().optional(),
+  collectionName: z.unknown().optional().describe("Alias for collection"),
+  name: z.unknown().optional().describe("Alias for collection"),
+  table: z.unknown().optional().describe("Alias for collection"),
+  tableName: z.unknown().optional().describe("Alias for collection"),
+  tbl: z.unknown().optional().describe("Alias for collection"),
+  schema: z.unknown().optional(),
+  database: z.unknown().optional().describe("Alias for schema"),
   documentId: z.unknown().optional().describe("Alias for filter"),
   filter: z
-    .string()
+    .unknown()
     .optional()
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document",
@@ -208,17 +208,17 @@ export const ModifyDocSchema = z.preprocess(
 );
 
 export const RemoveDocSchemaBase = z.object({
-  collection: z.string().optional(),
-  collectionName: z.string().optional().describe("Alias for collection"),
-  name: z.string().optional().describe("Alias for collection"),
-  table: z.string().optional().describe("Alias for collection"),
-  tableName: z.string().optional().describe("Alias for collection"),
-  tbl: z.string().optional().describe("Alias for collection"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
+  collection: z.unknown().optional(),
+  collectionName: z.unknown().optional().describe("Alias for collection"),
+  name: z.unknown().optional().describe("Alias for collection"),
+  table: z.unknown().optional().describe("Alias for collection"),
+  tableName: z.unknown().optional().describe("Alias for collection"),
+  tbl: z.unknown().optional().describe("Alias for collection"),
+  schema: z.unknown().optional(),
+  database: z.unknown().optional().describe("Alias for schema"),
   documentId: z.unknown().optional().describe("Alias for filter"),
   filter: z
-    .string()
+    .unknown()
     .optional()
     .describe(
       "Filter: JSON path for existence ($.name) OR _id value for specific document",
@@ -248,16 +248,16 @@ export const RemoveDocSchema = z.preprocess(
 );
 
 export const CreateDocIndexSchemaBase = z.object({
-  collection: z.string().optional(),
-  collectionName: z.string().optional().describe("Alias for collection"),
-  table: z.string().optional().describe("Alias for collection"),
-  tableName: z.string().optional().describe("Alias for collection"),
-  tbl: z.string().optional().describe("Alias for collection"),
-  schema: z.string().optional(),
-  database: z.string().optional().describe("Alias for schema"),
-  name: z.string().optional(),
-  indexName: z.string().optional().describe("Alias for name"),
-  index: z.string().optional().describe("Alias for name"),
+  collection: z.unknown().optional(),
+  collectionName: z.unknown().optional().describe("Alias for collection"),
+  table: z.unknown().optional().describe("Alias for collection"),
+  tableName: z.unknown().optional().describe("Alias for collection"),
+  tbl: z.unknown().optional().describe("Alias for collection"),
+  schema: z.unknown().optional(),
+  database: z.unknown().optional().describe("Alias for schema"),
+  name: z.unknown().optional(),
+  indexName: z.unknown().optional().describe("Alias for name"),
+  index: z.unknown().optional().describe("Alias for name"),
   fields: z
     .union([
       z.string(),
