@@ -341,22 +341,26 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     const { routerRW, routerRO, routerAPI, proxySQLAdmin, proxySQLData } = CONFIG.ports;
     const { proxyAdmin, proxyData, routerApi } = CONFIG.credentials;
 
+    const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
+    const proxySqlNode = containers.find(c => c.includes('proxysql')) || 'proxysql';
+    const redisNode = containers.find(c => c.includes('redis')) || 'redis-server';
+
     // Fire all independent checks in parallel
     const [routerRWResult, routerROResult, routerAPIHTTPResult, routerAPIHTTPSResult, proxyBackendsResult, proxyDataResult, redisResult] = await Promise.allSettled([
         // MySQL Router R/W (port 6446)
-        dockerExecEnvAsync('mysql-node1', [mysqlPwd], ['mysql', '-h', 'mysql-router', '-P', routerRW, mysqlUser, '-N', '-s', '-e', 'SELECT @@hostname;']),
+        dockerExecEnvAsync(firstNode, [mysqlPwd], ['mysql', '-h', 'mysql-router', '-P', routerRW, mysqlUser, '-N', '-s', '-e', 'SELECT @@hostname;']),
         // MySQL Router R/O (port 6447)
-        dockerExecEnvAsync('mysql-node1', [mysqlPwd], ['mysql', '-h', 'mysql-router', '-P', routerRO, mysqlUser, '-N', '-s', '-e', 'SELECT @@hostname;']),
+        dockerExecEnvAsync(firstNode, [mysqlPwd], ['mysql', '-h', 'mysql-router', '-P', routerRO, mysqlUser, '-N', '-s', '-e', 'SELECT @@hostname;']),
         // Router REST API — HTTP (should fail = HTTPS enforced)
         dockerExecAsync('datadog-unified', ['curl', '-s', '-m', '2', `http://mysql-router:${routerAPI}/api/20190715/router/status`]),
         // Router REST API — HTTPS
         dockerExecAsync('datadog-unified', ['curl', '-sk', '-u', `${routerApi.user}:${routerApi.password}`, `https://mysql-router:${routerAPI}/api/20190715/router/status`]),
         // ProxySQL backend status
-        dockerExecEnvAsync('proxysql', [`MYSQL_PWD=${proxyAdmin.password}`], ['mysql', '-h', '127.0.0.1', '-P', proxySQLAdmin, `-u${proxyAdmin.user}`, '-N', '-s', '-e', 'SELECT hostgroup_id, hostname, status FROM runtime_mysql_servers ORDER BY hostgroup_id, hostname;']),
+        dockerExecEnvAsync(proxySqlNode, [`MYSQL_PWD=${proxyAdmin.password}`], ['mysql', '-h', '127.0.0.1', '-P', proxySQLAdmin, `-u${proxyAdmin.user}`, '-N', '-s', '-e', 'SELECT hostgroup_id, hostname, status FROM runtime_mysql_servers ORDER BY hostgroup_id, hostname;']),
         // ProxySQL data port (6033)
-        dockerExecEnvAsync('mysql-node1', [`MYSQL_PWD=${proxyData.password}`], ['mysql', '-h', 'proxysql', '-P', proxySQLData, `-u${proxyData.user}`, '-N', '-s', '-e', 'SELECT 1;']),
+        dockerExecEnvAsync(firstNode, [`MYSQL_PWD=${proxyData.password}`], ['mysql', '-h', 'proxysql', '-P', proxySQLData, `-u${proxyData.user}`, '-N', '-s', '-e', 'SELECT 1;']),
         // Redis PING + SET/GET cycle
-        dockerExecAsync('redis-server', ['redis-cli', 'PING']),
+        dockerExecAsync(redisNode, ['redis-cli', 'PING']),
     ]);
 
     // Router R/W
@@ -428,8 +432,8 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     const redisPing_val = redisResult.status === 'fulfilled' ? redisResult.value : null;
     if (redisPing_val && redisPing_val.trim() === 'PONG') {
         // Test write + read cycle (sequential since GET depends on SET)
-        const redisSet = dockerExec('redis-server', ['redis-cli', 'SET', 'healthcheck:test', 'ok', 'EX', '10'], true);
-        const redisGet = dockerExec('redis-server', ['redis-cli', 'GET', 'healthcheck:test'], true);
+        const redisSet = dockerExec(redisNode, ['redis-cli', 'SET', 'healthcheck:test', 'ok', 'EX', '10'], true);
+        const redisGet = dockerExec(redisNode, ['redis-cli', 'GET', 'healthcheck:test'], true);
         if (redisSet && redisSet.trim() === 'OK' && redisGet && redisGet.trim() === 'ok') {
             console.log('✅ Redis                : PING + SET/GET cycle passed');
         } else {
@@ -635,8 +639,9 @@ runSection('Test Database Integrity', () => {
     // Single UNION ALL query replaces 12 individual docker exec calls
     const unionParts = tableNames.map(t => `SELECT '${t}' AS t, COUNT(*) AS c FROM ${CONFIG.database}.${t}`);
     const batchQuery = unionParts.join(' UNION ALL ');
+    const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
 
-    const batchOut = dockerExecEnv('mysql-node1', [mysqlPwd],
+    const batchOut = dockerExecEnv(firstNode, [mysqlPwd],
         ['mysql', '-h', 'mysql-router', '-P', CONFIG.ports.routerRW, mysqlUser, CONFIG.database, '-N', '-s', '-e', `${batchQuery};`], true);
 
     let dbIntegrityOk = true;

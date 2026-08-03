@@ -35,3 +35,8 @@ The `mysql-mcp` server is an advanced Model Context Protocol server for MySQL th
 
 - **Datadog Integration**: **\[WHEN\]** debugging MySQL performance, pipeline telemetry, or confirming connection activity -> **\[ALWAYS\]** use the Datadog MCP server (via tools like `query-metrics` or `list-active-metrics`) to inspect `mysql.*` metrics (e.g., `mysql.net.connections`, `mysql.innodb.buffer_pool_utilization`). This is critical for verifying that the database is actively pushing telemetry and not just idling silently.
 - **Local Observability (Prometheus/Grafana)**: **\[WHEN\]** debugging local `mysql-mcp` E2E telemetry or the Docker Compose stack -> **\[ALWAYS\]** query the local Prometheus instance (via HTTP at `http://localhost:9090/api/v1/query`) or direct users to the local Grafana dashboard at `http://localhost:3001`. The `mysql-mcp` server natively exposes metrics on its `/metrics` endpoint.
+
+## 4. Testing Infrastructure Directives
+
+**\[CRITICAL\]** When working on the `mysql-mcp` codebase itself, manual editing of the generated markdown test files in `test-usability/`, `test-usability-direct/`, `test-advanced/`, and `test-tool-groups/` is **STRICTLY FORBIDDEN**.
+**\[ALWAYS\]** make modifications through `scripts/test-manifest.ts` or the `scripts/content/*.content.md` partials, which act as the single source of truth for the test generation engine.

@@ -15,7 +15,7 @@ This guide explains how to spin up, manage, and troubleshoot the global unified 
 The entire process of tearing down, spinning up the containers, and bootstrapping Group Replication is automated and idempotent.
 
 ```powershell
-cd docs/unified-database-ecosystem
+cd test-server/infrastructure
 node scripts/recreate-ecosystem.mjs
 ```
 

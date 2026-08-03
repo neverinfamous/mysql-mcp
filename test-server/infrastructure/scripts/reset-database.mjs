@@ -31,7 +31,7 @@ try {
 const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
 const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
 
-const containerName = cluster ? firstNode : 'mysql-final';
+const containerName = firstNode;
 const targetHost = cluster ? 'mysql-router' : '127.0.0.1';
 const targetPort = cluster ? '6446' : '3306';
 const mysqlHost = 'localhost';
@@ -204,6 +204,7 @@ if (cleanedCount > 0) {
     console.log(`  [PASS] Cleared ${cleanedCount} observability database files`);
 } else if (foundCount > 0) {
     console.log(`  [FAIL] Found ${foundCount} files but could not delete them due to file locks`);
+    process.exit(1);
 } else {
     console.log(`  [INFO] No observability database found to clean`);
 }

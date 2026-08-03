@@ -652,7 +652,7 @@ export const WithinSchema = z.preprocess(
 export const IntersectionSchemaBase = z.object({
   geometry1: z.unknown().optional().describe("First WKT geometry"),
   geometry2: z.unknown().optional().describe("Second WKT geometry"),
-  srid: z.unknown().optional().describe("SRID (default: 4326)"),
+  srid: z.unknown().optional().describe("SRID (default: 0)"),
 });
 
 export const IntersectionSchema = z.preprocess(
@@ -665,7 +665,7 @@ export const IntersectionSchema = z.preprocess(
   .transform((data) => ({
     geometry1: data.geometry1,
     geometry2: data.geometry2,
-    srid: data.srid !== undefined ? Number(data.srid) : 4326,
+    srid: data.srid !== undefined ? Number(data.srid) : 0,
   }))
 )
   .refine((data) => {

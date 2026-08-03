@@ -21,7 +21,7 @@ run_sql() {
 
 wait_for_nodes() {
     echo "[Healer] Waiting for MySQL nodes to be reachable..."
-    for node in mysql-node1 mysql-node2 mysql-node3; do
+    for node in ${MYSQL_NODES_LIST:-mysql-node1 mysql-node2 mysql-node3}; do
         for i in $(seq 1 60); do
             if mysqladmin ping -h "$node" -uroot -proot --silent 2>/dev/null; then
                 echo "[Healer] $node is reachable."
@@ -35,35 +35,28 @@ wait_for_nodes() {
 
 reboot_cluster() {
     echo "[Healer] === COMPLETE OUTAGE DETECTED ==="
-    echo "[Healer] Stopping stale Group Replication on all nodes..."
-    for node in mysql-node1 mysql-node2 mysql-node3; do
-        run_sql "$node" "STOP GROUP_REPLICATION;" || true
-    done
-    sleep 2
+    echo "[Healer] Attempting to reboot InnoDB Cluster via mysqlsh..."
+    
+    cat << 'EOF' > /tmp/reboot.js
+try {
+    print("Connecting and rebooting cluster...\n");
+    // In batch mode, we might need force or it might just work
+    var c = dba.rebootClusterFromCompleteOutage('mcpCluster');
+    print("Reboot successful.\n");
+} catch(e) {
+    print("Reboot failed: " + e + "\n");
+}
+EOF
 
-    echo "[Healer] Bootstrapping Group Replication on mysql-node1..."
-    run_sql mysql-node1 "SET GLOBAL group_replication_bootstrap_group=ON; START GROUP_REPLICATION; SET GLOBAL group_replication_bootstrap_group=OFF;"
-
-    echo "[Healer] Waiting for mysql-node1 to come ONLINE..."
-    for i in $(seq 1 30); do
-        local status
-        status=$(run_sql mysql-node1 "SELECT member_state FROM performance_schema.replication_group_members WHERE member_host='mysql-node1';" || echo "WAITING")
-        if [ "$status" = "ONLINE" ]; then
-            echo "[Healer] mysql-node1 is ONLINE!"
-            break
-        fi
-        sleep 2
-    done
-
-    for node in mysql-node2 mysql-node3; do
-        echo "[Healer] Starting Group Replication on $node..."
-        run_sql "$node" "START GROUP_REPLICATION;" || true
-        sleep 3
-    done
-
+    mysqlsh --js --user=root --password=root --host=mysql-node1 -f /tmp/reboot.js
+    
     sleep 5
     local final_count
     final_count=$(run_sql mysql-node1 "SELECT COUNT(*) FROM performance_schema.replication_group_members WHERE member_state='ONLINE';" || echo "0")
+    
+    echo "[Healer] Unshunning ProxySQL backends..."
+    mysql -uadmin -padmin -h proxysql -P 6032 -e "LOAD MYSQL SERVERS TO RUNTIME;" 2>/dev/null || true
+
     echo "[Healer] Cluster reboot complete. $final_count/3 members ONLINE."
 }
 
@@ -83,7 +76,7 @@ while true; do
 
     # Check if ANY node reports ONLINE members
     ONLINE_COUNT=0
-    for node in mysql-node1 mysql-node2 mysql-node3; do
+    for node in ${MYSQL_NODES_LIST:-mysql-node1 mysql-node2 mysql-node3}; do
         count=$(run_sql "$node" "SELECT COUNT(*) FROM performance_schema.replication_group_members WHERE member_state='ONLINE';" || echo "0")
         if [ "$count" -gt "$ONLINE_COUNT" ]; then
             ONLINE_COUNT=$count
@@ -108,7 +101,7 @@ while true; do
         OUTAGE_COUNT=0
         # Partial outage - try to rejoin missing nodes
         echo "$ONLINE_COUNT" > "$HEALTH_FILE"
-        for node in mysql-node1 mysql-node2 mysql-node3; do
+        for node in ${MYSQL_NODES_LIST:-mysql-node1 mysql-node2 mysql-node3}; do
             node_status=$(run_sql mysql-node1 "SELECT member_state FROM performance_schema.replication_group_members WHERE member_host='$node';" || echo "UNKNOWN")
             if [ "$node_status" != "ONLINE" ] && [ "$node_status" != "RECOVERING" ]; then
                 rejoin_node "$node"

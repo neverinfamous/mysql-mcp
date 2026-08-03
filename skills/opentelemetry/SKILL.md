@@ -22,6 +22,7 @@ Production standards for instrumenting applications to achieve high-fidelity obs
   - GenAI Observability (tracking LLM calls, token exchanges, tool invocations)
   - Background task executions
 - **Semantic Conventions**: Use standardized span attributes (e.g., `http.method`, `http.status_code`, `db.system`). Do not invent custom attribute names when standard ones exist.
+- **GenAI Semantic Conventions**: When tracing LLM interactions, agent orchestration, or Model Context Protocol (MCP) tool calls, you MUST use the official `gen_ai.*` semantic conventions (e.g., `gen_ai.system`, `gen_ai.request.model`, `gen_ai.usage.prompt_tokens`). This ensures observability vendors (like Datadog) can properly map and analyze AI token usage and latency.
 
 ## 2. Span Implementation Guidelines
 
@@ -64,7 +65,8 @@ tracer.startActiveSpan('database.query', (span) => {
 
 ## 6. Structured Logging
 
-- **Correlated Logs**: Ensure all log lines emit the current `trace_id` and `span_id`. This allows bridging between logs and traces.
+- **Native OTel Logs SDK**: The OpenTelemetry Logs signal is now stable. Prefer using the native OTel Logs SDK (or an OTel-native appender) to emit logs directly as OTLP rather than wrapping legacy, unstructured loggers.
+- **Correlated Logs**: Ensure all log lines emit the current `trace_id` and `span_id`. This allows bridging between logs and traces. (The native OTel Logs SDK handles this automatically via Context).
 - **JSON Format**: Output logs in JSON format in production. Avoid unstructured string logging.
 
 ## 7. Security Gates

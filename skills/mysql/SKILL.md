@@ -37,6 +37,7 @@ MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST
 - **Safe Destructive Ops**: `DELETE` and `UPDATE` queries MUST include a `WHERE` clause.
 - **DDL Destructive Ops**: `TRUNCATE TABLE`, `DROP TABLE`, `DROP DATABASE`, `ALTER TABLE ... DROP COLUMN`, and `ALTER TABLE ... RENAME COLUMN` MUST require explicit user confirmation before execution. Never infer intent for these.
 - **Action Scoping**: Limit operations to single-statements. Do not stack multiple statements (`query1; query2;`) in a single payload unless executing a batch migration.
+- **Performance Validation**: ALWAYS run `EXPLAIN` (or `EXPLAIN ANALYZE` in MySQL 9.0+ for JSON output) before suggesting index optimizations or query rewrites to the user.
 
 ## 2. Connections & Transactions
 
@@ -62,3 +63,8 @@ MySQL and MariaDB are powerful relationship-driven databases, but AI agents MUST
 
 - **Authentication Plugins**: MySQL 9.0 completely removes the legacy `mysql_native_password` plugin (and it is disabled by default in 8.4). You MUST mandate and configure `caching_sha2_password` for all application drivers.
 - **TLS/SSL**: Enforce TLS/SSL for all connections. Use the `validate_password` plugin to strictly enforce password complexity.
+
+## 6. Modern Data Types (JSON & Vector)
+
+- **JSON Data**: ALWAYS use the native `JSON` data type instead of storing stringified JSON in `TEXT`/`VARCHAR` columns. Utilize `JSON_EXTRACT` (or the `->` / `->>` operators) for querying, and strongly consider creating Multi-Valued Indexes or functional indexes on heavily queried JSON paths.
+- **AI & Vector Workloads**: When working with MySQL 9.0+, utilize the native `VECTOR` data type and `VECTOR_DISTANCE()` function for storing and querying AI embeddings. Note that vector columns cannot currently be used as primary or foreign keys.

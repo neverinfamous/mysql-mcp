@@ -43,7 +43,7 @@ const CONFIG = {
     cluster: {
         name: 'mcpCluster',
         mysqlPort: 3306,
-        grPort: 33061,
+        grPort: 3306,
     },
     volume: {
         prefix: 'infrastructure_',
