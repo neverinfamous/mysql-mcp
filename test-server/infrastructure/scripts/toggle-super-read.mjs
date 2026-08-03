@@ -1,9 +1,8 @@
 import { execFileSync } from 'child_process';
-import { resolveScriptPaths } from './utils.mjs';
+import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
 function main() {
-    const dockerCmd = 'docker';
-    const dockerBaseArgs = [];
+    const { dockerCmd, dockerBaseArgs } = detectDocker();
     const { ecosystemRoot } = resolveScriptPaths(import.meta.url);
     console.log(`Connecting to primary node via docker exec...`);
     

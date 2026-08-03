@@ -1,10 +1,9 @@
 import { execFileSync } from 'child_process';
-import { resolveScriptPaths } from './utils.mjs';
+import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
 const { __dirname, ecosystemRoot } = resolveScriptPaths(import.meta.url);
 
-const dockerCmd = 'docker';
-const dockerBaseArgs = [];
+const { dockerCmd, dockerBaseArgs } = detectDocker();
 
 console.log(`\n=== MySQL-MCP Cluster Healer ===`);
 console.log(`Attempting to fix super_read_only lock on primary node...`);

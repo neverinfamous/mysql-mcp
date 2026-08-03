@@ -1,15 +1,14 @@
 import { execFileSync } from 'child_process';
 import { readFileSync, existsSync, rmSync } from 'fs';
 import { resolve } from 'path';
-import { resolveScriptPaths } from './utils.mjs';
+import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
 const { __dirname, ecosystemRoot } = resolveScriptPaths(import.meta.url);
 
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
 
-const dockerCmd = 'docker';
-const dockerBaseArgs = [];
+const { dockerCmd, dockerBaseArgs } = detectDocker();
 
 let cluster = args.includes('--Cluster') || args.includes('--cluster');
 
