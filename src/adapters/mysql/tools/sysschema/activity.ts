@@ -45,9 +45,10 @@ const UserSummarySchema = z.preprocess(
       return val;
     }
     const v = val as Record<string, unknown> & { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown; max?: unknown; count?: unknown };
+    const resolvedUser = v.user ?? v.username ?? v.userName ?? v.account;
     return {
       ...v,
-      user: v.user ?? v.username ?? v.userName ?? v.account,
+      user: resolvedUser === "" ? undefined : resolvedUser,
       limit: v.limit ?? v.max ?? v.count,
     };
   },
@@ -79,9 +80,10 @@ const HostSummarySchema = z.preprocess(
       return val;
     }
     const v = val as Record<string, unknown> & { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown; max?: unknown; count?: unknown };
+    const resolvedHost = v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address;
     return {
       ...v,
-      host: v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address,
+      host: resolvedHost === "" ? undefined : resolvedHost,
       limit: v.limit ?? v.max ?? v.count,
     };
   },
