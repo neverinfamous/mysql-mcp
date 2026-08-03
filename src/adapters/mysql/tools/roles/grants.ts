@@ -106,7 +106,7 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
           validateIdentifier(role, "role");
 
           const checkResult = await adapter.executeQuery(
-            `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
+            `WITH _dummy AS (SELECT 1) SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
@@ -149,7 +149,7 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           const checkResult = await adapter.executeQuery(
-            `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
+            `WITH _dummy AS (SELECT 1) SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
