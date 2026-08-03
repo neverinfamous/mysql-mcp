@@ -74,7 +74,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
           ifNotExists,
         } = EventCreateSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+        if (!/^[^`]+$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
@@ -150,7 +150,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         const { name, newName, schedule, body, onCompletion, status, comment } =
           EventAlterSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+        if (!/^[^`]+$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
@@ -181,7 +181,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (newName) {
-          if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(newName)) {
+          if (!/^[^`]+$/.test(newName)) {
             return formatHandlerErrorResponse(new ValidationError("Invalid new event name",));
           }
           clauses.push(`RENAME TO \`${newName}\``);
@@ -241,7 +241,7 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { name, ifExists, schema } = EventDropSchema.parse(params);
 
-        if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
+        if (!/^[^`]+$/.test(name)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
