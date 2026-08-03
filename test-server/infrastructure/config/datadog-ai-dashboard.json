@@ -540,14 +540,14 @@
                 "aggregator": "last",
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "min:mysql.cluster.super_read_only{!container_name:mysql-async-replica}.rollup(min)"
+                "query": "last:mysql.cluster.super_read_only{!container_name:mysql-async-replica}.rollup(last)"
               }
             ],
             "response_format": "scalar"
           }
         ],
         "time": {
-          "live_span": "5m"
+          "live_span": "1m"
         },
         "title": "Router Super Read Status",
         "title_align": "center",
