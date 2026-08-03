@@ -364,6 +364,8 @@ export async function execShellJS(
               .join("; ");
             throw new QueryError(specificError);
           }
+          // Fallback to full stderr if no specific ERROR: lines are found
+          throw new QueryError(`${errorMsg}: ${stderrClean}`);
         }
 
         throw new QueryError(errorMsg);
