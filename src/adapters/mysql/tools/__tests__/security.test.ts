@@ -758,12 +758,7 @@ describe("Security Tools", () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(
         createMockQueryResult([
           { Variable_name: "innodb_encryption_threads", Value: "4" },
-        ]),
-      );
-      // InnoDB Vars
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([
-          { Variable_name: "innodb_redo_log_encrypt", Value: "ON" },
+          { Variable_name: "innodb_redo_log_encrypt", Value: "ON" }
         ]),
       );
 

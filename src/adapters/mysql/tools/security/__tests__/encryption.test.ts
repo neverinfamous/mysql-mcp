@@ -99,11 +99,10 @@ describe("Security Encryption Tools", () => {
         })
         // variables
         .mockResolvedValueOnce({
-          rows: [{ Variable_name: "default_table_encryption", Value: "ON" }],
-        })
-        // innodb variables
-        .mockResolvedValueOnce({
-          rows: [{ Variable_name: "innodb_redo_log_encrypt", Value: "ON" }],
+          rows: [
+            { Variable_name: "default_table_encryption", Value: "ON" },
+            { Variable_name: "innodb_redo_log_encrypt", Value: "ON" }
+          ],
         });
 
       const result = await tool.handler({}, {});
