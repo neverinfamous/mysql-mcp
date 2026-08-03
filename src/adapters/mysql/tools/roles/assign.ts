@@ -220,6 +220,11 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             return formatHandlerErrorResponse(error);
           }
           const message = error instanceof Error ? error.message : String(error);
+          if (message.includes("GRANT would create a loop")) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError("Cannot assign a role to itself. The GRANT would create a loop.", "VALIDATION_ERROR", ErrorCategory.VALIDATION)
+            );
+          }
           if (message.includes("Unknown authorization ID")) {
             return formatHandlerErrorResponse(
               new MySQLMcpError("User does not exist", "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
