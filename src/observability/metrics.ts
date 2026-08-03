@@ -229,6 +229,7 @@ export class MetricsRegistry {
   private tools = new Map<string, ToolMetric>();
   private resources = new Map<string, ResourceMetric>();
   private cache = new CacheMetric();
+  private lastPercentileUpdate = 0;
   private redis = new RedisMetric();
   private httpErrors: Record<string, number> = { "401": 0, "413": 0, "429": 0 };
   private jsonlState = { offset: 0, toolStats: new Map<string, { calls: number; errors: number; tokens: number; durations: number[]; errorTypes: Record<string, number>; errorCategories: Record<string, number> }>(), resourceStats: new Map<string, { reads: number }>(), poolStatsByPid: new Map<number, PoolStats>() };
@@ -688,35 +689,39 @@ export class MetricsRegistry {
       // needed for accurate percentiles — independent of the 5-minute flush cycle.
       // This fills the gap when metrics_snapshots has p50=0 (fresh start or new tools).
       // Uses SQLite window functions available since SQLite 3.25 (2018).
-      const percentileRows = db.prepare(`
-        WITH ranked AS (
+      const now = Date.now();
+      if (now - this.lastPercentileUpdate > 15_000) {
+        this.lastPercentileUpdate = now;
+        const percentileRows = db.prepare(`
+          WITH ranked AS (
+            SELECT
+              tool,
+              durationMs,
+              ROW_NUMBER() OVER (PARTITION BY tool ORDER BY durationMs) AS rn,
+              COUNT(*) OVER (PARTITION BY tool) AS cnt
+            FROM (SELECT tool, durationMs FROM audit_logs ORDER BY id DESC LIMIT 10000)
+          )
           SELECT
             tool,
-            durationMs,
-            ROW_NUMBER() OVER (PARTITION BY tool ORDER BY durationMs) AS rn,
-            COUNT(*) OVER (PARTITION BY tool) AS cnt
-          FROM audit_logs
-        )
-        SELECT
-          tool,
-          MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.50 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p50,
-          MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.95 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p95,
-          MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.99 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p99
-        FROM ranked
-        GROUP BY tool
-      `).all();
+            MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.50 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p50,
+            MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.95 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p95,
+            MAX(CASE WHEN rn = MAX(1, CAST(cnt * 0.99 AS INTEGER)) THEN CAST(durationMs AS INTEGER) END) AS p99
+          FROM ranked
+          GROUP BY tool
+        `).all();
 
-      const parsedPercentileRows = z.array(PercentileRowSchema).parse(percentileRows);
-      for (const row of parsedPercentileRows) {
-        const metric = this.tools.get(row.tool);
-        if (!metric) continue;
-        // Only override with DB-computed percentiles when the in-memory sample buffer
-        // is empty (i.e., the exporter, which reads the shared DB but never handles
-        // tool calls itself). IDE processes use their own live circular buffer instead.
-        if (!metric.hasLocalActivity()) {
-          metric.loaded_p50 = row.p50 ?? 0;
-          metric.loaded_p95 = row.p95 ?? 0;
-          metric.loaded_p99 = row.p99 ?? 0;
+        const parsedPercentileRows = z.array(PercentileRowSchema).parse(percentileRows);
+        for (const row of parsedPercentileRows) {
+          const metric = this.tools.get(row.tool);
+          if (!metric) continue;
+          // Only override with DB-computed percentiles when the in-memory sample buffer
+          // is empty (i.e., the exporter, which reads the shared DB but never handles
+          // tool calls itself). IDE processes use their own live circular buffer instead.
+          if (!metric.hasLocalActivity()) {
+            metric.loaded_p50 = row.p50 ?? 0;
+            metric.loaded_p95 = row.p95 ?? 0;
+            metric.loaded_p99 = row.p99 ?? 0;
+          }
         }
       }
 
