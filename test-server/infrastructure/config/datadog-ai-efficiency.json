@@ -1,9 +1,9 @@
 {
   "description": "Executive overview of agent usage, billing, and high-level efficiency.",
   "layout_type": "ordered",
-  "notify_list": null,
+  "notify_list": [],
   "pause_auto_refresh": null,
-  "reflow_type": null,
+  "reflow_type": "fixed",
   "template_variables": [],
   "title": "MySQL-MCP AI Efficiency \u0026 Costs",
   "widgets": [
@@ -43,131 +43,6 @@
         "type": "query_value"
       },
       "id": 7378643571903931,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 0,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "max:mysql_mcp.mysql_mcp_uptime_seconds{*}.rollup(max)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Uptime Seconds",
-        "type": "timeseries"
-      },
-      "id": 2441970712143854,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 2,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "never",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
-                "formula": "top(query1, 10, 'sum', 'desc')"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*} by {resource}.as_count().rollup(sum)"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "count": 10,
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
-          }
-        ],
-        "title": "Resource Reads",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
-      },
-      "id": 1255873323847733,
-      "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 4,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "autoscale": true,
-        "precision": 2,
-        "requests": [
-          {
-            "aggregator": "sum",
-            "conditional_formats": [
-              {
-                "comparator": "\u003e=",
-                "custom_bg_color": "#0b4107",
-                "palette": "custom_bg",
-                "value": 0.0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "default_zero(query1)"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum)"
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "title": "Total Tokens Used",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 3208252485683038,
       "layout": {
         "height": 2,
         "width": 2,
@@ -269,51 +144,6 @@
             "conditional_formats": [
               {
                 "comparator": "\u003e=",
-                "custom_bg_color": "#063c11",
-                "palette": "custom_bg",
-                "value": 0.0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "(((default_zero(query1)) / 1000000) * 5)"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum)"
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "title": "Total Cost (Claude 4.8) ($)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 1108273956124995,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 6,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "autoscale": true,
-        "description": "Amounts under a penny will show in scientific notation.",
-        "precision": 2,
-        "requests": [
-          {
-            "aggregator": "sum",
-            "conditional_formats": [
-              {
-                "comparator": "\u003e=",
                 "custom_bg_color": "#083f0f",
                 "palette": "custom_bg",
                 "value": 0.0
@@ -341,6 +171,51 @@
         "type": "query_value"
       },
       "id": 504802242786021,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "description": "Amounts under a penny will show in scientific notation.",
+        "precision": 2,
+        "requests": [
+          {
+            "aggregator": "sum",
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "custom_bg_color": "#063c11",
+                "palette": "custom_bg",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "(((default_zero(query1)) / 1000000) * 5)"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_tokens_total{*}.rollup(sum)"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Total Cost (Claude 4.8) ($)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 1108273956124995,
       "layout": {
         "height": 2,
         "width": 2,
@@ -453,6 +328,51 @@
                 "aggregator": "sum",
                 "data_source": "metrics",
                 "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_resource_reads.count{*} by {resource}.as_count().rollup(sum)"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "count": 10,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Resource Reads",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 1255873323847733,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 2
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "never",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "top(query1, 10, 'sum', 'desc')"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum)"
               }
             ],
@@ -478,7 +398,7 @@
       "layout": {
         "height": 4,
         "width": 4,
-        "x": 4,
+        "x": 8,
         "y": 2
       }
     },
@@ -525,7 +445,89 @@
         "is_column_break": true,
         "width": 2,
         "x": 0,
-        "y": 11
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "formula": "default_zero(query1) + default_zero(query2)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Tool Calls Count",
+        "type": "timeseries"
+      },
+      "id": 4189978919612548,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 2,
+        "y": 6
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Tool Tokens Per Call",
+        "type": "timeseries"
+      },
+      "id": 7655949397149970,
+      "layout": {
+        "height": 2,
+        "width": 3,
+        "x": 5,
+        "y": 6
       }
     }
   ]

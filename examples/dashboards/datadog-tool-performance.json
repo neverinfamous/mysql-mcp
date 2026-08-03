@@ -1,9 +1,9 @@
 {
   "description": "Deep dive into tool latencies, bottlenecks, and error classification.",
   "layout_type": "ordered",
-  "notify_list": null,
+  "notify_list": [],
   "pause_auto_refresh": null,
-  "reflow_type": null,
+  "reflow_type": "fixed",
   "template_variables": [
     {
       "available_values": [],
@@ -14,6 +14,54 @@
   ],
   "title": "MySQL-MCP Tool Performance \u0026 Quality",
   "widgets": [
+    {
+      "definition": {
+        "has_search_bar": "never",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "top(calls * latency, 10, 'sum', 'desc')"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "calls",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum)"
+              },
+              {
+                "data_source": "metrics",
+                "name": "latency",
+                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}.rollup(avg)"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Optimization Target (Total Gross Latency)",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 115532157614989,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 0,
+        "y": 0
+      }
+    },
     {
       "definition": {
         "has_search_bar": "never",
@@ -55,90 +103,8 @@
       "layout": {
         "height": 4,
         "width": 4,
-        "x": 8,
+        "x": 4,
         "y": 0
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "formula": "default_zero(query1) + default_zero(query2)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Tool Calls Count",
-        "type": "timeseries"
-      },
-      "id": 4824133100420303,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 2
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_tokens_per_call{*}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Tool Tokens Per Call",
-        "type": "timeseries"
-      },
-      "id": 2699983344402485,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 4
       }
     },
     {
@@ -172,9 +138,9 @@
       "id": 2800603218336626,
       "layout": {
         "height": 2,
-        "width": 4,
-        "x": 4,
-        "y": 4
+        "width": 2,
+        "x": 8,
+        "y": 0
       }
     },
     {
@@ -208,9 +174,59 @@
       "id": 3783879016448095,
       "layout": {
         "height": 2,
-        "width": 4,
+        "width": 2,
+        "x": 10,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "bars",
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.as_count().rollup(sum)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "dog_classic"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "Shell Tool Errors",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "timeseries"
+      },
+      "id": 5194067084974108,
+      "layout": {
+        "height": 2,
+        "width": 2,
         "x": 8,
-        "y": 4
+        "y": 2
       }
     },
     {
@@ -283,56 +299,9 @@
       "id": 6126676673229792,
       "layout": {
         "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 6
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.",
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "formula": "default_zero(query1) + default_zero(query2)"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Tool Errors Count",
-        "type": "timeseries"
-      },
-      "id": 1079119422175585,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 4,
-        "y": 6
+        "width": 2,
+        "x": 10,
+        "y": 2
       }
     },
     {
@@ -366,57 +335,10 @@
       "id": 5308687878533278,
       "layout": {
         "height": 2,
-        "width": 4,
-        "x": 8,
-        "y": 6
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "never",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
-                "formula": "top(calls * latency, 10, 'sum', 'desc')"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "calls",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*} by {tool}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "latency",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{*} by {tool}.rollup(avg)"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
-            }
-          }
-        ],
-        "title": "Optimization Target (Total Gross Latency)",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
-      },
-      "id": 115532157614989,
-      "layout": {
-        "height": 4,
-        "width": 4,
-        "x": 8,
-        "y": 2
+        "is_column_break": true,
+        "width": 2,
+        "x": 0,
+        "y": 4
       }
     },
     {
@@ -473,8 +395,53 @@
       "layout": {
         "height": 2,
         "width": 2,
-        "x": 10,
-        "y": 11
+        "x": 2,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "has_search_bar": "never",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "cell_display_mode": "bar",
+                "formula": "top(query1, 10, 'sum', 'desc')"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "sum",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count().rollup(sum)"
+              }
+            ],
+            "response_format": "scalar",
+            "sort": {
+              "count": 10,
+              "order_by": [
+                {
+                  "index": 0,
+                  "order": "desc",
+                  "type": "formula"
+                }
+              ]
+            }
+          }
+        ],
+        "title": "Errors by Category",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_table"
+      },
+      "id": 203565609753300,
+      "layout": {
+        "height": 4,
+        "width": 4,
+        "x": 4,
+        "y": 4
       }
     },
     {
@@ -519,104 +486,54 @@
         "height": 4,
         "width": 4,
         "x": 8,
-        "y": 13
+        "y": 4
       }
     },
     {
       "definition": {
-        "autoscale": true,
-        "custom_links": [],
-        "precision": 0,
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "description": "Note: This captures all errors across all tools. The Error Logs widget only displays audited errors (Writes/Admin) unless the server is started with theÃ‚Â `--audit-reads`Ã‚Â flag.",
+        "legend_layout": "auto",
         "requests": [
           {
-            "conditional_formats": [
+            "display_type": "line",
+            "formulas": [
               {
-                "comparator": "=",
-                "custom_bg_color": "#841010",
-                "palette": "custom_bg",
-                "value": 0.0
+                "formula": "default_zero(query1) + default_zero(query2)"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum)"
               },
               {
-                "comparator": "=",
-                "palette": "white_on_green",
-                "value": 1.0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "last",
                 "data_source": "metrics",
-                "name": "query1",
-                "query": "max:mysql_mcp.shell.status{*}.fill(last).rollup(max)"
+                "name": "query2",
+                "query": "sum:mysql_mcp.mysql_mcp_tool_errors.count{*}.as_count().rollup(sum)"
               }
             ],
-            "response_format": "scalar"
-          }
-        ],
-        "time": {
-          "live_span": "1h"
-        },
-        "title": "MySQL Shell Status",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 4546505168593902,
-      "layout": {
-        "height": 1,
-        "width": 4,
-        "x": 0,
-        "y": 17
-      }
-    },
-    {
-      "definition": {
-        "has_search_bar": "never",
-        "requests": [
-          {
-            "formulas": [
-              {
-                "cell_display_mode": "bar",
-                "formula": "top(query1, 10, 'sum', 'desc')"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "sum",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_by_category.count{*} by {category}.as_count().rollup(sum)"
-              }
-            ],
-            "response_format": "scalar",
-            "sort": {
-              "count": 10,
-              "order_by": [
-                {
-                  "index": 0,
-                  "order": "desc",
-                  "type": "formula"
-                }
-              ]
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
             }
           }
         ],
-        "title": "Errors by Category",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_table"
+        "show_legend": true,
+        "title": "Tool Errors Count",
+        "type": "timeseries"
       },
-      "id": 203565609753300,
+      "id": 1079119422175585,
       "layout": {
-        "height": 5,
-        "width": 4,
-        "x": 4,
-        "y": 17
+        "height": 2,
+        "width": 2,
+        "x": 0,
+        "y": 6
       }
     },
     {
@@ -651,100 +568,10 @@
       },
       "id": 203565609753301,
       "layout": {
-        "height": 5,
-        "width": 4,
-        "x": 8,
-        "y": 17
-      }
-    },
-    {
-      "definition": {
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:mysql_mcp.mysql_mcp_tool_latency_ms_p50{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "dog_classic"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "Shell Execution Latency (ms)",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "timeseries"
-      },
-      "id": 1069600359152020,
-      "layout": {
         "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 18
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "legend_columns": [
-          "avg",
-          "min",
-          "max",
-          "value",
-          "sum"
-        ],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "bars",
-            "formulas": [
-              {
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_errors_total{tool IN (mysqlsh_version,mysqlsh_check_upgrade,mysqlsh_export_table,mysqlsh_import_table,mysqlsh_import_json,mysqlsh_dump_instance,mysqlsh_dump_schemas,mysqlsh_dump_tables,mysqlsh_load_dump,mysqlsh_run_script)}.as_count().rollup(sum)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "dog_classic"
-            }
-          }
-        ],
-        "show_legend": true,
-        "time": {},
-        "title": "Shell Tool Errors",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "timeseries"
-      },
-      "id": 5194067084974108,
-      "layout": {
-        "height": 2,
-        "width": 4,
-        "x": 0,
-        "y": 20
+        "width": 2,
+        "x": 2,
+        "y": 6
       }
     }
   ]
