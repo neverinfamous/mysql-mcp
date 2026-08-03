@@ -70,18 +70,20 @@ const StatementSummarySchemaBase = z.object({
   sortBy: z.string().optional().describe("Alias for orderBy"),
   order_by: z.string().optional().describe("Alias for orderBy"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
-});
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const StatementSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown> & { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; order_by?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { orderBy?: unknown; order?: unknown; sort?: unknown; sortBy?: unknown; order_by?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
       ...v,
       orderBy: v.orderBy ?? v.order_by ?? v.sortBy ?? v.order ?? v.sort,
-      limit: v.limit,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
@@ -91,6 +93,8 @@ const StatementSummarySchema = z.preprocess(
     sort: z.any().optional(),
     sortBy: z.any().optional(),
     order_by: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -105,24 +109,28 @@ const WaitSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of wait summary. Anti-Hallucination: Valid values are 'global', 'by_host', 'by_user', 'by_instance'."),
   waitType: z.string().optional().describe("Alias for type"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
-});
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const WaitSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown> & { type?: unknown; waitType?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { type?: unknown; waitType?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
       ...v,
       type: v.type ?? v.waitType,
-      limit: v.limit,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
     type: z.string().toLowerCase().default("global"),
     limit: z.coerce.number().int().positive().default(5),
     waitType: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
@@ -132,24 +140,28 @@ const IOSummarySchemaBase = z.object({
   type: z.string().optional().describe("Type of I/O summary. Anti-Hallucination: Valid values are 'file', 'table', 'global'."),
   ioType: z.string().optional().describe("Alias for type"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
-});
+  max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+  count: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
+}).loose();
 
 const IOSummarySchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown> & { type?: unknown; ioType?: unknown; limit?: unknown };
+    const v = val as Record<string, unknown> & { type?: unknown; ioType?: unknown; limit?: unknown; max?: unknown; count?: unknown };
     return {
       ...v,
       type: v.type ?? v.ioType,
-      limit: v.limit,
+      limit: v.limit ?? v.max ?? v.count,
     };
   },
   z.object({
     type: z.string().toLowerCase().default("table"),
     limit: z.coerce.number().int().positive().default(5),
     ioType: z.any().optional(),
+    max: z.any().optional(),
+    count: z.any().optional(),
   }).strict()
 );
 
