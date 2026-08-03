@@ -201,21 +201,6 @@ export function createSecurityEncryptionStatusTool(
           }),
         );
 
-        // Check redo/undo log encryption
-        const innodbVarsResult = await adapter.executeQuery(
-          "SHOW VARIABLES LIKE 'innodb_%encrypt%'",
-        );
-
-        const innodbVars: Record<string, unknown> = Object.fromEntries(
-          (innodbVarsResult.rows ?? []).map((r) => {
-            const record = r;
-            const varName =
-              typeof record["Variable_name"] === "string"
-                ? record["Variable_name"]
-                : "";
-            return [varName, record["Value"]];
-          }),
-        );
 
         return withTokenEstimate({
           success: true,
@@ -224,10 +209,7 @@ export function createSecurityEncryptionStatusTool(
             keyringInstalled: (keyringResult.rows?.length ?? 0) > 0,
             encryptedTablespaces,
             encryptedTablespaceCount,
-            encryptionSettings: {
-              ...variables,
-              ...innodbVars,
-            },
+            encryptionSettings: variables,
             tdeAvailable: (keyringResult.rows?.length ?? 0) > 0,
           },
         });
