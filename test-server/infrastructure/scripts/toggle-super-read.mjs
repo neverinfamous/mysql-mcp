@@ -1,15 +1,19 @@
 import { execFileSync } from 'child_process';
-import { detectDocker, resolveScriptPaths } from './utils.mjs';
+import { resolveScriptPaths } from './utils.mjs';
 
 function main() {
-    const { dockerCmd, dockerBaseArgs } = detectDocker();
+    const dockerCmd = 'docker';
+    const dockerBaseArgs = [];
     const { ecosystemRoot } = resolveScriptPaths(import.meta.url);
     console.log(`Connecting to primary node via docker exec...`);
     
     let servicesRaw = '';
     try {
         servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8', cwd: ecosystemRoot }).trim();
-    } catch(e) {}
+    } catch(e) {
+        console.error(`❌ Failed to execute docker compose config --services`);
+        process.exit(1);
+    }
     const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
     if (mysqlNodes.length === 0) {
         console.error(`❌ Could not dynamically discover any mysql-node containers.`);

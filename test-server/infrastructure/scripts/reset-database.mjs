@@ -1,14 +1,15 @@
 import { execFileSync } from 'child_process';
 import { readFileSync, existsSync, rmSync } from 'fs';
 import { resolve } from 'path';
-import { detectDocker, resolveScriptPaths } from './utils.mjs';
+import { resolveScriptPaths } from './utils.mjs';
 
 const { __dirname, ecosystemRoot } = resolveScriptPaths(import.meta.url);
 
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
 
-const { dockerCmd, dockerBaseArgs } = detectDocker();
+const dockerCmd = 'docker';
+const dockerBaseArgs = [];
 
 let cluster = args.includes('--Cluster') || args.includes('--cluster');
 
@@ -24,7 +25,10 @@ if (!cluster) {
 let servicesRaw = '';
 try {
     servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8', cwd: ecosystemRoot }).trim();
-} catch (e) {}
+} catch (e) {
+    console.error(`❌ Failed to execute docker compose config --services`);
+    process.exit(1);
+}
 const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
 const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
 

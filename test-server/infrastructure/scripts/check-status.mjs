@@ -98,9 +98,6 @@ if (process.platform === 'win32') {
 }
 
 let servicesRaw = execCommand(dockerCmd, [...dockerArgs, 'config', '--services'], true);
-if (!servicesRaw) {
-    servicesRaw = execCommand('docker-compose', ['config', '--services'], true);
-}
 
 let containers = [];
 if (servicesRaw) {

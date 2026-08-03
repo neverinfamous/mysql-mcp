@@ -1,9 +1,10 @@
 import { execFileSync } from 'child_process';
-import { detectDocker, resolveScriptPaths } from './utils.mjs';
+import { resolveScriptPaths } from './utils.mjs';
 
 const { __dirname, ecosystemRoot } = resolveScriptPaths(import.meta.url);
 
-const { dockerCmd, dockerBaseArgs } = detectDocker();
+const dockerCmd = 'docker';
+const dockerBaseArgs = [];
 
 console.log(`\n=== MySQL-MCP Cluster Healer ===`);
 console.log(`Attempting to fix super_read_only lock on primary node...`);
@@ -11,7 +12,10 @@ console.log(`Attempting to fix super_read_only lock on primary node...`);
 let servicesRaw = '';
 try {
     servicesRaw = execFileSync(dockerCmd, [...dockerBaseArgs, 'compose', 'config', '--services'], { encoding: 'utf-8', cwd: ecosystemRoot }).trim();
-} catch(e) {}
+} catch(e) {
+    console.error(`❌ Failed to execute docker compose config --services`);
+    process.exit(1);
+}
 const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
 if (mysqlNodes.length === 0) {
     console.error(`❌ Could not dynamically discover any mysql-node containers.`);
