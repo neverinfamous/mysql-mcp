@@ -146,6 +146,16 @@ export function createShellDumpInstanceTool(
             )
           );
         }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Could not create directory")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The parent directory for the output path does not exist. Ensure the directory path is correct and exists." }
+            )
+          );
+        }
         if (errorMessage.includes("unexpected input near ;") || errorMessage.includes("ProxySQL")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -292,6 +302,16 @@ export function createShellDumpSchemasTool(
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION,
               { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Could not create directory")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The parent directory for the output path does not exist. Ensure the directory path is correct and exists." }
             )
           );
         }
@@ -475,6 +495,16 @@ export function createShellDumpTablesTool(
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION,
               { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("No such file or directory") || errorMessage.includes("Could not create directory")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The parent directory for the output path does not exist. Ensure the directory path is correct and exists." }
             )
           );
         }
