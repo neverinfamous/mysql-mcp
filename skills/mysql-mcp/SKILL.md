@@ -13,6 +13,9 @@ references:
   - mysql-mcp-infrastructure
   - datadog
   - opentelemetry
+  - mysql-router
+  - mysqlsh
+  - proxysql
 ---
 
 # MySQL MCP Server Guidelines
@@ -29,6 +32,9 @@ The `mysql-mcp` server operates within a broader skill ecosystem. **Do not guess
 | **`mysql-mcp-infrastructure`** | Tearing down, rebuilding, or reseeding the local Docker test ecosystem | HITL-gated lifecycle scripts (`recreate-ecosystem.mjs`, `reset-database.mjs`), Docker Compose standards |
 | **`datadog`** | Debugging Datadog Agent, managing dashboards, interpreting InnoDB Cluster custom queries | `pup` CLI, custom YAML queries for Group Replication lag, expected proxy log noise, WSL agent configuration |
 | **`opentelemetry`** | Instrumenting MCP tool telemetry, configuring span attributes | `gen_ai.*` semantic conventions, `db.system` attributes, OTLP pipeline |
+| **`mysql-router`** | Working with MySQL Router or configuring cluster HA routing | Bootstrap mechanics, routing strategies, REST API monitoring, connection sharing |
+| **`mysqlsh`** | Using MySQL Shell, AdminAPI, or dump/load utilities | InnoDB Cluster management (`dba`), parallel dump/load (`util.*`), Upgrade Checker |
+| **`proxysql`** | Working with ProxySQL, connection multiplexing, or query routing | 3-layer config (MEMORY/RUNTIME/DISK), query rules, caching, firewalling |
 
 ## 2. Context & Architecture Recovery
 
