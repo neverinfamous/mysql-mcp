@@ -44,7 +44,7 @@ const AuditLogSchemaBase = z.object({
   event: z.unknown().optional().describe("Alias for eventType"),
   startTime: z.unknown().optional().describe("Start time filter (ISO 8601)"),
   time: z.unknown().optional().describe("Alias for startTime"),
-}).strict();
+}).loose();
 
 const AuditLogSchema = z.preprocess(
   (val: unknown) => {
@@ -89,7 +89,7 @@ const FirewallRulesSchemaBase = z.object({
   userName: z.unknown().optional().describe("Alias for user"),
   username: z.unknown().optional().describe("Alias for user"),
   mode: z.unknown().optional().describe("Filter by mode"),
-});
+}).loose();
 
 const FirewallRulesSchema = z.preprocess(
   (val: unknown) => {
@@ -202,7 +202,7 @@ export function createSecurityAuditTool(adapter: MySQLAdapter): ToolDefinition {
           const result = await adapter.executeQuery(query, []);
           const data: Record<string, unknown> = {
             source: "performance_schema",
-            message: "Using performance_schema AS audit log is not available",
+            message: "Using performance_schema as fallback because audit_log is not available",
             events: result.rows ?? [],
             count: result.rows?.length ?? 0,
           };
@@ -286,12 +286,14 @@ export function createSecurityFirewallStatusTool(
     title: "MySQL Firewall Status",
     description: "Get MySQL Enterprise Firewall plugin status.",
     group: "security",
-    inputSchema: z.object({}).strict(),
+    inputSchema: z.object({}).loose(),
     outputSchema: SecurityFirewallStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
-    handler: async (_params: unknown, _context: RequestContext) => {
+    handler: async (params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(params);
+
         // Check if firewall plugin is installed
         const pluginResult = await adapter.executeQuery(
           "SELECT PLUGIN_NAME as Name, PLUGIN_STATUS as Status FROM information_schema.PLUGINS WHERE PLUGIN_NAME LIKE ?",
@@ -338,6 +340,9 @@ export function createSecurityFirewallStatusTool(
           },
         });
       } catch (error) {
+        if (error instanceof ZodError) {
+          return formatHandlerErrorResponse(error, { module: "security", tool: "mysql_security_firewall_status" });
+        }
         if (
           error !== null &&
           typeof error === "object" &&
