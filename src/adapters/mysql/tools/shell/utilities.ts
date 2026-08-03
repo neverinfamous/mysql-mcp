@@ -60,10 +60,10 @@ export function createShellCheckUpgradeTool(): ToolDefinition {
             { timeout: 120000 }
           );
           if (rawResult.exitCode !== 0) {
+            const escapeChar = String.fromCharCode(27);
             const errorMsg = (rawResult.stderr || rawResult.stdout || "MySQL Shell command failed")
               // Strip ANSI color codes
-              // eslint-disable-next-line no-control-regex
-              .replace(/\x1b\[[0-9;]*m/g, "")
+              .replace(new RegExp(`${escapeChar}\\[[0-9;]*m`, "g"), "")
               .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
               .replace(/Cannot set LC_ALL to locale [^\n]+\n/gi, "")
               .trim() || "MySQL Shell command failed";

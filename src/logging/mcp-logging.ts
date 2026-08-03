@@ -108,14 +108,13 @@ class McpLogger {
     }
 
     try {
-      // Use the SDK's sendLoggingMessage method
-      // TODO (SEP-2577): Migrate to stderr logging (STDIO) or OpenTelemetry before the 12-month window expires.
-      // eslint-disable-next-line @typescript-eslint/no-deprecated
-      void this.server.sendLoggingMessage({
+      // Migrated to stderr logging (STDIO) per MCP 2026-07-28 guidelines (SEP-2577).
+      console.error(JSON.stringify({
+        timestamp: new Date().toISOString(),
         level,
         logger: this.loggerName,
         data: data ? { message, ...data } : message,
-      });
+      }));
     } catch {
       // Silently fail if logging fails - don't crash the server
       // The MCP transport might not be connected yet
