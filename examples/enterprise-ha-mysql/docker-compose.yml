@@ -151,6 +151,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    labels:
+      com.datadoghq.ad.check_names: '["http_check"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"reported_hostname":"adamic-wsl2", "name": "mysql_router_rest_api", "url": "https://%%host%%:8443/api/20190715/router/status", "username": "rest_api", "password": "router_api", "skip_cert_verify": true}]'
+      com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"example-ha-router"}]'
     healthcheck:
       test: ["CMD-SHELL", "grep -q '192E' /proc/net/tcp || exit 1"]
       interval: 15s
