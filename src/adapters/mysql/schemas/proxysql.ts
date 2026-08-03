@@ -234,13 +234,13 @@ export const ProxySQLUsersInputSchema = z.preprocess(
 
 export const ProxySQLStatusInputSchemaBase = z.object({
   summary: z
-    .union([z.boolean(), z.string()])
+    .any()
     .optional()
     .describe(
       "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Anti-Hallucination Hint: pass 'summary', not 'database' or 'table'.",
     ),
-  database: z.union([z.boolean(), z.string()]).optional().describe("Alias for summary"),
-  table: z.union([z.boolean(), z.string()]).optional().describe("Alias for summary"),
+  database: z.any().optional().describe("Alias for summary"),
+  table: z.any().optional().describe("Alias for summary"),
 }).loose();
 
 export const ProxySQLStatusInputSchema = z.preprocess(
@@ -304,13 +304,13 @@ export const ProxySQLStatusInputSchema = z.preprocess(
 
 export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
-    .union([z.number(), z.string(), z.boolean()])
+    .any()
     .optional()
     .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
-  count: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
-  max: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
-  top: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
-  rows: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
+  count: z.any().optional().describe("Alias for limit"),
+  max: z.any().optional().describe("Alias for limit"),
+  top: z.any().optional().describe("Alias for limit"),
+  rows: z.any().optional().describe("Alias for limit"),
 }).loose();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
@@ -407,26 +407,26 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
   prefix: z
-    .enum(["mysql", "admin", "all"])
+    .any()
     .optional()
     .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
   like: z
-    .string()
+    .any()
     .optional()
     .describe(
       "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
     ),
   limit: z
-    .union([z.number(), z.string(), z.boolean()])
+    .any()
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
-  count: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
-  max: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
-  top: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
-  rows: z.union([z.number(), z.string(), z.boolean()]).optional().describe("Alias for limit"),
-  pattern: z.string().optional().describe("Alias for like"),
-  search: z.string().optional().describe("Alias for like"),
-  name: z.string().optional().describe("Alias for like"),
+  count: z.any().optional().describe("Alias for limit"),
+  max: z.any().optional().describe("Alias for limit"),
+  top: z.any().optional().describe("Alias for limit"),
+  rows: z.any().optional().describe("Alias for limit"),
+  pattern: z.any().optional().describe("Alias for like"),
+  search: z.any().optional().describe("Alias for like"),
+  name: z.any().optional().describe("Alias for like"),
 }).loose();
 
 export const ProxySQLVariableFilterSchema = z.preprocess(
