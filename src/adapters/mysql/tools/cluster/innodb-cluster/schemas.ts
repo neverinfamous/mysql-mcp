@@ -37,7 +37,12 @@ export const LimitSchema = z.preprocess((val) => {
     if (newLimit === undefined && "count" in v) {
       newLimit = v["count"];
     }
-    return { ...val, limit: newLimit };
+    
+    const cleaned = { ...val } as { count?: unknown; limit?: unknown; [key: string]: unknown };
+    delete cleaned.count;
+    cleaned.limit = newLimit;
+    
+    return cleaned;
   }
   return val;
 }, z.object({
