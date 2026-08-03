@@ -170,8 +170,19 @@ export function createVectorOptimizeTool(adapter: MySQLAdapter): ToolDefinition 
 
         const table = sanitizeIdentifier(validated.table);
         
-        // Pre-check table existence to satisfy P154
-        await adapter.describeTable(table);
+        // Pre-check table existence and ensure it has a vector column to satisfy P154
+        const tableInfo = await adapter.describeTable(table);
+        const hasVector = tableInfo.columns?.some(c => typeof c.type === 'string' && c.type.toLowerCase().startsWith('vector'));
+        
+        if (!hasVector) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              `Table '${table}' does not contain any VECTOR columns.`,
+              "INVALID_COLUMN_TYPE",
+              ErrorCategory.VALIDATION
+            )
+          );
+        }
 
         await ensureVectorSupport(adapter);
         
