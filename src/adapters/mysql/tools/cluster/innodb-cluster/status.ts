@@ -30,7 +30,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { summary } = SummarySchema.parse(params);
         // Check for cluster metadata schema
-        const schemaCheck = await adapter.executeQuery(`
+        const schemaCheck = await adapter.executeQuery(`/* readonly */
                     (SELECT SCHEMA_NAME
                     FROM information_schema.SCHEMATA
                     WHERE SCHEMA_NAME = 'mysql_innodb_cluster_metadata')
@@ -43,7 +43,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Get cluster info
-        const clusterResult = await adapter.executeQuery(`
+        const clusterResult = await adapter.executeQuery(`/* readonly */
                     (SELECT cluster_id, cluster_name, description, cluster_type, primary_mode
                     FROM mysql_innodb_cluster_metadata.clusters
                     LIMIT 1)
@@ -52,19 +52,19 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const clusterBasic = clusterResult.rows?.[0];
 
         // Get instance count
-        const instanceResult = await adapter.executeQuery(`
+        const instanceResult = await adapter.executeQuery(`/* readonly */
                     (SELECT COUNT(*) as count
                     FROM mysql_innodb_cluster_metadata.instances)
                 `);
 
         // Get router count
-        const routerResult = await adapter.executeQuery(`
+        const routerResult = await adapter.executeQuery(`/* readonly */
                     (SELECT COUNT(*) as count
                     FROM mysql_innodb_cluster_metadata.routers)
                 `);
 
         // Compute status and topology
-        const grResult = await adapter.executeQuery(`
+        const grResult = await adapter.executeQuery(`/* readonly */
             (SELECT MEMBER_HOST as host, MEMBER_PORT as port, MEMBER_STATE as state, MEMBER_ROLE as role
             FROM performance_schema.replication_group_members)
         `);
@@ -89,8 +89,8 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           const data = {
             isInnoDBCluster: true,
             cluster: clusterBasic ?? null,
-            instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
-            routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+            instanceCount: Number(instanceResult.rows?.[0]?.["count"] ?? 0),
+            routerCount: Number(routerResult.rows?.[0]?.["count"] ?? 0),
             status,
             topology,
           };
@@ -98,7 +98,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         // Full mode: include all cluster metadata including options/attributes
-        const fullClusterResult = await adapter.executeQuery(`
+        const fullClusterResult = await adapter.executeQuery(`/* readonly */
                     SELECT *
                     FROM mysql_innodb_cluster_metadata.clusters
                     LIMIT 1
@@ -125,8 +125,8 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const data = {
           isInnoDBCluster: true,
           cluster,
-          instanceCount: instanceResult.rows?.[0]?.["count"] ?? 0,
-          routerCount: routerResult.rows?.[0]?.["count"] ?? 0,
+          instanceCount: Number(instanceResult.rows?.[0]?.["count"] ?? 0),
+          routerCount: Number(routerResult.rows?.[0]?.["count"] ?? 0),
           status,
           topology,
         };
