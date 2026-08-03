@@ -242,15 +242,10 @@ export async function analyzeQueriesWithExplain(
     }
 
 
-      let explainResult;
-      try {
-        const cleanQuery = query.replace(/^\s*EXPLAIN\s+(?:FORMAT=JSON\s+)?/i, "");
-        explainResult = await adapter.executeReadQuery(
-          `EXPLAIN FORMAT=JSON ${cleanQuery}`,
-        );
-      } catch (err: unknown) {
-        throw new ValidationError(`Query analysis failed for '${query}': ${err instanceof Error ? err.message : String(err)}`);
-      }
+      const cleanQuery = query.replace(/^\s*EXPLAIN\s+(?:FORMAT=JSON\s+)?/i, "");
+      const explainResult = await adapter.executeReadQuery(
+        `EXPLAIN FORMAT=JSON ${cleanQuery}`,
+      );
       const rows = explainResult.rows ?? [];
       if (rows.length === 0) continue;
 
