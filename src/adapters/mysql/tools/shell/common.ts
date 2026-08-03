@@ -110,7 +110,11 @@ export function mapHostPathToContainer(hostPath: string): string {
     return "/workspace/scratch/" + relScratch.replace(/\\/g, "/");
   }
 
-  throw new ValidationError(`Path ${absoluteHostPath} is outside the mapped Docker volumes. Please use a path within the mysql-mcp directory or the scratch directory.`);
+  throw new ValidationError(
+    `Path ${absoluteHostPath} is outside the mapped Docker volumes. Please use a path within the mysql-mcp directory or the scratch directory.`,
+    undefined,
+    { suggestion: "When running mysqlsh via Docker, you can only write to directories mapped in the container (e.g., the workspace root or .agents/scratch). Paths like AppData/Local/Temp cannot be used even if present in ALLOWED_IO_ROOTS." }
+  );
 }
 
 /**
