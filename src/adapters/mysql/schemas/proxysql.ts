@@ -337,13 +337,9 @@ export const ProxySQLLimitInputSchema = z.preprocess(
         const parsed = Number(limit);
         if (!isNaN(parsed)) {
           result["limit"] = Math.floor(parsed);
-        } else {
-          delete result["limit"];
         }
       } else if (typeof limit === "number") {
         result["limit"] = Math.floor(limit);
-      } else {
-        delete result["limit"];
       }
     }
     return result;
