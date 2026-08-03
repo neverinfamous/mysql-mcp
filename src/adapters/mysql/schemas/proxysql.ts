@@ -69,7 +69,10 @@ export const ProxySQLQueryRuleSchema = z.object({
   destination_hostgroup: z.coerce.number().optional(),
   cache_ttl: z.coerce.number().optional(),
   multiplex: z.coerce.number().optional(),
+  flagIN: z.coerce.number().optional(),
   flagOUT: z.coerce.number().optional(),
+  negate_match_pattern: z.coerce.number().optional(),
+  apply: z.coerce.number().optional(),
   comment: z.string().nullable().optional(),
 }).loose();
 
