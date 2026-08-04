@@ -291,39 +291,7 @@ services:
   # ==========================================
   # MONITORING & TOOLS
   # ==========================================
-  mysql-mcp-exporter:
-    image: writenotenow/mysql-mcp:1.0.0
-    container_name: mysql-mcp-exporter
-    restart: unless-stopped
-    command: >
-      --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
-      prometheus --port 3000 --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
-      --audit-reads --mysql mysql://root:root@mysql-router:6446/testdb
-    environment:
-      - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
-      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}
-      - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
-    ports:
-      - "3000:3000"
-    volumes:
-      - ./logs:/var/log/mysql-mcp
-    stop_grace_period: 30s
-    mem_limit: 256m
-    logging:
-      driver: json-file
-      options:
-        max-size: "10m"
-        max-file: "3"
-    healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-    labels:
-      - 'com.datadoghq.ad.check_names=["openmetrics"]'
-      - 'com.datadoghq.ad.init_configs=[{}]'
-      - 'com.datadoghq.ad.instances=[{"reported_hostname":"adamic-wsl2", "prometheus_url": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": ["mysql_mcp*"], "max_returned_metrics": 10000, "timeout": 15}]'
-      - 'com.datadoghq.ad.logs=[{"source":"mysql_mcp","service":"mysql_mcp"}]'
+
 
   dozzle:
     image: amir20/dozzle:v10.6
