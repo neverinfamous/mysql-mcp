@@ -10,7 +10,28 @@
         "type": "query_value",
         "requests": [
           {
-            "q": "(sum:agent_exec.command.count{status:error}.as_count() / sum:agent_exec.command.count{*}.as_count()) * 100"
+            "response_format": "scalar",
+            "formulas": [
+              {
+                "formula": "(query1 / query2) * 100"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "logs",
+                "name": "query1",
+                "compute": { "aggregation": "count" },
+                "search": { "query": "source:agent-exec status:error" },
+                "group_by": []
+              },
+              {
+                "data_source": "logs",
+                "name": "query2",
+                "compute": { "aggregation": "count" },
+                "search": { "query": "source:agent-exec -status:healed" },
+                "group_by": []
+              }
+            ]
           }
         ],
         "autoscale": true,
@@ -32,7 +53,21 @@
         "type": "query_value",
         "requests": [
           {
-            "q": "sum:agent_exec.command.count{*}.as_count()"
+            "response_format": "scalar",
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "logs",
+                "name": "query1",
+                "compute": { "aggregation": "count" },
+                "search": { "query": "source:agent-exec -status:healed" },
+                "group_by": []
+              }
+            ]
           }
         ],
         "autoscale": true
@@ -52,7 +87,21 @@
         "type": "query_value",
         "requests": [
           {
-            "q": "sum:agent_exec.healing.count{*}.as_count()"
+            "response_format": "scalar",
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "logs",
+                "name": "query1",
+                "compute": { "aggregation": "count" },
+                "search": { "query": "source:agent-exec status:healed" },
+                "group_by": []
+              }
+            ]
           }
         ],
         "autoscale": true
