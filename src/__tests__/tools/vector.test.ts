@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { getVectorTools } from "../../adapters/mysql/tools/vector/index.js";
-import { MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
+import { type MySQLAdapter } from "../../adapters/mysql/mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../types/index.js";
 
 const mockExecuteQuery = vi.fn().mockResolvedValue({ rows: [], affectedRows: 0 });

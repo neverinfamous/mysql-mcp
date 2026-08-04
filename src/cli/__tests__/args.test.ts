@@ -22,7 +22,7 @@ vi.mock("picocolors", () => {
 
 // Mock process.exit
 vi.spyOn(process, "exit").mockImplementation(
-  (code?: number | string | null | undefined) => {
+  (code?: number | string | null  ) => {
     throw new Error(`process.exit(${code})`);
   },
 );

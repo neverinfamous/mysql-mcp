@@ -29,7 +29,7 @@ import { createServer } from "node:http";
 vi.mock("node:http", () => {
   const mockServer = {
     listen: vi.fn((_port: number, _host: string, cb: () => void) => cb()),
-    close: vi.fn((cb?: () => void) => cb && cb()),
+    close: vi.fn((cb?: () => void) => cb?.()),
     on: vi.fn(),
     setTimeout: vi.fn(),
     keepAliveTimeout: 0,
@@ -558,8 +558,8 @@ describe("HttpTransport", () => {
     it("should close all transports on stop()", async () => {
       const mockT1 = { close: vi.fn().mockResolvedValue(undefined) };
       const mockT2 = { close: vi.fn().mockResolvedValue(undefined) };
-      (transport as Record<string, unknown>).sessionManager.register("session-1", mockT1 as never);
-      (transport as Record<string, unknown>).sessionManager.register("session-2", mockT2 as never);
+      (transport as Record<string, unknown>).sessionManager.register("session-1", mockT1);
+      (transport as Record<string, unknown>).sessionManager.register("session-2", mockT2);
 
       await transport.stop();
 
@@ -572,7 +572,7 @@ describe("HttpTransport", () => {
       const mockT = {
         close: vi.fn().mockRejectedValue(new Error("close error")),
       };
-      (transport as Record<string, unknown>).sessionManager.register("session-err", mockT as never);
+      (transport as Record<string, unknown>).sessionManager.register("session-err", mockT);
 
       await transport.stop();
       expect((transport as Record<string, unknown>).sessionManager.size).toBe(0);

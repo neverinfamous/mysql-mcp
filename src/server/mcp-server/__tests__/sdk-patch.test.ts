@@ -3,7 +3,7 @@ import { McpServer } from "@modelcontextprotocol/server";
 import { ErrorCategory } from "../../../types/index.js";
 
 describe("applySdkPatch", () => {
-  let originalCreateToolError: any;
+  let originalCreateToolError: unknown;
 
   beforeEach(() => {
     // Save original if it exists

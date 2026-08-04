@@ -13,7 +13,7 @@ import {
   createOptimizerTraceTool,
 } from "../optimization.js";
 import { createIndexRecommendationTool } from "../index-audit/index.js";
-import type {} from "../../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

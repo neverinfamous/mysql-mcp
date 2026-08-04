@@ -283,7 +283,7 @@ describe("AuditLogger", () => {
       process.stderr.write = ((chunk: string) => {
         chunks.push(chunk);
         return true;
-      }) as typeof process.stderr.write;
+      });
 
       try {
         logger.log(fakeEntry({ tool: "mysql_write_query" }));
@@ -309,7 +309,7 @@ describe("AuditLogger", () => {
 
       // Suppress stderr output during test
       const originalWrite = process.stderr.write;
-      process.stderr.write = (() => true) as typeof process.stderr.write;
+      process.stderr.write = (() => true);
 
       try {
         logger.log(fakeEntry());
@@ -337,7 +337,7 @@ describe("AuditLogger", () => {
       process.stderr.write = ((chunk: string) => {
         chunks.push(chunk);
         return true;
-      }) as typeof process.stderr.write;
+      });
 
       try {
         logger.log(fakeEntry({ tool: "mysql_optimize_table" }));

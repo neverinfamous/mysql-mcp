@@ -12,7 +12,7 @@ import {
   createFulltextBooleanTool,
   createFulltextExpandTool,
 } from "../fulltext/index.js";
-import type {} from "../../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

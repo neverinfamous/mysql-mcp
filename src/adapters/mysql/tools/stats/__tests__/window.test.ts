@@ -7,7 +7,7 @@ import {
   createStatsMovingAvgTool,
   createStatsNtileTool,
 } from "../window/index.js";
-import type {} from "../../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,

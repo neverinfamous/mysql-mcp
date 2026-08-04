@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getClusterTools } from "../cluster/index.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -82,7 +82,8 @@ describe("Handler Execution", () => {
           createMockQueryResult([{ MEMBER_STATE: "ONLINE" }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_status")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -105,7 +106,8 @@ describe("Handler Execution", () => {
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_members")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_members");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -122,7 +124,8 @@ describe("Handler Execution", () => {
         ) // Plugin check
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_gr_members")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_members");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ memberId: "uuid1" }, mockContext);
 
       // Plugin check is first call
@@ -152,7 +155,8 @@ describe("Handler Execution", () => {
           createMockQueryResult([{ memberId: "uuid1", host: "primary.local" }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_primary")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_primary");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -173,7 +177,8 @@ describe("Handler Execution", () => {
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_transactions")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_transactions");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -194,7 +199,8 @@ describe("Handler Execution", () => {
           ]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_gr_flow_control")!;
+      const tool = tools.find((t) => t.name === "mysql_gr_flow_control");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -210,7 +216,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ cluster_name: "myCluster", status: "OK" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_status")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -227,7 +234,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_instances")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_instances");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -247,7 +255,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_instances")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_instances");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect((result as Record<string, unknown>).data).toHaveProperty(
@@ -268,7 +277,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_topology")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_topology");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -310,7 +320,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_topology")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_topology");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
       const viz = result.data.visualization;
 
@@ -333,7 +344,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_router_status")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_router_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -343,7 +355,8 @@ describe("Handler Execution", () => {
     it("should handle error when router metadata is missing", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Table not found"));
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_router_status")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_router_status");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
 
       expect(result.success).toBe(false);
@@ -368,7 +381,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_switchover");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -422,7 +436,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_switchover");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
       const candidates = result.data.candidates;
 
@@ -461,7 +476,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_cluster_switchover")!;
+      const tool = tools.find((t) => t.name === "mysql_cluster_switchover");
+      if (!tool) throw new Error('Tool not found');;
       const result: any = await tool.handler({}, mockContext);
 
       expect(result.data.recommendedTarget).toBeNull();

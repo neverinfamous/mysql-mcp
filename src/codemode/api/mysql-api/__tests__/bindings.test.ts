@@ -4,14 +4,14 @@ import type { MysqlApi } from "../mysql-api.js";
 
 describe("bindings", () => {
   it("should hoist specific methods to the root bindings object", () => {
-    const mockApiBase: any = {
+    const mockApiBase = {
       docstore: { docRemove: vi.fn() },
       performance: { explain: vi.fn() },
       admin: { optimizeTable: vi.fn() },
       monitoring: { showStatus: vi.fn() },
       backup: { createDump: vi.fn() },
       stats: { descriptive: vi.fn() },
-    };
+    } as Record<string, unknown>;
 
     const mockApi = new Proxy(mockApiBase, {
       get(target, prop) {
@@ -56,7 +56,7 @@ describe("bindings", () => {
   });
 
   it("should hoist core methods and filter write methods when readonly is true", () => {
-    const mockApiBase: any = {
+    const mockApiBase = {
       core: { 
         readQuery: vi.fn(),
         writeQuery: vi.fn(),
@@ -71,7 +71,7 @@ describe("bindings", () => {
         checkVersion: vi.fn(),
         conditionalUpdate: vi.fn()
       },
-    };
+    } as Record<string, unknown>;
 
     const mockApi = new Proxy(mockApiBase, {
       get(target, prop) {
@@ -127,7 +127,7 @@ describe("bindings", () => {
   });
 
   it("should hoist aliases for transactions, json, and vector groups", () => {
-    const mockApiBase: any = {
+    const mockApiBase = {
       transactions: {
         transactionBegin: vi.fn(),
       },
@@ -137,7 +137,7 @@ describe("bindings", () => {
       vector: {
         search: vi.fn(),
       },
-    };
+    } as Record<string, unknown>;
 
     const mockApi = new Proxy(mockApiBase, {
       get(target, prop) {
@@ -155,10 +155,10 @@ describe("bindings", () => {
 
   describe("help and aliasing", () => {
     it("should add a help property to each group", () => {
-      const mockApiBase: any = {
+      const mockApiBase = {
         core: { readQuery: vi.fn() }
-      };
-      const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
+      } as Record<string, unknown>;
+      const mockApi = new Proxy(mockApiBase, { get(t, p) { return (t as Record<string, unknown>)[p as string] || {}; } }) as unknown as MysqlApi;
       const bindings = buildSandboxBindings(mockApi, false);
       
       const coreGroup = bindings["core"] as (...args: unknown[]) => unknown;
@@ -173,10 +173,10 @@ describe("bindings", () => {
 
     it("should add a top-level help function that delegates to api.help()", () => {
       const mockHelp = vi.fn().mockReturnValue({ success: true, data: "test" });
-      const mockApiBase: any = {
+      const mockApiBase = {
         help: mockHelp
-      };
-      const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
+      } as Record<string, unknown>;
+      const mockApi = new Proxy(mockApiBase, { get(t, p) { return (t as Record<string, unknown>)[p as string] || {}; } }) as unknown as MysqlApi;
       const bindings = buildSandboxBindings(mockApi, false);
       
       expect(bindings).toHaveProperty("help");
@@ -198,22 +198,22 @@ describe("bindings", () => {
     });
 
     it("should report progress if token is in context", async () => {
-      const mockApiBase: any = {
+      const mockApiBase = {
         baseContext: { progressToken: "test-token" }
-      };
-      const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
+      } as Record<string, unknown>;
+      const mockApi = new Proxy(mockApiBase, { get(t, p) { return (t as Record<string, unknown>)[p as string] || {}; } }) as unknown as MysqlApi;
       const bindings = buildSandboxBindings(mockApi, false);
       
       const result = await (bindings as (...args: unknown[]) => unknown).reportProgress(50);
       expect(result.success).toBe(true);
     });
 
-    it("should return error if dynamic import or report fails", async () => {
+    it("should return error if dynamic import or report fails", () => {
       // Create a scenario where the progress token is available but the logic inside throws
-      const mockApiBase: any = {
+      const mockApiBase = {
         baseContext: { progressToken: "test-token" }
-      };
-      const mockApi = new Proxy(mockApiBase, { get(t, p) { return t[p] || {}; } }) as MysqlApi;
+      } as Record<string, unknown>;
+      const mockApi = new Proxy(mockApiBase, { get(t, p) { return (t as Record<string, unknown>)[p as string] || {}; } }) as unknown as MysqlApi;
       buildSandboxBindings(mockApi, false);
       
       // We simulate import failure by passing invalid arguments to reportProgress 

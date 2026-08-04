@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getRouterTools } from "../router/index.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -79,7 +79,8 @@ describe("Tool Structure Validation", () => {
   });
 
   it("mysql_router_status should have correct structure", () => {
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.name).toBe("mysql_router_status");
     expect(tool.description).toBeDefined();
     expect(tool.annotations?.readOnlyHint).toBe(true);
@@ -162,7 +163,8 @@ describe("Handler Execution", () => {
       };
       mockHttpsResponse(mockStatus);
 
-      const tool = tools.find((t) => t.name === "mysql_router_status")!;
+      const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockRequest).toHaveBeenCalled();
@@ -184,7 +186,8 @@ describe("Handler Execution", () => {
       };
       mockHttpsResponse(mockRoutes);
 
-      const tool = tools.find((t) => t.name === "mysql_router_routes")!;
+      const tool = tools.find((t) => t.name === "mysql_router_routes");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockRequest).toHaveBeenCalled();
@@ -207,7 +210,8 @@ describe("Handler Execution", () => {
       };
       mockHttpsResponse(mockRouteStatus);
 
-      const tool = tools.find((t) => t.name === "mysql_router_route_status")!;
+      const tool = tools.find((t) => t.name === "mysql_router_route_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { routeName: "bootstrap_ro" },
         mockContext,
@@ -229,7 +233,8 @@ describe("Handler Execution", () => {
     it("should URL-encode route names", async () => {
       mockHttpsResponse({});
 
-      const tool = tools.find((t) => t.name === "mysql_router_route_status")!;
+      const tool = tools.find((t) => t.name === "mysql_router_route_status");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ routeName: "route/with/slashes" }, mockContext);
 
       const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
@@ -242,7 +247,8 @@ describe("Handler Execution", () => {
       const mockHealth = { isAlive: true };
       mockHttpsResponse(mockHealth);
 
-      const tool = tools.find((t) => t.name === "mysql_router_route_health")!;
+      const tool = tools.find((t) => t.name === "mysql_router_route_health");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { routeName: "bootstrap_ro" },
         mockContext,
@@ -397,7 +403,8 @@ describe("Handler Execution", () => {
       };
       mockHttpsResponse(mockPoolStatus);
 
-      const tool = tools.find((t) => t.name === "mysql_router_pool_status")!;
+      const tool = tools.find((t) => t.name === "mysql_router_pool_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ poolName: "default" }, mockContext);
 
       expect(mockRequest).toHaveBeenCalled();
@@ -450,7 +457,8 @@ describe("HTTP Header Handling", () => {
       return mockReq;
     });
 
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler({}, mockContext);
 
     const options = mockRequest.mock.calls[0][0] as Record<
@@ -495,7 +503,8 @@ describe("Error Handling", () => {
       return mockReq;
     });
 
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
@@ -526,7 +535,8 @@ describe("Error Handling", () => {
       return mockReq;
     });
 
-    const tool = tools.find((t) => t.name === "mysql_router_route_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_route_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler(
       { routeName: "nonexistent" },
       mockContext,
@@ -551,7 +561,8 @@ describe("Error Handling", () => {
       return mockReq;
     });
 
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
@@ -575,7 +586,8 @@ describe("Error Handling", () => {
       return mockReq;
     });
 
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({}, mockContext);
 
     expect(result).toHaveProperty("success", false);
@@ -594,7 +606,8 @@ describe("Zod Validation Error Handling", () => {
   });
 
   it("should return structured error for invalid routeName type", async () => {
-    const tool = tools.find((t) => t.name === "mysql_router_route_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_route_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({ routeName: 123 }, mockContext);
 
     expect(result).toHaveProperty("success", false);
@@ -602,7 +615,8 @@ describe("Zod Validation Error Handling", () => {
   });
 
   it("should return structured error for invalid metadataName type", async () => {
-    const tool = tools.find((t) => t.name === "mysql_router_metadata_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_metadata_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({ metadataName: true }, mockContext);
 
     expect(result).toHaveProperty("success", false);
@@ -669,7 +683,8 @@ describe("Authentication and TLS Handling", () => {
     const tools = getRouterTools(
       createMockMySQLAdapter(),
     );
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler({}, createMockRequestContext());
 
     const options = mockRequest.mock.calls[0][0] as Record<
@@ -688,7 +703,8 @@ describe("Authentication and TLS Handling", () => {
     const tools = getRouterTools(
       createMockMySQLAdapter(),
     );
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler({}, createMockRequestContext());
 
     const options = mockRequest.mock.calls[0][0] as Record<
@@ -707,7 +723,8 @@ describe("Authentication and TLS Handling", () => {
     const tools = getRouterTools(
       createMockMySQLAdapter(),
     );
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler({}, createMockRequestContext());
 
     const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
@@ -724,7 +741,8 @@ describe("Authentication and TLS Handling", () => {
     const tools = getRouterTools(
       createMockMySQLAdapter(),
     );
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler({}, createMockRequestContext());
 
     const options = mockRequest.mock.calls[0][0] as Record<string, unknown>;
@@ -742,7 +760,8 @@ describe("Authentication and TLS Handling", () => {
     const tools = getRouterTools(
       createMockMySQLAdapter(),
     );
-    const tool = tools.find((t) => t.name === "mysql_router_status")!;
+    const tool = tools.find((t) => t.name === "mysql_router_status");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler({}, createMockRequestContext());
 
     // New implementation should not modify this env var

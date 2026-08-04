@@ -8,8 +8,8 @@ import {
 } from "../anomaly-detection.js";
 
 describe("Anomaly Detection Tools", () => {
-  let mockAdapter: any;
-  let mockContext: any;
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
     mockAdapter = {

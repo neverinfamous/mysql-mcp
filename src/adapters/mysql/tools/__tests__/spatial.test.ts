@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -78,7 +78,8 @@ describe("Handler Execution", () => {
     it("should create a spatial column", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_column")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_column");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
@@ -98,7 +99,8 @@ describe("Handler Execution", () => {
     it("should create NOT NULL column", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_column")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_column");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
@@ -123,7 +125,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
@@ -145,7 +148,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ Null: "YES", Type: "point" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
@@ -176,7 +180,8 @@ describe("Handler Execution", () => {
           ),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
@@ -201,7 +206,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockRejectedValueOnce(new Error("Some other MySQL error"));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           table: "locations",
@@ -222,7 +228,8 @@ describe("Handler Execution", () => {
     it("should create a POINT geometry", async () => {
       mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }])).mockResolvedValue(createMockQueryResult([{ wkt: "POINT(-73.9857 40.7484)", srid: 4326 }]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_point")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_point");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { longitude: -73.9857, latitude: 40.7484 },
         mockContext,
@@ -239,7 +246,8 @@ describe("Handler Execution", () => {
         new Error("Invalid coordinate"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_point")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_point");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { longitude: -200, latitude: 40.7484 },
         mockContext,
@@ -256,7 +264,8 @@ describe("Handler Execution", () => {
     it("should create a POLYGON geometry", async () => {
       mockAdapter.executeReadQuery.mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }])).mockResolvedValue(createMockQueryResult([{ wkt: "POLYGON((...))" }]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_polygon")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_polygon");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           coordinates: [
@@ -284,7 +293,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
         .mockResolvedValue(createMockQueryResult([{ distance: 1000.5 }]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_distance")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_distance");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
@@ -331,7 +341,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
         .mockResolvedValue(createMockQueryResult([{ id: 1 }, { id: 2 }]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_contains")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_contains");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
@@ -353,7 +364,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
         .mockResolvedValue(createMockQueryResult([{ id: 1 }]));
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_within")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_within");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           table: "locations",
@@ -377,7 +389,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_intersection")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_intersection");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
@@ -399,7 +412,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ buffered: "POLYGON(...)" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_buffer")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_buffer");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { geometry: "POINT(0 0)", distance: 100 },
         mockContext,
@@ -417,7 +431,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ transformed_wkt: "POINT(...)" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_transform")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_transform");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { geometry: "POINT(0 0)", fromSrid: 4326, toSrid: 3857 },
         mockContext,
@@ -442,7 +457,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_geojson");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { geometry: "POINT(0 0)" },
         mockContext,
@@ -457,7 +473,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ wkt: "POINT(0 0)" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_geojson");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { geoJson: '{"type":"Point","coordinates":[0,0]}' },
         mockContext,
@@ -468,7 +485,8 @@ describe("Handler Execution", () => {
     });
 
     it("should catch empty string in Zod validation", async () => {
-      const tool = tools.find((t) => t.name === "mysql_spatial_geojson")!;
+      const tool = tools.find((t) => t.name === "mysql_spatial_geojson");
+      if (!tool) throw new Error('Tool not found');;
       // geometry: "" is now caught by Zod refine
       const result = await tool.handler({ geometry: "" }, mockContext);
       expect(result).toMatchObject({

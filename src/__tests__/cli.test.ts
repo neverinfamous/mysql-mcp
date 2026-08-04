@@ -48,7 +48,7 @@ void cliError; void cliInfo; void cliFatal;
 // Mock process.exit
 const mockExit = vi
   .spyOn(process, "exit")
-  .mockImplementation((code?: number | string | null | undefined) => {
+  .mockImplementation((code?: number | string | null  ) => {
     throw new Error(`process.exit(${code})`);
   });
 

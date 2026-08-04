@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getEventTools } from "../events.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -70,7 +70,8 @@ describe("Handler Execution", () => {
     it("should create a one-time event", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_create")!;
+      const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "cleanup_once",
@@ -90,7 +91,8 @@ describe("Handler Execution", () => {
     it("should create a recurring event", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_create")!;
+      const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "daily_cleanup",
@@ -109,7 +111,8 @@ describe("Handler Execution", () => {
     it("should alter an existing event", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+      const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "cleanup_job",
@@ -127,7 +130,8 @@ describe("Handler Execution", () => {
     it("should rename an event", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+      const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "old_event",
@@ -143,7 +147,8 @@ describe("Handler Execution", () => {
     it("should place RENAME TO before COMMENT and DO body in combined alter", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+      const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "old_event",
@@ -170,7 +175,8 @@ describe("Handler Execution", () => {
     it("should drop an event", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_event_drop");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "old_event",
@@ -192,7 +198,8 @@ describe("Handler Execution", () => {
       // Second call: actual DROP
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_event_drop");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "maybe_exists",
@@ -209,7 +216,8 @@ describe("Handler Execution", () => {
       // Pre-check returns empty (event does not exist)
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_event_drop");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "ghost_event",
@@ -235,7 +243,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_event_list")!;
+      const tool = tools.find((t) => t.name === "mysql_event_list");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -250,7 +259,8 @@ describe("Handler Execution", () => {
       // Second call: actual event list query
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_list")!;
+      const tool = tools.find((t) => t.name === "mysql_event_list");
+      if (!tool) throw new Error('Tool not found');;
       // Uses parameterized query
       await tool.handler({ schema: "mydb" }, mockContext);
 
@@ -266,7 +276,8 @@ describe("Handler Execution", () => {
     it("should return exists false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_list")!;
+      const tool = tools.find((t) => t.name === "mysql_event_list");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { schema: "nonexistent_db" },
         mockContext,
@@ -284,7 +295,8 @@ describe("Handler Execution", () => {
     it("should accept status filter", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_list")!;
+      const tool = tools.find((t) => t.name === "mysql_event_list");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ status: "ENABLED" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
@@ -296,7 +308,8 @@ describe("Handler Execution", () => {
     it("should apply limit and offset", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_list")!;
+      const tool = tools.find((t) => t.name === "mysql_event_list");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ limit: 10, offset: 20 }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
@@ -312,7 +325,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_event_status")!;
+      const tool = tools.find((t) => t.name === "mysql_event_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ name: "test_event" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -323,7 +337,8 @@ describe("Handler Execution", () => {
     it("should return structured error when event is not found", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_status")!;
+      const tool = tools.find((t) => t.name === "mysql_event_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "nonexistent_event" },
         mockContext,
@@ -338,7 +353,8 @@ describe("Handler Execution", () => {
     it("should return exists false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_event_status")!;
+      const tool = tools.find((t) => t.name === "mysql_event_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "any_event", schema: "nonexistent_db" },
         mockContext,
@@ -362,7 +378,8 @@ describe("Handler Execution", () => {
         ]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_scheduler_status")!;
+      const tool = tools.find((t) => t.name === "mysql_scheduler_status");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -389,7 +406,8 @@ describe("Event Create Advanced", () => {
     mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
     mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "my_event",
@@ -410,7 +428,8 @@ describe("Event Create Advanced", () => {
       createMockQueryResult([{ EVENT_NAME: "my_event" }]),
     );
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler(
       {
         name: "my_event",
@@ -432,7 +451,8 @@ describe("Event Create Advanced", () => {
   it("should include STARTS and ENDS for recurring events", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "recurring_event",
@@ -451,7 +471,8 @@ describe("Event Create Advanced", () => {
   it("should include comment when provided", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "commented_event",
@@ -470,7 +491,8 @@ describe("Event Create Advanced", () => {
   it("should add DISABLE clause when enabled is false", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "disabled_event",
@@ -486,7 +508,8 @@ describe("Event Create Advanced", () => {
   });
 
   it("should return structured error for invalid event name", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
 
     const result = await tool.handler(
       {
@@ -519,7 +542,8 @@ describe("Event Alter Advanced", () => {
   it("should alter schedule to ONE TIME", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "my_event",
@@ -535,7 +559,8 @@ describe("Event Alter Advanced", () => {
   it("should alter schedule to RECURRING with starts/ends", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "my_event",
@@ -554,7 +579,8 @@ describe("Event Alter Advanced", () => {
   it("should alter event body", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "my_event",
@@ -570,7 +596,8 @@ describe("Event Alter Advanced", () => {
   it("should alter on completion behavior", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "my_event",
@@ -586,7 +613,8 @@ describe("Event Alter Advanced", () => {
   it("should alter event comment", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "my_event",
@@ -600,7 +628,8 @@ describe("Event Alter Advanced", () => {
   });
 
   it("should return structured error for invalid event name", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
 
     const result = await tool.handler(
       {
@@ -617,7 +646,8 @@ describe("Event Alter Advanced", () => {
   });
 
   it("should return structured error for invalid new event name", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
 
     const result = await tool.handler(
       {
@@ -634,7 +664,8 @@ describe("Event Alter Advanced", () => {
   });
 
   it("should return structured error when no modifications specified", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
 
     const result = await tool.handler(
       {
@@ -663,7 +694,8 @@ describe("Event Drop Advanced", () => {
   });
 
   it("should return structured error for invalid event name", async () => {
-    const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+    const tool = tools.find((t) => t.name === "mysql_event_drop");
+      if (!tool) throw new Error('Tool not found');;
 
     const result = await tool.handler(
       {
@@ -681,7 +713,8 @@ describe("Event Drop Advanced", () => {
   it("should drop without IF EXISTS when ifExists is false", async () => {
     mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-    const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+    const tool = tools.find((t) => t.name === "mysql_event_drop");
+      if (!tool) throw new Error('Tool not found');;
     await tool.handler(
       {
         name: "my_event",
@@ -713,7 +746,8 @@ describe("Event Graceful Error Handling", () => {
     );
     mockAdapter.executeQuery.mockRejectedValue(mysqlError);
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler(
       {
         name: "my_event",
@@ -735,7 +769,8 @@ describe("Event Graceful Error Handling", () => {
     );
     mockAdapter.executeQuery.mockRejectedValue(mysqlError);
 
-    const tool = tools.find((t) => t.name === "mysql_event_alter")!;
+    const tool = tools.find((t) => t.name === "mysql_event_alter");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler(
       {
         name: "ghost_event",
@@ -756,7 +791,8 @@ describe("Event Graceful Error Handling", () => {
     );
     mockAdapter.executeQuery.mockRejectedValue(mysqlError);
 
-    const tool = tools.find((t) => t.name === "mysql_event_drop")!;
+    const tool = tools.find((t) => t.name === "mysql_event_drop");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler(
       {
         name: "ghost_event",
@@ -774,7 +810,8 @@ describe("Event Graceful Error Handling", () => {
   it("should return structured error for unexpected errors from create", async () => {
     mockAdapter.executeQuery.mockRejectedValue(new Error("Connection lost"));
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler(
       {
         name: "my_event",
@@ -794,7 +831,8 @@ describe("Event Graceful Error Handling", () => {
       ),
     );
 
-    const tool = tools.find((t) => t.name === "mysql_event_create")!;
+    const tool = tools.find((t) => t.name === "mysql_event_create");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler(
       {
         name: "my_event",
@@ -815,7 +853,8 @@ describe("Event Graceful Error Handling", () => {
       new Error("Connection lost during query"),
     );
 
-    const tool = tools.find((t) => t.name === "mysql_event_list")!;
+    const tool = tools.find((t) => t.name === "mysql_event_list");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({}, mockContext);
 
     expect(result).toMatchObject({
@@ -829,7 +868,8 @@ describe("Event Graceful Error Handling", () => {
       new Error("Connection lost during query"),
     );
 
-    const tool = tools.find((t) => t.name === "mysql_event_status")!;
+    const tool = tools.find((t) => t.name === "mysql_event_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({ name: "test_event" }, mockContext);
 
     expect(result).toMatchObject({
@@ -843,7 +883,8 @@ describe("Event Graceful Error Handling", () => {
       new Error("Connection lost during query"),
     );
 
-    const tool = tools.find((t) => t.name === "mysql_scheduler_status")!;
+    const tool = tools.find((t) => t.name === "mysql_scheduler_status");
+      if (!tool) throw new Error('Tool not found');;
     const result = await tool.handler({}, mockContext);
 
     expect(result).toMatchObject({

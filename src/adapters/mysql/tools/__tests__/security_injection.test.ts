@@ -11,7 +11,7 @@ import {
 } from "../../../../__tests__/mocks/index.js";
 import { getBackupTools } from "../admin/index.js";
 import { getJsonTools } from "../json/index.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 
 describe("Security: SQL Injection Prevention", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -26,7 +26,8 @@ describe("Security: SQL Injection Prevention", () => {
   describe("Backup Tools - mysql_export_table", () => {
     it("should reject table name with SQL injection", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
@@ -42,7 +43,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject table name starting with number", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
@@ -58,7 +60,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject WHERE clause with stacked queries", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
@@ -75,7 +78,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject WHERE clause with UNION attack", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
@@ -92,7 +96,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject WHERE clause with timing attack (SLEEP)", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
@@ -109,7 +114,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject WHERE clause with unbalanced quotes", async () => {
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       const result = (await exportTool.handler(
         {
@@ -128,7 +134,8 @@ describe("Security: SQL Injection Prevention", () => {
       mockAdapter.executeReadQuery.mockResolvedValue({ rows: [] });
 
       const tools = getBackupTools(mockAdapter);
-      const exportTool = tools.find((t) => t.name === "mysql_export_table")!;
+      const exportTool = tools.find((t) => t.name === "mysql_export_table");
+      if (!exportTool) throw new Error('Tool not found');;
 
       await expect(
         exportTool.handler(
@@ -146,7 +153,8 @@ describe("Security: SQL Injection Prevention", () => {
   describe("Backup Tools - mysql_import_data", () => {
     it("should reject table name with injection", async () => {
       const tools = getBackupTools(mockAdapter);
-      const importTool = tools.find((t) => t.name === "mysql_import_data")!;
+      const importTool = tools.find((t) => t.name === "mysql_import_data");
+      if (!importTool) throw new Error('Tool not found');;
 
       const result = (await importTool.handler(
         {
@@ -162,7 +170,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject column name with injection", async () => {
       const tools = getBackupTools(mockAdapter);
-      const importTool = tools.find((t) => t.name === "mysql_import_data")!;
+      const importTool = tools.find((t) => t.name === "mysql_import_data");
+      if (!importTool) throw new Error('Tool not found');;
 
       const result = (await importTool.handler(
         {
@@ -180,7 +189,8 @@ describe("Security: SQL Injection Prevention", () => {
   describe("JSON Tools - Injection Prevention", () => {
     it("should reject table name with injection in mysql_json_extract", async () => {
       const tools = getJsonTools(mockAdapter);
-      const extractTool = tools.find((t) => t.name === "mysql_json_extract")!;
+      const extractTool = tools.find((t) => t.name === "mysql_json_extract");
+      if (!extractTool) throw new Error('Tool not found');;
 
       await expect(
         extractTool.handler(
@@ -199,7 +209,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject column name with injection in mysql_json_extract", async () => {
       const tools = getJsonTools(mockAdapter);
-      const extractTool = tools.find((t) => t.name === "mysql_json_extract")!;
+      const extractTool = tools.find((t) => t.name === "mysql_json_extract");
+      if (!extractTool) throw new Error('Tool not found');;
 
       await expect(
         extractTool.handler(
@@ -218,7 +229,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject WHERE clause with BENCHMARK attack in mysql_json_set", async () => {
       const tools = getJsonTools(mockAdapter);
-      const setTool = tools.find((t) => t.name === "mysql_json_set")!;
+      const setTool = tools.find((t) => t.name === "mysql_json_set");
+      if (!setTool) throw new Error('Tool not found');;
 
       await expect(
         setTool.handler(
@@ -239,7 +251,8 @@ describe("Security: SQL Injection Prevention", () => {
 
     it("should reject WHERE clause with file operation attack", async () => {
       const tools = getJsonTools(mockAdapter);
-      const setTool = tools.find((t) => t.name === "mysql_json_set")!;
+      const setTool = tools.find((t) => t.name === "mysql_json_set");
+      if (!setTool) throw new Error('Tool not found');;
 
       await expect(
         setTool.handler(
@@ -262,7 +275,8 @@ describe("Security: SQL Injection Prevention", () => {
       mockAdapter.executeWriteQuery.mockResolvedValue({ rowsAffected: 1 });
 
       const tools = getJsonTools(mockAdapter);
-      const setTool = tools.find((t) => t.name === "mysql_json_set")!;
+      const setTool = tools.find((t) => t.name === "mysql_json_set");
+      if (!setTool) throw new Error('Tool not found');;
 
       await expect(
         setTool.handler(

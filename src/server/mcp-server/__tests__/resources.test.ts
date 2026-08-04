@@ -61,7 +61,7 @@ describe("mcp-server resources", () => {
       // Verify the handler works for the base json endpoint
       const baseCall = vi.mocked(mockSdkServer.registerResource).mock.calls.find(call => call[1] === "mysql://help");
       const baseHandler = baseCall![3];
-      const baseResult = baseHandler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
+      const baseResult = baseHandler(undefined, undefined);
       
       const parsed = JSON.parse(baseResult.contents[0].text);
       const groupNames = parsed.groups.map((g: any) => g.name);
@@ -119,7 +119,7 @@ describe("mcp-server resources", () => {
       );
 
       const handler = vi.mocked(mockSdkServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
+      const result: any = await handler(undefined, undefined);
       
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://audit");
       
@@ -142,7 +142,7 @@ describe("mcp-server resources", () => {
       registerAuditResource(mockSdkServer, mockAuditLogger as Record<string, unknown>, null);
       
       const handler = vi.mocked(mockSdkServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
+      const result: any = await handler(undefined, undefined);
       
       const parsed = JSON.parse(result.contents[0].text);
       expect(parsed.summary.backups).toBeUndefined();
@@ -161,7 +161,7 @@ describe("mcp-server resources", () => {
       );
 
       const handler = vi.mocked(mockSdkServer.registerResource).mock.calls[0][3];
-      const result: any = await handler(undefined as Record<string, unknown>, undefined as Record<string, unknown>);
+      const result: any = await handler(undefined, undefined);
       
       expect(metrics.recordResourceRead).toHaveBeenCalledWith("mysql://metrics");
       

@@ -4,7 +4,7 @@ import {
   createCreateTriggerTool,
   createDropTriggerTool,
 } from "../triggers.js";
-import type {} from "../../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,

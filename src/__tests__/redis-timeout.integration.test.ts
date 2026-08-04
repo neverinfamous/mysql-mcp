@@ -113,8 +113,8 @@ describe.skipIf(!runTests)("Redis Resilience & Timeout Testing", () => {
       const results = await Promise.all(promises);
       
       // Exactly 50 should be true, 50 should be false
-      const allowed = results.filter(r => r === true).length;
-      const denied = results.filter(r => r === false).length;
+      const allowed = results.filter(r => r).length;
+      const denied = results.filter(r => !r).length;
       
       expect(allowed).toBe(50);
       expect(denied).toBe(50);

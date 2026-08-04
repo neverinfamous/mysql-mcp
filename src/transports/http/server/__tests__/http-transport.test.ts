@@ -15,8 +15,8 @@ vi.mock("../sse.js", () => ({
 
 vi.mock("node:http", () => {
   const mockServer = {
-    listen: vi.fn((port, host, cb) => cb && cb()),
-    close: vi.fn((cb) => cb && cb()),
+    listen: vi.fn((port, host, cb) => cb?.()),
+    close: vi.fn((cb) => cb?.()),
     on: vi.fn(),
     setTimeout: vi.fn(),
     keepAliveTimeout: 0,

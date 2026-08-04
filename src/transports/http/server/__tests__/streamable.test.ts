@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { handleStreamableRequest, handleStatelessRequest } from "../streamable.js";
-import { IncomingMessage, ServerResponse } from "node:http";
+import { type IncomingMessage, type ServerResponse } from "node:http";
 import { SessionManager } from "../../session-manager.js";
 import { NodeStreamableHTTPServerTransport } from "@modelcontextprotocol/node";
 import { SESSION_ABSOLUTE_TTL_MS } from "../../types.js";

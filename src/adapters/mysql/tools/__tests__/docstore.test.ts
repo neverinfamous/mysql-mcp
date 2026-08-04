@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getDocStoreTools } from "../docstore/index.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -77,7 +77,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ name: "users_collection", rowCount: 100 }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_list_collections")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_list_collections");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -90,7 +91,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ SCHEMA_NAME: "mydb" }])) // schema exists
         .mockResolvedValueOnce(createMockQueryResult([])); // collections query
 
-      const tool = tools.find((t) => t.name === "mysql_doc_list_collections")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_list_collections");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ schema: "mydb" }, mockContext);
 
       // First call: schema existence check
@@ -109,7 +111,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Unknown database 'nonexistent_schema'"), { code: "ER_BAD_DB_ERROR" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_list_collections")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_list_collections");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { schema: "nonexistent_schema" },
         mockContext,
@@ -130,7 +133,8 @@ describe("Handler Execution", () => {
     it("should create a new collection", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ name: "products" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -142,7 +146,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid collection names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
 
       const result = await tool.handler({ name: "invalid-name" }, mockContext);
       expect(result).toMatchObject({
@@ -157,7 +162,8 @@ describe("Handler Execution", () => {
     it("should add validation when specified", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "validated_docs",
@@ -173,7 +179,8 @@ describe("Handler Execution", () => {
     it("should use default validation level when not specified", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ name: "default_val" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
@@ -185,7 +192,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([])) // checkCollectionExists → false
         .mockResolvedValue(createMockQueryResult([])); // CREATE TABLE succeeds
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { name: "my_collection", ifNotExists: true },
         mockContext,
@@ -201,7 +209,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]), // checkCollectionExists → true
       );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "my_collection", ifNotExists: true },
         mockContext,
@@ -223,7 +232,8 @@ describe("Handler Execution", () => {
     it("should not use IF NOT EXISTS by default", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ name: "my_collection" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
@@ -237,7 +247,8 @@ describe("Handler Execution", () => {
         new Error("Table 'my_collection' already exists"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { name: "my_collection" },
         mockContext,
@@ -257,7 +268,8 @@ describe("Handler Execution", () => {
         ),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "my_collection", schema: "fake_schema" },
         mockContext,
@@ -276,7 +288,8 @@ describe("Handler Execution", () => {
     it("should drop collection without IF EXISTS when false", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([])); // DROP TABLE
 
-      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ name: "users", ifExists: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -289,7 +302,8 @@ describe("Handler Execution", () => {
     it("should return informative message when collection did not exist with ifExists", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([])); // pre-check: collection does not exist
 
-      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { name: "nonexistent", ifExists: true },
         mockContext,
@@ -308,7 +322,8 @@ describe("Handler Execution", () => {
         )
         .mockResolvedValueOnce(createMockQueryResult([])); // drop
 
-      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ name: "users", ifExists: true }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[1][0];
@@ -316,7 +331,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid collection names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "bad;drop table users" },
         mockContext,
@@ -335,7 +351,8 @@ describe("Handler Execution", () => {
         new Error("Unknown table 'testdb.nonexistent'"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { name: "nonexistent", ifExists: false },
         mockContext,
@@ -351,7 +368,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Unknown database 'nonexistent_schema'"), { code: "ER_BAD_DB_ERROR" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_drop_collection");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "users", schema: "nonexistent_schema" },
         mockContext,
@@ -375,7 +393,8 @@ describe("Handler Execution", () => {
           createMockQueryResult([{ doc: '{"name": "test"}' }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -397,7 +416,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
       ); // collection exists
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -417,7 +437,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
       ); // collection exists
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -434,7 +455,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { collection: "my_coll", schema: "otherdb" },
         mockContext,
@@ -448,7 +470,8 @@ describe("Handler Execution", () => {
     it("should return exists: false without error field for nonexistent collection", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Table 'nonexistent' doesn't exist"), { code: "ER_NO_SUCH_TABLE" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { collection: "nonexistent_col" },
         mockContext,
@@ -470,7 +493,8 @@ describe("Handler Execution", () => {
           createMockQueryResult([{ doc: { id: 2, name: "test2" } }]),
         );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { collection: "users" },
         mockContext,
@@ -483,7 +507,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { collection: "users", filter: "$.name" },
         mockContext,
@@ -499,7 +524,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "users",
@@ -517,7 +543,8 @@ describe("Handler Execution", () => {
     });
 
     it("should validate collection name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { collection: "invalid-name; --" },
         mockContext,
@@ -534,7 +561,8 @@ describe("Handler Execution", () => {
     it("should return graceful response when collection does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Table 'nonexistent' doesn't exist"), { code: "ER_NO_SUCH_TABLE" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { collection: "nonexistent" },
         mockContext,
@@ -554,7 +582,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Unknown database 'nonexistent_schema'"), { code: "ER_BAD_DB_ERROR" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_find")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_find");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { collection: "users", schema: "nonexistent_schema" },
         mockContext,
@@ -579,7 +608,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_add")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_add");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -597,7 +627,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_add")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_add");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -611,7 +642,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid collection names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_add")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_add");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "invalid-name",
@@ -631,7 +663,8 @@ describe("Handler Execution", () => {
     it("should return graceful response when collection does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Table 'nonexistent' doesn't exist"), { code: "ER_NO_SUCH_TABLE" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_add")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_add");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           collection: "nonexistent",
@@ -653,7 +686,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Unknown database 'nonexistent_schema'"), { code: "ER_BAD_DB_ERROR" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_add")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_add");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -677,7 +711,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_add")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_add");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "my_coll",
@@ -698,7 +733,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([], 5));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -718,7 +754,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([], 2));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "users",
@@ -736,7 +773,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([], 2));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "users",
@@ -758,7 +796,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }])
       );
 
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
 
       const result = await tool.handler(
         {
@@ -777,7 +816,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid collection names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "invalid-name",
@@ -798,7 +838,8 @@ describe("Handler Execution", () => {
     it("should return graceful response when collection does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Table 'nonexistent' doesn't exist"), { code: "ER_NO_SUCH_TABLE" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           collection: "nonexistent",
@@ -821,7 +862,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Unknown database 'nonexistent_schema'"), { code: "ER_BAD_DB_ERROR" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -846,7 +888,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([], 2));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_modify")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_modify");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "my_coll",
@@ -867,7 +910,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([], 3));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_remove");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -884,7 +928,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid collection names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_remove");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "invalid-name",
@@ -904,7 +949,8 @@ describe("Handler Execution", () => {
     it("should return graceful response when collection does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Table 'nonexistent' doesn't exist"), { code: "ER_NO_SUCH_TABLE" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_remove");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           collection: "nonexistent",
@@ -926,7 +972,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Unknown database 'nonexistent_schema'"), { code: "ER_BAD_DB_ERROR" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_remove");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -950,7 +997,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValueOnce(createMockQueryResult([], 1));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_remove")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_remove");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "my_coll",
@@ -970,7 +1018,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -990,7 +1039,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "users",
@@ -1017,7 +1067,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "users",
@@ -1034,7 +1085,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid collection names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "invalid-name",
@@ -1053,7 +1105,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid index names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "valid_coll",
@@ -1074,7 +1127,8 @@ describe("Handler Execution", () => {
     it("should return graceful response when collection does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Table 'nonexistent' doesn't exist"), { code: "ER_NO_SUCH_TABLE" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           collection: "nonexistent",
@@ -1097,7 +1151,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent schema", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Unknown database 'nonexistent_schema'"), { code: "ER_BAD_DB_ERROR" }));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           collection: "users",
@@ -1122,7 +1177,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery
         .mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           collection: "my_coll",
@@ -1145,7 +1201,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([])) // ALTER TABLE (ignored if it throws duplicate column, but let's resolve it)
         .mockRejectedValueOnce(new Error("Duplicate key name 'idx_email'"));
 
-      const tool = tools.find((t) => t.name === "mysql_doc_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         {
           collection: "users",
@@ -1167,7 +1224,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ Rows: 1000, Data_length: 50000, Index_length: 10000 }])) // SHOW TABLE STATUS
         .mockResolvedValueOnce(createMockQueryResult([{ Key_name: "PRIMARY", Column_name: "_id", Seq_in_index: 1, Non_unique: 0 }])); // SHOW KEYS
 
-      const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_collection_info");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ collection: "users" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
@@ -1177,7 +1235,8 @@ describe("Handler Execution", () => {
     });
 
     it("should reject invalid collection names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_collection_info");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { collection: "invalid-nam$" },
         mockContext,
@@ -1194,7 +1253,8 @@ describe("Handler Execution", () => {
     it("should return graceful response when collection does not exist", async () => {
       mockAdapter.executeQuery.mockRejectedValueOnce(Object.assign(new Error("Table 'nonexistent' doesn't exist"), { code: "ER_NO_SUCH_TABLE" })); 
 
-      const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_collection_info");
+      if (!tool) throw new Error('Tool not found');;
       const result = (await tool.handler(
         { collection: "nonexistent" },
         mockContext,
@@ -1215,7 +1275,8 @@ describe("Handler Execution", () => {
       (dbError as any).code = "ER_BAD_DB_ERROR";
       mockAdapter.executeQuery.mockRejectedValueOnce(dbError);
 
-      const tool = tools.find((t) => t.name === "mysql_doc_collection_info")!;
+      const tool = tools.find((t) => t.name === "mysql_doc_collection_info");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { collection: "users", schema: "nonexistent_schema" },
         mockContext,

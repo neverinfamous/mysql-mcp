@@ -135,7 +135,7 @@ describe("CodeModeSecurityManager", () => {
       expect(result.valid).toBe(false);
     });
 
-    it("should exit on first blocked pattern", async () => {
+    it("should exit on first blocked pattern", () => {
       const result = manager.validateCode(
         'require("fs"); process.exit(1); eval("x")',
       );
@@ -143,13 +143,13 @@ describe("CodeModeSecurityManager", () => {
       expect(result.errors.length).toBe(1);
     });
 
-    it("should respect custom maxCodeLength", async () => {
+    it("should respect custom maxCodeLength", () => {
       const small = new CodeModeSecurityManager({ maxCodeLength: 10 });
       const result = small.validateCode("a".repeat(11));
       expect(result.valid).toBe(false);
     });
 
-    it("should reject unicode escape sequences", async () => {
+    it("should reject unicode escape sequences", () => {
       const result = manager.validateCode("const \\u0061 = 1;");
       expect(result.valid).toBe(false);
       expect(result.errors[0]).toContain("Unicode escape sequences");
@@ -178,12 +178,12 @@ describe("CodeModeSecurityManager", () => {
   // ===========================================================================
   describe("checkRateLimit", () => {
     it("should allow first request", async () => {
-      expect(await await manager.checkRateLimit("client-1")).toBe(true);
+      expect(await manager.checkRateLimit("client-1")).toBe(true);
     });
 
     it("should allow requests within limit", async () => {
       for (let i = 0; i < 59; i++) {
-        expect(await await manager.checkRateLimit("client-2")).toBe(true);
+        expect(await manager.checkRateLimit("client-2")).toBe(true);
       }
     });
 
@@ -191,23 +191,23 @@ describe("CodeModeSecurityManager", () => {
       const smallLimit = new CodeModeSecurityManager({
         maxExecutionsPerMinute: 3,
       });
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(false);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(false);
     });
 
     it("should reset after window expires", async () => {
       const smallLimit = new CodeModeSecurityManager({
         maxExecutionsPerMinute: 1,
       });
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(false);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(false);
 
       // Simulate time passage by manipulating the internal map
       vi.useFakeTimers();
       vi.advanceTimersByTime(61_000);
-      expect(await await smallLimit.checkRateLimit("c")).toBe(true);
+      expect(await smallLimit.checkRateLimit("c")).toBe(true);
       vi.useRealTimers();
     });
 
@@ -215,9 +215,9 @@ describe("CodeModeSecurityManager", () => {
       const smallLimit = new CodeModeSecurityManager({
         maxExecutionsPerMinute: 1,
       });
-      expect(await await smallLimit.checkRateLimit("a")).toBe(true);
-      expect(await await smallLimit.checkRateLimit("a")).toBe(false);
-      expect(await await smallLimit.checkRateLimit("b")).toBe(true);
+      expect(await smallLimit.checkRateLimit("a")).toBe(true);
+      expect(await smallLimit.checkRateLimit("a")).toBe(false);
+      expect(await smallLimit.checkRateLimit("b")).toBe(true);
     });
 
     it("should evict oldest entry if map exceeds max size", async () => {
@@ -337,7 +337,7 @@ describe("CodeModeSecurityManager", () => {
   // sanitizeResult
   // ===========================================================================
   describe("sanitizeResult", () => {
-    it("should pass through small results", async () => {
+    it("should pass through small results", () => {
       const input = { foo: "bar" };
       expect(manager.sanitizeResult(input)).toEqual(input);
     });
@@ -381,7 +381,7 @@ describe("CodeModeSecurityManager", () => {
         "client-1",
       );
       manager.auditLog(record);
-      expect(logger.info).toHaveBeenCalled();
+      expect(vi.mocked(logger.info).mock.calls.length).toBeGreaterThan(0);
     });
 
     it("should log failed executions with warning", async () => {
@@ -392,7 +392,7 @@ describe("CodeModeSecurityManager", () => {
         true,
       );
       manager.auditLog(record);
-      expect(logger.warning).toHaveBeenCalled();
+      expect(vi.mocked(logger.warning).mock.calls.length).toBeGreaterThan(0);
     });
   });
 

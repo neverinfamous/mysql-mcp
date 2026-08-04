@@ -32,12 +32,12 @@ describe("setupSubscriptions", () => {
   });
 
   describe("SubscribeHandler", () => {
-    let subscribeHandler: any;
+    let subscribeHandler: (req: unknown, extra: unknown) => unknown;
 
     beforeEach(() => {
       setupSubscriptions(mcpServer, subscriptionManager);
       const subscribeCall = (mcpServer.server.setRequestHandler as Record<string, unknown>).mock.calls.find(
-        (call: any) => call[0] === "resources/subscribe"
+        (call: unknown[]) => call[0] === "resources/subscribe"
       );
       subscribeHandler = subscribeCall[1];
     });
@@ -98,12 +98,12 @@ describe("setupSubscriptions", () => {
   });
 
   describe("UnsubscribeHandler", () => {
-    let unsubscribeHandler: any;
+    let unsubscribeHandler: (req: unknown, extra: unknown) => unknown;
 
     beforeEach(() => {
       setupSubscriptions(mcpServer, subscriptionManager);
       const unsubscribeCall = (mcpServer.server.setRequestHandler as Record<string, unknown>).mock.calls.find(
-        (call: any) => call[0] === "resources/unsubscribe"
+        (call: unknown[]) => call[0] === "resources/unsubscribe"
       );
       unsubscribeHandler = unsubscribeCall[1];
     });

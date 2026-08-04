@@ -7,7 +7,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getCoreTools } from "../core/index.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
@@ -67,32 +67,38 @@ describe("Tool Annotations", () => {
   });
 
   it("mysql_read_query should be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_read_query")!;
+    const tool = tools.find((t) => t.name === "mysql_read_query");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(true);
   });
 
   it("mysql_write_query should not be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_write_query")!;
+    const tool = tools.find((t) => t.name === "mysql_write_query");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(false);
   });
 
   it("mysql_list_tables should be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_list_tables")!;
+    const tool = tools.find((t) => t.name === "mysql_list_tables");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(true);
   });
 
   it("mysql_describe_table should be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_describe_table")!;
+    const tool = tools.find((t) => t.name === "mysql_describe_table");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(true);
   });
 
   it("mysql_drop_table should be destructive", () => {
-    const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+    const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.destructiveHint).toBe(true);
   });
 
   it("mysql_get_indexes should be read-only", () => {
-    const tool = tools.find((t) => t.name === "mysql_get_indexes")!;
+    const tool = tools.find((t) => t.name === "mysql_get_indexes");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.annotations?.readOnlyHint).toBe(true);
   });
 });
@@ -105,17 +111,20 @@ describe("Required Scopes", () => {
   });
 
   it("read_query should require read scope", () => {
-    const tool = tools.find((t) => t.name === "mysql_read_query")!;
+    const tool = tools.find((t) => t.name === "mysql_read_query");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.requiredScopes).toContain("read");
   });
 
   it("write_query should require write scope", () => {
-    const tool = tools.find((t) => t.name === "mysql_write_query")!;
+    const tool = tools.find((t) => t.name === "mysql_write_query");
+      if (!tool) throw new Error('Tool not found');;
     expect(tool.requiredScopes).toContain("write");
   });
 
   it("drop_table should require admin scope", () => {
-    const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+    const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
     expect(
       tool.requiredScopes?.some((s) => s === "write" || s === "admin"),
     ).toBe(true);
@@ -139,7 +148,8 @@ describe("Handler Execution", () => {
       const expectedResult = createMockQueryResult([{ id: 1, name: "test" }]);
       mockAdapter.executeReadQuery.mockResolvedValue(expectedResult);
 
-      const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const tool = tools.find((t) => t.name === "mysql_read_query");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { query: "SELECT * FROM users" },
         mockContext,
@@ -154,7 +164,8 @@ describe("Handler Execution", () => {
     });
 
     it("should pass parameters to executeReadQuery", async () => {
-      const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const tool = tools.find((t) => t.name === "mysql_read_query");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { query: "SELECT * FROM users WHERE id = ?", params: [1] },
         mockContext,
@@ -168,7 +179,8 @@ describe("Handler Execution", () => {
     });
 
     it("should pass transactionId to executeReadQuery when provided", async () => {
-      const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const tool = tools.find((t) => t.name === "mysql_read_query");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { query: "SELECT * FROM users", transactionId: "txn-123" },
         mockContext,
@@ -186,7 +198,8 @@ describe("Handler Execution", () => {
         new Error("Table `${TEST_DB_NAME}.nonexistent` does not exist"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const tool = tools.find((t) => t.name === "mysql_read_query");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { query: "SELECT * FROM nonexistent" },
         mockContext,
@@ -203,7 +216,8 @@ describe("Handler Execution", () => {
         new Error("Access denied"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_read_query")!;
+      const tool = tools.find((t) => t.name === "mysql_read_query");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { query: "SELECT * FROM users" },
         mockContext,
@@ -224,7 +238,8 @@ describe("Handler Execution", () => {
         executionTimeMs: 10,
       });
 
-      const tool = tools.find((t) => t.name === "mysql_write_query")!;
+      const tool = tools.find((t) => t.name === "mysql_write_query");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { query: "UPDATE users SET status = 1" },
         mockContext,
@@ -245,7 +260,8 @@ describe("Handler Execution", () => {
         executionTimeMs: 5,
       });
 
-      const tool = tools.find((t) => t.name === "mysql_write_query")!;
+      const tool = tools.find((t) => t.name === "mysql_write_query");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { query: "INSERT INTO users VALUES (1)", transactionId: "txn-456" },
         mockContext,
@@ -263,7 +279,8 @@ describe("Handler Execution", () => {
         new Error("Table `${TEST_DB_NAME}.nonexistent` does not exist"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_write_query")!;
+      const tool = tools.find((t) => t.name === "mysql_write_query");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { query: "INSERT INTO nonexistent (id) VALUES (1)" },
         mockContext,
@@ -280,7 +297,8 @@ describe("Handler Execution", () => {
         new Error("Access denied"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_write_query")!;
+      const tool = tools.find((t) => t.name === "mysql_write_query");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { query: "INSERT INTO users VALUES (1)" },
         mockContext,
@@ -295,7 +313,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_list_tables", () => {
     it("should call listTables adapter method", async () => {
-      const tool = tools.find((t) => t.name === "mysql_list_tables")!;
+      const tool = tools.find((t) => t.name === "mysql_list_tables");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({}, mockContext);
 
       expect(mockAdapter.listTables).toHaveBeenCalled();
@@ -304,7 +323,8 @@ describe("Handler Execution", () => {
     it("should return structured error for nonexistent database", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_list_tables")!;
+      const tool = tools.find((t) => t.name === "mysql_list_tables");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ database: "fake_db" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
@@ -316,7 +336,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_describe_table", () => {
     it("should call describeTable with table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_describe_table")!;
+      const tool = tools.find((t) => t.name === "mysql_describe_table");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ table: "users" }, mockContext);
 
       expect(mockAdapter.describeTable).toHaveBeenCalledWith("users");
@@ -325,7 +346,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_get_indexes", () => {
     it("should call getTableIndexes with table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_get_indexes")!;
+      const tool = tools.find((t) => t.name === "mysql_get_indexes");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ table: "users" }, mockContext);
 
       expect(mockAdapter.getTableIndexes).toHaveBeenCalledWith("users");
@@ -336,7 +358,8 @@ describe("Handler Execution", () => {
     it("should execute CREATE TABLE with columns", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "new_table",
@@ -365,7 +388,8 @@ describe("Handler Execution", () => {
     it("should handle column defaults correctly", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "with_defaults",
@@ -395,7 +419,8 @@ describe("Handler Execution", () => {
       mockAdapter.describeTable.mockResolvedValue({ columns: [] });
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "test_table",
@@ -415,7 +440,8 @@ describe("Handler Execution", () => {
     it("should handle unique columns", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "with_unique",
@@ -437,7 +463,8 @@ describe("Handler Execution", () => {
     it("should handle qualified table names", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "db.table",
@@ -457,7 +484,8 @@ describe("Handler Execution", () => {
         new Error("Table 'test_table' already exists"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "test_table",
@@ -476,7 +504,8 @@ describe("Handler Execution", () => {
     it("should return structured error for non-existence errors in create table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "test_table",
@@ -496,7 +525,8 @@ describe("Handler Execution", () => {
         columns: [{ name: "id", type: "int" }],
       });
 
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "existing_table",
@@ -521,7 +551,8 @@ describe("Handler Execution", () => {
     it("should execute DROP TABLE", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "old_table" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -533,7 +564,8 @@ describe("Handler Execution", () => {
     it("should handle IF EXISTS clause", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ table: "old_table", ifExists: true }, mockContext);
 
       const sqlCall = mockAdapter.executeQuery.mock.calls[0]?.[0];
@@ -541,7 +573,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for invalid table names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "invalid-name" }, mockContext);
 
       expect(result).toHaveProperty("success", false);
@@ -552,7 +585,8 @@ describe("Handler Execution", () => {
 
     it("should handle qualified table names", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
 
       await tool.handler({ table: "db.table" }, mockContext);
 
@@ -565,7 +599,8 @@ describe("Handler Execution", () => {
         new Error("Unknown table `${TEST_DB_NAME}.nonexistent`"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { table: "nonexistent", ifExists: false },
         mockContext,
@@ -582,7 +617,8 @@ describe("Handler Execution", () => {
       mockAdapter.describeTable.mockResolvedValue({ columns: [] });
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { table: "absent_table", ifExists: true },
         mockContext,
@@ -599,7 +635,8 @@ describe("Handler Execution", () => {
     it("should return structured error for non-existence errors in drop table", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { table: "some_table", ifExists: false },
         mockContext,
@@ -617,7 +654,8 @@ describe("Handler Execution", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([]);
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_users_email",
@@ -639,7 +677,8 @@ describe("Handler Execution", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([]);
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "idx_unique",
@@ -664,7 +703,8 @@ describe("Handler Execution", () => {
         },
       ]);
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_existing",
@@ -680,7 +720,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for invalid index names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "invalid-name",
@@ -697,7 +738,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for invalid table names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "valid_name",
@@ -717,7 +759,8 @@ describe("Handler Execution", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([]);
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "idx_test",
@@ -735,7 +778,8 @@ describe("Handler Execution", () => {
       mockAdapter.getTableIndexes.mockResolvedValue([]);
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_hash",
@@ -758,7 +802,8 @@ describe("Handler Execution", () => {
         new Error("Duplicate key name 'idx_existing'"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_existing",
@@ -780,7 +825,8 @@ describe("Handler Execution", () => {
         new Error("Table `${TEST_DB_NAME}.nonexistent` does not exist"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_test",
@@ -799,7 +845,8 @@ describe("Handler Execution", () => {
     it("should return structured error for non-index errors in create index", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("Access denied"));
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_test",
@@ -820,7 +867,8 @@ describe("Handler Execution", () => {
         new Error("Key column 'nonexistent_col' does not exist in table"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_test",
@@ -842,7 +890,8 @@ describe("Handler Execution", () => {
   describe("Missing coverage for core tools", () => {
     it("mysql_list_tables should return error if db check fails", async () => {
       mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [] });
-      const tool = tools.find((t) => t.name === "mysql_list_tables")!;
+      const tool = tools.find((t) => t.name === "mysql_list_tables");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { database: "missing_db" },
         mockContext,
@@ -857,7 +906,8 @@ describe("Handler Execution", () => {
       mockAdapter.listTables.mockRejectedValue(
         new Error("Unexpected list tables error"),
       );
-      const tool = tools.find((t) => t.name === "mysql_list_tables")!;
+      const tool = tools.find((t) => t.name === "mysql_list_tables");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext);
       expect((result as Record<string, unknown>).success).toBe(false);
       expect((result as Record<string, unknown>).error).toContain(
@@ -870,7 +920,8 @@ describe("Handler Execution", () => {
         name: "empty",
         columns: [],
       });
-      const tool = tools.find((t) => t.name === "mysql_describe_table")!;
+      const tool = tools.find((t) => t.name === "mysql_describe_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "empty" }, mockContext);
       expect((result as Record<string, unknown>).success).toBe(false);
       expect((result as Record<string, unknown>).error).toContain(
@@ -882,7 +933,8 @@ describe("Handler Execution", () => {
       mockAdapter.describeTable.mockRejectedValue(
         new Error("Unexpected describe error"),
       );
-      const tool = tools.find((t) => t.name === "mysql_describe_table")!;
+      const tool = tools.find((t) => t.name === "mysql_describe_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "err" }, mockContext);
       expect((result as Record<string, unknown>).success).toBe(false);
       expect((result as Record<string, unknown>).error).toContain(
@@ -892,7 +944,8 @@ describe("Handler Execution", () => {
 
     it("mysql_create_table should convert boolean default to 1/0", async () => {
       mockAdapter.executeQuery.mockResolvedValue({ rows: [], rowsAffected: 0 });
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           name: "bool_table",
@@ -908,7 +961,8 @@ describe("Handler Execution", () => {
 
     it("mysql_create_table should format error on catch", async () => {
       mockAdapter.executeQuery.mockRejectedValue(new Error("catch me"));
-      const tool = tools.find((t) => t.name === "mysql_create_table")!;
+      const tool = tools.find((t) => t.name === "mysql_create_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "err_table", columns: [{ name: "id", type: "INT", primaryKey: true }] },
         mockContext,
@@ -919,7 +973,8 @@ describe("Handler Execution", () => {
 
     it("mysql_drop_table should return skipped if table absent and ifExists true", async () => {
       mockAdapter.describeTable.mockResolvedValueOnce({ columns: [] });
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { table: "absent_table", ifExists: true },
         mockContext,
@@ -932,7 +987,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Unknown table 'err_table'"),
       );
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "err_table" }, mockContext);
       expect((result as Record<string, unknown>).success).toBe(false);
       expect((result as Record<string, unknown>).error).toContain(
@@ -944,7 +1000,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockImplementation(() => {
         throw new Error("outer");
       });
-      const tool = tools.find((t) => t.name === "mysql_drop_table")!;
+      const tool = tools.find((t) => t.name === "mysql_drop_table");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "err" }, mockContext);
       expect((result as Record<string, unknown>).success).toBe(false);
       expect((result as Record<string, unknown>).error).toContain("outer");
@@ -955,7 +1012,8 @@ describe("Handler Execution", () => {
         name: "empty",
         columns: [],
       });
-      const tool = tools.find((t) => t.name === "mysql_get_indexes")!;
+      const tool = tools.find((t) => t.name === "mysql_get_indexes");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "empty" }, mockContext);
       expect((result as Record<string, unknown>).success).toBe(false);
       expect((result as Record<string, unknown>).error).toContain(
@@ -967,7 +1025,8 @@ describe("Handler Execution", () => {
       mockAdapter.describeTable.mockRejectedValue(
         new Error("Unexpected index error"),
       );
-      const tool = tools.find((t) => t.name === "mysql_get_indexes")!;
+      const tool = tools.find((t) => t.name === "mysql_get_indexes");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ table: "err" }, mockContext);
       expect((result as Record<string, unknown>).success).toBe(false);
       expect((result as Record<string, unknown>).error).toContain(
@@ -987,7 +1046,8 @@ describe("Handler Execution", () => {
           ],
         },
       ]);
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           name: "idx_existing",
@@ -1005,7 +1065,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Key column 'nonexistent' does not exist in table"),
       );
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "idx_users", table: "users", columns: ["nonexistent"] },
         mockContext,
@@ -1020,7 +1081,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("Key column does not exist"),
       );
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "idx_users", table: "users", columns: ["nonexistent"] },
         mockContext,
@@ -1035,7 +1097,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockRejectedValue(
         new Error("random index error"),
       );
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "idx_err", table: "users", columns: ["id"] },
         mockContext,
@@ -1050,7 +1113,8 @@ describe("Handler Execution", () => {
       mockAdapter.executeQuery.mockImplementation(() => {
         throw new Error("outer");
       });
-      const tool = tools.find((t) => t.name === "mysql_create_index")!;
+      const tool = tools.find((t) => t.name === "mysql_create_index");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "idx_err", table: "users", columns: ["id"] },
         mockContext,

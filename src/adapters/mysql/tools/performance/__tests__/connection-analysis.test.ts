@@ -2,8 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createDetectConnectionSpikeTool } from "../connection-analysis.js";
 
 describe("Connection Analysis Tools", () => {
-  let mockAdapter: any;
-  let mockContext: any;
+  let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
+  let mockContext: ReturnType<typeof createMockRequestContext>;
 
   beforeEach(() => {
     mockAdapter = {

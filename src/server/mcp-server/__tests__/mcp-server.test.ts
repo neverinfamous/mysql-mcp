@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { McpServer } from "../mcp-server.js";
-import { DatabaseAdapter } from "../../../adapters/database-adapter/index.js";
+import { type DatabaseAdapter } from "../../../adapters/database-adapter/index.js";
 import { DEFAULT_CONFIG } from "../config.js";
 import { logger } from "../../../utils/logger.js";
 

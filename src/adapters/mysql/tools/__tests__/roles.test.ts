@@ -6,7 +6,7 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getRoleTools } from "../roles/index.js";
-import type {} from "../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
@@ -62,7 +62,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ ROLE_NAME: "admin_role" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_role_list")!;
+      const tool = tools.find((t) => t.name === "mysql_role_list");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({}, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -73,7 +74,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ ROLE_NAME: "admin_role" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_role_list")!;
+      const tool = tools.find((t) => t.name === "mysql_role_list");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ pattern: "admin%" }, mockContext);
 
       const call = mockAdapter.executeQuery.mock.calls[0][0];
@@ -91,7 +93,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const tool = tools.find((t) => t.name === "mysql_role_create");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ name: "test_role", ifNotExists: true }, mockContext);
 
       // Second call should be the CREATE ROLE
@@ -100,7 +103,8 @@ describe("Handler Execution", () => {
     });
 
     it("should create a role without IF NOT EXISTS", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const tool = tools.find((t) => t.name === "mysql_role_create");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { name: "test_role", ifNotExists: false },
         mockContext,
@@ -112,7 +116,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for invalid role names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const tool = tools.find((t) => t.name === "mysql_role_create");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual(
         expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
@@ -125,7 +130,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ account_locked: 'Y', password_expired: 'Y', authentication_string: '' }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const tool = tools.find((t) => t.name === "mysql_role_create");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "test_role", ifNotExists: true },
         mockContext,
@@ -148,7 +154,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_grant", () => {
     it("should grant privileges to role", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_grant")!;
+      const tool = tools.find((t) => t.name === "mysql_role_grant");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           role: "test_role",
@@ -165,7 +172,8 @@ describe("Handler Execution", () => {
     });
 
     it("should handle schema-qualified table name", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_grant")!;
+      const tool = tools.find((t) => t.name === "mysql_role_grant");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { role: "test_role", privileges: ["SELECT"], table: "testdb.mytable" },
         mockContext,
@@ -179,7 +187,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for invalid role names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_grant")!;
+      const tool = tools.find((t) => t.name === "mysql_role_grant");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { role: "invalid-role", privileges: ["SELECT"] },
         mockContext,
@@ -198,7 +207,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
 
-      const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
+      const tool = tools.find((t) => t.name === "mysql_role_revoke");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { role: "test_role", user: "testuser", host: "localhost" },
         mockContext,
@@ -216,7 +226,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
+      const tool = tools.find((t) => t.name === "mysql_role_revoke");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { role: "test_role", user: "testuser", host: "localhost" },
         mockContext,
@@ -240,7 +251,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_role_drop");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ name: "test_role", ifExists: true }, mockContext);
 
       // Second call should be the DROP ROLE
@@ -250,7 +262,8 @@ describe("Handler Execution", () => {
 
     it("should drop a role without IF EXISTS", async () => {
       mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
-      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_role_drop");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ name: "test_role", ifExists: false }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -259,7 +272,8 @@ describe("Handler Execution", () => {
     });
 
     it("should return structured error for invalid role names", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_role_drop");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ name: "invalid-role" }, mockContext);
       expect(result).toEqual(
         expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
@@ -272,7 +286,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_role_drop");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "test_role", ifExists: true },
         mockContext,
@@ -293,7 +308,8 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_assign", () => {
     it("should assign role to user", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_assign")!;
+      const tool = tools.find((t) => t.name === "mysql_role_assign");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         { role: "test_role", user: "testuser", host: "localhost" },
         mockContext,
@@ -305,7 +321,8 @@ describe("Handler Execution", () => {
     });
 
     it("should assign role with admin option", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_assign")!;
+      const tool = tools.find((t) => t.name === "mysql_role_assign");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler(
         {
           role: "test_role",
@@ -327,7 +344,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ Grants: "SELECT ON *.*" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_role_grants")!;
+      const tool = tools.find((t) => t.name === "mysql_role_grants");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ role: "test_role" }, mockContext);
 
       expect(mockAdapter.rawQuery).toHaveBeenCalled();
@@ -342,7 +360,8 @@ describe("Handler Execution", () => {
         createMockQueryResult([{ roleName: "admin_role", roleHost: "%" }]),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_user_roles")!;
+      const tool = tools.find((t) => t.name === "mysql_user_roles");
+      if (!tool) throw new Error('Tool not found');;
       await tool.handler({ user: "testuser", host: "localhost" }, mockContext);
 
       expect(mockAdapter.executeQuery).toHaveBeenCalled();
@@ -353,7 +372,8 @@ describe("Handler Execution", () => {
     it("should return exists: false for nonexistent user", async () => {
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_user_roles")!;
+      const tool = tools.find((t) => t.name === "mysql_user_roles");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { user: "nonexistent", host: "%" },
         mockContext,
@@ -374,7 +394,8 @@ describe("Handler Execution", () => {
         new Error("Operation CREATE ROLE failed for 'test_role'@'%'"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const tool = tools.find((t) => t.name === "mysql_role_create");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "test_role", ifNotExists: false },
         mockContext,
@@ -395,7 +416,8 @@ describe("Handler Execution", () => {
         new Error("Operation DROP ROLE failed for 'test_role'@'%'"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_role_drop");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { name: "test_role", ifExists: false },
         mockContext,
@@ -417,7 +439,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_role_assign")!;
+      const tool = tools.find((t) => t.name === "mysql_role_assign");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { role: "test_role", user: "baduser", host: "%" },
         mockContext,
@@ -440,7 +463,8 @@ describe("Handler Execution", () => {
         .mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]))
         .mockResolvedValueOnce(createMockQueryResult([]));
 
-      const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
+      const tool = tools.find((t) => t.name === "mysql_role_revoke");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         { role: "test_role", user: "baduser", host: "%" },
         mockContext,
@@ -467,7 +491,8 @@ describe("Handler Execution", () => {
         new Error("Table 'testdb.nonexistent' does not exist"),
       );
 
-      const tool = tools.find((t) => t.name === "mysql_role_grant")!;
+      const tool = tools.find((t) => t.name === "mysql_role_grant");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
           role: "test_role",
@@ -489,50 +514,58 @@ describe("Handler Execution", () => {
 
   describe("Zod validation errors", () => {
     it("should handle Zod validation errors for mysql_role_list", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_list")!;
+      const tool = tools.find((t) => t.name === "mysql_role_list");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ pattern: 123 }, mockContext); // invalid pattern type
       expect(result).toEqual(expect.objectContaining({ success: false }));
       expect((result as Record<string, unknown>).error).toContain("pattern");
     });
 
     it("should handle Zod validation errors for mysql_role_create", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_create")!;
+      const tool = tools.find((t) => t.name === "mysql_role_create");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext); // missing required 'name'
       expect(result).toEqual(expect.objectContaining({ success: false }));
     });
 
     it("should handle Zod validation errors for mysql_role_drop", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_drop")!;
+      const tool = tools.find((t) => t.name === "mysql_role_drop");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext); // missing required 'name'
       expect(result).toEqual(expect.objectContaining({ success: false }));
     });
 
     it("should handle Zod validation errors for mysql_role_assign", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_assign")!;
+      const tool = tools.find((t) => t.name === "mysql_role_assign");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ role: "test" }, mockContext); // missing 'user'
       expect(result).toEqual(expect.objectContaining({ success: false }));
     });
 
     it("should handle Zod validation errors for mysql_role_revoke", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_revoke")!;
+      const tool = tools.find((t) => t.name === "mysql_role_revoke");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ role: "test" }, mockContext); // missing 'user'
       expect(result).toEqual(expect.objectContaining({ success: false }));
     });
 
     it("should handle Zod validation errors for mysql_role_grant", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_grant")!;
+      const tool = tools.find((t) => t.name === "mysql_role_grant");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({ role: "test" }, mockContext); // missing 'privileges'
       expect(result).toEqual(expect.objectContaining({ success: false }));
     });
 
     it("should handle Zod validation errors for mysql_role_grants", async () => {
-      const tool = tools.find((t) => t.name === "mysql_role_grants")!;
+      const tool = tools.find((t) => t.name === "mysql_role_grants");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext); // missing 'role'
       expect(result).toEqual(expect.objectContaining({ success: false }));
     });
 
     it("should handle Zod validation errors for mysql_user_roles", async () => {
-      const tool = tools.find((t) => t.name === "mysql_user_roles")!;
+      const tool = tools.find((t) => t.name === "mysql_user_roles");
+      if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler({}, mockContext); // missing 'user'
       expect(result).toEqual(expect.objectContaining({ success: false }));
     });

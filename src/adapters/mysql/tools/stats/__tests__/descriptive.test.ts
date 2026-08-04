@@ -6,7 +6,7 @@ import {
   createTimeSeriesToolStats,
   createSamplingTool,
 } from "../descriptive/index.js";
-import type {} from "../../../mysql-adapter/index.js";
+import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
