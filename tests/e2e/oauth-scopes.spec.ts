@@ -23,15 +23,13 @@ import { Buffer } from "node:buffer";
 import * as jose from "jose";
 import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE, SCOPE_ERROR_MSG } from "./helpers.js";
 
-const MCP_PORT = 3157;
-const JWKS_PORT = 3158;
 const ISSUER = "https://auth.example.com/mysql-scope-test";
 const AUDIENCE = "mysql-mcp-server";
 
-test.describe.configure({ mode: "serial" });
-
-test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
+test.describe("OAuth 2.1 Scope Enforcement E2E", () => {
   let jwksServer: Server;
+  let mcpPort: number;
+  let jwksPort: number;
 
   // JWTs
   let readToken: string;
@@ -42,6 +40,9 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
   let invalidScopeToken: string;
 
   test.beforeAll(async () => {
+    mcpPort = 3157 + test.info().workerIndex;
+    jwksPort = 3158 + test.info().workerIndex;
+
     // 1. Generate RS256 keypair
     const keypair = await jose.generateKeyPair("RS256");
     const publicJwk = await jose.exportJWK(keypair.publicKey);
@@ -70,8 +71,8 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
           console.error("JWKS Server error:", e);
         }
       });
-      jwksServer.listen(JWKS_PORT, "127.0.0.1", () => {
-        console.log("JWKS Server listening on 127.0.0.1:" + JWKS_PORT);
+      jwksServer.listen(jwksPort, "127.0.0.1", () => {
+        console.log("JWKS Server listening on 127.0.0.1:" + jwksPort);
         resolve();
       });
     });
@@ -111,7 +112,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
       .sign(badKeypair.privateKey);
 
     // 4. Start mysql-mcp with OAuth enabled
-    await startServer(MCP_PORT, [
+    await startServer(mcpPort, [
       "--stateless",
       "--log-level",
       "debug",
@@ -123,12 +124,12 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
       "--oauth-audience",
       AUDIENCE,
       "--oauth-jwks-uri",
-      `http://127.0.0.1:${JWKS_PORT}/jwks`,
+      `http://127.0.0.1:${jwksPort}/jwks`,
     ], "oauth-server", { NO_PROXY: "*" });
   });
 
   test.afterAll(async () => {
-    stopServer(MCP_PORT);
+    stopServer(mcpPort);
     if (jwksServer) {
       await new Promise<void>((resolve) => jwksServer.close(() => resolve()));
     }
@@ -137,7 +138,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
   // ─── Helpers ────────────────────────────────────────────────────────────────
 
   async function initializeSession(token: string): Promise<string> {
-    const base = `http://127.0.0.1:${MCP_PORT}/mcp`;
+    const base = `http://127.0.0.1:${mcpPort}/mcp`;
     const headers = {
       "Content-Type": "application/json",
       Accept: "application/json, text/event-stream",
@@ -180,7 +181,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
       headers["mcp-session-id"] = sessionId;
     }
 
-    const res = await fetch(`http://127.0.0.1:${MCP_PORT}/mcp`, {
+    const res = await fetch(`http://127.0.0.1:${mcpPort}/mcp`, {
       method: "POST",
       headers,
       body: JSON.stringify({
@@ -365,7 +366,7 @@ test.describe.serial("OAuth 2.1 Scope Enforcement E2E", () => {
   });
 
   test("expired or invalid tokens are rejected at connection time", async () => {
-    const base = `http://127.0.0.1:${MCP_PORT}/mcp`;
+    const base = `http://127.0.0.1:${mcpPort}/mcp`;
 
     const getInitRes = async (token: string) =>
       fetch(base, {
