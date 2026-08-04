@@ -1,6 +1,5 @@
 import { execFileSync, execFile } from 'child_process';
 import { promisify } from 'util';
-import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { detectDocker } from './utils.mjs';
@@ -24,6 +23,9 @@ const CONFIG = {
     },
     cluster: { name: 'mcpCluster' },
     database: 'testdb',
+    routerApiPath: '/api/20190715/router/status',
+    routerApiResponseKey: 'processId',
+    metricsPrefix: 'mysql_mcp_',
     ports: {
         routerRW: '6446',
         routerRO: '6447',
@@ -38,6 +40,23 @@ const CONFIG = {
     },
     timeouts: {
         curlSec: '5',
+        routerHttpCheckSec: '2',
+    },
+    redis: {
+        healthKey: 'healthcheck:test',
+        healthValue: 'ok',
+        healthTtlSec: '10',
+    },
+    containers: {
+        mysqlRouter: 'mysql-router',
+        datadogUnified: 'datadog-unified',
+        prometheus: 'prometheus',
+        mysqlNode1: 'mysql-node1',
+        asyncReplica: 'mysql-async-replica',
+    },
+    workspace: {
+        mcpPackageJson: '/workspace/mysql-mcp/package.json',
+        scratchDir: '/workspace/scratch',
     },
     expectedTables: {
         test_products:     16,
@@ -55,6 +74,9 @@ const CONFIG = {
     },
 };
 
+const MYSQL_PWD_ENV = `MYSQL_PWD=${CONFIG.credentials.mysql.password}`;
+const MYSQL_USER_FLAG = `-u${CONFIG.credentials.mysql.user}`;
+
 // ============================================================
 // Helpers
 // ============================================================
@@ -68,10 +90,24 @@ const safeParse = (raw) => {
     catch { return { ok: false, data: null }; }
 };
 
+/** Strip leading MySQL warning lines, returning the last meaningful line */
+const stripMysqlWarning = (val) => {
+    if (!val) return null;
+    const trimmed = val.trim();
+    if (!trimmed.includes('mysql: [Warning]')) return trimmed;
+    return splitLines(trimmed).filter(l => !l.startsWith('mysql: [Warning]')).pop()?.trim() ?? trimmed;
+};
+
+/** Extract the value from a settled Promise.allSettled result, or null if rejected */
+const settled = (result) => result.status === 'fulfilled' ? result.value : null;
+
+// Cached env object — avoids re-spreading process.env (100+ keys) on every subprocess call
+const EXEC_ENV = Object.freeze({ ...process.env, LC_ALL: 'C', LANG: 'C' });
+
 /** Synchronous command execution with optional error suppression */
 const execCommand = (cmd, args, ignoreError = false) => {
     try {
-        return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe', cwd: ECOSYSTEM_ROOT, env: { ...process.env, LC_ALL: 'C', LANG: 'C' } });
+        return execFileSync(cmd, args, { encoding: 'utf-8', stdio: 'pipe', cwd: ECOSYSTEM_ROOT, env: EXEC_ENV });
     } catch (e) {
         if (!ignoreError) {
             console.error(`Error: ${e.message}`);
@@ -83,7 +119,7 @@ const execCommand = (cmd, args, ignoreError = false) => {
 /** Async command execution (promise-based) with error suppression */
 const execCommandAsync = async (cmd, args) => {
     try {
-        const { stdout } = await execFileAsync(cmd, args, { encoding: 'utf-8', cwd: ECOSYSTEM_ROOT, env: { ...process.env, LC_ALL: 'C', LANG: 'C' } });
+        const { stdout } = await execFileAsync(cmd, args, { encoding: 'utf-8', cwd: ECOSYSTEM_ROOT, env: EXEC_ENV });
         return stdout;
     } catch {
         return null;
@@ -104,34 +140,35 @@ if (servicesRaw) {
     process.exit(1);
 }
 
+/** Build the argument list for a `docker exec` call */
+const buildDockerExecArgs = (container, envPairs, cmdArgs) => {
+    const envArgs = envPairs.flatMap(pair => ['-e', pair]);
+    return dockerCmd === 'wsl'
+        ? ['docker', 'exec', ...envArgs, container, ...cmdArgs]
+        : ['exec', ...envArgs, container, ...cmdArgs];
+};
+
 // Helper: run a command inside a Docker container (sync)
 const dockerExec = (container, cmdArgs, ignoreError = true) =>
     dockerExecEnv(container, [], cmdArgs, ignoreError);
 
 // Helper: run a command inside a Docker container with env vars (sync)
-const dockerExecEnv = (container, envPairs, cmdArgs, ignoreError = true) => {
-    const envArgs = envPairs.flatMap(pair => ['-e', pair]);
-    const args = dockerCmd === 'wsl'
-        ? ['docker', 'exec', ...envArgs, container, ...cmdArgs]
-        : ['exec', ...envArgs, container, ...cmdArgs];
-    return execCommand(dockerCmd, args, ignoreError);
-};
+const dockerExecEnv = (container, envPairs, cmdArgs, ignoreError = true) =>
+    execCommand(dockerCmd, buildDockerExecArgs(container, envPairs, cmdArgs), ignoreError);
 
 // Helper: async docker exec (for parallel sections)
 const dockerExecAsync = async (container, cmdArgs) =>
     dockerExecEnvAsync(container, [], cmdArgs);
 
 // Helper: async docker exec with env vars (for parallel sections)
-const dockerExecEnvAsync = async (container, envPairs, cmdArgs) => {
-    const envArgs = envPairs.flatMap(pair => ['-e', pair]);
-    const args = dockerCmd === 'wsl'
-        ? ['docker', 'exec', ...envArgs, container, ...cmdArgs]
-        : ['exec', ...envArgs, container, ...cmdArgs];
-    return execCommandAsync(dockerCmd, args);
-};
+const dockerExecEnvAsync = async (container, envPairs, cmdArgs) =>
+    execCommandAsync(dockerCmd, buildDockerExecArgs(container, envPairs, cmdArgs));
+
+const SEPARATOR = '----------------------------------------';
 
 console.log('=== Ecosystem Status Check ===\n');
 
+// Sections set this to false on any failure; checked at the final summary.
 let allUp = true;
 // Populated by Section 1, consumed by Section 6
 let runningContainers = {};
@@ -141,8 +178,9 @@ let runningContainers = {};
 // Preflight: fire the mysqlsh cluster metadata check concurrently.
 // This overlaps the heavy mysqlsh-inside-docker startup with Sections 1-2.
 const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
-const mysqlshMetadataPromise = mysqlNodes.length > 0
-    ? dockerExecEnvAsync(mysqlNodes[0], [], ['mysqlsh', `--user=${CONFIG.credentials.mysql.user}`, `--password=${CONFIG.credentials.mysql.password}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', `try { var c = dba.getCluster('${CONFIG.cluster.name}'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }`])
+const firstMysqlNode = mysqlNodes[0] ?? null;
+const mysqlshMetadataPromise = firstMysqlNode
+    ? dockerExecEnvAsync(firstMysqlNode, [], ['mysqlsh', `--user=${CONFIG.credentials.mysql.user}`, `--password=${CONFIG.credentials.mysql.password}`, '--host=127.0.0.1', '--port=3306', '--js', '-e', `try { var c = dba.getCluster('${CONFIG.cluster.name}'); print('OK'); } catch(e) { print('ERROR: ' + e.message); process.exit(1); }`])
     : Promise.resolve(null);
 
 /** Run a named section with error boundary to prevent cascading failures */
@@ -170,21 +208,24 @@ const runSectionAsync = async (name, fn) => {
 // ============================================================
 runSection('Container Status', () => {
     console.log(`1. Container Status (${containers.length} services):`);
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
 
-    const psOutput = execCommand(dockerCmd, dockerCmd === 'wsl' ? ['docker', 'ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}},{{.State}},{{.Status}}'], false);
+    const psOutput = execCommand(dockerCmd, dockerCmd === 'wsl' ? ['docker', 'ps', '-a', '--format', '{{.Names}}\t{{.State}}\t{{.Status}}'] : ['ps', '-a', '--format', '{{.Names}}\t{{.State}}\t{{.Status}}'], false);
     if (!psOutput) {
         console.error(`Error: Failed to execute docker ps. Docker daemon might not be running.`);
         process.exit(1);
     }
 
-    runningContainers = splitLines(psOutput.trim()).reduce((acc, line) => {
-        const [name, state, status] = line.split(',');
+    const runningContainersMap = {};
+    for (const line of splitLines(psOutput.trim()).filter(Boolean)) {
+        const parts = line.split('\t');
+        if (parts.length < 3) continue;
+        const [name, state, status] = parts;
         if (name) {
-            acc[name] = { state, status };
+            runningContainersMap[name] = { state, status };
         }
-        return acc;
-    }, {});
+    }
+    runningContainers = runningContainersMap;
 
     for (const name of containers) {
         const info = runningContainers[name];
@@ -215,18 +256,15 @@ runSection('Container Status', () => {
 // ============================================================
 runSection('InnoDB Cluster Status', () => {
     console.log('\n2. InnoDB Cluster Status:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
 
-    const mysqlNodes = containers.filter(c => c.startsWith('mysql-node'));
     let clusterOut = null;
     let primaryOut = null;
-    const mysqlPwd = `MYSQL_PWD=${CONFIG.credentials.mysql.password}`;
-    const mysqlUser = `-u${CONFIG.credentials.mysql.user}`;
 
     for (const node of mysqlNodes) {
-        clusterOut = dockerExecEnv(node, [mysqlPwd], ['mysql', mysqlUser, '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], true);
+        clusterOut = dockerExecEnv(node, [MYSQL_PWD_ENV], ['mysql', MYSQL_USER_FLAG, '-e', 'SELECT member_state FROM performance_schema.replication_group_members;'], true);
         if (clusterOut !== null) {
-            primaryOut = dockerExecEnv(node, [mysqlPwd], ['mysql', mysqlUser, '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"], true);
+            primaryOut = dockerExecEnv(node, [MYSQL_PWD_ENV], ['mysql', MYSQL_USER_FLAG, '-N', '-s', '-e', "SELECT member_host FROM performance_schema.replication_group_members WHERE member_role='PRIMARY';"], true);
             break;
         }
     }
@@ -241,32 +279,12 @@ runSection('InnoDB Cluster Status', () => {
             console.log(`   👑 Current Primary: ${currentPrimary}`);
             if (currentPrimary && currentPrimary !== 'Unknown') {
                 const primaryHostName = currentPrimary.split(':')[0];
-                const readOnlyCheck = dockerExecEnv(primaryHostName, [mysqlPwd], ['mysql', mysqlUser, '-N', '-s', '-e', 'SELECT @@super_read_only;'], true);
-                let readOnlyVal = readOnlyCheck ? readOnlyCheck.trim() : null;
-                if (readOnlyVal && readOnlyVal.includes('mysql: [Warning]')) {
-                    readOnlyVal = splitLines(readOnlyVal).pop().trim();
-                }
+                const readOnlyCheck = dockerExecEnv(primaryHostName, [MYSQL_PWD_ENV], ['mysql', MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@super_read_only;'], true);
+                const readOnlyVal = stripMysqlWarning(readOnlyCheck);
                 if (readOnlyVal === '1') {
                     console.log(`   ❌ PRIMARY IS STUCK IN READ-ONLY MODE (super_read_only=1)`);
-                    console.log(`   🛠️  Auto-healing primary node via heal-primary.mjs...\n`);
-                    try {
-                        execFileSync('node', ['scripts/heal-primary.mjs'], { stdio: 'inherit', cwd: ECOSYSTEM_ROOT });
-                        console.log(`\n   🔄 Re-verifying primary status...`);
-                        const retryCheck = dockerExecEnv(primaryHostName, [mysqlPwd], ['mysql', mysqlUser, '-N', '-s', '-e', 'SELECT @@super_read_only;'], true);
-                        let retryVal = retryCheck ? retryCheck.trim() : null;
-                        if (retryVal && retryVal.includes('mysql: [Warning]')) {
-                            retryVal = splitLines(retryVal).pop().trim();
-                        }
-                        if (retryVal === '0') {
-                            console.log(`   ✅ Primary successfully auto-healed!`);
-                        } else {
-                            console.log(`   ❌ Auto-heal failed to clear the read-only flag.`);
-                            allUp = false;
-                        }
-                    } catch (err) {
-                        console.log(`   ❌ Auto-heal script failed to execute: ${err.message}`);
-                        allUp = false;
-                    }
+                    console.log(`   🛠️  Run: node scripts/heal-primary.mjs`);
+                    allUp = false;
                 }
             }
         } else {
@@ -284,11 +302,10 @@ runSection('InnoDB Cluster Status', () => {
 // Section 2.5: Async Replica Status
 // ============================================================
 runSection('Async Replica Status', () => {
-    if (containers.includes('mysql-async-replica')) {
+    if (containers.includes(CONFIG.containers.asyncReplica)) {
         console.log('\n2.5. Async Replica Status:');
-        console.log('----------------------------------------');
-        const mysqlPwd = `MYSQL_PWD=${CONFIG.credentials.mysql.password}`;
-        const replicaOut = dockerExecEnv('mysql-async-replica', [mysqlPwd], ['mysql', `-u${CONFIG.credentials.mysql.user}`, '-E', '-e', 'SHOW REPLICA STATUS'], true);
+        console.log(SEPARATOR);
+        const replicaOut = dockerExecEnv(CONFIG.containers.asyncReplica, [MYSQL_PWD_ENV], ['mysql', MYSQL_USER_FLAG, '-E', '-e', 'SHOW REPLICA STATUS'], true);
         if (replicaOut && replicaOut.includes('Replica_IO_Running: Yes') && replicaOut.includes('Replica_SQL_Running: Yes')) {
             console.log('✅ Async Replica        : IO and SQL threads are running');
         } else {
@@ -306,7 +323,7 @@ runSection('Async Replica Status', () => {
 // ============================================================
 await runSectionAsync('MySQL Shell Metadata Verification', async () => {
     console.log('\n3. MySQL Shell Metadata Verification:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
     if (mysqlNodes.length > 0) {
         const shellOut = await mysqlshMetadataPromise;
 
@@ -331,38 +348,36 @@ await runSectionAsync('MySQL Shell Metadata Verification', async () => {
 // ============================================================
 await runSectionAsync('Routing & Proxy Validation', async () => {
     console.log('\n4. Routing & Proxy Validation:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
 
-    const mysqlPwd = `MYSQL_PWD=${CONFIG.credentials.mysql.password}`;
-    const mysqlUser = `-u${CONFIG.credentials.mysql.user}`;
     const { routerRW, routerRO, routerAPI, proxySQLAdmin, proxySQLData } = CONFIG.ports;
     const { proxyAdmin, proxyData, routerApi } = CONFIG.credentials;
+    const { routerHttpCheckSec } = CONFIG.timeouts;
 
-    if (mysqlNodes.length === 0) throw new Error('No MySQL nodes found');
-    const firstNode = mysqlNodes[0];
+    if (!firstMysqlNode) throw new Error('No MySQL nodes found');
     const proxySqlNode = containers.find(c => c.includes('proxysql')) || 'proxysql';
     const redisNode = containers.find(c => c.includes('redis')) || 'redis-server';
 
     // Fire all independent checks in parallel
     const [routerRWResult, routerROResult, routerAPIHTTPResult, routerAPIHTTPSResult, proxyBackendsResult, proxyDataResult, redisResult] = await Promise.allSettled([
         // MySQL Router R/W (port 6446)
-        dockerExecEnvAsync(firstNode, [mysqlPwd], ['mysql', '-h', 'mysql-router', '-P', routerRW, mysqlUser, '-N', '-s', '-e', 'SELECT @@hostname;']),
+        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', CONFIG.containers.mysqlRouter, '-P', routerRW, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
         // MySQL Router R/O (port 6447)
-        dockerExecEnvAsync(firstNode, [mysqlPwd], ['mysql', '-h', 'mysql-router', '-P', routerRO, mysqlUser, '-N', '-s', '-e', 'SELECT @@hostname;']),
+        dockerExecEnvAsync(firstMysqlNode, [MYSQL_PWD_ENV], ['mysql', '-h', CONFIG.containers.mysqlRouter, '-P', routerRO, MYSQL_USER_FLAG, '-N', '-s', '-e', 'SELECT @@hostname;']),
         // Router REST API — HTTP (should fail = HTTPS enforced)
-        dockerExecAsync('datadog-unified', ['curl', '-s', '-m', '2', `http://mysql-router:${routerAPI}/api/20190715/router/status`]),
+        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '-m', routerHttpCheckSec, `http://${CONFIG.containers.mysqlRouter}:${routerAPI}${CONFIG.routerApiPath}`]),
         // Router REST API — HTTPS
-        dockerExecAsync('datadog-unified', ['curl', '-sk', '-u', `${routerApi.user}:${routerApi.password}`, `https://mysql-router:${routerAPI}/api/20190715/router/status`]),
+        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-sk', '-u', `${routerApi.user}:${routerApi.password}`, `https://${CONFIG.containers.mysqlRouter}:${routerAPI}${CONFIG.routerApiPath}`]),
         // ProxySQL backend status
         dockerExecEnvAsync(proxySqlNode, [`MYSQL_PWD=${proxyAdmin.password}`], ['mysql', '-h', '127.0.0.1', '-P', proxySQLAdmin, `-u${proxyAdmin.user}`, '-N', '-s', '-e', 'SELECT hostgroup_id, hostname, status FROM runtime_mysql_servers ORDER BY hostgroup_id, hostname;']),
         // ProxySQL data port (6033)
-        dockerExecEnvAsync(firstNode, [`MYSQL_PWD=${proxyData.password}`], ['mysql', '-h', 'proxysql', '-P', proxySQLData, `-u${proxyData.user}`, '-N', '-s', '-e', 'SELECT 1;']),
+        dockerExecEnvAsync(firstMysqlNode, [`MYSQL_PWD=${proxyData.password}`], ['mysql', '-h', 'proxysql', '-P', proxySQLData, `-u${proxyData.user}`, '-N', '-s', '-e', 'SELECT 1;']),
         // Redis PING + SET/GET cycle
         dockerExecAsync(redisNode, ['redis-cli', 'PING']),
     ]);
 
     // Router R/W
-    const routerRW_val = routerRWResult.status === 'fulfilled' ? routerRWResult.value : null;
+    const routerRW_val = settled(routerRWResult);
     if (routerRW_val && routerRW_val.trim().length > 0) {
         console.log(`✅ Router R/W (${routerRW})    : Routed to ${routerRW_val.trim()}`);
     } else {
@@ -371,7 +386,7 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     }
 
     // Router R/O
-    const routerRO_val = routerROResult.status === 'fulfilled' ? routerROResult.value : null;
+    const routerRO_val = settled(routerROResult);
     if (routerRO_val && routerRO_val.trim().length > 0) {
         console.log(`✅ Router R/O (${routerRO})    : Routed to ${routerRO_val.trim()}`);
     } else {
@@ -380,10 +395,10 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     }
 
     // Router REST API — verify HTTPS enforcement
-    const routerAPIHTTP_val = routerAPIHTTPResult.status === 'fulfilled' ? routerAPIHTTPResult.value : null;
-    const routerAPIHTTPS_val = routerAPIHTTPSResult.status === 'fulfilled' ? routerAPIHTTPSResult.value : null;
+    const routerAPIHTTP_val = settled(routerAPIHTTPResult);
+    const routerAPIHTTPS_val = settled(routerAPIHTTPSResult);
 
-    if (routerAPIHTTPS_val && routerAPIHTTPS_val.includes('processId')) {
+    if (routerAPIHTTPS_val && routerAPIHTTPS_val.includes(CONFIG.routerApiResponseKey)) {
         if (routerAPIHTTP_val === null || routerAPIHTTP_val.trim() === '') {
             console.log('✅ Router REST API      : Responding securely (HTTPS enforced, HTTP rejected)');
         } else {
@@ -396,7 +411,7 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     }
 
     // ProxySQL backends
-    const proxyBackends_val = proxyBackendsResult.status === 'fulfilled' ? proxyBackendsResult.value : null;
+    const proxyBackends_val = settled(proxyBackendsResult);
     if (proxyBackends_val) {
         const lines = splitLines(proxyBackends_val.trim()).filter(Boolean);
         const offlineBackends = lines.filter(l => !l.includes('ONLINE'));
@@ -418,7 +433,7 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     }
 
     // ProxySQL data port
-    const proxyData_val = proxyDataResult.status === 'fulfilled' ? proxyDataResult.value : null;
+    const proxyData_val = settled(proxyDataResult);
     if (proxyData_val && proxyData_val.trim() === '1') {
         console.log(`✅ ProxySQL data (${proxySQLData}) : Routing queries successfully`);
     } else {
@@ -427,12 +442,12 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     }
 
     // Redis — PING first, then SET/GET cycle if needed
-    const redisPing_val = redisResult.status === 'fulfilled' ? redisResult.value : null;
+    const redisPing_val = settled(redisResult);
     if (redisPing_val && redisPing_val.trim() === 'PONG') {
         // Test write + read cycle (sequential since GET depends on SET)
-        const redisSet = dockerExec(redisNode, ['redis-cli', 'SET', 'healthcheck:test', 'ok', 'EX', '10'], true);
-        const redisGet = dockerExec(redisNode, ['redis-cli', 'GET', 'healthcheck:test'], true);
-        if (redisSet && redisSet.trim() === 'OK' && redisGet && redisGet.trim() === 'ok') {
+        const redisSet = await dockerExecAsync(redisNode, ['redis-cli', 'SET', CONFIG.redis.healthKey, CONFIG.redis.healthValue, 'EX', CONFIG.redis.healthTtlSec]);
+        const redisGet = await dockerExecAsync(redisNode, ['redis-cli', 'GET', CONFIG.redis.healthKey]);
+        if (redisSet && redisSet.trim() === 'OK' && redisGet && redisGet.trim() === CONFIG.redis.healthValue) {
             console.log('✅ Redis                : PING + SET/GET cycle passed');
         } else {
             console.log('⚠️ Redis                : PING ok but SET/GET failed');
@@ -449,23 +464,23 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
 // ============================================================
 await runSectionAsync('Observability Stack', async () => {
     console.log('\n5. Observability Stack:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
 
     const { curlSec } = CONFIG.timeouts;
 
     // Fire all independent observability checks in parallel
     const [promHealthResult, grafanaHealthResult, lokiReadyResult, alloyReadyResult] = await Promise.allSettled([
-        dockerExecAsync('prometheus', ['wget', '-qO-', 'http://localhost:9090/-/healthy']),
-        dockerExecAsync('datadog-unified', ['curl', '-s', '--connect-timeout', curlSec, `http://grafana:${CONFIG.ports.grafana}/api/health`]),
-        dockerExecAsync('datadog-unified', ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/ready`]),
-        dockerExecAsync('datadog-unified', ['curl', '-s', '--connect-timeout', curlSec, `http://alloy:${CONFIG.ports.alloy}/-/ready`]),
+        dockerExecAsync(CONFIG.containers.prometheus, ['wget', '-qO-', 'http://localhost:9090/-/healthy']),
+        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://grafana:${CONFIG.ports.grafana}/api/health`]),
+        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/ready`]),
+        dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://alloy:${CONFIG.ports.alloy}/-/ready`]),
     ]);
 
     // Prometheus health
-    const promHealth = promHealthResult.status === 'fulfilled' ? promHealthResult.value : null;
+    const promHealth = settled(promHealthResult);
     if (promHealth && promHealth.includes('Healthy')) {
         // Scrape targets check (sequential since it depends on health)
-        const promTargets = dockerExec('prometheus', ['wget', '-qO-', `http://localhost:${CONFIG.ports.prometheus}/api/v1/targets?state=active`], true);
+        const promTargets = await dockerExecAsync(CONFIG.containers.prometheus, ['wget', '-qO-', `http://localhost:${CONFIG.ports.prometheus}/api/v1/targets?state=active`]);
         if (promTargets) {
             const parsed = safeParse(promTargets);
             if (parsed.ok) {
@@ -495,7 +510,7 @@ await runSectionAsync('Observability Stack', async () => {
     }
 
     // Grafana health
-    const grafanaHealth = grafanaHealthResult.status === 'fulfilled' ? grafanaHealthResult.value : null;
+    const grafanaHealth = settled(grafanaHealthResult);
     if (grafanaHealth) {
         const parsed = safeParse(grafanaHealth);
         if (parsed.ok && parsed.data) {
@@ -514,9 +529,9 @@ await runSectionAsync('Observability Stack', async () => {
     }
 
     // Loki ready — also query labels API to confirm Alloy→Loki pipeline is shipping data
-    const lokiReady = lokiReadyResult.status === 'fulfilled' ? lokiReadyResult.value : null;
+    const lokiReady = settled(lokiReadyResult);
     if (lokiReady && lokiReady.toLowerCase().includes('ready')) {
-        const lokiLabels = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/loki/api/v1/labels`], true);
+        const lokiLabels = await dockerExecAsync(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', curlSec, `http://loki:${CONFIG.ports.loki}/loki/api/v1/labels`]);
         let labelCount = 0;
         if (lokiLabels) {
             const parsed = safeParse(lokiLabels);
@@ -533,7 +548,7 @@ await runSectionAsync('Observability Stack', async () => {
     }
 
     // Alloy ready
-    const alloyReady = alloyReadyResult.status === 'fulfilled' ? alloyReadyResult.value : null;
+    const alloyReady = settled(alloyReadyResult);
     if (alloyReady && alloyReady.toLowerCase().includes('ready')) {
         console.log('✅ Alloy                : Ready');
     } else {
@@ -547,21 +562,27 @@ await runSectionAsync('Observability Stack', async () => {
 // ============================================================
 runSection('Datadog Integration Status', () => {
     console.log('\n6. Datadog Integration Status:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
 
     // Primary indicator: Docker-level health (already collected in Section 1 — immune to transient agent health exec failures)
-    const ddDockerStatus = runningContainers['datadog-unified']?.status ?? '';
+    const ddDockerStatus = runningContainers[CONFIG.containers.datadogUnified]?.status ?? '';
     const ddContainerHealthy = ddDockerStatus.includes('healthy') && !ddDockerStatus.includes('unhealthy');
 
     if (ddContainerHealthy) {
         // Get full status to parse per-integration check results
-        const ddStatus = dockerExec('datadog-unified', ['agent', 'status'], true);
+        const ddStatus = dockerExec(CONFIG.containers.datadogUnified, ['agent', 'status'], true);
         if (ddStatus) {
-            // Extract Instance ID lines with their status
-            const instanceLines = splitLines(ddStatus).filter(l => l.includes('Instance ID:'));
-            const errorInstances = instanceLines.filter(l => l.includes('[ERROR]'));
-            const warningInstances = instanceLines.filter(l => l.includes('[WARNING]'));
-            const okInstances = instanceLines.filter(l => l.includes('[OK]'));
+            // Single-pass categorization — avoids 4 intermediate array allocations
+            const { errorInstances, warningInstances, okInstances } = splitLines(ddStatus).reduce(
+                (acc, l) => {
+                    if (!l.includes('Instance ID:')) return acc;
+                    if (l.includes('[ERROR]'))        acc.errorInstances.push(l);
+                    else if (l.includes('[WARNING]')) acc.warningInstances.push(l);
+                    else if (l.includes('[OK]'))      acc.okInstances.push(l);
+                    return acc;
+                },
+                { errorInstances: [], warningInstances: [], okInstances: [] }
+            );
 
             if (errorInstances.length === 0 && warningInstances.length === 0 && okInstances.length > 0) {
                 console.log(`✅ Datadog Agent        : Healthy, ${okInstances.length} integration checks all OK`);
@@ -602,10 +623,10 @@ runSection('Datadog Integration Status', () => {
 // ============================================================
 runSection('MCP Server Metrics', () => {
     console.log('\n7. MCP Server Metrics:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
 
-    const mcpMetrics = dockerExec('datadog-unified', ['curl', '-s', '--connect-timeout', CONFIG.timeouts.curlSec, `http://mysql-mcp-exporter:${CONFIG.ports.mcpExporter}/metrics`], true);
-    if (mcpMetrics && mcpMetrics.includes('mysql_mcp_')) {
+    const mcpMetrics = dockerExec(CONFIG.containers.datadogUnified, ['curl', '-s', '--connect-timeout', CONFIG.timeouts.curlSec, `http://mysql-mcp-exporter:${CONFIG.ports.mcpExporter}/metrics`], true);
+    if (mcpMetrics && mcpMetrics.includes(CONFIG.metricsPrefix)) {
         // Count unique metric families via regex (avoids full array allocation)
         const seen = new Set();
         const helpRegex = /^# HELP (\S+)/gm;
@@ -615,7 +636,7 @@ runSection('MCP Server Metrics', () => {
         }
         console.log(`✅ MCP Server (port ${CONFIG.ports.mcpExporter}): Exporting ${seen.size} metric families`);
     } else if (mcpMetrics !== null) {
-        console.log(`❌ MCP Server (port ${CONFIG.ports.mcpExporter}): Responding but no mysql_mcp_ metrics found`);
+        console.log(`❌ MCP Server (port ${CONFIG.ports.mcpExporter}): Responding but no ${CONFIG.metricsPrefix} metrics found`);
         allUp = false;
     } else {
         console.log(`❌ MCP Server (port ${CONFIG.ports.mcpExporter}): Not running`);
@@ -628,20 +649,17 @@ runSection('MCP Server Metrics', () => {
 // ============================================================
 runSection('Test Database Integrity', () => {
     console.log('\n8. Test Database Integrity:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
 
     const tableNames = Object.keys(CONFIG.expectedTables);
-    const mysqlPwd = `MYSQL_PWD=${CONFIG.credentials.mysql.password}`;
-    const mysqlUser = `-u${CONFIG.credentials.mysql.user}`;
 
     // Single UNION ALL query replaces 12 individual docker exec calls
     const unionParts = tableNames.map(t => `SELECT '${t}' AS t, COUNT(*) AS c FROM ${CONFIG.database}.${t}`);
     const batchQuery = unionParts.join(' UNION ALL ');
-    if (mysqlNodes.length === 0) throw new Error('No MySQL nodes found');
-    const firstNode = mysqlNodes[0];
+    if (!firstMysqlNode) throw new Error('No MySQL nodes found');
 
-    const batchOut = dockerExecEnv(firstNode, [mysqlPwd],
-        ['mysql', '-h', 'mysql-router', '-P', CONFIG.ports.routerRW, mysqlUser, CONFIG.database, '-N', '-s', '-e', `${batchQuery};`], true);
+    const batchOut = dockerExecEnv(firstMysqlNode, [MYSQL_PWD_ENV],
+        ['mysql', '-h', CONFIG.containers.mysqlRouter, '-P', CONFIG.ports.routerRW, MYSQL_USER_FLAG, CONFIG.database, '-N', '-s', '-e', `${batchQuery};`], true);
 
     let dbIntegrityOk = true;
     const tableFailures = [];
@@ -657,8 +675,9 @@ runSection('Test Database Integrity', () => {
         const foundTables = new Map();
         for (const line of splitLines(batchOut.trim()).filter(Boolean)) {
             const parts = line.split('\t');
-            if (parts.length >= 2) {
-                foundTables.set(parts[0], parseInt(parts[1], 10));
+            const rowCount = parseInt(parts[1], 10);
+            if (parts.length >= 2 && !isNaN(rowCount)) {
+                foundTables.set(parts[0], rowCount);
             }
         }
 
@@ -691,14 +710,19 @@ runSection('Test Database Integrity', () => {
 // ============================================================
 // Section 9: Filesystem Boundaries
 // ============================================================
-runSection('Filesystem Boundaries', () => {
+await runSectionAsync('Filesystem Boundaries', async () => {
     console.log('\n9. Filesystem Boundaries:');
-    console.log('----------------------------------------');
+    console.log(SEPARATOR);
     
     // Check if the volumes are mounted correctly in mysql-node1 (only check if node1 is up)
-    if (runningContainers['mysql-node1'] && runningContainers['mysql-node1'].state === 'running') {
-        const workspaceCheck = dockerExec('mysql-node1', ['ls', '/workspace/mysql-mcp/package.json'], true);
-        const scratchCheck = dockerExec('mysql-node1', ['ls', '-d', '/workspace/scratch'], true);
+    if (runningContainers[CONFIG.containers.mysqlNode1] && runningContainers[CONFIG.containers.mysqlNode1].state === 'running') {
+        // Two independent ls calls — fire in parallel
+        const [workspaceResult, scratchResult] = await Promise.all([
+            dockerExecAsync(CONFIG.containers.mysqlNode1, ['ls', CONFIG.workspace.mcpPackageJson]),
+            dockerExecAsync(CONFIG.containers.mysqlNode1, ['ls', '-d', CONFIG.workspace.scratchDir]),
+        ]);
+        const workspaceCheck = workspaceResult;
+        const scratchCheck = scratchResult;
 
         let fsOk = true;
         if (workspaceCheck && !workspaceCheck.includes('No such file')) {
