@@ -220,8 +220,6 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     if (username !== undefined && typeof username !== "string") {
       if (typeof username === "number" || typeof username === "boolean") {
         result["username"] = String(username);
-      } else {
-        delete result["username"];
       }
     }
     
@@ -284,11 +282,6 @@ export const ProxySQLStatusInputSchema = z.preprocess(
       const s = result["summary"].toLowerCase();
       if (s === "true" || s === "yes" || s === "1" || s === "t" || s === "y") result["summary"] = true;
       else if (s === "false" || s === "no" || s === "0" || s === "f" || s === "n") result["summary"] = false;
-      else {
-        // If it's an unrecognized string (like a hallucinated database name),
-        // we can default to true to allow the query to run without erroring.
-        result["summary"] = true;
-      }
     }
     return result;
   },
@@ -444,8 +437,6 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
       if (typeof result["like"] !== "string") {
         if (typeof result["like"] === "number" || typeof result["like"] === "boolean") {
           result["like"] = String(result["like"]);
-        } else {
-          delete result["like"];
         }
       }
     }
@@ -466,11 +457,7 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
         const p = result["prefix"].toLowerCase();
         if (p === "mysql" || p === "admin" || p === "all") {
           result["prefix"] = p;
-        } else {
-          delete result["prefix"];
         }
-      } else {
-        delete result["prefix"];
       }
     }
 
@@ -480,13 +467,9 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
         const parsed = Number(limit);
         if (!isNaN(parsed)) {
           result["limit"] = Math.floor(parsed);
-        } else {
-          delete result["limit"];
         }
       } else if (typeof limit === "number") {
         result["limit"] = Math.floor(limit);
-      } else {
-        delete result["limit"];
       }
     }
     return result;
