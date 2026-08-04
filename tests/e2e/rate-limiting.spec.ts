@@ -13,9 +13,7 @@
 import { test, expect } from "@playwright/test";
 import { startServer, stopServer, MCP_JSON_HEADERS, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
-const RATE_PORT_1 = 4104;
-const RATE_PORT_2 = 4105;
-const RATE_PORT_3 = 4106;
+
 
 const INIT_BODY = (id: number, clientName: string) =>
   JSON.stringify({
@@ -29,9 +27,9 @@ const INIT_BODY = (id: number, clientName: string) =>
     },
   });
 
-test.describe.serial("Rate Limiting", () => {
-  test("should return 429 after exceeding rate limit", async () => {
-    const port = RATE_PORT_1;
+test.describe("Rate Limiting", () => {
+  test("should return 429 after exceeding rate limit", async ({}, testInfo) => {
+    const port = 8100 + testInfo.workerIndex * 10;
     await startServer(
       port,
       ["--tool-filter", "starter"],
@@ -63,8 +61,8 @@ test.describe.serial("Rate Limiting", () => {
     }
   });
 
-  test("should include Retry-After header on 429", async () => {
-    const port = RATE_PORT_2;
+  test("should include Retry-After header on 429", async ({}, testInfo) => {
+    const port = 8101 + testInfo.workerIndex * 10;
     await startServer(
       port,
       ["--tool-filter", "starter"],
@@ -99,8 +97,8 @@ test.describe.serial("Rate Limiting", () => {
     }
   });
 
-  test("should exempt /health from rate limiting", async () => {
-    const port = RATE_PORT_3;
+  test("should exempt /health from rate limiting", async ({}, testInfo) => {
+    const port = 8102 + testInfo.workerIndex * 10;
     await startServer(
       port,
       ["--tool-filter", "starter"],

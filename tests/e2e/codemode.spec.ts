@@ -17,16 +17,11 @@ import {
   skipIfSuperReadOnly,
 } from "./helpers.js";
 
-test.describe.configure({ mode: "serial" });
-
 // =============================================================================
 // Sandbox Basics
 // =============================================================================
 
 test.describe("Code Mode: Sandbox Basics", () => {
-  test.beforeEach(() => {
-    test.setTimeout(120_000);
-  });
   test("should return a simple value", async () => {
     const client = await createClient();
     try {
@@ -102,10 +97,6 @@ test.describe("Code Mode: Sandbox Basics", () => {
 // =============================================================================
 
 test.describe("Code Mode: API Discoverability", () => {
-  test.beforeEach(() => {
-    test.setTimeout(90_000);
-  });
-
   test("mysql.help() should return documentation", async () => {
     const client = await createClient();
     try {
@@ -153,7 +144,6 @@ test.describe("Code Mode: API Discoverability", () => {
 
 test.describe("Code Mode: Security", () => {
   test("should block require()", async () => {
-    test.setTimeout(120_000);
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -166,7 +156,6 @@ test.describe("Code Mode: Security", () => {
   });
 
   test("should block process access", async () => {
-    test.setTimeout(120_000);
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -179,7 +168,6 @@ test.describe("Code Mode: Security", () => {
   });
 
   test("should block eval()", async () => {
-    test.setTimeout(120_000);
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -192,7 +180,6 @@ test.describe("Code Mode: Security", () => {
   });
 
   test("should enforce timeout", async () => {
-    test.setTimeout(120_000);
     const client = await createClient();
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
@@ -236,7 +223,6 @@ test.describe("Code Mode: Readonly Mode", () => {
 
 test.describe("Code Mode: Multi-Step Workflows", () => {
   test("ETL pipeline: create → insert → query → cleanup", async () => {
-    test.setTimeout(120_000);
     const client = await createClient();
     await skipIfSuperReadOnly(client);
     try {

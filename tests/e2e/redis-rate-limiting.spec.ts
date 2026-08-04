@@ -11,9 +11,7 @@ import { startServer, stopServer, MCP_JSON_HEADERS, MCP_PROTOCOL_STREAMABLE } fr
 import net from "node:net";
 import crypto from "node:crypto";
 
-const RATE_PORT_1 = 4110;
-const RATE_PORT_2 = 4111;
-const RATE_PORT_3 = 4112;
+
 
 const INIT_BODY = (id: number, clientName: string) =>
   JSON.stringify({
@@ -55,17 +53,17 @@ async function isRedisAvailable(): Promise<boolean> {
   });
 }
 
-test.describe.serial("Redis Rate Limiting", () => {
+test.describe("Redis Rate Limiting", () => {
   let redisAvailable = false;
 
   test.beforeAll(async () => {
     redisAvailable = await isRedisAvailable();
   });
 
-  test("should return 429 after exceeding rate limit using Redis", async () => {
+  test("should return 429 after exceeding rate limit using Redis", async ({}, testInfo) => {
     test.skip(!redisAvailable, "Redis not available");
     
-    const port = RATE_PORT_1;
+    const port = 8200 + testInfo.workerIndex * 10;
     const testIp = `10.0.0.1-${crypto.randomUUID()}`;
     await startServer(
       port,
@@ -81,7 +79,18 @@ test.describe.serial("Redis Rate Limiting", () => {
 
     try {
       // Wait for async Redis connect to settle in the server
-      await new Promise(r => setTimeout(r, 500));
+      await expect.poll(async () => {
+        try {
+          const res = await fetch(`${base}/mcp`, {
+            method: "POST",
+            headers: { ...MCP_JSON_HEADERS, "x-forwarded-for": `${testIp}-wait` },
+            body: INIT_BODY(999, "wait-redis"),
+          });
+          return res.status === 200;
+        } catch {
+          return false;
+        }
+      }, { timeout: 5000, intervals: [100] }).toBeTruthy();
 
       // Send 5 requests (within limit)
       for (let i = 0; i < 5; i++) {
@@ -105,10 +114,10 @@ test.describe.serial("Redis Rate Limiting", () => {
     }
   });
 
-  test("should include Retry-After header on 429 from Redis pTTL", async () => {
+  test("should include Retry-After header on 429 from Redis pTTL", async ({}, testInfo) => {
     test.skip(!redisAvailable, "Redis not available");
 
-    const port = RATE_PORT_2;
+    const port = 8201 + testInfo.workerIndex * 10;
     const testIp = `10.0.0.2-${crypto.randomUUID()}`;
     await startServer(
       port,
@@ -123,7 +132,18 @@ test.describe.serial("Redis Rate Limiting", () => {
     const base = `http://127.0.0.1:${port}`;
 
     try {
-      await new Promise(r => setTimeout(r, 500));
+      await expect.poll(async () => {
+        try {
+          const res = await fetch(`${base}/mcp`, {
+            method: "POST",
+            headers: { ...MCP_JSON_HEADERS, "x-forwarded-for": `${testIp}-wait` },
+            body: INIT_BODY(999, "wait-redis"),
+          });
+          return res.status === 200;
+        } catch {
+          return false;
+        }
+      }, { timeout: 5000, intervals: [100] }).toBeTruthy();
 
       // Exhaust the limit
       for (let i = 0; i < 3; i++) {
@@ -150,11 +170,11 @@ test.describe.serial("Redis Rate Limiting", () => {
     }
   });
 
-  test("should share rate limits across multiple processes (Distributed)", async () => {
+  test("should share rate limits across multiple processes (Distributed)", async ({}, testInfo) => {
     test.skip(!redisAvailable, "Redis not available");
 
-    const port1 = RATE_PORT_1;
-    const port2 = RATE_PORT_2;
+    const port1 = 8202 + testInfo.workerIndex * 10;
+    const port2 = 8203 + testInfo.workerIndex * 10;
     const testIp = `10.0.0.3-${crypto.randomUUID()}`;
     
     // Server 1
@@ -185,7 +205,23 @@ test.describe.serial("Redis Rate Limiting", () => {
     const base2 = `http://127.0.0.1:${port2}`;
 
     try {
-      await new Promise(r => setTimeout(r, 500));
+      await expect.poll(async () => {
+        try {
+          const res1 = await fetch(`${base1}/mcp`, {
+            method: "POST",
+            headers: { ...MCP_JSON_HEADERS, "x-forwarded-for": `${testIp}-wait` },
+            body: INIT_BODY(999, "wait-redis"),
+          });
+          const res2 = await fetch(`${base2}/mcp`, {
+            method: "POST",
+            headers: { ...MCP_JSON_HEADERS, "x-forwarded-for": `${testIp}-wait2` },
+            body: INIT_BODY(999, "wait-redis"),
+          });
+          return res1.status === 200 && res2.status === 200;
+        } catch {
+          return false;
+        }
+      }, { timeout: 5000, intervals: [100] }).toBeTruthy();
 
       // Send 2 requests to Server 1 (total 2/4)
       for (let i = 0; i < 2; i++) {
@@ -228,10 +264,10 @@ test.describe.serial("Redis Rate Limiting", () => {
     }
   });
 
-  test("should exempt /health from Redis rate limiting", async () => {
+  test("should exempt /health from Redis rate limiting", async ({}, testInfo) => {
     test.skip(!redisAvailable, "Redis not available");
 
-    const port = RATE_PORT_3;
+    const port = 8204 + testInfo.workerIndex * 10;
     const testIp = `10.0.0.4-${crypto.randomUUID()}`;
     await startServer(
       port,
@@ -246,7 +282,18 @@ test.describe.serial("Redis Rate Limiting", () => {
     const base = `http://127.0.0.1:${port}`;
 
     try {
-      await new Promise(r => setTimeout(r, 500));
+      await expect.poll(async () => {
+        try {
+          const res = await fetch(`${base}/mcp`, {
+            method: "POST",
+            headers: { ...MCP_JSON_HEADERS, "x-forwarded-for": `${testIp}-wait` },
+            body: INIT_BODY(999, "wait-redis"),
+          });
+          return res.status === 200;
+        } catch {
+          return false;
+        }
+      }, { timeout: 5000, intervals: [100] }).toBeTruthy();
 
       // Exhaust rate limit
       for (let i = 0; i < 2; i++) {

@@ -10,7 +10,7 @@
 import { test, expect } from "@playwright/test";
 import { MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 
-test.describe.serial("Advanced Session Management", () => {
+test.describe("Advanced Session Management", () => {
   test("should reject requests after session DELETE", async ({ request }) => {
     // Initialize a session
     const initResponse = await request.post("/mcp", {

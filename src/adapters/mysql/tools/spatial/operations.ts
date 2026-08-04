@@ -194,15 +194,23 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
 
         const isGeographic = srid !== 0;
         
-        // Ensure we don't pass axis-order for Cartesian as it is strictly for geographic SRIDs
-        const axisClauseGeom = isGeographic ? ", 'axis-order=long-lat'" : "";
-        const axisClauseAsText = isGeographic ? ", 'axis-order=long-lat'" : "";
+        let bufferQuery: string;
+        let queryParams: unknown[];
+        let segmentsApplied = false;
 
-        // Completely strip ST_Buffer_Strategy to prevent unhandled connection drops
-        const result = await adapter.executeReadQuery(
-          `WITH cte AS (SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ?)${axisClauseAsText}) as buffer_wkt) SELECT * FROM cte`,
-          [geometry, distance],
-        );
+        if (srid === 0 && segments !== undefined) {
+          bufferQuery = `WITH cte AS (SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ?), ?, ST_Buffer_Strategy('point_circle', ?))) as buffer_wkt) SELECT * FROM cte`;
+          queryParams = [geometry, srid, distance, segments];
+          segmentsApplied = true;
+        } else {
+          // Ensure we don't pass axis-order for Cartesian as it is strictly for geographic SRIDs
+          const axisClauseGeom = isGeographic ? ", 'axis-order=long-lat'" : "";
+          const axisClauseAsText = isGeographic ? ", 'axis-order=long-lat'" : "";
+          bufferQuery = `WITH cte AS (SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ${String(srid)}${axisClauseGeom}), ?)${axisClauseAsText}) as buffer_wkt) SELECT * FROM cte`;
+          queryParams = [geometry, distance];
+        }
+
+        const result = await adapter.executeReadQuery(bufferQuery, queryParams);
 
         const row = result.rows?.[0];
         return withTokenEstimate({
@@ -211,7 +219,7 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
             bufferWkt: truncateWktPrecision(row?.["buffer_wkt"]),
             bufferDistance: distance,
             segments,
-            segmentsApplied: false,
+            segmentsApplied,
             srid,
           },
         });

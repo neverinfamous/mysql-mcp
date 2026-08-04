@@ -13,7 +13,7 @@ export default defineConfig({
   outputDir: ".test-output/playwright-artifacts",
   reporter: [["list"], ["json", { outputFile: ".test-output/playwright-results.json" }]],
   use: {
-    baseURL: "http://127.0.0.1:3101",
+    baseURL: "http://127.0.0.1:3103",
     trace: "on-first-retry",
     actionTimeout: 0,
   },
@@ -24,10 +24,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node dist/cli.js --transport http --port 3101 --server-host 127.0.0.1 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@127.0.0.1:6446/testdb"}`,
-    port: 3101,
+    command: `node dist/cli.js --transport http --port 3103 --server-host 127.0.0.1 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@127.0.0.1:6446/testdb"}`,
+    port: 3103,
     reuseExistingServer: false,
-    timeout: 30000,
+    timeout: 120000,
     stdout: "pipe",
     stderr: "pipe",
     env: {

@@ -292,6 +292,46 @@ services:
   # MONITORING & TOOLS
   # ==========================================
 
+  mysql-mcp-exporter:
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    image: mysql-mcp-exporter:1.0.0
+    container_name: mysql-mcp-exporter
+    restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
+    command: >
+      --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
+      prometheus --port 3000 --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
+      --audit-reads --mysql mysql://root:root@mysql-router:6446/testdb
+    environment:
+      - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
+      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}
+      - AUDIT_LOG_PATH=/var/log/mysql-mcp/mcp-audit.jsonl
+      - LOG_LEVEL=warning
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./logs:/var/log/mysql-mcp
+    stop_grace_period: 30s
+    mem_limit: 256m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    labels:
+      com.datadoghq.ad.check_names: '["openmetrics"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "max_returned_metrics": 10000, "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql_mcp_exporter","service":"mysql-mcp-exporter"}]'
 
   dozzle:
     image: amir20/dozzle:v10.6
