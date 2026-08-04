@@ -35,7 +35,10 @@ try {
     }
     
     // Pick a secondary to cycle to
-    if (mysqlNodes.length < 2) throw new Error('Not enough MySQL nodes to cycle primary');
+    if (mysqlNodes.length < 2) {
+        console.error('Not enough MySQL nodes to cycle primary');
+        process.exit(1);
+    }
     const secondaryToCycle = currentPrimary === mysqlNodes[0] ? mysqlNodes[1] : mysqlNodes[0];
 
     console.log(`Current Primary: ${currentPrimary}`);

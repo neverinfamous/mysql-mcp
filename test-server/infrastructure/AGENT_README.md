@@ -118,6 +118,7 @@ All containers are configured with `restart: unless-stopped`. This ensures that 
 |---|---|
 | Primary (R/W) | `localhost:3307` |
 | Read Replicas (R/O) | `localhost:3308`, `localhost:3309` |
+| Async Replica (R/O) | `localhost:3310` |
 | User | `root` |
 | Password | `root` |
 

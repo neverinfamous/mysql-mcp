@@ -26,6 +26,7 @@ docker compose up -d
 | **MySQL Node 1 (Primary)** | `mysql-node1` | `3307` | `mysql:9.7.1` |
 | **MySQL Node 2 (Replica)** | `mysql-node2` | `3308` | `mysql:9.7.1` |
 | **MySQL Node 3 (Replica)** | `mysql-node3` | `3309` | `mysql:9.7.1` |
+| **MySQL Async Replica (R/O)** | `mysql-async-replica` | `3310` | `mysql:9.7.1` |
 | **MySQL Router** | `mysql-router` | `6446` (RW), `6447` (RO), `6448` (XRO), `8443` | `container-registry.oracle.com/mysql/community-router:9.7.1` |
 | **ProxySQL** | `proxysql` | `6032` (Admin), `6033` (Data) | `proxysql/proxysql:3.0.9` |
 

@@ -29,7 +29,10 @@ try {
     process.exit(1);
 }
 const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
-if (mysqlNodes.length === 0) throw new Error('No MySQL nodes found');
+if (mysqlNodes.length === 0) {
+    console.error('No MySQL nodes found');
+    process.exit(1);
+}
 const firstNode = mysqlNodes[0];
 
 const containerName = firstNode;
@@ -63,9 +66,11 @@ function invokeMySql(query, noDatabase = false) {
         return result;
     } catch (e) {
         if (e.message.includes('1290') || e.message.includes('--super-read-only')) {
-            throw new Error(`Docker exec failed: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+            console.error(`Docker exec failed: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+            process.exit(1);
         }
-        throw new Error(`Docker exec failed: ${e.message}`);
+        console.error(`Docker exec failed: ${e.message}`);
+        process.exit(1);
     }
 }
 
@@ -81,9 +86,11 @@ function invokeMySqlFile(filePath) {
         execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-i', '-e', 'MYSQL_PWD=root', containerName, 'mysql', '--binary-mode', '-h', targetHost, '-P', targetPort, '-uroot', mysqlDatabase], { input: fileContent, stdio: 'pipe' });
     } catch (e) {
         if (e.message.includes('1290') || e.message.includes('--super-read-only')) {
-            throw new Error(`Failed to execute seed file: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+            console.error(`Failed to execute seed file: ${e.message}\n\n[!] The primary node is stuck in super-read-only mode. Run 'node scripts/heal-primary.mjs' to fix this cluster state.`);
+            process.exit(1);
         }
-        throw new Error(`Failed to execute seed file: ${e.message}`);
+        console.error(`Failed to execute seed file: ${e.message}`);
+        process.exit(1);
     }
 }
 

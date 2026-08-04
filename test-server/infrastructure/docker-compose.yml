@@ -31,7 +31,7 @@ services:
       - ../../../mysql-mcp:/workspace/mysql-mcp
       - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
-    mem_limit: 2048m
+    mem_limit: 1536m
     logging:
       driver: json-file
       options:
@@ -72,7 +72,7 @@ services:
       - ../../../mysql-mcp:/workspace/mysql-mcp
       - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
-    mem_limit: 2048m
+    mem_limit: 1536m
     logging:
       driver: json-file
       options:
@@ -113,7 +113,7 @@ services:
       - ../../../mysql-mcp:/workspace/mysql-mcp
       - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
-    mem_limit: 2048m
+    mem_limit: 1536m
     logging:
       driver: json-file
       options:
@@ -154,7 +154,7 @@ services:
       - ../../../mysql-mcp:/workspace/mysql-mcp
       - ../../../adamic/.agents/scratch:/workspace/scratch
     stop_grace_period: 30s
-    mem_limit: 2048m
+    mem_limit: 1536m
     logging:
       driver: json-file
       options:
@@ -359,7 +359,7 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/" ]
+      test: [ "CMD", "/dozzle", "healthcheck" ]
       interval: 15s
       timeout: 5s
       retries: 3
