@@ -129,6 +129,7 @@ export const RouteNameInputSchemaBase = z.object({
   id: z.unknown().optional().describe("Alias for routeName"),
   clusterName: z.unknown().optional().describe("Alias for routeName"),
   cluster_name: z.unknown().optional().describe("Alias for routeName"),
+  limit: z.number().int().min(1).max(1000).optional().describe("Maximum number of results to return (default: 50)"),
 }).strict();
 
 export const RouteNameInputSchema = z.preprocess(
@@ -163,6 +164,7 @@ export const RouteNameInputSchema = z.preprocess(
   path: ["routeName"]
 }).transform((data) => ({
   routeName: data.routeName ?? "",
+  limit: data.limit,
 }));
 
 export const MetadataNameInputSchemaBase = z.object({
