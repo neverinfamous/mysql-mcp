@@ -4,7 +4,7 @@
 -- This file creates all test tables needed for comprehensive testing of
 -- the mysql-mcp MCP server's 24 tool groups (191 tools).
 --
--- Target: testdb database on mysql-final Docker container
+-- Target: testdb database on mysql-node1 Docker container
 -- Usage: mysql -h localhost -u root -proot testdb < test-seed.sql
 -- =============================================================================
 
@@ -475,8 +475,8 @@ INSERT INTO temp_write_test (name, description) VALUES
 -- This file warms up MySQL internal statistics views so that all 19 resources
 -- return meaningful data. Run AFTER test-seed.sql.
 --
--- Target: testdb database on mysql-final Docker container
--- Usage: Get-Content test-resources.sql -Raw | docker exec -i mysql-final mysql -uroot -proot testdb
+-- Target: testdb database on mysql-node1 Docker container
+-- Usage: Get-Content test-resources.sql -Raw | docker exec -i mysql-node1 mysql -uroot -proot testdb
 -- =============================================================================
 
 -- =============================================================================
@@ -582,12 +582,12 @@ ORDER BY revenue DESC;
 -- =============================================================================
 -- REPLICATION RESOURCE: No seed needed
 -- =============================================================================
--- Queries binlog status and replica info — available on mysql-final by default.
+-- Queries binlog status and replica info — available on mysql-node1 by default.
 
 -- =============================================================================
 -- CLUSTER RESOURCE: No seed needed
 -- =============================================================================
--- Queries Group Replication — returns "not configured" on standalone mysql-final.
+-- Queries Group Replication — returns "not configured" on standalone mysql-node1.
 -- Meaningful results only on mysql-node1 (port 3307) with InnoDB Cluster.
 
 -- =============================================================================
