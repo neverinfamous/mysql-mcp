@@ -16,6 +16,7 @@ This directory contains the configuration files and JSON backups for the local t
 - `datadog-infrastructure.json`: Core Token and Tool Metrics, including the live **MySQL-MCP Audit Log** stream.
 - `datadog-mysql.json`: MySQL cluster health, queries, and replication status.
 - `datadog-redis.json`: Redis rate-limiting, cache hits, memory usage, and command rates.
+- `lib-agent-exec.json`: Observability for Antigravity's agent execution wrapper (lib-agent-exec).
 
 ### Grafana
 - `grafana-ai-dashboard.json`: Local Grafana equivalent of the AI dashboard.
