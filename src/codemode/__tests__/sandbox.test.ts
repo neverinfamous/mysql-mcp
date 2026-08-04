@@ -213,7 +213,7 @@ describe("SandboxPool", () => {
       // Since SandboxPool doesn't expose the actual Sandbox easily,
       // let's simulate the CodeModeSandbox behavior directly to hit getConsoleOutput.
       const CodeModeSandboxClass = (await import("../sandbox.js")).CodeModeSandbox;
-      const sandbox = new CodeModeSandboxClass(SandboxPool.getIvmLib(), 100);
+      const sandbox = CodeModeSandboxClass.create({ memoryLimitMb: 100 });
       await sandbox.execute("console.log('log1');", {});
       
       const logs = sandbox.getConsoleOutput();
