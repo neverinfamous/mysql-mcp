@@ -117,7 +117,7 @@ describe("Spatial Operations Tools", () => {
       expect((result as Record<string, unknown>).data).toHaveProperty("segments", 8);
     });
 
-    it("should not use ST_Buffer_Strategy even with Cartesian SRID due to crashes", async () => {
+    it("should use ST_Buffer_Strategy with Cartesian SRID", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
@@ -139,8 +139,8 @@ describe("Spatial Operations Tools", () => {
       );
 
       const call = mockAdapter.executeReadQuery.mock.calls[0][0];
-      expect(call).not.toContain("ST_Buffer_Strategy");
-      expect((result as Record<string, unknown>).data).toHaveProperty("segmentsApplied", false);
+      expect(call).toContain("ST_Buffer_Strategy");
+      expect((result as Record<string, unknown>).data).toHaveProperty("segmentsApplied", true);
     });
   });
 

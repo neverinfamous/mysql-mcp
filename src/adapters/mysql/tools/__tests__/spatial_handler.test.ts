@@ -487,7 +487,7 @@ describe("Spatial Tools Handlers", () => {
       expect((result as Record<string, unknown>).data.segments).toBe(4);
     });
 
-    it("should include segmentsApplied: false for Cartesian SRID because ST_Buffer_Strategy was stripped", async () => {
+    it("should include segmentsApplied: true for Cartesian SRID because ST_Buffer_Strategy is now used", async () => {
       const tool = findTool("mysql_spatial_buffer")!;
       mockAdapter.executeReadQuery.mockResolvedValueOnce(
         createMockQueryResult([
@@ -507,7 +507,7 @@ describe("Spatial Tools Handlers", () => {
         mockContext,
       );
 
-      expect((result as Record<string, unknown>).data.segmentsApplied).toBe(false);
+      expect((result as Record<string, unknown>).data.segmentsApplied).toBe(true);
       expect((result as Record<string, unknown>).data.segments).toBe(4);
     });
   });

@@ -143,6 +143,13 @@ Many observability images have moved to distroless or slim bases that break `CMD
 > [!WARNING]
 > Go services (Loki, Promtail, Prometheus) often bind on **IPv6 dual-stack**. Always check **both** `/proc/net/tcp` and `/proc/net/tcp6` in healthchecks, or the port won't be found.
 
+### WSL2/Windows Inotify Log Tailing Bug (CRITICAL)
+
+When the Datadog Agent runs in a WSL2 Docker container and uses a **volume bind-mount** to tail log files that are actively written to by a **native Windows process** (e.g., an MCP server running via `node.exe` on the Windows host):
+- The Linux `inotify` subsystem **does not trigger** when the Windows host modifies the file over the 9P mount.
+- The Datadog Agent's tailer will **stall indefinitely** at the file size read during container startup, and its `Bytes Read` metric will freeze.
+- **Workaround:** Restart the Datadog Agent container (`docker restart datadog-unified`) to force a fresh file scan, or run the writing process natively within WSL2 so file modifications originate from the Linux kernel.
+
 ### ProxySQL and MySQL Router Expected Errors
 
 In heavily monitored or tested environments (like those driven by MCP test suites), certain log patterns are expected and should not trigger alarms:

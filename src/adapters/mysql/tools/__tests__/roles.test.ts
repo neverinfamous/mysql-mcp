@@ -150,6 +150,7 @@ describe("Handler Execution", () => {
 
   describe("mysql_role_grant", () => {
     it("should grant privileges to role", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
       const tool = tools.find((t) => t.name === "mysql_role_grant");
       if (!tool) throw new Error('Tool not found');;
       await tool.handler(
@@ -167,10 +168,11 @@ describe("Handler Execution", () => {
     });
 
     it("should handle schema-qualified table name", async () => {
+      mockAdapter.executeQuery.mockResolvedValueOnce(createMockQueryResult([{ "1": 1 }]));
       const tool = tools.find((t) => t.name === "mysql_role_grant");
       if (!tool) throw new Error('Tool not found');;
       await tool.handler(
-        { role: "test_role", privileges: ["SELECT"], table: "testdb.mytable" },
+        { role: "test_role", privileges: ["SELECT"], on: "testdb.mytable" },
         mockContext,
       );
 
