@@ -1,6 +1,0 @@
-
-   💡 AGENT HINT: Intercepted Windows batch file execution. Routing through pwsh to prevent spawn failures and quote vulnerabilities.
-
-> @neverinfamous/mysql-mcp@4.0.0 typecheck C:\Users\chris\Desktop\mysql-mcp
-> tsc --noEmit
-
