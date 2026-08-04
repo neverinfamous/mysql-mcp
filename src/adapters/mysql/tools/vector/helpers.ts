@@ -107,7 +107,7 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
   }
 
   if (providedColumn) {
-    const colInfo = columns.find(col => col.name === providedColumn);
+    const colInfo = columns.find(col => col.name.toLowerCase() === providedColumn.toLowerCase());
     if (!colInfo) {
       throw new ValidationError(`Column '${providedColumn}' does not exist in table '${sanitizedTable}'.`);
     }
@@ -115,7 +115,7 @@ export async function resolveVectorColumn(adapter: MySQLAdapter, table: string, 
     if (typeof type !== 'string' || !type.toLowerCase().startsWith('vector')) {
       throw new ValidationError(`Column '${providedColumn}' is not a VECTOR column (found type: ${type}).`);
     }
-    return providedColumn;
+    return colInfo.name;
   }
 
   const vectorColumns = columns.filter(col => 

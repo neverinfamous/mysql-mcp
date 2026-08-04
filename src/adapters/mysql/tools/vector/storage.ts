@@ -42,14 +42,16 @@ export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
         const idCol = sanitizeIdentifier(validated.idColumn);
         
         const tableInfo = await adapter.describeTable(table);
-        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+        const idColInfo = tableInfo.columns?.find(c => c.name.toLowerCase() === idCol.toLowerCase());
+        if (!idColInfo) {
           throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
         }
+        const actualIdCol = idColInfo.name;
 
         const vectorStr = formatVector(validated.vector);
 
         const query = `
-          INSERT INTO ${escapeQualifiedTable(table)} (\`${idCol}\`, \`${column}\`) 
+          INSERT INTO ${escapeQualifiedTable(table)} (\`${actualIdCol}\`, \`${column}\`) 
           VALUES (?, STRING_TO_VECTOR('${vectorStr}'))
           ON DUPLICATE KEY UPDATE \`${column}\` = VALUES(\`${column}\`)
         `;
@@ -93,9 +95,11 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
         const idCol = sanitizeIdentifier(validated.idColumn);
 
         const tableInfo = await adapter.describeTable(table);
-        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+        const idColInfo = tableInfo.columns?.find(c => c.name.toLowerCase() === idCol.toLowerCase());
+        if (!idColInfo) {
           throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
         }
+        const actualIdCol = idColInfo.name;
 
         const placeholders: string[] = [];
         const flatValues: unknown[] = [];
@@ -107,7 +111,7 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
         }
 
         const query = `
-          INSERT INTO ${escapeQualifiedTable(table)} (\`${idCol}\`, \`${column}\`) 
+          INSERT INTO ${escapeQualifiedTable(table)} (\`${actualIdCol}\`, \`${column}\`) 
           VALUES ${placeholders.join(", ")}
           ON DUPLICATE KEY UPDATE \`${column}\` = VALUES(\`${column}\`)
         `;
@@ -152,11 +156,13 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
         await resolveVectorColumn(adapter, validated.table);
 
         const tableInfo = await adapter.describeTable(table);
-        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+        const idColInfo = tableInfo.columns?.find(c => c.name.toLowerCase() === idCol.toLowerCase());
+        if (!idColInfo) {
           throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
         }
+        const actualIdCol = idColInfo.name;
 
-        const query = `DELETE FROM ${escapeQualifiedTable(table)} WHERE \`${idCol}\` = ?`;
+        const query = `DELETE FROM ${escapeQualifiedTable(table)} WHERE \`${actualIdCol}\` = ?`;
         const result = await adapter.executeQuery(query, [validated.id]);
 
         if ((result.rowsAffected ?? 0) === 0) {
@@ -208,14 +214,16 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
         const col = sanitizeIdentifier(targetColumn);
 
         const tableInfo = await adapter.describeTable(table);
-        if (!tableInfo.columns?.some(c => c.name === idCol)) {
+        const idColInfo = tableInfo.columns?.find(c => c.name.toLowerCase() === idCol.toLowerCase());
+        if (!idColInfo) {
           throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
         }
+        const actualIdCol = idColInfo.name;
 
         const query = `
-          SELECT \`${idCol}\`, VECTOR_TO_STRING(\`${col}\`) as vector_str
+          SELECT \`${actualIdCol}\`, VECTOR_TO_STRING(\`${col}\`) as vector_str
           FROM ${escapeQualifiedTable(table)}
-          WHERE \`${idCol}\` = ?
+          WHERE \`${actualIdCol}\` = ?
         `;
         
         const result = await adapter.executeQuery(query, [validated.id]);
@@ -249,7 +257,7 @@ export function createVectorGetTool(adapter: MySQLAdapter): ToolDefinition {
             exists: true,
             table: validated.table,
             column: targetColumn,
-            id: row[idCol],
+            id: row[actualIdCol],
             vector: typeof row['vector_str'] === 'string' && row['vector_str'] ? parseVector(row['vector_str']) : null
           }
         });
