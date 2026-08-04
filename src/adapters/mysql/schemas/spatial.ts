@@ -526,6 +526,8 @@ export const ContainsSchemaBase = z.object({
   col: z.unknown().optional(),
   polygon: z.unknown().optional().describe("WKT polygon to test containment"),
   wkt: z.unknown().optional(),
+  geometry: z.unknown().optional(),
+  value: z.unknown().optional(),
   limit: z.unknown().optional().describe("Maximum results (default: 100)"),
   srid: z
     .unknown()
@@ -545,13 +547,15 @@ export const ContainsSchema = z.preprocess(
     col: z.string().optional(),
     polygon: z.string().optional(),
     wkt: z.string().optional(),
+    geometry: z.string().optional(),
+    value: z.string().optional(),
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
-    polygon: data.polygon ?? data.wkt ?? "",
+    polygon: data.polygon ?? data.wkt ?? data.geometry ?? data.value ?? "",
     limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
     srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
   }))
@@ -595,6 +599,7 @@ export const WithinSchemaBase = z.object({
   geometry: z.unknown().optional().describe("WKT geometry to test within"),
   polygon: z.unknown().optional(),
   wkt: z.unknown().optional(),
+  value: z.unknown().optional(),
   limit: z.unknown().optional().describe("Maximum results (default: 100)"),
   srid: z
     .unknown()
@@ -615,13 +620,14 @@ export const WithinSchema = z.preprocess(
     geometry: z.string().optional(),
     polygon: z.string().optional(),
     wkt: z.string().optional(),
+    value: z.string().optional(),
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
-    geometry: data.geometry ?? data.polygon ?? data.wkt ?? "",
+    geometry: data.geometry ?? data.polygon ?? data.wkt ?? data.value ?? "",
     limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
     srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
   }))
