@@ -22,11 +22,21 @@ function main() {
     }
     const container = mysqlNodes[0];
 
+    const arg = process.argv[2]?.toUpperCase();
+
     try {
-        // Toggle
-        execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = NOT @@global.super_read_only'], { encoding: 'utf-8' });
+        if (arg === 'STATUS') {
+            // Just read, don't execute a SET
+        } else if (arg === 'ON') {
+            execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 1'], { encoding: 'utf-8' });
+        } else if (arg === 'OFF') {
+            execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = 0'], { encoding: 'utf-8' });
+        } else {
+            // Toggle (default behavior)
+            execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-e', 'SET GLOBAL super_read_only = NOT @@global.super_read_only'], { encoding: 'utf-8' });
+        }
         
-        // Fetch new state
+        // Fetch current state
         const out = execFileSync(dockerCmd, [...dockerBaseArgs, 'exec', '-e', 'MYSQL_PWD=root', container, 'mysql', '-uroot', '-N', '-s', '-e', 'SELECT @@global.super_read_only'], { encoding: 'utf-8' });
         
         let state = out.trim();
@@ -34,9 +44,13 @@ function main() {
             state = state.split('\n').pop().trim();
         }
         
-        console.log(`Success! Current state: ${state}`);
+        if (arg === 'STATUS') {
+            console.log(`Current state: ${state}`);
+        } else {
+            console.log(`Success! Current state: ${state}`);
+        }
     } catch (error) {
-        console.error('Error toggling super_read_only:', error.message);
+        console.error('Error with super_read_only command:', error.message);
         if (error.stderr) console.error(error.stderr.toString());
         process.exit(1);
     }
