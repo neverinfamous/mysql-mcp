@@ -1,0 +1,142 @@
+{
+  "title": "Agent Execution Telemetry (lib-agent-exec)",
+  "description": "Observability for Antigravity's agent execution wrapper (lib-agent-exec)",
+  "widgets": [
+    {
+      "definition": {
+        "title": "Terminal Command Failure Rate",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_value",
+        "requests": [
+          {
+            "formulas": [
+              {
+                "formula": "(query1 / query2) * 100"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:agent_exec.command.count{status:error}.as_count()"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "sum:agent_exec.command.count{*}.as_count()"
+              }
+            ]
+          }
+        ],
+        "autoscale": true,
+        "custom_unit": "%",
+        "precision": 2
+      },
+      "layout": {
+        "x": 0,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      }
+    },
+    {
+      "definition": {
+        "title": "Total Commands Executed",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_value",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:agent_exec.command.count{*}.as_count()"
+              }
+            ]
+          }
+        ],
+        "autoscale": true
+      },
+      "layout": {
+        "x": 4,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      }
+    },
+    {
+      "definition": {
+        "title": "Autonomous Healing Triggers",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "query_value",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "sum:agent_exec.healing.count{*}.as_count()"
+              }
+            ]
+          }
+        ],
+        "autoscale": true
+      },
+      "layout": {
+        "x": 8,
+        "y": 0,
+        "width": 4,
+        "height": 4
+      }
+    },
+    {
+      "definition": {
+        "title": "lib-agent-exec Log Stream",
+        "title_size": "16",
+        "title_align": "left",
+        "type": "list_stream",
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "host",
+                "width": "auto"
+              },
+              {
+                "field": "status",
+                "width": "auto"
+              },
+              {
+                "field": "exit_code",
+                "width": "auto"
+              },
+              {
+                "field": "message",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:agent-exec"
+            },
+            "response_format": "event_list"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 4,
+        "width": 12,
+        "height": 6
+      }
+    }
+  ],
+  "template_variables": [],
+  "layout_type": "ordered",
+  "is_read_only": false,
+  "notify_list": [],
+  "reflow_type": "fixed"
+}
