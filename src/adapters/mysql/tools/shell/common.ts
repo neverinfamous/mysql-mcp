@@ -370,6 +370,15 @@ export async function execShellJS(
 
         throw new QueryError(errorMsg);
       }
+      
+      if (parsed.result === undefined) {
+        // Return raw stdout/stderr to avoid swallowing warnings when result is undefined
+        return { 
+          raw: result.stdout.trim(),
+          ...(stderrClean ? { stderr: stderrClean } : {})
+        };
+      }
+      
       return parsed.result;
     }
   }

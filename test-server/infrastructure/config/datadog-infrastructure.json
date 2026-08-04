@@ -722,8 +722,10 @@
       "definition": {
         "title": "MySQL Router Active Connections",
         "type": "timeseries",
+        "show_legend": true,
         "requests": [
           {
+            "response_format": "timeseries",
             "queries": [
               {
                 "data_source": "metrics",
@@ -741,14 +743,16 @@
         "width": 4,
         "height": 2
       },
-      "id": 256640273162363
+      "id": 242373357032626
     },
     {
       "definition": {
         "title": "MySQL Router Network Throughput (Bytes)",
         "type": "timeseries",
+        "show_legend": true,
         "requests": [
           {
+            "response_format": "timeseries",
             "queries": [
               {
                 "data_source": "metrics",
@@ -771,14 +775,16 @@
         "width": 4,
         "height": 2
       },
-      "id": 827655558885779
+      "id": 91078483774327
     },
     {
       "definition": {
         "title": "MySQL Router Backend Health",
         "type": "timeseries",
+        "show_legend": true,
         "requests": [
           {
+            "response_format": "timeseries",
             "queries": [
               {
                 "data_source": "metrics",
@@ -799,7 +805,7 @@
         "width": 4,
         "height": 2
       },
-      "id": 813810498497934
+      "id": 511346239470724
     }
   ]
 }
