@@ -131,6 +131,7 @@ const SensitiveTablesSchemaBase = z.object({
     .describe("Column name patterns to consider sensitive"),
   limit: z
     .number()
+    .max(100)
     .optional()
     .describe(
       "Maximum number of tables to return (default: 20). Set higher for full scan.",
@@ -176,7 +177,7 @@ const SensitiveTablesSchema = z
           "medical",
           "health",
         ]),
-      limit: z.number().int().positive().optional().default(20),
+      limit: z.number().int().positive().max(100).optional().default(20),
     }),
   )
   .transform((data) => ({
