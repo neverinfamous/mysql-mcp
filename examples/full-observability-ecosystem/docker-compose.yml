@@ -261,7 +261,7 @@ services:
       retries: 10
 
   redis-server:
-    image: redis:7.4.10
+    image: redis:8.10.0
     container_name: redis-server
     restart: unless-stopped
     ports:
