@@ -342,6 +342,11 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
+    labels:
+      com.datadoghq.ad.check_names: '["openmetrics"]'
+      com.datadoghq.ad.init_configs: '[{}]'
+      com.datadoghq.ad.instances: '[{"openmetrics_endpoint": "http://%%host%%:3000/metrics", "namespace": "mysql_mcp", "metrics": [".*"], "send_monotonic_counter": true, "timeout": 10, "min_collection_interval": 15, "tags": ["service:mysql_mcp", "env:development"]}]'
+      com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql-mcp-exporter"}]'
 
   dozzle:
     image: amir20/dozzle:v10.6
