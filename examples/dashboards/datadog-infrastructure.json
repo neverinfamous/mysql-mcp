@@ -151,6 +151,56 @@
     },
     {
       "definition": {
+        "precision": 0,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "=",
+                "custom_bg_color": "#841001",
+                "palette": "custom_bg",
+                "value": 1.0
+              },
+              {
+                "comparator": "=",
+                "palette": "white_on_green",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "aggregator": "last",
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "min:mysql.cluster.super_read_only{!container_name:mysql-async-replica}.rollup(min)"
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "time": {
+          "live_span": "5m"
+        },
+        "title": "Router Super Read Status",
+        "title_align": "center",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 6268648035252158,
+      "layout": {
+        "height": 1,
+        "width": 1,
+        "x": 7,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
         "autoscale": true,
         "custom_links": [],
         "precision": 0,
@@ -197,56 +247,6 @@
       "layout": {
         "height": 1,
         "width": 1,
-        "x": 7,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "precision": 0,
-        "requests": [
-          {
-            "conditional_formats": [
-              {
-                "comparator": "=",
-                "custom_bg_color": "#841001",
-                "palette": "custom_bg",
-                "value": 1.0
-              },
-              {
-                "comparator": "=",
-                "palette": "white_on_green",
-                "value": 0.0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "aggregator": "last",
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "min:mysql.cluster.super_read_only{!container_name:mysql-async-replica}.rollup(min)"
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "time": {
-          "live_span": "5m"
-        },
-        "title": "Router Super Read Status",
-        "title_align": "center",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 6268648035252158,
-      "layout": {
-        "height": 1,
-        "width": 2,
         "x": 8,
         "y": 0
       }
@@ -356,58 +356,6 @@
             "display_type": "line",
             "formulas": [
               {
-                "alias": "Latency",
-                "formula": "top(query1, 10, 'mean', 'desc')"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.pool.latency_ms{*} by {hostgroup}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "ProxySQL Latency Per Hostgroup",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
-      },
-      "id": 3492022884748336,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 6,
-        "y": 1
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "custom_links": [],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
                 "alias": "Bytes received",
                 "formula": "top(query1, 10, 'mean', 'desc')"
               }
@@ -463,6 +411,58 @@
         }
       },
       "id": 1317614184221328,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 6,
+        "y": 1
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "custom_links": [],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
+                "alias": "Bytes out",
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.query_cache.bytes_out{*}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Cache Read Throughput",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 6039513278534726,
       "layout": {
         "height": 2,
         "width": 2,
@@ -579,6 +579,58 @@
             "display_type": "line",
             "formulas": [
               {
+                "alias": "Latency",
+                "formula": "top(query1, 10, 'mean', 'desc')"
+              }
+            ],
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "avg:proxysql.pool.latency_ms{*} by {hostgroup}.rollup(avg)"
+              }
+            ],
+            "response_format": "timeseries",
+            "style": {
+              "line_type": "solid",
+              "line_width": "normal",
+              "palette": "green"
+            }
+          }
+        ],
+        "show_legend": true,
+        "title": "ProxySQL Latency Per Hostgroup",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "timeseries",
+        "yaxis": {
+          "include_zero": true,
+          "label": "",
+          "max": "auto",
+          "min": "auto",
+          "scale": "linear"
+        }
+      },
+      "id": 3492022884748336,
+      "layout": {
+        "height": 2,
+        "width": 2,
+        "x": 4,
+        "y": 3
+      }
+    },
+    {
+      "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "custom_links": [],
+        "legend_layout": "auto",
+        "requests": [
+          {
+            "display_type": "line",
+            "formulas": [
+              {
                 "alias": "Memory usage",
                 "formula": "query1"
               }
@@ -612,58 +664,6 @@
         }
       },
       "id": 4350687143204730,
-      "layout": {
-        "height": 2,
-        "width": 2,
-        "x": 4,
-        "y": 3
-      }
-    },
-    {
-      "definition": {
-        "anomaly_detection": {
-          "detection_sensitivity": "never_detect"
-        },
-        "custom_links": [],
-        "legend_layout": "auto",
-        "requests": [
-          {
-            "display_type": "line",
-            "formulas": [
-              {
-                "alias": "Bytes out",
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "data_source": "metrics",
-                "name": "query1",
-                "query": "avg:proxysql.query_cache.bytes_out{*}.rollup(avg)"
-              }
-            ],
-            "response_format": "timeseries",
-            "style": {
-              "line_type": "solid",
-              "line_width": "normal",
-              "palette": "green"
-            }
-          }
-        ],
-        "show_legend": true,
-        "title": "ProxySQL Cache Read Throughput",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "timeseries",
-        "yaxis": {
-          "include_zero": true,
-          "label": "",
-          "max": "auto",
-          "min": "auto",
-          "scale": "linear"
-        }
-      },
-      "id": 6039513278534726,
       "layout": {
         "height": 2,
         "width": 2,
