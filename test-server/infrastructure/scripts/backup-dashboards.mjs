@@ -1,8 +1,10 @@
-import { execSync } from 'child_process';
+import { execFile } from 'child_process';
 import { existsSync, writeFileSync } from 'fs';
 import { join } from 'path';
+import { promisify } from 'util';
 import { resolveScriptPaths } from './utils.mjs';
 
+const execFileAsync = promisify(execFile);
 const { ecosystemRoot, adamicRoot } = resolveScriptPaths(import.meta.url);
 
 const dashboards = [
@@ -20,26 +22,38 @@ const targetDirs = [
     join(adamicRoot, '..', 'mysql-mcp', 'examples', 'dashboards')
 ];
 
-for (const dashboard of dashboards) {
+// Precompute existing directories to avoid redundant stat calls
+const existingDirs = targetDirs.filter(dir => existsSync(dir));
+const JQ_FILTER = "{title, description, widgets, template_variables, layout_type, notify_list, pause_auto_refresh, reflow_type}";
+
+async function fetchAndSaveDashboard(dashboard) {
     console.log(`Downloading dashboard ${dashboard.file} (${dashboard.id})...`);
-    
-    // Download and parse JSON using pup
-    const pupCommand = `pup dashboards get ${dashboard.id} -o json --jq "{title, description, widgets, template_variables, layout_type, notify_list, pause_auto_refresh, reflow_type}"`;
-    
     try {
-        const dashboardJson = execSync(pupCommand, { encoding: 'utf-8' });
+        const { stdout } = await execFileAsync('pup', [
+            'dashboards', 'get', dashboard.id,
+            '-o', 'json',
+            '--jq', JQ_FILTER
+        ], { encoding: 'utf-8' });
         
-        for (const dir of targetDirs) {
-            if (existsSync(dir)) {
-                const dest = join(dir, dashboard.file);
-                writeFileSync(dest, dashboardJson, 'utf-8');
-                console.log(`  -> Saved to ${dest}`);
-            }
+        for (const dir of existingDirs) {
+            const dest = join(dir, dashboard.file);
+            writeFileSync(dest, stdout, 'utf-8');
+            console.log(`  -> Saved to ${dest}`);
         }
     } catch (error) {
         console.error(`Failed to download ${dashboard.id}:`, error.message);
+        throw error;
+    }
+}
+
+async function main() {
+    try {
+        await Promise.all(dashboards.map(fetchAndSaveDashboard));
+        console.log("Dashboards backup complete.");
+    } catch (error) {
+        console.error("Backup failed due to one or more errors.");
         process.exit(1);
     }
 }
 
-console.log("Dashboards backup complete.");
+main();
