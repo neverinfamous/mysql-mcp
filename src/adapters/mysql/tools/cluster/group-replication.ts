@@ -204,6 +204,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(_params);
         // Check if GR is running
         const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
@@ -274,6 +275,7 @@ export function createGRTransactionsTool(
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(_params);
         // Check if GR is running
         const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
