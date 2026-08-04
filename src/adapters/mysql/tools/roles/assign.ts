@@ -184,7 +184,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           validateMySQLUserHost(host, "host");
 
           const checkResult = await adapter.executeQuery(
-            `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
@@ -251,7 +251,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           validateIdentifier(role, "role");
 
           const checkResult = await adapter.executeQuery(
-            `(SELECT 1 FROM mysql.user WHERE User = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
+            `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,
             [role],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
