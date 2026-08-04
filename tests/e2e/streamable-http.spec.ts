@@ -16,7 +16,7 @@ test.describe("Streamable HTTP Transport (MCP 2025-03-26)", () => {
 
   test.beforeAll(async () => {
     const transport = new StreamableHTTPClientTransport(
-      new URL("http://127.0.0.1:3101/mcp"),
+      new URL("http://127.0.0.1:3103/mcp"),
     );
     client = new Client(
       { name: "playwright-streamable-test", version: "1.0.0" },

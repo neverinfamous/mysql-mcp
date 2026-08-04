@@ -14,7 +14,7 @@ import { rm } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
-export const BASE_URL = "http://127.0.0.1:3101";
+export const BASE_URL = "http://127.0.0.1:3103";
 export const SSE_CONNECT_TIMEOUT_MS = 3000;
 export const HEALTH_QUERY = "SELECT 1";
 
@@ -63,7 +63,7 @@ export function auditLogPath(prefix: string, suffix: string): string {
 /**
  * Create a connected MCP client via SSE transport.
  *
- * @param baseURL - Server base URL. Defaults to `http://localhost:3101`.
+ * @param baseURL - Server base URL. Defaults to `http://localhost:3103`.
  */
 export async function createClient(baseURL?: string): Promise<Client> {
   const url = new URL(`${baseURL ?? BASE_URL}/mcp`);

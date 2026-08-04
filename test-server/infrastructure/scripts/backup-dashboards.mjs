@@ -15,7 +15,8 @@ const dashboards = [
     { id: "h74-9g7-8bv", file: "datadog-infrastructure.json" },
     { id: "j8f-g47-xtc", file: "datadog-logs.json" },
     { id: "4w2-tdx-wf7", file: "datadog-mysql.json" },
-    { id: "khx-zry-d49", file: "datadog-redis.json" }
+    { id: "khx-zry-d49", file: "datadog-redis.json" },
+    { id: "zi7-trq-jia", file: "lib-agent-exec.json" }
 ];
 
 const targetDirs = [

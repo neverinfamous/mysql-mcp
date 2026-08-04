@@ -40,8 +40,8 @@ test.describe("OAuth 2.1 Scope Enforcement E2E", () => {
   let invalidScopeToken: string;
 
   test.beforeAll(async () => {
-    mcpPort = 3157 + test.info().workerIndex;
-    jwksPort = 3158 + test.info().workerIndex;
+    mcpPort = 3170 + (test.info().workerIndex * 2);
+    jwksPort = 3170 + (test.info().workerIndex * 2) + 1;
 
     // 1. Generate RS256 keypair
     const keypair = await jose.generateKeyPair("RS256");

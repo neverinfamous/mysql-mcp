@@ -83,6 +83,18 @@
       "modified_at": "2026-07-18T04:23:56.343692Z",
       "title": "ProxySQL - Laptop",
       "url": "/dashboard/xij-4r3-br8/proxysql---laptop"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-04T13:21:02.058740Z",
+      "deleted_at": null,
+      "description": "Observability for Antigravity's agent execution wrapper (lib-agent-exec)",
+      "id": "zi7-trq-jia",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-04T13:36:07.406229Z",
+      "title": "Agent Execution Telemetry (lib-agent-exec)",
+      "url": "/dashboard/zi7-trq-jia/agent-execution-telemetry-lib-agent-exec"
     }
   ]
 }
