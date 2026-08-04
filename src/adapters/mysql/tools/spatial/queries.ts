@@ -231,6 +231,35 @@ export function createSpatialDistanceSphereTool(
             });
         }
 
+        const validateCoordinates = (geom: unknown): string | null => {
+            if (typeof geom !== "string") return null;
+            const matches = geom.match(/[-\d.]+\s+[-\d.]+/g);
+            if (matches) {
+                for (const match of matches) {
+                    const [lonStr, latStr] = match.split(/\s+/);
+                    const lon = Number(lonStr);
+                    const lat = Number(latStr);
+                    if (lon < -180 || lon > 180) return "longitude must be between -180 and 180";
+                    if (lat < -90 || lat > 90) return "latitude must be between -90 and 90";
+                }
+            }
+            return null;
+        };
+
+        if (table) {
+            if (point.longitude < -180 || point.longitude > 180) {
+                return withTokenEstimate({ success: false, error: "Validation error: longitude must be between -180 and 180", code: "VALIDATION_ERROR", category: "validation", recoverable: false });
+            }
+            if (point.latitude < -90 || point.latitude > 90) {
+                return withTokenEstimate({ success: false, error: "Validation error: latitude must be between -90 and 90", code: "VALIDATION_ERROR", category: "validation", recoverable: false });
+            }
+        } else {
+            const err1 = validateCoordinates(geometry1);
+            if (err1) return withTokenEstimate({ success: false, error: `Validation error: ${err1}`, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
+            const err2 = validateCoordinates(geometry2);
+            if (err2) return withTokenEstimate({ success: false, error: `Validation error: ${err2}`, code: "VALIDATION_ERROR", category: "validation", recoverable: false });
+        }
+
         if (srid !== 0 && srid !== 4326) {
             return withTokenEstimate({
                 success: false, 
