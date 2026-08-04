@@ -17,7 +17,9 @@ import {
   skipIfSuperReadOnly,
 } from "./helpers.js";
 
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "parallel" });
+
+const getUniqueName = (prefix: string) => `${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 
 // =============================================================================
 // Empty Table Behavior
@@ -27,10 +29,11 @@ test.describe("Boundary: Empty Tables", () => {
   test("create empty table, describe, then drop", async () => {
     const client = await createClient();
     await skipIfSuperReadOnly(client);
+    const tableName = getUniqueName("_e2e_empty");
     try {
       // Create
       const create = await callToolAndParse(client, "mysql_create_table", {
-        table: "_e2e_boundary_empty",
+        table: tableName,
         columns: [
           { name: "id", type: "SERIAL", primaryKey: true },
           { name: "value", type: "TEXT" },
@@ -41,7 +44,7 @@ test.describe("Boundary: Empty Tables", () => {
 
       // Describe
       const desc = await callToolAndParse(client, "mysql_describe_table", {
-        table: "_e2e_boundary_empty",
+        table: tableName,
       });
       expectSuccess(desc);
       /* desc.name not checked */
@@ -49,14 +52,14 @@ test.describe("Boundary: Empty Tables", () => {
 
       // Read — should return 0 rows
       const read = await callToolAndParse(client, "mysql_read_query", {
-        query: "SELECT * FROM _e2e_boundary_empty",
+        query: `SELECT * FROM ${tableName}`,
       });
       expectSuccess(read);
       expect(read.data?.rowCount ?? read.rowCount).toBe(0);
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {
-        table: "_e2e_boundary_empty",
+        table: tableName,
         ifExists: true,
       });
     } finally {
@@ -66,10 +69,11 @@ test.describe("Boundary: Empty Tables", () => {
 
   test("stats on empty table → structured error or zero stats", async () => {
     const client = await createClient();
+    const tableName = getUniqueName("_e2e_stats_empty");
     try {
       // Create empty table
       await callToolAndParse(client, "mysql_create_table", {
-        table: "_e2e_boundary_stats_empty",
+        table: tableName,
         columns: [
           { name: "id", type: "SERIAL", primaryKey: true },
           { name: "value", type: "REAL" },
@@ -79,7 +83,7 @@ test.describe("Boundary: Empty Tables", () => {
 
       // Stats on empty table
       const stats = await callToolAndParse(client, "mysql_stats_descriptive", {
-        table: "_e2e_boundary_stats_empty",
+        table: tableName,
         column: "value",
       });
       // Accept either handler error (no data) or structured result
@@ -88,7 +92,7 @@ test.describe("Boundary: Empty Tables", () => {
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {
-        table: "_e2e_boundary_stats_empty",
+        table: tableName,
         ifExists: true,
       });
     } finally {
@@ -105,10 +109,11 @@ test.describe("Boundary: NULL Values", () => {
   test("table with all-NULL numeric column", async () => {
     const client = await createClient();
     await skipIfSuperReadOnly(client);
+    const tableName = getUniqueName("_e2e_nulls");
     try {
       // Create + insert NULLs
       await callToolAndParse(client, "mysql_create_table", {
-        table: "_e2e_boundary_nulls",
+        table: tableName,
         columns: [
           { name: "id", type: "SERIAL", primaryKey: true },
           { name: "value", type: "REAL" },
@@ -118,19 +123,19 @@ test.describe("Boundary: NULL Values", () => {
 
       await callToolAndParse(client, "mysql_write_query", {
         query:
-          "INSERT INTO _e2e_boundary_nulls (value) VALUES (NULL), (NULL), (NULL)",
+          `INSERT INTO ${tableName} (value) VALUES (NULL), (NULL), (NULL)`,
       });
 
       // Read should succeed with NULL values
       const read = await callToolAndParse(client, "mysql_read_query", {
-        query: "SELECT * FROM _e2e_boundary_nulls",
+        query: `SELECT * FROM ${tableName}`,
       });
       expectSuccess(read);
       expect(read.data?.rowCount ?? read.rowCount).toBe(3);
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {
-        table: "_e2e_boundary_nulls",
+        table: tableName,
         ifExists: true,
       });
     } finally {
@@ -146,9 +151,10 @@ test.describe("Boundary: NULL Values", () => {
 test.describe("Boundary: Single Row", () => {
   test("stats on single-row table", async () => {
     const client = await createClient();
+    const tableName = getUniqueName("_e2e_single");
     try {
       await callToolAndParse(client, "mysql_create_table", {
-        table: "_e2e_boundary_single",
+        table: tableName,
         columns: [
           { name: "id", type: "SERIAL", primaryKey: true },
           { name: "value", type: "REAL" },
@@ -157,11 +163,11 @@ test.describe("Boundary: Single Row", () => {
       });
 
       await callToolAndParse(client, "mysql_write_query", {
-        query: "INSERT INTO _e2e_boundary_single (value) VALUES (42.0)",
+        query: `INSERT INTO ${tableName} (value) VALUES (42.0)`,
       });
 
       const stats = await callToolAndParse(client, "mysql_stats_descriptive", {
-        table: "_e2e_boundary_single",
+        table: tableName,
         column: "value",
       });
       // Single row: min == max == mean == 42.0
@@ -177,7 +183,7 @@ test.describe("Boundary: Single Row", () => {
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {
-        table: "_e2e_boundary_single",
+        table: tableName,
         ifExists: true,
       });
     } finally {
@@ -194,16 +200,17 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
   test("create table, drop, recreate with different schema", async () => {
     const client = await createClient();
     await skipIfSuperReadOnly(client);
+    const tableName = getUniqueName("_e2e_recreate");
     try {
       // Clean up orphaned table if any
       await callToolAndParse(client, "mysql_drop_table", {
-        table: "_e2e_boundary_recreate",
+        table: tableName,
         ifExists: true,
       }).catch(() => {});
 
       // Create v1
       const c1 = await callToolAndParse(client, "mysql_create_table", {
-        table: "_e2e_boundary_recreate",
+        table: tableName,
         columns: [
           { name: "id", type: "SERIAL", primaryKey: true },
           { name: "name", type: "TEXT" },
@@ -213,13 +220,13 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
 
       // Drop
       const d = await callToolAndParse(client, "mysql_drop_table", {
-        table: "_e2e_boundary_recreate",
+        table: tableName,
       });
       expectSuccess(d);
 
       // Recreate v2 (different columns)
       const c2 = await callToolAndParse(client, "mysql_create_table", {
-        table: "_e2e_boundary_recreate",
+        table: tableName,
         columns: [
           { name: "id", type: "SERIAL", primaryKey: true },
           { name: "value", type: "REAL" },
@@ -230,7 +237,7 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
 
       // Describe should reflect v2 schema
       const desc = await callToolAndParse(client, "mysql_describe_table", {
-        table: "_e2e_boundary_recreate",
+        table: tableName,
       });
       expectSuccess(desc);
       const cols = (desc.data?.columns ?? desc.columns) as Array<{
@@ -243,7 +250,7 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
 
       // Cleanup
       await callToolAndParse(client, "mysql_drop_table", {
-        table: "_e2e_boundary_recreate",
+        table: tableName,
         ifExists: true,
       });
     } finally {

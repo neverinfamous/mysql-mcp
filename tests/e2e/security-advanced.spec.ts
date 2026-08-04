@@ -2,10 +2,10 @@ import { test, expect } from "@playwright/test";
 import { startServer, stopServer } from "./helpers.js";
 import { createConnection } from "node:net";
 
-const ADV_SEC_PORT = 3132;
-const SLOWLORIS_PORT = 3133;
+const ADV_SEC_PORT = 3132 + parseInt(process.env.TEST_WORKER_INDEX || "0", 10);
+const SLOWLORIS_PORT = 3133 + parseInt(process.env.TEST_WORKER_INDEX || "0", 10);
 
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "parallel" });
 
 test.describe("Advanced HTTP Transport Security", () => {
   test.describe("DNS Rebinding & Trust Proxy", () => {

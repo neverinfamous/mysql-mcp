@@ -11,7 +11,7 @@
 import { test, expect } from "@playwright/test";
 import { createClient } from "./helpers.js";
 
-test.describe.configure({ mode: "serial" });
+test.describe.configure({ mode: "parallel" });
 
 test.describe("Extended Resource Reads", () => {
   test("mysql://pool returns JSON", async () => {
@@ -29,7 +29,7 @@ test.describe("Extended Resource Reads", () => {
   });
 
   test("mysql://capabilities returns JSON with version", async () => {
-    test.setTimeout(120000);
+    test.setTimeout(30000);
     const client = await createClient();
     try {
       const response = await client.readResource({
