@@ -63,6 +63,7 @@ export const MasterStatusOutputSchema = BaseOutputSchema.extend({
 export const SlaveStatusOutputSchema = BaseOutputSchema.extend({
   data: z.object({
     status: z.record(z.string(), z.unknown()).optional(),
+    configured: z.boolean().optional(),
   }).loose().optional(),
 });
 

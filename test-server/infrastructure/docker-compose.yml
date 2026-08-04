@@ -354,6 +354,36 @@ services:
         "env:development"]}]'
       com.datadoghq.ad.logs: '[{"source":"mysql_mcp","service":"mysql_mcp"}]'
 
+  mysql-router-telemetry:
+    image: oven/bun:alpine
+    container_name: mysql-router-telemetry
+    restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
+      datadog-unified:
+        condition: service_healthy
+    command: >
+      bun run /scripts/mysql-router-telemetry.mjs
+    volumes:
+      - ./scripts:/scripts:ro
+    environment:
+      - ROUTER_API_URL=https://mysql-router:8443/api/20190715
+      - ROUTER_API_USER=rest_api
+      - ROUTER_API_PASSWORD=router_api
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://datadog-unified:4318
+      - OTEL_METRIC_EXPORT_INTERVAL=15000
+    stop_grace_period: 15s
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      com.datadoghq.ad.check_names: '[]'
+      com.datadoghq.ad.logs: '[{"source":"bun","service":"mysql-router-telemetry"}]'
+
   dozzle:
     image: amir20/dozzle:v10.6
     container_name: dozzle
@@ -517,6 +547,8 @@ services:
       - DD_ENV=development
       - DD_VERSION=1.0.0
       - DD_TAGS=source:wsl2
+      # OTLP Ingest
+      - DD_OTLP_CONFIG_RECEIVER_PROTOCOLS_HTTP_ENDPOINT=0.0.0.0:4318
       # Logs
       - DD_LOGS_ENABLED=true
       - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
@@ -535,6 +567,7 @@ services:
       - DD_COLLECT_KUBERNETES_EVENTS=false
     ports:
       - "8125:8125/udp"
+      - "4318:4318"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /proc/:/host/proc/:ro
