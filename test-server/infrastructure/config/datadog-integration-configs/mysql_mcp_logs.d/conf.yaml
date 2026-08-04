@@ -21,4 +21,4 @@ logs:
     source: mysql_mcp
     tags:
       - env:development
-      - log_type:mcp_audit
+      - log_type:exporter_audit

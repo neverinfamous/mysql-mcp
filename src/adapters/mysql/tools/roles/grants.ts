@@ -158,16 +158,8 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
             );
           }
 
-          let targetDb = database;
-          let targetTable = table;
-
-          if (targetTable.includes(".") && targetTable !== "*") {
-            const [dbPart, tablePart] = targetTable.split(".");
-            if (dbPart && tablePart) {
-              targetDb = dbPart;
-              targetTable = tablePart;
-            }
-          }
+          const targetDb = database;
+          const targetTable = table;
 
           if (targetDb !== "*") validateIdentifier(targetDb, "database");
           if (targetTable !== "*") validateIdentifier(targetTable, "table");
