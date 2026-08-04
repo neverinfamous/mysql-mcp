@@ -11,7 +11,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { rm } from "node:fs/promises";
-import { expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 import { Client, StreamableHTTPClientTransport } from "@modelcontextprotocol/client";
 
 export const BASE_URL = "http://127.0.0.1:3101";
@@ -131,6 +131,22 @@ export async function callToolAndParse(
     throw new Error(
       `Failed to parse tool response as JSON. Response text was:\n${first.text}\n\nOriginal error: ${(err as Error).message}`,
     );
+  }
+}
+
+export async function skipIfSuperReadOnly(client: Client): Promise<void> {
+  let isReadOnly = false;
+  try {
+    const response = await client.callTool({ name: "mysql_read_query", arguments: { query: "SELECT @@global.super_read_only as ro;" } });
+    if (response.content.some(c => c.type === 'text' && c.text?.includes('"ro": 1'))) {
+      isReadOnly = true;
+    }
+  } catch (e) {
+    // ignore MCP connection errors
+  }
+  
+  if (isReadOnly) {
+    test.skip(true, 'Skipped because Router is in super_read_only mode');
   }
 }
 

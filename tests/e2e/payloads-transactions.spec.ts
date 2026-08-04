@@ -9,7 +9,12 @@
 
 import { test, expect } from "@playwright/test";
 import type { Client } from "@modelcontextprotocol/client";
-import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
+import {
+  createClient,
+  callToolAndParse,
+  expectSuccess,
+  skipIfSuperReadOnly,
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -61,6 +66,7 @@ test.describe("Payload Contracts: Transactions (Extended)", () => {
   });
 
   test("begin → execute INSERT → rollback → verify row not inserted", async () => {
+    await skipIfSuperReadOnly(client);
     // Create a temp table for isolation (force InnoDB for transaction support)
     const dropRes = await callToolAndParse(client, "mysql_write_query", {
       query: "DROP TABLE IF EXISTS _e2e_txn_rollback_test",

@@ -10,7 +10,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
+import {
+  createClient,
+  callToolAndParse,
+  expectSuccess,
+  skipIfSuperReadOnly,
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -97,6 +102,7 @@ test.describe("Payload Contracts: Schema", () => {
 
   test("mysql_create_trigger returns { triggerName }", async () => {
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       const payload = await callToolAndParse(client, "mysql_create_trigger", {
         name: "test_trg_e2e",

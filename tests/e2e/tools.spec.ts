@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { createClient, callToolAndParse } from "./helpers.js";
+import { createClient, callToolAndParse, skipIfSuperReadOnly } from "./helpers.js";
 import type { Client } from "@modelcontextprotocol/client";
 
 test.describe.configure({ mode: "serial" });
@@ -51,6 +51,7 @@ test.describe("E2E Tool Execution (via MCP SDK Client)", () => {
   });
 
   test("should execute a write tool successfully (mysql_write_query)", async () => {
+    await skipIfSuperReadOnly(client);
     const createParsed = await callToolAndParse(client, "mysql_write_query", {
       query:
         "CREATE TABLE IF NOT EXISTS _e2e_test_write (id INT PRIMARY KEY AUTO_INCREMENT, name VARCHAR(255))",

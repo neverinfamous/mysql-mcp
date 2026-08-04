@@ -15,7 +15,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
+import { 
+  createClient, 
+  callToolAndParse, 
+  expectSuccess,
+  skipIfSuperReadOnly,
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -26,6 +31,7 @@ test.describe.configure({ mode: "serial" });
 test.describe("Integration: Core → JSON → Stats Pipeline", () => {
   test("create table, insert JSON data, extract + analyze", async () => {
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       // Step 1: Create table
       const create = await callToolAndParse(client, "mysql_create_table", {

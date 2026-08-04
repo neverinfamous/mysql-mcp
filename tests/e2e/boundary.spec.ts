@@ -10,7 +10,12 @@
  */
 
 import { test, expect } from "@playwright/test";
-import { createClient, callToolAndParse, expectSuccess } from "./helpers.js";
+import {
+  createClient,
+  callToolAndParse,
+  expectSuccess,
+  skipIfSuperReadOnly,
+} from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
 
@@ -21,6 +26,7 @@ test.describe.configure({ mode: "serial" });
 test.describe("Boundary: Empty Tables", () => {
   test("create empty table, describe, then drop", async () => {
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       // Create
       const create = await callToolAndParse(client, "mysql_create_table", {
@@ -98,6 +104,7 @@ test.describe("Boundary: Empty Tables", () => {
 test.describe("Boundary: NULL Values", () => {
   test("table with all-NULL numeric column", async () => {
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       // Create + insert NULLs
       await callToolAndParse(client, "mysql_create_table", {
@@ -186,6 +193,7 @@ test.describe("Boundary: Single Row", () => {
 test.describe("Boundary: Create-Drop-Recreate", () => {
   test("create table, drop, recreate with different schema", async () => {
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       // Clean up orphaned table if any
       await callToolAndParse(client, "mysql_drop_table", {
@@ -251,6 +259,7 @@ test.describe("Boundary: Create-Drop-Recreate", () => {
 test.describe("Boundary: View Lifecycle", () => {
   test("create view → list views → query view → drop view", async () => {
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       const ts = Date.now();
       const viewName = `_e2e_boundary_view_${ts}`;

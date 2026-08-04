@@ -14,6 +14,7 @@ import {
   expectSuccess,
   expectHandlerError,
   TIMEOUTS,
+  skipIfSuperReadOnly,
 } from "./helpers.js";
 
 test.describe.configure({ mode: "serial" });
@@ -237,6 +238,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
   test("ETL pipeline: create → insert → query → cleanup", async () => {
     test.setTimeout(120_000);
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
@@ -332,6 +334,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
 
   test("Binary Types: buffer handling and serialization", async () => {
     const client = await createClient();
+    await skipIfSuperReadOnly(client);
     try {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
