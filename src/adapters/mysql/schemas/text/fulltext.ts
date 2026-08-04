@@ -30,6 +30,12 @@ function preprocessFulltextParams(val: unknown): unknown {
     
     if (typeof v["col"] === "string") v["col"] = v["col"].split(",").map((s: string) => s.trim());
     if (typeof v["column"] === "string") v["column"] = v["column"].split(",").map((s: string) => s.trim());
+    
+    // Fallback if query was passed as an array but didn't trigger the swap
+    if (Array.isArray(v["query"])) v["query"] = v["query"].join(" ");
+    if (Array.isArray(v["sql"])) v["sql"] = v["sql"].join(" ");
+    if (Array.isArray(v["search"])) v["search"] = v["search"].join(" ");
+    
     return v;
   }
   return v2;

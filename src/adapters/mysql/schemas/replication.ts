@@ -36,12 +36,14 @@ export const BinlogEventsSchema = z.preprocess(
     position: z
       .coerce
       .number()
+      .int("Invalid position: must be an integer")
       .nonnegative("Invalid position: must be greater than or equal to 0")
       .optional()
       .describe("Starting position (alias: pos)"),
     limit: z
       .coerce
       .number()
+      .int("Invalid limit: must be an integer")
       .nonnegative()
       .max(50, "Limit capped at 50 to prevent payload exhaustion")
       .optional()

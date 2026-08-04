@@ -57,7 +57,7 @@ mysql_users =
     {
         username = "root"
         password = "root"
-        default_hostgroup = 2
+        default_hostgroup = 1
         max_connections = 1000
         default_schema = "testdb"
         active = 1
@@ -65,7 +65,7 @@ mysql_users =
     {
         username = "cluster_admin"
         password = "cluster_admin"
-        default_hostgroup = 2
+        default_hostgroup = 1
         max_connections = 1000
         default_schema = "testdb"
         active = 1
