@@ -1,11 +1,13 @@
-import { execFile } from 'child_process';
-import { existsSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { exec, execSync } from 'child_process';
 import { promisify } from 'util';
+import { existsSync, writeFileSync, readFileSync } from 'fs';
+import { join, relative } from 'path';
 import { resolveScriptPaths } from './utils.mjs';
 
-const execFileAsync = promisify(execFile);
+const execAsync = promisify(exec);
+
 const { ecosystemRoot, adamicRoot } = resolveScriptPaths(import.meta.url);
+const mysqlMcpRoot = join(adamicRoot, '..', 'mysql-mcp');
 
 const dashboards = [
     { id: "qwe-2un-us8", file: "datadog-tool-performance.json" },
@@ -18,42 +20,78 @@ const dashboards = [
 
 const targetDirs = [
     join(ecosystemRoot, 'config'),
-    join(adamicRoot, '..', 'mysql-mcp', 'test-server', 'infrastructure', 'config'),
-    join(adamicRoot, '..', 'mysql-mcp', 'examples', 'dashboards')
+    join(mysqlMcpRoot, 'test-server', 'infrastructure', 'config'),
+    join(mysqlMcpRoot, 'examples', 'dashboards')
 ];
 
-// Precompute existing directories to avoid redundant stat calls
-const existingDirs = targetDirs.filter(dir => existsSync(dir));
-const JQ_FILTER = "{title, description, widgets, template_variables, layout_type, notify_list, pause_auto_refresh, reflow_type}";
+const adamicChanged = [];
+const mysqlMcpChanged = [];
 
-async function fetchAndSaveDashboard(dashboard) {
+for (const dashboard of dashboards) {
     console.log(`Downloading dashboard ${dashboard.file} (${dashboard.id})...`);
+    
+    // Download and parse JSON using pup
+    const pupCommand = `pup dashboards get ${dashboard.id} -o json --jq "{title, description, widgets, template_variables, layout_type, notify_list, pause_auto_refresh, reflow_type}"`;
+    
     try {
-        const { stdout } = await execFileAsync('pup', [
-            'dashboards', 'get', dashboard.id,
-            '-o', 'json',
-            '--jq', JQ_FILTER
-        ], { encoding: 'utf-8' });
+        const { stdout: dashboardJson } = await execAsync(pupCommand, { encoding: 'utf-8' });
         
-        for (const dir of existingDirs) {
-            const dest = join(dir, dashboard.file);
-            writeFileSync(dest, stdout, 'utf-8');
-            console.log(`  -> Saved to ${dest}`);
+        for (const dir of targetDirs) {
+            if (existsSync(dir)) {
+                const dest = join(dir, dashboard.file);
+                let changed = true;
+                
+                if (existsSync(dest)) {
+                    const existing = readFileSync(dest, 'utf-8');
+                    if (existing === dashboardJson) {
+                        changed = false;
+                    }
+                }
+                
+                if (changed) {
+                    writeFileSync(dest, dashboardJson, 'utf-8');
+                    console.log(`  -> Saved to ${dest}`);
+                    
+                    if (dest.includes('mysql-mcp')) {
+                        mysqlMcpChanged.push(relative(mysqlMcpRoot, dest).replace(/\\/g, '/'));
+                    } else {
+                        adamicChanged.push(relative(adamicRoot, dest).replace(/\\/g, '/'));
+                    }
+                }
+            }
         }
     } catch (error) {
         console.error(`Failed to download ${dashboard.id}:`, error.message);
-        throw error;
+        process.exitCode = 1;
     }
 }
 
-async function main() {
+if (adamicChanged.length > 0) {
+    console.log(`\nAuto-committing dashboard updates for adamic: ${adamicChanged.join(", ")}`);
+    const commitScript = join(adamicRoot, ".agents", "scripts", "commit.ts");
+    const addArgs = adamicChanged.map(f => `--add "${f}"`).join(" ");
+    const cmd = `bun "${commitScript}" --msg "chore(observability): backup datadog dashboards" --impact 0.1 --confidence 1.0 --validation passed --journal ${addArgs}`;
+    
     try {
-        await Promise.all(dashboards.map(fetchAndSaveDashboard));
-        console.log("Dashboards backup complete.");
-    } catch (error) {
-        console.error("Backup failed due to one or more errors.");
-        process.exit(1);
+        execSync(cmd, { stdio: "inherit", cwd: adamicRoot });
+    } catch (err) {
+        console.error("Failed to auto-commit in adamic:", err.message || err);
+        process.exitCode = 1;
     }
 }
 
-main();
+if (mysqlMcpChanged.length > 0) {
+    console.log(`\nAuto-committing dashboard updates for mysql-mcp: ${mysqlMcpChanged.join(", ")}`);
+    const commitScript = join(mysqlMcpRoot, ".agents", "scripts", "commit.ts");
+    const addArgs = mysqlMcpChanged.map(f => `--add "${f}"`).join(" ");
+    const cmd = `bun "${commitScript}" --msg "chore(observability): sync datadog dashboards from adamic" --impact 0.1 --confidence 1.0 --validation passed --journal ${addArgs}`;
+    
+    try {
+        execSync(cmd, { stdio: "inherit", cwd: mysqlMcpRoot });
+    } catch (err) {
+        console.error("Failed to auto-commit in mysql-mcp:", err.message || err);
+        process.exitCode = 1;
+    }
+}
+
+console.log("\nDashboards backup complete.");
