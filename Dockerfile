@@ -55,6 +55,9 @@ RUN apk upgrade --no-cache
 # - CVE-2025-5889: brace-expansion <= 2.0.1
 # - CVE-2026-26960: tar < 7.5.8 (patch npm's bundled copy with 7.5.22)
 # - CVE-2026-27904: minimatch < 10.2.3 (patch npm's bundled copy with 10.2.6)
+# - CVE-2026-69152: brace-expansion < 5.0.9 (patch npm's bundled copy with 5.0.9)
+# - CVE-2026-69192: ip-address <= 10.3.0 (patch npm's bundled copy with 10.3.1)
+# - CVE-2026-16729: undici < 6.28.0 (patch npm's bundled copy with 6.28.0)
 RUN npm install -g npm@latest && \
     npm install -g tar@7.5.22 && \
     rm -rf /usr/local/lib/node_modules/npm/node_modules/tar && \
@@ -64,6 +67,18 @@ RUN npm install -g npm@latest && \
     rm -rf /usr/local/lib/node_modules/npm/node_modules/minimatch && \
     cp -r /usr/local/lib/node_modules/minimatch /usr/local/lib/node_modules/npm/node_modules/minimatch && \
     npm uninstall -g minimatch && \
+    npm install -g brace-expansion@5.0.9 && \
+    rm -rf /usr/local/lib/node_modules/npm/node_modules/brace-expansion && \
+    cp -r /usr/local/lib/node_modules/brace-expansion /usr/local/lib/node_modules/npm/node_modules/brace-expansion && \
+    npm uninstall -g brace-expansion && \
+    npm install -g ip-address@10.3.1 && \
+    rm -rf /usr/local/lib/node_modules/npm/node_modules/ip-address && \
+    cp -r /usr/local/lib/node_modules/ip-address /usr/local/lib/node_modules/npm/node_modules/ip-address && \
+    npm uninstall -g ip-address && \
+    npm install -g undici@6.28.0 && \
+    rm -rf /usr/local/lib/node_modules/npm/node_modules/undici && \
+    cp -r /usr/local/lib/node_modules/undici /usr/local/lib/node_modules/npm/node_modules/undici && \
+    npm uninstall -g undici && \
     npm cache clean --force
 
 # Create non-root user for security
