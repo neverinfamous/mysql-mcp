@@ -21,14 +21,14 @@
                 "data_source": "logs",
                 "name": "query1",
                 "compute": { "aggregation": "count" },
-                "search": { "query": "source:agent-exec status:error" },
+                "search": { "query": "source:agent-exec @agent_exec_status:error" },
                 "group_by": []
               },
               {
                 "data_source": "logs",
                 "name": "query2",
                 "compute": { "aggregation": "count" },
-                "search": { "query": "source:agent-exec -status:healed" },
+                "search": { "query": "source:agent-exec -@agent_exec_status:healed" },
                 "group_by": []
               }
             ]
@@ -64,7 +64,7 @@
                 "data_source": "logs",
                 "name": "query1",
                 "compute": { "aggregation": "count" },
-                "search": { "query": "source:agent-exec -status:healed" },
+                "search": { "query": "source:agent-exec -@agent_exec_status:healed" },
                 "group_by": []
               }
             ]
@@ -98,7 +98,7 @@
                 "data_source": "logs",
                 "name": "query1",
                 "compute": { "aggregation": "count" },
-                "search": { "query": "source:agent-exec status:healed" },
+                "search": { "query": "source:agent-exec @agent_exec_status:healed" },
                 "group_by": []
               }
             ]
