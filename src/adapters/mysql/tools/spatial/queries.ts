@@ -162,7 +162,7 @@ export function createSpatialDistanceTool(
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== spatialColumn),
+            Object.entries(row).filter(([key]) => key.toLowerCase() !== spatialColumn.toLowerCase()),
           ),
         );
         return withTokenEstimate({
@@ -303,7 +303,7 @@ export function createSpatialDistanceSphereTool(
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== spatialColumn),
+            Object.entries(row).filter(([key]) => key.toLowerCase() !== spatialColumn.toLowerCase()),
           ),
         );
         return withTokenEstimate({
@@ -387,17 +387,19 @@ export function createSpatialContainsTool(
           });
         }
 
+        const sridNum = srid;
+        const axisOrder = sridNum !== 0 ? `, 'axis-order=long-lat'` : "";
         const escapedTable = escapeQualifiedTable(table);
-        const query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
+        const query = `(SELECT *, ST_AsText(\`${spatialColumn}\`${axisOrder}) as ${spatialColumn}_wkt
                 FROM ${escapedTable}
-                WHERE ST_Contains(ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'), \`${spatialColumn}\`)
+                WHERE ST_Contains(ST_GeomFromText(?, ${String(sridNum)}${axisOrder}), \`${spatialColumn}\`)
                 LIMIT ${String(limit)})`;
 
         const result = await adapter.executeReadQuery(query, [polygon]);
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== spatialColumn),
+            Object.entries(row).filter(([key]) => key.toLowerCase() !== spatialColumn.toLowerCase()),
           ),
         );
         return withTokenEstimate({
@@ -476,17 +478,19 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
           });
         }
 
+        const sridNum = srid;
+        const axisOrder = sridNum !== 0 ? `, 'axis-order=long-lat'` : "";
         const escapedTable = escapeQualifiedTable(table);
-        const query = `(SELECT *, ST_AsText(\`${spatialColumn}\`, 'axis-order=long-lat') as ${spatialColumn}_wkt
+        const query = `(SELECT *, ST_AsText(\`${spatialColumn}\`${axisOrder}) as ${spatialColumn}_wkt
                 FROM ${escapedTable}
-                WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(srid)}, 'axis-order=long-lat'))
+                WHERE ST_Within(\`${spatialColumn}\`, ST_GeomFromText(?, ${String(sridNum)}${axisOrder}))
                 LIMIT ${String(limit)})`;
 
         const result = await adapter.executeReadQuery(query, [geometry]);
         // Strip raw binary spatial column from each row
         const rows = (result.rows ?? []).map((row: Record<string, unknown>) =>
           Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== spatialColumn),
+            Object.entries(row).filter(([key]) => key.toLowerCase() !== spatialColumn.toLowerCase()),
           ),
         );
         return withTokenEstimate({
