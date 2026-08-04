@@ -227,6 +227,7 @@ describe("SandboxPool", () => {
     it("should exhaust pool and throw PoolError when max instances reached", async () => {
       await pool.initialize();
       
+      vi.useFakeTimers();
       const api = { test: { delay: async () => { await new Promise(r => setTimeout(r, 100)); return true; } } };
       const p1 = pool.execute("await mysql.test.delay(); return 1", api);
       const p2 = pool.execute("await mysql.test.delay(); return 2", api);
@@ -235,7 +236,10 @@ describe("SandboxPool", () => {
       // The 4th execution should fail immediately since maxInstances is 3
       await expect(pool.execute("return 4", {})).rejects.toThrow("Sandbox pool exhausted");
       
+      await vi.advanceTimersByTimeAsync(100);
       const results = await Promise.all([p1, p2, p3]);
+      vi.useRealTimers();
+      
       expect(results[0].success).toBe(true);
       expect(results[1].success).toBe(true);
       expect(results[2].success).toBe(true);
