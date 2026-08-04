@@ -578,11 +578,28 @@ export class CodeModeSandbox {
       script = isolate.compileScriptSync(wrappedCode, {
         filename: `code-mode.js`,
       });
-      const isolateRes = (await script.run(context, {
+      let timeoutTimer: NodeJS.Timeout | undefined;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        timeoutTimer = setTimeout(() => {
+          reject(new Error("Script execution timed out."));
+        }, effectiveTimeout);
+      });
+
+      const scriptPromise = script.run(context, {
         timeout: effectiveTimeout,
         promise: true,
         copy: true,
-      })) as { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
+      });
+
+      let isolateRes: { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
+      try {
+        isolateRes = (await Promise.race([
+          scriptPromise,
+          timeoutPromise,
+        ])) as typeof isolateRes;
+      } finally {
+        if (timeoutTimer) clearTimeout(timeoutTimer);
+      }
       if (isolateRes?.__isIsolateSuccess === false) {
         if (isolateRes.message?.includes('__SANDBOX_EXIT__:')) {
           const exitCodeStr = isolateRes.message.split('__SANDBOX_EXIT__:')[1];
