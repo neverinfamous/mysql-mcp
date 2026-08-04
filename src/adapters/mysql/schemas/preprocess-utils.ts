@@ -1161,8 +1161,8 @@ export function preprocessDocIndexParams(val: unknown): unknown {
 }
 
 export function preprocessBinlogEventsParams(input: unknown): unknown {
-  const result = defaultToEmpty(input) as Record<string, unknown>;
-  if (typeof result !== "object" || result === null) return result;
+  if (typeof input !== "object" || input === null) return input ?? {};
+  const result = { ...(input as Record<string, unknown>) };
 
   if (result["logFile"] === undefined) {
     if (result["file"] !== undefined) result["logFile"] = result["file"];
@@ -1177,6 +1177,15 @@ export function preprocessBinlogEventsParams(input: unknown): unknown {
     if (result["pos"] !== undefined) result["position"] = result["pos"];
     else if (result["start"] !== undefined) result["position"] = result["start"];
   }
+
+  delete result["file"];
+  delete result["filename"];
+  delete result["fileName"];
+  delete result["binlog"];
+  delete result["log_file"];
+  delete result["name"];
+  delete result["pos"];
+  delete result["start"];
 
   return result;
 }
