@@ -3,6 +3,8 @@ import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
 const { __dirname, ecosystemRoot } = resolveScriptPaths(import.meta.url);
 
+// 🚨 AGENT INSTRUCTION: Do NOT remove detectDocker().
+// This is required to route Docker commands into WSL when Docker Desktop is not installed on the Windows host.
 const { dockerCmd, dockerBaseArgs } = detectDocker();
 
 console.log(`\n=== MySQL-MCP Cluster Healer ===`);

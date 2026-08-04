@@ -2,6 +2,8 @@ import { execFileSync } from 'child_process';
 import { detectDocker, resolveScriptPaths } from './utils.mjs';
 
 function main() {
+    // 🚨 AGENT INSTRUCTION: Do NOT remove detectDocker().
+    // This is required to route Docker commands into WSL when Docker Desktop is not installed on the Windows host.
     const { dockerCmd, dockerBaseArgs } = detectDocker();
     const { ecosystemRoot } = resolveScriptPaths(import.meta.url);
     console.log(`Connecting to primary node via docker exec...`);

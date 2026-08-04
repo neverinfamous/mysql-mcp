@@ -8,6 +8,8 @@ const { __dirname, ecosystemRoot } = resolveScriptPaths(import.meta.url);
 const args = process.argv.slice(2);
 const skipVerify = args.includes('--SkipVerify') || args.includes('--skip-verify');
 
+// 🚨 AGENT INSTRUCTION: Do NOT remove detectDocker().
+// This is required to route Docker commands into WSL when Docker Desktop is not installed on the Windows host.
 const { dockerCmd, dockerBaseArgs } = detectDocker();
 
 let cluster = args.includes('--Cluster') || args.includes('--cluster');
