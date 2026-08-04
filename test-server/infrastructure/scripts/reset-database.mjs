@@ -29,7 +29,8 @@ try {
     process.exit(1);
 }
 const mysqlNodes = servicesRaw.split('\n').filter(s => s.startsWith('mysql-node')).sort();
-const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
+if (mysqlNodes.length === 0) throw new Error('No MySQL nodes found');
+const firstNode = mysqlNodes[0];
 
 const containerName = firstNode;
 const targetHost = cluster ? 'mysql-router' : '127.0.0.1';

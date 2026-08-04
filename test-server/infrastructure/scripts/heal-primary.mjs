@@ -35,7 +35,8 @@ try {
     }
     
     // Pick a secondary to cycle to
-    const secondaryToCycle = currentPrimary === mysqlNodes[0] ? (mysqlNodes[1] || 'mysql-node2') : mysqlNodes[0];
+    if (mysqlNodes.length < 2) throw new Error('Not enough MySQL nodes to cycle primary');
+    const secondaryToCycle = currentPrimary === mysqlNodes[0] ? mysqlNodes[1] : mysqlNodes[0];
 
     console.log(`Current Primary: ${currentPrimary}`);
     console.log(`Cycling primary election to ${secondaryToCycle} and back to force state reset...`);

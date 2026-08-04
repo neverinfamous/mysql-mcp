@@ -338,7 +338,8 @@ await runSectionAsync('Routing & Proxy Validation', async () => {
     const { routerRW, routerRO, routerAPI, proxySQLAdmin, proxySQLData } = CONFIG.ports;
     const { proxyAdmin, proxyData, routerApi } = CONFIG.credentials;
 
-    const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
+    if (mysqlNodes.length === 0) throw new Error('No MySQL nodes found');
+    const firstNode = mysqlNodes[0];
     const proxySqlNode = containers.find(c => c.includes('proxysql')) || 'proxysql';
     const redisNode = containers.find(c => c.includes('redis')) || 'redis-server';
 
@@ -636,7 +637,8 @@ runSection('Test Database Integrity', () => {
     // Single UNION ALL query replaces 12 individual docker exec calls
     const unionParts = tableNames.map(t => `SELECT '${t}' AS t, COUNT(*) AS c FROM ${CONFIG.database}.${t}`);
     const batchQuery = unionParts.join(' UNION ALL ');
-    const firstNode = mysqlNodes.length > 0 ? mysqlNodes[0] : 'mysql-node1';
+    if (mysqlNodes.length === 0) throw new Error('No MySQL nodes found');
+    const firstNode = mysqlNodes[0];
 
     const batchOut = dockerExecEnv(firstNode, [mysqlPwd],
         ['mysql', '-h', 'mysql-router', '-P', CONFIG.ports.routerRW, mysqlUser, CONFIG.database, '-N', '-s', '-e', `${batchQuery};`], true);

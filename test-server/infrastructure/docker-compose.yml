@@ -315,6 +315,9 @@ services:
     image: mysql-mcp-exporter:1.0.0
     container_name: mysql-mcp-exporter
     restart: unless-stopped
+    depends_on:
+      mysql-router:
+        condition: service_healthy
     command: >
       --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
       prometheus --port 3000 --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
@@ -341,7 +344,7 @@ services:
       retries: 3
 
   dozzle:
-    image: amir20/dozzle
+    image: amir20/dozzle:v8.0.0
     container_name: dozzle
     restart: unless-stopped
     ports:
@@ -355,6 +358,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
   adminer:
     image: adminer:5.5.0
@@ -369,6 +377,11 @@ services:
       options:
         max-size: "10m"
         max-file: "3"
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8080/" ]
+      interval: 15s
+      timeout: 5s
+      retries: 3
 
   prometheus:
     image: prom/prometheus:v3.13.2
