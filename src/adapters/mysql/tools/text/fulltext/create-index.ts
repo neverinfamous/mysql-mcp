@@ -4,7 +4,6 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../../types/index.js";
-import { QueryError } from "../../../../../types/index.js";
 import {
   FulltextCreateSchema,
   FulltextCreateSchemaBase,
@@ -56,7 +55,7 @@ export function createFulltextCreateTool(
         } catch (err: unknown) {
           if (isDuplicateKeyError(err)) {
             return formatHandlerErrorResponse(
-              new QueryError(`Index '${name}' already exists on table '${table}'`),
+              new Error(`Index '${name}' already exists on table '${table}'`),
             );
           }
           const msg = err instanceof Error ? err.message : String(err);
@@ -66,11 +65,11 @@ export function createFulltextCreateTool(
             msg.includes("Key column") ||
             msg.includes("Column '")
           ) {
-            return formatHandlerErrorResponse(new QueryError(msg));
+            return formatHandlerErrorResponse(new Error(msg));
           }
           if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(
-              new QueryError(`Table '${table}' does not exist`),
+              new Error(`Table '${table}' does not exist`),
             );
           }
           return formatHandlerErrorResponse(err);
