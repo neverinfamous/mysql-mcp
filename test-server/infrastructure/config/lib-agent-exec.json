@@ -41,7 +41,10 @@
                 "name": "query1",
                 "search": {
                   "query": "source:agent-exec @agent_exec_status:error"
-                }
+                },
+                "indexes": [
+                  "main"
+                ]
               },
               {
                 "compute": {
@@ -52,7 +55,10 @@
                 "name": "query2",
                 "search": {
                   "query": "source:agent-exec -@agent_exec_status:healed"
-                }
+                },
+                "indexes": [
+                  "main"
+                ]
               }
             ],
             "response_format": "scalar"
@@ -98,7 +104,10 @@
                 "name": "query1",
                 "search": {
                   "query": "source:agent-exec -@agent_exec_status:healed"
-                }
+                },
+                "indexes": [
+                  "main"
+                ]
               }
             ],
             "response_format": "scalar"
@@ -144,7 +153,10 @@
                 "name": "query1",
                 "search": {
                   "query": "source:agent-exec @agent_exec_status:healed"
-                }
+                },
+                "indexes": [
+                  "main"
+                ]
               }
             ],
             "response_format": "scalar"
@@ -196,7 +208,10 @@
                 "name": "query1",
                 "search": {
                   "query": "source:agent-exec @agent_exec_status:error"
-                }
+                },
+                "indexes": [
+                  "main"
+                ]
               }
             ],
             "response_format": "scalar"
@@ -240,7 +255,11 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:agent-exec @agent_exec_status:error"
+              "query_string": "source:agent-exec @agent_exec_status:error",
+              "indexes": [
+                "main"
+              ],
+              "storage": "hot"
             },
             "response_format": "event_list"
           }
@@ -282,7 +301,11 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:agent-exec -@agent_exec_status:error"
+              "query_string": "source:agent-exec -@agent_exec_status:error",
+              "indexes": [
+                "main"
+              ],
+              "storage": "hot"
             },
             "response_format": "event_list"
           }
