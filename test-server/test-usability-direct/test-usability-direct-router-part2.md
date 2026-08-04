@@ -43,7 +43,7 @@
 
 > [!IMPORTANT]
 > **Environment Constraints**:
-> - **Sandbox I/O**: If tests write or read temporary files (e.g., export/import operations), the path must be permitted by `ALLOWED_IO_ROOTS`. We recommend using `C:\Users\chris\AppData\Local\Temp`.
+> - **Sandbox I/O**: If tests write or read temporary files (e.g., export/import operations), the path must be permitted by `ALLOWED_IO_ROOTS`. We recommend using a path within the workspace root, such as `.agents/scratch`.
 > - **DDL Operations**: If a tool requires DDL (e.g., `CREATE TABLE`, `CREATE INDEX`), explicitly disable the global read-only lock before execution by running `SET GLOBAL super_read_only = 0;`. **DO NOT** re-enable `super_read_only` after your test is complete.
 > - **Primary Keys Required**: Our test infrastructure uses InnoDB Cluster Group Replication. Every table created during tests MUST have an explicit `PRIMARY KEY`. Tables without a primary key will cause replication errors (MY-011542) and the DDL/DML will be rejected.
 
@@ -70,8 +70,8 @@
 
 | Tool | Fuzz Call | Hallucination Found | Fix Applied |
 |---|---|---|---|
-| `mysql_router_route_status` | `{"name": "bootstrap_ro"}` | Yes, strict schema enforced required `routeName` | Made `routeName` optional in Zod |
-| `mysql_router_route_health` | `{"name": "bootstrap_ro"}` | Yes, strict schema enforced required `routeName` | Made `routeName` optional in Zod |
+| `mysql_router_route_status` |   |   |   |
+| `mysql_router_route_health` |   |   |   |
 
 ---
 
@@ -92,8 +92,8 @@
 
 ## Tasks
 
-- [x] Ensure full coverage for mysql_router_route_status
-- [x] Ensure full coverage for mysql_router_route_health
+- [ ] Ensure full coverage for mysql_router_route_status
+- [ ] Ensure full coverage for mysql_router_route_health
 
 
 ---
