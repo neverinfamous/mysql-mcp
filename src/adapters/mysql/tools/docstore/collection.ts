@@ -251,10 +251,15 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
           }
 
-          // Pre-check existence when ifExists is true so we can report accurately
-          if (ifExists) {
-            const check = await checkCollectionExists(adapter, name, schema);
-            if (!check.exists) {
+          // Always check existence to prevent dropping non-docstore relational tables
+          const check = await checkCollectionExists(adapter, name, schema);
+          if (!check.exists) {
+            if (check.reason === "not_a_collection") {
+              return formatHandlerErrorResponse(
+                new ValidationError(`Table '${name}' exists but is not a valid document collection`)
+              );
+            }
+            if (ifExists) {
               return withTokenEstimate({
                 success: true,
                 data: {

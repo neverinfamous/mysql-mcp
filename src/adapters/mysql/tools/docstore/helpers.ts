@@ -122,7 +122,7 @@ export async function checkCollectionExists(
   schema?: string,
 ): Promise<
   | { exists: true }
-  | { exists: false; reason: "schema" | "collection"; name: string }
+  | { exists: false; reason: "schema" | "collection" | "not_a_collection"; name: string }
 > {
   if (schema) {
     const schemaCheck = await adapter.executeQuery(
@@ -159,7 +159,7 @@ export async function checkCollectionExists(
     if (hasDoc && hasId) {
       return { exists: true };
     }
-    return { exists: false, reason: "collection", name: collection };
+    return { exists: false, reason: "not_a_collection", name: collection };
   } catch (error: unknown) {
     const message = error instanceof Error ? error.message : String(error);
     if (message.toLowerCase().includes("doesn't exist") || message.toLowerCase().includes("unknown table")) {
