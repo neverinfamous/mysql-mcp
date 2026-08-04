@@ -104,7 +104,6 @@
             "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Commands Executed",
         "title_align": "left",
         "title_size": "16",
@@ -125,12 +124,7 @@
           {
             "conditional_formats": [
               {
-                "comparator": "\u003e",
-                "palette": "white_on_yellow",
-                "value": 0.0
-              },
-              {
-                "comparator": "\u003c=",
+                "comparator": "\u003e=",
                 "palette": "white_on_green",
                 "value": 0.0
               }
@@ -156,6 +150,7 @@
             "response_format": "scalar"
           }
         ],
+        "time": {},
         "title": "Autonomous Healing Triggers",
         "title_align": "left",
         "title_size": "16",
@@ -193,12 +188,12 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:agent-exec"
+              "query_string": "source:agent-exec @agent_exec_status:error"
             },
             "response_format": "event_list"
           }
         ],
-        "title": "lib-agent-exec Log Stream",
+        "title": "Errors (Not Healed)",
         "title_align": "left",
         "title_size": "16",
         "type": "list_stream"
@@ -206,8 +201,50 @@
       "id": 1782297993010392,
       "layout": {
         "height": 6,
-        "width": 12,
+        "width": 6,
         "x": 0,
+        "y": 4
+      }
+    },
+    {
+      "definition": {
+        "requests": [
+          {
+            "columns": [
+              {
+                "field": "host",
+                "width": "auto"
+              },
+              {
+                "field": "status",
+                "width": "auto"
+              },
+              {
+                "field": "exit_code",
+                "width": "auto"
+              },
+              {
+                "field": "message",
+                "width": "auto"
+              }
+            ],
+            "query": {
+              "data_source": "logs_stream",
+              "query_string": "source:agent-exec -@agent_exec_status:error"
+            },
+            "response_format": "event_list"
+          }
+        ],
+        "title": "Success \u0026 Healed Logs",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "list_stream"
+      },
+      "id": 1785851682594,
+      "layout": {
+        "height": 6,
+        "width": 6,
+        "x": 6,
         "y": 4
       }
     }
