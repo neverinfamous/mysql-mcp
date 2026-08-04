@@ -148,6 +148,9 @@ export const PointSchemaBase = z.object({
   lng: z.unknown().optional(),
   latitude: z.unknown().optional().describe("Latitude coordinate"),
   lat: z.unknown().optional(),
+  point: z.unknown().optional().describe("WKT POINT string or coordinate array"),
+  wkt: z.unknown().optional(),
+  coordinates: z.unknown().optional(),
   srid: z.unknown().optional().describe("SRID (default: 4326)"),
 });
 
