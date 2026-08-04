@@ -159,12 +159,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841001",
                 "palette": "custom_bg",
-                "value": 1.0
+                "value": 1
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 0.0
+                "value": 0
               }
             ],
             "formulas": [
@@ -211,12 +211,12 @@
                 "comparator": "=",
                 "custom_bg_color": "#841010",
                 "palette": "custom_bg",
-                "value": 0.0
+                "value": 0
               },
               {
                 "comparator": "=",
                 "palette": "white_on_green",
-                "value": 1.0
+                "value": 1
               }
             ],
             "formulas": [
@@ -717,6 +717,89 @@
         "x": 8,
         "y": 3
       }
+    },
+    {
+      "definition": {
+        "title": "MySQL Router Active Connections",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "max:mysqlrouter.connections.active{*} by {route}"
+              }
+            ],
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 0,
+        "y": 5,
+        "width": 4,
+        "height": 2
+      },
+      "id": 256640273162363
+    },
+    {
+      "definition": {
+        "title": "MySQL Router Network Throughput (Bytes)",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "max:mysqlrouter.bytes.client{*} by {route}"
+              },
+              {
+                "data_source": "metrics",
+                "name": "query2",
+                "query": "max:mysqlrouter.bytes.server{*} by {route}"
+              }
+            ],
+            "display_type": "line"
+          }
+        ]
+      },
+      "layout": {
+        "x": 4,
+        "y": 5,
+        "width": 4,
+        "height": 2
+      },
+      "id": 827655558885779
+    },
+    {
+      "definition": {
+        "title": "MySQL Router Backend Health",
+        "type": "timeseries",
+        "requests": [
+          {
+            "queries": [
+              {
+                "data_source": "metrics",
+                "name": "query1",
+                "query": "max:mysqlrouter.destination.health{*} by {route,address}"
+              }
+            ],
+            "display_type": "line",
+            "style": {
+              "palette": "green"
+            }
+          }
+        ]
+      },
+      "layout": {
+        "x": 8,
+        "y": 5,
+        "width": 4,
+        "height": 2
+      },
+      "id": 813810498497934
     }
   ]
 }
