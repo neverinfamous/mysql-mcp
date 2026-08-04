@@ -5,7 +5,7 @@
   "pause_auto_refresh": null,
   "reflow_type": "fixed",
   "template_variables": [],
-  "title": "MySQL-MCP AI Efficiency \u0026 Costs",
+  "title": "datadog-ai-efficiency.json",
   "widgets": [
     {
       "definition": {
@@ -457,20 +457,10 @@
         "requests": [
           {
             "display_type": "line",
-            "formulas": [
-              {
-                "formula": "default_zero(query1) + default_zero(query2)"
-              }
-            ],
             "queries": [
               {
                 "data_source": "metrics",
                 "name": "query1",
-                "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
-              },
-              {
-                "data_source": "metrics",
-                "name": "query2",
                 "query": "sum:mysql_mcp.mysql_mcp_tool_calls.count{*}.as_count().rollup(sum)"
               }
             ],

@@ -12,7 +12,7 @@
       "prefix": "tool"
     }
   ],
-  "title": "MySQL-MCP Tool Performance \u0026 Quality",
+  "title": "datadog-tool-performance",
   "widgets": [
     {
       "definition": {
