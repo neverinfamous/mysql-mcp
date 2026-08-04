@@ -88,7 +88,7 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
 function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
-    channel: z.string().optional().describe("Optional replication channel name"),
+    channel: z.string().max(64).optional().describe("Optional replication channel name"),
   }).strict();
 
   return {
@@ -314,7 +314,7 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 
 function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
   const schema = z.object({
-    channel: z.string().optional().describe("Optional replication channel name"),
+    channel: z.string().max(64).optional().describe("Optional replication channel name"),
   }).strict();
 
   return {
