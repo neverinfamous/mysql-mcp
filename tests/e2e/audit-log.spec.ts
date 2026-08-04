@@ -83,7 +83,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Begin a transaction (write scope) — should be logged
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -129,7 +129,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Execute only read-scope tools (monitoring group = read scope)
       await callToolRaw(client, "mysql_show_status", {});
@@ -166,7 +166,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create an audit entry via a write-scope tool
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -208,7 +208,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Begin a transaction (write scope) with redact enabled
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -240,7 +240,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Execute a read-scope tool (monitoring group = read scope)
       await callToolRaw(client, "mysql_show_status", {});
@@ -277,7 +277,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Begin a transaction (write scope) — should be logged with tokenEstimate
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -308,7 +308,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create an audit entry via a write-scope tool
       await callToolRaw(client, "mysql_transaction_begin", {});
@@ -375,7 +375,7 @@ test.describe("Audit Log", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Perform a new write
       await callToolRaw(client, "mysql_transaction_begin", {});

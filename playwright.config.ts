@@ -24,7 +24,7 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `node dist/cli.js --transport http --port 3103 --server-host 127.0.0.1 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@127.0.0.1:6446/testdb"}`,
+    command: `node dist/cli.js --transport http --port 3103 --server-host 127.0.0.1 --pool-size 50 --mysql ${process.env.MYSQL_TEST_URL ?? "mysql://root:root@127.0.0.1:6446/testdb"}`,
     port: 3103,
     reuseExistingServer: false,
     timeout: 120000,

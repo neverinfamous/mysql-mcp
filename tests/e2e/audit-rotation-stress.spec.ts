@@ -47,7 +47,7 @@ test.describe("Audit Log Rotation Stress", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Rapidly fire off many write-scope tool calls to force multiple rotations.
       // We do this sequentially to avoid MCP protocol congestion, but fast enough

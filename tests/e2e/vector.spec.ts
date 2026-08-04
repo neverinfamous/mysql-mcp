@@ -28,7 +28,7 @@ test.describe("Vector Tools", () => {
   test.beforeAll(async () => {
     // Start server with just the vector and core groups
     await startServer(PORT, ["--tool-filter", "vector,core"], "vector");
-    client = await createClient(`http://localhost:${PORT}`);
+    client = await createClient(`http://127.0.0.1:${PORT}`);
 
     // Try to create a temporary test table
     const result = await callToolAndParse(client, "mysql_write_query", {

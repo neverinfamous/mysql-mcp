@@ -93,7 +93,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create a temp table, then drop it (drop triggers snapshot)
       await callToolAndParse(client, "mysql_create_table", {
@@ -183,7 +183,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create table with 2 columns
       await callToolAndParse(client, "mysql_create_table", {
@@ -265,7 +265,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Create, then drop (creates snapshot of original)
       await callToolAndParse(client, "mysql_create_table", {
@@ -332,7 +332,7 @@ test.describe("Audit Backup Snapshots", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // All 3 tools should return { error: "..." } when backup is disabled
       const listResult = await callToolAndParse(

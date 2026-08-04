@@ -95,7 +95,7 @@ test.describe("Advanced HTTP Transport Security", () => {
     test("should drop connection if headers take too long (Slowloris protection)", async () => {
       return new Promise<void>((resolve, reject) => {
         const client = createConnection(
-          { port: SLOWLORIS_PORT, host: "localhost" },
+          { port: SLOWLORIS_PORT, host: "127.0.0.1" },
           () => {
             // Send incomplete headers slowly
             client.write("GET /health HTTP/1.1\\r\\n");

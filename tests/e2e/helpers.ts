@@ -47,7 +47,7 @@ export const MCP_JSON_HEADERS = {
 } as const;
 
 export function getDefaultMysqlUrl(): string {
-  return process.env.MYSQL_URL || 'mysql://root:root@localhost:6446/testdb';
+  return process.env.MYSQL_URL || 'mysql://root:root@127.0.0.1:6446/testdb';
 }
 
 /**
@@ -63,7 +63,7 @@ export function auditLogPath(prefix: string, suffix: string): string {
 /**
  * Create a connected MCP client via SSE transport.
  *
- * @param baseURL - Server base URL. Defaults to `http://localhost:3103`.
+ * @param baseURL - Server base URL. Defaults to `http://127.0.0.1:3103`.
  */
 export async function createClient(baseURL?: string): Promise<Client> {
   const url = new URL(`${baseURL ?? BASE_URL}/mcp`);

@@ -41,7 +41,7 @@ test.describe("Audit Token Summary Accuracy", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       const toolsToCall: Array<{
         name: string;
@@ -130,7 +130,7 @@ test.describe("Audit Token Summary Accuracy", () => {
 
     let client: Client | undefined;
     try {
-      client = await createClient(`http://localhost:${port}`);
+      client = await createClient(`http://127.0.0.1:${port}`);
 
       // Call low cost tools
       await callToolAndParse(client, "mysql_read_query", { query: HEALTH_QUERY });

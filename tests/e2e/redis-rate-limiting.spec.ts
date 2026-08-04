@@ -42,13 +42,13 @@ async function isRedisAvailable(): Promise<boolean> {
       resolve(false);
     });
     
-    // Parse host/port from REDIS_URL if set, else localhost:6379
+    // Parse host/port from REDIS_URL if set, else 127.0.0.1:6379
     const url = process.env.REDIS_URL || "redis://192.168.55.39:6379";
     try {
       const parsed = new URL(url);
       socket.connect(parseInt(parsed.port || "6379", 10), parsed.hostname);
     } catch {
-      socket.connect(6379, "localhost");
+      socket.connect(6379, "127.0.0.1");
     }
   });
 }

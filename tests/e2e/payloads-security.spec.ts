@@ -104,7 +104,7 @@ test.describe("Payload Contracts: Security + Roles", () => {
     try {
       const payload = await callToolAndParse(client, "mysql_user_roles", {
         user: "root",
-        host: "localhost",
+        host: "127.0.0.1",
       });
 
       const data = (payload as Record<string, unknown>).data;
