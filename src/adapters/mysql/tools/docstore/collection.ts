@@ -321,6 +321,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             if (check.reason === "schema") {
               throw new Error(`Schema '${check.name}' does not exist`);
             }
+            if (check.reason === "not_a_collection") {
+              throw new ValidationError(`Table '${check.name}' exists but is not a valid document collection`);
+            }
             throw new Error(`Collection '${check.name}' does not exist`);
           }
 
