@@ -342,7 +342,7 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
+      test: [ "CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:3000/metrics" ]
       interval: 15s
       timeout: 5s
       retries: 3

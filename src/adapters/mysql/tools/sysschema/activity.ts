@@ -33,6 +33,7 @@ const UserSummarySchemaBase = z.object({
   user: z.string().optional().describe("Filter by specific user. Anti-Hallucination: Pass 'user', not 'userName' or 'account'."),
   username: z.string().optional().describe("Alias for user"),
   userName: z.string().optional().describe("Alias for user"),
+  user_name: z.string().optional().describe("Alias for user"),
   account: z.string().optional().describe("Alias for user"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
   max: z.union([z.number(), z.string()]).optional().describe("Alias for limit"),
@@ -44,8 +45,8 @@ const UserSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown> & { user?: unknown; username?: unknown; userName?: unknown; account?: unknown; limit?: unknown; max?: unknown; count?: unknown };
-    const resolvedUser = v.user ?? v.username ?? v.userName ?? v.account;
+    const v = val as Record<string, unknown> & { user?: unknown; username?: unknown; userName?: unknown; user_name?: unknown; account?: unknown; limit?: unknown; max?: unknown; count?: unknown };
+    const resolvedUser = v.user ?? v.username ?? v.userName ?? v.user_name ?? v.account;
     return {
       ...v,
       user: resolvedUser === "" ? undefined : resolvedUser,
@@ -57,6 +58,7 @@ const UserSummarySchema = z.preprocess(
     limit: z.coerce.number().int().positive().default(5),
     username: z.any().optional(),
     userName: z.any().optional(),
+    user_name: z.any().optional(),
     account: z.any().optional(),
     max: z.any().optional(),
     count: z.any().optional(),
