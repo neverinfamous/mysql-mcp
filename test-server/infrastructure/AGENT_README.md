@@ -204,6 +204,7 @@ docker exec datadog-unified agent status | grep -A 3 'System Probe'
 ### MySQL 9.x Observability & Config Flags
 
 - **`--binlog_format=ROW`**: This flag has been fully removed as it is deprecated in MySQL 9.x.
+- **Stop Grace Period**: Database services, proxies (e.g. ProxySQL, MySQL Router), and telemetry agents MUST use `stop_grace_period: 30s` to ensure state flushes. Ephemeral UI utility services (e.g. Dozzle, Adminer, Grafana) MUST use `15s`.
 - **ProxySQL Config**: The `proxysql.cnf` volume is mounted as read-only (`:ro`) to prevent the container from overwriting the local file.
 - **WSL Scripting**: Startup scripts avoid using blocking `ping` commands to simulate sleep in WSL, using non-blocking `await setTimeout(...)` instead to prevent process hangs.
 - **`validate_password` Component**: The `validate_password` component has been REMOVED from `init.sql` because it corrupts the `mysql.user` data dictionary (52 columns vs expected 51), which breaks the MySQL Router 9.7.x bootstrap process. It is no longer installed at startup.

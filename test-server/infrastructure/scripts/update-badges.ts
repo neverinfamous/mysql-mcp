@@ -144,6 +144,7 @@ function updateBadges() {
       console.log("Successfully auto-committed badge updates.");
     } catch (err: any) {
       console.error("Failed to auto-commit badge updates:", err.message || err);
+      process.exit(1);
     }
   }
 }

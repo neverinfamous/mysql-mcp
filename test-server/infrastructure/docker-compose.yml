@@ -416,7 +416,7 @@ services:
     volumes:
       - ./config/grafana/provisioning:/etc/grafana/provisioning
       - ./config/grafana/dashboards:/var/lib/grafana/dashboards
-    stop_grace_period: 30s
+    stop_grace_period: 15s
     mem_limit: 384m
     logging:
       driver: json-file
