@@ -4,14 +4,11 @@ import {
   createPercentilesTool,
   createDistributionTool,
   createTimeSeriesToolStats,
-  createSamplingTool,
-} from "../descriptive/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSamplingTool } from "../descriptive/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Descriptive Stats Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -51,8 +48,7 @@ describe("Descriptive Stats Tools", () => {
               min: 1,
               max: 10,
               range: 9,
-              sum: 55,
-            },
+              sum: 55 },
           ]);
         }
         return createMockQueryResult([]);
@@ -217,8 +213,7 @@ describe("Descriptive Stats Tools", () => {
             value: 100,
             data_points: 10,
             period_min: 5,
-            period_max: 15,
-          },
+            period_max: 15 },
         ]);
       });
 
@@ -228,8 +223,7 @@ describe("Descriptive Stats Tools", () => {
           valueColumn: "amount",
           timeColumn: "created_at",
           interval: "day",
-          aggregation: "sum",
-        },
+          aggregation: "sum" },
         mockContext,
       );
 
@@ -257,8 +251,7 @@ describe("Descriptive Stats Tools", () => {
           table: "sales",
           valueColumn: "amount",
           timeColumn: "created_at",
-          interval: "invalid",
-        },
+          interval: "invalid" },
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(false);

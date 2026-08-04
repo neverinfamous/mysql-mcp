@@ -8,14 +8,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSysSchemaStatsTool,
   createSysInnoDBLockWaitsTool,
-  createSysMemorySummaryTool,
-} from "../resources.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSysMemorySummaryTool } from "../resources.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Sys Schema Resource Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -110,8 +107,7 @@ describe("Sys Schema Resource Tools", () => {
     it("should handle null/undefined rows", async () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
-        rows: undefined,
-      });
+        rows: undefined });
 
       const tool = createSysSchemaStatsTool(
         mockAdapter,
@@ -150,8 +146,7 @@ describe("Sys Schema Resource Tools", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "Schema 'nonexistent_db' does not exist",
-        }),
+          error: "Schema 'nonexistent_db' does not exist" }),
       );
       // Should only call the schema check, not the 3 stats queries
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -199,8 +194,7 @@ describe("Sys Schema Resource Tools", () => {
         createMockQueryResult([
           {
             blocking_trx_id: "1235",
-            waiting_trx_id: "1234",
-          },
+            waiting_trx_id: "1234" },
         ]),
       );
 
@@ -237,8 +231,7 @@ describe("Sys Schema Resource Tools", () => {
     it("should handle null rows", async () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
-        rows: undefined,
-      });
+        rows: undefined });
 
       const tool = createSysInnoDBLockWaitsTool(
         mockAdapter,
@@ -294,8 +287,7 @@ describe("Sys Schema Resource Tools", () => {
     it("should handle null rows", async () => {
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
-        rows: undefined,
-      });
+        rows: undefined });
 
       const tool = createSysMemorySummaryTool(
         mockAdapter,

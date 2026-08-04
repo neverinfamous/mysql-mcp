@@ -4,13 +4,11 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createIndexRecommendationTool } from "../index-audit/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
   createMockQueryResult,
-  createMockTableInfo,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockTableInfo } from "../../../../../__tests__/mocks/index.js";
 
 describe("Index Audit Tool", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;

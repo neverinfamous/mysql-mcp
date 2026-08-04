@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getSpatialTools", () => {
   let tools: ReturnType<typeof getSpatialTools>;
@@ -85,8 +83,7 @@ describe("Handler Execution", () => {
           table: "locations",
           column: "geom",
           type: "POINT",
-          srid: 4326,
-        },
+          srid: 4326 },
         mockContext,
       );
 
@@ -105,8 +102,7 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           column: "geom",
-          nullable: false,
-        },
+          nullable: false },
         mockContext,
       );
 
@@ -131,8 +127,7 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
@@ -154,8 +149,7 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
@@ -163,8 +157,7 @@ describe("Handler Execution", () => {
         success: false,
         error: expect.stringContaining(
           "Cannot create SPATIAL index on nullable column",
-        ),
-      });
+        ) });
     });
 
     it("should return structured error for duplicate index", async () => {
@@ -186,15 +179,13 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Index 'idx_locations_geom' already exists on table 'locations'",
-      });
+        error: "Index 'idx_locations_geom' already exists on table 'locations'" });
     });
 
     it("should handle other index creation errors gracefully", async () => {
@@ -212,15 +203,13 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           column: "geom",
-          indexName: "idx_locations_geom",
-        },
+          indexName: "idx_locations_geom" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Some other MySQL error",
-      });
+        error: "Some other MySQL error" });
     });
   });
 
@@ -255,8 +244,7 @@ describe("Handler Execution", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Validation error: longitude must be between -180 and 180 degrees for SRID 4326",
-      });
+        error: "Validation error: longitude must be between -180 and 180 degrees for SRID 4326" });
     });
   });
 
@@ -277,8 +265,7 @@ describe("Handler Execution", () => {
               [0, 0],
             ],
           ],
-          srid: 4326,
-        },
+          srid: 4326 },
         mockContext,
       );
 
@@ -299,8 +286,7 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           spatialColumn: "geom",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       );
 
@@ -324,8 +310,7 @@ describe("Handler Execution", () => {
           table: "locations",
           spatialColumn: "geom",
           point: { longitude: -73.9857, latitude: 40.7484 },
-          maxDistance: 10000,
-        },
+          maxDistance: 10000 },
         mockContext,
       );
 
@@ -347,8 +332,7 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           spatialColumn: "geom",
-          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-        },
+          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))" },
         mockContext,
       );
 
@@ -370,8 +354,7 @@ describe("Handler Execution", () => {
         {
           table: "locations",
           spatialColumn: "geom",
-          geometry: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-        },
+          geometry: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))" },
         mockContext,
       );
 
@@ -395,8 +378,7 @@ describe("Handler Execution", () => {
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POLYGON((5 5, 15 5, 15 15, 5 15, 5 5))",
-          srid: 0,
-        },
+          srid: 0 },
         mockContext,
       );
 
@@ -491,8 +473,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler({ geometry: "" }, mockContext);
       expect(result).toMatchObject({
         success: false,
-        error: "Validation error: Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object",
-      });
+        error: "Validation error: Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object" });
     });
   });
 });

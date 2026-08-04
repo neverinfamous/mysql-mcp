@@ -9,14 +9,11 @@ import {
   createSpatialDistanceTool,
   createSpatialDistanceSphereTool,
   createSpatialContainsTool,
-  createSpatialWithinTool,
-} from "../queries.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSpatialWithinTool } from "../queries.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Spatial Queries Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -49,8 +46,7 @@ describe("Spatial Queries Tools", () => {
         {
           table: "locations",
           spatialColumn: "geom",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       )) as { data: { results: unknown[] } };
 
@@ -75,8 +71,7 @@ describe("Spatial Queries Tools", () => {
           point: { longitude: 0, latitude: 0 },
           maxDistance: 500,
           srid: 3857,
-          limit: 5,
-        },
+          limit: 5 },
         mockContext,
       );
 
@@ -97,15 +92,13 @@ describe("Spatial Queries Tools", () => {
         {
           table: "invalid; drop table",
           spatialColumn: "geom",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("Invalid table name"),
-      });
+        error: expect.stringContaining("Invalid table name") });
     });
 
     it("should validate column name", async () => {
@@ -116,15 +109,13 @@ describe("Spatial Queries Tools", () => {
         {
           table: "valid_table",
           spatialColumn: "invalid column",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid column name",
-      });
+        error: "Invalid column name" });
     });
 
     it("should handle undefined rows result", async () => {
@@ -138,8 +129,7 @@ describe("Spatial Queries Tools", () => {
         {
           table: "locations",
           spatialColumn: "geom",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       );
 
@@ -166,8 +156,7 @@ describe("Spatial Queries Tools", () => {
         {
           table: "locations",
           spatialColumn: "geom",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       );
 
@@ -186,8 +175,7 @@ describe("Spatial Queries Tools", () => {
           table: "locations",
           spatialColumn: "geom",
           point: { longitude: 0, latitude: 0 },
-          maxDistance: 1000,
-        },
+          maxDistance: 1000 },
         mockContext,
       );
 
@@ -203,15 +191,13 @@ describe("Spatial Queries Tools", () => {
         {
           table: "invalid",
           spatialColumn: "bad-column",
-          point: { longitude: 0, latitude: 0 },
-        },
+          point: { longitude: 0, latitude: 0 } },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid column name",
-      });
+        error: "Invalid column name" });
     });
   });
 
@@ -233,8 +219,7 @@ describe("Spatial Queries Tools", () => {
         {
           table: "parcels",
           spatialColumn: "boundary",
-          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-        },
+          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))" },
         mockContext,
       );
 
@@ -255,8 +240,7 @@ describe("Spatial Queries Tools", () => {
           table: "parcels",
           spatialColumn: "boundary",
           polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-          srid: 3857,
-        },
+          srid: 3857 },
         mockContext,
       );
 
@@ -272,15 +256,13 @@ describe("Spatial Queries Tools", () => {
         {
           table: "bad-table",
           spatialColumn: "boundary",
-          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-        },
+          polygon: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("Invalid table name"),
-      });
+        error: expect.stringContaining("Invalid table name") });
     });
   });
 
@@ -302,8 +284,7 @@ describe("Spatial Queries Tools", () => {
         {
           table: "landmarks",
           spatialColumn: "location",
-          geometry: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-        },
+          geometry: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))" },
         mockContext,
       );
 
@@ -324,8 +305,7 @@ describe("Spatial Queries Tools", () => {
           table: "landmarks",
           spatialColumn: "location",
           geometry: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
-          srid: 3857,
-        },
+          srid: 3857 },
         mockContext,
       );
 
@@ -341,15 +321,13 @@ describe("Spatial Queries Tools", () => {
         {
           table: "t",
           spatialColumn: "bad col",
-          geometry: "POINT(0 0)",
-        },
+          geometry: "POINT(0 0)" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid column name",
-      });
+        error: "Invalid column name" });
     });
   });
 });

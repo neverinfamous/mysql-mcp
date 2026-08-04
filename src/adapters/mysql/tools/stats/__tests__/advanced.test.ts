@@ -3,14 +3,11 @@ import {
   createStatsTopNTool,
   createStatsDistinctTool,
   createStatsFrequencyTool,
-  createStatsSummaryTool,
-} from "../advanced.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createStatsSummaryTool } from "../advanced.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Advanced Stats Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -168,8 +165,7 @@ describe("Advanced Stats Tools", () => {
               age_avg: 25.5,
               age_min: 18,
               age_max: 60,
-              age_stddev: 10.5,
-            },
+              age_stddev: 10.5 },
           ]);
         }
         return createMockQueryResult([]);

@@ -7,12 +7,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 import { getBackupTools } from "../admin/index.js";
 import { getJsonTools } from "../json/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-
 describe("Security: SQL Injection Prevention", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
@@ -32,8 +29,7 @@ describe("Security: SQL Injection Prevention", () => {
       const result = (await exportTool.handler(
         {
           table: "users; DROP TABLE users",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -49,8 +45,7 @@ describe("Security: SQL Injection Prevention", () => {
       const result = (await exportTool.handler(
         {
           table: "123users",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -67,8 +62,7 @@ describe("Security: SQL Injection Prevention", () => {
         {
           table: "users",
           format: "SQL",
-          where: "1=1; DROP TABLE users",
-        },
+          where: "1=1; DROP TABLE users" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -85,8 +79,7 @@ describe("Security: SQL Injection Prevention", () => {
         {
           table: "users",
           format: "SQL",
-          where: "1=1 UNION SELECT password FROM admin",
-        },
+          where: "1=1 UNION SELECT password FROM admin" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -103,8 +96,7 @@ describe("Security: SQL Injection Prevention", () => {
         {
           table: "users",
           format: "SQL",
-          where: "1=1 AND SLEEP(5)",
-        },
+          where: "1=1 AND SLEEP(5)" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -121,8 +113,7 @@ describe("Security: SQL Injection Prevention", () => {
         {
           table: "users",
           format: "SQL",
-          where: "id = 1 OR '1'='1",
-        },
+          where: "id = 1 OR '1'='1" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -142,8 +133,7 @@ describe("Security: SQL Injection Prevention", () => {
           {
             table: "users",
             format: "SQL",
-            where: "status = 'active' AND created_at > '2024-01-01'",
-          },
+            where: "status = 'active' AND created_at > '2024-01-01'" },
           mockContext,
         ),
       ).resolves.toBeDefined();
@@ -159,8 +149,7 @@ describe("Security: SQL Injection Prevention", () => {
       const result = (await importTool.handler(
         {
           table: "users`; DROP TABLE users; --",
-          data: [{ id: 1, name: "test" }],
-        },
+          data: [{ id: 1, name: "test" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -176,8 +165,7 @@ describe("Security: SQL Injection Prevention", () => {
       const result = (await importTool.handler(
         {
           table: "users",
-          data: [{ "id; DROP TABLE": 1 }],
-        },
+          data: [{ "id; DROP TABLE": 1 }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -197,14 +185,12 @@ describe("Security: SQL Injection Prevention", () => {
           {
             table: "users'; DROP TABLE users; --",
             column: "data",
-            path: "$.name",
-          },
+            path: "$.name" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("Invalid table name"),
-      });
+        error: expect.stringContaining("Invalid table name") });
     });
 
     it("should reject column name with injection in mysql_json_extract", async () => {
@@ -217,14 +203,12 @@ describe("Security: SQL Injection Prevention", () => {
           {
             table: "users",
             column: "data`; DELETE FROM users; --",
-            path: "$.name",
-          },
+            path: "$.name" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("Invalid column name"),
-      });
+        error: expect.stringContaining("Invalid column name") });
     });
 
     it("should reject WHERE clause with BENCHMARK attack in mysql_json_set", async () => {
@@ -239,14 +223,12 @@ describe("Security: SQL Injection Prevention", () => {
             column: "data",
             path: "$.name",
             value: "test",
-            where: "id = 1 AND BENCHMARK(1000000, SHA1('test'))",
-          },
+            where: "id = 1 AND BENCHMARK(1000000, SHA1('test'))" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("dangerous SQL patterns"),
-      });
+        error: expect.stringContaining("dangerous SQL patterns") });
     });
 
     it("should reject WHERE clause with file operation attack", async () => {
@@ -261,14 +243,12 @@ describe("Security: SQL Injection Prevention", () => {
             column: "data",
             path: "$.name",
             value: "test",
-            where: "id = 1 INTO OUTFILE '/tmp/pwned'",
-          },
+            where: "id = 1 INTO OUTFILE '/tmp/pwned'" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("dangerous SQL patterns"),
-      });
+        error: expect.stringContaining("dangerous SQL patterns") });
     });
 
     it("should accept valid inputs in mysql_json_set", async () => {
@@ -285,8 +265,7 @@ describe("Security: SQL Injection Prevention", () => {
             column: "preferences",
             path: "$.theme",
             value: '"dark"',
-            where: "id = 123",
-          },
+            where: "id = 123" },
           mockContext,
         ),
       ).resolves.toBeDefined();

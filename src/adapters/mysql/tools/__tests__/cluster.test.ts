@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getClusterTools } from "../cluster/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getClusterTools", () => {
   let tools: ReturnType<typeof getClusterTools>;
@@ -294,29 +292,25 @@ describe("Handler Execution", () => {
             host: "node1",
             role: "PRIMARY",
             state: "ONLINE",
-            port: 3306,
-          },
+            port: 3306 },
           {
             id: "uuid2",
             host: "node2",
             role: "SECONDARY",
             state: "ONLINE",
-            port: 3306,
-          },
+            port: 3306 },
           {
             id: "uuid3",
             host: "node3",
             role: "SECONDARY",
             state: "RECOVERING",
-            port: 3306,
-          },
+            port: 3306 },
           {
             id: "uuid4",
             host: "node4",
             role: "SECONDARY",
             state: "OFFLINE",
-            port: 3306,
-          },
+            port: 3306 },
         ]),
       );
 
@@ -376,8 +370,7 @@ describe("Handler Execution", () => {
             memberId: "uuid1",
             host: "node1",
             role: "SECONDARY",
-            state: "ONLINE",
-          },
+            state: "ONLINE" },
         ]),
       );
 
@@ -407,32 +400,28 @@ describe("Handler Execution", () => {
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 0,
-            applierQueue: 0,
-          },
+            applierQueue: 0 },
           {
             memberId: "uuid2",
             host: "node2",
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 20,
-            applierQueue: 30,
-          },
+            applierQueue: 30 },
           {
             memberId: "uuid3",
             host: "node3",
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 150,
-            applierQueue: 50,
-          },
+            applierQueue: 50 },
           {
             memberId: "uuid4",
             host: "node4",
             role: "PRIMARY",
             state: "ONLINE",
             txQueue: 0,
-            applierQueue: 0,
-          }, // Should be ignored
+            applierQueue: 0 }, // Should be ignored
         ]),
       );
 
@@ -471,8 +460,7 @@ describe("Handler Execution", () => {
             role: "SECONDARY",
             state: "ONLINE",
             txQueue: 200,
-            applierQueue: 0,
-          },
+            applierQueue: 0 },
         ]),
       );
 

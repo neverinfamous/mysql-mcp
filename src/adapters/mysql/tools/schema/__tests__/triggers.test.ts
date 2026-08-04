@@ -2,14 +2,11 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   createListTriggersTool,
   createCreateTriggerTool,
-  createDropTriggerTool,
-} from "../triggers.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createDropTriggerTool } from "../triggers.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 import { setupSchemaTest } from "./setup.js";
 
 describe("Schema Trigger Tools", () => {

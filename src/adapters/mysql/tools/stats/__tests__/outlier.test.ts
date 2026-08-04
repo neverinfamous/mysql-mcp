@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStatsOutliersTool } from "../outlier.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Outliers Tool", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;

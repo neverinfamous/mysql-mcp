@@ -7,12 +7,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getReplicationTools } from "../replication.js";
 import { getPartitioningTools } from "../partitioning.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getReplicationTools", () => {
   let tools: ReturnType<typeof getReplicationTools>;
@@ -281,8 +279,7 @@ describe("Partitioning Handler Execution", () => {
             {
               PARTITION_NAME: "p0",
               TABLE_ROWS: 1000,
-              PARTITION_METHOD: "RANGE",
-            },
+              PARTITION_METHOD: "RANGE" },
           ]),
         );
 
@@ -321,8 +318,7 @@ describe("Partitioning Handler Execution", () => {
             {
               PARTITION_NAME: "p0",
               PARTITION_METHOD: "RANGE",
-              PARTITION_EXPRESSION: "TO_DAYS(created_at)",
-            },
+              PARTITION_EXPRESSION: "TO_DAYS(created_at)" },
           ]),
         );
 
@@ -353,8 +349,7 @@ describe("Partitioning Handler Execution", () => {
           table: "logs",
           partitionName: "p2024",
           partitionType: "RANGE",
-          value: "2024",
-        },
+          value: "2024" },
         mockContext,
       );
 
@@ -379,8 +374,7 @@ describe("Partitioning Handler Execution", () => {
           table: "regions",
           partitionName: "p_east",
           partitionType: "LIST",
-          value: "'NY', 'NJ', 'PA'",
-        },
+          value: "'NY', 'NJ', 'PA'" },
         mockContext,
       );
 
@@ -400,8 +394,7 @@ describe("Partitioning Handler Execution", () => {
           table: "data",
           partitionName: "hash_p",
           partitionType: "HASH",
-          value: "4",
-        },
+          value: "4" },
         mockContext,
       );
 
@@ -421,8 +414,7 @@ describe("Partitioning Handler Execution", () => {
           table: "data",
           partitionName: "key_p",
           partitionType: "KEY",
-          value: "8",
-        },
+          value: "8" },
         mockContext,
       );
 
@@ -442,8 +434,7 @@ describe("Partitioning Handler Execution", () => {
       const result = await tool.handler(
         {
           table: "logs",
-          partitionName: "p2020",
-        },
+          partitionName: "p2020" },
         mockContext,
       );
 
@@ -470,8 +461,7 @@ describe("Partitioning Handler Execution", () => {
           toPartitions: [
             { name: "p2023_h1", value: "202307" },
             { name: "p2023_h2", value: "202401" },
-          ],
-        },
+          ] },
         mockContext,
       );
 
@@ -497,8 +487,7 @@ describe("Partitioning Handler Execution", () => {
           table: "users",
           fromPartitions: ["p1"],
           partitionType: "RANGE",
-          toPartitions: [{ name: "p1a", value: "50" }],
-        },
+          toPartitions: [{ name: "p1a", value: "50" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -520,8 +509,7 @@ describe("Partitioning Handler Execution", () => {
           table: "logs",
           fromPartitions: ["nonexistent"],
           partitionType: "RANGE",
-          toPartitions: [{ name: "p_new", value: "2030" }],
-        },
+          toPartitions: [{ name: "p_new", value: "2030" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -537,8 +525,7 @@ describe("Partitioning Handler Execution", () => {
           table: "data",
           fromPartitions: ["p1"],
           partitionType: "HASH",
-          toPartitions: [{ name: "p1a", value: "50" }],
-        },
+          toPartitions: [{ name: "p1a", value: "50" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -561,8 +548,7 @@ describe("Partitioning Handler Execution", () => {
           table: "nonexistent",
           partitionName: "p1",
           partitionType: "RANGE",
-          value: "100",
-        },
+          value: "100" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -594,8 +580,7 @@ describe("Partitioning Handler Execution", () => {
           table: "nonexistent",
           fromPartitions: ["p1"],
           partitionType: "RANGE",
-          toPartitions: [{ name: "p1a", value: "50" }],
-        },
+          toPartitions: [{ name: "p1a", value: "50" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -637,8 +622,7 @@ describe("Partitioning Handler Execution", () => {
           table: "users",
           partitionName: "p1",
           partitionType: "RANGE",
-          value: "100",
-        },
+          value: "100" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -660,8 +644,7 @@ describe("Partitioning Handler Execution", () => {
           table: "logs",
           partitionName: "p2025",
           partitionType: "RANGE",
-          value: "2026",
-        },
+          value: "2026" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -688,8 +671,7 @@ describe("Partitioning Handler Execution", () => {
           table: "regions",
           partitionName: "p_dup",
           partitionType: "LIST",
-          value: "'east'",
-        },
+          value: "'east'" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -923,8 +905,7 @@ describe("Replication Fallback Handling", () => {
             Seconds_Behind_Source: 5,
             Replica_IO_Running: "Yes",
             Replica_SQL_Running: "Yes",
-            Last_Error: "",
-          },
+            Last_Error: "" },
         ]),
       );
 
@@ -946,8 +927,7 @@ describe("Replication Fallback Handling", () => {
               Seconds_Behind_Master: 10,
               Slave_IO_Running: "Yes",
               Slave_SQL_Running: "Yes",
-              Last_Error: "",
-            },
+              Last_Error: "" },
           ]),
         );
 

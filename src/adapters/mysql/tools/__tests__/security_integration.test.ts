@@ -7,12 +7,9 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 import { getBackupTools } from "../admin/index.js";
 import { getJsonTools } from "../json/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
-
 describe("Security: Validation Flow Integration", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
   let mockContext: ReturnType<typeof createMockRequestContext>;
@@ -33,8 +30,7 @@ describe("Security: Validation Flow Integration", () => {
       const result = (await exportTool.handler(
         {
           table: "users'; DROP TABLE users; --",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -59,22 +55,19 @@ describe("Security: Validation Flow Integration", () => {
             column: "data", // Valid
             path: "$.name",
             value: "test",
-            where: "1=1; DELETE FROM users; -- UNION SELECT * FROM passwords",
-          },
+            where: "1=1; DELETE FROM users; -- UNION SELECT * FROM passwords" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("dangerous SQL patterns"),
-      });
+        error: expect.stringContaining("dangerous SQL patterns") });
 
       expect(mockAdapter.executeWriteQuery).not.toHaveBeenCalled();
     });
 
     it("should process valid input successfully after validation", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue({
-        rows: [{ id: 1, name: "Test User" }],
-      });
+        rows: [{ id: 1, name: "Test User" }] });
 
       const tools = getBackupTools(mockAdapter);
       const exportTool = tools.find((t) => t.name === "mysql_export_table");
@@ -84,8 +77,7 @@ describe("Security: Validation Flow Integration", () => {
         {
           table: "users",
           format: "SQL",
-          where: "status = 'active'",
-        },
+          where: "status = 'active'" },
         mockContext,
       );
 
@@ -104,8 +96,7 @@ describe("Security: Validation Flow Integration", () => {
       const result = (await exportTool.handler(
         {
           table: "admin'; SELECT * FROM secrets; --",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -128,8 +119,7 @@ describe("Security: Validation Flow Integration", () => {
             column: "data",
             path: "$.x",
             value: "test",
-            where: "1=1 AND information_schema.tables",
-          },
+            where: "1=1 AND information_schema.tables" },
           mockContext,
         );
         expect.fail("Should have thrown");
@@ -149,8 +139,7 @@ describe("Security: Validation Flow Integration", () => {
       const result = (await exportTool.handler(
         {
           table: "123invalid",
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -181,8 +170,7 @@ describe("Security: Validation Flow Integration", () => {
       const exportResult = (await exportTool.handler(
         {
           table: maliciousTable,
-          format: "SQL",
-        },
+          format: "SQL" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -195,14 +183,12 @@ describe("Security: Validation Flow Integration", () => {
           {
             table: maliciousTable,
             column: "data",
-            path: "$.x",
-          },
+            path: "$.x" },
           mockContext,
         ),
       ).resolves.toMatchObject({
         success: false,
-        error: expect.stringContaining("Invalid table name"),
-      });
+        error: expect.stringContaining("Invalid table name") });
     });
   });
 });

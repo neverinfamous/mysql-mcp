@@ -5,14 +5,11 @@ import {
   createStatsLagLeadTool,
   createStatsRunningTotalTool,
   createStatsMovingAvgTool,
-  createStatsNtileTool,
-} from "../window/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createStatsNtileTool } from "../window/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Window Function Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -34,8 +31,7 @@ describe("Window Function Tools", () => {
           lag_value: null,
           running_total: 10,
           moving_avg: 10,
-          ntile: 1,
-        },
+          ntile: 1 },
       ]);
     });
   });
@@ -124,8 +120,7 @@ describe("Window Function Tools", () => {
           column: "amount",
           orderBy: "date",
           direction: "lag",
-          offset: 2,
-        },
+          offset: 2 },
         mockContext,
       );
 
@@ -141,8 +136,7 @@ describe("Window Function Tools", () => {
           table: "sales",
           column: "amount;",
           orderBy: "date",
-          direction: "lag",
-        },
+          direction: "lag" },
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(false);
@@ -158,8 +152,7 @@ describe("Window Function Tools", () => {
           table: "sales",
           column: "missing_col",
           orderBy: "date",
-          direction: "lag",
-        },
+          direction: "lag" },
         mockContext,
       );
       expect((result as Record<string, unknown>).success).toBe(false);

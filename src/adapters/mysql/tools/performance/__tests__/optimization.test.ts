@@ -8,15 +8,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createQueryRewriteTool,
   createForceIndexTool,
-  createOptimizerTraceTool,
-} from "../optimization.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createOptimizerTraceTool } from "../optimization.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
   createMockQueryResult,
-  createMockTableInfo,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockTableInfo } from "../../../../../__tests__/mocks/index.js";
 
 describe("Performance Optimization Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -82,8 +79,7 @@ describe("Performance Optimization Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            EXPLAIN: JSON.stringify({ query_block: {} }),
-          },
+            EXPLAIN: JSON.stringify({ query_block: {} }) },
         ]),
       );
 
@@ -148,8 +144,7 @@ describe("Performance Optimization Tools", () => {
           tableName: "users",
           columns: ["id"],
           unique: true,
-          type: "BTREE",
-        },
+          type: "BTREE" },
       ]);
 
       const tool = createForceIndexTool(mockAdapter);
@@ -157,8 +152,7 @@ describe("Performance Optimization Tools", () => {
         {
           table: "users",
           query: "SELECT * FROM users WHERE id = 1",
-          indexName: "PRIMARY",
-        },
+          indexName: "PRIMARY" },
         mockContext,
       )) as { data: { rewrittenQuery: string } };
 
@@ -175,8 +169,7 @@ describe("Performance Optimization Tools", () => {
           tableName: "users",
           columns: ["name"],
           unique: false,
-          type: "BTREE",
-        },
+          type: "BTREE" },
       ]);
 
       const tool = createForceIndexTool(mockAdapter);
@@ -184,8 +177,7 @@ describe("Performance Optimization Tools", () => {
         {
           table: "users",
           query: "SELECT * FROM `users` WHERE id = 1",
-          indexName: "idx_name",
-        },
+          indexName: "idx_name" },
         mockContext,
       )) as { data: { rewrittenQuery: string; warning?: string } };
 
@@ -203,8 +195,7 @@ describe("Performance Optimization Tools", () => {
           tableName: "users",
           columns: ["id"],
           unique: true,
-          type: "BTREE",
-        },
+          type: "BTREE" },
       ]);
       const mockTableInfo = createMockTableInfo("users");
       mockTableInfo.columns = [
@@ -217,8 +208,7 @@ describe("Performance Optimization Tools", () => {
         {
           table: "users",
           query: "SELECT * FROM users WHERE id = 1",
-          indexName: "nonexistent_idx",
-        },
+          indexName: "nonexistent_idx" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -238,8 +228,7 @@ describe("Performance Optimization Tools", () => {
         {
           table: "ghost",
           query: "SELECT * FROM ghost WHERE id = 1",
-          indexName: "some_idx",
-        },
+          indexName: "some_idx" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -411,8 +400,7 @@ describe("Performance Optimization Tools", () => {
           tableName: "users",
           columns: ["name"],
           unique: false,
-          type: "BTREE",
-        },
+          type: "BTREE" },
       ]);
 
       const tool = createForceIndexTool(mockAdapter);
@@ -420,8 +408,7 @@ describe("Performance Optimization Tools", () => {
         {
           tableName: "users",
           query: "SELECT * FROM users WHERE name = 'test'",
-          indexName: "idx_name",
-        },
+          indexName: "idx_name" },
         mockContext,
       )) as { data: { rewrittenQuery: string } };
 
@@ -439,8 +426,7 @@ describe("Performance Optimization Tools", () => {
         {
           table: "users",
           query: "SELECT * FROM users",
-          indexName: "idx_name",
-        },
+          indexName: "idx_name" },
         mockContext,
       )) as { success: boolean; error: string };
 

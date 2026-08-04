@@ -7,11 +7,9 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getRouterTools } from "../router/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 import { EventEmitter } from "events";
 
 process.env["MYSQL_ROUTER_URL"] = "https://localhost:8443";
@@ -19,9 +17,7 @@ process.env["MYSQL_ROUTER_URL"] = "https://localhost:8443";
 // Mock https module
 vi.mock("node:https", () => ({
   default: {
-    request: vi.fn(),
-  },
-}));
+    request: vi.fn() } }));
 
 import https from "node:https";
 const mockRequest = https.request as ReturnType<typeof vi.fn>;
@@ -159,8 +155,7 @@ describe("Handler Execution", () => {
         processId: 1234,
         version: "8.0.35",
         hostname: "router-host",
-        timeStarted: "2024-01-01T00:00:00Z",
-      };
+        timeStarted: "2024-01-01T00:00:00Z" };
       mockHttpsResponse(mockStatus);
 
       const tool = tools.find((t) => t.name === "mysql_router_status");
@@ -174,16 +169,14 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: true,
         data: mockStatus,
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
   describe("mysql_router_routes", () => {
     it("should fetch all routes", async () => {
       const mockRoutes = {
-        items: [{ name: "bootstrap_ro" }, { name: "bootstrap_rw" }],
-      };
+        items: [{ name: "bootstrap_ro" }, { name: "bootstrap_rw" }] };
       mockHttpsResponse(mockRoutes);
 
       const tool = tools.find((t) => t.name === "mysql_router_routes");
@@ -196,8 +189,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual({
         success: true,
         data: mockRoutes,
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -206,8 +198,7 @@ describe("Handler Execution", () => {
       const mockRouteStatus = {
         activeConnections: 5,
         totalConnections: 100,
-        blockedHosts: 0,
-      };
+        blockedHosts: 0 };
       mockHttpsResponse(mockRouteStatus);
 
       const tool = tools.find((t) => t.name === "mysql_router_route_status");
@@ -224,10 +215,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           routeName: "bootstrap_ro",
-          status: mockRouteStatus,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          status: mockRouteStatus },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should URL-encode route names", async () => {
@@ -261,10 +250,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           routeName: "bootstrap_ro",
-          health: mockHealth,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          health: mockHealth },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -275,10 +262,8 @@ describe("Handler Execution", () => {
           {
             sourceAddress: "192.168.1.1",
             destinationAddress: "10.0.0.1",
-            bytesIn: 1024,
-          },
-        ],
-      };
+            bytesIn: 1024 },
+        ] };
       mockHttpsResponse(mockConnections);
 
       const tool = tools.find(
@@ -296,10 +281,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           routeName: "bootstrap_rw",
-          connections: mockConnections,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          connections: mockConnections },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -309,8 +292,7 @@ describe("Handler Execution", () => {
         items: [
           { address: "mysql-1.example.com", port: 3306 },
           { address: "mysql-2.example.com", port: 3306 },
-        ],
-      };
+        ] };
       mockHttpsResponse(mockDestinations);
 
       const tool = tools.find(
@@ -328,18 +310,15 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           routeName: "bootstrap_ro",
-          destinations: mockDestinations,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          destinations: mockDestinations },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
   describe("mysql_router_route_blocked_hosts", () => {
     it("should list blocked hosts", async () => {
       const mockBlockedHosts = {
-        items: [{ address: "192.168.1.100" }],
-      };
+        items: [{ address: "192.168.1.100" }] };
       mockHttpsResponse(mockBlockedHosts);
 
       const tool = tools.find(
@@ -357,10 +336,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           routeName: "bootstrap_rw",
-          blockedHosts: mockBlockedHosts,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          blockedHosts: mockBlockedHosts },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -369,8 +346,7 @@ describe("Handler Execution", () => {
       const mockMetadata = {
         refreshTotal: 100,
         refreshSucceeded: 99,
-        lastRefreshHostName: "mysql-primary.example.com",
-      };
+        lastRefreshHostName: "mysql-primary.example.com" };
       mockHttpsResponse(mockMetadata);
 
       const tool = tools.find(
@@ -388,10 +364,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           metadataName: "my_cluster",
-          status: mockMetadata,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          status: mockMetadata },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -399,8 +373,7 @@ describe("Handler Execution", () => {
     it("should fetch connection pool status", async () => {
       const mockPoolStatus = {
         idleServerConnections: 10,
-        stashedServerConnections: 5,
-      };
+        stashedServerConnections: 5 };
       mockHttpsResponse(mockPoolStatus);
 
       const tool = tools.find((t) => t.name === "mysql_router_pool_status");
@@ -414,10 +387,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           poolName: "default",
-          status: mockPoolStatus,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          status: mockPoolStatus },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 });

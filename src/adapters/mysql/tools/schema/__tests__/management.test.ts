@@ -2,14 +2,11 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   createListSchemasTool,
   createCreateSchemaTool,
-  createDropSchemaTool,
-} from "../management.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createDropSchemaTool } from "../management.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 import { setupSchemaTest } from "./setup.js";
 
 describe("Schema Management Tools", () => {
@@ -129,8 +126,7 @@ describe("Schema Management Tools", () => {
           name: "custom_db",
           charset: "latin1",
           collation: "latin1_swedish_ci",
-          ifNotExists: false,
-        },
+          ifNotExists: false },
         mockContext,
       );
 

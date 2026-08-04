@@ -1,11 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { createListConstraintsTool } from "../constraints.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 import { setupSchemaTest } from "./setup.js";
 
 describe("Schema Constraint Tools", () => {
@@ -125,8 +123,7 @@ describe("Schema Constraint Tools", () => {
           {
             name: "fk_orders",
             type: "FOREIGN KEY",
-            referencedTable: "customers",
-          },
+            referencedTable: "customers" },
         ]),
       );
 

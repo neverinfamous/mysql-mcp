@@ -9,14 +9,11 @@ import {
   createSpatialIntersectionTool,
   createSpatialBufferTool,
   createSpatialTransformTool,
-  createSpatialGeoJSONTool,
-} from "../operations.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSpatialGeoJSONTool } from "../operations.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Spatial Operations Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -42,8 +39,7 @@ describe("Spatial Operations Tools", () => {
           {
             intersects: 1,
             intersection_wkt: "POINT(5 5)",
-            intersection_geojson: '{"type":"Point"}',
-          },
+            intersection_geojson: '{"type":"Point"}' },
         ]),
       );
 
@@ -54,8 +50,7 @@ describe("Spatial Operations Tools", () => {
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POINT(5 5)",
-          srid: 0,
-        },
+          srid: 0 },
         mockContext,
       )) as { data: { intersects: boolean; intersectionWkt: string } };
 
@@ -68,8 +63,7 @@ describe("Spatial Operations Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            intersects: 0,
-          },
+            intersects: 0 },
         ]),
       );
 
@@ -80,8 +74,7 @@ describe("Spatial Operations Tools", () => {
         {
           geometry1: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
           geometry2: "POINT(50 50)",
-          srid: 0,
-        },
+          srid: 0 },
         mockContext,
       )) as { data: { intersects: boolean } };
 
@@ -102,8 +95,7 @@ describe("Spatial Operations Tools", () => {
         createMockQueryResult([
           {
             buffer_wkt: "POLYGON(...)",
-            buffer_geojson: '{"type":"Polygon"}',
-          },
+            buffer_geojson: '{"type":"Polygon"}' },
         ]),
       );
 
@@ -113,8 +105,7 @@ describe("Spatial Operations Tools", () => {
       const result = await tool.handler(
         {
           geometry: "POINT(0 0)",
-          distance: 10,
-        },
+          distance: 10 },
         mockContext,
       );
 
@@ -131,8 +122,7 @@ describe("Spatial Operations Tools", () => {
         createMockQueryResult([
           {
             buffer_wkt: "POLYGON(...)",
-            buffer_geojson: '{"type":"Polygon"}',
-          },
+            buffer_geojson: '{"type":"Polygon"}' },
         ]),
       );
 
@@ -144,8 +134,7 @@ describe("Spatial Operations Tools", () => {
           geometry: "POINT(0 0)",
           distance: 100,
           srid: 0,
-          segments: 4,
-        },
+          segments: 4 },
         mockContext,
       );
 
@@ -168,8 +157,7 @@ describe("Spatial Operations Tools", () => {
         createMockQueryResult([
           {
             transformed_wkt: "POINT(1000 2000)",
-            transformed_geojson: '{"type":"Point"}',
-          },
+            transformed_geojson: '{"type":"Point"}' },
         ]),
       );
 
@@ -180,8 +168,7 @@ describe("Spatial Operations Tools", () => {
         {
           geometry: "POINT(10 20)",
           fromSrid: 4326,
-          toSrid: 3857,
-        },
+          toSrid: 3857 },
         mockContext,
       );
 
@@ -211,8 +198,7 @@ describe("Spatial Operations Tools", () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            geoJson: '{"type":"Point","coordinates":[10,20]}',
-          },
+            geoJson: '{"type":"Point","coordinates":[10,20]}' },
         ]),
       );
 
@@ -227,16 +213,14 @@ describe("Spatial Operations Tools", () => {
       expect(mockAdapter.executeReadQuery).toHaveBeenCalled();
       expect(result.data.geoJson).toEqual({
         type: "Point",
-        coordinates: [10, 20],
-      });
+        coordinates: [10, 20] });
     });
 
     it("should convert GeoJSON to WKT", async () => {
       mockAdapter.executeReadQuery.mockResolvedValue(
         createMockQueryResult([
           {
-            wkt: "POINT(10 20)",
-          },
+            wkt: "POINT(10 20)" },
         ]),
       );
 
@@ -261,8 +245,7 @@ describe("Spatial Operations Tools", () => {
         success: false,
         error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
-        ),
-      });
+        ) });
     });
 
     it("should return structured error if both geometry and geoJson provided", async () => {
@@ -272,8 +255,7 @@ describe("Spatial Operations Tools", () => {
       const result = await tool.handler(
         {
           geometry: "POINT(0 0)",
-          geoJson: "{}",
-        },
+          geoJson: "{}" },
         mockContext,
       );
 
@@ -281,8 +263,7 @@ describe("Spatial Operations Tools", () => {
         success: false,
         error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
-        ),
-      });
+        ) });
     });
   });
 });

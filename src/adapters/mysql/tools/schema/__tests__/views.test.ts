@@ -1,11 +1,9 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { createListViewsTool, createCreateViewTool } from "../views.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 import { setupSchemaTest } from "./setup.js";
 
 describe("Schema View Tools", () => {
@@ -55,8 +53,7 @@ describe("Schema View Tools", () => {
       const result = (await tool.handler(
         {
           name: "active_users",
-          definition: "SELECT * FROM users WHERE active = 1",
-        },
+          definition: "SELECT * FROM users WHERE active = 1" },
         mockContext,
       )) as { success: boolean };
 
@@ -75,8 +72,7 @@ describe("Schema View Tools", () => {
         {
           name: "active_users",
           definition: "SELECT * FROM users WHERE active = 1",
-          orReplace: true,
-        },
+          orReplace: true },
         mockContext,
       );
 
@@ -89,8 +85,7 @@ describe("Schema View Tools", () => {
       const result = (await tool.handler(
         {
           name: "invalid-name",
-          definition: "SELECT 1",
-        },
+          definition: "SELECT 1" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -106,8 +101,7 @@ describe("Schema View Tools", () => {
         {
           name: "valid_view",
           definition: "SELECT * FROM t1",
-          checkOption: "CASCADED",
-        },
+          checkOption: "CASCADED" },
         mockContext,
       );
 
@@ -124,8 +118,7 @@ describe("Schema View Tools", () => {
       const result = (await tool.handler(
         {
           name: "my_view",
-          definition: "SELECT 1",
-        },
+          definition: "SELECT 1" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -142,8 +135,7 @@ describe("Schema View Tools", () => {
       const result = (await tool.handler(
         {
           name: "bad_view",
-          definition: "SELECT * FROM nonexistent_table",
-        },
+          definition: "SELECT * FROM nonexistent_table" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -156,8 +148,7 @@ describe("Schema View Tools", () => {
         {
           name: "test_view",
           definition: "SELECT 1",
-          algorithm: "INVALID",
-        },
+          algorithm: "INVALID" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -172,8 +163,7 @@ describe("Schema View Tools", () => {
         {
           name: "test_view",
           definition: "SELECT 1",
-          checkOption: "BAD",
-        },
+          checkOption: "BAD" },
         mockContext,
       )) as { success: boolean; error: string };
 

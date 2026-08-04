@@ -8,14 +8,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSecurityMaskDataTool,
   createSecurityUserPrivilegesTool,
-  createSecuritySensitiveTablesTool,
-} from "../data-protection.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSecuritySensitiveTablesTool } from "../data-protection.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Security Data Protection Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -35,8 +32,7 @@ describe("Security Data Protection Tools", () => {
       const result = (await tool.handler(
         {
           value: "john.doe@example.com",
-          type: "email",
-        },
+          type: "email" },
         mockContext,
       )) as { data: { masked: string } };
 
@@ -50,8 +46,7 @@ describe("Security Data Protection Tools", () => {
       const result = (await tool.handler(
         {
           value: "555-123-4567",
-          type: "phone",
-        },
+          type: "phone" },
         mockContext,
       )) as { data: { masked: string } };
 
@@ -67,8 +62,7 @@ describe("Security Data Protection Tools", () => {
           value: "sensitive data",
           type: "partial",
           keepFirst: 2,
-          keepLast: 2,
-        },
+          keepLast: 2 },
         mockContext,
       )) as { data: { masked: string } };
 
@@ -91,8 +85,7 @@ describe("Security Data Protection Tools", () => {
             Host: "localhost",
             authPlugin: "native",
             accountLocked: "N",
-            passwordExpired: "N",
-          },
+            passwordExpired: "N" },
         ]),
       );
 
@@ -106,8 +99,7 @@ describe("Security Data Protection Tools", () => {
         createMockQueryResult([
           {
             "Grants for john@localhost":
-              "GRANT ALL PRIVILEGES ON *.* TO 'john'@'localhost'",
-          },
+              "GRANT ALL PRIVILEGES ON *.* TO 'john'@'localhost'" },
         ]),
       );
 
@@ -118,8 +110,7 @@ describe("Security Data Protection Tools", () => {
         {
           user: "john",
           includeRoles: true,
-          summary: false,
-        },
+          summary: false },
         mockContext,
       )) as { data: { users: any[] } };
 
@@ -138,14 +129,12 @@ describe("Security Data Protection Tools", () => {
           {
             tableName: "users",
             columnName: "password_hash",
-            dataType: "varchar",
-          },
+            dataType: "varchar" },
           { tableName: "users", columnName: "email", dataType: "varchar" },
           {
             tableName: "payments",
             columnName: "credit_card",
-            dataType: "varchar",
-          },
+            dataType: "varchar" },
         ]),
       );
 
@@ -154,8 +143,7 @@ describe("Security Data Protection Tools", () => {
       );
       const result = (await tool.handler(
         {
-          schema: "test_db",
-        },
+          schema: "test_db" },
         mockContext,
       )) as { data: { sensitiveTables: any[]; totalSensitiveColumns: number } };
 

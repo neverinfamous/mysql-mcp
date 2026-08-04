@@ -7,14 +7,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSpatialPointTool,
-  createSpatialPolygonTool,
-} from "../geometry.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSpatialPolygonTool } from "../geometry.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Spatial Geometry Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -40,8 +37,7 @@ describe("Spatial Geometry Tools", () => {
         createMockQueryResult([
           {
             wkt: "POINT(20 10)",
-            geoJson: '{"type":"Point","coordinates":[10,20]}',
-          },
+            geoJson: '{"type":"Point","coordinates":[10,20]}' },
         ]),
       );
 
@@ -62,8 +58,7 @@ describe("Spatial Geometry Tools", () => {
       expect(result.data.wkt).toBe("POINT(20 10)");
       expect(result.data.geoJson).toEqual({
         type: "Point",
-        coordinates: [10, 20],
-      });
+        coordinates: [10, 20] });
     });
 
     it("should use default SRID 4326", async () => {
@@ -108,8 +103,7 @@ describe("Spatial Geometry Tools", () => {
           {
             wkt: "POLYGON((0 0, 10 0, 10 10, 0 10, 0 0))",
             geoJson: '{"type":"Polygon"}',
-            area: 100,
-          },
+            area: 100 },
         ]),
       );
 

@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getEventTools } from "../events.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getEventTools", () => {
   let tools: ReturnType<typeof getEventTools>;
@@ -76,8 +74,7 @@ describe("Handler Execution", () => {
         {
           name: "cleanup_once",
           schedule: "AT '2024-12-31 23:59:59'",
-          body: "DELETE FROM temp_data",
-        },
+          body: "DELETE FROM temp_data" },
         mockContext,
       );
 
@@ -97,8 +94,7 @@ describe("Handler Execution", () => {
         {
           name: "daily_cleanup",
           schedule: "EVERY 1 DAY",
-          body: "DELETE FROM logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)",
-        },
+          body: "DELETE FROM logs WHERE created_at < DATE_SUB(NOW(), INTERVAL 30 DAY)" },
         mockContext,
       );
 
@@ -116,8 +112,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "cleanup_job",
-          status: "DISABLE",
-        },
+          status: "DISABLE" },
         mockContext,
       );
 
@@ -135,8 +130,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           name: "old_event",
-          newName: "new_event",
-        },
+          newName: "new_event" },
         mockContext,
       );
 
@@ -154,8 +148,7 @@ describe("Handler Execution", () => {
           name: "old_event",
           newName: "new_event",
           body: "SELECT 1",
-          comment: "updated",
-        },
+          comment: "updated" },
         mockContext,
       );
 
@@ -179,8 +172,7 @@ describe("Handler Execution", () => {
       if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
-          name: "old_event",
-        },
+          name: "old_event" },
         mockContext,
       );
 
@@ -203,8 +195,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           name: "maybe_exists",
-          ifExists: true,
-        },
+          ifExists: true },
         mockContext,
       );
 
@@ -221,15 +212,13 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           name: "ghost_event",
-          ifExists: true,
-        },
+          ifExists: true },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: true,
-        data: { skipped: true, reason: "Event did not exist" },
-      });
+        data: { skipped: true, reason: "Event did not exist" } });
       // Should only have the pre-check query, no DROP
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -286,8 +275,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Schema 'nonexistent_db' does not exist",
-        metrics: expect.any(Object),
-      });
+        metrics: expect.any(Object) });
       // Should only have the schema check query, no event list query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -346,8 +334,7 @@ describe("Handler Execution", () => {
 
       expect(result).toMatchObject({
         success: false,
-        error: "Event does not exist",
-      });
+        error: "Event does not exist" });
     });
 
     it("should return exists false for nonexistent schema", async () => {
@@ -363,8 +350,7 @@ describe("Handler Execution", () => {
       expect(result).toMatchObject({
         success: false,
         error: "Schema 'nonexistent_db' does not exist",
-        metrics: expect.any(Object),
-      });
+        metrics: expect.any(Object) });
       // Should only have the schema check query, no event status query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -413,8 +399,7 @@ describe("Event Create Advanced", () => {
         name: "my_event",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "DELETE FROM temp",
-        ifNotExists: true,
-      },
+        ifNotExists: true },
       mockContext,
     );
 
@@ -435,15 +420,13 @@ describe("Event Create Advanced", () => {
         name: "my_event",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "DELETE FROM temp",
-        ifNotExists: true,
-      },
+        ifNotExists: true },
       mockContext,
     );
 
     expect(result).toMatchObject({
         success: true,
-        data: { skipped: true, reason: "Event already exists" },
-      });
+        data: { skipped: true, reason: "Event already exists" } });
     // Should only have the pre-check query, no CREATE
     expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
   });
@@ -458,8 +441,7 @@ describe("Event Create Advanced", () => {
         name: "recurring_event",
         schedule:
           "EVERY 1 HOUR STARTS '2024-01-01 00:00:00' ENDS '2024-12-31 23:59:59'",
-        body: "CALL cleanup_proc()",
-      },
+        body: "CALL cleanup_proc()" },
       mockContext,
     );
 
@@ -478,8 +460,7 @@ describe("Event Create Advanced", () => {
         name: "commented_event",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
-        comment: "This is a test event",
-      },
+        comment: "This is a test event" },
       mockContext,
     );
 
@@ -498,8 +479,7 @@ describe("Event Create Advanced", () => {
         name: "disabled_event",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
         body: "SELECT 1",
-        status: "DISABLE",
-      },
+        status: "DISABLE" },
       mockContext,
     );
 
@@ -515,15 +495,13 @@ describe("Event Create Advanced", () => {
       {
         name: "invalid`name",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
-        body: "SELECT 1",
-      },
+        body: "SELECT 1" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "Invalid event name",
-    });
+      error: "Invalid event name" });
   });
 });
 
@@ -547,8 +525,7 @@ describe("Event Alter Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
-      },
+        schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'" },
       mockContext,
     );
 
@@ -565,8 +542,7 @@ describe("Event Alter Advanced", () => {
       {
         name: "my_event",
         schedule:
-          "EVERY 2 HOUR STARTS '2024-01-01 00:00:00' ENDS '2024-12-31 23:59:59'",
-      },
+          "EVERY 2 HOUR STARTS '2024-01-01 00:00:00' ENDS '2024-12-31 23:59:59'" },
       mockContext,
     );
 
@@ -584,8 +560,7 @@ describe("Event Alter Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        body: "CALL new_procedure()",
-      },
+        body: "CALL new_procedure()" },
       mockContext,
     );
 
@@ -601,8 +576,7 @@ describe("Event Alter Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        onCompletion: "PRESERVE",
-      },
+        onCompletion: "PRESERVE" },
       mockContext,
     );
 
@@ -618,8 +592,7 @@ describe("Event Alter Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        comment: "Updated comment",
-      },
+        comment: "Updated comment" },
       mockContext,
     );
 
@@ -634,15 +607,13 @@ describe("Event Alter Advanced", () => {
     const result = await tool.handler(
       {
         name: "invalid`name",
-        status: "ENABLE",
-      },
+        status: "ENABLE" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "Invalid event name",
-    });
+      error: "Invalid event name" });
   });
 
   it("should return structured error for invalid new event name", async () => {
@@ -652,15 +623,13 @@ describe("Event Alter Advanced", () => {
     const result = await tool.handler(
       {
         name: "valid_name",
-        newName: "invalid`name",
-      },
+        newName: "invalid`name" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "Invalid new event name",
-    });
+      error: "Invalid new event name" });
   });
 
   it("should return structured error when no modifications specified", async () => {
@@ -669,15 +638,13 @@ describe("Event Alter Advanced", () => {
 
     const result = await tool.handler(
       {
-        name: "my_event",
-      },
+        name: "my_event" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "No modifications specified",
-    });
+      error: "No modifications specified" });
   });
 });
 
@@ -699,15 +666,13 @@ describe("Event Drop Advanced", () => {
 
     const result = await tool.handler(
       {
-        name: "invalid`name",
-      },
+        name: "invalid`name" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "Invalid event name",
-    });
+      error: "Invalid event name" });
   });
 
   it("should drop without IF EXISTS when ifExists is false", async () => {
@@ -718,8 +683,7 @@ describe("Event Drop Advanced", () => {
     await tool.handler(
       {
         name: "my_event",
-        ifExists: false,
-      },
+        ifExists: false },
       mockContext,
     );
 
@@ -752,15 +716,13 @@ describe("Event Graceful Error Handling", () => {
       {
         name: "my_event",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
-        body: "SELECT 1",
-      },
+        body: "SELECT 1" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "Event already exists",
-    });
+      error: "Event already exists" });
   });
 
   it("should return success false when altering nonexistent event", async () => {
@@ -774,15 +736,13 @@ describe("Event Graceful Error Handling", () => {
     const result = await tool.handler(
       {
         name: "ghost_event",
-        status: "ENABLE",
-      },
+        status: "ENABLE" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "Event does not exist",
-    });
+      error: "Event does not exist" });
   });
 
   it("should return success false when dropping nonexistent event without ifExists", async () => {
@@ -796,15 +756,13 @@ describe("Event Graceful Error Handling", () => {
     const result = await tool.handler(
       {
         name: "ghost_event",
-        ifExists: false,
-      },
+        ifExists: false },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "Event does not exist",
-    });
+      error: "Event does not exist" });
   });
 
   it("should return structured error for unexpected errors from create", async () => {
@@ -816,8 +774,7 @@ describe("Event Graceful Error Handling", () => {
       {
         name: "my_event",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
-        body: "SELECT 1",
-      },
+        body: "SELECT 1" },
       mockContext,
     );
 
@@ -837,15 +794,13 @@ describe("Event Graceful Error Handling", () => {
       {
         name: "my_event",
         schedule: "AT '" + "2024-12-31 23:59:59".replace(/"/g, "") + "'",
-        body: "SELECTT * FROMM",
-      },
+        body: "SELECTT * FROMM" },
       mockContext,
     );
 
     expect(result).toMatchObject({
       success: false,
-      error: "You have an error in your SQL syntax",
-    });
+      error: "You have an error in your SQL syntax" });
   });
 
   it("should return structured error when event_list query fails", async () => {
@@ -859,8 +814,7 @@ describe("Event Graceful Error Handling", () => {
 
     expect(result).toMatchObject({
       success: false,
-      error: "Connection lost during query",
-    });
+      error: "Connection lost during query" });
   });
 
   it("should return structured error when event_status query fails", async () => {
@@ -874,8 +828,7 @@ describe("Event Graceful Error Handling", () => {
 
     expect(result).toMatchObject({
       success: false,
-      error: "Connection lost during query",
-    });
+      error: "Connection lost during query" });
   });
 
   it("should return structured error when scheduler_status query fails", async () => {
@@ -889,7 +842,6 @@ describe("Event Graceful Error Handling", () => {
 
     expect(result).toMatchObject({
       success: false,
-      error: "Connection lost during query",
-    });
+      error: "Connection lost during query" });
   });
 });

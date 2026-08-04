@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getStatsTools } from "../stats/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getStatsTools", () => {
   let tools: ReturnType<typeof getStatsTools>;
@@ -89,8 +87,7 @@ describe("Handler Execution", () => {
             range: 99,
             stddev: 10,
             variance: 100,
-            sum: 5050,
-          },
+            sum: 5050 },
         ]);
       });
 
@@ -200,8 +197,7 @@ describe("Handler Execution", () => {
         {
           table: "orders",
           column: "total",
-          percentiles: [10, 50, 90, 99],
-        },
+          percentiles: [10, 50, 90, 99] },
         mockContext,
       );
 
@@ -231,8 +227,7 @@ describe("Handler Execution", () => {
               mean_x: 50,
               mean_y: 60,
               std_x: 10,
-              std_y: 12,
-            },
+              std_y: 12 },
           ]);
         },
       );
@@ -243,8 +238,7 @@ describe("Handler Execution", () => {
         {
           table: "data",
           column1: "height",
-          column2: "weight",
-        },
+          column2: "weight" },
         mockContext,
       );
 
@@ -278,8 +272,7 @@ describe("Handler Execution", () => {
         {
           table: "orders",
           column: "amount",
-          buckets: 10,
-        },
+          buckets: 10 },
         mockContext,
       );
 
@@ -307,8 +300,7 @@ describe("Handler Execution", () => {
           table: "sales",
           timeColumn: "sale_date",
           valueColumn: "amount",
-          interval: "month",
-        },
+          interval: "month" },
         mockContext,
       );
 
@@ -341,8 +333,7 @@ describe("Handler Execution", () => {
               sum_y: 6000,
               sum_xy: 310000,
               sum_x2: 260000,
-              sum_y2: 370000,
-            },
+              sum_y2: 370000 },
           ]);
         },
       );
@@ -353,8 +344,7 @@ describe("Handler Execution", () => {
         {
           table: "data",
           xColumn: "x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       );
 
@@ -375,8 +365,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           table: "users",
-          sampleSize: 100,
-        },
+          sampleSize: 100 },
         mockContext,
       );
 
@@ -395,8 +384,7 @@ describe("Handler Execution", () => {
         {
           table: "users",
           sampleSize: 10,
-          columns: ["id", "name"],
-        },
+          columns: ["id", "name"] },
         mockContext,
       );
 
@@ -415,8 +403,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           table: "orders",
-          column: "total",
-        },
+          column: "total" },
         mockContext,
       );
 
@@ -436,8 +423,7 @@ describe("Handler Execution", () => {
           table: "orders",
           column: "total",
           update: true,
-          buckets: 32,
-        },
+          buckets: 32 },
         mockContext,
       );
 
@@ -479,8 +465,7 @@ describe("Handler Execution", () => {
             schemaName: "test",
             tableName: "orders",
             columnName: "total",
-            histogramType: "singleton",
-          },
+            histogramType: "singleton" },
         ]),
       );
 
@@ -489,8 +474,7 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "total",
-        },
+          column: "total" },
         mockContext,
       )) as { data: { exists: boolean } };
 
@@ -518,8 +502,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "123-invalid",
-          column: "total",
-        },
+          column: "total" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -533,8 +516,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "123-bad",
-        },
+          column: "123-bad" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -550,8 +532,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "123-invalid",
-          column: "amount",
-        },
+          column: "amount" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -565,8 +546,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "bad-col",
-        },
+          column: "bad-col" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -587,8 +567,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "empty_table",
-          column: "value",
-        },
+          column: "value" },
         mockContext,
       )) as { data: { totalCount: number } };
 
@@ -604,8 +583,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "123-bad",
           column1: "x",
-          column2: "y",
-        },
+          column2: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -620,8 +598,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "data",
           column1: "bad-col",
-          column2: "y",
-        },
+          column2: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -637,8 +614,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "123-bad",
-          column: "amount",
-        },
+          column: "amount" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -652,8 +628,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "bad-col",
-        },
+          column: "bad-col" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -682,8 +657,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "constant",
-          column: "val",
-        },
+          column: "val" },
         mockContext,
       )) as { data: { bucketCount: number } };
 
@@ -699,8 +673,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "123-bad",
           valueColumn: "amount",
-          timeColumn: "created_at",
-        },
+          timeColumn: "created_at" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -715,8 +688,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "sales",
           valueColumn: "bad-col",
-          timeColumn: "created_at",
-        },
+          timeColumn: "created_at" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -743,8 +715,7 @@ describe("Stats Validation Errors", () => {
           table: "metrics",
           valueColumn: "value",
           timeColumn: "ts",
-          interval: "minute",
-        },
+          interval: "minute" },
         mockContext,
       );
 
@@ -761,8 +732,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "123-bad",
           xColumn: "x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -777,8 +747,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "data",
           xColumn: "bad-x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -804,8 +773,7 @@ describe("Stats Validation Errors", () => {
             {
               n: 1,
               sum_x: 1,
-              sum_y: 1,
-            },
+              sum_y: 1 },
           ]);
         },
       );
@@ -816,8 +784,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "small_data",
           xColumn: "x",
-          yColumn: "y",
-        },
+          yColumn: "y" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -833,8 +800,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "123-bad",
-          sampleSize: 10,
-        },
+          sampleSize: 10 },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -849,8 +815,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "users",
           sampleSize: 10,
-          columns: ["valid", "bad-column"],
-        },
+          columns: ["valid", "bad-column"] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -867,8 +832,7 @@ describe("Stats Validation Errors", () => {
         {
           table: "users",
           sampleSize: 10,
-          seed: 42,
-        },
+          seed: 42 },
         mockContext,
       );
 
@@ -884,8 +848,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "123-bad",
-          column: "amount",
-        },
+          column: "amount" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -899,8 +862,7 @@ describe("Stats Validation Errors", () => {
       const result = (await tool.handler(
         {
           table: "orders",
-          column: "bad-col",
-        },
+          column: "bad-col" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -991,8 +953,7 @@ describe("Stats Nonexistent Table Handling", () => {
       {
         table: "nonexistent",
         valueColumn: "val",
-        timeColumn: "ts",
-      },
+        timeColumn: "ts" },
       mockContext,
     )) as { success: boolean; error: string };
 
@@ -1088,8 +1049,7 @@ describe("Stats Zod Validation Guards", () => {
         table: "sales",
         valueColumn: "amount",
         timeColumn: "created_at",
-        interval: "invalid_interval",
-      },
+        interval: "invalid_interval" },
       mockContext,
     )) as { success: boolean; error: string };
 
@@ -1106,8 +1066,7 @@ describe("Stats Zod Validation Guards", () => {
         table: "sales",
         valueColumn: "amount",
         timeColumn: "created_at",
-        aggregation: "invalid_agg",
-      },
+        aggregation: "invalid_agg" },
       mockContext,
     )) as { success: boolean; error: string };
 
@@ -1122,8 +1081,7 @@ describe("Stats Zod Validation Guards", () => {
     const result = (await tool.handler(
       {
         table: "users",
-        sampleSize: -1,
-      },
+        sampleSize: -1 },
       mockContext,
     )) as { success: boolean; error: string };
 

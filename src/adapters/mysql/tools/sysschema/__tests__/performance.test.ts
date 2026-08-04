@@ -8,14 +8,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSysStatementSummaryTool,
   createSysWaitSummaryTool,
-  createSysIOSummaryTool,
-} from "../performance.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSysIOSummaryTool } from "../performance.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Sys Schema Performance Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -40,8 +37,7 @@ describe("Sys Schema Performance Tools", () => {
         createMockQueryResult([
           {
             query: "SELECT 1",
-            exec_count: 10,
-          },
+            exec_count: 10 },
         ]),
       );
 

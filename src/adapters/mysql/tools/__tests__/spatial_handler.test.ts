@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getSpatialTools } from "../spatial/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("Spatial Tools Handlers", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -28,15 +26,13 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           table: "invalid table",
-          column: "geom",
-        },
+          column: "geom" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("Invalid table name"),
-      });
+        error: expect.stringContaining("Invalid table name") });
     });
 
     it("should return structured error for invalid column name", async () => {
@@ -45,15 +41,13 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           table: "users",
-          column: "invalid-column",
-        },
+          column: "invalid-column" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid column name",
-      });
+        error: "Invalid column name" });
     });
 
     it("should execute ALTER TABLE with correct types", async () => {
@@ -66,8 +60,7 @@ describe("Spatial Tools Handlers", () => {
           column: "location",
           type: "POINT",
           srid: 4326,
-          nullable: false,
-        },
+          nullable: false },
         mockContext,
       );
 
@@ -87,15 +80,13 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "users",
           column: "location",
-          indexName: "bad-index",
-        },
+          indexName: "bad-index" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Invalid index name",
-      });
+        error: "Invalid index name" });
     });
 
     it("should generate default index name if not provided", async () => {
@@ -111,8 +102,7 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           table: "users",
-          column: "location",
-        },
+          column: "location" },
         mockContext,
       );
 
@@ -144,16 +134,14 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           table: "locations",
-          column: "geom",
-        },
+          column: "geom" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
         error:
-          "Spatial index 'idx_existing_geom' already exists on column 'geom' of table 'locations'",
-      });
+          "Spatial index 'idx_existing_geom' already exists on column 'geom' of table 'locations'" });
       // Should have called: 1) column check, 2) existing index check — NOT the CREATE
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
     });
@@ -171,8 +159,7 @@ describe("Spatial Tools Handlers", () => {
           table: "places",
           spatialColumn: "geom",
           point: { longitude: 10, latitude: 20 },
-          maxDistance: 1000,
-        },
+          maxDistance: 1000 },
         mockContext,
       );
 
@@ -192,8 +179,7 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "places",
           spatialColumn: "geom",
-          point: { longitude: 10, latitude: 20 },
-        },
+          point: { longitude: 10, latitude: 20 } },
         mockContext,
       );
 
@@ -215,16 +201,14 @@ describe("Spatial Tools Handlers", () => {
 
       const result = await tool.handler(
         {
-          geometry: "POINT(1 1)",
-        },
+          geometry: "POINT(1 1)" },
         mockContext,
       );
 
       expect((result as Record<string, unknown>).data.conversion).toBe("WKT to GeoJSON");
       expect((result as Record<string, unknown>).data.geoJson).toEqual({
         type: "Point",
-        coordinates: [1, 1],
-      });
+        coordinates: [1, 1] });
     });
 
     it("should convert GeoJSON to WKT", async () => {
@@ -235,8 +219,7 @@ describe("Spatial Tools Handlers", () => {
 
       const result = await tool.handler(
         {
-          geoJson: '{"type":"Point","coordinates":[1,1]}',
-        },
+          geoJson: '{"type":"Point","coordinates":[1,1]}' },
         mockContext,
       );
 
@@ -251,8 +234,7 @@ describe("Spatial Tools Handlers", () => {
         success: false,
         error: expect.stringContaining(
           "Either geometry or geoJson must be provided",
-        ),
-      });
+        ) });
     });
   });
 
@@ -265,15 +247,13 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "nonexistent",
           spatialColumn: "geom",
-          point: { longitude: 10, latitude: 20 },
-        },
+          point: { longitude: 10, latitude: 20 } },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("does not exist"),
-      });
+        error: expect.stringContaining("does not exist") });
     });
 
     it("should return { exists: false } for nonexistent table (distance_sphere)", async () => {
@@ -284,15 +264,13 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "nonexistent",
           spatialColumn: "geom",
-          point: { longitude: 10, latitude: 20 },
-        },
+          point: { longitude: 10, latitude: 20 } },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("does not exist"),
-      });
+        error: expect.stringContaining("does not exist") });
     });
 
     it("should return { exists: false } for nonexistent table (contains)", async () => {
@@ -303,15 +281,13 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "nonexistent",
           spatialColumn: "geom",
-          polygon: "POLYGON((0 0,1 0,1 1,0 1,0 0))",
-        },
+          polygon: "POLYGON((0 0,1 0,1 1,0 1,0 0))" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("does not exist"),
-      });
+        error: expect.stringContaining("does not exist") });
     });
 
     it("should return { exists: false } for nonexistent table (within)", async () => {
@@ -322,15 +298,13 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "nonexistent",
           spatialColumn: "geom",
-          geometry: "POLYGON((0 0,1 0,1 1,0 1,0 0))",
-        },
+          geometry: "POLYGON((0 0,1 0,1 1,0 1,0 0))" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("does not exist"),
-      });
+        error: expect.stringContaining("does not exist") });
     });
 
     it("should return { exists: false } for nonexistent table (create_column)", async () => {
@@ -341,15 +315,13 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "nonexistent",
           column: "geom",
-          type: "point",
-        },
+          type: "point" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
-      });
+        error: "Table 'nonexistent' does not exist" });
     });
 
     it("should return { exists: false } for nonexistent table (create_index)", async () => {
@@ -359,15 +331,13 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           table: "nonexistent",
-          column: "geom",
-        },
+          column: "geom" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Table 'nonexistent' does not exist",
-      });
+        error: "Table 'nonexistent' does not exist" });
     });
 
     it("should return { success: false } for MySQL error (distance)", async () => {
@@ -378,15 +348,13 @@ describe("Spatial Tools Handlers", () => {
         {
           table: "places",
           spatialColumn: "bad_col",
-          point: { longitude: 10, latitude: 20 },
-        },
+          point: { longitude: 10, latitude: 20 } },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Column 'bad_col' not found",
-      });
+        error: "Column 'bad_col' not found" });
     });
 
     it("should return { success: false } for invalid WKT (intersection)", async () => {
@@ -398,15 +366,13 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           geometry1: "INVALID_WKT",
-          geometry2: "POINT(0 0)",
-        },
+          geometry2: "POINT(0 0)" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("Validation error: both geometries must be valid WKT strings"),
-      });
+        error: expect.stringContaining("Validation error: both geometries must be valid WKT strings") });
     });
 
     it("should return { success: false } for invalid WKT (buffer)", async () => {
@@ -418,15 +384,13 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           geometry: "INVALID_WKT",
-          distance: 100,
-        },
+          distance: 100 },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: expect.stringContaining("Validation error: geometry must be a valid WKT string"),
-      });
+        error: expect.stringContaining("Validation error: geometry must be a valid WKT string") });
     });
 
     it("should return { success: false } for invalid SRID (transform)", async () => {
@@ -437,15 +401,13 @@ describe("Spatial Tools Handlers", () => {
         {
           geometry: "POINT(0 0)",
           fromSrid: 4326,
-          toSrid: 99999,
-        },
+          toSrid: 99999 },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "There's no spatial reference system with SRID 99999",
-      });
+        error: "There's no spatial reference system with SRID 99999" });
     });
 
     it("should return { success: false } for invalid WKT (geojson)", async () => {
@@ -456,15 +418,13 @@ describe("Spatial Tools Handlers", () => {
 
       const result = await tool.handler(
         {
-          geometry: "INVALID_WKT",
-        },
+          geometry: "INVALID_WKT" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Validation error: Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object",
-      });
+        error: "Validation error: Provided geometry must be a valid WKT string, or geoJson must be a valid GeoJSON object" });
     });
 
     it("should return { success: false } for invalid coordinates (point)", async () => {
@@ -476,15 +436,13 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           longitude: 0,
-          latitude: 999,
-        },
+          latitude: 999 },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Validation error: latitude must be between -90 and 90 degrees for SRID 4326",
-      });
+        error: "Validation error: latitude must be between -90 and 90 degrees for SRID 4326" });
     });
 
     it("should return { success: false, error } for duplicate column (create_column)", async () => {
@@ -496,15 +454,13 @@ describe("Spatial Tools Handlers", () => {
       const result = await tool.handler(
         {
           table: "users",
-          column: "location",
-        },
+          column: "location" },
         mockContext,
       );
 
       expect(result).toMatchObject({
         success: false,
-        error: "Column 'location' already exists on table 'users'",
-      });
+        error: "Column 'location' already exists on table 'users'" });
     });
 
     it("should include segmentsApplied: false for geographic SRID (buffer)", async () => {
@@ -514,8 +470,7 @@ describe("Spatial Tools Handlers", () => {
           {
             buffer_wkt: "POLYGON((0 0,1 0,1 1,0 1,0 0))",
             buffer_geojson:
-              '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}',
-          },
+              '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}' },
         ]),
       );
 
@@ -524,8 +479,7 @@ describe("Spatial Tools Handlers", () => {
           geometry: "POINT(0 0)",
           distance: 100,
           srid: 4326,
-          segments: 4,
-        },
+          segments: 4 },
         mockContext,
       );
 
@@ -540,8 +494,7 @@ describe("Spatial Tools Handlers", () => {
           {
             buffer_wkt: "POLYGON((0 0,1 0,1 1,0 1,0 0))",
             buffer_geojson:
-              '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}',
-          },
+              '{"type":"Polygon","coordinates":[[[0,0],[1,0],[1,1],[0,1],[0,0]]]}' },
         ]),
       );
 
@@ -550,8 +503,7 @@ describe("Spatial Tools Handlers", () => {
           geometry: "POINT(0 0)",
           distance: 100,
           srid: 0,
-          segments: 4,
-        },
+          segments: 4 },
         mockContext,
       );
 

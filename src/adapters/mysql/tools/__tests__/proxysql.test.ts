@@ -7,11 +7,9 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { getProxySQLTools } from "../proxysql/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 
 // Mock mysql2/promise for ProxySQL connection testing
 const mockQuery = vi.fn();
@@ -20,9 +18,7 @@ const mockCreateConnection = vi.fn();
 
 vi.mock("mysql2/promise", () => ({
   default: {
-    createConnection: (...args: unknown[]) => mockCreateConnection(...args),
-  },
-}));
+    createConnection: (...args: unknown[]) => mockCreateConnection(...args) } }));
 
 describe("getProxySQLTools", () => {
   let tools: ReturnType<typeof getProxySQLTools>;
@@ -131,8 +127,7 @@ describe("Handler Execution", () => {
     // Setup mock connection
     mockCreateConnection.mockResolvedValue({
       query: mockQuery,
-      end: mockEnd,
-    });
+      end: mockEnd });
   });
 
   afterEach(() => {
@@ -169,10 +164,8 @@ describe("Handler Execution", () => {
           version: "3.0.3",
           uptime: "12345",
           stats: mockStats,
-          totalVarsAvailable: 3,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          totalVarsAvailable: 3 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -215,12 +208,10 @@ describe("Handler Execution", () => {
             { variable_name: "admin-read_only", variable_value: "false" },
             {
               variable_name: "admin-admin_credentials",
-              variable_value: "admin:admin",
-            },
+              variable_value: "admin:admin" },
             {
               variable_name: "admin-cluster_password",
-              variable_value: "secret123",
-            },
+              variable_value: "secret123" },
           ],
         ]);
 
@@ -255,20 +246,16 @@ describe("Handler Execution", () => {
         { variable_name: "admin-restapi_enabled", variable_value: "true" },
         {
           variable_name: "admin-admin_credentials",
-          variable_value: "admin:admin",
-        },
+          variable_value: "admin:admin" },
         {
           variable_name: "admin-cluster_password",
-          variable_value: "secret",
-        },
+          variable_value: "secret" },
         {
           variable_name: "admin-hash_passwords",
-          variable_value: "true",
-        },
+          variable_value: "true" },
         {
           variable_name: "admin-refresh_interval",
-          variable_value: "2000",
-        },
+          variable_value: "2000" },
       ];
       mockQuery
         .mockResolvedValueOnce([[{ variable_value: "3.0.3" }]])
@@ -319,10 +306,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           servers: mockServers,
-          count: 2,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          count: 2 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should filter by hostgroup_id when provided", async () => {
@@ -402,8 +387,7 @@ describe("Handler Execution", () => {
           digest: "abc123",
           digest_text: "SELECT ?",
           count_star: 1000,
-          sum_time: 5000,
-        },
+          sum_time: 5000 },
       ];
       mockQuery.mockResolvedValue([mockDigests]);
 
@@ -577,16 +561,13 @@ describe("Handler Execution", () => {
         { variable_name: "mysql-threads", variable_value: "4" },
         {
           variable_name: "admin-admin_credentials",
-          variable_value: "admin:admin",
-        },
+          variable_value: "admin:admin" },
         {
           variable_name: "mysql-monitor_password",
-          variable_value: "monpass",
-        },
+          variable_value: "monpass" },
         {
           variable_name: "admin-stats_credentials",
-          variable_value: "stats:stats",
-        },
+          variable_value: "stats:stats" },
       ];
       mockQuery
         .mockResolvedValueOnce([[{ cnt: 4 }]])
@@ -665,10 +646,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           memoryStats: mockMemory,
-          count: 1,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          count: 1 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -688,10 +667,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           command: "LOAD MYSQL USERS TO RUNTIME",
-          message: "Command executed: LOAD MYSQL USERS TO RUNTIME",
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          message: "Command executed: LOAD MYSQL USERS TO RUNTIME" },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -713,10 +690,8 @@ describe("Handler Execution", () => {
         success: true,
         data: {
           processes: mockProcesses,
-          count: 1,
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          count: 1 },
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 });
@@ -750,8 +725,7 @@ describe("Connection Error Handling", () => {
   it("should return structured error on query failure", async () => {
     mockCreateConnection.mockResolvedValue({
       query: vi.fn().mockRejectedValue(new Error("Access denied")),
-      end: mockEnd,
-    });
+      end: mockEnd });
 
     const tool = tools.find((t) => t.name === "proxysql_status");
       if (!tool) throw new Error('Tool not found');;
@@ -779,8 +753,7 @@ describe("Crash Tests (all 12 handlers)", () => {
     // All tools will fail on query
     mockCreateConnection.mockResolvedValue({
       query: vi.fn().mockRejectedValue(new Error("ProxySQL unavailable")),
-      end: mockEnd,
-    });
+      end: mockEnd });
   });
 
   const toolNames = [

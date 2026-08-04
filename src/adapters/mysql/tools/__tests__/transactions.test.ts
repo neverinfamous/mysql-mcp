@@ -6,11 +6,9 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getTransactionTools } from "../transactions.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapterWithTransaction,
-  createMockRequestContext,
-} from "../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../__tests__/mocks/index.js";
 
 describe("getTransactionTools", () => {
   let tools: ReturnType<typeof getTransactionTools>;
@@ -221,8 +219,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -243,8 +240,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "invalid-name",
-        },
+          savepoint: "invalid-name" },
         mockContext,
       );
 
@@ -263,8 +259,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "nonexistent",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -282,8 +277,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -301,8 +295,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "123invalid",
-        },
+          savepoint: "123invalid" },
         mockContext,
       );
 
@@ -321,8 +314,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "gone",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -341,8 +333,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "checkpoint",
-        },
+          savepoint: "checkpoint" },
         mockContext,
       );
 
@@ -364,8 +355,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "txn-123",
-          savepoint: "DROP TABLE users; --",
-        },
+          savepoint: "DROP TABLE users; --" },
         mockContext,
       );
 
@@ -385,8 +375,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           transactionId: "missing",
-          savepoint: "sp1",
-        },
+          savepoint: "sp1" },
         mockContext,
       );
 
@@ -421,8 +410,7 @@ describe("Handler Execution", () => {
           statements: [
             "INSERT INTO users VALUES (1)",
             "INSERT INTO logs VALUES (1)",
-          ],
-        },
+          ] },
         mockContext,
       );
 
@@ -453,8 +441,7 @@ describe("Handler Execution", () => {
       if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
         {
-          statements: ["SELECT * FROM users", "INSERT INTO logs VALUES (1)"],
-        },
+          statements: ["SELECT * FROM users", "INSERT INTO logs VALUES (1)"] },
         mockContext,
       );
 
@@ -491,8 +478,7 @@ describe("Handler Execution", () => {
 
       const result = await tool.handler(
         {
-          statements: ["INSERT INTO users VALUES (1)", "INSERT INTO invalid"],
-        },
+          statements: ["INSERT INTO users VALUES (1)", "INSERT INTO invalid"] },
         mockContext,
       );
 
@@ -514,8 +500,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           statements: ["SELECT 1"],
-          isolationLevel: "READ COMMITTED",
-        },
+          isolationLevel: "READ COMMITTED" },
         mockContext,
       );
 

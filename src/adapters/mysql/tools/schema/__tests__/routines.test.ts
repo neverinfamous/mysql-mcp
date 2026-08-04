@@ -1,14 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import {
   createListStoredProceduresTool,
-  createListFunctionsTool,
-} from "../routines.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createListFunctionsTool } from "../routines.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 import { setupSchemaTest } from "./setup.js";
 
 describe("Schema Routine Tools", () => {

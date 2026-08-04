@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getDocStoreTools } from "../docstore/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getDocStoreTools", () => {
   let tools: ReturnType<typeof getDocStoreTools>;
@@ -124,8 +122,7 @@ describe("Handler Execution", () => {
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -155,8 +152,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should add validation when specified", async () => {
@@ -167,8 +163,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           name: "validated_docs",
-          validation: { level: "STRICT", schema: { type: "object" } },
-        },
+          validation: { level: "STRICT", schema: { type: "object" } } },
         mockContext,
       );
 
@@ -221,10 +216,8 @@ describe("Handler Execution", () => {
         data: {
           skipped: true,
           collection: "my_collection",
-          reason: "Collection already exists",
-        },
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+          reason: "Collection already exists" },
+        metrics: { tokenEstimate: expect.any(Number) } });
       // Should NOT have called CREATE TABLE
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -342,8 +335,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful error when collection does not exist", async () => {
@@ -381,8 +373,7 @@ describe("Handler Execution", () => {
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -398,8 +389,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "users",
-          filter: "$.age",
-        },
+          filter: "$.age" },
         mockContext,
       );
 
@@ -421,8 +411,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "users",
-          filter: "$') IS NOT NULL OR 1=1 -- ",
-        },
+          filter: "$') IS NOT NULL OR 1=1 -- " },
         mockContext,
       );
 
@@ -442,8 +431,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "users",
-          filter: "$.age > 20",
-        },
+          filter: "$.age > 20" },
         mockContext,
       );
 
@@ -483,8 +471,7 @@ describe("Handler Execution", () => {
         error: "Table 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should handle pre-parsed JSON documents", async () => {
@@ -529,8 +516,7 @@ describe("Handler Execution", () => {
       await tool.handler(
         {
           collection: "users",
-          fields: ["name", "email"],
-        },
+          fields: ["name", "email"] },
         mockContext,
       );
 
@@ -554,8 +540,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -573,8 +558,7 @@ describe("Handler Execution", () => {
         error: "Table 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
 
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
@@ -595,8 +579,7 @@ describe("Handler Execution", () => {
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 
@@ -613,8 +596,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "users",
-          documents: [{ name: "test" }],
-        },
+          documents: [{ name: "test" }] },
         mockContext,
       );
 
@@ -632,8 +614,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "users",
-          documents: [{ name: "user1" }, { name: "user2" }, { name: "user3" }],
-        },
+          documents: [{ name: "user1" }, { name: "user2" }, { name: "user3" }] },
         mockContext,
       );
 
@@ -647,8 +628,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "invalid-name",
-          documents: [{ name: "test" }],
-        },
+          documents: [{ name: "test" }] },
         mockContext,
       );
       expect(result).toMatchObject({
@@ -656,8 +636,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -668,8 +647,7 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         {
           collection: "nonexistent",
-          documents: [{ name: "test" }],
-        },
+          documents: [{ name: "test" }] },
         mockContext,
       )) as { success: boolean; error: string; code: string; category: string };
 
@@ -678,8 +656,7 @@ describe("Handler Execution", () => {
         error: "Table 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -692,8 +669,7 @@ describe("Handler Execution", () => {
         {
           collection: "users",
           schema: "nonexistent_schema",
-          documents: [{ name: "test" }],
-        },
+          documents: [{ name: "test" }] },
         mockContext,
       );
 
@@ -703,8 +679,7 @@ describe("Handler Execution", () => {
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -717,8 +692,7 @@ describe("Handler Execution", () => {
         {
           collection: "my_coll",
           schema: "otherdb",
-          documents: [{ name: "test" }],
-        },
+          documents: [{ name: "test" }] },
         mockContext,
       );
 
@@ -739,8 +713,7 @@ describe("Handler Execution", () => {
         {
           collection: "users",
           filter: "$.active",
-          set: { status: "updated" },
-        },
+          set: { status: "updated" } },
         mockContext,
       );
 
@@ -760,8 +733,7 @@ describe("Handler Execution", () => {
         {
           collection: "users",
           filter: "$.deprecated",
-          unset: ["oldField"],
-        },
+          unset: ["oldField"] },
         mockContext,
       );
 
@@ -780,8 +752,7 @@ describe("Handler Execution", () => {
           collection: "users",
           filter: "$.id",
           set: { status: "active" },
-          unset: ["temp"],
-        },
+          unset: ["temp"] },
         mockContext,
       );
 
@@ -802,8 +773,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "users",
-          filter: "$.active",
-        },
+          filter: "$.active" },
         mockContext,
       );
       expect(result).toMatchObject({
@@ -811,8 +781,7 @@ describe("Handler Execution", () => {
         error: "No modifications specified",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should reject invalid collection names", async () => {
@@ -822,8 +791,7 @@ describe("Handler Execution", () => {
         {
           collection: "invalid-name",
           filter: "$.id",
-          set: { a: 1 },
-        },
+          set: { a: 1 } },
         mockContext,
       );
       expect(result).toMatchObject({
@@ -831,8 +799,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -844,8 +811,7 @@ describe("Handler Execution", () => {
         {
           collection: "nonexistent",
           filter: "$.name",
-          set: { status: "active" },
-        },
+          set: { status: "active" } },
         mockContext,
       )) as { success: boolean; error: string; code: string; category: string };
 
@@ -854,8 +820,7 @@ describe("Handler Execution", () => {
         error: "Table 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -869,8 +834,7 @@ describe("Handler Execution", () => {
           collection: "users",
           schema: "nonexistent_schema",
           filter: "$.name",
-          set: { status: "active" },
-        },
+          set: { status: "active" } },
         mockContext,
       );
 
@@ -880,8 +844,7 @@ describe("Handler Execution", () => {
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -895,8 +858,7 @@ describe("Handler Execution", () => {
           collection: "my_coll",
           schema: "otherdb",
           filter: "$.name",
-          set: { status: "active" },
-        },
+          set: { status: "active" } },
         mockContext,
       );
 
@@ -915,8 +877,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "users",
-          filter: "$.inactive",
-        },
+          filter: "$.inactive" },
         mockContext,
       );
 
@@ -933,8 +894,7 @@ describe("Handler Execution", () => {
       const result = await tool.handler(
         {
           collection: "invalid-name",
-          filter: "$.id",
-        },
+          filter: "$.id" },
         mockContext,
       );
       expect(result).toMatchObject({
@@ -942,8 +902,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -954,8 +913,7 @@ describe("Handler Execution", () => {
       const result = (await tool.handler(
         {
           collection: "nonexistent",
-          filter: "$.id",
-        },
+          filter: "$.id" },
         mockContext,
       )) as { success: boolean; error: string; code: string; category: string };
 
@@ -964,8 +922,7 @@ describe("Handler Execution", () => {
         error: "Table 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -978,8 +935,7 @@ describe("Handler Execution", () => {
         {
           collection: "users",
           schema: "nonexistent_schema",
-          filter: "$.id",
-        },
+          filter: "$.id" },
         mockContext,
       );
 
@@ -989,8 +945,7 @@ describe("Handler Execution", () => {
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -1003,8 +958,7 @@ describe("Handler Execution", () => {
         {
           collection: "my_coll",
           schema: "otherdb",
-          filter: "$.name",
-        },
+          filter: "$.name" },
         mockContext,
       );
 
@@ -1024,8 +978,7 @@ describe("Handler Execution", () => {
         {
           collection: "users",
           name: "idx_email",
-          fields: [{ path: "email", type: "TEXT" }],
-        },
+          fields: [{ path: "email", type: "TEXT" }] },
         mockContext,
       );
 
@@ -1048,8 +1001,7 @@ describe("Handler Execution", () => {
           fields: [
             { path: "name", type: "TEXT" },
             { path: "age", type: "INT" },
-          ],
-        },
+          ] },
         mockContext,
       );
 
@@ -1074,8 +1026,7 @@ describe("Handler Execution", () => {
           collection: "users",
           name: "idx_unique_email",
           fields: [{ path: "email", type: "TEXT" }],
-          unique: true,
-        },
+          unique: true },
         mockContext,
       );
 
@@ -1091,8 +1042,7 @@ describe("Handler Execution", () => {
         {
           collection: "invalid-name",
           name: "index",
-          fields: [{ path: "email", type: "TEXT" }],
-        },
+          fields: [{ path: "email", type: "TEXT" }] },
         mockContext,
       );
       expect(result).toMatchObject({
@@ -1100,8 +1050,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should reject invalid index names", async () => {
@@ -1111,8 +1060,7 @@ describe("Handler Execution", () => {
         {
           collection: "valid_coll",
           name: "invalid-index",
-          fields: [{ path: "email", type: "TEXT" }],
-        },
+          fields: [{ path: "email", type: "TEXT" }] },
         mockContext,
       );
       expect(result).toMatchObject({
@@ -1120,8 +1068,7 @@ describe("Handler Execution", () => {
         error: "Invalid index name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -1133,8 +1080,7 @@ describe("Handler Execution", () => {
         {
           collection: "nonexistent",
           name: "idx_test",
-          fields: [{ path: "email", type: "TEXT" }],
-        },
+          fields: [{ path: "email", type: "TEXT" }] },
         mockContext,
       )) as { success: boolean; error: string; code: string; category: string };
 
@@ -1143,8 +1089,7 @@ describe("Handler Execution", () => {
         error: "Table 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -1158,8 +1103,7 @@ describe("Handler Execution", () => {
           collection: "users",
           schema: "nonexistent_schema",
           name: "idx_test",
-          fields: [{ path: "email", type: "TEXT" }],
-        },
+          fields: [{ path: "email", type: "TEXT" }] },
         mockContext,
       );
 
@@ -1169,8 +1113,7 @@ describe("Handler Execution", () => {
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should use schema parameter for collection lookup", async () => {
@@ -1184,8 +1127,7 @@ describe("Handler Execution", () => {
           collection: "my_coll",
           schema: "otherdb",
           name: "idx_name",
-          fields: [{ path: "name", type: "TEXT" }],
-        },
+          fields: [{ path: "name", type: "TEXT" }] },
         mockContext,
       );
 
@@ -1207,8 +1149,7 @@ describe("Handler Execution", () => {
         {
           collection: "users",
           name: "idx_email",
-          fields: [{ path: "email", type: "TEXT" }],
-        },
+          fields: [{ path: "email", type: "TEXT" }] },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -1246,8 +1187,7 @@ describe("Handler Execution", () => {
         error: "Invalid collection name",
         code: "VALIDATION_ERROR",
         category: "validation",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
 
     it("should return graceful response when collection does not exist", async () => {
@@ -1265,8 +1205,7 @@ describe("Handler Execution", () => {
         error: "Collection 'nonexistent' does not exist",
         code: "TABLE_NOT_FOUND",
                 category: "resource",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
     });
 
@@ -1287,8 +1226,7 @@ describe("Handler Execution", () => {
         success: false,
         error: "Unknown database 'nonexistent_schema'",
         code: "SCHEMA_NOT_FOUND",
-        metrics: { tokenEstimate: expect.any(Number) },
-      });
+        metrics: { tokenEstimate: expect.any(Number) } });
     });
   });
 });

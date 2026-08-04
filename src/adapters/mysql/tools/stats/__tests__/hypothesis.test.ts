@@ -1,11 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { createStatsHypothesisTool } from "../hypothesis.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockQueryResult,
-  createMockRequestContext,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockRequestContext } from "../../../../../__tests__/mocks/index.js";
 
 describe("Hypothesis Tool", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -35,8 +33,7 @@ describe("Hypothesis Tool", () => {
           table: "data",
           column: "val",
           testType: "t_test",
-          hypothesizedMean: 5.0,
-        },
+          hypothesizedMean: 5.0 },
         mockContext,
       );
 
@@ -61,8 +58,7 @@ describe("Hypothesis Tool", () => {
           column: "val",
           testType: "z_test",
           hypothesizedMean: 5.0,
-          populationStdDev: 1.5,
-        },
+          populationStdDev: 1.5 },
         mockContext,
       );
 
@@ -89,8 +85,7 @@ describe("Hypothesis Tool", () => {
           column: "val",
           testType: "t_test",
           hypothesizedMean: 5.0,
-          groupBy: "category",
-        },
+          groupBy: "category" },
         mockContext,
       );
 
@@ -114,8 +109,7 @@ describe("Hypothesis Tool", () => {
           table: "data",
           column: "val",
           testType: "t_test",
-          hypothesizedMean: 5.0,
-        },
+          hypothesizedMean: 5.0 },
         mockContext,
       );
 

@@ -6,12 +6,10 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { getRoleTools } from "../roles/index.js";
-import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../__tests__/mocks/index.js";
 
 describe("getRoleTools", () => {
   let tools: ReturnType<typeof getRoleTools>;
@@ -143,9 +141,7 @@ describe("Handler Execution", () => {
           data: expect.objectContaining({
             skipped: true,
             roleName: "test_role",
-            reason: "Role already exists",
-          }),
-        }),
+            reason: "Role already exists" }) }),
       );
       // Should NOT have issued a CREATE ROLE query
       expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1);
@@ -161,8 +157,7 @@ describe("Handler Execution", () => {
           role: "test_role",
           privileges: ["SELECT"],
           database: "testdb",
-          table: "*",
-        },
+          table: "*" },
         mockContext,
       );
 
@@ -237,8 +232,7 @@ describe("Handler Execution", () => {
         expect.objectContaining({
           success: false,
           error:
-            "Role 'test_role' is not assigned to user 'testuser'",
-        }),
+            "Role 'test_role' is not assigned to user 'testuser'" }),
       );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
@@ -299,9 +293,7 @@ describe("Handler Execution", () => {
           data: expect.objectContaining({
             skipped: true,
             roleName: "test_role",
-            reason: "Role did not exist",
-          }),
-        }),
+            reason: "Role did not exist" }) }),
       );
     });
   });
@@ -328,8 +320,7 @@ describe("Handler Execution", () => {
           role: "test_role",
           user: "testuser",
           host: "localhost",
-          withAdminOption: true,
-        },
+          withAdminOption: true },
         mockContext,
       );
 
@@ -382,8 +373,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User 'nonexistent' does not exist",
-        }),
+          error: "User 'nonexistent' does not exist" }),
       );
     });
   });
@@ -404,8 +394,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "Role 'test_role' already exists",
-        }),
+          error: "Role 'test_role' already exists" }),
       );
     });
   });
@@ -426,8 +415,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "Role 'test_role' does not exist",
-        }),
+          error: "Role 'test_role' does not exist" }),
       );
     });
   });
@@ -449,8 +437,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User 'baduser' does not exist",
-        }),
+          error: "User 'baduser' does not exist" }),
       );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
@@ -473,8 +460,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User 'baduser' does not exist",
-        }),
+          error: "User 'baduser' does not exist" }),
       );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
@@ -498,16 +484,14 @@ describe("Handler Execution", () => {
           role: "test_role",
           privileges: ["SELECT"],
           database: "testdb",
-          table: "nonexistent",
-        },
+          table: "nonexistent" },
         mockContext,
       );
 
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "Table 'testdb.nonexistent' does not exist",
-        }),
+          error: "Table 'testdb.nonexistent' does not exist" }),
       );
     });
   });

@@ -8,14 +8,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createSecurityAuditTool,
   createSecurityFirewallStatusTool,
-  createSecurityFirewallRulesTool,
-} from "../audit.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
+  createSecurityFirewallRulesTool } from "../audit.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Security Audit Tools", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -45,8 +42,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler(
         {
           limit: 10,
-          user: "test",
-        },
+          user: "test" },
         mockContext,
       )) as { data: { source: string; events: any[] } };
 
@@ -74,8 +70,7 @@ describe("Security Audit Tools", () => {
           limit: 10,
           user: "test",
           eventType: "LOGIN",
-          startTime: "2023-01-01",
-        },
+          startTime: "2023-01-01" },
         mockContext,
       );
 
@@ -103,8 +98,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler(
         {
           limit: 10,
-          user: "test",
-        },
+          user: "test" },
         mockContext,
       )) as { data: { source: string } };
 
@@ -129,8 +123,7 @@ describe("Security Audit Tools", () => {
       await tool.handler(
         {
           limit: 10,
-          user: "test_user",
-        },
+          user: "test_user" },
         mockContext,
       );
 
@@ -149,8 +142,7 @@ describe("Security Audit Tools", () => {
       await tool.handler(
         {
           limit: 10,
-          eventType: "CONNECT",
-        },
+          eventType: "CONNECT" },
         mockContext,
       );
 
@@ -169,8 +161,7 @@ describe("Security Audit Tools", () => {
       const result = (await tool.handler(
         {
           limit: 10,
-          startTime: "2023-01-01",
-        },
+          startTime: "2023-01-01" },
         mockContext,
       )) as { data: { filtersIgnored?: string[]; note?: string } };
 
@@ -299,8 +290,7 @@ describe("Security Audit Tools", () => {
       );
       const result = (await tool.handler(
         {
-          user: "user",
-        },
+          user: "user" },
         mockContext,
       )) as { data: { users: any[]; rules: any[] } };
 

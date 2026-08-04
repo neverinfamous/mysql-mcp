@@ -10,15 +10,12 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   createQueryRewriteTool,
   createForceIndexTool,
-  createOptimizerTraceTool,
-} from "../optimization.js";
+  createOptimizerTraceTool } from "../optimization.js";
 import { createIndexRecommendationTool } from "../index-audit/index.js";
-import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
 import {
   createMockMySQLAdapter,
   createMockRequestContext,
-  createMockQueryResult,
-} from "../../../../../__tests__/mocks/index.js";
+  createMockQueryResult } from "../../../../../__tests__/mocks/index.js";
 
 describe("Optimization Tools — Summary & Error Paths", () => {
   let mockAdapter: ReturnType<typeof createMockMySQLAdapter>;
@@ -69,19 +66,11 @@ describe("Optimization Tools — Summary & Error Paths", () => {
                           range_access_plan: {
                             type: "range",
                             index: "idx_email",
-                            rows: 10,
-                          },
-                          cost_for_plan: 5.5,
-                        },
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ],
-      });
+                            rows: 10 },
+                          cost_for_plan: 5.5 } } },
+                  ] },
+              ] } },
+        ] });
 
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery
@@ -112,16 +101,10 @@ describe("Optimization Tools — Summary & Error Paths", () => {
                     {
                       table: "orders",
                       range_analysis: {
-                        table_scan: { rows: 1000, cost: 200 },
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ],
-      });
+                        table_scan: { rows: 1000, cost: 200 } } },
+                  ] },
+              ] } },
+        ] });
 
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery
@@ -158,24 +141,16 @@ describe("Optimization Tools — Summary & Error Paths", () => {
                             index: "idx_category",
                             rows: 50,
                             cost: 10.5,
-                            chosen: true,
-                          },
+                            chosen: true },
                           {
                             access_type: "full_scan",
                             rows: 1000,
                             cost: 200,
-                            chosen: false,
-                          },
-                        ],
-                      },
-                    },
-                  ],
-                },
-              ],
-            },
-          },
-        ],
-      });
+                            chosen: false },
+                        ] } },
+                  ] },
+              ] } },
+        ] });
 
       mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
       mockAdapter.executeReadQuery
@@ -188,8 +163,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
       const result = (await tool.handler(
         {
           query: "SELECT * FROM products WHERE category_id = 1",
-          summary: true,
-        },
+          summary: true },
         mockContext,
       )) as { data: { decisions: { type: string; accessType?: string }[] } };
 
@@ -416,8 +390,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         columns: [
           { name: "id", type: "int", nullable: false },
           { name: "created_at", type: "datetime", nullable: true },
-        ],
-      });
+        ] });
       mockAdapter.getTableIndexes.mockResolvedValue([
         { name: "PRIMARY", columns: ["id"], unique: true },
       ]);
@@ -439,8 +412,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         columns: [
           { name: "id", type: "int", nullable: false },
           { name: "status", type: "varchar", nullable: true },
-        ],
-      });
+        ] });
       mockAdapter.getTableIndexes.mockResolvedValue([
         { name: "PRIMARY", columns: ["id"], unique: true },
       ]);
@@ -479,8 +451,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
   describe("force index edge cases", () => {
     it("should return error when index does not exist", async () => {
       mockAdapter.describeTable.mockResolvedValue({
-        columns: [{ name: "id", type: "int", nullable: false }],
-      });
+        columns: [{ name: "id", type: "int", nullable: false }] });
       mockAdapter.getTableIndexes.mockResolvedValue([
         { name: "PRIMARY", columns: ["id"], unique: true },
       ]);
@@ -490,8 +461,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         {
           table: "users",
           query: "SELECT * FROM users WHERE id = 1",
-          indexName: "nonexistent_idx",
-        },
+          indexName: "nonexistent_idx" },
         mockContext,
       )) as { success: boolean; error: string };
 
@@ -507,8 +477,7 @@ describe("Optimization Tools — Summary & Error Paths", () => {
         {
           table: "nonexistent",
           query: "SELECT * FROM nonexistent",
-          indexName: "idx1",
-        },
+          indexName: "idx1" },
         mockContext,
       )) as { success: boolean; error: string };
 
