@@ -91,11 +91,11 @@ describe("metrics", () => {
       
       expect(prom).toContain('mysql_mcp_tool_calls_total{tool="test_tool"} 1');
       // Error type breakdown is sparse; if no errors, it emits nothing.
-      expect(prom).toContain('mysql_mcp_tool_tokens_total{tool="test_tool"} 100');
+      expect(prom).toContain('gen_ai_usage_prompt_tokens_total{tool="test_tool"} 100');
       expect(prom).toContain('mysql_mcp_tool_latency_ms_p50{tool="test_tool"} 50');
       expect(prom).toContain('mysql_mcp_resource_reads_total{resource="test_uri"} 1');
       // Derived: tokens per call
-      expect(prom).toContain('mysql_mcp_tool_tokens_per_call{tool="test_tool"} 100');
+      expect(prom).toContain('gen_ai_usage_prompt_tokens_per_call{tool="test_tool"} 100');
       // Uptime
       expect(prom).toContain("# TYPE mysql_mcp_uptime_seconds gauge");
       expect(prom).toMatch(/mysql_mcp_uptime_seconds \d+/);
@@ -106,7 +106,7 @@ describe("metrics", () => {
       // But a tool with calls=1, tokens=0 should show 0
       metrics.recordToolCall("zero_token_tool", 10, true, 0);
       const prom = metrics.toPrometheus();
-      expect(prom).toContain('mysql_mcp_tool_tokens_per_call{tool="zero_token_tool"} 0');
+      expect(prom).toContain('gen_ai_usage_prompt_tokens_per_call{tool="zero_token_tool"} 0');
     });
 
     it("should omit pool metrics when provider is not set", () => {
