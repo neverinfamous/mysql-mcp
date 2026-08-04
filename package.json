@@ -63,7 +63,7 @@
     "acorn": "^8.18.0",
     "better-sqlite3": "npm:better-sqlite3-multiple-ciphers@^12.11.1",
     "isolated-vm": "7.0.0",
-    "jose": "^6.2.7",
+    "jose": "^6.2.8",
     "mysql2": "^3.23.2",
     "picocolors": "^1.1.1",
     "redis": "^6.2.0",
@@ -80,17 +80,17 @@
     "dotenv": "^17.4.2",
     "esbuild": "^0.28.1",
     "eslint": "^10.8.0",
-    "globals": "^17.8.0",
+    "globals": "^17.9.0",
     "ts-pattern": "^5.9.0",
     "tsup": "^8.5.1",
-    "tsx": "^4.23.1",
+    "tsx": "^4.23.5",
     "typescript": "^6.0.3",
-    "typescript-eslint": "^8.65.0",
+    "typescript-eslint": "^8.66.0",
     "vitest": "^4.1.10"
   },
   "resolutions": {
     "@hono/node-server": "^2.0.5",
-    "hono": "^4.12.25",
+    "hono": "^4.12.34",
     "esbuild": "^0.28.1",
     "brace-expansion": "^5.0.8"
   }
