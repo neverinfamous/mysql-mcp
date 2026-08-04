@@ -10,25 +10,30 @@
     {
       "definition": {
         "autoscale": true,
-        "custom_unit": "%",
         "precision": 2,
         "requests": [
           {
             "conditional_formats": [
               {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "palette": "white_on_red",
-                "value": 0
+                "value": 10.0
               },
               {
-                "comparator": "<=",
+                "comparator": "\u003c=",
                 "palette": "white_on_green",
-                "value": 0
+                "value": 10.0
               }
             ],
             "formulas": [
               {
-                "formula": "(query1 / query2) * 100"
+                "formula": "(query1 / query2) * 100",
+                "number_format": {
+                  "unit": {
+                    "label": "%",
+                    "type": "custom_unit_label"
+                  }
+                }
               }
             ],
             "queries": [
@@ -41,10 +46,7 @@
                 "name": "query1",
                 "search": {
                   "query": "source:agent-exec @agent_exec_status:error"
-                },
-                "indexes": [
-                  "main"
-                ]
+                }
               },
               {
                 "compute": {
@@ -55,15 +57,13 @@
                 "name": "query2",
                 "search": {
                   "query": "source:agent-exec -@agent_exec_status:healed"
-                },
-                "indexes": [
-                  "main"
-                ]
+                }
               }
             ],
             "response_format": "scalar"
           }
         ],
+        "time": {},
         "title": "Terminal Command Failure Rate",
         "title_align": "left",
         "title_size": "16",
@@ -84,113 +84,14 @@
           {
             "conditional_formats": [
               {
-                "comparator": ">=",
-                "palette": "white_on_green",
-                "value": 0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "compute": {
-                  "aggregation": "count"
-                },
-                "data_source": "logs",
-                "group_by": [],
-                "name": "query1",
-                "search": {
-                  "query": "source:agent-exec -@agent_exec_status:healed"
-                },
-                "indexes": [
-                  "main"
-                ]
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "title": "Total Commands Executed",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 2954154329441076,
-      "layout": {
-        "height": 4,
-        "width": 3,
-        "x": 3,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "autoscale": true,
-        "requests": [
-          {
-            "conditional_formats": [
-              {
-                "comparator": ">=",
-                "palette": "white_on_green",
-                "value": 0
-              }
-            ],
-            "formulas": [
-              {
-                "formula": "query1"
-              }
-            ],
-            "queries": [
-              {
-                "compute": {
-                  "aggregation": "count"
-                },
-                "data_source": "logs",
-                "group_by": [],
-                "name": "query1",
-                "search": {
-                  "query": "source:agent-exec @agent_exec_status:healed"
-                },
-                "indexes": [
-                  "main"
-                ]
-              }
-            ],
-            "response_format": "scalar"
-          }
-        ],
-        "time": {},
-        "title": "Autonomous Healing Triggers",
-        "title_align": "left",
-        "title_size": "16",
-        "type": "query_value"
-      },
-      "id": 5386870036880976,
-      "layout": {
-        "height": 4,
-        "width": 3,
-        "x": 6,
-        "y": 0
-      }
-    },
-    {
-      "definition": {
-        "autoscale": true,
-        "requests": [
-          {
-            "conditional_formats": [
-              {
-                "comparator": ">",
+                "comparator": "\u003e",
                 "palette": "white_on_red",
-                "value": 0
+                "value": 0.0
               },
               {
-                "comparator": "<=",
+                "comparator": "\u003c=",
                 "palette": "white_on_green",
-                "value": 0
+                "value": 0.0
               }
             ],
             "formulas": [
@@ -208,22 +109,110 @@
                 "name": "query1",
                 "search": {
                   "query": "source:agent-exec @agent_exec_status:error"
-                },
-                "indexes": [
-                  "main"
-                ]
+                }
               }
             ],
             "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Total Failed Commands",
         "title_align": "left",
         "title_size": "16",
         "type": "query_value"
       },
       "id": 1785852915963,
+      "layout": {
+        "height": 4,
+        "width": 3,
+        "x": 3,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "palette": "white_on_green",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "compute": {
+                  "aggregation": "count"
+                },
+                "data_source": "logs",
+                "group_by": [],
+                "name": "query1",
+                "search": {
+                  "query": "source:agent-exec -@agent_exec_status:healed"
+                }
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Total Commands Executed",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 2954154329441076,
+      "layout": {
+        "height": 4,
+        "width": 3,
+        "x": 6,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "\u003e=",
+                "palette": "white_on_green",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "compute": {
+                  "aggregation": "count"
+                },
+                "data_source": "logs",
+                "group_by": [],
+                "name": "query1",
+                "search": {
+                  "query": "source:agent-exec @agent_exec_status:healed"
+                }
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Autonomous Healing Triggers",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 5386870036880976,
       "layout": {
         "height": 4,
         "width": 3,
@@ -255,11 +244,7 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:agent-exec @agent_exec_status:error",
-              "indexes": [
-                "main"
-              ],
-              "storage": "hot"
+              "query_string": "source:agent-exec @agent_exec_status:error"
             },
             "response_format": "event_list"
           }
@@ -301,16 +286,12 @@
             ],
             "query": {
               "data_source": "logs_stream",
-              "query_string": "source:agent-exec -@agent_exec_status:error",
-              "indexes": [
-                "main"
-              ],
-              "storage": "hot"
+              "query_string": "source:agent-exec -@agent_exec_status:error"
             },
             "response_format": "event_list"
           }
         ],
-        "title": "Success & Healed Logs",
+        "title": "Success \u0026 Healed Logs",
         "title_align": "left",
         "title_size": "16",
         "type": "list_stream"

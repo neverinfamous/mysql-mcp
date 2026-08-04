@@ -10,7 +10,6 @@
     {
       "definition": {
         "autoscale": true,
-        "custom_unit": "%",
         "precision": 2,
         "requests": [
           {
@@ -18,17 +17,23 @@
               {
                 "comparator": "\u003e",
                 "palette": "white_on_red",
-                "value": 0.0
+                "value": 10.0
               },
               {
                 "comparator": "\u003c=",
                 "palette": "white_on_green",
-                "value": 0.0
+                "value": 10.0
               }
             ],
             "formulas": [
               {
-                "formula": "(query1 / query2) * 100"
+                "formula": "(query1 / query2) * 100",
+                "number_format": {
+                  "unit": {
+                    "label": "%",
+                    "type": "custom_unit_label"
+                  }
+                }
               }
             ],
             "queries": [
@@ -58,6 +63,7 @@
             "response_format": "scalar"
           }
         ],
+        "time": {},
         "title": "Terminal Command Failure Rate",
         "title_align": "left",
         "title_size": "16",
@@ -66,8 +72,59 @@
       "id": 2131355543579129,
       "layout": {
         "height": 4,
-        "width": 4,
+        "width": 3,
         "x": 0,
+        "y": 0
+      }
+    },
+    {
+      "definition": {
+        "autoscale": true,
+        "requests": [
+          {
+            "conditional_formats": [
+              {
+                "comparator": "\u003e",
+                "palette": "white_on_red",
+                "value": 0.0
+              },
+              {
+                "comparator": "\u003c=",
+                "palette": "white_on_green",
+                "value": 0.0
+              }
+            ],
+            "formulas": [
+              {
+                "formula": "query1"
+              }
+            ],
+            "queries": [
+              {
+                "compute": {
+                  "aggregation": "count"
+                },
+                "data_source": "logs",
+                "group_by": [],
+                "name": "query1",
+                "search": {
+                  "query": "source:agent-exec @agent_exec_status:error"
+                }
+              }
+            ],
+            "response_format": "scalar"
+          }
+        ],
+        "title": "Total Failed Commands",
+        "title_align": "left",
+        "title_size": "16",
+        "type": "query_value"
+      },
+      "id": 1785852915963,
+      "layout": {
+        "height": 4,
+        "width": 3,
+        "x": 3,
         "y": 0
       }
     },
@@ -112,8 +169,8 @@
       "id": 2954154329441076,
       "layout": {
         "height": 4,
-        "width": 4,
-        "x": 4,
+        "width": 3,
+        "x": 6,
         "y": 0
       }
     },
@@ -150,7 +207,6 @@
             "response_format": "scalar"
           }
         ],
-        "time": {},
         "title": "Autonomous Healing Triggers",
         "title_align": "left",
         "title_size": "16",
@@ -159,8 +215,8 @@
       "id": 5386870036880976,
       "layout": {
         "height": 4,
-        "width": 4,
-        "x": 8,
+        "width": 3,
+        "x": 9,
         "y": 0
       }
     },

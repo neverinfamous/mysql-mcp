@@ -9,6 +9,17 @@
   "widgets": [
     {
       "definition": {
+        "anomaly_detection": {
+          "detection_sensitivity": "never_detect"
+        },
+        "legend_columns": [
+          "avg",
+          "min",
+          "max",
+          "value",
+          "sum"
+        ],
+        "legend_layout": "auto",
         "requests": [
           {
             "display_type": "line",
@@ -33,6 +44,7 @@
             }
           }
         ],
+        "show_legend": false,
         "time": {},
         "title": "Total Tokens",
         "title_align": "left",
@@ -149,7 +161,6 @@
           }
         ],
         "show_legend": true,
-        "time": {},
         "title": "Avg Tokens / Call",
         "title_align": "left",
         "title_size": "16",
