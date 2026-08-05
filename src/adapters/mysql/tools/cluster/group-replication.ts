@@ -53,6 +53,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(_params);
         // Check if GR is running
         const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
@@ -96,12 +97,12 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
         const members = memberResult.rows ?? [];
         const mappedMembers = members.map((m) => {
           return {
-            id: m["MEMBER_ID"],
-            host: m["MEMBER_HOST"],
-            port: m["MEMBER_PORT"],
-            state: m["MEMBER_STATE"],
-            role: m["MEMBER_ROLE"],
-            version: m["MEMBER_VERSION"],
+            id: typeof m["MEMBER_ID"] === "string" ? m["MEMBER_ID"] : "",
+            host: typeof m["MEMBER_HOST"] === "string" ? m["MEMBER_HOST"] : "",
+            port: Number(m["MEMBER_PORT"] ?? 3306),
+            state: typeof m["MEMBER_STATE"] === "string" ? m["MEMBER_STATE"] : "",
+            role: typeof m["MEMBER_ROLE"] === "string" ? m["MEMBER_ROLE"] : "",
+            version: typeof m["MEMBER_VERSION"] === "string" ? m["MEMBER_VERSION"] : "",
             isLocal: m["MEMBER_ID"] === localUuid,
           };
         });
@@ -176,9 +177,24 @@ export function createGRMembersTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const result = await adapter.executeQuery(`/* readonly */ ${query}`, queryParams);
+        
+        const rawMembers = result.rows ?? [];
+        const members = rawMembers.map((m) => ({
+          memberId: typeof m["memberId"] === "string" ? m["memberId"] : "",
+          host: typeof m["host"] === "string" ? m["host"] : "",
+          port: Number(m["port"] ?? 3306),
+          state: typeof m["state"] === "string" ? m["state"] : "",
+          role: typeof m["role"] === "string" ? m["role"] : "",
+          version: typeof m["version"] === "string" ? m["version"] : "",
+          txInQueue: m["txInQueue"] !== undefined && m["txInQueue"] !== null ? Number(m["txInQueue"]) : null,
+          txChecked: m["txChecked"] !== undefined && m["txChecked"] !== null ? Number(m["txChecked"]) : null,
+          conflictsDetected: m["conflictsDetected"] !== undefined && m["conflictsDetected"] !== null ? Number(m["conflictsDetected"]) : null,
+          rowsValidating: m["rowsValidating"] !== undefined && m["rowsValidating"] !== null ? Number(m["rowsValidating"]) : null,
+        }));
+
         const data = {
-          members: result.rows ?? [],
-          count: result.rows?.length ?? 0,
+          members,
+          count: members.length,
         };
         return withTokenEstimate({ success: true, data });
       } catch (error) {
