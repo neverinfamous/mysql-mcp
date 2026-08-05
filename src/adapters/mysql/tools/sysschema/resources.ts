@@ -110,6 +110,7 @@ export function createSysSchemaStatsTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { schema, limit } = SchemaStatsSchema.parse(params);
+        const actualLimit = Math.min(limit, 100);
 
         // P154: Schema existence check when explicitly provided
         if (schema) {
@@ -155,7 +156,7 @@ export function createSysSchemaStatsTool(
                 FROM sys.x$schema_table_statistics t
                 WHERE t.table_schema = COALESCE(?, DATABASE())
                 ORDER BY (t.fetch_latency + t.insert_latency + t.update_latency + t.delete_latency) DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
                 ) SELECT * FROM sys_query
             `;
 
@@ -177,7 +178,7 @@ export function createSysSchemaStatsTool(
                 FROM sys.x$schema_index_statistics t
                 WHERE t.table_schema = COALESCE(?, DATABASE())
                 ORDER BY (t.select_latency + t.insert_latency + t.update_latency + t.delete_latency) DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
                 ) SELECT * FROM sys_query
             `;
 
@@ -194,7 +195,7 @@ export function createSysSchemaStatsTool(
                 FROM sys.schema_auto_increment_columns
                 WHERE table_schema = COALESCE(?, DATABASE())
                 ORDER BY auto_increment_ratio DESC
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
                 ) SELECT * FROM sys_query
             `;
 
@@ -253,6 +254,7 @@ export function createSysInnoDBLockWaitsTool(
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { limit } = LimitSchema.parse(params);
+        const actualLimit = Math.min(limit, 100);
 
         const query = `
                 WITH sys_query AS (
@@ -278,7 +280,7 @@ export function createSysInnoDBLockWaitsTool(
                     blocking_lock_mode
                 FROM sys.innodb_lock_waits
                 ORDER BY wait_started
-                LIMIT ${String(limit)}
+                LIMIT ${String(actualLimit)}
                 ) SELECT * FROM sys_query
             `;
 
