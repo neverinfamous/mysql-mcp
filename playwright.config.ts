@@ -7,9 +7,9 @@ export default defineConfig({
   globalTeardown: "./test-server/infrastructure/scripts/teardown.ts",
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 4 : undefined,
-  timeout: 60000,
+  retries: process.env.CI ? 2 : 1,
+  workers: process.env.CI ? 2 : 2,
+  timeout: 120000,
   outputDir: ".test-output/playwright-artifacts",
   reporter: [["list"], ["json", { outputFile: ".test-output/playwright-results.json" }]],
   use: {

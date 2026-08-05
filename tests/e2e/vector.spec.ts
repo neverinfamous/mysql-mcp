@@ -20,7 +20,7 @@ import { TIMEOUTS } from "./helpers.js";
 
 test.describe.configure({ mode: "serial", timeout: TIMEOUTS.DEFAULT });
 
-const PORT = 3161;
+const PORT = 3161 + Number(process.env.TEST_WORKER_INDEX || 0);
 
 test.describe("Vector Tools", () => {
   let client: Client;

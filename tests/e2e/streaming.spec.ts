@@ -17,7 +17,7 @@ import { startServer, stopServer, MCP_PROTOCOL_STREAMABLE } from "./helpers.js";
 // Force sequential execution to prevent parallel workers from colliding on manual ports/files
 test.describe.configure({ mode: "serial" });
 
-const STREAM_PORT = 3130;
+const STREAM_PORT = 3130 + Number(process.env.TEST_WORKER_INDEX || 0);
 const STREAM_BASE = `http://127.0.0.1:${STREAM_PORT}`;
 
 test.describe("HTTP/SSE Streaming", () => {

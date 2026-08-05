@@ -17,7 +17,7 @@ test.describe.configure({ mode: "serial" });
 
 test.describe("ProxySQL Metrics Generation & Verification", () => {
   let client: Client;
-  const PORT = 3105; // Use a dedicated port to avoid conflicts
+  const PORT = 3105 + Number(process.env.TEST_WORKER_INDEX || 0); // Use a dedicated port to avoid conflicts
 
   test.beforeAll(async () => {
     // Start a dedicated server pointing to ProxySQL Data Port
