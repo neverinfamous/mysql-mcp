@@ -319,7 +319,7 @@ services:
       mysql-router:
         condition: service_healthy
     command: >
-      --transport stdio --tool-filter none 
+      --transport http --server-host 0.0.0.0 --tool-filter none 
       --metrics-export prometheus --port 3000
       --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
       --audit-reads --mysql mysql://root:root@mysql-router:6446/testdb
@@ -342,7 +342,7 @@ services:
         max-size: "10m"
         max-file: "3"
     healthcheck:
-      test: [ "CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:3000/metrics" ]
+      test: [ "CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/metrics" ]
       interval: 15s
       timeout: 5s
       retries: 3
