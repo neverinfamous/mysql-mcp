@@ -34,9 +34,13 @@ const PasswordValidateSchemaBase = z.object({
   password: z.coerce.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
   pass: z.coerce.string().optional().describe("Alias for password"),
   pwd: z.coerce.string().optional().describe("Alias for password"),
-}).strict();
+}).catchall(z.unknown());
 
-const PasswordValidateSchema = PasswordValidateSchemaBase.transform((obj) => {
+const PasswordValidateSchema = z.object({
+  password: z.coerce.string().describe("Password to validate").optional(),
+  pass: z.coerce.string().optional().describe("Alias for password"),
+  pwd: z.coerce.string().optional().describe("Alias for password"),
+}).strict().transform((obj) => {
   const password = obj.password ?? obj.pass ?? obj.pwd;
   return { password: password ? password : "" };
 }).pipe(
