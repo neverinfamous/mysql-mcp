@@ -1206,11 +1206,12 @@ export function preprocessSpatialParams(input: unknown): unknown {
   if (typeof result !== "object" || result === null) return result;
 
   if (result["spatialColumn"] === undefined) {
-    if (result["geometryColumn"] !== undefined) result["spatialColumn"] = result["geometryColumn"];
-    else if (result["column"] !== undefined) result["spatialColumn"] = result["column"];
-    else if (result["columnName"] !== undefined) result["spatialColumn"] = result["columnName"];
-    else if (result["geomColumn"] !== undefined) result["spatialColumn"] = result["geomColumn"];
-    else if (result["col"] !== undefined) result["spatialColumn"] = result["col"];
+    let col = result["geometryColumn"] ?? result["column"] ?? result["columnName"] ?? result["geomColumn"] ?? result["col"] ?? result["columns"];
+    if (Array.isArray(col)) col = col[0];
+    if (typeof col === "object" && col !== null) {
+      col = (col as Record<string, unknown>)["name"] ?? (col as Record<string, unknown>)["column"] ?? JSON.stringify(col);
+    }
+    if (col !== undefined) result["spatialColumn"] = col;
   }
 
   if (result["polygon"] === undefined) {
