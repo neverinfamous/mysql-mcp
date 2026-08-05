@@ -69,6 +69,7 @@ const HostSummarySchemaBase = z.object({
   host: z.string().optional().describe("Filter by specific host. Anti-Hallucination: Pass 'host', not 'hostName' or 'ip'."),
   hostname: z.string().optional().describe("Alias for host"),
   hostName: z.string().optional().describe("Alias for host"),
+  host_name: z.string().optional().describe("Alias for host"),
   ip: z.string().optional().describe("Alias for host"),
   address: z.string().optional().describe("Alias for host"),
   limit: z.union([z.number(), z.string()]).optional().describe("Maximum number of results"),
@@ -81,8 +82,8 @@ const HostSummarySchema = z.preprocess(
     if (val === undefined || val === null || typeof val !== "object") {
       return val;
     }
-    const v = val as Record<string, unknown> & { host?: unknown; hostname?: unknown; hostName?: unknown; ip?: unknown; address?: unknown; limit?: unknown; max?: unknown; count?: unknown };
-    const resolvedHost = v.host ?? v.hostname ?? v.hostName ?? v.ip ?? v.address;
+    const v = val as Record<string, unknown> & { host?: unknown; hostname?: unknown; hostName?: unknown; host_name?: unknown; ip?: unknown; address?: unknown; limit?: unknown; max?: unknown; count?: unknown };
+    const resolvedHost = v.host ?? v.hostname ?? v.hostName ?? v.host_name ?? v.ip ?? v.address;
     return {
       ...v,
       host: resolvedHost === "" ? undefined : resolvedHost,
@@ -94,6 +95,7 @@ const HostSummarySchema = z.preprocess(
     limit: z.coerce.number().int().positive().default(5),
     hostname: z.any().optional(),
     hostName: z.any().optional(),
+    host_name: z.any().optional(),
     ip: z.any().optional(),
     address: z.any().optional(),
     max: z.any().optional(),
