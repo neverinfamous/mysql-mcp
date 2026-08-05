@@ -14,6 +14,9 @@ ARG PNPM_VERSION=9.15.4
 
 WORKDIR /app
 
+# Silence npm update notices during image build
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+
 # Install build dependencies
 RUN apk add --no-cache \
     python3 \
@@ -45,6 +48,9 @@ ARG PNPM_VERSION=9.15.4
 LABEL io.modelcontextprotocol.server.name="io.github.neverinfamous/mysql-mcp"
 
 WORKDIR /app
+
+# Silence npm update notices during image build
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
 
 # Upgrade Alpine base packages to fix CVEs
 RUN apk upgrade --no-cache
