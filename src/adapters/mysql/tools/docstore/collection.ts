@@ -332,7 +332,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
 
           const schemaPrefix = schema ? `FROM \`${schema}\` ` : '';
           const tableStatus = await adapter.executeQuery(
-            `SHOW TABLE STATUS ${schemaPrefix}LIKE '${collection}'`
+            `SHOW TABLE STATUS ${schemaPrefix}WHERE Name = '${collection}'`
           );
 
           if (!tableStatus.rows || tableStatus.rows.length === 0) {
