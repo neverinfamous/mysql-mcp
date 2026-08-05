@@ -410,7 +410,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
           const certThreshold = Number(config?.["certifierThreshold"] ?? 25000);
 
           const appThreshold = Number(config?.["applierThreshold"] ?? 25000);
-          return certQueue > certThreshold || appQueue > appThreshold;
+          return (certThreshold > 0 && certQueue > certThreshold) || (appThreshold > 0 && appQueue > appThreshold);
         });
 
         const data = {

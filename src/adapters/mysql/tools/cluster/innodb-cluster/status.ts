@@ -87,7 +87,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         // Summary mode: return only essential metadata
         if (summary) {
           const data = {
-            isInnoDBCluster: true,
+            isInnoDBCluster: clusterBasic?.["cluster_type"] === "gr",
             cluster: clusterBasic ?? null,
             instanceCount: Number(instanceResult.rows?.[0]?.["count"] ?? 0),
             routerCount: Number(routerResult.rows?.[0]?.["count"] ?? 0),
@@ -123,7 +123,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const data = {
-          isInnoDBCluster: true,
+          isInnoDBCluster: clusterBasic?.["cluster_type"] === "gr",
           cluster,
           instanceCount: Number(instanceResult.rows?.[0]?.["count"] ?? 0),
           routerCount: Number(routerResult.rows?.[0]?.["count"] ?? 0),
