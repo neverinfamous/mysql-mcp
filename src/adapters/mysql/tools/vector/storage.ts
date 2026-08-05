@@ -152,10 +152,15 @@ export function createVectorDeleteTool(adapter: MySQLAdapter): ToolDefinition {
         const table = sanitizeIdentifier(validated.table);
         const idCol = sanitizeIdentifier(validated.idColumn);
 
-        // Verify this is actually a vector table before allowing deletion
-        await resolveVectorColumn(adapter, validated.table);
-
         const tableInfo = await adapter.describeTable(table);
+
+        // Verify this is actually a vector table before allowing deletion
+        const hasVector = tableInfo.columns?.some(c => 
+          c.type === 'vector' || (typeof c.type === 'string' && c.type.toLowerCase().startsWith('vector'))
+        );
+        if (!hasVector) {
+          throw new ValidationError(`Table '${table}' has no VECTOR columns.`);
+        }
         const idColInfo = tableInfo.columns?.find(c => c.name.toLowerCase() === idCol.toLowerCase());
         if (!idColInfo) {
           throw new ValidationError(`Column '${idCol}' does not exist in table '${table}'.`);
