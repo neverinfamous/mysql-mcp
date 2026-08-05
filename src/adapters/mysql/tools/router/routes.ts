@@ -159,18 +159,27 @@ export function createRouterRouteDestinationsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { routeName } = RouteNameInputSchema.parse(params);
+        const { routeName, limit } = RouteNameInputSchema.parse(params);
         const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/destinations`,
         );
         if (!result.success) {
           return result.response;
         }
+
+        const effectiveLimit = limit ?? 50;
+        const dataObj = result.data as Record<string, unknown>;
+        const rawItems = Array.isArray(dataObj["items"]) ? (dataObj["items"] as unknown[]) : [];
+        const paginatedItems = rawItems.slice(0, effectiveLimit);
+
         return withTokenEstimate({
           success: true,
           data: {
             routeName,
-            destinations: result.data,
+            destinations: {
+              ...dataObj,
+              items: paginatedItems,
+            },
           },
         });
       } catch (err) {
