@@ -38,6 +38,14 @@ import { READ_ONLY } from "../../../../utils/annotations.js";
 async function validateSpatialColumn(adapter: MySQLAdapter, table: string, spatialColumn: string): Promise<{ success: boolean; error?: string; code?: string; srid?: number }> {
   try {
     const tableName = table.includes('.') ? (table.split('.')[1] || table) : table;
+    const tableCheck = await adapter.executeReadQuery(
+      `SELECT TABLE_NAME FROM information_schema.tables WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? LIMIT 1`,
+      [tableName]
+    );
+    if (!tableCheck.rows || tableCheck.rows.length === 0) {
+      return { success: false, error: `Table '${table}' does not exist`, code: "TABLE_NOT_FOUND" };
+    }
+
     // Column name is already validated as a strict alphanumeric identifier before this is called
     const colCheck = await adapter.executeReadQuery(
       `SELECT DATA_TYPE, SRS_ID FROM information_schema.columns WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1`,
@@ -126,7 +134,7 @@ export function createSpatialDistanceTool(
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
@@ -292,7 +300,7 @@ export function createSpatialDistanceSphereTool(
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
@@ -403,7 +411,7 @@ export function createSpatialContainsTool(
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
@@ -494,7 +502,7 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code === "COLUMN_NOT_FOUND" ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
