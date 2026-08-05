@@ -47,7 +47,7 @@ const ERROR_SUGGESTIONS: {
     code: "TABLE_NOT_FOUND",
   },
   {
-    pattern: /(?:Unknown column ['"].*['"]|Column ['"].*['"] not found)/i,
+    pattern: /(?:Unknown column ['"].*['"]|Column ['"].*['"] not found|Key column ['"].*['"] does not exist)/i,
     suggestion:
       "Column not found. Use mysql_describe_table to see available columns.",
     category: ErrorCategory.RESOURCE,
