@@ -198,7 +198,9 @@ export function createSpatialBufferTool(adapter: MySQLAdapter): ToolDefinition {
         let queryParams: unknown[];
         let segmentsApplied = false;
 
-        if (srid === 0 && segments !== undefined) {
+        const isPointOrMultiPoint = typeof geometry === "string" && (geometry.trim().toUpperCase().startsWith("POINT") || geometry.trim().toUpperCase().startsWith("MULTIPOINT"));
+
+        if (srid === 0 && segments !== undefined && isPointOrMultiPoint) {
           bufferQuery = `WITH cte AS (SELECT ST_AsText(ST_Buffer(ST_GeomFromText(?, ?), ?, ST_Buffer_Strategy('point_circle', ?))) as buffer_wkt) SELECT * FROM cte`;
           queryParams = [geometry, srid, distance, segments];
           segmentsApplied = true;
