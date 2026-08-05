@@ -260,7 +260,8 @@ function createEventDropTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         const ifExistsClause = ifExists ? "IF EXISTS " : "";
-        const targetEvent = schema ? `\`${schema}\`.\`${name}\`` : `\`${name}\``;
+        const escapedSchema = schema ? schema.replace(/`/g, '``') : undefined;
+        const targetEvent = escapedSchema ? `\`${escapedSchema}\`.\`${name}\`` : `\`${name}\``;
 
         await adapter.executeQuery(`DROP EVENT ${ifExistsClause}${targetEvent}`);
         return withTokenEstimate({ success: true, data: { eventName: name } });
