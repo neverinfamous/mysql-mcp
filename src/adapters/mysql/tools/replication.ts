@@ -56,7 +56,6 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
       } catch (e) {
         return formatHandlerErrorResponse(e);
       }
-      // Try new syntax first, then old
       try {
         const result = await adapter.executeQuery("SHOW BINARY LOG STATUS");
         const response = {
@@ -64,23 +63,33 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
           data: { status: result.rows?.[0] },
         };
         return withTokenEstimate(response);
-      } catch {
-        try {
-          const result = await adapter.executeQuery("SHOW MASTER STATUS");
-          const response = {
-            success: true as const,
-            data: { status: result.rows?.[0] },
-          };
-          return withTokenEstimate(response);
-        } catch (e) {
-          return formatHandlerErrorResponse(
-            new MySQLMcpError(
-              `Binary logging may not be enabled: ${stripErrorPrefix(e instanceof Error ? e.message : String(e))}`,
-              "DOMAIN_ERROR",
-              ErrorCategory.CONFIGURATION
-            )
-          );
+      } catch (error) {
+        const e = error as { code?: string; errno?: number; message?: string };
+        if (e.code === "ER_PARSE_ERROR" || e.errno === 1064 || e.message?.toLowerCase().includes("syntax")) {
+          try {
+            const result = await adapter.executeQuery("SHOW MASTER STATUS");
+            const response = {
+              success: true as const,
+              data: { status: result.rows?.[0] },
+            };
+            return withTokenEstimate(response);
+          } catch (error2) {
+            return formatHandlerErrorResponse(
+              new MySQLMcpError(
+                `Failed to retrieve master status: ${stripErrorPrefix(error2 instanceof Error ? error2.message : String(error2))}`,
+                "QUERY_ERROR",
+                ErrorCategory.QUERY
+              )
+            );
+          }
         }
+        return formatHandlerErrorResponse(
+          new MySQLMcpError(
+            `Failed to retrieve binary log status: ${stripErrorPrefix(e.message || String(error))}`,
+            "QUERY_ERROR",
+            ErrorCategory.QUERY
+          )
+        );
       }
     },
   };
