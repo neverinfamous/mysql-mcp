@@ -62,8 +62,8 @@ export function parseDocFilter(filter: string): {
     }
   }
 
-  // Check for simple field=value pattern
-  const eqMatch = /^(?:\$\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*(.+)$/.exec(filter);
+  // Check for simple field=value pattern (prevent matching ==, ===)
+  const eqMatch = /^(?:\$\.)?([a-zA-Z_][a-zA-Z0-9_]*)\s*=(?!=)\s*(.+)$/.exec(filter);
   if (eqMatch) {
     const field = eqMatch[1] ?? "";
     let value = eqMatch[2] ?? "";
@@ -98,6 +98,11 @@ export function parseDocFilter(filter: string): {
 
   // Default: treat as JSON path existence check
   if (!filter.startsWith("$")) {
+    if (/[><!]=?|==/.test(filter)) {
+      throw new ValidationError(
+        `Invalid filter: "${filter}". Only equality (field=value), exact _id match, or JSON path existence are supported.`,
+      );
+    }
     return {
       where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
       params: [`$._id`, filter],
