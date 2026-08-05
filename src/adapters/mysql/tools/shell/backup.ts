@@ -472,7 +472,6 @@ export function createShellDumpTablesTool(
           );
         }
 
-        // Generic fatal error - provide actionable guidance
         if (errorMessage.includes("Fatal error during dump")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -480,10 +479,7 @@ export function createShellDumpTablesTool(
                 ? `Dump failed while writing schema metadata: ${errorMessage}.`
                 : `Dump failed: ${errorMessage}.`,
               "QUERY_ERROR",
-              ErrorCategory.QUERY,
-              {
-                suggestion: "Set all: false to skip metadata that requires extra privileges.",
-              }
+              ErrorCategory.QUERY
             )
           );
         }
