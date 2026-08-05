@@ -81,8 +81,8 @@ export function createClusterTopologyTool(
 
         // Build topology representation
         const topology = {
-          primary: members.filter((m) => m["role"] === "PRIMARY"),
-          secondaries: members.filter((m) => m["role"] === "SECONDARY"),
+          primary: members.filter((m) => m["role"] === "PRIMARY" && m["state"] === "ONLINE"),
+          secondaries: members.filter((m) => m["role"] === "SECONDARY" && m["state"] === "ONLINE"),
           recovering: members.filter((m) => m["state"] === "RECOVERING"),
           offline: [
             ...members.filter(
