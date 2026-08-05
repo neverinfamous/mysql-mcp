@@ -36,7 +36,7 @@ export const ShellInfoSchema = z.preprocess(
 );
 
 // --- ShellVersion ---
-export const ShellVersionInputSchemaBase = ShellToolBaseSchema.extend({});
+export const ShellVersionInputSchemaBase = z.object({});
 
 export const ShellVersionInputSchema = z.preprocess(
   (val: unknown) => {
