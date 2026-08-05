@@ -53,7 +53,7 @@ export function createVectorStoreTool(adapter: MySQLAdapter): ToolDefinition {
         const query = `
           INSERT INTO ${escapeQualifiedTable(table)} (\`${actualIdCol}\`, \`${column}\`) 
           VALUES (?, STRING_TO_VECTOR('${vectorStr}'))
-          ON DUPLICATE KEY UPDATE \`${column}\` = VALUES(\`${column}\`)
+          AS new_row ON DUPLICATE KEY UPDATE \`${column}\` = new_row.\`${column}\`
         `;
 
         const result = await adapter.executeQuery(query, [validated.id]);
@@ -113,7 +113,7 @@ export function createVectorBatchStoreTool(adapter: MySQLAdapter): ToolDefinitio
         const query = `
           INSERT INTO ${escapeQualifiedTable(table)} (\`${actualIdCol}\`, \`${column}\`) 
           VALUES ${placeholders.join(", ")}
-          ON DUPLICATE KEY UPDATE \`${column}\` = VALUES(\`${column}\`)
+          AS new_row ON DUPLICATE KEY UPDATE \`${column}\` = new_row.\`${column}\`
         `;
 
         const result = await adapter.executeQuery(query, flatValues);
