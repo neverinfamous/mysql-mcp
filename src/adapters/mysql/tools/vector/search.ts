@@ -336,7 +336,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
         if (msg.includes("Unknown column")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
-              "Column not found in table",
+              msg,
               "COLUMN_NOT_FOUND",
               ErrorCategory.QUERY
             )
