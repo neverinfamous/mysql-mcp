@@ -150,9 +150,11 @@ describe("Spatial Tools Handlers", () => {
   describe("mysql_spatial_distance", () => {
     it("should include WHERE clause if maxDistance is provided", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
-        .mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([]);
+      });
 
       await tool.handler(
         {
@@ -171,9 +173,11 @@ describe("Spatial Tools Handlers", () => {
 
     it("should omit WHERE clause if maxDistance is missing", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
-        .mockResolvedValueOnce(createMockQueryResult([]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([]);
+      });
 
       await tool.handler(
         {
@@ -241,7 +245,11 @@ describe("Spatial Tools Handlers", () => {
   describe("P154 Graceful Error Handling", () => {
     it("should return { exists: false } for nonexistent table (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point", SRS_ID: 4326 }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        throw new Error("Table 'db.nonexistent' does not exist");
+      });
 
       const result = await tool.handler(
         {
@@ -258,7 +266,11 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (distance_sphere)", async () => {
       const tool = findTool("mysql_spatial_distance_sphere")!;
-      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point", SRS_ID: 4326 }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        throw new Error("Table 'db.nonexistent' does not exist");
+      });
 
       const result = await tool.handler(
         {
@@ -275,7 +287,11 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (contains)", async () => {
       const tool = findTool("mysql_spatial_contains")!;
-      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point", SRS_ID: 4326 }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        throw new Error("Table 'db.nonexistent' does not exist");
+      });
 
       const result = await tool.handler(
         {
@@ -292,7 +308,11 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { exists: false } for nonexistent table (within)", async () => {
       const tool = findTool("mysql_spatial_within")!;
-      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point", SRS_ID: 4326 }] }).mockRejectedValueOnce(new Error("Table 'db.nonexistent' does not exist"));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        throw new Error("Table 'db.nonexistent' does not exist");
+      });
 
       const result = await tool.handler(
         {
@@ -342,7 +362,11 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for MySQL error (distance)", async () => {
       const tool = findTool("mysql_spatial_distance")!;
-      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point", SRS_ID: 4326 }] }).mockRejectedValueOnce(new Error("Column 'bad_col' not found"));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        throw new Error("Column 'bad_col' not found");
+      });
 
       const result = await tool.handler(
         {
@@ -395,7 +419,11 @@ describe("Spatial Tools Handlers", () => {
 
     it("should return { success: false } for invalid SRID (transform)", async () => {
       const tool = findTool("mysql_spatial_transform")!;
-      mockAdapter.executeReadQuery.mockResolvedValueOnce({ rows: [{ DATA_TYPE: "point", SRS_ID: 4326 }] }).mockRejectedValueOnce(new Error("There's no spatial reference system with SRID 99999"));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        throw new Error("There's no spatial reference system with SRID 99999");
+      });
 
       const result = await tool.handler(
         {

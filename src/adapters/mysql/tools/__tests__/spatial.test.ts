@@ -276,9 +276,11 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_distance", () => {
     it("should find points within distance", async () => {
-      mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
-        .mockResolvedValue(createMockQueryResult([{ distance: 1000.5 }]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ distance: 1000.5 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_spatial_distance");
       if (!tool) throw new Error('Tool not found');;
@@ -298,9 +300,11 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_distance_sphere", () => {
     it("should calculate spherical distance", async () => {
-      mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
-        .mockResolvedValue(createMockQueryResult([{ id: 1, distance_meters: 5000 }]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ id: 1, distance_meters: 5000 }]);
+      });
 
       const tool = tools.find(
         (t) => t.name === "mysql_spatial_distance_sphere",
@@ -322,9 +326,11 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_contains", () => {
     it("should find geometries within a polygon", async () => {
-      mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
-        .mockResolvedValue(createMockQueryResult([{ id: 1 }, { id: 2 }]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ id: 1 }, { id: 2 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_spatial_contains");
       if (!tool) throw new Error('Tool not found');;
@@ -344,9 +350,11 @@ describe("Handler Execution", () => {
 
   describe("mysql_spatial_within", () => {
     it("should find geometries within another", async () => {
-      mockAdapter.executeReadQuery
-        .mockResolvedValueOnce(createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]))
-        .mockResolvedValue(createMockQueryResult([{ id: 1 }]));
+      mockAdapter.executeReadQuery.mockImplementation(async (sql) => {
+        if (sql.includes("information_schema.tables")) return createMockQueryResult([{ TABLE_NAME: "test" }]);
+        if (sql.includes("information_schema.columns")) return createMockQueryResult([{ DATA_TYPE: "point", SRS_ID: 4326 }]);
+        return createMockQueryResult([{ id: 1 }]);
+      });
 
       const tool = tools.find((t) => t.name === "mysql_spatial_within");
       if (!tool) throw new Error('Tool not found');;
