@@ -9,10 +9,10 @@ import type { ToolDefinition, RequestContext } from "../../../../types/index.js"
 import { READ_ONLY } from "../../../../utils/annotations.js";
 
 export const RoleListSchemaBase = z.object({
-  pattern: z.string().optional().describe("Filter pattern (LIKE syntax)"),
-  name: z.string().optional().describe("Alias for pattern"),
-  role: z.string().optional().describe("Alias for pattern"),
-  roleName: z.string().optional().describe("Alias for pattern"),
+  pattern: z.coerce.string().optional().describe("Filter pattern (LIKE syntax)"),
+  name: z.coerce.string().optional().describe("Alias for pattern"),
+  role: z.coerce.string().optional().describe("Alias for pattern"),
+  roleName: z.coerce.string().optional().describe("Alias for pattern"),
   limit: z.number().int().min(1).max(100).default(50).describe("Max results"),
 });
 

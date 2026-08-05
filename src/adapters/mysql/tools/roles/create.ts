@@ -12,10 +12,15 @@ import { validateIdentifier } from "../../../../utils/validators.js";
 import { WRITE } from "../../../../utils/annotations.js";
 
 export const RoleCreateSchemaBase = z.object({
-  name: z.string().optional().describe("Role name"),
-  role: z.string().optional().describe("Alias for name"),
-  roleName: z.string().optional().describe("Alias for name"),
-  ifNotExists: z.boolean().default(false),
+  name: z.coerce.string().optional().describe("Role name"),
+  role: z.coerce.string().optional().describe("Alias for name"),
+  roleName: z.coerce.string().optional().describe("Alias for name"),
+  ifNotExists: z.preprocess((val) => {
+    if (typeof val === 'boolean') return val;
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    return val;
+  }, z.boolean().default(false)),
 });
 
 export const RoleCreateSchema = RoleCreateSchemaBase.refine(
