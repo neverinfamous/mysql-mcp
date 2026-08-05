@@ -15,7 +15,7 @@ export const EventCreateSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for body"),
   query: z.string().optional().describe("Alias for body"),
   onCompletion: z
-    .string()
+    .enum(["PRESERVE", "NOT PRESERVE"])
     .optional()
     .default("NOT PRESERVE")
     .describe("What to do after event completes"),
@@ -37,7 +37,7 @@ export const EventCreateSchema = z.object({
   body: z.string().optional(),
   sql: z.string().optional(),
   query: z.string().optional(),
-  onCompletion: z.string().default("NOT PRESERVE"),
+  onCompletion: z.enum(["PRESERVE", "NOT PRESERVE"]).default("NOT PRESERVE"),
   status: z.enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"]).default("ENABLE"),
   comment: z.string().optional(),
   ifNotExists: z.boolean().default(false),
@@ -64,7 +64,7 @@ export const EventAlterSchemaBase = z.object({
   body: z.string().optional().describe("New SQL statement(s). Note: Can also use sql or query."),
   sql: z.string().optional().describe("Alias for body"),
   query: z.string().optional().describe("Alias for body"),
-  onCompletion: z.string().optional(),
+  onCompletion: z.enum(["PRESERVE", "NOT PRESERVE"]).optional(),
   status: z
     .enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"])
     .optional()
@@ -82,7 +82,7 @@ export const EventAlterSchema = z.object({
   body: z.string().optional(),
   sql: z.string().optional(),
   query: z.string().optional(),
-  onCompletion: z.string().optional(),
+  onCompletion: z.enum(["PRESERVE", "NOT PRESERVE"]).optional(),
   status: z.enum(["ENABLE", "DISABLE", "DISABLE ON SLAVE"]).optional(),
   comment: z.string().optional(),
 }).transform(data => ({

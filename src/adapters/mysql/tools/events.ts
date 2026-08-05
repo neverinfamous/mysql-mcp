@@ -83,12 +83,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
           return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
         }
 
-        const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
-        if (!validOnCompletion.includes(onCompletion)) {
-          return formatHandlerErrorResponse(
-            new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
-          );
-        }
+
 
         if (ifNotExists) {
           const existsCheck = await adapter.executeQuery(
@@ -159,15 +154,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
           return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
         }
 
-        // Validate enum fields at handler level
-        if (onCompletion !== undefined) {
-          const validOnCompletion = ["PRESERVE", "NOT PRESERVE"];
-          if (!validOnCompletion.includes(onCompletion)) {
-            return formatHandlerErrorResponse(
-              new ValidationError(`Invalid onCompletion: '${onCompletion}' — expected one of: ${validOnCompletion.join(", ")}`)
-            );
-          }
-        }
+
 
         let sql = `ALTER EVENT \`${name}\``;
         const clauses: string[] = [];
@@ -181,6 +168,9 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
         }
 
         if (newName) {
+          if (newName === name) {
+            return formatHandlerErrorResponse(new ValidationError("New event name cannot be the same as the current name",));
+          }
           if (!/^[^`]+$/.test(newName)) {
             return formatHandlerErrorResponse(new ValidationError("Invalid new event name",));
           }
