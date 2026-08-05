@@ -1,8 +1,9 @@
 import { ZodError } from "zod";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  ValidationError,
+  type ToolDefinition,
+  type RequestContext,
 } from "../../../../../types/index.js";
 import {
   FulltextCreateSchema,
@@ -65,7 +66,7 @@ export function createFulltextCreateTool(
             msg.includes("Key column") ||
             msg.includes("Column '")
           ) {
-            return formatHandlerErrorResponse(new Error(msg));
+            return formatHandlerErrorResponse(new ValidationError(msg));
           }
           if (msg.includes("does not exist")) {
             return formatHandlerErrorResponse(
