@@ -39,7 +39,7 @@ export const CreateCollectionSchemaBase = z.object({
 });
 
 export const CreateCollectionSchemaStrict = z.object({
-  name: z.string().describe("Collection name. Hint: Use 'name' instead of 'tableName' or 'collectionName'."),
+  name: z.string().max(64).describe("Collection name. Hint: Use 'name' instead of 'tableName' or 'collectionName'."),
   schema: z.string().optional(),
   ifNotExists: z.boolean().default(false).describe("Add IF NOT EXISTS clause"),
   validation: z
