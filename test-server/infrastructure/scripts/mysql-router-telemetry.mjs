@@ -24,10 +24,13 @@ async function fetchRouterAPI(path) {
   return res.json();
 }
 
+const START_TIME = (Date.now() * 1000000).toString();
+
 function createDataPoint(value, attributes) {
   return {
+    startTimeUnixNano: START_TIME,
     timeUnixNano: (Date.now() * 1000000).toString(),
-    asDouble: Number(value),
+    asInt: String(Number(Math.floor(value))),
     attributes: Object.entries(attributes).map(([key, val]) => ({
       key,
       value: { stringValue: String(val) }
