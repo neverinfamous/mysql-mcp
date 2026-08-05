@@ -17,7 +17,7 @@ import {
   skipIfSuperReadOnly,
 } from "./helpers.js";
 
-test.describe.configure({ mode: "parallel" });
+// test.describe.configure({ mode: "parallel" });
 
 const getUniqueName = (prefix: string) => `${prefix}_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
 

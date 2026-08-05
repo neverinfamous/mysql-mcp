@@ -5,7 +5,7 @@ import { createConnection } from "node:net";
 const ADV_SEC_PORT = 3132 + parseInt(process.env.TEST_WORKER_INDEX || "0", 10);
 const SLOWLORIS_PORT = 3133 + parseInt(process.env.TEST_WORKER_INDEX || "0", 10);
 
-test.describe.configure({ mode: "parallel" });
+// test.describe.configure({ mode: "parallel" });
 
 test.describe("Advanced HTTP Transport Security", () => {
   test.describe("DNS Rebinding & Trust Proxy", () => {

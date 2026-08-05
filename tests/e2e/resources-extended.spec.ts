@@ -11,7 +11,7 @@
 import { test, expect } from "@playwright/test";
 import { createClient } from "./helpers.js";
 
-test.describe.configure({ mode: "parallel" });
+// test.describe.configure({ mode: "parallel" });
 
 test.describe("Extended Resource Reads", () => {
   test("mysql://pool returns JSON", async () => {
