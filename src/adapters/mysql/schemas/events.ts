@@ -157,7 +157,7 @@ export const EventListSchema = z.object({
 
 
 export const EventStatusSchemaBase = z.object({
-  name: z.string().describe("Event name"),
+  name: z.string().optional().describe("Event name. Note: Do not use eventName."),
   eventName: z.string().optional().describe("Alias for name"),
   event: z.string().optional().describe("Alias for name"),
   schema: z
