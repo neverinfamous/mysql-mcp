@@ -14,7 +14,7 @@ export const MemberSchemaBase = z.object({
   id: z.string().optional().describe("Alias for memberId"),
   member: z.string().optional().describe("Alias for memberId"),
   uuid: z.string().optional().describe("Alias for memberId"),
-}).strict();
+}).loose();
 
 export const MemberSchema = z.preprocess(
   (val: unknown) => {
@@ -29,13 +29,15 @@ export const MemberSchema = z.preprocess(
     }
     return val;
   },
-  MemberSchemaBase
+  z.object({
+    memberId: z.string().optional().describe("Filter by specific member UUID"),
+  }).strict()
 );
 
 export const LimitSchemaBase = z.object({
   limit: z.coerce.number().int().positive().optional().describe("Maximum number of results"),
   count: z.coerce.number().int().positive().optional().describe("Alias for limit"),
-}).strict();
+}).loose();
 
 export const SummarySchemaBase = z.object({
   summary: z.preprocess((val) => {
@@ -44,7 +46,7 @@ export const SummarySchemaBase = z.object({
     if (val === 'false') return false;
     return val;
   }, z.boolean().optional()).describe("If true, return condensed output without configuration blobs"),
-}).strict();
+}).loose();
 
 // =============================================================================
 // Output Schemas

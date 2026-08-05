@@ -1,6 +1,4 @@
 import { z } from "zod";
-import { SummarySchemaBase } from "../../../schemas/cluster.js";
-
 export const SummarySchema = z.preprocess((val) => {
   if (typeof val === "boolean") {
     return { summary: val };
@@ -17,7 +15,7 @@ export const SummarySchema = z.preprocess((val) => {
     }
   }
   return val;
-}, SummarySchemaBase);
+}, z.object({ summary: z.boolean().optional() }).strict());
 
 export const LimitSchema = z.preprocess((val) => {
   if (typeof val === "number") {

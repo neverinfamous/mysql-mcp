@@ -47,7 +47,7 @@ export function createGRStatusTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get comprehensive Group Replication status including mode and member state.",
     group: "cluster",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: GRStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -214,7 +214,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Identify the current primary member in a single-primary GR cluster.",
     group: "cluster",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: GRPrimaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -285,7 +285,7 @@ export function createGRTransactionsTool(
     description:
       "Get Group Replication transaction statistics and pending transactions.",
     group: "cluster",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: GRTransactionsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -363,12 +363,13 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get Group Replication flow control statistics and throttling info.",
     group: "cluster",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: GRFlowControlOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
+        z.object({}).strict().parse(_params);
         // Check if GR is running
         const pluginResult = await adapter.executeQuery("/* readonly */ SHOW PLUGINS");
         const grPlugin = pluginResult.rows?.find((row) => row["Name"] === "group_replication");
