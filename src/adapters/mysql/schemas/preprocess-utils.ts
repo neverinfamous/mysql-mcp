@@ -1091,6 +1091,17 @@ export function preprocessDocFilterParams(val: unknown): unknown {
     if (!isNaN(parsed)) result["offset"] = parsed;
   }
 
+  if (typeof result["fields"] === "string") {
+    try {
+      const parsed = JSON.parse(result["fields"]) as unknown;
+      result["fields"] = Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      result["fields"] = (result["fields"] as string).split(",").map((s: string) => s.trim());
+    }
+  } else if (result["fields"] !== undefined && !Array.isArray(result["fields"])) {
+    result["fields"] = [result["fields"]];
+  }
+
   delete result["criteria"];
   delete result["condition"];
   delete result["update"];

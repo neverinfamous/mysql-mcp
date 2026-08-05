@@ -107,7 +107,7 @@ export const FindSchemaBase = z.object({
   sql: z.unknown().optional().describe("Alias for filter"),
   where: z.unknown().optional().describe("Alias for filter"),
   search: z.unknown().optional().describe("Alias for filter"),
-  fields: z.array(z.string()).optional(),
+  fields: z.unknown().optional(),
   limit: z.unknown().optional(),
   offset: z.unknown().optional(),
 });
