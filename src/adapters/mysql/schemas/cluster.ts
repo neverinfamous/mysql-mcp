@@ -23,9 +23,9 @@ export const MemberSchema = z.preprocess(
     }
     if (val !== null && typeof val === "object" && !("memberId" in val)) {
       const v = val as Record<string, unknown>;
-      if ("id" in v) return { ...val, memberId: v["id"] };
-      if ("member" in v) return { ...val, memberId: v["member"] };
-      if ("uuid" in v) return { ...val, memberId: v["uuid"] };
+      if ("id" in v) { const { id, ...rest } = v; return { ...rest, memberId: id }; }
+      if ("member" in v) { const { member, ...rest } = v; return { ...rest, memberId: member }; }
+      if ("uuid" in v) { const { uuid, ...rest } = v; return { ...rest, memberId: uuid }; }
     }
     return val;
   },
