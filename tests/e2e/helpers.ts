@@ -287,10 +287,20 @@ export async function startServer(
 /**
  * Stop a server started by `startServer()`.
  */
+import { execSync } from "node:child_process";
+
 export function stopServer(port: number): void {
   const proc = serverProcesses.get(port);
   if (proc) {
-    proc.kill("SIGTERM");
+    if (process.platform === "win32" && proc.pid) {
+      try {
+        execSync(`taskkill /pid ${proc.pid} /T /F`, { stdio: "ignore" });
+      } catch {
+        // ignore
+      }
+    } else {
+      proc.kill("SIGKILL");
+    }
     serverProcesses.delete(port);
   }
 }
