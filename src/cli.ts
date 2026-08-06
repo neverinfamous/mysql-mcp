@@ -159,6 +159,16 @@ export async function main(args?: {
   process.on("SIGINT", () => void shutdown());
   process.on("SIGTERM", () => void shutdown());
 
+  process.on("unhandledRejection", (err: unknown) => {
+    if (err instanceof Error && err.message === "Script execution timed out.") {
+      logger.warn("Caught unhandled isolated-vm timeout rejection to prevent server crash", {
+        error: err.message,
+      });
+      return;
+    }
+    logger.error("Unhandled promise rejection", { error: String(err) });
+  });
+
   try {
     // Create and connect adapters
     for (const dbConfig of databases) {
