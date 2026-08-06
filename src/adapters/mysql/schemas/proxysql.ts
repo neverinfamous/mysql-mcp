@@ -248,6 +248,9 @@ export const ProxySQLStatusInputSchemaBase = z.object({
     ),
   database: z.any().optional().describe("Alias for summary"),
   table: z.any().optional().describe("Alias for summary"),
+  category: z.any().optional().describe("Ignored alias"),
+  type: z.any().optional().describe("Ignored alias"),
+  filter: z.any().optional().describe("Ignored alias"),
 }).loose();
 
 export const ProxySQLStatusInputSchema = z.preprocess(
@@ -286,6 +289,9 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     
     delete result["database"];
     delete result["table"];
+    delete result["category"];
+    delete result["type"];
+    delete result["filter"];
     
     // Anti-Hallucination: Agents may send limit/count to tools that don't support it
     delete result["limit"];
@@ -432,6 +438,8 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
   pattern: z.any().optional().describe("Alias for like"),
   search: z.any().optional().describe("Alias for like"),
   name: z.any().optional().describe("Alias for like"),
+  variable_name: z.any().optional().describe("Alias for like"),
+  variable: z.any().optional().describe("Alias for like"),
 }).loose();
 
 export const ProxySQLVariableFilterSchema = z.preprocess(
@@ -444,10 +452,14 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
       if (result["pattern"] !== undefined) result["like"] = result["pattern"];
       else if (result["search"] !== undefined) result["like"] = result["search"];
       else if (result["name"] !== undefined) result["like"] = result["name"];
+      else if (result["variable_name"] !== undefined) result["like"] = result["variable_name"];
+      else if (result["variable"] !== undefined) result["like"] = result["variable"];
     }
     delete result["pattern"];
     delete result["search"];
     delete result["name"];
+    delete result["variable_name"];
+    delete result["variable"];
 
     if (result["like"] !== undefined) {
       if (typeof result["like"] !== "string") {
