@@ -918,7 +918,7 @@ export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   return true;
 }, { message: "longitude must be between -180 and 180, and latitude between -90 and 90 for SRID 4326" })
 .refine((data) => {
-  if (data.geoJson !== undefined) {
+  if (data.srid === 4326 && data.geoJson !== undefined) {
       const matches = data.geoJson.match(/\[\s*([-\d.]+)\s*,\s*([-\d.]+)\s*(?:,\s*[-\d.]+\s*)?\]/g);
       if (matches) {
           for (const match of matches) {
@@ -933,7 +933,7 @@ export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
       }
   }
   return true;
-}, { message: "GeoJSON coordinates must be valid for WGS84: longitude between -180 and 180, and latitude between -90 and 90" });
+}, { message: "GeoJSON coordinates must be valid for WGS84: longitude between -180 and 180, and latitude between -90 and 90 for SRID 4326" });
 
 // Output Schemas
 
