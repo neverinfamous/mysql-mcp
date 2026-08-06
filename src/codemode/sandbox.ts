@@ -178,6 +178,9 @@ export class CodeModeSandbox {
     let result: unknown;
     let success = true;
     let errorMsg: string | undefined;
+    let timeoutTimer: NodeJS.Timeout | undefined;
+    let isTimedOut = false;
+    let scriptPromise: Promise<any> | undefined;
 
     try {
       context = isolate.createContextSync();
@@ -578,8 +581,7 @@ export class CodeModeSandbox {
       script = isolate.compileScriptSync(wrappedCode, {
         filename: `code-mode.js`,
       });
-      let timeoutTimer: NodeJS.Timeout | undefined;
-      let isTimedOut = false;
+      isTimedOut = false;
       const timeoutPromise = new Promise<never>((_, reject) => {
         timeoutTimer = setTimeout(() => {
           isTimedOut = true;
@@ -587,7 +589,7 @@ export class CodeModeSandbox {
         }, effectiveTimeout);
       });
 
-      const scriptPromise = script.run(context, {
+      scriptPromise = script.run(context, {
         timeout: effectiveTimeout,
         promise: true,
         copy: true,
