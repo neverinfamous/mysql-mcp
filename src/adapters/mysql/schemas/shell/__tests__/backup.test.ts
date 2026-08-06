@@ -44,14 +44,15 @@ describe("Shell Backup Schemas", () => {
     });
 
     it("should resolve schemas aliases and convert strings to arrays", () => {
-      expect(ShellDumpSchemasInputSchema.parse({ schema: "db1" })).toMatchObject({ schemas: ["db1"] });
-      expect(ShellDumpSchemasInputSchema.parse({ name: "db1" })).toMatchObject({ schemas: ["db1"] });
-      expect(ShellDumpSchemasInputSchema.parse({ database: "db1" })).toMatchObject({ schemas: ["db1"] });
+      expect(ShellDumpSchemasInputSchema.parse({ schema: "db1", outputDir: "/tmp/dump" })).toMatchObject({ schemas: ["db1"] });
+      expect(ShellDumpSchemasInputSchema.parse({ name: "db1", outputDir: "/tmp/dump" })).toMatchObject({ schemas: ["db1"] });
+      expect(ShellDumpSchemasInputSchema.parse({ database: "db1", outputDir: "/tmp/dump" })).toMatchObject({ schemas: ["db1"] });
     });
 
     it("should resolve includeTables and excludeTables aliases and arrays", () => {
       const result = ShellDumpSchemasInputSchema.parse({
         schemas: ["db1"],
+        outputDir: "/tmp/dump",
         includeTable: "t1",
         excludeTable: ["t2", "t3"],
       });
@@ -63,7 +64,7 @@ describe("Shell Backup Schemas", () => {
     });
 
     it("should fail if no schemas provided", () => {
-      expect(() => ShellDumpSchemasInputSchema.parse({})).toThrow("At least one schema name is required");
+      expect(() => ShellDumpSchemasInputSchema.parse({ outputDir: "/tmp/dump" })).toThrow("At least one schema name is required");
     });
   });
 
@@ -82,30 +83,30 @@ describe("Shell Backup Schemas", () => {
     });
 
     it("should resolve schema aliases", () => {
-      expect(ShellDumpTablesInputSchema.parse({ schemaName: "db1", tables: ["t1"] })).toMatchObject({ schema: "db1" });
-      expect(ShellDumpTablesInputSchema.parse({ database: "db1", tables: ["t1"] })).toMatchObject({ schema: "db1" });
+      expect(ShellDumpTablesInputSchema.parse({ schemaName: "db1", tables: ["t1"], outputDir: "/tmp/dump" })).toMatchObject({ schema: "db1" });
+      expect(ShellDumpTablesInputSchema.parse({ database: "db1", tables: ["t1"], outputDir: "/tmp/dump" })).toMatchObject({ schema: "db1" });
     });
 
     it("should resolve tables aliases and single strings", () => {
-      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", tableNames: "t1" })).toMatchObject({ tables: ["t1"] });
-      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", table: "t1" })).toMatchObject({ tables: ["t1"] });
-      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", name: "t1" })).toMatchObject({ tables: ["t1"] });
+      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", tableNames: "t1", outputDir: "/tmp/dump" })).toMatchObject({ tables: ["t1"] });
+      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", table: "t1", outputDir: "/tmp/dump" })).toMatchObject({ tables: ["t1"] });
+      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", name: "t1", outputDir: "/tmp/dump" })).toMatchObject({ tables: ["t1"] });
     });
 
     it("should resolve where aliases", () => {
-      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", tables: ["t1"], filter: { t1: "id=1" } })).toMatchObject({ where: { t1: "id=1" } });
+      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", tables: ["t1"], filter: { t1: "id=1" }, outputDir: "/tmp/dump" })).toMatchObject({ where: { t1: "id=1" } });
     });
 
     it("should convert string where to object for each table", () => {
-      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", tables: ["t1", "t2"], where: "id=1" })).toMatchObject({ where: { t1: "id=1", t2: "id=1" } });
+      expect(ShellDumpTablesInputSchema.parse({ schema: "db1", tables: ["t1", "t2"], where: "id=1", outputDir: "/tmp/dump" })).toMatchObject({ where: { t1: "id=1", t2: "id=1" } });
     });
 
     it("should fail if no schema provided", () => {
-      expect(() => ShellDumpTablesInputSchema.parse({ tables: ["t1"] })).toThrow("schema must not be empty");
+      expect(() => ShellDumpTablesInputSchema.parse({ tables: ["t1"], outputDir: "/tmp/dump" })).toThrow("schema must not be empty");
     });
 
     it("should fail if no tables provided", () => {
-      expect(() => ShellDumpTablesInputSchema.parse({ schema: "db1" })).toThrow("At least one table name is required");
+      expect(() => ShellDumpTablesInputSchema.parse({ schema: "db1", outputDir: "/tmp/dump" })).toThrow("At least one table name is required");
     });
   });
 });
