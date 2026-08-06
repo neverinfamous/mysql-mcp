@@ -861,12 +861,19 @@ export const GeoJSONSchema = GeoJSONSchemaStrict.refine(
   if (data.geoJson !== undefined) {
     if (data.geoJson.trim() === "") return false;
     try {
-      const parsed = JSON.parse(data.geoJson) as unknown;
+      const parsed = JSON.parse(data.geoJson) as Record<string, unknown>;
       if (typeof parsed !== "object" || parsed === null || !("type" in parsed)) return false;
-      const type = parsed["type" as keyof typeof parsed];
+      const type = parsed["type"];
       if (typeof type !== "string") return false;
       const validTypes = ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon", "GeometryCollection", "Feature", "FeatureCollection"];
       if (!validTypes.includes(type)) return false;
+      
+      if (["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"].includes(type)) {
+          if (!("coordinates" in parsed) || !Array.isArray(parsed["coordinates"])) return false;
+          if (type === "Point" && parsed["coordinates"].length < 2) return false;
+      } else if (type === "GeometryCollection") {
+          if (!("geometries" in parsed) || !Array.isArray(parsed["geometries"])) return false;
+      }
     } catch {
       return false;
     }
