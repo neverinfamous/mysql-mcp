@@ -135,6 +135,14 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
     }
 
     return { ...val, role, user, host, privileges, database, table };
+  })
+  .refine((val) => {
+    if (val.privileges.length > 0) {
+      return !(val.database === "*" && val.table !== "*");
+    }
+    return true;
+  }, {
+    message: "Cannot specify a table without a specific database. MySQL does not support revoking on a specific table across all databases (*.table). Use database: '*' and table: '*' for global privileges, or provide a specific database.",
   });
 
 export const UserRolesSchemaBase = z.object({

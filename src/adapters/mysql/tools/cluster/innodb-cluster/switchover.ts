@@ -21,7 +21,7 @@ export function createClusterSwitchoverTool(
     description:
       "Analyze cluster state and provide switchover recommendations. Note: This tool does NOT execute a switchover.",
     group: "cluster",
-    inputSchema: z.object({}).passthrough().describe("Note: This tool ONLY performs switchover analysis and recommendations. It does NOT execute a switchover. It takes NO parameters. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).loose().describe("Note: This tool ONLY performs switchover analysis and recommendations. It does NOT execute a switchover. It takes NO parameters. Any passed arguments will be rejected."),
     outputSchema: ClusterSwitchoverOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

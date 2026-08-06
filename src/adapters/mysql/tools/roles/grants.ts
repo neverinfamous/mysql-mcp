@@ -86,6 +86,9 @@ export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
   })
   .refine((val) => val.privileges.length > 0, {
     message: "Must provide 'privileges' array or single 'privilege' string",
+  })
+  .refine((val) => !(val.database === "*" && val.table !== "*"), {
+    message: "Cannot specify a table without a specific database. MySQL does not support granting on a specific table across all databases (*.table). Use database: '*' and table: '*' for global privileges, or provide a specific database.",
   });
 
 export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
