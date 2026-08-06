@@ -278,6 +278,13 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     delete result["database"];
     delete result["table"];
     
+    // Anti-Hallucination: Agents may send limit/count to tools that don't support it
+    delete result["limit"];
+    delete result["count"];
+    delete result["max"];
+    delete result["top"];
+    delete result["rows"];
+    
     if (typeof result["summary"] === "string") {
       const s = result["summary"].toLowerCase();
       if (s === "true" || s === "yes" || s === "1" || s === "t" || s === "y") result["summary"] = true;
@@ -537,6 +544,13 @@ export const ProxySQLCommandInputSchema = z.preprocess(
     delete result["sql"];
     delete result["query"];
     delete result["statement"];
+    
+    // Anti-Hallucination: Agents may send limit/count to tools that don't support it
+    delete result["limit"];
+    delete result["count"];
+    delete result["max"];
+    delete result["top"];
+    delete result["rows"];
     
     if (typeof result["command"] === "string") {
       result["command"] = result["command"].toUpperCase();
