@@ -579,8 +579,10 @@ export class CodeModeSandbox {
         filename: `code-mode.js`,
       });
       let timeoutTimer: NodeJS.Timeout | undefined;
+      let isTimedOut = false;
       const timeoutPromise = new Promise<never>((_, reject) => {
         timeoutTimer = setTimeout(() => {
+          isTimedOut = true;
           reject(new Error("Script execution timed out."));
         }, effectiveTimeout);
       });
@@ -642,7 +644,13 @@ export class CodeModeSandbox {
         /* ignore */
       }
       try {
-        isolate.dispose();
+        if (isTimedOut && scriptPromise) {
+          scriptPromise.finally(() => {
+            try { isolate.dispose(); } catch {}
+          });
+        } else {
+          isolate.dispose();
+        }
       } catch {
         /* ignore */
       }
