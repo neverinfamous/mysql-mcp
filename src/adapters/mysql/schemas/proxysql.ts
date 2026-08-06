@@ -176,6 +176,15 @@ export const ProxySQLBaseInputSchema = z.preprocess(
     delete result["top"];
     delete result["rows"];
     
+    // Anti-Hallucination: Agents may send summary/database to status-like tools
+    delete result["summary"];
+    delete result["database"];
+    delete result["table"];
+    delete result["status"];
+    delete result["stats"];
+    delete result["variables"];
+    delete result["metrics"];
+    
     return result;
   },
   z.object({}).strict()
