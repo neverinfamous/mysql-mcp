@@ -31,15 +31,15 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 // =============================================================================
 
 const PasswordValidateSchemaBase = z.object({
-  password: z.coerce.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
-  pass: z.coerce.string().optional().describe("Alias for password"),
-  pwd: z.coerce.string().optional().describe("Alias for password"),
-}).catchall(z.unknown());
+  password: z.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
+  pass: z.string().optional().describe("Alias for password"),
+  pwd: z.string().optional().describe("Alias for password"),
+}).strict();
 
 const PasswordValidateSchema = z.object({
-  password: z.coerce.string().describe("Password to validate").optional(),
-  pass: z.coerce.string().optional().describe("Alias for password"),
-  pwd: z.coerce.string().optional().describe("Alias for password"),
+  password: z.string().describe("Password to validate").optional(),
+  pass: z.string().optional().describe("Alias for password"),
+  pwd: z.string().optional().describe("Alias for password"),
 }).strict().transform((obj) => {
   const password = obj.password ?? obj.pass ?? obj.pwd;
   return { password: password ? password : "" };
@@ -64,7 +64,7 @@ export function createSecuritySSLStatusTool(
     title: "MySQL SSL Status",
     description: "Get SSL/TLS connection and certificate status.",
     group: "security",
-    inputSchema: z.object({}).catchall(z.unknown()).describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecuritySslStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -148,7 +148,7 @@ export function createSecurityEncryptionStatusTool(
     title: "MySQL Encryption Status",
     description: "Get Transparent Data Encryption (TDE) and keyring status.",
     group: "security",
-    inputSchema: z.object({}).catchall(z.unknown()).describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecurityEncryptionStatusOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
