@@ -228,15 +228,19 @@ describe("SandboxPool", () => {
       await pool.initialize();
       
       const api = { test: { delay: async () => { await new Promise(r => setTimeout(r, 10)); return true; } } };
-      const p1 = pool.execute("await mysql.test.delay(); return 1", api);
-      const p2 = pool.execute("await mysql.test.delay(); return 2", api);
-      const p3 = pool.execute("await mysql.test.delay(); return 3", api);
+      const p1 = pool.execute("await mysql.test.delay(); return 1", api, 5000);
+      const p2 = pool.execute("await mysql.test.delay(); return 2", api, 5000);
+      const p3 = pool.execute("await mysql.test.delay(); return 3", api, 5000);
       
       // The 4th execution should fail immediately since maxInstances is 3
       await expect(pool.execute("return 4", {})).rejects.toThrow("Sandbox pool exhausted");
       
       const results = await Promise.all([p1, p2, p3]);
       
+      if (!results[0].success) console.error("p1 failed:", results[0].error);
+      if (!results[1].success) console.error("p2 failed:", results[1].error);
+      if (!results[2].success) console.error("p3 failed:", results[2].error);
+
       expect(results[0].success).toBe(true);
       expect(results[1].success).toBe(true);
       expect(results[2].success).toBe(true);
