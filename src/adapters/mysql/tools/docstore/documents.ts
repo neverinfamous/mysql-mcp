@@ -62,12 +62,12 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           if (fields && fields.length > 0) {
             // Validate all field names to prevent SQL injection
             for (const f of fields) {
-              if (!IDENTIFIER_RE.test(f)) {
-                throw new ValidationError(`Invalid field name: "${f}". Field names must be valid identifiers (letters, digits, underscores).`);
+              if (!/^[a-zA-Z_][a-zA-Z0-9_.]*$/.test(f)) {
+                throw new ValidationError(`Invalid field name: "${f}". Field names must be valid identifiers or dot-notation paths.`);
               }
             }
             selectClause =
-              "JSON_OBJECT(" +
+              "_id, JSON_OBJECT(" +
               fields
                 .map((f) => `'${f}', JSON_EXTRACT(doc, '$.${f}')`)
                 .join(", ") +
