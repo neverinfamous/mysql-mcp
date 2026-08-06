@@ -1214,6 +1214,11 @@ export function preprocessSpatialParams(input: unknown): unknown {
     if (col !== undefined) result["spatialColumn"] = col;
   }
 
+  if (result["type"] === undefined) {
+    if (result["geometryType"] !== undefined) result["type"] = result["geometryType"];
+    else if (result["geomType"] !== undefined) result["type"] = result["geomType"];
+  }
+
   if (result["polygon"] === undefined) {
     if (result["wkt"] !== undefined) result["polygon"] = result["wkt"];
     else if (result["geometry"] !== undefined) result["polygon"] = result["geometry"];
