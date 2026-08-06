@@ -46,7 +46,7 @@ export const SummarySchemaBase = z.object({
     if (val === 'false') return false;
     return val;
   }, z.boolean().optional()).describe("If true, return condensed output without configuration blobs"),
-}).loose();
+}).strict();
 
 // =============================================================================
 // Output Schemas

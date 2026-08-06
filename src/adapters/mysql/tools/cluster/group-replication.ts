@@ -363,7 +363,7 @@ export function createGRFlowControlTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Get Group Replication flow control statistics and throttling info.",
     group: "cluster",
-    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: GRFlowControlOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
