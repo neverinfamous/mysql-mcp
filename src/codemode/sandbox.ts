@@ -180,7 +180,7 @@ export class CodeModeSandbox {
     let errorMsg: string | undefined;
     let timeoutTimer: NodeJS.Timeout | undefined;
     let isTimedOut = false;
-    let scriptPromise: Promise<any> | undefined;
+    let scriptPromise: Promise<unknown> | undefined;
 
     try {
       context = isolate.createContextSync();
@@ -647,8 +647,8 @@ export class CodeModeSandbox {
       }
       try {
         if (isTimedOut && scriptPromise) {
-          scriptPromise.finally(() => {
-            try { isolate.dispose(); } catch {}
+          void scriptPromise.finally(() => {
+            try { isolate.dispose(); } catch { /* ignore */ }
           });
         } else {
           isolate.dispose();
