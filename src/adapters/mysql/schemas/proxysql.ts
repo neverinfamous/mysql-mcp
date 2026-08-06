@@ -241,7 +241,7 @@ export const ProxySQLUsersInputSchema = z.preprocess(
 
 export const ProxySQLStatusInputSchemaBase = z.object({
   summary: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .describe(
       "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Anti-Hallucination Hint: pass 'summary', not 'database' or 'table'.",
@@ -370,7 +370,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 );
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
-  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
+  hostgroup_id: z.union([z.number(), z.string()]).optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
   hostgroup: z.any().optional().describe("Alias for hostgroup ID"),
   id: z.any().optional().describe("Alias for hostgroup ID"),
 }).loose();
