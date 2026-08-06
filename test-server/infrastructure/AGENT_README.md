@@ -98,8 +98,8 @@ node scripts/reset-database.mjs
 The environment runs a `cluster-healer` Docker sidecar service that automatically monitors the MySQL cluster and handles disaster recovery.
 
 - **How it works:** It polls all 3 nodes every 30 seconds.
-- **Complete Outage:** If the cluster loses quorum (all nodes down), it executes native SQL statements (`SET GLOBAL group_replication_bootstrap_group=ON; START GROUP_REPLICATION; SET GLOBAL group_replication_bootstrap_group=OFF;`).
-- **Individual Node Drops:** If a node falls offline or gets out of sync, it forces a rejoin via `CHANGE REPLICATION SOURCE TO ... FOR CHANNEL 'group_replication_recovery'` and `START GROUP_REPLICATION`.
+- **Complete Outage:** If the cluster loses quorum (all nodes down), it executes `dba.rebootClusterFromCompleteOutage('mcpCluster')` via `mysqlsh`.
+- **Individual Node Drops:** If a node falls offline or gets out of sync, it forces a rejoin via `STOP GROUP_REPLICATION` and `START GROUP_REPLICATION`.
 
 To view its logs and check recovery actions:
 ```powershell

@@ -73,7 +73,7 @@ All scripts are located in the `scripts/` directory and can be executed natively
 
 All databases use persistent volumes (`mysql-node1-data-v4`, `mysql-node2-data-v4`, `mysql-node3-data-v4`).
 
-**Auto-Healing Host Crashes**: The InnoDB cluster will not naturally reboot after a hard host crash (e.g. power loss or Windows/Docker crash) to prevent split-brain. However, a lightweight `cluster-healer` sidecar container runs continuously to detect total cluster outages and automatically executes native SQL commands (`SET GLOBAL group_replication_bootstrap_group=ON`, `CHANGE REPLICATION SOURCE TO ... FOR CHANNEL 'group_replication_recovery'`) via the `mysql` CLI to rebuild the cluster quorum. You do not need to intervene.
+**Auto-Healing Host Crashes**: The InnoDB cluster will not naturally reboot after a hard host crash (e.g. power loss or Windows/Docker crash) to prevent split-brain. However, a lightweight `cluster-healer` sidecar container runs continuously to detect total cluster outages and automatically executes `dba.rebootClusterFromCompleteOutage('mcpCluster')` and `STOP/START GROUP_REPLICATION` via `mysqlsh` to rebuild the cluster quorum. You do not need to intervene.
 
 To perform a complete factory wipe of the entire data tier and automatically bootstrap the cluster:
 

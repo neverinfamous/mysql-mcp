@@ -63,7 +63,7 @@ for (const dashboard of dashboards) {
         }
     } catch (error) {
         console.error(`Failed to download ${dashboard.id}:`, error.message);
-        process.exitCode = 1;
+        process.exit(1);
     }
 }
 
@@ -77,7 +77,7 @@ if (adamicChanged.length > 0) {
         execSync(cmd, { stdio: "inherit", cwd: adamicRoot });
     } catch (err) {
         console.error("Failed to auto-commit in adamic:", err.message || err);
-        process.exitCode = 1;
+        process.exit(1);
     }
 }
 
@@ -91,7 +91,7 @@ if (mysqlMcpChanged.length > 0) {
         execSync(cmd, { stdio: "inherit", cwd: mysqlMcpRoot });
     } catch (err) {
         console.error("Failed to auto-commit in mysql-mcp:", err.message || err);
-        process.exitCode = 1;
+        process.exit(1);
     }
 }
 

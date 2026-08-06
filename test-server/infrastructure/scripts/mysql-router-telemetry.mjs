@@ -55,38 +55,42 @@ async function collectMetrics() {
     for (const route of routes) {
       const routeName = route.name;
       
-      // Get connections
+      // Get status (connections & blocked hosts)
+      try {
+        const status = await fetchRouterAPI(`/routes/${routeName}/status`);
+        activeConnectionsPoints.push(createDataPoint(status.activeConnections || 0, { route: routeName }));
+        totalConnectionsPoints.push(createDataPoint(status.totalConnections || 0, { route: routeName }));
+        blockedHostsPoints.push(createDataPoint(status.blockedHosts || 0, { route: routeName }));
+      } catch (err) {
+        console.error(`Failed to fetch status for route ${routeName}:`, err.message);
+      }
+
+      // Get connections (bytes)
       try {
         const conn = await fetchRouterAPI(`/routes/${routeName}/connections`);
-        activeConnectionsPoints.push(createDataPoint(conn.activeConnections || 0, { route: routeName }));
-        totalConnectionsPoints.push(createDataPoint(conn.totalConnections || 0, { route: routeName }));
-        if (conn.bytesFromClient !== undefined) {
-          bytesClientPoints.push(createDataPoint(conn.bytesFromClient, { route: routeName }));
+        let totalBytesClient = 0;
+        let totalBytesServer = 0;
+        for (const item of (conn.items || [])) {
+          totalBytesClient += (item.bytesToServer || 0); // Bytes from client sent to server
+          totalBytesServer += (item.bytesFromServer || 0); // Bytes from server sent to client
         }
-        if (conn.bytesFromServer !== undefined) {
-          bytesServerPoints.push(createDataPoint(conn.bytesFromServer, { route: routeName }));
-        }
+        bytesClientPoints.push(createDataPoint(totalBytesClient, { route: routeName }));
+        bytesServerPoints.push(createDataPoint(totalBytesServer, { route: routeName }));
       } catch (err) {
         console.error(`Failed to fetch connections for route ${routeName}:`, err.message);
       }
-      
-      // Get blocked hosts
-      try {
-        const blocked = await fetchRouterAPI(`/routes/${routeName}/blockedHosts`);
-        blockedHostsPoints.push(createDataPoint((blocked.items || []).length, { route: routeName }));
-      } catch (err) {
-        console.error(`Failed to fetch blocked hosts for route ${routeName}:`, err.message);
-      }
 
-      // Get destinations
+      // Get destinations and health
       try {
         const dests = await fetchRouterAPI(`/routes/${routeName}/destinations`);
+        const healthResult = await fetchRouterAPI(`/routes/${routeName}/health`);
+        const isHealthy = healthResult.isAlive ? 1 : 0;
+        
         for (const dest of (dests.items || [])) {
-          const isHealthy = dest.status === "Ok" ? 1 : 0;
           destinationHealthPoints.push(createDataPoint(isHealthy, { 
             route: routeName, 
             address: dest.address,
-            status: dest.status
+            status: healthResult.isAlive ? "Ok" : "Failing"
           }));
         }
       } catch (err) {
