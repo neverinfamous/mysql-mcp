@@ -191,7 +191,7 @@ export const ProxySQLBaseInputSchema = z.preprocess(
 );
 
 export const ProxySQLUsersInputSchemaBase = z.object({
-  username: z.any().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
+  username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
   user: z.any().optional().describe("Alias for username"),
   name: z.any().optional().describe("Alias for username"),
   id: z.any().optional().describe("Alias for username"),
@@ -241,7 +241,7 @@ export const ProxySQLUsersInputSchema = z.preprocess(
 
 export const ProxySQLStatusInputSchemaBase = z.object({
   summary: z
-    .any()
+    .boolean()
     .optional()
     .describe(
       "If true (default), returns only key metrics (version, uptime, queries, connections) instead of all status variables. Anti-Hallucination Hint: pass 'summary', not 'database' or 'table'.",
@@ -313,7 +313,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
 
 export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
-    .any()
+    .number()
     .optional()
     .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
   count: z.any().optional().describe("Alias for limit"),
@@ -364,7 +364,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
 );
 
 export const ProxySQLHostgroupInputSchemaBase = z.object({
-  hostgroup_id: z.any().optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
+  hostgroup_id: z.number().optional().describe("Filter by hostgroup ID. Anti-Hallucination Hint: use 'hostgroup_id', not 'hostgroup'."),
   hostgroup: z.any().optional().describe("Alias for hostgroup ID"),
   id: z.any().optional().describe("Alias for hostgroup ID"),
 }).loose();
@@ -412,17 +412,17 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
 
 export const ProxySQLVariableFilterSchemaBase = z.object({
   prefix: z
-    .any()
+    .string()
     .optional()
     .describe("Variable prefix filter: mysql, admin, or all (default: all)"),
   like: z
-    .any()
+    .string()
     .optional()
     .describe(
       "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
     ),
   limit: z
-    .any()
+    .number()
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
   count: z.any().optional().describe("Alias for limit"),
