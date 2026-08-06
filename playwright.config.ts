@@ -39,7 +39,7 @@ export default defineConfig({
       // Provide sandbox boundaries for E2E tests
       ALLOWED_IO_ROOTS: `${tmpdir()}`,
       // Prevent 429s during E2E runs with many client connections
-      MCP_RATE_LIMIT_MAX: "10000",
+      MCP_RATE_LIMIT_MAX: "100000",
       // ProxySQL admin connection
       PROXYSQL_HOST: "127.0.0.1",
       PROXYSQL_PORT: "6032",
