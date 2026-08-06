@@ -16,7 +16,7 @@ export const ShellCheckUpgradeInputSchemaBase = z
       .optional()
       .default("JSON")
       .describe("Output format"),
-  })
+  }).strict()
   .describe(
     "Check server upgrade compatibility using util.checkForServerUpgrade()",
   );

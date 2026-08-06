@@ -36,7 +36,7 @@ export const ShellInfoSchema = z.preprocess(
 );
 
 // --- ShellVersion ---
-export const ShellVersionInputSchemaBase = z.object({});
+export const ShellVersionInputSchemaBase = z.object({}).strict();
 
 export const ShellVersionInputSchema = z.preprocess(
   (val: unknown) => {
