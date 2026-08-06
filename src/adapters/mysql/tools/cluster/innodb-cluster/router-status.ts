@@ -13,7 +13,7 @@ import {
   ClusterRouterStatusOutputSchema,
 } from "../../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { SummarySchema } from "./schemas.js";
+import { SummarySchema, SummarySchemaBase } from "./schemas.js";
 
 export function createClusterRouterStatusTool(
   adapter: MySQLAdapter,
@@ -23,7 +23,7 @@ export function createClusterRouterStatusTool(
     title: "MySQL Cluster Router Status",
     description: "Get status of MySQL Routers connected to the cluster.",
     group: "cluster",
-    inputSchema: SummarySchema,
+    inputSchema: SummarySchemaBase,
     outputSchema: ClusterRouterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,

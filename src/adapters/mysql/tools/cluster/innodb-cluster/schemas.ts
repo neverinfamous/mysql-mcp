@@ -1,4 +1,9 @@
 import { z } from "zod";
+
+export const SummarySchemaBase = z.object({
+  summary: z.boolean().optional(),
+}).passthrough();
+
 export const SummarySchema = z.preprocess((val) => {
   if (typeof val === "boolean") {
     return { summary: val };
@@ -15,7 +20,16 @@ export const SummarySchema = z.preprocess((val) => {
     }
   }
   return val;
-}, z.object({ summary: z.boolean().optional() }).strict());
+}, SummarySchemaBase.strict());
+
+export const LimitSchemaBase = z.object({
+  limit: z
+    .number()
+    .int("Expected positive integer")
+    .positive("Expected positive integer")
+    .optional()
+    .default(100),
+}).passthrough();
 
 export const LimitSchema = z.preprocess((val) => {
   if (typeof val === "number") {
@@ -43,11 +57,4 @@ export const LimitSchema = z.preprocess((val) => {
     return cleaned;
   }
   return val;
-}, z.object({
-  limit: z
-    .number()
-    .int("Expected positive integer")
-    .positive("Expected positive integer")
-    .optional()
-    .default(100),
-}).strict());
+}, LimitSchemaBase.strict());

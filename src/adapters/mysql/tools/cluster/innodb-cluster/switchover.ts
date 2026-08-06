@@ -21,11 +21,17 @@ export function createClusterSwitchoverTool(
     description:
       "Analyze cluster state and provide switchover recommendations. Note: This tool does NOT execute a switchover.",
     group: "cluster",
-    inputSchema: z.object({}).strict().describe("Note: This tool ONLY performs switchover analysis and recommendations. It does NOT execute a switchover. It takes NO parameters. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).passthrough().describe("Note: This tool ONLY performs switchover analysis and recommendations. It does NOT execute a switchover. It takes NO parameters. Any passed arguments will be rejected."),
     outputSchema: ClusterSwitchoverOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
+      try {
+        z.object({}).strict().parse(_params);
+      } catch (error) {
+        return formatHandlerErrorResponse(error);
+      }
+
       try {
         // Check if GR is running
         const pluginResult = await adapter.executeQuery("SHOW PLUGINS");
