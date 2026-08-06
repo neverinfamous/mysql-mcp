@@ -8,7 +8,7 @@ export default defineConfig({
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
-  workers: process.env.CI ? 2 : 2,
+  workers: 1, // Must be 1 since all tests share a single MCP Server instance and a single testdb. Parallel DDL causes metadata locks.
   timeout: 120000,
   outputDir: ".test-output/playwright-artifacts",
   reporter: [["list"], ["json", { outputFile: ".test-output/playwright-results.json" }]],
