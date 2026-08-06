@@ -138,11 +138,11 @@ export const RoleRevokeSchema = RoleRevokeSchemaBase.refine((val) => val.role ||
   });
 
 export const UserRolesSchemaBase = z.object({
-  user: z.string().optional(),
-  targetUser: z.string().optional(),
-  userName: z.string().optional(),
-  username: z.string().optional(),
-  host: z.string().default("%"),
+  user: z.string().optional().describe("User name"),
+  targetUser: z.string().optional().describe("Alias for user"),
+  userName: z.string().optional().describe("Alias for user"),
+  username: z.string().optional().describe("Alias for user"),
+  host: z.string().default("%").describe("Host name"),
 });
 
 export const UserRolesSchema = UserRolesSchemaBase.refine(
