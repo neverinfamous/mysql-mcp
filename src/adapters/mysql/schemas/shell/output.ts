@@ -138,6 +138,7 @@ export const ShellDumpTablesOutputSchema = BaseOutputSchema.extend({
     schema: z.string(),
     tables: z.array(z.string()),
     outputDir: z.string(),
+    where: z.union([z.string(), z.record(z.string(), z.string())]).optional(),
     dryRun: z.boolean(),
     triggersExcluded: z.boolean().optional(),
     result: z.unknown().optional(),

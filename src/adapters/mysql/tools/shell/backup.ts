@@ -434,6 +434,7 @@ export function createShellDumpTablesTool(
             schema,
             tables,
             outputDir: finalOutputDir,
+            where,
             dryRun: dryRun ?? false,
             triggersExcluded: !all,
             result,
