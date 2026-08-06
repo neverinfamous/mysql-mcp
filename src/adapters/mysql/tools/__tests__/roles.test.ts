@@ -502,9 +502,9 @@ describe("Handler Execution", () => {
     it("should handle Zod validation errors for mysql_role_list", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_list");
       if (!tool) throw new Error('Tool not found');;
-      const result = await tool.handler({ pattern: 123 }, mockContext); // invalid pattern type
+      const result = await tool.handler({ limit: -5 }, mockContext); // invalid limit
       expect(result).toEqual(expect.objectContaining({ success: false }));
-      expect((result as Record<string, unknown>).error).toContain("pattern");
+      expect((result as Record<string, unknown>).error).toContain("limit");
     });
 
     it("should handle Zod validation errors for mysql_role_create", async () => {

@@ -740,7 +740,7 @@ describe("Replication Fallback Handling", () => {
     it("should fallback to SHOW MASTER STATUS on error", async () => {
       // First call fails (new syntax), second succeeds (old syntax)
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockResolvedValueOnce(
           createMockQueryResult([{ File: "mysql-bin.000001" }]),
         );
@@ -755,7 +755,7 @@ describe("Replication Fallback Handling", () => {
 
     it("should return structured error when binary logging is disabled", async () => {
       mockAdapter.executeQuery
-        .mockRejectedValueOnce(new Error("Unknown command"))
+        .mockRejectedValueOnce(new Error("You have an error in your SQL syntax"))
         .mockRejectedValueOnce(new Error("Binary logging not enabled"));
 
       const tool = tools.find((t) => t.name === "mysql_master_status");
