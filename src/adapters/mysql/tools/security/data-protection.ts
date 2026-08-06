@@ -106,11 +106,19 @@ const UserPrivilegesSchema = z.preprocess(
       summary = obj["format"] === "summary";
     }
 
-    return { ...obj, user, summary };
+    let includeRoles = obj["includeRoles"];
+    if (typeof includeRoles === "string") {
+      includeRoles = includeRoles.toLowerCase() === "true";
+    }
+    if (typeof summary === "string") {
+      summary = summary.toLowerCase() === "true";
+    }
+
+    return { ...obj, user, summary, includeRoles };
   },
   z.object({
-    user: z.string().default(""),
-    host: z.string().default("%"),
+    user: z.coerce.string().default(""),
+    host: z.coerce.string().default("%"),
     includeRoles: z.boolean().default(true),
     summary: z.boolean().default(false),
   })
@@ -143,24 +151,25 @@ const SensitiveTablesSchema = z
     (val: unknown) => {
       if (typeof val !== "object" || val === null) return val;
       const obj = val as Record<string, unknown>;
+      let schema = obj["schema"];
       if (!("schema" in obj)) {
         if ("database" in obj) {
-          return { ...obj, schema: obj["database"] };
+          schema = obj["database"];
         } else if ("db" in obj) {
-          return { ...obj, schema: obj["db"] };
+          schema = obj["db"];
         } else if ("table" in obj) {
-          return { ...obj, schema: obj["table"] };
+          schema = obj["table"];
         } else if ("tableName" in obj) {
-          return { ...obj, schema: obj["tableName"] };
+          schema = obj["tableName"];
         }
       }
-      return val;
+      return { ...obj, schema };
     },
     z.object({
-      schema: z.string().default(""),
-      database: z.string().default(""),
+      schema: z.coerce.string().default(""),
+      database: z.coerce.string().default(""),
       patterns: z
-        .array(z.string().min(2, "Pattern must be at least 2 characters long"))
+        .array(z.coerce.string().min(2, "Pattern must be at least 2 characters long"))
         .min(1, "At least one pattern must be provided")
         .default([
           "password",
@@ -177,7 +186,7 @@ const SensitiveTablesSchema = z
           "medical",
           "health",
         ]),
-      limit: z.number().int().positive().max(100).optional().default(20),
+      limit: z.coerce.number().int().positive().max(100).optional().default(20),
     }),
   )
   .transform((data) => ({
