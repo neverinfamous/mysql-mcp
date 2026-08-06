@@ -594,6 +594,7 @@ export class CodeModeSandbox {
         promise: true,
         copy: true,
       });
+      scriptPromise.catch(() => {});
 
       let isolateRes: { __isIsolateSuccess?: boolean; data?: unknown; message?: string } | undefined;
       try {
