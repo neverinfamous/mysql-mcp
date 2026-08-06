@@ -319,7 +319,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
 
 export const ProxySQLLimitInputSchemaBase = z.object({
   limit: z
-    .number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
   count: z.any().optional().describe("Alias for limit"),
@@ -428,7 +428,7 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
       "LIKE pattern to filter variable names (e.g., '%connection%'). Applied after prefix filter.",
     ),
   limit: z
-    .number()
+    .union([z.number(), z.string()])
     .optional()
     .describe("Maximum number of variables to return (default: 10)"),
   count: z.any().optional().describe("Alias for limit"),
