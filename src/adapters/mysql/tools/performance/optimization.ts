@@ -397,6 +397,8 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         if (!regex.test(query)) {
           throw new ValidationError(
             `Table '${table}' not found in query FROM/JOIN/UPDATE clause`,
+            undefined,
+            { suggestion: `Ensure the table '${table}' is referenced in the query's FROM, JOIN, or UPDATE clause.` }
           );
         }
 
