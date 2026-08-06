@@ -552,14 +552,25 @@ export const ContainsSchema = z.preprocess(
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
   })
-  .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
-    spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
-    polygon: data.polygon ?? data.wkt ?? data.geometry ?? data.value ?? "",
-    limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
-    srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
-  }))
+  .transform((data) => {
+    let table = typeof data.table === "string" ? data.table : data.tableName ?? data.name ?? "";
+    const spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "";
+    let polygon = data.polygon ?? data.wkt ?? data.geometry ?? data.value ?? "";
+    if (table.toUpperCase().includes("POLYGON")) {
+        polygon = table;
+        table = "";
+    }
+    return {
+      table,
+      spatialColumn,
+      polygon,
+      limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
+      srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
+    };
+  })
 )
+  .refine((data) => data.table !== "", { message: "table is required" })
+  .refine((data) => data.spatialColumn !== "", { message: "column is required" })
   .refine((data) => data.polygon.trim() !== "", { message: "polygon (WKT) must be a non-empty string" })
   .refine((data) => {
     if (!isValidWKT(data.polygon)) return false;
@@ -624,14 +635,25 @@ export const WithinSchema = z.preprocess(
     limit: z.unknown().optional(),
     srid: z.unknown().optional(),
   })
-  .transform((data) => ({
-    table: data.table ?? data.tableName ?? data.name ?? "",
-    spatialColumn: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "",
-    geometry: data.geometry ?? data.polygon ?? data.wkt ?? data.value ?? "",
-    limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
-    srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
-  }))
+  .transform((data) => {
+    let table = typeof data.table === "string" ? data.table : data.tableName ?? data.name ?? "";
+    const spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "";
+    let geometry = data.geometry ?? data.polygon ?? data.wkt ?? data.value ?? "";
+    if (table.toUpperCase().includes("POINT") || table.toUpperCase().includes("POLYGON") || table.toUpperCase().includes("LINESTRING")) {
+        geometry = table;
+        table = "";
+    }
+    return {
+      table,
+      spatialColumn,
+      geometry,
+      limit: data.limit !== undefined ? Math.floor(Number(data.limit)) : 100,
+      srid: data.srid !== undefined ? Math.floor(Number(data.srid)) : 4326,
+    };
+  })
 )
+  .refine((data) => data.table !== "", { message: "table is required" })
+  .refine((data) => data.spatialColumn !== "", { message: "column is required" })
   .refine((data) => data.geometry.trim() !== "", { message: "geometry (WKT) must be a non-empty string" })
   .refine((data) => {
     return isValidWKT(data.geometry);
