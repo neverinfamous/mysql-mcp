@@ -462,7 +462,7 @@ export function createSysIOSummaryTool(adapter: MySQLAdapter): ToolDefinition {
             if (value !== 0 && value !== "0" && value !== "  0 ps" && value !== "   0 bytes" && value !== "" && value !== null) {
               if (key.endsWith("_latency")) {
                 cleaned[key] = formatTime(value as string | number);
-              } else if (key === "total_read" || key === "avg_read" || key === "total_written" || key === "avg_write" || key === "total") {
+              } else if (key === "total_read" || key === "avg_read" || key === "total_written" || key === "avg_write" || (type === "file" && key === "total")) {
                 cleaned[key] = formatBytes(value as string | number);
               } else {
                 cleaned[key] = value;
