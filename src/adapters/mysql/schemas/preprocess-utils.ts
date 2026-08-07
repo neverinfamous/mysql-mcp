@@ -434,6 +434,13 @@ export function preprocessVectorParams(input: unknown): unknown {
     result["metric"] = result["metric"].toUpperCase();
   }
 
+  if (result["k"] === undefined && result["limit"] !== undefined) {
+    result["k"] = result["limit"];
+  }
+  if (result["limit"] === undefined && result["k"] !== undefined) {
+    result["limit"] = result["k"];
+  }
+
   if (typeof result["k"] === "string") {
     const parsed = parseInt(result["k"], 10);
     if (!isNaN(parsed)) result["k"] = parsed;

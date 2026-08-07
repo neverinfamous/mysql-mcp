@@ -173,6 +173,7 @@ export const VectorSearchSchemaBase = z.object({
   ...columnAliasesBase,
   ...queryVectorAliasesBase,
   k: z.number().optional().describe("Number of nearest neighbors to return (default: 10)"),
+  limit: z.number().optional().describe("Alias for k"),
   metric: metricParamBase,
   filter: filterParamBase,
   select: z.array(z.string()).optional().describe("Array of additional column names to return alongside the distance score"),
@@ -199,6 +200,7 @@ export const VectorRangeSearchSchemaBase = z.object({
   ...distanceAliasesBase,
   metric: metricParamBase,
   limit: z.number().optional().describe("Maximum number of results to return (default: 50)"),
+  k: z.number().optional().describe("Alias for limit"),
   filter: filterParamBase,
   select: z.array(z.string()).optional().describe("Array of additional column names to return alongside the distance score"),
 });
@@ -227,6 +229,7 @@ export const VectorHybridSearchSchemaBase = z.object({
   ...queryVectorAliasesBase,
   queryText: z.string().optional().describe("Natural language search query (Note: Pass queryText, not sql)"),
   k: z.number().optional().describe("Number of fused results to return (default: 10)"),
+  limit: z.number().optional().describe("Alias for k"),
   metric: metricParamBase,
   rrfK: z.number().optional().describe("RRF smoothing constant (default: 60). Lower = more weight to top ranks"),
   vectorWeight: z.number().optional().describe("Weight for vector score in RRF (0.0 to 1.0, default: 0.5)"),

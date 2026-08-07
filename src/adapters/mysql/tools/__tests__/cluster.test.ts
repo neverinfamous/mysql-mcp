@@ -124,7 +124,7 @@ describe("Handler Execution", () => {
 
       const tool = tools.find((t) => t.name === "mysql_gr_members");
       if (!tool) throw new Error('Tool not found');;
-      await tool.handler({ memberId: "uuid1" }, mockContext);
+      await tool.handler({ memberId: "123e4567-e89b-12d3-a456-426614174001" }, mockContext);
 
       // Plugin check is first call
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
@@ -138,7 +138,7 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining("WHERE m.MEMBER_ID = ?"),
-        ["uuid1"],
+        ["123e4567-e89b-12d3-a456-426614174001"],
       );
     });
   });
