@@ -196,7 +196,7 @@ export const ProxySQLBaseInputSchema = z.preprocess(
 );
 
 export const ProxySQLUsersInputSchemaBase = z.object({
-  username: z.string().optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
+  username: z.union([z.string(), z.number()]).optional().describe("Filter by username. Anti-Hallucination Hint: use 'username', not 'user'."),
   user: z.any().optional().describe("Alias for username"),
   name: z.any().optional().describe("Alias for username"),
   id: z.any().optional().describe("Alias for username"),
