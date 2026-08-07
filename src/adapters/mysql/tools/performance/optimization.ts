@@ -439,7 +439,12 @@ export function createOptimizerTraceTool(
       .describe(
         "If true (default), returns only key optimization decisions to save tokens. Set to false for the full trace.",
       ),
-  });
+    table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
+    schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+    database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+    db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  }).strict();
 
   const schema = z
     .preprocess(
@@ -448,6 +453,13 @@ export function createOptimizerTraceTool(
         query: z.string().optional(),
         sql: z.string().optional(),
         summary: z.boolean().optional(),
+        table: z.string().optional(),
+        tableName: z.string().optional(),
+        schema: z.string().optional(),
+        database: z.string().optional(),
+        db: z.string().optional(),
+      }).strict().refine((data) => !data.table && !data.tableName && !data.schema && !data.database && !data.db, {
+        message: "Anti-Hallucination Hint: mysql_optimizer_trace executes against the current database and expects a query. It does NOT accept a table, schema, database, or db string.",
       }),
     )
     .transform((data) => ({

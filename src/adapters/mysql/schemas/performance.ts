@@ -453,6 +453,9 @@ export const ForceIndexSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for query"),
   indexName: z.string().optional().describe("Index name to force"),
   index: z.string().optional().describe("Alias for index name"),
+  schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
+  database: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
+  db: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a database name. This tool executes against the current database."),
 }).strict();
 
 // Transformed schema for handler parsing
@@ -477,6 +480,11 @@ export const ForceIndexSchema = z
       sql: z.string().optional(),
       indexName: z.string().optional(),
       index: z.string().optional(),
+      schema: z.string().optional(),
+      database: z.string().optional(),
+      db: z.string().optional(),
+    }).strict().refine((data) => !data.schema && !data.database && !data.db, {
+      message: "Anti-Hallucination Hint: mysql_force_index executes against the current database. It does NOT accept a schema, database, or db string.",
     }),
   )
   .transform((data) => ({
