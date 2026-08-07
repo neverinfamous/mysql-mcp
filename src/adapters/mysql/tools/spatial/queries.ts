@@ -133,8 +133,9 @@ export function createSpatialDistanceTool(
 
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
+          const details = colValidation.code === "TABLE_NOT_FOUND" ? { exists: false, table } : undefined;
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false, ...(details ? { details } : {})
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
@@ -299,8 +300,9 @@ export function createSpatialDistanceSphereTool(
 
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
+          const details = colValidation.code === "TABLE_NOT_FOUND" ? { exists: false, table } : undefined;
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false, ...(details ? { details } : {})
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
@@ -410,8 +412,9 @@ export function createSpatialContainsTool(
 
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
+          const details = colValidation.code === "TABLE_NOT_FOUND" ? { exists: false, table } : undefined;
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false, ...(details ? { details } : {})
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
@@ -501,8 +504,9 @@ export function createSpatialWithinTool(adapter: MySQLAdapter): ToolDefinition {
 
         const colValidation = await validateSpatialColumn(adapter, table, spatialColumn);
         if (!colValidation.success) {
+          const details = colValidation.code === "TABLE_NOT_FOUND" ? { exists: false, table } : undefined;
           return withTokenEstimate({
-            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false
+            success: false, error: colValidation.error || "Validation error", code: colValidation.code || "VALIDATION_ERROR", category: colValidation.code?.includes("NOT_FOUND") ? "resource" : "validation", recoverable: false, ...(details ? { details } : {})
           });
         }
         if (colValidation.srid !== undefined && colValidation.srid !== srid) {
