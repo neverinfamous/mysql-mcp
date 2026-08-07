@@ -14,7 +14,7 @@ export const MemberSchemaBase = z.object({
   id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
   member: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
   uuid: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
-}).loose();
+}).strict();
 
 export const MemberSchema = z.preprocess(
   (val: unknown) => {
@@ -37,7 +37,7 @@ export const MemberSchema = z.preprocess(
 export const LimitSchemaBase = z.object({
   limit: z.coerce.number().int().positive().optional().describe("Maximum number of results"),
   count: z.coerce.number().int().positive().optional().describe("Alias for limit"),
-}).loose();
+}).strict();
 
 export const SummarySchemaBase = z.object({
   summary: z.preprocess((val) => {
