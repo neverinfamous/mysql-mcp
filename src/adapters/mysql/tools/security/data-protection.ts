@@ -75,7 +75,7 @@ const MaskDataSchema = z.preprocess(
 );
 
 const UserPrivilegesSchemaBase = z.object({
-  user: z.string().optional().describe("Filter by username"),
+  user: z.string().optional().describe("Filter by username. Required to prevent payload bloat."),
   userName: z.string().optional().describe("Alias for user"),
   username: z.string().optional().describe("Alias for user"),
   name: z.string().optional().describe("Alias for user"),
@@ -128,7 +128,7 @@ const SensitiveTablesSchemaBase = z.object({
   schema: z
     .string()
     .optional()
-    .describe("Schema to scan (defaults to current database)"),
+    .describe("Schema to scan. Required to prevent payload bloat."),
   database: z.string().optional().describe("Alias for schema"),
   db: z.string().optional().describe("Alias for schema"),
   table: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
