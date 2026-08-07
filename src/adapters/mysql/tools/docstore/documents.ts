@@ -103,7 +103,8 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               !Array.isArray(parsed)
             ) {
               if (!("_id" in parsed)) {
-                Object.assign(parsed, { _id: idValue });
+                const idStr = Buffer.isBuffer(idValue) ? idValue.toString("utf8") : idValue;
+                Object.assign(parsed, { _id: idStr });
               }
             }
             return parsed;
