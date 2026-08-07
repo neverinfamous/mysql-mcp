@@ -296,6 +296,9 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     delete result["category"];
     delete result["type"];
     delete result["filter"];
+    delete result["group"];
+    delete result["hostgroup"];
+    delete result["hostgroup_id"];
     
     // Anti-Hallucination: Agents may send limit/count to tools that don't support it
     delete result["limit"];
@@ -310,6 +313,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
       const s = result["summary"].toLowerCase();
       if (s === "true" || s === "yes" || s === "1" || s === "t" || s === "y") result["summary"] = true;
       else if (s === "false" || s === "no" || s === "0" || s === "f" || s === "n") result["summary"] = false;
+      else delete result["summary"]; // Fallback to default if invalid string
     }
     return result;
   },
@@ -411,6 +415,19 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     delete result["rows"];
     delete result["size"];
     delete result["take"];
+    
+    // Anti-Hallucination: Agents may send database/summary to list tools
+    delete result["database"];
+    delete result["table"];
+    delete result["status"];
+    delete result["stats"];
+    delete result["summary"];
+    delete result["variables"];
+    delete result["metrics"];
+    delete result["category"];
+    delete result["type"];
+    delete result["filter"];
+    delete result["group"];
     
     const hostgroupId = result["hostgroup_id"];
     if (typeof hostgroupId === "string") {
