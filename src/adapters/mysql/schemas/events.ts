@@ -101,6 +101,7 @@ export const EventDropSchemaBase = z.object({
   eventName: z.string().optional().describe("Alias for name"),
   event: z.string().optional().describe("Alias for name"),
   schema: z.string().optional().describe("Schema name (defaults to current database)"),
+  schemaName: z.string().optional().describe("Alias for schema"),
   database: z.string().optional().describe("Alias for schema"),
   ifExists: z.boolean().optional().default(false).describe("Add IF EXISTS clause"),
 });
@@ -110,11 +111,12 @@ export const EventDropSchema = z.object({
   eventName: z.string().optional(),
   event: z.string().optional(),
   schema: z.string().optional(),
+  schemaName: z.string().optional(),
   database: z.string().optional(),
   ifExists: z.boolean().default(false),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? data.event ?? "",
-  schema: (data.schema ?? data.database) === "" ? undefined : (data.schema ?? data.database),
+  schema: (data.schema ?? data.schemaName ?? data.database) === "" ? undefined : (data.schema ?? data.schemaName ?? data.database),
   ifExists: data.ifExists,
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
@@ -124,6 +126,7 @@ export const EventListSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  schemaName: z.string().optional().describe("Alias for schema"),
   database: z.string().optional().describe("Alias for schema"),
   pattern: z.string().optional().describe("Pattern to filter event names by (LIKE). Note: Can also use name."),
   name: z.string().optional().describe("Alias for pattern"),
@@ -139,6 +142,7 @@ export const EventListSchemaBase = z.object({
 
 export const EventListSchema = z.object({
   schema: z.string().optional(),
+  schemaName: z.string().optional(),
   database: z.string().optional(),
   pattern: z.string().optional(),
   name: z.string().optional(),
@@ -148,7 +152,7 @@ export const EventListSchema = z.object({
   limit: z.number().int().min(1).default(50),
   offset: z.number().int().min(0).default(0),
 }).transform(data => ({
-  schema: (data.schema ?? data.database) === "" ? undefined : (data.schema ?? data.database),
+  schema: (data.schema ?? data.schemaName ?? data.database) === "" ? undefined : (data.schema ?? data.schemaName ?? data.database),
   pattern: data.pattern ?? data.name ?? data.eventName ?? data.event,
   status: data.status,
   limit: data.limit,
@@ -164,6 +168,7 @@ export const EventStatusSchemaBase = z.object({
     .string()
     .optional()
     .describe("Schema name (defaults to current database)"),
+  schemaName: z.string().optional().describe("Alias for schema"),
   database: z.string().optional().describe("Alias for schema"),
 }).strict();
 
@@ -172,10 +177,11 @@ export const EventStatusSchema = z.object({
   eventName: z.string().optional(),
   event: z.string().optional(),
   schema: z.string().optional(),
+  schemaName: z.string().optional(),
   database: z.string().optional(),
 }).transform(data => ({
   name: data.name ?? data.eventName ?? data.event ?? "",
-  schema: (data.schema ?? data.database) === "" ? undefined : (data.schema ?? data.database),
+  schema: (data.schema ?? data.schemaName ?? data.database) === "" ? undefined : (data.schema ?? data.schemaName ?? data.database),
 })).refine(data => data.name !== "", { message: "name (or eventName alias) is required" });
 
 
