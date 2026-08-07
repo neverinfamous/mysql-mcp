@@ -74,7 +74,7 @@ export const ProxySQLQueryRuleSchema = z.object({
   negate_match_pattern: z.coerce.number().optional(),
   apply: z.coerce.number().optional(),
   comment: z.string().nullable().optional(),
-}).loose();
+});
 
 export type ProxySQLQueryRule = z.infer<typeof ProxySQLQueryRuleSchema>;
 
@@ -90,7 +90,7 @@ export const ProxySQLQueryDigestSchema = z.object({
   sum_time: z.coerce.number().optional(),
   min_time: z.coerce.number().optional(),
   max_time: z.coerce.number().optional(),
-}).loose();
+});
 
 export type ProxySQLQueryDigest = z.infer<typeof ProxySQLQueryDigestSchema>;
 
