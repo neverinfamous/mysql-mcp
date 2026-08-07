@@ -364,6 +364,22 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     delete result["rows"];
     delete result["size"];
     delete result["take"];
+    
+    // Anti-Hallucination: Agents may send database/summary/query to limit tools
+    delete result["database"];
+    delete result["table"];
+    delete result["status"];
+    delete result["stats"];
+    delete result["summary"];
+    delete result["variables"];
+    delete result["metrics"];
+    delete result["category"];
+    delete result["type"];
+    delete result["filter"];
+    delete result["group"];
+    delete result["query"];
+    delete result["sql"];
+    delete result["statement"];
 
     const limit = result["limit"];
     if (limit !== undefined) {
