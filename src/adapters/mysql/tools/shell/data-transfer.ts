@@ -575,7 +575,7 @@ export function createShellImportJSONTool(
                 schema,
                 collection,
                 protocol: "X Protocol",
-                result: parsed.result,
+                result: parsed.result ?? { raw: result.stdout, stderr: result.stderr },
               },
             });
           }
@@ -619,6 +619,20 @@ export function createShellImportJSONTool(
         }
         const errorMessage = error instanceof Error ? error.message : String(error);
         
+        if (
+          errorMessage.includes("--super-read-only") ||
+          errorMessage.includes("--read-only")
+        ) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              "The MySQL server is running in read-only mode (likely a replica). Switch to a primary node for write operations.",
+              "AUTHORIZATION_ERROR",
+              ErrorCategory.AUTHORIZATION,
+              { suggestion: "Execute writes against the primary node, or use the router's R/W port instead of the R/O port." }
+            )
+          );
+        }
+
         if (
           errorMessage.includes("contains invalid bytes (5b)") ||
           errorMessage.includes("Document is missing a required field")
