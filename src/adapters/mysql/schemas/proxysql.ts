@@ -177,6 +177,9 @@ export const ProxySQLBaseInputSchema = z.preprocess(
     delete result["rows"];
     delete result["size"];
     delete result["take"];
+    delete result["sort"];
+    delete result["orderBy"];
+    delete result["order_by"];
     
     // Anti-Hallucination: Agents may send summary/database to status-like tools
     delete result["summary"];
@@ -598,6 +601,9 @@ export const ProxySQLCommandInputSchema = z.preprocess(
     delete result["rows"];
     delete result["size"];
     delete result["take"];
+    delete result["sort"];
+    delete result["orderBy"];
+    delete result["order_by"];
     
     if (typeof result["command"] === "string") {
       result["command"] = result["command"].toUpperCase();
