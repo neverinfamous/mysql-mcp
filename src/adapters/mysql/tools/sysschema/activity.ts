@@ -167,6 +167,7 @@ export function createSysUserSummaryTool(
             error: `User '${user}' not found`,
             code: "NOT_FOUND_ERROR",
             category: "not_found",
+            recoverable: false,
           });
         }
 
@@ -250,6 +251,7 @@ export function createSysHostSummaryTool(
             error: `Host '${host}' not found`,
             code: "NOT_FOUND_ERROR",
             category: "not_found",
+            recoverable: false,
           });
         }
 

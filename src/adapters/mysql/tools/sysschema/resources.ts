@@ -124,6 +124,7 @@ export function createSysSchemaStatsTool(
               error: `Schema '${schema}' does not exist`,
               code: "NOT_FOUND_ERROR",
               category: "not_found",
+              recoverable: false,
             });
           }
         }
