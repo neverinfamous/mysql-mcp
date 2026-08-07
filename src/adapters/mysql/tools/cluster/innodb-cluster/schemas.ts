@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const SummarySchemaBase = z.object({
-  summary: z.boolean().optional(),
+  summary: z.union([z.boolean(), z.string()]).optional().describe("If true, return condensed output without configuration blobs"),
 }).loose();
 
 export const SummarySchema = z.preprocess((val) => {
@@ -20,7 +20,7 @@ export const SummarySchema = z.preprocess((val) => {
     }
   }
   return val;
-}, SummarySchemaBase.strict());
+}, z.object({ summary: z.boolean().optional() }).strict());
 
 export const LimitSchemaBase = z.object({
   limit: z
