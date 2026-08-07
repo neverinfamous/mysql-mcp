@@ -314,7 +314,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./logs:/var/log/mysql-mcp
+      - ../../logs:/var/log/mysql-mcp
     stop_grace_period: 30s
     mem_limit: 256m
     logging:
@@ -435,7 +435,7 @@ services:
     restart: unless-stopped
     volumes:
       - ./config/alloy/alloy-config.alloy:/etc/alloy/config.alloy:ro
-      - ./logs:/var/log/mysql-mcp:ro
+      - ../../logs:/var/log/mysql-mcp:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
     stop_grace_period: 15s
     mem_limit: 128m
@@ -512,7 +512,7 @@ services:
       - /etc/os-release:/host/etc/os-release:ro
       - /sys/kernel/debug:/sys/kernel/debug
       - ./config/datadog-integration-configs:/etc/datadog-agent/conf.d:ro
-      - ./logs:/var/log/mysql-mcp:ro
+      - ../../logs:/var/log/mysql-mcp:ro
     networks:
       - default
     stop_grace_period: 30s

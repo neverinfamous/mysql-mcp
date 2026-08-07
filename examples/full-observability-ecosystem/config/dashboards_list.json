@@ -74,30 +74,6 @@
     },
     {
       "author_handle": "admin@adamic.tech",
-      "created_at": "2026-07-19T06:34:19.260689Z",
-      "deleted_at": null,
-      "description": "Real-time observability for memory-journal-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
-      "id": "fjd-a79-8nh",
-      "is_read_only": false,
-      "layout_type": "ordered",
-      "modified_at": "2026-07-19T06:55:51.751711Z",
-      "title": "memory-journal-mcp Token \u0026 Tool Metrics",
-      "url": "/dashboard/fjd-a79-8nh/memory-journal-mcp-token--tool-metrics"
-    },
-    {
-      "author_handle": "admin@adamic.tech",
-      "created_at": "2026-07-19T06:49:45.898879Z",
-      "deleted_at": null,
-      "description": "Real-time observability for memory-journal-mcp MCP server: token usage, tool latency, error rates, and resource reads.",
-      "id": "e7x-mir-3dh",
-      "is_read_only": false,
-      "layout_type": "ordered",
-      "modified_at": "2026-07-19T06:55:50.163814Z",
-      "title": "memory-journal-mcp Token \u0026 Tool Metrics",
-      "url": "/dashboard/e7x-mir-3dh/memory-journal-mcp-token--tool-metrics"
-    },
-    {
-      "author_handle": "admin@adamic.tech",
       "created_at": "2026-07-18T04:23:56.343692Z",
       "deleted_at": null,
       "description": "This dashboard provides a high-level view of your ProxySQL environment, with in-depth performance indicators regarding the query cache or the latency.\n\n- [How to monitor ProxySQL with Datadog](https://docs.datadoghq.com/integrations/proxysql/) \n\nClone this template dashboard to make changes and add your own graph widgets. (cloned)",
@@ -107,6 +83,18 @@
       "modified_at": "2026-07-18T04:23:56.343692Z",
       "title": "ProxySQL - Laptop",
       "url": "/dashboard/xij-4r3-br8/proxysql---laptop"
+    },
+    {
+      "author_handle": "admin@adamic.tech",
+      "created_at": "2026-08-04T13:21:02.058740Z",
+      "deleted_at": null,
+      "description": "Observability for Antigravity's agent execution wrapper (lib-agent-exec)",
+      "id": "zi7-trq-jia",
+      "is_read_only": false,
+      "layout_type": "ordered",
+      "modified_at": "2026-08-04T13:36:07.406229Z",
+      "title": "Agent Execution Telemetry (lib-agent-exec)",
+      "url": "/dashboard/zi7-trq-jia/agent-execution-telemetry-lib-agent-exec"
     }
   ]
 }

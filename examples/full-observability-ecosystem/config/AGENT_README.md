@@ -11,15 +11,17 @@ This directory contains the configuration files and JSON backups for the local t
 ## Available Dashboards
 
 ### Datadog
-- `datadog-ai-dashboard.json`: Deep AI efficiency metrics (tokens, tool usage), database insights, MySQL Shell metrics, and the `MySQL Shell Status` widget (`.fill(last)`).
-- `datadog-dashboard.json`: Core Token and Tool Metrics, including the live **MySQL-MCP Audit Log** stream.
+- `datadog-ai-efficiency.json`: Deep AI efficiency metrics (tokens, tool usage) and database insights.
+- `datadog-tool-performance.json`: Tool usage and latency metrics.
+- `datadog-infrastructure.json`: Core Token and Tool Metrics, including the live **MySQL-MCP Audit Log** stream.
 - `datadog-mysql.json`: MySQL cluster health, queries, and replication status.
 - `datadog-redis.json`: Redis rate-limiting, cache hits, memory usage, and command rates.
+- `lib-agent-exec.json`: Observability for Antigravity's agent execution wrapper (lib-agent-exec).
 
 ### Grafana
 - `grafana-ai-dashboard.json`: Local Grafana equivalent of the AI dashboard.
 - `grafana-dashboard.json`: Local Grafana equivalent of the core metrics dashboard.
-- `grafana-logs.json`: Promtail/Loki log aggregation view.
+- `grafana-logs.json`: Grafana Alloy/Loki log aggregation view.
 
 ## Integration Configs
 The `datadog-integration-configs/` folder contains the YAML configurations mounted directly into the Datadog Agent container to monitor the local MySQL nodes, ProxySQL, and Redis.
