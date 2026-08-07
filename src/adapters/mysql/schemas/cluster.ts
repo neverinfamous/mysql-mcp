@@ -10,10 +10,10 @@ import { BaseOutputSchema } from "./output-schemas.js";
 // =============================================================================
 
 export const MemberSchemaBase = z.object({
-  memberId: z.string().optional().describe("Filter by specific member UUID"),
-  id: z.string().optional().describe("Alias for memberId"),
-  member: z.string().optional().describe("Alias for memberId"),
-  uuid: z.string().optional().describe("Alias for memberId"),
+  memberId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Filter by specific member UUID"),
+  id: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
+  member: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
+  uuid: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Alias for memberId"),
 }).loose();
 
 export const MemberSchema = z.preprocess(
@@ -30,7 +30,7 @@ export const MemberSchema = z.preprocess(
     return val;
   },
   z.object({
-    memberId: z.string().optional().describe("Filter by specific member UUID"),
+    memberId: z.string().regex(/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, "Invalid UUID format").optional().describe("Filter by specific member UUID"),
   }).strict()
 );
 
