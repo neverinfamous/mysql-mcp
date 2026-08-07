@@ -42,6 +42,7 @@ export function isValidWKT(wkt: string): boolean {
   
   if (type === "POLYGON" || type === "MULTIPOLYGON") {
     if (pairs.length < 4) return false;
+    if (!content.trim().startsWith("(") || !content.trim().endsWith(")")) return false;
     const rings = content.split(/\)\s*,\s*\(/);
     for (let ring of rings) {
         ring = ring.replace(/[()]/g, "").trim();
@@ -309,7 +310,9 @@ export const PolygonSchema = z.preprocess(
         if (!wkt.startsWith("POLYGON")) return false;
         const match = /POLYGON\s*\(\s*(.*)\s*\)/.exec(wkt);
         if (!match?.[1]) return false;
-        const rings = match[1].split(/\)\s*,\s*\(/);
+        const innerContent = match[1].trim();
+        if (!innerContent.startsWith("(") || !innerContent.endsWith(")")) return false;
+        const rings = innerContent.split(/\)\s*,\s*\(/);
         for (let ring of rings) {
             ring = ring.replace(/[()]/g, "").trim();
             const points = ring.split(",").map(p => p.trim());
