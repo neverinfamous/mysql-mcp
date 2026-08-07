@@ -120,7 +120,7 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 export const RouterBaseInputSchema = z.object({}).strict();
 
 export const RouteNameInputSchemaBase = z.object({
-  routeName: z.string().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
+  routeName: z.unknown().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
   name: z.unknown().optional().describe("Alias for routeName"),
   route: z.unknown().optional().describe("Alias for routeName"),
   route_name: z.unknown().optional().describe("Alias for routeName"),
@@ -161,13 +161,13 @@ export const RouteNameInputSchema = z.preprocess(
   message: "routeName must not be empty",
   path: ["routeName"]
 }).transform((data) => ({
-  routeName: data.routeName ?? "",
+  routeName: (data.routeName ?? "") as string,
   limit: data.limit,
 }));
 
 export const MetadataNameInputSchemaBase = z.object({
   metadataName: z
-    .string()
+    .unknown()
     .optional()
     .describe("Name of the metadata cache instance. Anti-Hallucination Hint: Pass metadataName, not metadata."),
   name: z.unknown().optional().describe("Alias for metadataName"),
@@ -207,11 +207,11 @@ export const MetadataNameInputSchema = z.preprocess(
   message: "metadataName must not be empty",
   path: ["metadataName"]
 }).transform((data) => ({
-  metadataName: data.metadataName ?? "",
+  metadataName: (data.metadataName ?? "") as string,
 }));
 
 export const ConnectionPoolNameInputSchemaBase = z.object({
-  poolName: z.string().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
+  poolName: z.unknown().optional().describe("Name of the connection pool. Anti-Hallucination Hint: Pass poolName, not pool."),
   name: z.unknown().optional().describe("Alias for poolName"),
   pool: z.unknown().optional().describe("Alias for poolName"),
   pool_name: z.unknown().optional().describe("Alias for poolName"),
@@ -251,7 +251,7 @@ export const ConnectionPoolNameInputSchema = z.preprocess(
   message: "poolName must not be empty",
   path: ["poolName"]
 }).transform((data) => ({
-  poolName: data.poolName ?? "",
+  poolName: (data.poolName ?? "") as string,
 }));
 
 // =============================================================================
