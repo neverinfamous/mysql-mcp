@@ -174,8 +174,11 @@ export function createShellExportTableTool(
           );
         }
         if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          const match = /MySQL Error \d+ \(\d+\): (.*)/i.exec(errorMessage) ?? /syntax error[^:]*:?(.*)/i.exec(errorMessage);
+          // eslint-disable-next-line no-control-regex
+          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(/\u001b\[\d+m/g, "").substring(0, 200);
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+            new MySQLMcpError(`SQL syntax error: ${msg}`, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Check your SQL syntax.",
             })
           );
@@ -378,8 +381,11 @@ export function createShellImportTableTool(
           );
         }
         if (errorMessage.includes("1064") || errorMessage.includes("syntax error")) {
+          const match = /MySQL Error \d+ \(\d+\): (.*)/i.exec(errorMessage) ?? /syntax error[^:]*:?(.*)/i.exec(errorMessage);
+          // eslint-disable-next-line no-control-regex
+          const msg = match?.[1] ? match[1].trim() : errorMessage.replace(/\u001b\[\d+m/g, "").substring(0, 200);
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`SQL syntax error: ${errorMessage}`, "QUERY_ERROR", ErrorCategory.QUERY, {
+            new MySQLMcpError(`SQL syntax error: ${msg}`, "QUERY_ERROR", ErrorCategory.QUERY, {
               suggestion: "Check your SQL syntax.",
             })
           );
