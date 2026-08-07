@@ -57,6 +57,9 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             if (!/^[a-zA-Z0-9_.]+$/.test(cleanPath)) {
               throw new ValidationError(`Invalid field path: "${field.path}". Paths must contain only letters, digits, underscores, and dots.`);
             }
+            if (!/^[a-zA-Z0-9_(), ]+$/.test(field.type)) {
+              throw new ValidationError(`Invalid field type format: "${field.type}". Type must contain only alphanumeric characters, parentheses, spaces, and underscores.`);
+            }
             const baseType = field.type.toUpperCase().replace(/\(.*$/, "");
             const validTypes = ["INT", "BIGINT", "TINYINT", "SMALLINT", "MEDIUMINT", "FLOAT", "DOUBLE", "DECIMAL", "DATE", "DATETIME", "TIMESTAMP", "TIME", "YEAR", "CHAR", "VARCHAR", "TEXT", "STRING", "BOOLEAN", "JSON"];
             if (!validTypes.includes(baseType)) {
