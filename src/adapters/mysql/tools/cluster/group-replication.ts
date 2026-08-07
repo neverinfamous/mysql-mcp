@@ -214,7 +214,7 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
     description:
       "Identify the current primary member in a single-primary GR cluster.",
     group: "cluster",
-    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: GRPrimaryOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -227,6 +227,13 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         if (grPlugin?.["Status"] !== "ACTIVE") {
           return formatHandlerErrorResponse(
             new ExtensionNotAvailableError("Group Replication")
+          );
+        }
+
+        const modeResult = await adapter.executeQuery("/* readonly */ SELECT @@group_replication_single_primary_mode as singlePrimaryMode");
+        if (Number(modeResult.rows?.[0]?.["singlePrimaryMode"]) !== 1) {
+          return formatHandlerErrorResponse(
+            new Error("mysql_gr_primary is only applicable in single-primary Group Replication clusters. The cluster is currently in multi-primary mode.")
           );
         }
 
@@ -285,7 +292,7 @@ export function createGRTransactionsTool(
     description:
       "Get Group Replication transaction statistics and pending transactions.",
     group: "cluster",
-    inputSchema: z.object({}).loose().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: GRTransactionsOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
