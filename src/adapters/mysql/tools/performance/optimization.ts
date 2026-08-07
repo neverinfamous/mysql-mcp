@@ -92,6 +92,7 @@ function extractTraceSummary(
               rows?: number;
               cost?: number;
               table_type?: string;
+              table_scan?: { rows: number; cost: number };
               range_analysis?: {
                 table_scan?: { rows: number; cost: number };
                 chosen_range_access_summary?: {
@@ -162,6 +163,13 @@ function extractTraceSummary(
                   table: est.table,
                   estimatedRows: rangeAnalysis.table_scan.rows,
                   estimatedCost: rangeAnalysis.table_scan.cost,
+                });
+              } else if (est.table_scan) {
+                decisions.push({
+                  type: "table_scan",
+                  table: est.table,
+                  estimatedRows: est.table_scan.rows,
+                  estimatedCost: est.table_scan.cost,
                 });
               }
             }
