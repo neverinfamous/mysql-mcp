@@ -150,8 +150,14 @@ describe("Handler Execution", () => {
           createMockQueryResult([{ Name: "group_replication", Status: "ACTIVE" }]),
         ) // Plugin check
         .mockResolvedValueOnce(
+          createMockQueryResult([{ singlePrimaryMode: 1 }]),
+        ) // Mode check
+        .mockResolvedValueOnce(
           createMockQueryResult([{ memberId: "uuid1", host: "primary.local" }]),
-        );
+        ) // Primary query
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ serverUuid: "uuid2" }]),
+        ); // Local UUID
 
       const tool = tools.find((t) => t.name === "mysql_gr_primary");
       if (!tool) throw new Error('Tool not found');;
@@ -173,7 +179,10 @@ describe("Handler Execution", () => {
           createMockQueryResult([
             { memberId: "uuid1", txInQueue: 0, txChecked: 100 },
           ]),
-        );
+        ) // Stats query
+        .mockResolvedValueOnce(
+          createMockQueryResult([{ gtidExecuted: "uuid:1-100", gtidPurged: "uuid:1-50" }]),
+        ); // GTID query
 
       const tool = tools.find((t) => t.name === "mysql_gr_transactions");
       if (!tool) throw new Error('Tool not found');;

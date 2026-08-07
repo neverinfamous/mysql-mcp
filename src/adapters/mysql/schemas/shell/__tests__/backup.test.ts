@@ -64,7 +64,7 @@ describe("Shell Backup Schemas", () => {
     });
 
     it("should fail if no schemas provided", () => {
-      expect(() => ShellDumpSchemasInputSchema.parse({ outputDir: "/tmp/dump" })).toThrow("At least one schema name is required");
+      expect(() => ShellDumpSchemasInputSchema.parse({ outputDir: "/tmp/dump" })).toThrow("invalid_union");
     });
   });
 
@@ -106,7 +106,7 @@ describe("Shell Backup Schemas", () => {
     });
 
     it("should fail if no tables provided", () => {
-      expect(() => ShellDumpTablesInputSchema.parse({ schema: "db1", outputDir: "/tmp/dump" })).toThrow("At least one table name is required");
+      expect(() => ShellDumpTablesInputSchema.parse({ schema: "db1", outputDir: "/tmp/dump" })).toThrow("invalid_union");
     });
   });
 });

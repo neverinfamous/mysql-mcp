@@ -358,7 +358,7 @@ test.describe("Boundary: Security Sandbox", () => {
       
       // Also verify another tool that touches the filesystem
       const dumpResult = await callToolAndParse(client, "mysqlsh_dump_instance", {
-        outputUrl: badPath
+        outputDir: badPath
       });
       expect(dumpResult.success).toBe(false);
       expect(dumpResult.code).toBe("SECURITY_ERROR");
