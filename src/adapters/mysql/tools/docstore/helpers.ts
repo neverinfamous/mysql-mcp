@@ -1,7 +1,7 @@
 import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import { ValidationError } from "../../../../types/modules/errors.js";
 
-export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+export const IDENTIFIER_RE = /^[a-zA-Z_][a-zA-Z0-9_]{0,63}$/;
 
 // Valid JSON path: $, $.field, $.field.sub, $.field[0], $[0], $[*]
 export const JSON_PATH_RE =
