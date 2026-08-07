@@ -175,6 +175,8 @@ export const ProxySQLBaseInputSchema = z.preprocess(
     delete result["max"];
     delete result["top"];
     delete result["rows"];
+    delete result["size"];
+    delete result["take"];
     
     // Anti-Hallucination: Agents may send summary/database to status-like tools
     delete result["summary"];
@@ -224,6 +226,8 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     delete result["max"];
     delete result["top"];
     delete result["rows"];
+    delete result["size"];
+    delete result["take"];
     
     const username = result["username"];
     if (username !== undefined && typeof username !== "string") {
@@ -299,6 +303,8 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     delete result["max"];
     delete result["top"];
     delete result["rows"];
+    delete result["size"];
+    delete result["take"];
     
     if (typeof result["summary"] === "string") {
       const s = result["summary"].toLowerCase();
@@ -326,6 +332,8 @@ export const ProxySQLLimitInputSchemaBase = z.object({
   max: z.any().optional().describe("Alias for limit"),
   top: z.any().optional().describe("Alias for limit"),
   rows: z.any().optional().describe("Alias for limit"),
+  size: z.any().optional().describe("Alias for limit"),
+  take: z.any().optional().describe("Alias for limit"),
 }).loose();
 
 export const ProxySQLLimitInputSchema = z.preprocess(
@@ -340,11 +348,15 @@ export const ProxySQLLimitInputSchema = z.preprocess(
       else if (result["max"] !== undefined) result["limit"] = result["max"];
       else if (result["top"] !== undefined) result["limit"] = result["top"];
       else if (result["rows"] !== undefined) result["limit"] = result["rows"];
+      else if (result["size"] !== undefined) result["limit"] = result["size"];
+      else if (result["take"] !== undefined) result["limit"] = result["take"];
     }
     delete result["count"];
     delete result["max"];
     delete result["top"];
     delete result["rows"];
+    delete result["size"];
+    delete result["take"];
 
     const limit = result["limit"];
     if (limit !== undefined) {
@@ -397,6 +409,8 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     delete result["max"];
     delete result["top"];
     delete result["rows"];
+    delete result["size"];
+    delete result["take"];
     
     const hostgroupId = result["hostgroup_id"];
     if (typeof hostgroupId === "string") {
@@ -435,6 +449,8 @@ export const ProxySQLVariableFilterSchemaBase = z.object({
   max: z.any().optional().describe("Alias for limit"),
   top: z.any().optional().describe("Alias for limit"),
   rows: z.any().optional().describe("Alias for limit"),
+  size: z.any().optional().describe("Alias for limit"),
+  take: z.any().optional().describe("Alias for limit"),
   pattern: z.any().optional().describe("Alias for like"),
   search: z.any().optional().describe("Alias for like"),
   name: z.any().optional().describe("Alias for like"),
@@ -474,11 +490,15 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
       else if (result["max"] !== undefined) result["limit"] = result["max"];
       else if (result["top"] !== undefined) result["limit"] = result["top"];
       else if (result["rows"] !== undefined) result["limit"] = result["rows"];
+      else if (result["size"] !== undefined) result["limit"] = result["size"];
+      else if (result["take"] !== undefined) result["limit"] = result["take"];
     }
     delete result["count"];
     delete result["max"];
     delete result["top"];
     delete result["rows"];
+    delete result["size"];
+    delete result["take"];
 
     if (result["prefix"] !== undefined) {
       if (typeof result["prefix"] === "string") {
@@ -559,6 +579,8 @@ export const ProxySQLCommandInputSchema = z.preprocess(
     delete result["max"];
     delete result["top"];
     delete result["rows"];
+    delete result["size"];
+    delete result["take"];
     
     if (typeof result["command"] === "string") {
       result["command"] = result["command"].toUpperCase();
