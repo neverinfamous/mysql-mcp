@@ -131,7 +131,7 @@ export const RouteNameInputSchemaBase = z.object({
   cluster_name: z.unknown().optional().describe("Alias for routeName"),
   metadataName: z.unknown().optional().describe("Alias for routeName"),
   poolName: z.unknown().optional().describe("Alias for routeName"),
-  limit: z.number().int().min(1).max(1000).optional().describe("Maximum number of results to return (default: 50)"),
+  limit: z.coerce.number().int().min(1).max(1000).optional().describe("Maximum number of results to return (default: 50)"),
 }).strict();
 
 export const RouteNameInputSchema = z.preprocess(
@@ -150,10 +150,17 @@ export const RouteNameInputSchema = z.preprocess(
         finalName = String(finalName);
       }
     }
+
+    let finalLimit = obj["limit"];
+    if (finalLimit !== undefined && typeof finalLimit === "string") {
+      const parsed = parseInt(finalLimit, 10);
+      if (!isNaN(parsed)) finalLimit = parsed;
+    }
     
     return {
       ...obj,
       routeName: finalName,
+      limit: finalLimit,
     };
   },
   RouteNameInputSchemaBase

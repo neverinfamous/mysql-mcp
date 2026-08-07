@@ -119,7 +119,7 @@ export function createRouterRouteConnectionsTool(): ToolDefinition {
         }
 
         const effectiveLimit = limit ?? 50;
-        const dataObj = result.data as Record<string, unknown>;
+        const dataObj = (result.data ?? {}) as Record<string, unknown>;
         const rawItems = Array.isArray(dataObj["items"]) ? (dataObj["items"] as unknown[]) : [];
         const paginatedItems = rawItems.slice(0, effectiveLimit);
 
@@ -168,7 +168,7 @@ export function createRouterRouteDestinationsTool(): ToolDefinition {
         }
 
         const effectiveLimit = limit ?? 50;
-        const dataObj = result.data as Record<string, unknown>;
+        const dataObj = (result.data ?? {}) as Record<string, unknown>;
         const rawItems = Array.isArray(dataObj["items"]) ? (dataObj["items"] as unknown[]) : [];
         const paginatedItems = rawItems.slice(0, effectiveLimit);
 
