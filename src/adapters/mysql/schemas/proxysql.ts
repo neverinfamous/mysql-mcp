@@ -334,7 +334,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
       const s = result["summary"].toLowerCase();
       if (s === "true" || s === "yes" || s === "1" || s === "t" || s === "y") result["summary"] = true;
       else if (s === "false" || s === "no" || s === "0" || s === "f" || s === "n") result["summary"] = false;
-      else delete result["summary"]; // Fallback to default if invalid string
+      // Do not delete invalid strings; let them fail boolean validation
     }
     return result;
   },
