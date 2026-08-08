@@ -142,6 +142,13 @@ const ERROR_SUGGESTIONS: {
     code: "VALIDATION_ERROR",
   },
   {
+    pattern: /Identifier name .* is too long/i,
+    suggestion:
+      "Identifier names (databases, tables, columns, events) must not exceed 64 characters.",
+    category: ErrorCategory.VALIDATION,
+    code: "VALIDATION_ERROR",
+  },
+  {
     pattern: /invalid name syntax/i,
     suggestion:
       "Check that the identifier name follows proper syntax and does not contain unauthorized characters or empty strings.",
