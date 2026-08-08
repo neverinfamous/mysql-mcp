@@ -8,7 +8,7 @@ import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
-import { validateIdentifier } from "../../../../utils/validators.js";
+import { validateMySQLUserHost } from "../../../../utils/validators.js";
 import { DESTRUCTIVE } from "../../../../utils/annotations.js";
 
 export const RoleDropSchemaBase = z.object({
@@ -41,7 +41,7 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, ifExists } = RoleDropSchema.parse(params);
-        validateIdentifier(name, "role");
+        validateMySQLUserHost(name, "role");
 
         let roleAbsent = false;
         const checkResult = await adapter.executeQuery(

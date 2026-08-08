@@ -8,7 +8,7 @@ import type { MySQLAdapter } from "../../mysql-adapter/index.js";
 import type { ToolDefinition, RequestContext } from "../../../../types/index.js";
 import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
-import { validateIdentifier } from "../../../../utils/validators.js";
+import { validateMySQLUserHost } from "../../../../utils/validators.js";
 import { WRITE } from "../../../../utils/annotations.js";
 
 export const RoleCreateSchemaBase = z.object({
@@ -46,7 +46,7 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
     handler: async (params: unknown, _context: RequestContext) => {
       try {
         const { name, ifNotExists } = RoleCreateSchema.parse(params);
-        validateIdentifier(name, "role");
+        validateMySQLUserHost(name, "role");
 
         if (ifNotExists) {
           const checkResult = await adapter.executeQuery(

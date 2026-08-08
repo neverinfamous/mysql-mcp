@@ -119,7 +119,7 @@ const MYSQL_USER_HOST_PATTERN = /^[a-zA-Z0-9_%.\-@]+$/;
  */
 export function validateMySQLUserHost(
   value: string,
-  type: "user" | "host" = "user",
+  type: "user" | "host" | "role" = "user",
 ): void {
   if (!value || typeof value !== "string") {
     throw new ValidationError(`${type} must be a non-empty string`, type);

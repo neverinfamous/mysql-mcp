@@ -187,7 +187,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { role, user, host, withAdminOption } =
             RoleAssignSchema.parse(params);
 
-          validateIdentifier(role, "role");
+          validateMySQLUserHost(role, "role");
           validateMySQLUserHost(user, "user");
           validateMySQLUserHost(host, "host");
 
@@ -256,7 +256,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { role, user, host, privileges, database, table } =
             RoleRevokeSchema.parse(params);
 
-          validateIdentifier(role, "role");
+          validateMySQLUserHost(role, "role");
 
           const checkResult = await adapter.executeQuery(
             `(SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = '')`,

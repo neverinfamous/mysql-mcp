@@ -13,6 +13,7 @@ import { MySQLMcpError } from "../../../../types/modules/errors.js";
 import { ErrorCategory } from "../../../../types/modules/error-types.js";
 import {
   validateIdentifier,
+  validateMySQLUserHost,
   validateMySQLPrivilege,
 } from "../../../../utils/validators.js";
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
@@ -106,7 +107,7 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
         try {
           const { role } = RoleGrantsSchema.parse(params);
 
-          validateIdentifier(role, "role");
+          validateMySQLUserHost(role, "role");
 
           const checkResult = await adapter.executeQuery(
             `WITH _dummy AS (SELECT 1) SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
@@ -145,7 +146,7 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
           const { role, privileges, database, table } =
             RoleGrantPrivilegeSchema.parse(params);
 
-          validateIdentifier(role, "role");
+          validateMySQLUserHost(role, "role");
 
           for (const priv of privileges) {
             validateMySQLPrivilege(priv);
