@@ -5,7 +5,6 @@ export const ShellImportTableInputSchemaBase = z
   .object({
     inputPath: z
       .string()
-      .optional()
       .describe("Input file path (absolute path)"),
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     path: z.string().optional().describe("Alias for inputPath"),
@@ -14,7 +13,7 @@ export const ShellImportTableInputSchemaBase = z
     url: z.string().optional().describe("Alias for inputPath"),
     schema: z.string().optional().describe("Target schema (database) name"),
     database: z.string().optional().describe("Alias for schema"),
-    table: z.string().optional().describe("Target table name"),
+    table: z.string().describe("Target table name"),
     tableName: z.string().optional().describe("Alias for table"),
     name: z.string().optional().describe("Alias for table"),
     tbl: z.string().optional().describe("Alias for table"),
@@ -84,7 +83,7 @@ export const ShellImportTableInputSchema = z.preprocess(
 
 export const ShellImportJSONInputSchemaBase = z
   .object({
-    inputPath: z.string().optional().describe("JSON file path (absolute path)"),
+    inputPath: z.string().describe("JSON file path (absolute path)"),
     inputUrl: z.string().optional().describe("Alias for inputPath"),
     path: z.string().optional().describe("Alias for inputPath"),
     file: z.string().optional().describe("Alias for inputPath"),
@@ -94,7 +93,6 @@ export const ShellImportJSONInputSchemaBase = z
     database: z.string().optional().describe("Alias for schema"),
     collection: z
       .string()
-      .optional()
       .describe("Target collection or table name"),
     collectionName: z.string().optional().describe("Alias for collection"),
     table: z.string().optional().describe("Alias for collection"),
