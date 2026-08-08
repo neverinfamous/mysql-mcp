@@ -116,9 +116,9 @@ describe("Handler Execution", () => {
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_create");
       if (!tool) throw new Error('Tool not found');;
-      const result = await tool.handler({ name: "invalid-role" }, mockContext);
+      const result = await tool.handler({ name: "invalid role!" }, mockContext);
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
+        expect.objectContaining({ success: false, error: "Invalid role: contains disallowed characters. Only alphanumeric, underscore, percent, dot, hyphen, and @ are allowed." }),
       );
     });
 
@@ -187,11 +187,11 @@ describe("Handler Execution", () => {
       const tool = tools.find((t) => t.name === "mysql_role_grant");
       if (!tool) throw new Error('Tool not found');;
       const result = await tool.handler(
-        { role: "invalid-role", privileges: ["SELECT"] },
+        { role: "invalid role!", privileges: ["SELECT"] },
         mockContext,
       );
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
+        expect.objectContaining({ success: false, error: "Invalid role: contains disallowed characters. Only alphanumeric, underscore, percent, dot, hyphen, and @ are allowed." }),
       );
     });
   });
@@ -270,9 +270,9 @@ describe("Handler Execution", () => {
     it("should return structured error for invalid role names", async () => {
       const tool = tools.find((t) => t.name === "mysql_role_drop");
       if (!tool) throw new Error('Tool not found');;
-      const result = await tool.handler({ name: "invalid-role" }, mockContext);
+      const result = await tool.handler({ name: "invalid role!" }, mockContext);
       expect(result).toEqual(
-        expect.objectContaining({ success: false, error: "Invalid role name: must start with letter/underscore and contain only alphanumeric characters" }),
+        expect.objectContaining({ success: false, error: "Invalid role: contains disallowed characters. Only alphanumeric, underscore, percent, dot, hyphen, and @ are allowed." }),
       );
     });
 
