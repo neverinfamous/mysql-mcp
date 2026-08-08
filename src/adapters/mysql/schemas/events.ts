@@ -133,7 +133,7 @@ export const EventListSchemaBase = z.object({
   eventName: z.string().optional().describe("Alias for pattern"),
   event: z.string().optional().describe("Alias for pattern"),
   status: z
-    .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
+    .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED", "REPLICA_SIDE_DISABLED"])
     .optional()
     .describe("Filter by status"),
   limit: z.coerce.number().int().min(1).default(50).describe("Maximum number of results to return"),
@@ -148,7 +148,7 @@ export const EventListSchema = z.object({
   name: z.string().optional(),
   eventName: z.string().optional(),
   event: z.string().optional(),
-  status: z.enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"]).optional(),
+  status: z.enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED", "REPLICA_SIDE_DISABLED"]).optional(),
   limit: z.coerce.number().int().min(1).default(50),
   offset: z.coerce.number().int().min(0).default(0),
 }).transform(data => ({
