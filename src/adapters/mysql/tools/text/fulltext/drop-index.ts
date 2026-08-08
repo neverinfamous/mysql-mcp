@@ -39,9 +39,24 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
         validateQualifiedIdentifier(table, "table");
         validateIdentifier(indexName, "index");
 
-        const sql = `DROP INDEX \`${indexName}\` ON ${escapeQualifiedTable(table)}`;
-
         try {
+          // Verify table and index exist, and index is FULLTEXT
+          const indexes = await adapter.getTableIndexes(table);
+          const index = indexes.find((i) => i.name === indexName);
+          
+          if (!index) {
+            return formatHandlerErrorResponse(
+              new Error(`Index '${indexName}' does not exist on table '${table}'`),
+            );
+          }
+          
+          if (index.type !== "FULLTEXT") {
+            return formatHandlerErrorResponse(
+              new Error(`Index '${indexName}' on table '${table}' is not a FULLTEXT index (type: ${index.type})`),
+            );
+          }
+
+          const sql = `DROP INDEX \`${indexName}\` ON ${escapeQualifiedTable(table)}`;
           await adapter.executeQuery(sql);
         } catch (err: unknown) {
           if (isCantDropKeyError(err)) {
@@ -52,7 +67,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
             );
           }
           const msg = err instanceof Error ? err.message : String(err);
-          if (msg.includes("does not exist")) {
+          if (msg.includes("does not exist") || msg.includes("doesn't exist")) {
             return formatHandlerErrorResponse(
               new Error(`Table '${table}' does not exist`),
             );
