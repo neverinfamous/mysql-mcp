@@ -54,13 +54,13 @@ This ecosystem includes all necessary components to validate the entire Adamic u
 │         │                 │                 │                                │
 │         ├────────────┬────┴─────────────────┘                                │
 │         ▼            ▼                                                       │
-│ ┌──────────────┐  [ 🔧 cluster-healer service (Auto-recovery) ]              │
-│ │ async-replica│             ▼                                               │
-│ │  Port: 3310  │   ┌──────────────────┐           ┌──────────────┐           │
-│ └──────────────┘   │   MySQL Router   │           │   ProxySQL   │           │
-│                    │ RW:6446 RO:6447  │           │ Admin: 6032  │           │
-│                    │ XRO:6448 API:8443│           │ Data:  6033  │           │
-│                    └──────────────────┴───────────┴──────────────┘           │
+│ ┌───────────────────┐  [ 🔧 cluster-healer service (Auto-recovery) ]         │
+│ │mysql-async-replica│             ▼                                          │
+│ │    Port: 3310     │   ┌──────────────────┐           ┌──────────────┐      │
+│ └───────────────────┘   │   MySQL Router   │           │   ProxySQL   │      │
+│                         │ RW:6446 RO:6447  │           │ Admin: 6032  │      │
+│                         │ XRO:6448 API:8443│           │ Data:  6033  │      │
+│                         └──────────────────┴───────────┴──────────────┘      │
 │                                                                              │
 │            ┌──────────────────┐           ┌──────────────┐                   │
 │            │    Prometheus    │           │   Grafana    │                   │

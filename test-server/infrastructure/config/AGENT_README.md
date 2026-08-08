@@ -21,7 +21,7 @@ This directory contains the configuration files and JSON backups for the local t
 ### Grafana
 - `grafana-ai-dashboard.json`: Local Grafana equivalent of the AI dashboard.
 - `grafana-dashboard.json`: Local Grafana equivalent of the core metrics dashboard.
-- `grafana-logs.json`: Grafana Alloy/Loki log aggregation view.
+- `grafana-logs.json`: Promtail/Loki log aggregation view.
 
 ## Integration Configs
 The `datadog-integration-configs/` folder contains the YAML configurations mounted directly into the Datadog Agent container to monitor the local MySQL nodes, ProxySQL, and Redis.

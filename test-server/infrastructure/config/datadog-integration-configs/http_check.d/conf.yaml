@@ -2,7 +2,6 @@ init_config:
 
 instances:
   - name: mysql_router_rest_api
-    reported_hostname: adamic-wsl2
     url: https://mysql-router:8443/api/20190715/router/status
     username: rest_api
     password: router_api

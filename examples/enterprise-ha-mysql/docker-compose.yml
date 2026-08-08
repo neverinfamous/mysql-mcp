@@ -17,7 +17,8 @@ services:
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
-      --relay-log=mysql-node1-relay-bin
+      --relay-log=example-ha-node1-relay-bin
+      --relay-log-recovery=ON
     stop_grace_period: 30s
     mem_limit: 1024m
     logging:
@@ -52,7 +53,8 @@ services:
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
-      --relay-log=mysql-node2-relay-bin
+      --relay-log=example-ha-node2-relay-bin
+      --relay-log-recovery=ON
     stop_grace_period: 30s
     mem_limit: 1024m
     logging:
@@ -87,7 +89,8 @@ services:
       --gtid-mode=ON
       --binlog-checksum=NONE
       --plugin-load-add=group_replication.so
-      --relay-log=mysql-node3-relay-bin
+      --relay-log=example-ha-node3-relay-bin
+      --relay-log-recovery=ON
     stop_grace_period: 30s
     mem_limit: 1024m
     logging:

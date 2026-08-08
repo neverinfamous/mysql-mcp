@@ -20,7 +20,7 @@ services:
       --enforce_gtid_consistency=ON --log_replica_updates=ON
       --report_host=mysql-node1 --innodb-use-native-aio=0
       --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
-      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node1-relay-bin
+      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node1-relay-bin --relay-log-recovery=ON
       --max_connections=200 --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
@@ -59,7 +59,7 @@ services:
       --enforce_gtid_consistency=ON --log_replica_updates=ON
       --report_host=mysql-node2 --innodb-use-native-aio=0
       --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
-      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node2-relay-bin
+      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node2-relay-bin --relay-log-recovery=ON
       --max_connections=200 --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
@@ -97,7 +97,7 @@ services:
       --enforce_gtid_consistency=ON --log_replica_updates=ON
       --report_host=mysql-node3 --innodb-use-native-aio=0
       --innodb-flush-method=fsync --innodb-buffer-pool-size=256M
-      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node3-relay-bin
+      --innodb-flush-log-at-trx-commit=2 --relay-log=mysql-node3-relay-bin --relay-log-recovery=ON
       --max_connections=200 --table_definition_cache=1000
       --performance_schema_max_table_instances=2000
       --sql-generate-invisible-primary-key=ON
@@ -305,7 +305,7 @@ services:
     command: >
       --transport http --server-host 0.0.0.0 --tool-filter none --metrics-export
       prometheus --port 3000 --audit-log /var/log/mysql-mcp/exporter-audit.jsonl
-      --audit-reads --mysql mysql://root:root@mysql-router:6446/testdb
+      --audit-reads --mysql mysql://root:${MYSQL_ROOT_PASSWORD:-root}@mysql-router:6446/testdb
     environment:
       - ALLOWED_IO_ROOTS=/var/log/mysql-mcp
       - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-adamic123}
@@ -374,7 +374,7 @@ services:
       - prometheus_data:/prometheus
     extra_hosts:
       - "host.docker.internal:${WINDOWS_HOST_IP:-192.168.1.70}"
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -416,7 +416,7 @@ services:
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 256m
     logging:
       driver: json-file
@@ -437,7 +437,7 @@ services:
       - ./config/alloy/alloy-config.alloy:/etc/alloy/config.alloy:ro
       - ../../logs:/var/log/mysql-mcp:ro
     command: run --server.http.listen-addr=0.0.0.0:12345 /etc/alloy/config.alloy
-    stop_grace_period: 15s
+    stop_grace_period: 30s
     mem_limit: 128m
     logging:
       driver: json-file

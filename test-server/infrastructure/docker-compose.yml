@@ -310,7 +310,7 @@ services:
   # ==========================================
   mysql-mcp-exporter:
     build:
-      context: ../..
+      context: ../../../mysql-mcp
       dockerfile: Dockerfile
     image: mysql-mcp-exporter:1.0.0
     container_name: mysql-mcp-exporter
