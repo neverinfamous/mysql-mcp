@@ -526,6 +526,18 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
     delete result["variable_name"];
     delete result["variable"];
 
+    // Anti-Hallucination: Agents may send database/summary to list tools
+    delete result["database"];
+    delete result["table"];
+    delete result["status"];
+    delete result["stats"];
+    delete result["summary"];
+    delete result["metrics"];
+    delete result["category"];
+    delete result["type"];
+    delete result["filter"];
+    delete result["group"];
+
     if (result["like"] !== undefined) {
       if (typeof result["like"] !== "string") {
         if (typeof result["like"] === "number" || typeof result["like"] === "boolean") {
