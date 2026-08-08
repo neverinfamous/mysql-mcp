@@ -4,13 +4,13 @@ export const ShellExportTableInputSchemaBase = z
   .object({
     schema: z.string().optional().describe("Source schema (database) name"),
     database: z.string().optional().describe("Alias for schema"),
-    table: z.string().describe("Table name to export"),
+    table: z.string().optional().describe("Table name to export"),
     tableName: z.string().optional().describe("Alias for table"),
     name: z.string().optional().describe("Alias for table"),
     tbl: z.string().optional().describe("Alias for table"),
     table_name: z.string().optional().describe("Alias for table"),
     outputPath: z
-      .string()
+      .string().optional()
       .describe("Output file path (absolute path recommended)"),
     outputUrl: z.string().optional().describe("Alias for outputPath"),
     path: z.string().optional().describe("Alias for outputPath"),
