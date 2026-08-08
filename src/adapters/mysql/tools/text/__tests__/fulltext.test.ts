@@ -152,6 +152,12 @@ describe("Text Fulltext Tools", () => {
   });
 
   describe("createFulltextDropTool", () => {
+    beforeEach(() => {
+      mockAdapter.getTableIndexes.mockResolvedValue([
+        { name: "ft_idx", type: "FULLTEXT" }
+      ]);
+    });
+
     it("should create tool with correct definition", () => {
       const tool = createFulltextDropTool(
         mockAdapter,
