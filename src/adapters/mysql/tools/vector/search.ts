@@ -46,7 +46,7 @@ export function createVectorSearchTool(adapter: MySQLAdapter): ToolDefinition {
         const vectorStr = formatVector(validated.queryVector);
         
         let whereClause = `WHERE \`${column}\` IS NOT NULL`;
-        if (validated.filter) {
+        if (validated.filter && validated.filter.trim().length > 0) {
           whereClause += ` AND (${validated.filter})`;
         }
 
@@ -128,7 +128,7 @@ export function createVectorRangeSearchTool(adapter: MySQLAdapter): ToolDefiniti
         const vectorStr = formatVector(validated.queryVector);
         
         let whereClause = `WHERE \`${column}\` IS NOT NULL`;
-        if (validated.filter) {
+        if (validated.filter && validated.filter.trim().length > 0) {
           whereClause += ` AND (${validated.filter})`;
         }
 
@@ -233,7 +233,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
 
         let whereClause = `WHERE \`${vCol}\` IS NOT NULL`;
         let filterAnd = "";
-        if (validated.filter) {
+        if (validated.filter && validated.filter.trim().length > 0) {
           whereClause += ` AND (${validated.filter})`;
           filterAnd = `AND (${validated.filter})`;
         }
