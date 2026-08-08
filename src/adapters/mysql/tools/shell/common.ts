@@ -278,6 +278,8 @@ export async function execShellJS(
 
   // Check for critical errors in stderr (excluding common warnings)
   const stderrClean = result.stderr
+    .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+    .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "") // Strip locale warning
     .replace(
       /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,
       "",

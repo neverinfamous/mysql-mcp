@@ -589,6 +589,8 @@ export function createShellImportJSONTool(
 
         if (result.exitCode !== 0) {
           const stderrText = (result.stderr || result.stdout || "MySQL Shell import failed")
+            .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+            .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
             .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
             .trim() || "MySQL Shell import failed";
           
