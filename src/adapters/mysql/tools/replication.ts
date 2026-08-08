@@ -214,7 +214,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
         const parts: string[] = [];
 
         if (effectiveLogFile) {
-          parts.push(`IN '${effectiveLogFile.replace(/'/g, "''")}'`);
+          parts.push(`IN '${effectiveLogFile.replace(/\\/g, '\\\\').replace(/'/g, "''")}'`);
         }
         if (position != null) {
           parts.push(`FROM ${position}`);
