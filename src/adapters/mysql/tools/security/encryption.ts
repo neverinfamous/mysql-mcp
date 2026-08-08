@@ -34,7 +34,9 @@ const PasswordValidateSchemaBase = z.object({
   password: z.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
   pass: z.string().optional().describe("Alias for password"),
   pwd: z.string().optional().describe("Alias for password"),
-}).strict();
+}).strict().catch((ctx) => {
+  throw new Error(`[ERROR] [security] [VALIDATION_ERROR] Validation error: ${ctx.issues.map(i => i.message).join(", ")} (context: mysql_security_password_validate)`);
+});
 
 const PasswordValidateSchema = z.object({
   password: z.string().describe("Password to validate").optional(),
@@ -47,7 +49,9 @@ const PasswordValidateSchema = z.object({
   z.object({
     password: z.string().min(1, "Password cannot be empty")
   })
-);
+).catch((ctx) => {
+  throw new Error(`[ERROR] [security] [VALIDATION_ERROR] Validation error: ${ctx.issues.map(i => i.message).join(", ")} (context: mysql_security_password_validate)`);
+});
 
 // =============================================================================
 // Tool Creation Functions
@@ -64,7 +68,9 @@ export function createSecuritySSLStatusTool(
     title: "MySQL SSL Status",
     description: "Get SSL/TLS connection and certificate status.",
     group: "security",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().catch((ctx) => {
+      throw new Error(`[ERROR] [security] [VALIDATION_ERROR] Validation error: ${ctx.issues.map(i => i.message).join(", ")} (context: mysql_security_ssl_status)`);
+    }).describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecuritySslStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
@@ -148,7 +154,9 @@ export function createSecurityEncryptionStatusTool(
     title: "MySQL Encryption Status",
     description: "Get Transparent Data Encryption (TDE) and keyring status.",
     group: "security",
-    inputSchema: z.object({}).strict().describe("Takes no arguments. Any passed arguments will be rejected."),
+    inputSchema: z.object({}).strict().catch((ctx) => {
+      throw new Error(`[ERROR] [security] [VALIDATION_ERROR] Validation error: ${ctx.issues.map(i => i.message).join(", ")} (context: mysql_security_encryption_status)`);
+    }).describe("Takes no arguments. Any passed arguments will be rejected."),
     outputSchema: SecurityEncryptionStatusOutputSchema,
     requiredScopes: ["admin"],
     annotations: READ_ONLY,
