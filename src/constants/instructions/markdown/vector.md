@@ -4,7 +4,7 @@
 - **Version gate**: ALL vector tools require MySQL 9.0+. Returns `{ success: false, code: "EXTENSION_MISSING" }` on older versions. `mysql_vector_create_index` requires MySQL 9.1+ specifically.
 - **Store**: `mysql_vector_store`({ table, column, id, vector: number[] }) → upserts a single vector. Uses `STRING_TO_VECTOR()` internally. Dimensions must match the column's `VECTOR(N)` definition.
 - **Batch store**: `mysql_vector_batch_store`({ table, column, items: [{ id, vector }] }) → bulk insert. Significantly faster than individual stores. All vectors must have matching dimensions.
-- **Delete**: `mysql_vector_delete`({ table, id }) → deletes by primary key. Returns `{ success: false, error }` if row doesn't exist (P154).
+- **Delete**: `mysql_vector_delete`({ table, id }) → deletes by primary key. Returns `{ success: true, data: { deleted: false } }` if row doesn't exist.
 - **Get**: `mysql_vector_get`({ table, id }) → retrieves vector as `number[]` via `VECTOR_TO_STRING()`. Returns `{ exists: false }` if row doesn't exist.
 - **KNN search**: `mysql_vector_search`({ table, column, queryVector, k?, metric?, filter?, select? }) → top-k nearest neighbors. Metrics: `COSINE` (default), `EUCLIDEAN`, `DOT`. Use `filter` for WHERE clause conditions. Use `select` to limit returned columns.
 - **Range search**: `mysql_vector_range_search`({ table, column, queryVector, maxDistance }) → all vectors within distance threshold. Default limit: 50.
