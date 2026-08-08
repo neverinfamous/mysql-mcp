@@ -232,6 +232,19 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     delete result["size"];
     delete result["take"];
     
+    // Anti-Hallucination: Agents may send database/summary to list tools
+    delete result["database"];
+    delete result["table"];
+    delete result["status"];
+    delete result["stats"];
+    delete result["summary"];
+    delete result["variables"];
+    delete result["metrics"];
+    delete result["category"];
+    delete result["type"];
+    delete result["filter"];
+    delete result["group"];
+    
     const username = result["username"];
     if (username !== undefined && typeof username !== "string") {
       if (typeof username === "number" || typeof username === "boolean") {
