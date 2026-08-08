@@ -189,6 +189,15 @@ export const ProxySQLBaseInputSchema = z.preprocess(
     delete result["stats"];
     delete result["variables"];
     delete result["metrics"];
+    delete result["filter"];
+    delete result["pattern"];
+    delete result["search"];
+    delete result["like"];
+    delete result["name"];
+    delete result["variable"];
+    delete result["category"];
+    delete result["type"];
+    delete result["group"];
     
     return result;
   },
@@ -642,7 +651,7 @@ export const ProxySQLCommandInputSchemaBase = z.object({
 
 export const ProxySQLCommandInputSchema = z.preprocess(
   (val: unknown) => {
-    if (typeof val === "string") return { command: val.toUpperCase() };
+    if (typeof val === "string") return { command: val.toUpperCase().replace(/\bMEMORY\b/g, "RUNTIME") };
     if (typeof val !== "object" || val === null) return val ?? {};
     const result = { ...(val as Record<string, unknown>) };
     
@@ -677,9 +686,20 @@ export const ProxySQLCommandInputSchema = z.preprocess(
     delete result["sort"];
     delete result["orderBy"];
     delete result["order_by"];
+    delete result["database"];
+    delete result["schema"];
+    delete result["table"];
+    delete result["status"];
+    delete result["stats"];
+    delete result["variables"];
+    delete result["filter"];
+    delete result["pattern"];
+    delete result["search"];
+    delete result["like"];
+    delete result["name"];
     
     if (typeof result["command"] === "string") {
-      result["command"] = result["command"].toUpperCase();
+      result["command"] = result["command"].toUpperCase().replace(/\bMEMORY\b/g, "RUNTIME");
     }
     
     return result;
