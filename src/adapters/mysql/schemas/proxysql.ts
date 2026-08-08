@@ -244,6 +244,11 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     delete result["type"];
     delete result["filter"];
     delete result["group"];
+    delete result["active"];
+    delete result["role"];
+    delete result["privileges"];
+    delete result["server"];
+    delete result["hostname"];
     
     const username = result["username"];
     if (username !== undefined && typeof username !== "string") {
@@ -460,6 +465,10 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     delete result["type"];
     delete result["filter"];
     delete result["group"];
+    delete result["server"];
+    delete result["hostname"];
+    delete result["port"];
+    delete result["host"];
     
     const hostgroupId = result["hostgroup_id"];
     if (typeof hostgroupId === "string") {
