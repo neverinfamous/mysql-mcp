@@ -146,6 +146,16 @@ export function createShellDumpInstanceTool(
             )
           );
         }
+        if (errorMessage.includes("Could not create directory") && errorMessage.includes("File exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output path is an existing file, but a directory is required." }
+            )
+          );
+        }
         if (errorMessage.includes("No such file or directory") || errorMessage.includes("Could not create directory")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
@@ -302,6 +312,16 @@ export function createShellDumpSchemasTool(
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION,
               { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("Could not create directory") && errorMessage.includes("File exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output path is an existing file, but a directory is required." }
             )
           );
         }
@@ -492,6 +512,16 @@ export function createShellDumpTablesTool(
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION,
               { suggestion: "The specified output directory already exists and is not empty. Please provide a new directory or remove the existing one." }
+            )
+          );
+        }
+        if (errorMessage.includes("Could not create directory") && errorMessage.includes("File exists")) {
+          return formatHandlerErrorResponse(
+            new MySQLMcpError(
+              errorMessage,
+              "VALIDATION_ERROR",
+              ErrorCategory.VALIDATION,
+              { suggestion: "The specified output path is an existing file, but a directory is required." }
             )
           );
         }
