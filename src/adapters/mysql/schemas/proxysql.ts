@@ -55,7 +55,7 @@ export const ProxySQLHostgroupSchema = z.object({
   Bytes_data_sent: z.number().optional(),
   Bytes_data_recv: z.number().optional(),
   Latency_us: z.number().optional(),
-});
+}).loose();
 
 export type ProxySQLHostgroup = z.infer<typeof ProxySQLHostgroupSchema>;
 
@@ -74,7 +74,7 @@ export const ProxySQLQueryRuleSchema = z.object({
   negate_match_pattern: z.coerce.number().optional(),
   apply: z.coerce.number().optional(),
   comment: z.string().nullable().optional(),
-});
+}).loose();
 
 export type ProxySQLQueryRule = z.infer<typeof ProxySQLQueryRuleSchema>;
 
@@ -90,7 +90,7 @@ export const ProxySQLQueryDigestSchema = z.object({
   sum_time: z.coerce.number().optional(),
   min_time: z.coerce.number().optional(),
   max_time: z.coerce.number().optional(),
-});
+}).loose();
 
 export type ProxySQLQueryDigest = z.infer<typeof ProxySQLQueryDigestSchema>;
 
@@ -108,7 +108,7 @@ export const ProxySQLConnectionPoolSchema = z.object({
   Bytes_data_sent: z.number(),
   Bytes_data_recv: z.number(),
   Latency_us: z.number(),
-});
+}).loose();
 
 export type ProxySQLConnectionPool = z.infer<
   typeof ProxySQLConnectionPoolSchema
@@ -124,14 +124,14 @@ export const ProxySQLUserSchema = z.object({
   transaction_persistent: z.number().optional(),
   max_connections: z.number().optional(),
   comment: z.string().optional(),
-});
+}).loose();
 
 export type ProxySQLUser = z.infer<typeof ProxySQLUserSchema>;
 
 export const ProxySQLGlobalVariableSchema = z.object({
   variable_name: z.string(),
   variable_value: z.string(),
-});
+}).loose();
 
 export type ProxySQLGlobalVariable = z.infer<
   typeof ProxySQLGlobalVariableSchema
@@ -140,7 +140,7 @@ export type ProxySQLGlobalVariable = z.infer<
 export const ProxySQLMemoryStatsSchema = z.object({
   Variable_Name: z.string(),
   Variable_Value: z.string(),
-});
+}).loose();
 
 export type ProxySQLMemoryStats = z.infer<typeof ProxySQLMemoryStatsSchema>;
 
@@ -156,7 +156,7 @@ export const ProxySQLProcessSchema = z.object({
   command: z.string().optional(),
   time_ms: z.number().optional(),
   info: z.string().optional(),
-});
+}).loose();
 
 export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 
