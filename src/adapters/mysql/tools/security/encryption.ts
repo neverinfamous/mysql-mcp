@@ -290,7 +290,7 @@ export function createSecurityPasswordValidateTool(
           data: {
             strength,
             interpretation,
-            meetsPolicy: strength >= 50, // General guideline
+            meetsPolicy: strength === 100, // MySQL returns 100 when policy is fully met
             policy,
           },
         });
