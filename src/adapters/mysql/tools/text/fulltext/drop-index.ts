@@ -1,8 +1,9 @@
 import { ZodError } from "zod";
 import type { MySQLAdapter } from "../../../mysql-adapter/index.js";
-import type {
-  ToolDefinition,
-  RequestContext,
+import {
+  type ToolDefinition,
+  type RequestContext,
+  ValidationError,
 } from "../../../../../types/index.js";
 import {
   FulltextDropSchema,
@@ -52,7 +53,7 @@ export function createFulltextDropTool(adapter: MySQLAdapter): ToolDefinition {
           
           if (index.type !== "FULLTEXT") {
             return formatHandlerErrorResponse(
-              new Error(`Index '${indexName}' on table '${table}' is not a FULLTEXT index (type: ${index.type})`),
+              new ValidationError(`Index '${indexName}' on table '${table}' is not a FULLTEXT index (type: ${index.type})`),
             );
           }
 
