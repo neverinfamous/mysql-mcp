@@ -136,8 +136,8 @@ export const EventListSchemaBase = z.object({
     .enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"])
     .optional()
     .describe("Filter by status"),
-  limit: z.number().int().min(1).default(50).describe("Maximum number of results to return"),
-  offset: z.number().int().min(0).default(0).describe("Number of results to skip"),
+  limit: z.coerce.number().int().min(1).default(50).describe("Maximum number of results to return"),
+  offset: z.coerce.number().int().min(0).default(0).describe("Number of results to skip"),
 });
 
 export const EventListSchema = z.object({
@@ -149,8 +149,8 @@ export const EventListSchema = z.object({
   eventName: z.string().optional(),
   event: z.string().optional(),
   status: z.enum(["ENABLED", "DISABLED", "SLAVESIDE_DISABLED"]).optional(),
-  limit: z.number().int().min(1).default(50),
-  offset: z.number().int().min(0).default(0),
+  limit: z.coerce.number().int().min(1).default(50),
+  offset: z.coerce.number().int().min(0).default(0),
 }).transform(data => ({
   schema: (data.schema ?? data.schemaName ?? data.database) === "" ? undefined : (data.schema ?? data.schemaName ?? data.database),
   pattern: data.pattern ?? data.name ?? data.eventName ?? data.event,
