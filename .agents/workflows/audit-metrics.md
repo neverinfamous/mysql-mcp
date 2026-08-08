@@ -71,7 +71,7 @@ Dispatch a **single `research` subagent** to audit the live mysql-mcp metrics ec
 - Verify all env vars, volume mounts, and CLI flags are consistent (accounting for the sync script's path transformation: `../../../mysql-mcp/logs` → `../../logs`).
 
 ### MySQL-MCP Examples
-- All `examples` directories MUST run the exporter to provide the best observability examples.
+- All `examples` directories (`basic-mysql-datadog`, `enterprise-ha-mysql`, and `full-observability-ecosystem`) MUST run the exporter to provide the best observability examples.
 - Verify they use the correct Datadog dashboard JSON files (no dashboard ID mismatches) and reference valid image tags.
 
 ### Documentation Accuracy

@@ -21,11 +21,22 @@ export const MemberSchema = z.preprocess(
     if (typeof val === "string") {
       return { memberId: val };
     }
-    if (val !== null && typeof val === "object" && !("memberId" in val)) {
+    if (val !== null && typeof val === "object") {
       const v = val as Record<string, unknown>;
-      if ("id" in v) { const { id, ...rest } = v; return { ...rest, memberId: id }; }
-      if ("member" in v) { const { member, ...rest } = v; return { ...rest, memberId: member }; }
-      if ("uuid" in v) { const { uuid, ...rest } = v; return { ...rest, memberId: uuid }; }
+      let resultMemberId = v["memberId"];
+      if (resultMemberId === undefined || resultMemberId === null || resultMemberId === "") {
+        if ("id" in v) resultMemberId = v["id"];
+        else if ("member" in v) resultMemberId = v["member"];
+        else if ("uuid" in v) resultMemberId = v["uuid"];
+      }
+      const rest = { ...v };
+      delete rest["id"];
+      delete rest["member"];
+      delete rest["uuid"];
+      if (resultMemberId !== undefined && resultMemberId !== null && resultMemberId !== "") {
+        return { ...rest, memberId: resultMemberId };
+      }
+      return rest;
     }
     return val;
   },
