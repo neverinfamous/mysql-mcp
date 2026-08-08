@@ -621,6 +621,8 @@ export const ProxySQLCommandInputSchemaBase = z.object({
   sql: z.string().optional().describe("Alias for command"),
   query: z.string().optional().describe("Alias for command"),
   statement: z.string().optional().describe("Alias for command"),
+  action: z.string().optional().describe("Alias for command"),
+  cmd: z.string().optional().describe("Alias for command"),
 }).loose();
 
 export const ProxySQLCommandInputSchema = z.preprocess(
@@ -637,11 +639,17 @@ export const ProxySQLCommandInputSchema = z.preprocess(
         result["command"] = result["query"];
       } else if (result["statement"] !== undefined) {
         result["command"] = result["statement"];
+      } else if (result["action"] !== undefined) {
+        result["command"] = result["action"];
+      } else if (result["cmd"] !== undefined) {
+        result["command"] = result["cmd"];
       }
     }
     delete result["sql"];
     delete result["query"];
     delete result["statement"];
+    delete result["action"];
+    delete result["cmd"];
     
     // Anti-Hallucination: Agents may send limit/count to tools that don't support it
     delete result["limit"];
