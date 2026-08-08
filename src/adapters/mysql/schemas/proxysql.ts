@@ -383,10 +383,12 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     delete result["size"];
     delete result["take"];
     
-    // Anti-Hallucination: Agents may send database/summary/query to limit tools
+    // Anti-Hallucination: Agents may send database/summary/query/filter to limit tools
     delete result["database"];
+    delete result["db"];
     delete result["table"];
     delete result["status"];
+    delete result["state"];
     delete result["stats"];
     delete result["summary"];
     delete result["variables"];
@@ -398,6 +400,19 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     delete result["query"];
     delete result["sql"];
     delete result["statement"];
+    delete result["user"];
+    delete result["username"];
+    delete result["host"];
+    delete result["port"];
+    delete result["id"];
+    delete result["session"];
+    delete result["session_id"];
+    delete result["client"];
+    delete result["client_host"];
+    delete result["server"];
+    delete result["server_host"];
+    delete result["time"];
+    delete result["command"];
 
     const limit = result["limit"];
     if (limit !== undefined) {
