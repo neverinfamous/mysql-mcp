@@ -131,10 +131,43 @@ export const RouteNameInputSchemaBase = z.object({
   cluster_name: z.unknown().optional().describe("Alias for routeName"),
   metadataName: z.unknown().optional().describe("Alias for routeName"),
   poolName: z.unknown().optional().describe("Alias for routeName"),
+}).strict();
+
+export const RouteNameWithLimitInputSchemaBase = RouteNameInputSchemaBase.extend({
   limit: z.coerce.number().int().min(1).max(1000).optional().describe("Maximum number of results to return (default: 50)"),
 }).strict();
 
 export const RouteNameInputSchema = z.preprocess(
+  (data: unknown) => {
+    if (typeof data !== "object" || data === null) return data;
+    const obj = data as Record<string, unknown>;
+    let finalName = obj["routeName"] ?? obj["route"] ?? obj["route_name"] ?? 
+                    obj["name"] ?? obj["routename"] ?? obj["routerName"] ?? 
+                    obj["clusterName"] ?? obj["cluster_name"] ?? 
+                    obj["metadataName"] ?? obj["poolName"] ?? obj["id"];
+    
+    if (finalName !== undefined) {
+      if (typeof finalName === "object" && finalName !== null) {
+        finalName = JSON.stringify(finalName);
+      } else if (typeof finalName === "number" || typeof finalName === "boolean" || typeof finalName === "bigint") {
+        finalName = String(finalName);
+      }
+    }
+    
+    return {
+      ...obj,
+      routeName: finalName,
+    };
+  },
+  RouteNameInputSchemaBase
+).refine((data) => data.routeName !== undefined && typeof data.routeName === "string" && data.routeName.trim() !== "", {
+  message: "routeName must not be empty",
+  path: ["routeName"]
+}).transform((data) => ({
+  routeName: (data.routeName ?? "") as string,
+}));
+
+export const RouteNameWithLimitInputSchema = z.preprocess(
   (data: unknown) => {
     if (typeof data !== "object" || data === null) return data;
     const obj = data as Record<string, unknown>;
@@ -163,7 +196,7 @@ export const RouteNameInputSchema = z.preprocess(
       limit: finalLimit,
     };
   },
-  RouteNameInputSchemaBase
+  RouteNameWithLimitInputSchemaBase
 ).refine((data) => data.routeName !== undefined && typeof data.routeName === "string" && data.routeName.trim() !== "", {
   message: "routeName must not be empty",
   path: ["routeName"]

@@ -3,6 +3,8 @@ import { formatHandlerErrorResponse, withTokenEstimate } from "../core/error-hel
 import {
   RouteNameInputSchema,
   RouteNameInputSchemaBase,
+  RouteNameWithLimitInputSchema,
+  RouteNameWithLimitInputSchemaBase,
   RouterRouteStatusOutputSchema,
   RouterRouteHealthOutputSchema,
   RouterRouteConnectionsOutputSchema,
@@ -98,7 +100,7 @@ export function createRouterRouteConnectionsTool(): ToolDefinition {
     description:
       "List active connections on a route including source/destination addresses, bytes transferred, and connection times.",
     group: "router",
-    inputSchema: RouteNameInputSchemaBase,
+    inputSchema: RouteNameWithLimitInputSchemaBase,
     outputSchema: RouterRouteConnectionsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -110,7 +112,7 @@ export function createRouterRouteConnectionsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { routeName, limit } = RouteNameInputSchema.parse(params);
+        const { routeName, limit } = RouteNameWithLimitInputSchema.parse(params);
         const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/connections`,
         );
@@ -147,7 +149,7 @@ export function createRouterRouteDestinationsTool(): ToolDefinition {
     description:
       "List backend MySQL server destinations for a route. Shows address and port of each destination server.",
     group: "router",
-    inputSchema: RouteNameInputSchemaBase,
+    inputSchema: RouteNameWithLimitInputSchemaBase,
     outputSchema: RouterRouteDestinationsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -159,7 +161,7 @@ export function createRouterRouteDestinationsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { routeName, limit } = RouteNameInputSchema.parse(params);
+        const { routeName, limit } = RouteNameWithLimitInputSchema.parse(params);
         const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/destinations`,
         );
@@ -196,7 +198,7 @@ export function createRouterRouteBlockedHostsTool(): ToolDefinition {
     description:
       "List IP addresses that have been blocked for a route due to too many failed connection attempts.",
     group: "router",
-    inputSchema: RouteNameInputSchemaBase,
+    inputSchema: RouteNameWithLimitInputSchemaBase,
     outputSchema: RouterRouteBlockedHostsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
@@ -208,7 +210,7 @@ export function createRouterRouteBlockedHostsTool(): ToolDefinition {
     },
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { routeName, limit } = RouteNameInputSchema.parse(params);
+        const { routeName, limit } = RouteNameWithLimitInputSchema.parse(params);
         const result = await safeRouterFetch(
           `/routes/${encodeURIComponent(routeName)}/blockedHosts`,
         );
