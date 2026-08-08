@@ -11,9 +11,9 @@ import {
 } from "../../core/error-helpers.js";
 import {
   ClusterRouterStatusOutputSchema,
+  SummarySchemaBase,
 } from "../../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { SummarySchema, SummarySchemaBase } from "./schemas.js";
 
 export function createClusterRouterStatusTool(
   adapter: MySQLAdapter,
@@ -45,7 +45,7 @@ export function createClusterRouterStatusTool(
 
       let summary: boolean | undefined;
       try {
-        ({ summary } = SummarySchema.parse(params));
+        ({ summary } = SummarySchemaBase.parse(params));
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

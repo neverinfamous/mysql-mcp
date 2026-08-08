@@ -13,7 +13,6 @@ import {
   ClusterStatusOutputSchema,
 } from "../../../schemas/cluster.js";
 import { READ_ONLY } from "../../../../../utils/annotations.js";
-import { SummarySchema } from "./schemas.js";
 
 export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
   return {
@@ -28,7 +27,7 @@ export function createClusterStatusTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: READ_ONLY,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { summary } = SummarySchema.parse(params);
+        const { summary } = SummarySchemaBase.parse(params);
         // Check for cluster metadata schema
         const schemaCheck = await adapter.executeQuery(`/* readonly */
                     (SELECT SCHEMA_NAME
