@@ -218,6 +218,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
       .optional()
       .describe("SQL query to analyze for optimization"),
     sql: z.string().optional().describe("Alias for query"),
+    queries: z.array(z.string()).optional().describe("Anti-Hallucination Hint: Do NOT pass an array of queries. This tool expects a single query string in the `query` field."),
     table: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
     tableName: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a table name. This tool expects a query."),
     schema: z.string().optional().describe("Anti-Hallucination Hint: Do NOT pass a schema name. This tool executes against the current database."),
@@ -239,6 +240,7 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
       z.object({
         query: z.string().optional(),
         sql: z.string().optional(),
+        queries: z.array(z.string()).optional(),
         table: z.string().optional(),
         tableName: z.string().optional(),
         schema: z.string().optional(),
@@ -246,6 +248,8 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
         db: z.string().optional(),
       }).refine((data) => !data.schema && !data.database && !data.db, {
         message: "Anti-Hallucination Hint: mysql_query_rewrite executes against the current database. It does NOT accept a schema, database, or db string.",
+      }).refine((data) => !data.queries, {
+        message: "Anti-Hallucination Hint: mysql_query_rewrite expects a single query string in the `query` field. It does NOT accept an array of queries.",
       }),
     )
     .transform((data) => ({
