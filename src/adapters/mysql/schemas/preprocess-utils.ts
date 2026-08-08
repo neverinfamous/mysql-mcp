@@ -1059,14 +1059,15 @@ export function preprocessDocFilterParams(val: unknown): unknown {
   if (result["filter"] !== undefined) {
     if (typeof result["filter"] !== "string") {
       result["filter"] = JSON.stringify(result["filter"]);
-    } else {
-      if (
-        result["filter"] === "{}" ||
-        result["filter"] === "[]" ||
-        result["filter"] === ""
-      ) {
-        result["filter"] = undefined;
-      }
+    }
+    
+    if (
+      result["filter"] === "{}" ||
+      result["filter"] === "[]" ||
+      result["filter"] === '""' ||
+      result["filter"] === ""
+    ) {
+      result["filter"] = undefined;
     }
   }
 
