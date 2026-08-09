@@ -346,7 +346,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
       const s = result["summary"].toLowerCase();
       if (s === "true" || s === "yes" || s === "1" || s === "t" || s === "y") result["summary"] = true;
       else if (s === "false" || s === "no" || s === "0" || s === "f" || s === "n") result["summary"] = false;
-      // Do not delete invalid strings; let them fail boolean validation
+      else delete result["summary"];
     }
     return result;
   },
@@ -508,6 +508,8 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     if (typeof hostgroupId === "string") {
       if (hostgroupId.trim() !== "" && !isNaN(Number(hostgroupId))) {
         result["hostgroup_id"] = Number(hostgroupId);
+      } else {
+        delete result["hostgroup_id"];
       }
     }
     return result;
