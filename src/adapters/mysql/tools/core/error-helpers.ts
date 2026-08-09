@@ -6,11 +6,11 @@
  */
 
 import { ZodError } from "zod";
-import { MySQLMcpError } from "../../../../types/modules/errors.js";
+import { MySQLMcpError } from "../../../../types/index.js";
 import {
   ErrorCategory,
   type ErrorResponse,
-} from "../../../../types/modules/error-types.js";
+} from "../../../../types/index.js";
 import { Buffer } from "node:buffer";
 
 /**
@@ -103,6 +103,10 @@ const isZodError = (err: unknown): err is ZodError => {
   return err instanceof ZodError || (err !== null && typeof err === "object" && "name" in err && err.name === "ZodError");
 };
 
+const isMySQLMcpError = (err: unknown): err is MySQLMcpError => {
+  return err instanceof MySQLMcpError || (err !== null && typeof err === "object" && "toResponse" in err && typeof err.toResponse === "function");
+};
+
 export function formatHandlerErrorResponse(
   err: unknown,
   context?: { module: string; tool: string }
@@ -110,7 +114,7 @@ export function formatHandlerErrorResponse(
   let response: ErrorResponse;
 
   // MySQLMcpError — already enriched
-  if (err instanceof MySQLMcpError) {
+  if (isMySQLMcpError(err)) {
     response = err.toResponse();
     response.error = formatMysqlError(response.error);
   } else if (isZodError(err)) {
