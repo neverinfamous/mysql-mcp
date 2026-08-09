@@ -809,8 +809,8 @@ export const BufferSchema = z.preprocess(
   .refine((data) => !Number.isNaN(data.srid) && data.srid >= 0 && Number.isInteger(data.srid) && data.srid <= 4294967295, {
     message: "srid must be a valid positive integer (0 to 4294967295)",
   })
-  .refine((data) => !Number.isNaN(data.segments) && data.segments >= 1 && data.segments <= 128, {
-    message: "segments must be a valid number between 1 and 128",
+  .refine((data) => !Number.isNaN(data.segments) && Number.isInteger(data.segments) && data.segments >= 1 && data.segments <= 128, {
+    message: "segments must be a valid integer between 1 and 128",
   });
 
 export const TransformSchemaBase = z.object({
