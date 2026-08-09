@@ -117,7 +117,19 @@ export type ConnectionPoolStatus = z.infer<typeof ConnectionPoolStatusSchema>;
 // Tool Input Schemas
 // =============================================================================
 
-export const RouterBaseInputSchema = z.object({}).strict();
+export const RouterBaseInputSchema = z.object({
+  routeName: z.unknown().optional(),
+  name: z.unknown().optional(),
+  route: z.unknown().optional(),
+  route_name: z.unknown().optional(),
+  routename: z.unknown().optional(),
+  routerName: z.unknown().optional(),
+  id: z.unknown().optional(),
+  clusterName: z.unknown().optional(),
+  cluster_name: z.unknown().optional(),
+  metadataName: z.unknown().optional(),
+  poolName: z.unknown().optional(),
+}).strict().transform(() => ({}));
 
 export const RouteNameInputSchemaBase = z.object({
   routeName: z.unknown().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
