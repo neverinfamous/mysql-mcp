@@ -602,6 +602,8 @@ export function createOptimizerTraceTool(
                           k === "potential_range_indexes" ||
                           k === "best_covering_index_scan" ||
                           k === "refine_plan" ||
+                          k === "rest_of_plan" ||
+                          k === "plan_prefix" ||
                           k === "considered_access_paths" && Array.isArray(v) && v.length === 0 ||
                           k === "chosen" && v === true ||
                           k === "usable" && v === true
