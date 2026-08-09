@@ -33,11 +33,14 @@ export function parseDocFilter(filter: string): {
         !Array.isArray(parsed)
       ) {
         const keys = Object.keys(parsed);
-        const field = keys[0];
-        if (typeof field === "string") {
-          const descriptor = Object.getOwnPropertyDescriptor(parsed, field);
-          const value: unknown = descriptor ? descriptor.value : undefined;
-          if (IDENTIFIER_RE.test(field)) {
+        if (keys.length > 0) {
+          const conditions: string[] = [];
+          const params: unknown[] = [];
+          for (const field of keys) {
+            const value = (parsed as Record<string, unknown>)[field];
+            if (!IDENTIFIER_RE.test(field)) {
+              throw new ValidationError(`Invalid field name in filter: "${field}". Field names must be valid identifiers.`);
+            }
             const numVal = Number(value);
             if (
               typeof value === "number" ||
@@ -45,16 +48,17 @@ export function parseDocFilter(filter: string): {
                 !isNaN(numVal) &&
                 value.trim() !== "")
             ) {
-              return {
-                where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
-                params: [`$.${field}`, String(numVal)],
-              };
+              conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`);
+              params.push(`$.${field}`, String(numVal));
+            } else {
+              conditions.push(`JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`);
+              params.push(`$.${field}`, String(value));
             }
-            return {
-              where: `JSON_UNQUOTE(JSON_EXTRACT(doc, ?)) = ?`,
-              params: [`$.${field}`, String(value)],
-            };
           }
+          return {
+            where: conditions.join(" AND "),
+            params,
+          };
         }
       }
     } catch {
