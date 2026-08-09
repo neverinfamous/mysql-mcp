@@ -559,11 +559,15 @@ export const ContainsSchema = z.preprocess(
   })
   .transform((data) => {
     let table = typeof data.table === "string" ? data.table : data.tableName ?? data.name ?? "";
-    const spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "";
+    let spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "";
     let polygon = data.polygon ?? data.wkt ?? data.geometry ?? data.value ?? "";
     if (table.toUpperCase().includes("POLYGON")) {
-        polygon = table;
-        table = "";
+        const actualPolygon = table;
+        const actualTable = spatialColumn;
+        const actualColumn = polygon;
+        polygon = actualPolygon;
+        table = actualTable;
+        spatialColumn = actualColumn;
     }
     return {
       table,
@@ -642,11 +646,15 @@ export const WithinSchema = z.preprocess(
   })
   .transform((data) => {
     let table = typeof data.table === "string" ? data.table : data.tableName ?? data.name ?? "";
-    const spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "";
+    let spatialColumn = data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.col ?? "";
     let geometry = data.geometry ?? data.polygon ?? data.wkt ?? data.value ?? "";
     if (table.toUpperCase().includes("POINT") || table.toUpperCase().includes("POLYGON") || table.toUpperCase().includes("LINESTRING")) {
-        geometry = table;
-        table = "";
+        const actualGeometry = table;
+        const actualTable = spatialColumn;
+        const actualColumn = geometry;
+        geometry = actualGeometry;
+        table = actualTable;
+        spatialColumn = actualColumn;
     }
     return {
       table,
