@@ -288,7 +288,7 @@ test.describe("Code Mode: Multi-Step Workflows", () => {
       const p = await callToolAndParse(client, "mysql_execute_code", {
         code: `
           // List tables
-          const tables = await mysql.core.listTables({});
+          const tables = await mysql.core.listTables({ limit: 1000 });
           const hasProducts = (tables.data?.tables ?? tables.tables).some(t => t.name === "test_products");
 
           // Describe
