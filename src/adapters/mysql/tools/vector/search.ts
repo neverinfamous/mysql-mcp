@@ -284,7 +284,7 @@ export function createVectorHybridSearchTool(adapter: MySQLAdapter): ToolDefinit
              return row;
           }
           return Object.fromEntries(
-            Object.entries(row).filter(([key]) => key !== targetColumn)
+            Object.entries(row).filter(([key]) => key !== targetColumn && key !== 'distance' && key !== 'v_rank' && key !== 't_rank')
           );
         });
 
