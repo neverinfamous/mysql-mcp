@@ -340,7 +340,9 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     delete result["size"];
     delete result["take"];
     
-    if (typeof result["summary"] === "string") {
+    if (typeof result["summary"] === "number") {
+      result["summary"] = result["summary"] !== 0;
+    } else if (typeof result["summary"] === "string") {
       const s = result["summary"].toLowerCase();
       if (s === "true" || s === "yes" || s === "1" || s === "t" || s === "y") result["summary"] = true;
       else if (s === "false" || s === "no" || s === "0" || s === "f" || s === "n") result["summary"] = false;
