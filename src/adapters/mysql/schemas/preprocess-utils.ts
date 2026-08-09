@@ -95,8 +95,14 @@ export function preprocessDocCollectionParams(input: unknown): unknown {
   if (result["schema"] === undefined && result["database"] !== undefined) {
     result["schema"] = result["database"];
   }
-  if (result["documents"] === undefined && result["document"] !== undefined) {
-    result["documents"] = Array.isArray(result["document"]) ? result["document"] : [result["document"]];
+  if (result["documents"] === undefined) {
+    if (result["document"] !== undefined) {
+      result["documents"] = Array.isArray(result["document"]) ? result["document"] : [result["document"]];
+    } else if (result["data"] !== undefined) {
+      result["documents"] = Array.isArray(result["data"]) ? result["data"] : [result["data"]];
+    } else if (result["items"] !== undefined) {
+      result["documents"] = Array.isArray(result["items"]) ? result["items"] : [result["items"]];
+    }
   }
   if (typeof result["documents"] === "string") {
     try {
@@ -1088,6 +1094,14 @@ export function preprocessDocFilterParams(val: unknown): unknown {
     }
   } else if (result["unset"] !== undefined && !Array.isArray(result["unset"])) {
     result["unset"] = [result["unset"]];
+  }
+
+  if (typeof result["arrayAppend"] === "string") {
+    try {
+      result["arrayAppend"] = JSON.parse(result["arrayAppend"]) as unknown;
+    } catch {
+      // ignore
+    }
   }
 
   if (typeof result["limit"] === "string") {

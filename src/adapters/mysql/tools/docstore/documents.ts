@@ -171,7 +171,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { collection, schema, filter, set, unset } =
+          const { collection, schema, filter, set, unset, arrayAppend } =
             ModifyDocSchema.parse(params);
           if (!IDENTIFIER_RE.test(collection))
             throw new ValidationError("Invalid collection name");
@@ -207,6 +207,19 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
               }
               updates.push(`doc = JSON_REMOVE(doc, ?)`);
               updateParams.push(formattedPath);
+            }
+          }
+          if (arrayAppend) {
+            for (const [rawPath, value] of Object.entries(arrayAppend)) {
+              let formattedPath = rawPath;
+              if (!formattedPath.startsWith("$")) {
+                formattedPath = formattedPath.startsWith("[") ? "$" + formattedPath : "$." + formattedPath;
+              }
+              if (!JSON_PATH_RE.test(formattedPath)) {
+                throw new ValidationError(`Invalid field path: "${rawPath}". Paths must be valid JSON paths.`);
+              }
+              updates.push(`doc = JSON_ARRAY_APPEND(doc, ?, CAST(CONVERT(? USING utf8mb4) AS JSON))`);
+              updateParams.push(formattedPath, JSON.stringify(value));
             }
           }
 
