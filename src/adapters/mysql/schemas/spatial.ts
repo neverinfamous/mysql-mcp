@@ -118,6 +118,7 @@ export const SpatialIndexSchemaBase = z.object({
     .unknown()
     .optional()
     .describe("Index name (auto-generated if not provided)"),
+  index_name: z.unknown().optional(),
 });
 
 export const SpatialIndexSchema = z.preprocess(
@@ -133,11 +134,12 @@ export const SpatialIndexSchema = z.preprocess(
     col: z.string().optional(),
     columns: z.string().optional(),
     indexName: z.unknown().optional(),
+    index_name: z.unknown().optional(),
   })
   .transform((data) => ({
     table: data.table ?? data.tableName ?? data.name ?? "",
     column: data.spatialColumn ?? data.geometryColumn ?? data.column ?? data.columnName ?? data.col ?? data.columns ?? "",
-    indexName: typeof data.indexName === "string" ? data.indexName : undefined,
+    indexName: typeof data.indexName === "string" ? data.indexName : (typeof data.index_name === "string" ? data.index_name : undefined),
   }))
 )
   .refine((data) => data.table !== "", { message: "table is required" })
