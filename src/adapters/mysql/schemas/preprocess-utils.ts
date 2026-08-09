@@ -1213,6 +1213,15 @@ export function preprocessSpatialParams(input: unknown): unknown {
   const result = preprocessTableParams(input) as Record<string, unknown>;
   if (typeof result !== "object" || result === null) return result;
 
+  if (Array.isArray(input)) {
+    if (result["geometry1"] === undefined && input.length > 0) result["geometry1"] = input[0];
+    if (result["geometry2"] === undefined && input.length > 1) result["geometry2"] = input[1];
+    if (result["srid"] === undefined && input.length > 2) result["srid"] = input[2];
+  } else {
+    if (result["geometry1"] === undefined && result["0"] !== undefined) result["geometry1"] = result["0"];
+    if (result["geometry2"] === undefined && result["1"] !== undefined) result["geometry2"] = result["1"];
+  }
+
   if (result["spatialColumn"] === undefined) {
     let col = result["geometryColumn"] ?? result["column"] ?? result["columnName"] ?? result["geomColumn"] ?? result["col"] ?? result["columns"];
     if (Array.isArray(col)) col = col[0];
