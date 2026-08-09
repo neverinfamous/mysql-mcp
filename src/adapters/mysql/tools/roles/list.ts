@@ -13,18 +13,10 @@ export const RoleListSchemaBase = z.object({
   name: z.coerce.string().optional().describe("Alias for pattern"),
   role: z.coerce.string().optional().describe("Alias for pattern"),
   roleName: z.coerce.string().optional().describe("Alias for pattern"),
-  limit: z.number().int().min(1).max(100).default(50).describe("Max results"),
+  limit: z.coerce.number().int().min(1).max(100).default(50).describe("Max results"),
 });
 
-export const RoleListSchema = z.preprocess((val: unknown) => {
-  if (typeof val !== "object" || val === null) return val;
-  const res = { ...(val as Record<string, unknown>) };
-  if ("limit" in res && typeof res["limit"] !== "number") {
-    const parsed = Number(res["limit"]);
-    res["limit"] = isNaN(parsed) ? res["limit"] : parsed;
-  }
-  return res;
-}, RoleListSchemaBase).transform((val) => {
+export const RoleListSchema = RoleListSchemaBase.transform((val) => {
   const pattern = val.pattern || val.name || val.role || val.roleName;
   return { ...val, pattern };
 });
