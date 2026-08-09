@@ -33,10 +33,12 @@ export const ShellDumpInstanceInputSchemaBase = z
       .array(z.string())
       .optional()
       .describe("Schemas to include (default: all non-system)"),
+    includeSchema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for includeSchemas"),
     excludeSchemas: z
       .array(z.string())
       .optional()
       .describe("Schemas to exclude"),
+    excludeSchema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for excludeSchemas"),
     consistent: booleanCoerce
       .optional()
       .default(true)
@@ -51,10 +53,27 @@ export const ShellDumpInstanceInputSchemaBase = z
 export const ShellDumpInstanceInputSchema = z.preprocess(
   (val: unknown) => {
     if (val === undefined || val === null || typeof val !== "object") return val;
-    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; filepath?: unknown; dir?: unknown; directory?: unknown };
+    const obj = val as { outputDir?: unknown; outputUrl?: unknown; url?: unknown; path?: unknown; filepath?: unknown; dir?: unknown; directory?: unknown; includeSchemas?: unknown; includeSchema?: unknown; excludeSchemas?: unknown; excludeSchema?: unknown };
+    
+    const rawIncludeSchemas = obj.includeSchemas ?? obj.includeSchema;
+    const includeSchemasArray = Array.isArray(rawIncludeSchemas) 
+      ? rawIncludeSchemas.map(String) 
+      : typeof rawIncludeSchemas === "string" 
+        ? [rawIncludeSchemas] 
+        : undefined;
+
+    const rawExcludeSchemas = obj.excludeSchemas ?? obj.excludeSchema;
+    const excludeSchemasArray = Array.isArray(rawExcludeSchemas) 
+      ? rawExcludeSchemas.map(String) 
+      : typeof rawExcludeSchemas === "string" 
+        ? [rawExcludeSchemas] 
+        : undefined;
+
     return {
       ...obj,
       outputDir: obj.outputDir ?? obj.outputUrl ?? obj.url ?? obj.path ?? obj.filepath ?? obj.dir ?? obj.directory,
+      includeSchemas: includeSchemasArray,
+      excludeSchemas: excludeSchemasArray,
     };
   },
   ShellDumpInstanceInputSchemaBase
