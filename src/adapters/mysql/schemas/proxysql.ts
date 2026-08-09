@@ -451,8 +451,9 @@ export const ProxySQLLimitInputSchema = z.preprocess(
       .number()
       .int()
       .min(0)
+      .max(100)
       .optional()
-      .describe("Maximum number of results to return (default: 20). Anti-Hallucination Hint: use 'limit', not 'count'."),
+      .describe("Maximum number of results to return (default: 20, max: 100). Anti-Hallucination Hint: use 'limit', not 'count'."),
   }).strict()
 );
 
@@ -646,8 +647,9 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
       .number()
       .int()
       .min(0)
+      .max(100)
       .optional()
-      .describe("Maximum number of variables to return (default: 10)"),
+      .describe("Maximum number of variables to return (default: 10, max: 100)"),
   }).strict()
 );
 
