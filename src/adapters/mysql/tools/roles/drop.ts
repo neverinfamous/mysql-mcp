@@ -12,10 +12,15 @@ import { validateMySQLUserHost } from "../../../../utils/validators.js";
 import { DESTRUCTIVE } from "../../../../utils/annotations.js";
 
 export const RoleDropSchemaBase = z.object({
-  name: z.string().optional().describe("Role name"),
-  role: z.string().optional().describe("Alias for name"),
-  roleName: z.string().optional().describe("Alias for name"),
-  ifExists: z.boolean().default(false),
+  name: z.coerce.string().optional().describe("Role name"),
+  role: z.coerce.string().optional().describe("Alias for name"),
+  roleName: z.coerce.string().optional().describe("Alias for name"),
+  ifExists: z.preprocess((val) => {
+    if (typeof val === 'boolean') return val;
+    if (val === 'true') return true;
+    if (val === 'false') return false;
+    return val;
+  }, z.boolean().default(false)),
 });
 
 export const RoleDropSchema = RoleDropSchemaBase.refine(

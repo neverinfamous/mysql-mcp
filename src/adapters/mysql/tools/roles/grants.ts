@@ -19,9 +19,9 @@ import {
 import { READ_ONLY, WRITE } from "../../../../utils/annotations.js";
 
 export const RoleGrantsSchemaBase = z.object({
-  role: z.string().optional().describe("Role name (e.g. 'my_role')"),
-  name: z.string().optional().describe("Alias for role"),
-  roleName: z.string().optional().describe("Alias for role"),
+  role: z.coerce.string().optional().describe("Role name (e.g. 'my_role')"),
+  name: z.coerce.string().optional().describe("Alias for role"),
+  roleName: z.coerce.string().optional().describe("Alias for role"),
 });
 
 export const RoleGrantsSchema = RoleGrantsSchemaBase.refine(
@@ -35,18 +35,18 @@ export const RoleGrantsSchema = RoleGrantsSchemaBase.refine(
 });
 
 export const RoleGrantPrivilegeSchemaBase = z.object({
-  role: z.string().optional().describe("Role name"),
-  name: z.string().optional().describe("Alias for role"),
-  roleName: z.string().optional().describe("Alias for role"),
-  privileges: z.union([z.string(), z.array(z.string())]).optional().describe("Array of privileges to grant"),
-  privilege: z.string().optional().describe("Single privilege to grant"),
-  database: z.string().default("*").describe("Database name or '*'"),
-  schema: z.string().optional().describe("Alias for database"),
-  db: z.string().optional().describe("Alias for database"),
-  table: z.string().default("*").describe("Table name or '*'"),
-  tableName: z.string().optional().describe("Alias for table"),
-  on: z.string().optional().describe("Target object (e.g. 'db.table')"),
-  object: z.string().optional().describe("Alias for on"),
+  role: z.coerce.string().optional().describe("Role name"),
+  name: z.coerce.string().optional().describe("Alias for role"),
+  roleName: z.coerce.string().optional().describe("Alias for role"),
+  privileges: z.union([z.coerce.string(), z.array(z.coerce.string())]).optional().describe("Array of privileges to grant"),
+  privilege: z.coerce.string().optional().describe("Single privilege to grant"),
+  database: z.coerce.string().default("*").describe("Database name or '*'"),
+  schema: z.coerce.string().optional().describe("Alias for database"),
+  db: z.coerce.string().optional().describe("Alias for database"),
+  table: z.coerce.string().default("*").describe("Table name or '*'"),
+  tableName: z.coerce.string().optional().describe("Alias for table"),
+  on: z.coerce.string().optional().describe("Target object (e.g. 'db.table')"),
+  object: z.coerce.string().optional().describe("Alias for on"),
 });
 
 export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
