@@ -160,7 +160,7 @@ export function createSecurityEncryptionStatusTool(
         const keyringResult = await adapter.executeQuery(`
                 /* admin */ SELECT PLUGIN_NAME, PLUGIN_STATUS
                 FROM information_schema.PLUGINS
-                WHERE PLUGIN_NAME LIKE 'keyring%'
+                WHERE PLUGIN_NAME LIKE 'keyring%' AND PLUGIN_STATUS = 'ACTIVE'
             `);
 
         // Check encrypted tablespaces
