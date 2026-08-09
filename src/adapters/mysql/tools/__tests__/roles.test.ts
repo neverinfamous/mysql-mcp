@@ -375,7 +375,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User 'nonexistent'@'%' does not exist" }),
+          error: "User 'nonexistent' at host '%%' does not exist" }),
       );
     });
   });
@@ -439,7 +439,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User 'baduser'@'%' does not exist" }),
+          error: "User 'baduser' at host '%%' does not exist" }),
       );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
@@ -462,7 +462,7 @@ describe("Handler Execution", () => {
       expect(result).toEqual(
         expect.objectContaining({
           success: false,
-          error: "User 'baduser'@'%' does not exist" }),
+          error: "User 'baduser' at host '%%' does not exist" }),
       );
       expect(mockAdapter.rawQuery).not.toHaveBeenCalled();
     });
