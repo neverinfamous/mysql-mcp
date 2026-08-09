@@ -158,6 +158,9 @@ export function formatHandlerErrorResponse(
     response.error = `[ERROR] [${context.module}] [${response.code}] ${response.error} (context: ${context.tool})`;
   }
 
+  // Escape % to prevent Go client fmt.Sprintf bugs (like %!'(MISSING)')
+  response.error = response.error.replace(/%/g, '%%');
+
   // Calculate payload token cost (JSON byte length / 4)
   const tokenEstimate = Math.ceil(
     Buffer.byteLength(JSON.stringify(response), "utf8") / 4,

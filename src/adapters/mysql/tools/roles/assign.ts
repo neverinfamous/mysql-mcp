@@ -207,7 +207,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`User '${user}'@'${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`User '${user}' at host '${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
@@ -278,7 +278,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
             );
             if (!userCheck.rows || userCheck.rows.length === 0) {
               return formatHandlerErrorResponse(
-                new MySQLMcpError(`User '${user}'@'${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+                new MySQLMcpError(`User '${user}' at host '${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
               );
             }
 
@@ -386,7 +386,7 @@ export function getRoleAssignTools(adapter: MySQLAdapter): ToolDefinition[] {
           );
           if (!userCheck.rows || userCheck.rows.length === 0) {
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`User '${user}'@'${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`User '${user}' at host '${host}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
