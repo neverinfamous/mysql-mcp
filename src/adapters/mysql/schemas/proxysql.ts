@@ -329,6 +329,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     delete result["group"];
     delete result["hostgroup"];
     delete result["hostgroup_id"];
+    delete result["info"];
     
     // Anti-Hallucination: Agents may send limit/count to tools that don't support it
     delete result["limit"];
@@ -577,6 +578,8 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
     delete result["type"];
     delete result["filter"];
     delete result["group"];
+    delete result["variables"];
+    delete result["info"];
 
     if (result["like"] !== undefined) {
       if (typeof result["like"] !== "string") {
