@@ -11,7 +11,7 @@ import type {
   ToolDefinition,
   RequestContext,
 } from "../../../../types/index.js";
-import { ExtensionNotAvailableError } from "../../../../types/index.js";
+import { ExtensionNotAvailableError, MySQLMcpError, ErrorCategory } from "../../../../types/index.js";
 import {
   formatHandlerErrorResponse,
   withTokenEstimate,
@@ -234,7 +234,15 @@ export function createGRPrimaryTool(adapter: MySQLAdapter): ToolDefinition {
         const modeResult = await adapter.executeQuery("/* readonly */ SELECT @@group_replication_single_primary_mode as singlePrimaryMode");
         if (Number(modeResult.rows?.[0]?.["singlePrimaryMode"]) !== 1) {
           return formatHandlerErrorResponse(
-            new Error("mysql_gr_primary is only applicable in single-primary Group Replication clusters. The cluster is currently in multi-primary mode.")
+            new MySQLMcpError(
+              "mysql_gr_primary is only applicable in single-primary Group Replication clusters. The cluster is currently in multi-primary mode.",
+              "INVALID_MODE",
+              ErrorCategory.CONFIGURATION,
+              {
+                suggestion: "Use mysql_gr_members to see all members in a multi-primary cluster.",
+                recoverable: false
+              }
+            )
           );
         }
 
