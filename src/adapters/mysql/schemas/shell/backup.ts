@@ -4,7 +4,7 @@ import { booleanCoerce } from "./base.js";
 export const ShellDumpInstanceInputSchemaBase = z
   .object({
     outputDir: z
-      .string()
+      .string().optional()
       .describe("Output directory for dump (must be empty or non-existent)"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
@@ -58,17 +58,17 @@ export const ShellDumpInstanceInputSchema = z.preprocess(
     };
   },
   ShellDumpInstanceInputSchemaBase
-);
+).refine((data) => data.outputDir != null && data.outputDir !== "", { message: "outputDir or outputUrl is required" });
 
 export const ShellDumpSchemasInputSchemaBase = z
   .object({
-    schemas: z.union([z.string(), z.array(z.string())]).describe("Schema names to dump"),
+    schemas: z.union([z.string(), z.array(z.string())]).optional().describe("Schema names to dump"),
     schema: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     schemaNames: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     database: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
     databases: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for schemas"),
-    outputDir: z.string().describe("Output directory for dump"),
+    outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
@@ -147,19 +147,20 @@ export const ShellDumpSchemasInputSchema = z.preprocess(
   .transform((data) => ({ ...data, schemas: data.schemas ?? [] }))
   .refine((data) => data.schemas.length > 0, {
     message: "At least one schema name is required",
-  });
+  })
+  .refine((data) => data.outputDir != null && data.outputDir !== "", { message: "outputDir or outputUrl is required" });
 
 export const ShellDumpTablesInputSchemaBase = z
   .object({
-    schema: z.string().describe("Schema containing tables"),
+    schema: z.string().optional().describe("Schema containing tables"),
     schemaName: z.string().optional().describe("Alias for schema"),
     database: z.string().optional().describe("Alias for schema"),
-    tables: z.union([z.string(), z.array(z.string())]).describe("Table names to dump"),
+    tables: z.union([z.string(), z.array(z.string())]).optional().describe("Table names to dump"),
     tableNames: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     table: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     tableName: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
     name: z.union([z.string(), z.array(z.string())]).optional().describe("Alias for tables"),
-    outputDir: z.string().describe("Output directory for dump"),
+    outputDir: z.string().optional().describe("Output directory for dump"),
     outputUrl: z.string().optional().describe("Alias for outputDir"),
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
@@ -236,7 +237,8 @@ export const ShellDumpTablesInputSchema = z.preprocess(
   ShellDumpTablesInputSchemaBase
 )
   .transform((data) => ({ ...data, tables: data.tables ?? [] }))
-  .refine((data) => data.schema !== "", { message: "schema must not be empty" })
+  .refine((data) => data.schema != null && data.schema !== "", { message: "schema must not be empty" })
   .refine((data) => data.tables.length > 0, {
     message: "At least one table name is required",
-  });
+  })
+  .refine((data) => data.outputDir != null && data.outputDir !== "", { message: "outputDir or outputUrl is required" });
