@@ -110,9 +110,15 @@ export const VectorBatchStoreSchemaBase = z.object({
   ...tableAliasesBase,
   ...columnAliasesBase,
   items: z.array(z.object({ 
-    id: z.union([z.string(), z.number()]), 
-    vector: z.array(z.number()) 
-  })).optional().describe("Array of objects with 'id' and 'vector' fields"),
+    id: z.union([z.string(), z.number()]).optional(), 
+    rowId: z.union([z.string(), z.number()]).optional(),
+    recordId: z.union([z.string(), z.number()]).optional(),
+    vector: z.array(z.number()).optional(),
+    queryVector: z.array(z.number()).optional(),
+    query: z.union([z.string(), z.array(z.number())]).optional(),
+    sql: z.union([z.string(), z.array(z.number())]).optional(),
+    search: z.union([z.string(), z.array(z.number())]).optional(),
+  })).optional().describe("Array of objects with 'id' and 'vector' fields (aliases supported)"),
   ...idColumnAliasesBase,
 });
 
