@@ -70,7 +70,7 @@ const MaskDataSchema = z.preprocess(
     type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]),
     keepFirst: z.coerce.number().int().min(0).default(0),
     keepLast: z.coerce.number().int().min(0).default(0),
-    maskChar: z.string().max(1, "maskChar must be a single character").default("*"),
+    maskChar: z.string().length(1, "maskChar must be a single character").default("*"),
   })
 );
 
