@@ -450,6 +450,12 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     delete result["active"];
     delete result["match_digest"];
     delete result["digest"];
+    delete result["client_ip"];
+    delete result["client_port"];
+    delete result["server_ip"];
+    delete result["server_port"];
+    delete result["ip"];
+    delete result["ip_address"];
 
     const limit = result["limit"];
     if (limit !== undefined) {
