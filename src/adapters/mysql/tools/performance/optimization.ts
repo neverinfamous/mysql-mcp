@@ -345,11 +345,22 @@ export function createQueryRewriteTool(adapter: MySQLAdapter): ToolDefinition {
         let explainResult: unknown = null;
         const cleanQuery = query.replace(/^\s*EXPLAIN\s+(?:FORMAT=JSON\s+)?/i, "");
         const explainSql = `EXPLAIN FORMAT=JSON ${cleanQuery}`;
-        const result = await adapter.executeReadQuery(explainSql);
-        if (result.rows?.[0]) {
-          const explainStr = result.rows[0]["EXPLAIN"];
-          if (typeof explainStr === "string") {
-            explainResult = JSON.parse(explainStr);
+        try {
+          const result = await adapter.executeReadQuery(explainSql);
+          if (result.rows?.[0]) {
+            const explainStr = result.rows[0]["EXPLAIN"];
+            if (typeof explainStr === "string") {
+              explainResult = JSON.parse(explainStr);
+            }
+          }
+        } catch (err: unknown) {
+          const errMsg = err instanceof Error ? err.message : String(err);
+          if (errMsg.includes("--super-read-only")) {
+            suggestions.push(
+              "EXPLAIN for DML queries (UPDATE/DELETE/INSERT) is blocked by super_read_only. Query analysis is limited to heuristic suggestions."
+            );
+          } else {
+            throw err;
           }
         }
 

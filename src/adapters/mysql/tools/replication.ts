@@ -39,20 +39,21 @@ export function getReplicationTools(adapter: MySQLAdapter): ToolDefinition[] {
 }
 
 function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const handlerSchema = z.object({}).strict();
+  const inputSchema = z.object({}).loose().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_master_status",
     title: "MySQL Master Status",
     description: "Get binary log position from master/source server.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: MasterStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
-        schema.parse(_params);
+        handlerSchema.parse(_params);
       } catch (e) {
         return formatHandlerErrorResponse(e);
       }
@@ -96,23 +97,26 @@ function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
+  const handlerSchema = z.object({
     channel: z.string().max(64).optional().describe("Optional replication channel name"),
   }).strict();
+  const inputSchema = z.object({
+    channel: z.unknown().optional().describe("Optional replication channel name"),
+  }).loose();
 
   return {
     name: "mysql_slave_status",
     title: "MySQL Slave Status",
     description: "Get detailed replication slave/replica status.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: SlaveStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       let channel: string | undefined;
       try {
-        const parsed = schema.parse(_params);
+        const parsed = handlerSchema.parse(_params);
         channel = parsed.channel;
       } catch (e) {
         return formatHandlerErrorResponse(e);
