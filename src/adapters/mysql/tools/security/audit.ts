@@ -400,16 +400,10 @@ export function createSecurityFirewallRulesTool(
         });
 
         if (plugins.length === 0) {
-          return withTokenEstimate({
-            success: true,
-            data: {
-              users: [],
-              rules: [],
-              userCount: 0,
-              ruleCount: 0,
-              message: "MySQL Enterprise Firewall is not installed",
-            },
-          });
+          return formatHandlerErrorResponse(
+            new ExtensionNotAvailableError("firewall", { plugin: "MySQL Enterprise Firewall" }),
+            { module: "security", tool: "mysql_security_firewall_rules" }
+          );
         }
 
         // Get firewall users

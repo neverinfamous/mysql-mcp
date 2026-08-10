@@ -68,8 +68,8 @@ const MaskDataSchema = z.preprocess(
   z.object({
     value: z.union([z.string(), z.number()]).transform(String),
     type: z.enum(["email", "phone", "ssn", "credit_card", "partial"]),
-    keepFirst: z.coerce.number().min(0).default(0),
-    keepLast: z.coerce.number().min(0).default(0),
+    keepFirst: z.coerce.number().int().min(0).default(0),
+    keepLast: z.coerce.number().int().min(0).default(0),
     maskChar: z.string().max(1, "maskChar must be a single character").default("*"),
   })
 );
