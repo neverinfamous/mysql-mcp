@@ -179,6 +179,17 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             const schemaJson = JSON.stringify(validation?.schema ?? {});
             // Escape backslashes and single quotes for MySQL string literal
             const escapedSchemaJson = schemaJson.replace(/\\/g, '\\\\').replace(/'/g, "''");
+            
+            // PRE-CHECK: Validate JSON Schema definition against MySQL engine
+            try {
+              await adapter.executeQuery(`SELECT JSON_SCHEMA_VALID('${escapedSchemaJson}', '{}')`);
+            } catch (err: unknown) {
+              const msg = err instanceof Error ? err.message : String(err);
+              return formatHandlerErrorResponse(
+                new ValidationError(`Invalid JSON Schema definition: ${msg.replace(/^.*: /, '')}`)
+              );
+            }
+
             sql = `${createClause} ${tableRef} (
                         doc JSON,
                         _id VARBINARY(32) GENERATED ALWAYS AS (JSON_UNQUOTE(JSON_EXTRACT(doc, '$._id'))) STORED PRIMARY KEY,
