@@ -184,6 +184,7 @@ export const ProxySQLBaseInputSchema = z.preprocess(
     // Anti-Hallucination: Agents may send summary/database to status-like tools
     delete result["summary"];
     delete result["database"];
+    delete result["schema"];
     delete result["table"];
     delete result["status"];
     delete result["stats"];
@@ -243,6 +244,7 @@ export const ProxySQLUsersInputSchema = z.preprocess(
     
     // Anti-Hallucination: Agents may send database/summary to list tools
     delete result["database"];
+    delete result["schema"];
     delete result["table"];
     delete result["status"];
     delete result["stats"];
@@ -322,6 +324,7 @@ export const ProxySQLStatusInputSchema = z.preprocess(
     delete result["metrics"];
     
     delete result["database"];
+    delete result["schema"];
     delete result["table"];
     delete result["category"];
     delete result["type"];
@@ -397,6 +400,7 @@ export const ProxySQLLimitInputSchema = z.preprocess(
     
     // Anti-Hallucination: Agents may send database/summary/query/filter to limit tools
     delete result["database"];
+    delete result["schema"];
     delete result["db"];
     delete result["table"];
     delete result["status"];
@@ -490,6 +494,7 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     
     // Anti-Hallucination: Agents may send database/summary to list tools
     delete result["database"];
+    delete result["schema"];
     delete result["table"];
     delete result["status"];
     delete result["stats"];
@@ -574,6 +579,7 @@ export const ProxySQLVariableFilterSchema = z.preprocess(
 
     // Anti-Hallucination: Agents may send database/summary to list tools
     delete result["database"];
+    delete result["schema"];
     delete result["table"];
     delete result["status"];
     delete result["stats"];
