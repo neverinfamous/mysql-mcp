@@ -72,11 +72,11 @@ export function createClusterRouterStatusTool(
           }));
           const staleCount = routers.filter((r) => r.isStale).length;
 
-          const data = {
+          const data = ClusterRouterStatusOutputSchema.parse({
             routers,
             count: routers.length,
             staleCount,
-          };
+          });
           return withTokenEstimate({ success: true, data });
         }
 
@@ -113,11 +113,11 @@ export function createClusterRouterStatusTool(
         });
         const staleCount = routers.filter((r) => r.isStale).length;
 
-        const data = {
+        const data = ClusterRouterStatusOutputSchema.parse({
           routers,
           count: routers.length,
           staleCount,
-        };
+        });
         return withTokenEstimate({ success: true, data });
       } catch (error) {
         const baseError = formatMysqlError(error);

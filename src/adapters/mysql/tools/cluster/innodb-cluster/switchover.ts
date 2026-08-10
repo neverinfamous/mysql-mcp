@@ -104,7 +104,7 @@ export function createClusterSwitchoverTool(
         });
 
         const firstCandidate = candidates[0];
-        const data = {
+        const data = ClusterSwitchoverOutputSchema.parse({
           currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
           candidates,
           recommendedTarget:
@@ -122,7 +122,7 @@ export function createClusterSwitchoverTool(
               : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
                 ? "All secondaries have significant replication lag. Switchover not recommended."
                 : undefined,
-        };
+        });
         return withTokenEstimate({ success: true, data });
       } catch (error) {
         return formatHandlerErrorResponse(error);
