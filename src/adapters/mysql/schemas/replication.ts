@@ -23,7 +23,7 @@ export const BinlogEventsSchemaBase = z.object({
     .describe(
       "Maximum events to return (default: 5). Set higher for more events.",
     ),
-}).strict();
+}).loose();
 
 export const BinlogEventsSchema = z.preprocess(
   preprocessBinlogEventsParams,

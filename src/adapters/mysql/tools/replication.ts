@@ -277,20 +277,21 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({}).strict().describe("Note: This tool takes no parameters.");
+  const handlerSchema = z.object({}).strict();
+  const inputSchema = z.object({}).loose().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_gtid_status",
     title: "MySQL GTID Status",
     description: "Get Global Transaction ID (GTID) status for replication.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: GtidStatusOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       try {
-        schema.parse(_params);
+        handlerSchema.parse(_params);
       } catch (e) {
         return formatHandlerErrorResponse(e);
       }
@@ -326,23 +327,26 @@ function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
 }
 
 function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
-  const schema = z.object({
+  const handlerSchema = z.object({
     channel: z.string().max(64).optional().describe("Optional replication channel name"),
   }).strict();
+  const inputSchema = z.object({
+    channel: z.unknown().optional().describe("Optional replication channel name"),
+  }).loose();
 
   return {
     name: "mysql_replication_lag",
     title: "MySQL Replication Lag",
     description: "Calculate replication lag in seconds.",
     group: "replication",
-    inputSchema: schema,
+    inputSchema: inputSchema,
     outputSchema: ReplicationLagOutputSchema,
     requiredScopes: ["read"],
     annotations: READ_ONLY,
     handler: async (_params: unknown, _context: RequestContext) => {
       let channel: string | undefined;
       try {
-        const parsed = schema.parse(_params);
+        const parsed = handlerSchema.parse(_params);
         channel = parsed.channel;
       } catch (e) {
         return formatHandlerErrorResponse(e);
