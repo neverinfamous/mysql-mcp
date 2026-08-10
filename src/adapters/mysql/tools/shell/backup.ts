@@ -349,7 +349,7 @@ export function createShellDumpSchemasTool(
           return formatHandlerErrorResponse(
             new MySQLMcpError(
               errorMessage,
-              "DOMAIN_ERROR",
+              "SCHEMA_NOT_FOUND",
               ErrorCategory.RESOURCE
             )
           );
@@ -550,7 +550,7 @@ export function createShellDumpTablesTool(
           return formatHandlerErrorResponse(
             new MySQLMcpError(
               errorMessage,
-              "DOMAIN_ERROR",
+              "TABLE_NOT_FOUND",
               ErrorCategory.RESOURCE
             )
           );
@@ -560,7 +560,7 @@ export function createShellDumpTablesTool(
           return formatHandlerErrorResponse(
             new MySQLMcpError(
               errorMessage,
-              "DOMAIN_ERROR",
+              "SCHEMA_NOT_FOUND",
               ErrorCategory.RESOURCE
             )
           );
