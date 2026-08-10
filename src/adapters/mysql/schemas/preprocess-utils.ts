@@ -1164,7 +1164,12 @@ export function preprocessDocIndexParams(val: unknown): unknown {
   }
 
   if (typeof result["fields"] === "string") {
-    result["fields"] = [{ path: result["fields"] }];
+    try {
+      const parsed = JSON.parse(result["fields"]) as unknown;
+      result["fields"] = Array.isArray(parsed) ? parsed : [parsed];
+    } catch {
+      result["fields"] = [{ path: result["fields"] }];
+    }
   } else if (typeof result["fields"] === "object" && result["fields"] !== null && !Array.isArray(result["fields"])) {
     result["fields"] = [result["fields"]];
   }
