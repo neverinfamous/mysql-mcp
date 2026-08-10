@@ -199,6 +199,21 @@ export const ProxySQLBaseInputSchema = z.preprocess(
     delete result["category"];
     delete result["type"];
     delete result["group"];
+    delete result["query"];
+    delete result["sql"];
+    delete result["statement"];
+    delete result["command"];
+    delete result["user"];
+    delete result["username"];
+    delete result["hostgroup"];
+    delete result["hostgroup_id"];
+    delete result["server"];
+    delete result["host"];
+    delete result["port"];
+    delete result["id"];
+    delete result["rule_id"];
+    delete result["match_digest"];
+    delete result["digest"];
     
     return result;
   },
@@ -718,6 +733,17 @@ export const ProxySQLCommandInputSchema = z.preprocess(
     delete result["search"];
     delete result["like"];
     delete result["name"];
+    delete result["user"];
+    delete result["username"];
+    delete result["hostgroup"];
+    delete result["hostgroup_id"];
+    delete result["server"];
+    delete result["host"];
+    delete result["port"];
+    delete result["id"];
+    delete result["rule_id"];
+    delete result["match_digest"];
+    delete result["digest"];
     
     if (typeof result["command"] === "string") {
       result["command"] = result["command"].toUpperCase().replace(/\bMEMORY\b/g, "RUNTIME");
