@@ -253,6 +253,15 @@ services:
     depends_on:
       mysql-router:
         condition: service_healthy
+    command: >
+      bash -c '
+      echo "Waiting for mysql-router to become healthy...";
+      while ! wget -q -O- --user=rest_api --password=router_api --no-check-certificate https://mysql-router:8443/api/20190715/routes/bootstrap_rw/destinations | grep -q address; do
+        sleep 2;
+      done;
+      echo "Router is healthy, starting ProxySQL...";
+      exec proxysql -f -c /etc/proxysql.cnf --idle-threads -D /var/lib/proxysql
+      '
     ports:
       - "6032:6032"
       - "6033:6033"
