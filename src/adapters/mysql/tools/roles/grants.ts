@@ -29,10 +29,18 @@ export const RoleGrantsSchema = RoleGrantsSchemaBase.refine(
   {
     message: "Must provide 'role', 'name', or 'roleName'",
   },
-).transform((val) => {
-  const role = val.role || val.name || val.roleName || "";
-  return { ...val, role };
-});
+)  .transform((val) => {
+    let role = val.role || val.name || val.roleName || "";
+    let roleHost = "%";
+    if (role?.includes("@")) {
+      const parts = role.split("@");
+      role = parts[0] || "";
+      if (parts.length > 1) {
+        roleHost = parts.slice(1).join("@");
+      }
+    }
+    return { ...val, role, roleHost };
+  });
 
 export const RoleGrantPrivilegeSchemaBase = z.object({
   role: z.coerce.string().optional().describe("Role name"),
@@ -66,7 +74,15 @@ export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
     }
   )
   .transform((val) => {
-    const role = val.role || val.name || val.roleName || "";
+    let role = val.role || val.name || val.roleName || "";
+    let roleHost = "%";
+    if (role?.includes("@")) {
+      const parts = role.split("@");
+      role = parts[0] || "";
+      if (parts.length > 1) {
+        roleHost = parts.slice(1).join("@");
+      }
+    }
     const privsRaw = val.privileges ?? (val.privilege ? [val.privilege] : []);
     const privileges = Array.isArray(privsRaw) ? privsRaw : [privsRaw];
     let database = val.db ?? val.schema ?? val.database;
@@ -83,7 +99,7 @@ export const RoleGrantPrivilegeSchema = RoleGrantPrivilegeSchemaBase.refine(
       }
     }
 
-    return { ...val, role, privileges, database, table };
+    return { ...val, role, roleHost, privileges, database, table };
   })
   .refine((val) => val.privileges.length > 0, {
     message: "Must provide 'privileges' array or single 'privilege' string",
@@ -105,21 +121,23 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: READ_ONLY,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { role } = RoleGrantsSchema.parse(params);
+          const { role, roleHost } = RoleGrantsSchema.parse(params);
 
           validateMySQLUserHost(role, "role");
+          validateMySQLUserHost(roleHost, "host");
 
           const checkResult = await adapter.executeQuery(
-            `WITH _dummy AS (SELECT 1) SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
-            [role],
+            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+            [role, roleHost],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
+            const roleStr = roleHost === "%" ? role : `${role}@${roleHost}`;
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`Role '${roleStr}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
-          const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'`);
+          const result = await adapter.rawQuery(`SHOW GRANTS FOR '${role}'@'${roleHost}'`);
           const grants = (result.rows ?? []).map((r) => Object.values(r)[0]);
           const data = { role, grants, exists: true };
           const response = { success: true, data };
@@ -143,22 +161,24 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
       annotations: WRITE,
       handler: async (params: unknown, _context: RequestContext) => {
         try {
-          const { role, privileges, database, table } =
+          const { role, roleHost, privileges, database, table } =
             RoleGrantPrivilegeSchema.parse(params);
 
           validateMySQLUserHost(role, "role");
+          validateMySQLUserHost(roleHost, "host");
 
           for (const priv of privileges) {
             validateMySQLPrivilege(priv);
           }
 
           const checkResult = await adapter.executeQuery(
-            `WITH _dummy AS (SELECT 1) SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
-            [role],
+            `SELECT 1 FROM mysql.user WHERE User = ? AND Host = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+            [role, roleHost],
           );
           if (!checkResult.rows || checkResult.rows.length === 0) {
+            const roleStr = roleHost === "%" ? role : `${role}@${roleHost}`;
             return formatHandlerErrorResponse(
-              new MySQLMcpError(`Role '${role}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+              new MySQLMcpError(`Role '${roleStr}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
             );
           }
 
@@ -177,7 +197,7 @@ export function getRoleGrantsTools(adapter: MySQLAdapter): ToolDefinition[] {
           }
 
           await adapter.rawQuery(
-            `GRANT ${privileges.join(", ")} ON ${onClause} TO '${role}'`,
+            `GRANT ${privileges.join(", ")} ON ${onClause} TO '${role}'@'${roleHost}'`,
           );
           const data = {
             role,
