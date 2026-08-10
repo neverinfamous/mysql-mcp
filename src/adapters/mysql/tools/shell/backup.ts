@@ -354,13 +354,13 @@ export function createShellDumpSchemasTool(
             )
           );
         }
-        if (errorMessage.includes("must be in the following form: schema.table")) {
+        if (errorMessage.includes("must be in the following form: schema.table") || errorMessage.includes("table name cannot be empty")) {
           return formatHandlerErrorResponse(
             new MySQLMcpError(
               errorMessage,
               "VALIDATION_ERROR",
               ErrorCategory.VALIDATION,
-              { suggestion: "Tables in includeTables and excludeTables must be specified in 'schema.table' format." }
+              { suggestion: "Tables in includeTables and excludeTables must be specified in 'schema.table' format, and cannot be empty." }
             )
           );
         }
