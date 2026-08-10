@@ -237,7 +237,11 @@ services:
         "rest_api", "password": "router_api", "skip_cert_verify": true}]'
       com.datadoghq.ad.logs: '[{"source":"mysqlrouter","service":"mysql-router"}]'
     healthcheck:
-      test: [ "CMD-SHELL", "grep -q '192E' /proc/net/tcp || exit 1" ]
+      test:
+        [
+          "CMD-SHELL",
+          "curl -skf -u rest_api:router_api https://127.0.0.1:8443/api/20190715/routes/bootstrap_rw/destinations | grep -q 'address' || exit 1"
+        ]
       interval: 15s
       timeout: 10s
       retries: 30
