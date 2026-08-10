@@ -259,12 +259,6 @@ export const PolygonSchema = z.preprocess(
     }
 
     if (Array.isArray(coords) && coords.length > 0 && Array.isArray(coords[0])) {
-        // Deeply coerce any strings to numbers for agent fuzzing resilience
-        coords = (coords as unknown[]).map((ring: unknown) => 
-            Array.isArray(ring) ? ring.map((pt: unknown) => 
-                Array.isArray(pt) ? pt.map((n: unknown) => typeof n === 'string' ? Number(n) : n) : pt
-            ) : ring
-        );
         // If it's a flat array of points instead of an array of rings, wrap it
         const firstElement = (coords as unknown[])[0];
         if (Array.isArray(firstElement) && firstElement.length > 0) {
@@ -273,6 +267,13 @@ export const PolygonSchema = z.preprocess(
                 coords = [coords];
             }
         }
+        
+        // Deeply coerce any strings to numbers for agent fuzzing resilience
+        coords = (coords as unknown[]).map((ring: unknown) => 
+            Array.isArray(ring) ? ring.map((pt: unknown) => 
+                Array.isArray(pt) ? pt.map((n: unknown) => typeof n === 'string' ? Number(n) : n) : pt
+            ) : ring
+        );
     }
 
     return {
