@@ -416,7 +416,7 @@ export function createForceIndexTool(adapter: MySQLAdapter): ToolDefinition {
         // Support optional database prefix, optional table alias, and semicolon at the end of the query
         const escapeRegExp = (string: string): string => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
         const escapedTable = escapeRegExp(table);
-        const regex = new RegExp(`((?:FROM|JOIN|UPDATE|,)\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${escapedTable}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT|SET|FORCE|USE|IGNORE\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|$)`, "ig");
+        const regex = new RegExp(`((?:FROM|JOIN|UPDATE|,)\\s+(?:(?:[a-zA-Z0-9_$\`]+\\.)?)\`?${escapedTable}\`?(?:\\s+(?:AS\\s+)?(?!WHERE|JOIN|INNER|LEFT|RIGHT|CROSS|ON|GROUP|ORDER|HAVING|LIMIT|SET|FORCE|USE|IGNORE\\b)[a-zA-Z0-9_$\`]+)?)(?=\\s|,|;|\\)|$)`, "ig");
         if (!regex.test(query)) {
           throw new ValidationError(
             `Table '${table}' not found in query FROM/JOIN/UPDATE clause`,
