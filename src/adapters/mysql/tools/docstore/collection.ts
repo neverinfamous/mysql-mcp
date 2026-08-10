@@ -74,6 +74,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const collections: Record<string, unknown>[] = [];
           for (const row of tables) {
             const tableName = row['Name'] as string;
+            if (!tableName) continue;
             const tableRef = escapeTableRef(tableName, schema);
             
             try {

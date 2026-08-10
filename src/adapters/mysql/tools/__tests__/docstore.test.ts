@@ -72,7 +72,7 @@ describe("Handler Execution", () => {
   describe("mysql_doc_list_collections", () => {
     it("should list document collections", async () => {
       mockAdapter.executeQuery.mockResolvedValue(
-        createMockQueryResult([{ name: "users_collection", rowCount: 100 }]),
+        createMockQueryResult([{ Name: "users_collection", Rows: 100 }]),
       );
 
       const tool = tools.find((t) => t.name === "mysql_doc_list_collections");
