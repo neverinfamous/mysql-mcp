@@ -71,6 +71,20 @@ export function createSpatialPointTool(adapter: MySQLAdapter): ToolDefinition {
       try {
         const { longitude, latitude, srid } = PointSchema.parse(params);
 
+        const sridCheck = await adapter.executeReadQuery(
+          `WITH _proxy_bypass AS (SELECT 1) SELECT 1 FROM information_schema.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?`,
+          [srid],
+        );
+        if (sridCheck.rows === undefined || sridCheck.rows.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `There's no spatial reference system with SRID ${srid}.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
+          });
+        }
+
         const wkt = `POINT(${String(longitude)} ${String(latitude)})`;
         const result = await adapter.executeReadQuery(
           `WITH _proxy_bypass AS (SELECT 1) SELECT ST_AsText(ST_GeomFromText(?, ?, 'axis-order=long-lat'), 'axis-order=long-lat') as wkt,
@@ -132,6 +146,20 @@ export function createSpatialPolygonTool(
         } else {
           return withTokenEstimate({
             success: false, error: "Either coordinates or polygon WKT must be provided", code: "VALIDATION_ERROR", category: "validation", recoverable: false,
+          });
+        }
+
+        const sridCheck = await adapter.executeReadQuery(
+          `WITH _proxy_bypass AS (SELECT 1) SELECT 1 FROM information_schema.ST_SPATIAL_REFERENCE_SYSTEMS WHERE SRS_ID = ?`,
+          [srid],
+        );
+        if (sridCheck.rows === undefined || sridCheck.rows.length === 0) {
+          return withTokenEstimate({
+            success: false,
+            error: `There's no spatial reference system with SRID ${srid}.`,
+            code: "VALIDATION_ERROR",
+            category: "validation",
+            recoverable: false,
           });
         }
 
