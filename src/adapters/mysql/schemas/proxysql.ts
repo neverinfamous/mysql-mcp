@@ -704,7 +704,7 @@ export const ProxySQLCommandInputSchemaBase = z.object({
   command: z
     .any()
     .optional()
-    .describe("ProxySQL admin command to execute. Valid commands: LOAD/SAVE MYSQL USERS TO RUNTIME/DISK, LOAD/SAVE MYSQL SERVERS TO RUNTIME/DISK, LOAD/SAVE MYSQL QUERY RULES TO RUNTIME/DISK, LOAD/SAVE MYSQL VARIABLES TO RUNTIME/DISK, LOAD/SAVE ADMIN VARIABLES TO RUNTIME/DISK, PROXYSQL FLUSH QUERY CACHE, PROXYSQL FLUSH LOGS. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
+    .describe("ProxySQL admin command to execute. Valid commands: LOAD/SAVE <item> TO RUNTIME/DISK, LOAD <item> FROM DISK/CONFIG (where <item> is MYSQL USERS, MYSQL SERVERS, MYSQL QUERY RULES, MYSQL VARIABLES, ADMIN VARIABLES), PROXYSQL FLUSH QUERY CACHE, PROXYSQL FLUSH LOGS. Anti-Hallucination Hint: use 'command', not 'query' or 'sql'."),
   sql: z.string().optional().describe("Alias for command"),
   query: z.string().optional().describe("Alias for command"),
   statement: z.string().optional().describe("Alias for command"),
@@ -783,14 +783,24 @@ export const ProxySQLCommandInputSchema = z.preprocess(
       .enum([
         "LOAD MYSQL USERS TO RUNTIME",
         "SAVE MYSQL USERS TO DISK",
+        "LOAD MYSQL USERS FROM DISK",
+        "LOAD MYSQL USERS FROM CONFIG",
         "LOAD MYSQL SERVERS TO RUNTIME",
         "SAVE MYSQL SERVERS TO DISK",
+        "LOAD MYSQL SERVERS FROM DISK",
+        "LOAD MYSQL SERVERS FROM CONFIG",
         "LOAD MYSQL QUERY RULES TO RUNTIME",
         "SAVE MYSQL QUERY RULES TO DISK",
+        "LOAD MYSQL QUERY RULES FROM DISK",
+        "LOAD MYSQL QUERY RULES FROM CONFIG",
         "LOAD MYSQL VARIABLES TO RUNTIME",
         "SAVE MYSQL VARIABLES TO DISK",
+        "LOAD MYSQL VARIABLES FROM DISK",
+        "LOAD MYSQL VARIABLES FROM CONFIG",
         "LOAD ADMIN VARIABLES TO RUNTIME",
         "SAVE ADMIN VARIABLES TO DISK",
+        "LOAD ADMIN VARIABLES FROM DISK",
+        "LOAD ADMIN VARIABLES FROM CONFIG",
         "PROXYSQL FLUSH QUERY CACHE",
         "PROXYSQL FLUSH LOGS",
       ])
