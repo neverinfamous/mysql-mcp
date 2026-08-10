@@ -157,10 +157,11 @@ export function createShellLoadDumpTool(
             { timeout: 3600000 },
           );
 
-          const escapeChar = String.fromCharCode(27);
           const stderrClean = rawResult.stderr
+            .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+            .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
             .replace(
-              new RegExp(`(?:${escapeChar}\\[\\d+m)*WARNING:\\s*(?:${escapeChar}\\[\\d+m)*\\s*Using a password on the command line interface can be insecure\\.\\s*`, "gi"),
+              /WARNING: Using a password on the command line interface can be insecure\.\s*/gi,
               "",
             )
             .trim();
@@ -380,9 +381,12 @@ export function createShellRunScriptTool(
         }
 
         if (result.exitCode !== 0) {
-          const escapeChar = String.fromCharCode(27);
           const cleanStderr = result.stderr
-            ? result.stderr.replace(new RegExp(`(?:${escapeChar}\\[\\d+m)*WARNING:\\s*(?:${escapeChar}\\[\\d+m)*\\s*Using a password on the command line interface can be insecure\\.\\s*`, "gi"), "").trim()
+            ? result.stderr
+                .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+                .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
+                .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+                .trim()
             : "";
           throw new MySQLMcpError(
             cleanStderr || `Script failed with exit code ${result.exitCode}`,
@@ -397,9 +401,12 @@ export function createShellRunScriptTool(
           );
         }
 
-        const escapeChar = String.fromCharCode(27);
         const finalStderr = result.stderr
-          ? result.stderr.replace(new RegExp(`(?:${escapeChar}\\[\\d+m)*WARNING:\\s*(?:${escapeChar}\\[\\d+m)*\\s*Using a password on the command line interface can be insecure\\.\\s*`, "gi"), "").trim()
+          ? result.stderr
+              .replace(/\x1b\[[0-9;]*m/gi, "") // eslint-disable-line no-control-regex
+              .replace(/Cannot set LC_ALL to locale[^\n]*\n?/gi, "")
+              .replace(/WARNING: Using a password on the command line interface can be insecure\.\s*/gi, "")
+              .trim()
           : "";
 
         return withTokenEstimate({
