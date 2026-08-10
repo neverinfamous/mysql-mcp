@@ -74,7 +74,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const collections: Record<string, unknown>[] = [];
           for (const row of tables) {
             const tableName = row['Name'] as string;
-            const tableRef = schema ? `\`${schema}\`.\`${tableName}\`` : `\`${tableName}\``;
+            const tableRef = escapeTableRef(tableName, schema);
             
             try {
               const columnsResult = await adapter.executeQuery(`SHOW COLUMNS FROM ${tableRef}`);
@@ -344,7 +344,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const dataSize = stats && typeof stats === 'object' && 'Data_length' in stats ? Number(stats['Data_length']) : 0;
           const indexSize = stats && typeof stats === 'object' && 'Index_length' in stats ? Number(stats['Index_length']) : 0;
 
-          const tableRef = schema ? `\`${schema}\`.\`${collection}\`` : `\`${collection}\``;
+          const tableRef = escapeTableRef(collection, schema);
           const keysResult = await adapter.executeQuery(
             `SHOW KEYS FROM ${tableRef}`
           );

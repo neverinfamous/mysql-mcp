@@ -182,5 +182,7 @@ export async function checkCollectionExists(
  * Build a backtick-escaped qualified table reference.
  */
 export function escapeTableRef(name: string, schema?: string): string {
-  return schema ? `\`${schema}\`.\`${name}\`` : `\`${name}\``;
+  const escapedName = name.replace(/`/g, '``');
+  const escapedSchema = schema ? schema.replace(/`/g, '``') : undefined;
+  return escapedSchema ? `\`${escapedSchema}\`.\`${escapedName}\`` : `\`${escapedName}\``;
 }
