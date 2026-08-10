@@ -78,7 +78,7 @@ function createEventCreateTool(adapter: MySQLAdapter): ToolDefinition {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
-        const SCHEDULE_PATTERN = /^(AT\s+.+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR)(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
+        const SCHEDULE_PATTERN = /^(AT\s+.+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR|YEAR_MONTH|DAY_HOUR|DAY_MINUTE|DAY_SECOND|HOUR_MINUTE|HOUR_SECOND|MINUTE_SECOND)S?(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
         if (!SCHEDULE_PATTERN.test(schedule)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
         }
@@ -149,7 +149,7 @@ function createEventAlterTool(adapter: MySQLAdapter): ToolDefinition {
           return formatHandlerErrorResponse(new ValidationError("Invalid event name",));
         }
 
-        const SCHEDULE_PATTERN = /^(AT\s+.+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR)(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
+        const SCHEDULE_PATTERN = /^(AT\s+.+|EVERY\s+\d+\s+(SECOND|MINUTE|HOUR|DAY|WEEK|MONTH|QUARTER|YEAR|YEAR_MONTH|DAY_HOUR|DAY_MINUTE|DAY_SECOND|HOUR_MINUTE|HOUR_SECOND|MINUTE_SECOND)S?(\s+STARTS\s+.+)?(\s+ENDS\s+.+)?)$/i;
         if (schedule && !SCHEDULE_PATTERN.test(schedule)) {
           return formatHandlerErrorResponse(new ValidationError("Invalid schedule format",));
         }
