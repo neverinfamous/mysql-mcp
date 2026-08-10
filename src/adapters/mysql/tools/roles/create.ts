@@ -29,8 +29,17 @@ export const RoleCreateSchema = RoleCreateSchemaBase.refine(
     message: "Must provide 'name', 'role', or 'roleName'",
   },
 ).transform((val) => {
-  const name = val.name || val.role || val.roleName || "";
-  return { ...val, name };
+  const rawName = val.name || val.role || val.roleName || "";
+  let name = rawName;
+  let roleHost = "%";
+  if (name.includes("@")) {
+    const parts = name.split("@");
+    name = parts[0] || "";
+    if (parts.length > 1) {
+      roleHost = parts.slice(1).join("@");
+    }
+  }
+  return { ...val, rawName, name, roleHost };
 });
 
 export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
@@ -45,13 +54,14 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: WRITE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { name, ifNotExists } = RoleCreateSchema.parse(params);
+        const { rawName, name, roleHost, ifNotExists } = RoleCreateSchema.parse(params);
         validateMySQLUserHost(name, "role");
+        validateMySQLUserHost(roleHost, "host");
 
         if (ifNotExists) {
           const checkResult = await adapter.executeQuery(
-            `SELECT account_locked, password_expired, authentication_string FROM mysql.user WHERE User = ? AND Host = '%' FOR UPDATE`,
-            [name],
+            `SELECT account_locked, password_expired, authentication_string FROM mysql.user WHERE User = ? AND Host = ? FOR UPDATE`,
+            [name, roleHost],
           );
           
           if (checkResult.rows && checkResult.rows.length > 0) {
@@ -67,7 +77,7 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
             if (isRole) {
               const data = {
                 skipped: true,
-                roleName: name,
+                roleName: rawName,
                 reason: "Role already exists",
               };
               const response = { success: true, data };
@@ -77,15 +87,15 @@ export function getRoleCreateTool(adapter: MySQLAdapter): ToolDefinition {
               return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
             } else {
               return formatHandlerErrorResponse(
-                new MySQLMcpError(`Cannot create role '${name}': A normal user with this name already exists`, "OBJECT_ALREADY_EXISTS", ErrorCategory.RESOURCE)
+                new MySQLMcpError(`Cannot create role '${rawName}': A normal user with this name already exists`, "OBJECT_ALREADY_EXISTS", ErrorCategory.RESOURCE)
               );
             }
           }
         }
 
         const clause = ifNotExists ? "IF NOT EXISTS " : "";
-        await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'`);
-        const data = { roleName: name };
+        await adapter.executeQuery(`CREATE ROLE ${clause}'${name}'@'${roleHost}'`);
+        const data = { roleName: rawName };
         const response = { success: true, data };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,

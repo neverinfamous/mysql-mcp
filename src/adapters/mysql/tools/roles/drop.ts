@@ -29,8 +29,17 @@ export const RoleDropSchema = RoleDropSchemaBase.refine(
     message: "Must provide 'name', 'role', or 'roleName'",
   },
 ).transform((val) => {
-  const name = val.name || val.role || val.roleName || "";
-  return { ...val, name };
+  const rawName = val.name || val.role || val.roleName || "";
+  let name = rawName;
+  let roleHost = "%";
+  if (name.includes("@")) {
+    const parts = name.split("@");
+    name = parts[0] || "";
+    if (parts.length > 1) {
+      roleHost = parts.slice(1).join("@");
+    }
+  }
+  return { ...val, rawName, name, roleHost };
 });
 
 export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
@@ -45,13 +54,14 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
     annotations: DESTRUCTIVE,
     handler: async (params: unknown, _context: RequestContext) => {
       try {
-        const { name, ifExists } = RoleDropSchema.parse(params);
+        const { rawName, name, roleHost, ifExists } = RoleDropSchema.parse(params);
         validateMySQLUserHost(name, "role");
+        validateMySQLUserHost(roleHost, "host");
 
         let roleAbsent = false;
         const checkResult = await adapter.executeQuery(
-          `WITH _dummy AS (SELECT 1) SELECT 1 FROM mysql.user WHERE User = ? AND Host = '%' AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
-          [name],
+          `WITH _dummy AS (SELECT 1) SELECT 1 FROM mysql.user WHERE User = ? AND Host = ? AND account_locked = 'Y' AND password_expired = 'Y' AND authentication_string = ''`,
+          [name, roleHost],
         );
         if (!checkResult.rows || checkResult.rows.length === 0) {
           roleAbsent = true;
@@ -59,20 +69,20 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
 
         if (roleAbsent && !ifExists) {
           return formatHandlerErrorResponse(
-            new MySQLMcpError(`Role '${name}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
+            new MySQLMcpError(`Role '${rawName}' does not exist`, "OBJECT_NOT_FOUND", ErrorCategory.RESOURCE)
           );
         }
 
         if (!roleAbsent) {
           await adapter.executeQuery(
-            `DROP ROLE ${ifExists ? "IF EXISTS " : ""}'${name}'`,
+            `DROP ROLE ${ifExists ? "IF EXISTS " : ""}'${name}'@'${roleHost}'`,
           );
         }
 
         if (roleAbsent) {
           const data = {
             skipped: true,
-            roleName: name,
+            roleName: rawName,
             reason: "Role did not exist",
           };
           const response = { success: true, data };
@@ -82,7 +92,7 @@ export function getRoleDropTool(adapter: MySQLAdapter): ToolDefinition {
           return withTokenEstimate({ ...response, metrics: { tokenEstimate } });
         }
 
-        const data = { roleName: name };
+        const data = { roleName: rawName };
         const response = { success: true, data };
         const tokenEstimate = Math.ceil(
           Buffer.byteLength(JSON.stringify(response), "utf8") / 4,
