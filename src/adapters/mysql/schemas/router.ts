@@ -129,7 +129,7 @@ export const RouterBaseInputSchema = z.object({
   cluster_name: z.unknown().optional(),
   metadataName: z.unknown().optional(),
   poolName: z.unknown().optional(),
-}).strict().transform(() => ({}));
+}).loose().transform(() => ({}));
 
 export const RouteNameInputSchemaBase = z.object({
   routeName: z.unknown().optional().describe("Name of the route to query. Anti-Hallucination Hint: Pass routeName, not route."),
