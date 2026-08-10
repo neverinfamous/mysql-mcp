@@ -75,19 +75,19 @@ const MaskDataSchema = z.preprocess(
 );
 
 const UserPrivilegesSchemaBase = z.object({
-  user: z.string().optional().describe("Filter by username. Required to prevent payload bloat."),
-  userName: z.string().optional().describe("Alias for user"),
-  username: z.string().optional().describe("Alias for user"),
-  name: z.string().optional().describe("Alias for user"),
-  host: z.string().optional().describe("Host pattern"),
-  includeRoles: z.boolean().optional().describe("Include role grants"),
+  user: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Filter by username. Required to prevent payload bloat."),
+  userName: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
+  username: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
+  name: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
+  host: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Host pattern"),
+  includeRoles: z.union([z.boolean(), z.string()]).optional().describe("Include role grants"),
   summary: z
-    .boolean()
+    .union([z.boolean(), z.string()])
     .optional()
     .describe(
       "Return condensed summary (privilege counts) instead of raw GRANT strings",
     ),
-  format: z.string().optional().describe("Alias for summary: 'summary' or 'full'"),
+  format: z.union([z.string(), z.boolean()]).optional().describe("Alias for summary: 'summary' or 'full'"),
 });
 
 const UserPrivilegesSchema = z.preprocess(
@@ -100,6 +100,9 @@ const UserPrivilegesSchema = z.preprocess(
       else if ("username" in obj) user = obj["username"];
       else if ("name" in obj) user = obj["name"];
     }
+    
+    if (Array.isArray(user) && user.length > 0) user = String(user[0]);
+    else if (typeof user === "object" && user !== null) user = JSON.stringify(user);
     
     let summary = obj["summary"];
     if (summary === undefined && "format" in obj) {
@@ -126,19 +129,19 @@ const UserPrivilegesSchema = z.preprocess(
 
 const SensitiveTablesSchemaBase = z.object({
   schema: z
-    .string()
+    .union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
     .optional()
     .describe("Schema to scan. Required to prevent payload bloat."),
-  database: z.string().optional().describe("Alias for schema"),
-  db: z.string().optional().describe("Alias for schema"),
-  table: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
-  tableName: z.string().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  database: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
+  db: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
+  table: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  tableName: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
   patterns: z
-    .array(z.string())
+    .union([z.array(z.string()), z.string()])
     .optional()
     .describe("Column name patterns to consider sensitive"),
   limit: z
-    .number()
+    .union([z.number(), z.string()])
     .optional()
     .describe(
       "Maximum number of tables to return (default: 20). Set higher for full scan.",
@@ -162,7 +165,16 @@ const SensitiveTablesSchema = z
           schema = obj["tableName"];
         }
       }
-      return { ...obj, schema };
+      
+      if (Array.isArray(schema) && schema.length > 0) schema = String(schema[0]);
+      else if (typeof schema === "object" && schema !== null) schema = JSON.stringify(schema);
+      
+      let patterns = obj["patterns"];
+      if (typeof patterns === "string") {
+        patterns = [patterns];
+      }
+      
+      return { ...obj, schema, patterns };
     },
     z.object({
       schema: z.coerce.string().default(""),
