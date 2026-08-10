@@ -119,7 +119,7 @@ async function collectMetrics() {
 
   } catch (err) {
     console.error("Failed to collect metrics from Router:", err);
-    return null;
+    process.exit(1);
   }
 
   for (const m of scopeMetrics) {
@@ -162,6 +162,7 @@ async function exportMetrics(payload) {
     }
   } catch (err) {
     console.error("Failed to export metrics to Datadog:", err.message);
+    process.exit(1);
   }
 }
 
