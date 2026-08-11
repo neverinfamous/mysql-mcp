@@ -31,18 +31,20 @@ import { ExtensionNotAvailableError } from "../../../../types/modules/errors.js"
 // =============================================================================
 
 const PasswordValidateSchemaBase = z.object({
-  password: z.string().describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
-  pass: z.string().optional().describe("Alias for password"),
-  pwd: z.string().optional().describe("Alias for password"),
+  password: z.union([z.string(), z.number()]).describe("Password to validate").optional(), // Making optional in base to support aliases, but it's logically required
+  pass: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
+  pwd: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
 }).strict();
 
 const PasswordValidateSchema = z.object({
-  password: z.string().describe("Password to validate").optional(),
-  pass: z.string().optional().describe("Alias for password"),
-  pwd: z.string().optional().describe("Alias for password"),
+  password: z.union([z.string(), z.number()]).describe("Password to validate").optional(),
+  pass: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
+  pwd: z.union([z.string(), z.number()]).optional().describe("Alias for password"),
 }).strict().transform((obj) => {
   const password = obj.password ?? obj.pass ?? obj.pwd;
-  return { password: password ? password : "" };
+  return { password: password !== undefined && password !== null ? String(password) : "" };
+
+
 }).pipe(
   z.object({
     password: z.string().min(1, "Password cannot be empty")
