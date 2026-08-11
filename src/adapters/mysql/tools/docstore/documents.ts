@@ -142,16 +142,18 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           // adapter will throw ER_NO_SUCH_TABLE mapped to TABLE_NOT_FOUND
 
           const tableRef = escapeTableRef(collection, schema);
-          let inserted = 0;
-          for (const doc of documents) {
+          const placeholders = documents.map(() => "(?)").join(", ");
+          const insertParams = documents.map((doc) => {
             doc["_id"] ??= crypto.randomUUID().replace(/-/g, "");
-            await adapter.executeQuery(
-              `INSERT INTO ${tableRef} (doc) VALUES (?)`,
-              [JSON.stringify(doc)],
-            );
-            inserted++;
-          }
-          return withTokenEstimate({ success: true, data: { inserted } });
+            return JSON.stringify(doc);
+          });
+          
+          const result = await adapter.executeQuery(
+            `INSERT INTO ${tableRef} (doc) VALUES ${placeholders}`,
+            insertParams
+          );
+          
+          return withTokenEstimate({ success: true, data: { inserted: result.rowsAffected ?? documents.length } });
         } catch (error: unknown) {
           if (error instanceof z.ZodError) {
             return formatHandlerErrorResponse(error);
