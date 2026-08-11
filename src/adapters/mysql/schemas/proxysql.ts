@@ -185,6 +185,8 @@ export type ProxySQLProcess = z.infer<typeof ProxySQLProcessSchema>;
 // Tool Input Schemas
 // =============================================================================
 
+export const ProxySQLBaseInputSchemaBase = z.object({}).loose();
+
 export const ProxySQLBaseInputSchema = z.preprocess(
   (val: unknown) => {
     if (typeof val !== "object" || val === null) return val ?? {};

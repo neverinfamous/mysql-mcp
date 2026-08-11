@@ -7,6 +7,7 @@ import {
   ProxySQLStatusInputSchema,
   ProxySQLStatusInputSchemaBase,
   ProxySQLBaseInputSchema,
+  ProxySQLBaseInputSchemaBase,
   ProxySQLStatusOutputSchema,
   ProxySQLRuntimeStatusOutputSchema,
   ProxySQLMemoryStatsOutputSchema,
@@ -180,7 +181,7 @@ export function createProxySQLMemoryStatsTool(): ToolDefinition {
     description:
       "Get ProxySQL memory usage metrics from stats_memory_metrics. Shows memory for SQLite, auth, query digests, and more.",
     group: "proxysql",
-    inputSchema: ProxySQLBaseInputSchema,
+    inputSchema: ProxySQLBaseInputSchemaBase,
     outputSchema: ProxySQLMemoryStatsOutputSchema,
     requiredScopes: ["read"],
     annotations: {
