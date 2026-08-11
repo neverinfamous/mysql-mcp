@@ -555,8 +555,6 @@ export const ProxySQLHostgroupInputSchema = z.preprocess(
     if (typeof hostgroupId === "string") {
       if (hostgroupId.trim() !== "" && !isNaN(Number(hostgroupId))) {
         result["hostgroup_id"] = Number(hostgroupId);
-      } else {
-        delete result["hostgroup_id"];
       }
     }
     return result;
