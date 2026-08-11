@@ -278,7 +278,7 @@ function createBinlogEventsTool(adapter: MySQLAdapter): ToolDefinition {
 
 function createGtidStatusTool(adapter: MySQLAdapter): ToolDefinition {
   const handlerSchema = z.object({}).strict();
-  const inputSchema = z.object({}).describe("Note: This tool takes no parameters.");
+  const inputSchema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_gtid_status",
