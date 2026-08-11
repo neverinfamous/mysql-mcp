@@ -50,7 +50,7 @@ describe("Security Data Protection Tools", () => {
         mockContext,
       )) as { data: { masked: string } };
 
-      expect(result.data.masked).toBe("******4567");
+      expect(result.data.masked).toBe("***-***-4567");
     });
 
     it("should mask partial text", async () => {

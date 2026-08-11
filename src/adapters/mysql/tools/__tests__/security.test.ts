@@ -260,7 +260,7 @@ describe("Security Tools", () => {
 
       // SSN
       const resSSN = (await tool?.handler(
-        { value: "123456789", type: "ssn" },
+        { value: "123-45-6789", type: "ssn" },
         mockContext,
       ));
       expect(resSSN.data.masked).toBe("***-**-6789");
@@ -296,7 +296,7 @@ describe("Security Tools", () => {
         mockContext,
       ));
 
-      expect(result.data.masked).toBe("1234********3456");
+      expect(result.data.masked).toBe("1234-****-****-3456");
     });
 
     it("should fully mask short credit card values with warning", async () => {
