@@ -61,7 +61,8 @@ export function parseDocFilter(filter: string): {
           };
         }
       }
-    } catch {
+    } catch (e) {
+      if (e instanceof ValidationError) throw e;
       // Ignore parse error and fall through
     }
   }
