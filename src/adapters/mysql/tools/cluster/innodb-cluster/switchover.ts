@@ -103,11 +103,18 @@ export function createClusterSwitchoverTool(
           return order[a.suitability] - order[b.suitability];
         });
 
+        const rawPrimary = members.find((m) => m["role"] === "PRIMARY");
+        const currentPrimary = rawPrimary ? {
+          ...rawPrimary,
+          txQueue: Number(rawPrimary["txQueue"] ?? 0),
+          applierQueue: Number(rawPrimary["applierQueue"] ?? 0)
+        } : null;
+
         const firstCandidate = candidates[0];
         const parsed = ClusterSwitchoverOutputSchema.parse({
           success: true,
           data: {
-            currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
+            currentPrimary,
             candidates,
             recommendedTarget:
               candidates.length > 0 &&
