@@ -105,6 +105,10 @@ describe("Sys Schema Resource Tools", () => {
     });
 
     it("should handle null/undefined rows", async () => {
+      // Mock SELECT DATABASE()
+      mockAdapter.executeQuery.mockResolvedValueOnce(
+        createMockQueryResult([{ db: "test_db" }]),
+      );
       mockAdapter.executeQuery.mockResolvedValue({
         fields: [],
         rows: undefined });
