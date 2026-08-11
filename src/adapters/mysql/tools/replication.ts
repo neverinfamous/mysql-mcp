@@ -40,7 +40,7 @@ export function getReplicationTools(adapter: MySQLAdapter): ToolDefinition[] {
 
 function createMasterStatusTool(adapter: MySQLAdapter): ToolDefinition {
   const handlerSchema = z.object({}).strict();
-  const inputSchema = z.object({}).describe("Note: This tool takes no parameters.");
+  const inputSchema = z.object({}).strict().describe("Note: This tool takes no parameters.");
 
   return {
     name: "mysql_master_status",
@@ -102,7 +102,7 @@ function createSlaveStatusTool(adapter: MySQLAdapter): ToolDefinition {
   }).strict();
   const inputSchema = z.object({
     channel: z.string().max(64).optional().describe("Optional replication channel name"),
-  });
+  }).strict();
 
   return {
     name: "mysql_slave_status",
