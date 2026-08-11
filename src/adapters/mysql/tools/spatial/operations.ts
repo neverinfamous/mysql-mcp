@@ -277,12 +277,14 @@ export function createSpatialTransformTool(
         );
 
         const row = result.rows?.[0];
+        const transformedWkt = truncateWktPrecision(row?.["transformed_wkt"]) ?? null;
+        
         return withTokenEstimate({
           success: true,
           data: {
             originalWkt: truncateWktPrecision(geometry),
-            transformedWkt: truncateWktPrecision(row?.["transformed_wkt"]),
-            transformedGeoJson: parseGeoJsonResult(
+            transformedWkt,
+            transformedGeoJson: transformedWkt === null ? null : parseGeoJsonResult(
               row?.["transformed_geojson"],
             ),
             fromSrid,

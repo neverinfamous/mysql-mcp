@@ -137,7 +137,18 @@ export function createSysSchemaStatsTool(
           );
           const rows = dbResult.rows ?? [];
           const dbRow = rows[0];
-          resolvedSchema = typeof dbRow?.["db"] === "string" ? dbRow["db"] : "unknown";
+          
+          if (typeof dbRow?.["db"] !== "string" || dbRow["db"] === "") {
+            return withTokenEstimate({
+              success: false,
+              error: "No database selected and no schema provided. Please specify a schema.",
+              code: "VALIDATION_ERROR",
+              category: "validation",
+              recoverable: true,
+            });
+          }
+          
+          resolvedSchema = dbRow["db"];
         }
 
         // Get table statistics
