@@ -592,11 +592,7 @@ describe("Handler Execution", () => {
 
   describe("mysql_doc_add", () => {
     it("should add documents to collection", async () => {
-      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([]));
-      // First call is existence check — must return a row
-      mockAdapter.executeQuery.mockResolvedValueOnce(
-        createMockQueryResult([{ Field: "doc", Type: "json" }, { Field: "_id", Type: "varchar(32)" }]),
-      );
+      mockAdapter.executeQuery.mockResolvedValue(createMockQueryResult([], 1));
 
       const tool = tools.find((t) => t.name === "mysql_doc_add");
       if (!tool) throw new Error('Tool not found');;
@@ -614,7 +610,7 @@ describe("Handler Execution", () => {
 
     it("should handle multiple documents", async () => {
       mockAdapter.executeQuery
-        .mockResolvedValue(createMockQueryResult([]));
+        .mockResolvedValue(createMockQueryResult([], 3));
 
       const tool = tools.find((t) => t.name === "mysql_doc_add");
       if (!tool) throw new Error('Tool not found');;
@@ -625,7 +621,7 @@ describe("Handler Execution", () => {
         mockContext,
       );
 
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3); // 3 inserts
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(1); // 1 bulk insert
       expect(result).toHaveProperty("data.inserted", 3);
     });
 
