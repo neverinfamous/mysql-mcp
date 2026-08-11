@@ -94,7 +94,7 @@ describe("Handler Execution", () => {
       await tool.handler({ schema: "mydb" }, mockContext);
 
       // First call: schema existence check
-      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(2);
+      expect(mockAdapter.executeQuery).toHaveBeenCalledTimes(3);
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         1,
         "SHOW SCHEMAS LIKE 'mydb'"
@@ -103,6 +103,11 @@ describe("Handler Execution", () => {
       expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining("SHOW TABLE STATUS FROM `mydb`")
+      );
+      // Third call: information_schema columns query
+      expect(mockAdapter.executeQuery).toHaveBeenNthCalledWith(
+        3,
+        expect.stringContaining("SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE FROM information_schema.columns")
       );
     });
 
