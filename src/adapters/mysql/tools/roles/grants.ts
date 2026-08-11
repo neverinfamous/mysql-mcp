@@ -46,7 +46,7 @@ export const RoleGrantPrivilegeSchemaBase = z.object({
   role: z.coerce.string().optional().describe("Role name"),
   name: z.coerce.string().optional().describe("Alias for role"),
   roleName: z.coerce.string().optional().describe("Alias for role"),
-  privileges: z.union([z.coerce.string(), z.array(z.coerce.string())]).optional().describe("Array of privileges to grant"),
+  privileges: z.union([z.array(z.coerce.string()), z.coerce.string()]).optional().describe("Array of privileges to grant"),
   privilege: z.coerce.string().optional().describe("Single privilege to grant"),
   database: z.coerce.string().default("*").describe("Database name or '*'"),
   schema: z.coerce.string().optional().describe("Alias for database"),
