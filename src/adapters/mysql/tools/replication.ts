@@ -332,7 +332,7 @@ function createReplicationLagTool(adapter: MySQLAdapter): ToolDefinition {
   }).strict();
   const inputSchema = z.object({
     channel: z.string().max(64).optional().describe("Optional replication channel name"),
-  });
+  }).strict();
 
   return {
     name: "mysql_replication_lag",
