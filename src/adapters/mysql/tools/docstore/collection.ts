@@ -71,33 +71,50 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
           const tablesResult = await adapter.executeQuery(showTablesQuery);
           const tables = tablesResult.rows ?? [];
           
+          // Optimize: single query to find tables with doc JSON and _id columns
+          const schemaClause = schema ? `TABLE_SCHEMA = '${schema.replace(/'/g, "''")}'` : `TABLE_SCHEMA = DATABASE()`;
+          const infoQuery = `SELECT TABLE_NAME, COLUMN_NAME, DATA_TYPE FROM information_schema.columns WHERE ${schemaClause} AND COLUMN_NAME IN ('doc', '_id')`;
+          
+          let validCollections = new Set<string>();
+          try {
+            const infoResult = await adapter.executeQuery(infoQuery);
+            const tableCols = new Map<string, Set<string>>();
+            for (const row of (infoResult.rows ?? [])) {
+              const tName = row['TABLE_NAME'] as string;
+              const cName = row['COLUMN_NAME'] as string;
+              const dType = typeof row['DATA_TYPE'] === 'string' ? row['DATA_TYPE'].toLowerCase() : '';
+              
+              if (!tableCols.has(tName)) tableCols.set(tName, new Set());
+              const cols = tableCols.get(tName);
+              if (cols) {
+                if (cName === 'doc' && dType === 'json') {
+                  cols.add('doc');
+                }
+                if (cName === '_id') {
+                  cols.add('_id');
+                }
+              }
+            }
+            validCollections = new Set(
+              Array.from(tableCols.entries())
+                   .filter(([, cols]) => cols.has('doc') && cols.has('_id'))
+                   .map(([tName]) => tName)
+            );
+          } catch {
+             // Fallback to empty if information_schema fails
+          }
+          
           const collections: Record<string, unknown>[] = [];
           for (const row of tables) {
             const tableName = row['Name'] as string;
             if (!tableName) continue;
-            const tableRef = escapeTableRef(tableName, schema);
             
-            try {
-              const columnsResult = await adapter.executeQuery(`SHOW COLUMNS FROM ${tableRef}`);
-              let hasDoc = false;
-              let hasId = false;
-              if (columnsResult.rows) {
-                for (const col of columnsResult.rows) {
-                  const field = col['Field'];
-                  const type = typeof col['Type'] === 'string' ? col['Type'].toLowerCase() : '';
-                  if (field === 'doc' && type.includes('json')) hasDoc = true;
-                  if (field === '_id') hasId = true;
-                }
-              }
-              if (hasDoc && hasId) {
-                collections.push({
-                  name: tableName,
-                  comment: row['Comment'] ?? "",
-                  rowCount: Number(row['Rows'] ?? 0)
-                });
-              }
-            } catch {
-               // ignore errors (e.g. view without permissions)
+            if (validCollections.has(tableName)) {
+              collections.push({
+                name: tableName,
+                comment: row['Comment'] ?? "",
+                rowCount: Number(row['Rows'] ?? 0)
+              });
             }
           }
           return withTokenEstimate({
@@ -160,6 +177,11 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             if (check.reason === "schema") {
               return formatHandlerErrorResponse(
                 new Error(`Schema '${check.name}' does not exist`)
+              );
+            }
+            if (check.reason === "not_a_collection") {
+              return formatHandlerErrorResponse(
+                new ValidationError(`Table '${check.name}' already exists but is not a valid document collection`)
               );
             }
           }

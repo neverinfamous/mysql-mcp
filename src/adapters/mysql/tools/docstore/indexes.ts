@@ -67,7 +67,7 @@ export function getTools(adapter: MySQLAdapter): ToolDefinition[] {
             }
             const colName = `_idx_${cleanPath.replace(/\./g, "_")}`;
             const typeUpper = field.type.toUpperCase();
-            const cast = (typeUpper === "TEXT" || typeUpper === "STRING") 
+            const cast = (typeUpper === "TEXT" || typeUpper === "STRING" || typeUpper === "VARCHAR") 
               ? "VARCHAR(255)" 
               : typeUpper.replace(/^(TEXT|STRING)\(/, "VARCHAR(");
             try {
