@@ -75,19 +75,14 @@ const MaskDataSchema = z.preprocess(
 );
 
 const UserPrivilegesSchemaBase = z.object({
-  user: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Filter by username. Required to prevent payload bloat."),
-  userName: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
-  username: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
-  name: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for user"),
-  host: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Host pattern"),
-  includeRoles: z.union([z.boolean(), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Include role grants"),
-  summary: z
-    .union([z.boolean(), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
-    .optional()
-    .describe(
-      "Return condensed summary (privilege counts) instead of raw GRANT strings",
-    ),
-  format: z.union([z.string(), z.boolean(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for summary: 'summary' or 'full'"),
+  user: z.unknown().optional().describe("Filter by username. Required to prevent payload bloat."),
+  userName: z.unknown().optional().describe("Alias for user"),
+  username: z.unknown().optional().describe("Alias for user"),
+  name: z.unknown().optional().describe("Alias for user"),
+  host: z.unknown().optional().describe("Host pattern"),
+  includeRoles: z.unknown().optional().describe("Include role grants"),
+  summary: z.unknown().optional().describe("Return condensed summary (privilege counts) instead of raw GRANT strings"),
+  format: z.unknown().optional().describe("Alias for summary: 'summary' or 'full'"),
 });
 
 const UserPrivilegesSchema = z.preprocess(
@@ -128,24 +123,13 @@ const UserPrivilegesSchema = z.preprocess(
 );
 
 const SensitiveTablesSchemaBase = z.object({
-  schema: z
-    .union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
-    .optional()
-    .describe("Schema to scan. Required to prevent payload bloat."),
-  database: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
-  db: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Alias for schema"),
-  table: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
-  tableName: z.union([z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())]).optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
-  patterns: z
-    .union([z.array(z.string()), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
-    .optional()
-    .describe("Column name patterns to consider sensitive"),
-  limit: z
-    .union([z.number(), z.string(), z.array(z.unknown()), z.record(z.string(), z.unknown())])
-    .optional()
-    .describe(
-      "Maximum number of tables to return (default: 20). Set higher for full scan.",
-    ),
+  schema: z.unknown().optional().describe("Schema to scan. Required to prevent payload bloat."),
+  database: z.unknown().optional().describe("Alias for schema"),
+  db: z.unknown().optional().describe("Alias for schema"),
+  table: z.unknown().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  tableName: z.unknown().optional().describe("Anti-hallucination hint: This scans a schema, not a single table. Alias for schema"),
+  patterns: z.unknown().optional().describe("Column name patterns to consider sensitive"),
+  limit: z.unknown().optional().describe("Maximum number of tables to return (default: 20). Set higher for full scan."),
 });
 
 const SensitiveTablesSchema = z
