@@ -104,26 +104,29 @@ export function createClusterSwitchoverTool(
         });
 
         const firstCandidate = candidates[0];
-        const data = ClusterSwitchoverOutputSchema.parse({
-          currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
-          candidates,
-          recommendedTarget:
-            candidates.length > 0 &&
-            firstCandidate &&
-            firstCandidate.suitability !== "NOT_RECOMMENDED"
-              ? firstCandidate
-              : null,
-          canSwitchover: candidates.some(
-            (c) => c.suitability !== "NOT_RECOMMENDED",
-          ),
-          warning:
-            onlineSecondaries.length === 0
-              ? "No online secondaries available for switchover."
-              : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
-                ? "All secondaries have significant replication lag. Switchover not recommended."
-                : undefined,
+        const parsed = ClusterSwitchoverOutputSchema.parse({
+          success: true,
+          data: {
+            currentPrimary: members.find((m) => m["role"] === "PRIMARY") ?? null,
+            candidates,
+            recommendedTarget:
+              candidates.length > 0 &&
+              firstCandidate &&
+              firstCandidate.suitability !== "NOT_RECOMMENDED"
+                ? firstCandidate
+                : null,
+            canSwitchover: candidates.some(
+              (c) => c.suitability !== "NOT_RECOMMENDED",
+            ),
+            warning:
+              onlineSecondaries.length === 0
+                ? "No online secondaries available for switchover."
+                : candidates.every((c) => c.suitability === "NOT_RECOMMENDED")
+                  ? "All secondaries have significant replication lag. Switchover not recommended."
+                  : undefined,
+          }
         });
-        return withTokenEstimate({ success: true, data });
+        return withTokenEstimate(parsed);
       } catch (error) {
         return formatHandlerErrorResponse(error);
       }

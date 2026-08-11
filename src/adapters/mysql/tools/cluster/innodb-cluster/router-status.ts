@@ -72,12 +72,15 @@ export function createClusterRouterStatusTool(
           }));
           const staleCount = routers.filter((r) => r.isStale).length;
 
-          const data = ClusterRouterStatusOutputSchema.parse({
-            routers,
-            count: routers.length,
-            staleCount,
+          const parsed = ClusterRouterStatusOutputSchema.parse({
+            success: true,
+            data: {
+              routers,
+              count: routers.length,
+              staleCount,
+            }
           });
-          return withTokenEstimate({ success: true, data });
+          return withTokenEstimate(parsed);
         }
 
         // Full mode: include attributes but strip bulky Configuration blob
@@ -113,12 +116,15 @@ export function createClusterRouterStatusTool(
         });
         const staleCount = routers.filter((r) => r.isStale).length;
 
-        const data = ClusterRouterStatusOutputSchema.parse({
-          routers,
-          count: routers.length,
-          staleCount,
+        const parsed = ClusterRouterStatusOutputSchema.parse({
+          success: true,
+          data: {
+            routers,
+            count: routers.length,
+            staleCount,
+          }
         });
-        return withTokenEstimate({ success: true, data });
+        return withTokenEstimate(parsed);
       } catch (error) {
         const baseError = formatMysqlError(error);
         return formatHandlerErrorResponse(
