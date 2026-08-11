@@ -12,13 +12,13 @@ export const ShellDumpInstanceInputSchemaBase = z
     filepath: z.string().optional().describe("Alias for outputDir"),
     dir: z.string().optional().describe("Alias for outputDir"),
     directory: z.string().optional().describe("Alias for outputDir"),
-    threads: z
-      .number()
-      .int()
-      .min(1)
-      .max(128)
-      .optional()
-      .default(4)
+    threads: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(128).optional().default(4))
       .describe("Number of parallel threads"),
     compression: z
       .enum(["none", "zstd", "gzip"])
@@ -92,13 +92,13 @@ export const ShellDumpSchemasInputSchemaBase = z
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
     filepath: z.string().optional().describe("Alias for outputDir"),
-    threads: z
-      .number()
-      .int()
-      .min(1)
-      .max(128)
-      .optional()
-      .default(4)
+    threads: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(128).optional().default(4))
       .describe("Number of parallel threads"),
     compression: z
       .enum(["none", "zstd", "gzip"])
@@ -184,13 +184,13 @@ export const ShellDumpTablesInputSchemaBase = z
     url: z.string().optional().describe("Alias for outputDir"),
     path: z.string().optional().describe("Alias for outputDir"),
     filepath: z.string().optional().describe("Alias for outputDir"),
-    threads: z
-      .number()
-      .int()
-      .min(1)
-      .max(128)
-      .optional()
-      .default(4)
+    threads: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(128).optional().default(4))
       .describe("Number of parallel threads"),
     compression: z
       .enum(["none", "zstd", "gzip"])

@@ -78,7 +78,7 @@ export function createShellDumpInstanceTool(
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
-        if (threads) {
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (compression && compression !== "zstd") {
@@ -245,7 +245,7 @@ export function createShellDumpSchemasTool(
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
-        if (threads) {
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (compression && compression !== "zstd") {
@@ -420,7 +420,7 @@ export function createShellDumpTablesTool(
         const escapedPath = escapeForJS(resolvedPath);
 
         const options: string[] = [];
-        if (threads) {
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (compression && compression !== "zstd") {

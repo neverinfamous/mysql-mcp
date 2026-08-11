@@ -18,19 +18,21 @@ export const ShellImportTableInputSchemaBase = z
     name: z.string().optional().describe("Alias for table"),
     tbl: z.string().optional().describe("Alias for table"),
     table_name: z.string().optional().describe("Alias for table"),
-    threads: z
-      .number()
-      .int()
-      .min(1)
-      .max(128)
-      .optional()
-      .default(4)
+    threads: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(1).max(128).optional().default(4))
       .describe("Number of parallel threads"),
-    skipRows: z
-      .number()
-      .int()
-      .min(0)
-      .optional()
+    skipRows: z.preprocess((val: unknown) => {
+      if (typeof val === "string" && val.trim() !== "") {
+        const parsed = Number(val);
+        if (!isNaN(parsed)) return parsed;
+      }
+      return val;
+    }, z.number().int().min(0).optional())
       .describe("Number of header rows to skip"),
     columns: z
       .array(z.string())

@@ -252,7 +252,7 @@ export function createShellImportTableTool(
           options.push(`schema: ${JSON.stringify(schema)}`);
         }
         options.push(`table: ${JSON.stringify(table)}`);
-        if (threads) {
+        if (threads !== undefined) {
           options.push(`threads: ${threads}`);
         }
         if (skipRows !== undefined) {
