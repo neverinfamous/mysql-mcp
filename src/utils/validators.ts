@@ -125,9 +125,10 @@ export function validateMySQLUserHost(
     throw new ValidationError(`${type} must be a non-empty string`, type);
   }
 
-  if (value.length > 255) {
+  const maxLength = type === "host" ? 255 : 32;
+  if (value.length > maxLength) {
     throw new ValidationError(
-      `${type} exceeds maximum length of 255 characters`,
+      `${type} exceeds maximum length of ${maxLength} characters`,
       type,
     );
   }
