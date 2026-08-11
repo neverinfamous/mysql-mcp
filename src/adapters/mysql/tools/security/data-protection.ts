@@ -268,9 +268,14 @@ export function createSecurityMaskDataTool(
                 }),
               );
             }
-            maskedValue =
-              maskChar.repeat(Math.max(0, digits.length - 4)) +
-              digits.slice(-4);
+            let digitsToMask = digits.length - 4;
+            maskedValue = value.replace(/\d/g, (match) => {
+              if (digitsToMask > 0) {
+                digitsToMask--;
+                return maskChar;
+              }
+              return match;
+            });
             break;
           }
           case "ssn": {
@@ -290,7 +295,14 @@ export function createSecurityMaskDataTool(
                 }),
               );
             }
-            maskedValue = `${maskChar}${maskChar}${maskChar}-${maskChar}${maskChar}-${ssnDigits.slice(-4)}`;
+            let digitsToMask = ssnDigits.length - 4;
+            maskedValue = value.replace(/\d/g, (match) => {
+              if (digitsToMask > 0) {
+                digitsToMask--;
+                return maskChar;
+              }
+              return match;
+            });
             break;
           }
           case "credit_card": {
@@ -310,10 +322,19 @@ export function createSecurityMaskDataTool(
                 }),
               );
             }
-            maskedValue =
-              ccDigits.slice(0, 4) +
-              maskChar.repeat(Math.max(0, ccDigits.length - 8)) +
-              ccDigits.slice(-4);
+            let firstKept = 0;
+            let digitsToMask = ccDigits.length - 8;
+            maskedValue = value.replace(/\d/g, (match) => {
+              if (firstKept < 4) {
+                firstKept++;
+                return match;
+              }
+              if (digitsToMask > 0) {
+                digitsToMask--;
+                return maskChar;
+              }
+              return match;
+            });
             break;
           }
           case "partial": {
